@@ -1094,7 +1094,7 @@ components:
         deltakere:
           type: array
           items:
-            $ref: "#/components/schemas/ArrangorflateTilsagnDto.DeltakerPersonalia"
+            $ref: "#/components/schemas/ArrangorflatePersonalia"
       required:
       - arrangor
       - beregning
@@ -1221,20 +1221,18 @@ components:
       required:
       - entries
       - header
-    ArrangorflateTilsagnDto.DeltakerPersonalia:
+    ArrangorflatePersonalia:
       type: object
       properties:
-        deltakerId:
-          type: string
-          format: uuid
         norskIdent:
           type:
           - "null"
           - string
         navn:
-          type: string
+          type:
+          - "null"
+          - string
       required:
-      - deltakerId
       - navn
       - norskIdent
     DatoVelger:

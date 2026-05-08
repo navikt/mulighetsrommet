@@ -21,15 +21,10 @@ export function VelgDeltakere({ gjennomforingId }: Props) {
     formState: { errors },
   } = useFormContext<TilsagnRequest>();
 
-  const periodeStart = watch("periodeStart");
-  const periodeSlutt = watch("periodeSlutt");
-
   const {
     data: { tilsagnPerDeltaker, deltakere },
   } = useTilsagnValgbareDeltakere({
     gjennomforingId,
-    periodeStart,
-    periodeSlutt,
   });
 
   if (!tilsagnPerDeltaker) {

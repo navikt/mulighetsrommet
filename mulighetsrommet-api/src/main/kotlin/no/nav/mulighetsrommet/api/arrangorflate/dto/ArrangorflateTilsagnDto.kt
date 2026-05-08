@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.dto
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflatePersonalia
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
@@ -12,7 +13,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.LabeledDataElement
-import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -33,18 +33,11 @@ data class ArrangorflateTilsagnDto(
     val beregning: DataDetails,
     val bestillingsnummer: String,
     val beskrivelse: String?,
-    val deltakere: List<DeltakerPersonalia>,
+    val deltakere: List<ArrangorflatePersonalia>,
 ) {
-    @Serializable
-    data class DeltakerPersonalia(
-        @Serializable(with = UUIDSerializer::class)
-        val deltakerId: UUID,
-        val norskIdent: NorskIdent?,
-        val navn: String,
-    )
 
     companion object {
-        fun from(tilsagn: Tilsagn, deltakere: List<DeltakerPersonalia>) = ArrangorflateTilsagnDto(
+        fun from(tilsagn: Tilsagn, deltakere: List<ArrangorflatePersonalia>) = ArrangorflateTilsagnDto(
             id = tilsagn.id,
             gjennomforing = ArrangorflateGjennomforingDto(
                 id = tilsagn.gjennomforing.id,

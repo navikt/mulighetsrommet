@@ -1,4 +1,4 @@
-import { DataDrivenTable, getDataElement } from "@mr/frontend-common";
+import { getDataElement } from "@mr/frontend-common";
 import { MetadataHStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { CopyButton, Heading, VStack } from "@navikt/ds-react";
@@ -7,6 +7,7 @@ import {
   UtbetalingBeregningDto,
   ValutaBelop,
 } from "@tiltaksadministrasjon/api-client";
+import { BeregningDeltakereTable } from "./BeregningDeltakerTable";
 
 interface Props {
   beregning: UtbetalingBeregningDto;
@@ -15,7 +16,9 @@ interface Props {
 export default function UtbetalingBeregning({ beregning }: Props) {
   return (
     <VStack gap="space-16" className="max-h-150 overflow-y-auto">
-      {beregning.deltakerTableData && <DataDrivenTable data={beregning.deltakerTableData} />}
+      {beregning.deltakere.length > 0 && (
+        <BeregningDeltakereTable type={beregning.type} deltakere={beregning.deltakere} />
+      )}
       <SatsPerioderOgBelop satsDetaljer={beregning.satsDetaljer} pris={beregning.pris} />
     </VStack>
   );

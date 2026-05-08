@@ -36,7 +36,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaMedGeografiskEnhet
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
@@ -47,6 +47,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
@@ -302,21 +303,22 @@ fun Route.utbetalingRoutes() {
                     val utbetaling = queries.utbetaling.getOrError(id)
                     val deltakelser = utbetaling.beregning.deltakelsePerioder().associateBy { it.deltakelseId }
 
-                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                    val personalia = personaliaService.getPersonalia(
                         deltakelser.keys.toList(),
-                        call.getAccessType(),
+                        PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
                     )
 
-                    val enheter = personalia.flatMapTo(mutableSetOf()) {
+                    val enheter = personalia.flatMap {
                         listOfNotNull(
-                            it.value.oppfolgingEnhet,
-                            it.value.region,
+                            it.oppfolgingEnhet(),
+                            it.region(),
                         )
                     }
                     val kontorstruktur = Kontorstruktur.fromNavEnheter(enheter.toList())
 
                     val deltakelsePersoner = personalia
-                        .filter { filter.navEnheter.isEmpty() || it.value.oppfolgingEnhet?.enhetsnummer in filter.navEnheter }
+                        .filter { filter.navEnheter.isEmpty() || it.oppfolgingEnhet()?.enhetsnummer in filter.navEnheter }
+                        .associateBy { it.deltakerId }
 
                     val advarsler = utbetalingService.getAdvarsler(utbetaling)
 
@@ -326,7 +328,7 @@ fun Route.utbetalingRoutes() {
                         kontorstruktur,
                         utbetalingPeriode = utbetaling.periode,
                         advarsler = advarsler.map { advarsel ->
-                            DeltakerAdvarselDto.from(advarsel, deltakelsePersoner[advarsel.deltakerId]?.navn)
+                            DeltakerAdvarselDto.from(advarsel, deltakelsePersoner[advarsel.deltakerId]?.navn())
                         },
                     )
                 }
@@ -355,6 +357,7 @@ fun Route.utbetalingRoutes() {
             }) {
                 val id: UUID by call.parameters
                 val navIdent = getNavIdent()
+                val onBehalfOf = PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd())
 
                 val utbetalingsLinjer = db.session {
                     val utbetaling = queries.utbetaling.getOrError(id)
@@ -367,19 +370,20 @@ fun Route.utbetalingRoutes() {
                         val opprettelse = queries.totrinnskontroll
                             .getOrError(linje.id, Totrinnskontroll.Type.OPPRETT)
 
-                        val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                        val personalia = personaliaService.getPersonalia(
                             tilsagn.deltakere.map { it.deltakerId },
-                            call.getAccessType(),
+                            onBehalfOf,
                         )
                         val deltakere = tilsagn.deltakere.map {
-                            TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
+                            TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))
                         }
                         UtbetalingLinje(
                             id = linje.id,
                             gjorOppTilsagn = linje.gjorOppTilsagn,
                             pris = linje.pris,
                             status = UtbetalingLinjeStatusDto.fromUtbetalingLinjeStatus(linje.status),
-                            tilsagn = TilsagnDto.from(tilsagn, deltakere),
+                            tilsagn = TilsagnDto.from(tilsagn),
+                            deltakere = deltakere,
                             opprettelse = opprettelse.toDto(),
                             handlinger = UtbetalingService.linjeHandlinger(
                                 linje,
@@ -401,17 +405,18 @@ fun Route.utbetalingRoutes() {
                         .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
                         .map { tilsagn ->
                             val deltakerIds = tilsagn.deltakere.map { it.deltakerId }
-                            val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                            val personalia = personaliaService.getPersonalia(
                                 deltakerIds,
-                                call.getAccessType(),
+                                onBehalfOf,
                             )
                             val deltakere = tilsagn.deltakere.map {
-                                TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
+                                TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))
                             }
 
                             UtbetalingLinje(
                                 id = UUID.randomUUID(),
-                                tilsagn = TilsagnDto.from(tilsagn, deltakere),
+                                tilsagn = TilsagnDto.from(tilsagn),
+                                deltakere = deltakere,
                                 status = null,
                                 pris = 0.withValuta(utbetaling.valuta),
                                 gjorOppTilsagn = false,
@@ -583,6 +588,6 @@ fun RoutingContext.getBeregningFilter() = BeregningFilter(
 )
 
 data class UtbetalingBeregningDeltaker(
-    val personalia: PersonaliaMedGeografiskEnhet,
+    val personalia: Personalia,
     val deltakelse: UtbetalingBeregningOutputDeltakelse,
 )

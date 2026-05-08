@@ -17,6 +17,9 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFil
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
+import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -38,6 +41,17 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         startDato = LocalDate.of(2025, 1, 1),
         sluttDato = LocalDate.of(2025, 2, 1),
         statusType = DeltakerStatusType.DELTAR,
+    )
+
+    val personalia = Personalia(
+        deltakerId = deltaker.id,
+        norskIdent = NorskIdent("12345678901"),
+        navn = "navn",
+        oppfolgingEnhet = null,
+        geografiskEnhet = null,
+        region = null,
+        gradering = Gradering.STRENGT_FORTROLIG_ADRESSE,
+        avvistGrunn = AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -76,6 +90,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
     }
 
     context("getGjennomforingDetaljerDto") {
+        coEvery { personaliaService.getPersonalia(any<UUID>(), any()) } returns personalia
+
         test("returnerer detaljer for en gruppetiltak-gjennomføring (AVTALE)") {
             val service = createService()
 
@@ -90,7 +106,6 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         }
 
         test("returnerer detaljer for en enkeltplass-gjennomføring") {
-            coEvery { personaliaService.getPersonalia(any(), any()) } returns emptyMap()
             val service = createService()
 
             val dto = service.getGjennomforingDetaljerDto(

@@ -7,7 +7,6 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
-import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
@@ -22,6 +21,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDelt
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -283,46 +283,56 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         blokkeringer = emptySet(),
     )
 
-    val personalia = mapOf(
-        deltaker1Id to Personalia(
+    val personalia = listOf(
+        Personalia(
+            deltaker1Id,
             navn = "Ola Skjermet",
             norskIdent = NorskIdent("01010199999"),
-            erSkjermet = true,
             oppfolgingEnhet = null,
-            adressebeskyttelse = PdlGradering.UGRADERT,
-            harTilgang = true,
+            geografiskEnhet = null,
+            gradering = Gradering.SKJERMING,
+            region = null,
+            avvistGrunn = null,
         ),
-        deltaker2Id to Personalia(
+        Personalia(
+            deltaker2Id,
             navn = "Ola Nordmann",
             norskIdent = NorskIdent("01010199999"),
-            erSkjermet = false,
             oppfolgingEnhet = null,
-            adressebeskyttelse = PdlGradering.UGRADERT,
-            harTilgang = true,
+            gradering = Gradering.UGRADERT,
+            geografiskEnhet = null,
+            avvistGrunn = null,
+            region = null,
         ),
-        deltaker3Id to Personalia(
+        Personalia(
+            deltaker3Id,
             navn = "Kari Nordmann",
             norskIdent = NorskIdent("01010199998"),
-            erSkjermet = false,
             oppfolgingEnhet = null,
-            adressebeskyttelse = PdlGradering.FORTROLIG,
-            harTilgang = true,
+            gradering = Gradering.FORTROLIG_ADRESSE,
+            geografiskEnhet = null,
+            region = null,
+            avvistGrunn = null,
         ),
-        deltaker4Id to Personalia(
+        Personalia(
+            deltaker4Id,
             navn = "Kari Nordmann",
-            norskIdent = NorskIdent("01010199997"),
-            erSkjermet = false,
+            norskIdent = NorskIdent("01010199998"),
             oppfolgingEnhet = null,
-            adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG,
-            harTilgang = true,
+            gradering = Gradering.STRENGT_FORTROLIG_ADRESSE,
+            geografiskEnhet = null,
+            region = null,
+            avvistGrunn = null,
         ),
-        deltaker5Id to Personalia(
-            navn = "Carrie Northfolk",
-            norskIdent = NorskIdent("01010199996"),
-            erSkjermet = false,
+        Personalia(
+            deltaker5Id,
+            navn = "Kari Nordmann",
+            norskIdent = NorskIdent("01010199998"),
             oppfolgingEnhet = null,
-            adressebeskyttelse = PdlGradering.STRENGT_FORTROLIG_UTLAND,
-            harTilgang = true,
+            gradering = Gradering.STRENGT_FORTROLIG_UTLAND,
+            geografiskEnhet = null,
+            region = null,
+            avvistGrunn = null,
         ),
     )
 

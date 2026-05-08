@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.api
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
@@ -35,6 +36,8 @@ import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
 
@@ -88,6 +91,11 @@ class TilsagnRoutesTest : FunSpec({
 
     fun appConfig() = createTestApplicationConfig().copy(
         auth = createAuthConfig(oauth, roles = setOf(okonomiLesRolle, generellRolle)),
+        engine = createMockEngine {
+            get("/norg2/norg2/api/v1/enhet/navkontor/030102") {
+                respond("", HttpStatusCode.NotFound)
+            }
+        },
         tilgangsmaskin = createTestApplicationConfig().tilgangsmaskin.copy(
             engine = MockEngine { request ->
                 if (request.url.toString().endsWith("/api/v1/bulk/obo")) {
@@ -98,6 +106,14 @@ class TilsagnRoutesTest : FunSpec({
                             TilgangsmaskinResponse.Resultat(
                                 brukerId = req.brukerId,
                                 status = 403,
+                                detaljer = object : ProblemDetail() {
+                                    override val type = ""
+                                    override val title = "AVVIST_SKJERMING"
+                                    override val status = 403
+                                    override val detail = ""
+                                    override val instance = null
+                                    override val extensions = null
+                                },
                             )
                         },
                     )
@@ -123,10 +139,10 @@ class TilsagnRoutesTest : FunSpec({
 
             response.status shouldBe HttpStatusCode.OK
             val body = response.body<TilsagnDetaljerDto>()
-            body.tilsagn.deltakere.first { it.deltakerId == deltaker.id } should {
+            body.deltakere.first { it.deltakerId == deltaker.id } should {
                 it.norskIdent.shouldBeNull()
                 it.navn shouldBe "Skjermet"
-                it.innholdAnnet.shouldBeNull()
+                it.innholdAnnet.shouldNotBeNull()
             }
         }
     }

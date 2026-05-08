@@ -11,6 +11,7 @@ data class TilsagnDetaljerDto(
     val annullering: TotrinnskontrollDto?,
     val tilOppgjor: TotrinnskontrollDto?,
     val handlinger: Set<TilsagnHandling>,
+    val deltakere: List<TilsagnDeltakerDto>,
 )
 
 @Serializable

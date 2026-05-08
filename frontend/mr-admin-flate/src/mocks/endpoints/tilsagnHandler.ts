@@ -60,6 +60,7 @@ export const tilsagnHandlers = [
         annullering: null,
         tilOppgjor: null,
         handlinger: [],
+        deltakere: [],
       });
     },
   ),

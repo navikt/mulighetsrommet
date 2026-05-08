@@ -336,9 +336,9 @@ const mayRainVTATilsagnGodkjent: ArrangorflateTilsagnDto = {
   bestillingsnummer: "A-2025/11398-1",
   beskrivelse: null,
   deltakere: [
-    { navn: "Pål Thomas", norskIdent: "111199999", deltakerId: "1" },
-    { navn: "Geir Marie", norskIdent: "111199999", deltakerId: "2" },
-    { navn: "Lise Sotomayor", norskIdent: "111200000", deltakerId: "3" },
+    { navn: "Pål Thomas", norskIdent: "111199999" },
+    { navn: "Geir Marie", norskIdent: "111199999" },
+    { navn: "Lise Sotomayor", norskIdent: "111200000" },
   ],
 };
 

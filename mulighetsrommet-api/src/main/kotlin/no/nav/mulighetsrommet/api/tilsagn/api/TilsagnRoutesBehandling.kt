@@ -12,7 +12,6 @@ import io.ktor.server.util.getOrFail
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -54,16 +53,7 @@ fun Route.tilsagnRoutesBehandling() {
 
             val result = service.upsert(request, navIdent)
                 .mapLeft { ValidationError(errors = it) }
-                .map {
-                    val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
-                        it.deltakere.map { it.deltakerId },
-                        call.getAccessType(),
-                    )
-                    val tilsagnDeltakere = it.deltakere.map {
-                        TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
-                    }
-                    TilsagnDto.from(it, tilsagnDeltakere)
-                }
+                .map { TilsagnDto.from(it) }
 
             call.respondWithStatusResponse(result)
         }

@@ -6,12 +6,15 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
-import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaMedGeografiskEnhet
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
@@ -28,10 +31,9 @@ data class TilsagnDto(
     val status: TilsagnStatusDto,
     val kommentar: String?,
     val beskrivelse: String?,
-    val deltakere: List<TilsagnDeltakerDto>,
 ) {
     companion object {
-        fun from(tilsagn: Tilsagn, deltakere: List<TilsagnDeltakerDto>) = TilsagnDto(
+        fun from(tilsagn: Tilsagn) = TilsagnDto(
             id = tilsagn.id,
             type = tilsagn.type,
             periode = tilsagn.periode,
@@ -43,7 +45,6 @@ data class TilsagnDto(
             status = TilsagnStatusDto(tilsagn.status),
             kommentar = tilsagn.kommentar,
             beskrivelse = tilsagn.beskrivelse,
-            deltakere = deltakere,
         )
     }
 }
@@ -60,34 +61,45 @@ data class TilsagnDeltakerDto(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
     val norskIdent: NorskIdent?,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
     val navn: String,
     val oppfolgingEnhet: NavEnhetDto?,
     val geografiskEnhet: NavEnhetDto?,
     val innholdAnnet: String?,
     val status: DataElement.Status,
+    val gradering: Gradering,
 ) {
     companion object {
         fun from(
             deltaker: Tilsagn.Deltaker,
-            personalia: PersonaliaMedGeografiskEnhet?,
+            personalia: Personalia,
         ) = TilsagnDeltakerDto(
             deltakerId = deltaker.deltakerId,
-            norskIdent = personalia?.norskIdent,
-            navn = personalia?.navn ?: "Ukjent",
-            oppfolgingEnhet = personalia?.oppfolgingEnhet,
-            geografiskEnhet = personalia?.geografiskEnhet,
-            innholdAnnet = if (personalia?.harTilgang ?: false) deltaker.innholdAnnet else null,
+            norskIdent = personalia.norskIdent(),
+            navn = personalia.navn(),
+            oppfolgingEnhet = personalia.oppfolgingEnhet(),
+            geografiskEnhet = personalia.geografiskEnhet(),
+            innholdAnnet = deltaker.innholdAnnet,
             status = deltaker.status.toDataElement(),
+            gradering = personalia.gradering,
+            startDato = deltaker.startDato,
+            sluttDato = deltaker.sluttDato,
         )
 
-        fun from(deltaker: Deltaker, personalia: PersonaliaMedGeografiskEnhet?) = TilsagnDeltakerDto(
+        fun from(deltaker: Deltaker, personalia: Personalia) = TilsagnDeltakerDto(
             deltakerId = deltaker.id,
-            norskIdent = personalia?.norskIdent,
-            navn = personalia?.navn ?: "Ukjent",
-            oppfolgingEnhet = personalia?.oppfolgingEnhet,
-            geografiskEnhet = personalia?.geografiskEnhet,
-            innholdAnnet = if (personalia?.harTilgang ?: false) deltaker.innholdAnnet else null,
+            norskIdent = personalia.norskIdent(),
+            navn = personalia.navn(),
+            oppfolgingEnhet = personalia.oppfolgingEnhet(),
+            geografiskEnhet = personalia.geografiskEnhet(),
+            innholdAnnet = deltaker.innholdAnnet,
             status = deltaker.status.type.toDataElement(),
+            gradering = personalia.gradering,
+            startDato = deltaker.startDato,
+            sluttDato = deltaker.sluttDato,
         )
     }
 }

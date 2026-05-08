@@ -5661,7 +5661,12 @@ components:
           type:
           - "null"
           - string
+        avvistGrunn:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/AvvistGrunn"
       required:
+      - avvistGrunn
       - id
       - innholdAnnet
       - navn
@@ -5719,6 +5724,16 @@ components:
       - TILLIT
       - UTLAND
       - YTA
+    AvvistGrunn:
+      type: string
+      enum:
+      - AVVIST_STRENGT_FORTROLIG_ADRESSE
+      - AVVIST_STRENGT_FORTROLIG_UTLAND
+      - AVVIST_FORTROLIG_ADRESSE
+      - AVVIST_SKJERMING
+      - AVVIST_HABILITET
+      - AVVIST_VERGE
+      - AVVIST_GEOGRAFISK
     GjennomforingDetaljerDto:
       type: object
       properties:
@@ -6405,16 +6420,11 @@ components:
           type:
           - "null"
           - string
-        deltakere:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnDeltakerDto"
       required:
       - belopBrukt
       - belopGjenstaende
       - beskrivelse
       - bestillingsnummer
-      - deltakere
       - id
       - kommentar
       - kostnadssted
@@ -6460,40 +6470,6 @@ components:
       required:
       - status
       - type
-    TilsagnDeltakerDto:
-      type: object
-      properties:
-        deltakerId:
-          type: string
-          format: uuid
-        norskIdent:
-          type:
-          - "null"
-          - string
-        navn:
-          type: string
-        oppfolgingEnhet:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/NavEnhetDto"
-        geografiskEnhet:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/NavEnhetDto"
-        innholdAnnet:
-          type:
-          - "null"
-          - string
-        status:
-          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
-      required:
-      - deltakerId
-      - geografiskEnhet
-      - innholdAnnet
-      - navn
-      - norskIdent
-      - oppfolgingEnhet
-      - status
     TilsagnBeregningDto:
       type: object
       properties:
@@ -6570,6 +6546,63 @@ components:
       - GODKJENN_ANNULLERING
       - AVSLA_OPPGJOR
       - GODKJENN_OPPGJOR
+    TilsagnDeltakerDto:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+        norskIdent:
+          type:
+          - "null"
+          - string
+        startDato:
+          type:
+          - "null"
+          - string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        navn:
+          type: string
+        oppfolgingEnhet:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/NavEnhetDto"
+        geografiskEnhet:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/NavEnhetDto"
+        innholdAnnet:
+          type:
+          - "null"
+          - string
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+        gradering:
+          $ref: "#/components/schemas/Gradering"
+      required:
+      - deltakerId
+      - geografiskEnhet
+      - gradering
+      - innholdAnnet
+      - navn
+      - norskIdent
+      - oppfolgingEnhet
+      - sluttDato
+      - startDato
+      - status
+    Gradering:
+      type: string
+      enum:
+      - STRENGT_FORTROLIG_ADRESSE
+      - STRENGT_FORTROLIG_UTLAND
+      - FORTROLIG_ADRESSE
+      - SKJERMING
+      - UGRADERT
     TilsagnDetaljerDto:
       type: object
       properties:
@@ -6592,9 +6625,14 @@ components:
           items:
             $ref: "#/components/schemas/TilsagnHandling"
           uniqueItems: true
+        deltakere:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnDeltakerDto"
       required:
       - annullering
       - beregning
+      - deltakere
       - handlinger
       - opprettelse
       - tilOppgjor
@@ -6764,18 +6802,8 @@ components:
         gjennomforingId:
           type: string
           format: uuid
-        periodeStart:
-          type:
-          - "null"
-          - string
-        periodeSlutt:
-          type:
-          - "null"
-          - string
       required:
       - gjennomforingId
-      - periodeSlutt
-      - periodeStart
     TilsagnDeltakereResponse:
       type: object
       properties:
@@ -7103,6 +7131,61 @@ components:
       required:
       - handlinger
       - utbetaling
+    UtbetalingBeregningType:
+      type: string
+      enum:
+      - FRI
+      - FAST_SATS_PER_TILTAKSPLASS_PER_MANED
+      - PRIS_PER_MANEDSVERK
+      - PRIS_PER_UKESVERK
+      - PRIS_PER_HELE_UKESVERK
+      - PRIS_PER_TIME_OPPFOLGING
+    BeregningDeltakerDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        norskIdent:
+          type:
+          - "null"
+          - string
+        gradering:
+          $ref: "#/components/schemas/Gradering"
+        faktor:
+          type:
+          - "null"
+          - number
+          format: double
+        belop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
+        geografiskEnhet:
+          type:
+          - "null"
+          - string
+        oppfolgingEnhet:
+          type:
+          - "null"
+          - string
+        region:
+          type:
+          - "null"
+          - string
+        content:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TimelineDto"
+      required:
+      - belop
+      - content
+      - faktor
+      - geografiskEnhet
+      - gradering
+      - navn
+      - norskIdent
+      - oppfolgingEnhet
+      - region
     DeltakerAdvarselDto:
       type: object
       properties:
@@ -7125,16 +7208,18 @@ components:
     UtbetalingBeregningDto:
       type: object
       properties:
+        type:
+          $ref: "#/components/schemas/UtbetalingBeregningType"
         heading:
           type: string
         deltakerRegioner:
           type: array
           items:
             $ref: "#/components/schemas/Kontorstruktur"
-        deltakerTableData:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DataDrivenTableDto"
+        deltakere:
+          type: array
+          items:
+            $ref: "#/components/schemas/BeregningDeltakerDto"
         pris:
           $ref: "#/components/schemas/ValutaBelop"
         satsDetaljer:
@@ -7148,10 +7233,11 @@ components:
       required:
       - advarsler
       - deltakerRegioner
-      - deltakerTableData
+      - deltakere
       - heading
       - pris
       - satsDetaljer
+      - type
     UtbetalingLinje:
       type: object
       properties:
@@ -7177,7 +7263,12 @@ components:
           items:
             $ref: "#/components/schemas/UtbetalingLinjeHandling"
           uniqueItems: true
+        deltakere:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnDeltakerDto"
       required:
+      - deltakere
       - gjorOppTilsagn
       - handlinger
       - id

@@ -39,7 +39,7 @@ export default function UtbetalingBeregningView({ beregning, utbetalingId }: Pro
             <VStack gap="space-8">
               <UtbetalingBeregning beregning={beregning} />
               <HStack justify="start" align="start">
-                {beregning.deltakerTableData && (
+                {beregning.deltakere.length > 0 && (
                   <Button
                     variant="secondary"
                     size="small"

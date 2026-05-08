@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -56,20 +57,21 @@ fun Route.tilsagnRoutesGet() {
                 val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.toDto()
                 val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.toDto()
 
-                val personalia = personaliaService.getPersonaliaMedGeografiskEnhet(
+                val personalia = personaliaService.getPersonalia(
                     tilsagn.deltakere.map { it.deltakerId },
-                    call.getAccessType(),
+                    PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
                 )
                 val deltakere = tilsagn.deltakere.map {
-                    TilsagnDeltakerDto.from(it, personalia[it.deltakerId])
+                    TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))
                 }
                 TilsagnDetaljerDto(
-                    tilsagn = TilsagnDto.from(tilsagn, deltakere),
+                    tilsagn = TilsagnDto.from(tilsagn),
                     beregning = TilsagnBeregningDto.from(tilsagn.beregning),
                     opprettelse = opprettelse,
                     annullering = annullering,
                     tilOppgjor = tilOppgjor,
                     handlinger = service.handlinger(tilsagn, ansatt),
+                    deltakere = deltakere,
                 )
             }
 

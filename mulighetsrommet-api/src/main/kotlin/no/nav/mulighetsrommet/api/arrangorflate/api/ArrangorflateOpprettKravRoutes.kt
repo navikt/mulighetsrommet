@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateGjennomforingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
-import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflatePersonalia
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingValidator
@@ -41,7 +40,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDeta
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonCells
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonColumns
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -52,6 +50,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
@@ -71,7 +71,6 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tokenprovider.requireTokenX
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -82,6 +81,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
     val arrangorflateUtbetalingService: ArrangorflateUtbetalingService by inject()
     val arrangorflateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
+    val personaliaService: PersonaliaService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
 
     fun requireGjennomforingTilArrangor(
@@ -182,7 +182,6 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
             val tiltak = requireArrangorflateTiltak()
 
             val stegListe = getVeiviserSteg(tiltak)
-            val accessType = call.getAccessType().requireTokenX()
 
             val tilsagnstyper = if (tiltak.prismodell.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
                 listOf(TilsagnType.INVESTERING)
@@ -201,7 +200,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
                     .map {
                         ArrangorflateTilsagnDto.from(
                             it,
-                            arrangorflateService.getTilsagnDeltakerPersonalia(it.deltakere, accessType),
+                            arrangorflateService.getPersonalia(it.deltakere.map { it.deltakerId }),
                         )
                     }
             }
@@ -261,11 +260,10 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
             val avtaltPrisPerTimeOppfolgingPerDeltaker = arrangorflateUtbetalingService
                 .getAvtaltPrisPerTimeOppfolgingData(tiltak.id, periode)
 
-            val obo = call.getAccessType().requireTokenX()
-            val personalia = arrangorflateService.getPersonalia(
+            val personalia = personaliaService.getPersonalia(
                 avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.map { it.deltakelseId },
-                obo,
-            )
+                PersonaliaService.OnBehalfOf.Arrangor,
+            ).associateBy { it.deltakerId }
 
             call.respond(
                 OpprettKravDeltakere.from(
@@ -546,7 +544,7 @@ data class OpprettKravDeltakere(
             stengtHosArrangor: Set<StengtPeriode>,
             deltakere: List<Deltaker>,
             deltakelsePerioder: List<DeltakelsePeriode>,
-            personalia: Map<UUID, ArrangorflatePersonalia>,
+            personalia: Map<UUID, Personalia>,
         ): OpprettKravDeltakere {
             return OpprettKravDeltakere(
                 guidePanel = GuidePanelType.from(tiltak.prismodell.type),

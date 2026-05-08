@@ -90,10 +90,7 @@ class JournalforEnkeltplassTilsagnsbrev(
             0 -> return@transaction Either.Left("Fant ingen deltaker for enkeltplas ${enkeltplass.id}")
             else -> return@transaction Either.Left("Fant ${deltakere.size} deltakere for enkeltplass ${enkeltplass.id}")
         }
-        val personalia = personaliaService.getPersonalia(listOf(deltaker.id), AccessType.M2M)
-            .getOrElse(deltaker.id) {
-                return@transaction Either.Left("Kunne ikke hente personalia fra amt-deltaker med id: ${deltaker.id}")
-            }
+        val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
         val arrangor = queries.arrangor.get(tilsagn.arrangor.organisasjonsnummer)
             ?: return@transaction Either.Left("Fant ikke arrangør med organisasjonsnummer ${tilsagn.arrangor.organisasjonsnummer}")
 
@@ -110,7 +107,7 @@ class JournalforEnkeltplassTilsagnsbrev(
                 val journalpost = tilsagnJournalpost(
                     pdf = pdf,
                     tilsagnId = tilsagn.id,
-                    deltaker = requireNotNull(personalia.norskIdent),
+                    deltaker = requireNotNull(personalia.norskIdent()),
                     arrangor = arrangor,
                     fagsakId = fagsakId,
                 )

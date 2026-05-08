@@ -4,22 +4,27 @@ import arrow.core.getOrElse
 import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.NorgError
 import no.nav.mulighetsrommet.api.clients.pdl.GeografiskTilknytning
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResult
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
+import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
+import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn.AVVIST_SKJERMING
+import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE
+import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn.AVVIST_STRENGT_FORTROLIG_UTLAND
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
-import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class PersonaliaService(
@@ -29,12 +34,22 @@ class PersonaliaService(
     private val tilgangsmaskinClient: TilgangsmaskinClient,
     private val navEnhetService: NavEnhetService,
 ) {
-    private val log = LoggerFactory.getLogger(javaClass)
+    sealed class OnBehalfOf {
+        data object Arrangor : OnBehalfOf()
+        data class NavAnsatt(val token: AccessType.OBO.AzureAd) : OnBehalfOf()
+        data object System : OnBehalfOf()
+    }
+
+    suspend fun getPersonalia(
+        deltakerId: UUID,
+        onBehalfOf: OnBehalfOf,
+    ): Personalia = getPersonalia(listOf(deltakerId), onBehalfOf).find { it.deltakerId == deltakerId }
+        ?: throw IllegalArgumentException("Kunne ikke hente personalia fra amt-deltaker med id: $deltakerId")
 
     suspend fun getPersonalia(
         deltakerIds: List<UUID>,
-        accessType: AccessType,
-    ): Map<UUID, Personalia> {
+        onBehalfOf: OnBehalfOf,
+    ): List<Personalia> {
         val amtPersonalia = amtDeltakerClient.hentPersonalia(deltakerIds)
             .getOrElse {
                 throw StatusException(
@@ -42,113 +57,87 @@ class PersonaliaService(
                     detail = "Klarte ikke hente personalia fra amt-deltaker error: $it",
                 )
             }
+        val pdlData = getPersonerMedGeografiskEnhet(amtPersonalia.map { it.norskIdent })
 
-        val tilgangerByDeltakerId: Map<UUID, Boolean> = when (accessType) {
-            is AccessType.OBO.AzureAd -> {
+        val tilgangerByDeltakerId = tilgangTilPerson(amtPersonalia, onBehalfOf)
+
+        return amtPersonalia.map { p ->
+            val norskIdent = p.norskIdent
+
+            val geografiskEnhet = pdlData[norskIdent]?.second?.navEnhetNummer()?.let {
+                navEnhetService.hentEnhet(it)
+            }
+            val oppfolgingEnhet = p.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) }
+            val region = oppfolgingEnhet?.overordnetEnhet?.let {
+                navEnhetService.hentEnhet(it)
+            }
+            val avvistGrunn = tilgangerByDeltakerId[p.deltakerId]
+
+            val erSkjermet = p.erSkjermet || (avvistGrunn?.erSkjermet() ?: false)
+
+            Personalia(
+                deltakerId = p.deltakerId,
+                norskIdent = p.norskIdent,
+                navn = p.navn,
+                oppfolgingEnhet = oppfolgingEnhet,
+                geografiskEnhet = geografiskEnhet,
+                region = region,
+                avvistGrunn = avvistGrunn,
+                gradering = Gradering.from(p.adressebeskyttelse, avvistGrunn, erSkjermet),
+            )
+        }
+    }
+
+    private suspend fun tilgangTilPerson(amtPersonalia: Set<AmtDeltakerPersonalia>, onBehalfOf: OnBehalfOf): Map<UUID, AvvistGrunn?> {
+        return when (onBehalfOf) {
+            is OnBehalfOf.NavAnsatt -> {
                 when (NaisEnv.current()) {
                     NaisEnv.Local,
                     NaisEnv.DevGCP,
                     -> {
                         val identer = amtPersonalia.map { it.norskIdent }
-                        val tilgangsmaskinResponse = tilgangsmaskinClient.bulk(identer, accessType)
+                        val tilgangsmaskinResult = tilgangsmaskinClient.bulk(identer, onBehalfOf.token)
 
-                        if (tilgangsmaskinResponse.resultater.isNotEmpty()) {
-                            log.debug(
-                                "tilgangsmaskinResponse: {}",
-                                tilgangsmaskinResponse.resultater.joinToString("\n") { resultat ->
-                                    val detaljer = resultat.detaljer?.let { d ->
-                                        listOfNotNull(
-                                            "title=${d.title}",
-                                            d.extensions?.get("begrunnelse")?.let { "begrunnelse=$it" },
-                                            d.extensions?.get("kanOverstyres")?.let { "kanOverstyres=$it" },
-                                        ).joinToString(", ")
-                                    }
-                                    "brukerId=${resultat.brukerId}, status=${resultat.status}" + (detaljer?.let { ", $it" } ?: "")
-                                },
-                            )
-                        }
                         amtPersonalia.associate { p ->
-                            val harTilgang = requireNotNull(tilgangsmaskinResponse.resultater.find { it.brukerId == p.norskIdent.value }) {
-                                "Fant ikke deltakerId: ${p.deltakerId} i respons fra tilgangsmaskin"
+                            val resultat = requireNotNull(tilgangsmaskinResult.resultater.find { it.brukerId == p.norskIdent.value }) {
+                                "Fant ikke deltaker i respons fra tilgangsmaskin"
                             }
-                                .harTilgang()
-                            p.deltakerId to harTilgang
+
+                            p.deltakerId to AvvistGrunn.fromTilgangsmaskinResultat(resultat)
                         }
                     }
 
                     NaisEnv.ProdGCP -> amtPersonalia.associate {
-                        it.deltakerId to (it.adressebeskyttelse == PdlGradering.UGRADERT && !it.erSkjermet)
+                        val grunn = when (it.adressebeskyttelse) {
+                            PdlGradering.FORTROLIG -> AVVIST_FORTROLIG_ADRESSE
+
+                            PdlGradering.STRENGT_FORTROLIG -> AVVIST_STRENGT_FORTROLIG_ADRESSE
+
+                            PdlGradering.STRENGT_FORTROLIG_UTLAND -> AVVIST_STRENGT_FORTROLIG_UTLAND
+
+                            PdlGradering.UGRADERT -> when (it.erSkjermet) {
+                                true -> AVVIST_SKJERMING
+                                false -> null
+                            }
+                        }
+                        it.deltakerId to grunn
                     }
                 }
             }
 
-            is AccessType.OBO.TokenX -> amtPersonalia.associate {
-                it.deltakerId to (it.adressebeskyttelse == PdlGradering.UGRADERT)
-            }
-
-            is AccessType.M2M -> amtPersonalia.associate {
-                it.deltakerId to true
-            }
-        }
-        return amtPersonalia.associate { p ->
-            val harTilgang = requireNotNull(tilgangerByDeltakerId[p.deltakerId])
-            if (harTilgang) {
-                p.deltakerId to
-                    Personalia(
-                        norskIdent = p.norskIdent,
-                        navn = p.navn,
-                        oppfolgingEnhet = p.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) },
-                        erSkjermet = p.erSkjermet,
-                        adressebeskyttelse = p.adressebeskyttelse,
-                        harTilgang = true,
-                    )
-            } else {
-                val navn = when {
-                    p.adressebeskyttelse != PdlGradering.UGRADERT -> "Adressebeskyttet"
-                    else -> "Skjermet"
+            is OnBehalfOf.Arrangor -> amtPersonalia.associate {
+                val grunn = when (it.adressebeskyttelse) {
+                    PdlGradering.FORTROLIG -> AVVIST_FORTROLIG_ADRESSE
+                    PdlGradering.STRENGT_FORTROLIG -> AVVIST_STRENGT_FORTROLIG_ADRESSE
+                    PdlGradering.STRENGT_FORTROLIG_UTLAND -> AVVIST_STRENGT_FORTROLIG_UTLAND
+                    PdlGradering.UGRADERT -> null
                 }
-                p.deltakerId to
-                    Personalia(
-                        norskIdent = null,
-                        navn = navn,
-                        oppfolgingEnhet = null,
-                        erSkjermet = p.erSkjermet,
-                        adressebeskyttelse = p.adressebeskyttelse,
-                        harTilgang = false,
-                    )
+                it.deltakerId to grunn
             }
-        }
-    }
 
-    suspend fun getPersonaliaMedGeografiskEnhet(
-        deltakerIds: List<UUID>,
-        accessType: AccessType,
-    ): Map<UUID, PersonaliaMedGeografiskEnhet> {
-        val personalia = getPersonalia(deltakerIds, accessType)
-        val pdlData = getPersonerMedGeografiskEnhet(
-            personalia
-                .map { it.value }
-                .filter { it.norskIdent != null }
-                .map { requireNotNull(it.norskIdent) },
-        )
-
-        return personalia.mapValues { (_, p) ->
-            val norskIdent = p.norskIdent
-
-            val (_, geografiskEnhet) = norskIdent?.let { pdlData[norskIdent] } ?: (null to null)
-
-            PersonaliaMedGeografiskEnhet(
-                norskIdent = norskIdent,
-                navn = p.navn,
-                erSkjermet = p.erSkjermet,
-                adressebeskyttelse = p.adressebeskyttelse,
-                oppfolgingEnhet = p.oppfolgingEnhet,
-                geografiskEnhet = geografiskEnhet?.navEnhetNummer()?.let { navEnhetService.hentEnhet(it) },
-                region = p.oppfolgingEnhet?.overordnetEnhet?.let {
-                    navEnhetService.hentEnhet(it)
-                },
-                harTilgang = p.harTilgang,
-            )
+            is OnBehalfOf.System -> amtPersonalia.associate {
+                it.deltakerId to null
+            }
         }
     }
 
@@ -199,21 +188,111 @@ class PersonaliaService(
 }
 
 data class Personalia(
-    val norskIdent: NorskIdent?,
-    val navn: String,
-    val erSkjermet: Boolean,
-    val adressebeskyttelse: PdlGradering,
-    val oppfolgingEnhet: NavEnhetDto?,
-    val harTilgang: Boolean,
-)
+    val deltakerId: UUID,
+    private val norskIdent: NorskIdent,
+    private val navn: String,
+    private val oppfolgingEnhet: NavEnhetDto?,
+    private val geografiskEnhet: NavEnhetDto?,
+    private val region: NavEnhetDto?,
+    val gradering: Gradering,
+    val avvistGrunn: AvvistGrunn?,
+) {
+    fun harTilgang(): Boolean = avvistGrunn == null
 
-data class PersonaliaMedGeografiskEnhet(
-    val norskIdent: NorskIdent?,
-    val navn: String,
-    val erSkjermet: Boolean,
-    val adressebeskyttelse: PdlGradering,
-    val oppfolgingEnhet: NavEnhetDto?,
-    val geografiskEnhet: NavEnhetDto?,
-    val region: NavEnhetDto?,
-    val harTilgang: Boolean,
-)
+    fun navn(): String = if (harTilgang()) {
+        navn
+    } else {
+        when (gradering) {
+            Gradering.STRENGT_FORTROLIG_ADRESSE,
+            Gradering.STRENGT_FORTROLIG_UTLAND,
+            Gradering.FORTROLIG_ADRESSE,
+            -> "Adressebeskyttet"
+
+            Gradering.SKJERMING -> "Skjermet"
+
+            Gradering.UGRADERT -> navn
+        }
+    }
+
+    fun norskIdent(): NorskIdent? = if (harTilgang()) {
+        norskIdent
+    } else {
+        null
+    }
+
+    fun oppfolgingEnhet(): NavEnhetDto? = oppfolgingEnhet
+
+    fun geografiskEnhet(): NavEnhetDto? = if (harTilgang()) {
+        geografiskEnhet
+    } else {
+        null
+    }
+
+    fun region(): NavEnhetDto? = if (harTilgang()) {
+        region
+    } else {
+        null
+    }
+}
+
+enum class Gradering {
+    STRENGT_FORTROLIG_ADRESSE,
+    STRENGT_FORTROLIG_UTLAND,
+    FORTROLIG_ADRESSE,
+    SKJERMING,
+    UGRADERT,
+    ;
+
+    companion object {
+        fun from(pdlGradering: PdlGradering, avvistGrunn: AvvistGrunn?, erSkjermet: Boolean?): Gradering {
+            return when (pdlGradering) {
+                PdlGradering.FORTROLIG -> FORTROLIG_ADRESSE
+
+                PdlGradering.STRENGT_FORTROLIG -> STRENGT_FORTROLIG_ADRESSE
+
+                PdlGradering.STRENGT_FORTROLIG_UTLAND -> STRENGT_FORTROLIG_UTLAND
+
+                PdlGradering.UGRADERT -> {
+                    if (erSkjermet == true || avvistGrunn?.erSkjermet() == true) {
+                        SKJERMING
+                    } else {
+                        UGRADERT
+                    }
+                }
+            }
+        }
+    }
+}
+
+enum class AvvistGrunn {
+    AVVIST_STRENGT_FORTROLIG_ADRESSE,
+    AVVIST_STRENGT_FORTROLIG_UTLAND,
+    AVVIST_FORTROLIG_ADRESSE,
+    AVVIST_SKJERMING,
+    AVVIST_HABILITET,
+    AVVIST_VERGE,
+    AVVIST_GEOGRAFISK,
+    ;
+
+    fun erSkjermet(): Boolean = when (this) {
+        AVVIST_SKJERMING,
+        AVVIST_HABILITET,
+        AVVIST_VERGE,
+        -> true
+
+        AVVIST_STRENGT_FORTROLIG_ADRESSE,
+        AVVIST_STRENGT_FORTROLIG_UTLAND,
+        AVVIST_FORTROLIG_ADRESSE,
+        AVVIST_GEOGRAFISK,
+        -> false
+    }
+
+    companion object {
+        fun fromTilgangsmaskinResultat(resultat: TilgangsmaskinResult.Resultat): AvvistGrunn? {
+            return when (resultat) {
+                is TilgangsmaskinResult.Resultat.Innvilget -> null
+                is TilgangsmaskinResult.Resultat.Avvist -> AvvistGrunn.valueOf(resultat.grunn.name)
+            }
+        }
+    }
+}

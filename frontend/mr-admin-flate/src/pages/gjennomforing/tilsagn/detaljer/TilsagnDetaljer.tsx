@@ -1,5 +1,5 @@
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { formatTilsagnDeltaker, tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
   FieldError,
@@ -31,12 +31,13 @@ import {
 import { getDataElement } from "@mr/frontend-common";
 import { useGodkjennTilsagn, useReturnerTilsagn } from "@/api/tilsagn/mutations";
 import { TilsagnHandlinger } from "./TilsagnHandlinger";
+import { TilsagnDeltakerCompact } from "@/components/personalia/TilsagnDeltakerCompact";
 
 export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
 
   const { data } = useTilsagn(tilsagnId);
-  const { tilsagn, beregning, annullering, tilOppgjor, opprettelse, handlinger } = data;
+  const { tilsagn, deltakere, beregning, annullering, tilOppgjor, opprettelse, handlinger } = data;
 
   const godkjennTilsagnMutation = useGodkjennTilsagn();
   const returnerTilsagnMutation = useReturnerTilsagn();
@@ -67,16 +68,8 @@ export function TilsagnDetaljer() {
       },
     );
   }
-  const {
-    bestillingsnummer,
-    status,
-    periode,
-    type,
-    kostnadssted,
-    kommentar,
-    beskrivelse,
-    deltakere,
-  } = tilsagn;
+  const { bestillingsnummer, status, periode, type, kostnadssted, kommentar, beskrivelse } =
+    tilsagn;
 
   return (
     <>
@@ -180,7 +173,11 @@ export function TilsagnDetaljer() {
                 value={
                   <ul>
                     {deltakere.map((d) => {
-                      return <li key={d.deltakerId}>{formatTilsagnDeltaker(d)}</li>;
+                      return (
+                        <li key={d.deltakerId}>
+                          <TilsagnDeltakerCompact deltaker={d} />
+                        </li>
+                      );
                     })}
                   </ul>
                 }

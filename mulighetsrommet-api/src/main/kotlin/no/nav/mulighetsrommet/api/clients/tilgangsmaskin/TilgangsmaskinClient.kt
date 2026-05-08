@@ -12,6 +12,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResult.AvvistGrunn
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -35,9 +36,9 @@ class TilgangsmaskinClient(
         install(HttpCache)
     }
 
-    suspend fun bulk(identer: List<NorskIdent>, obo: AccessType.OBO.AzureAd): TilgangsmaskinResponse {
+    suspend fun bulk(identer: List<NorskIdent>, obo: AccessType.OBO.AzureAd): TilgangsmaskinResult {
         if (identer.isEmpty()) {
-            return TilgangsmaskinResponse(
+            return TilgangsmaskinResult(
                 resultater = emptyList(),
             )
         }
@@ -49,7 +50,7 @@ class TilgangsmaskinClient(
 
         return when (response.status) {
             HttpStatusCode.MultiStatus -> {
-                response.body<TilgangsmaskinResponse>()
+                response.body<TilgangsmaskinResponse>().toResult()
             }
 
             HttpStatusCode.NotFound -> {
@@ -93,7 +94,50 @@ data class TilgangsmaskinResponse(
         val brukerId: String,
         val status: Int,
         val detaljer: ProblemDetail? = null,
-    ) {
-        fun harTilgang(): Boolean = status == 204
+    )
+
+    fun toResult(): TilgangsmaskinResult {
+        return TilgangsmaskinResult(
+            resultater = this.resultater.map {
+                when (it.status) {
+                    204 -> TilgangsmaskinResult.Resultat.Innvilget(it.brukerId)
+
+                    else -> TilgangsmaskinResult.Resultat.Avvist(
+                        it.brukerId,
+                        grunn = AvvistGrunn.valueOf(requireNotNull(it.detaljer).title),
+                    )
+                }
+            },
+
+        )
+    }
+}
+
+@Serializable
+data class TilgangsmaskinResult(
+    val resultater: List<Resultat>,
+) {
+    @Serializable
+    sealed class Resultat {
+        abstract val brukerId: String
+
+        @Serializable
+        data class Innvilget(override val brukerId: String) : Resultat()
+
+        @Serializable
+        data class Avvist(
+            override val brukerId: String,
+            val grunn: AvvistGrunn,
+        ) : Resultat()
+    }
+
+    enum class AvvistGrunn {
+        AVVIST_STRENGT_FORTROLIG_ADRESSE,
+        AVVIST_STRENGT_FORTROLIG_UTLAND,
+        AVVIST_FORTROLIG_ADRESSE,
+        AVVIST_SKJERMING,
+        AVVIST_HABILITET,
+        AVVIST_VERGE,
+        AVVIST_GEOGRAFISK,
     }
 }

@@ -269,6 +269,12 @@ object ArrangorflateTestUtils {
         }
     }
 
+    fun mockNorg(builder: MockEngineBuilder) {
+        builder.get("/norg2/norg2/api/v1/enhet/navkontor/030102") {
+            respond("", HttpStatusCode.NotFound)
+        }
+    }
+
     fun appConfig(
         oauth: MockOAuth2Server,
         engine: MockEngine = createMockEngine {
@@ -276,6 +282,7 @@ object ArrangorflateTestUtils {
             mockJournalpost(this)
             mockClamAvScan(this)
             mockAmtDeltaker(this)
+            mockNorg(this)
             mockTilgangsmaskin(this)
             mockKontoregisterOrganisasjon(this)
         },

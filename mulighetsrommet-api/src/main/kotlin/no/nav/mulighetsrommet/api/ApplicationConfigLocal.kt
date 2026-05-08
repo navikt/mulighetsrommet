@@ -282,7 +282,7 @@ val ApplicationConfigLocal = AppConfig(
                             "mellomnavn": null,
                             "etternavn": "Nordmann",
                             "navEnhetsnummer": "1206",
-                            "erSkjermet": false,
+                            "erSkjermet": true,
                             "adressebeskyttelse": "UGRADERT"
                           }
                     """.trimIndent()
@@ -318,7 +318,7 @@ val ApplicationConfigLocal = AppConfig(
                                   "etternavn": "Nordmann"
                                 }
                               ],
-                              "adressebeskyttelse": []
+                              "adressebeskyttelse": [ { "gradering": "STRENGT_FORTROLIG" } ]
                             },
                             "code": "ok"
                           }
