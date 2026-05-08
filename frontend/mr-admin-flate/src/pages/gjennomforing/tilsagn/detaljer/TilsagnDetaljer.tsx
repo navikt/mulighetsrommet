@@ -37,7 +37,7 @@ export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
 
   const { data } = useTilsagn(tilsagnId);
-  const { tilsagn, beregning, annullering, tilOppgjor, opprettelse, handlinger } = data;
+  const { tilsagn, deltakere, beregning, annullering, tilOppgjor, opprettelse, handlinger } = data;
 
   const godkjennTilsagnMutation = useGodkjennTilsagn();
   const returnerTilsagnMutation = useReturnerTilsagn();
@@ -68,16 +68,8 @@ export function TilsagnDetaljer() {
       },
     );
   }
-  const {
-    bestillingsnummer,
-    status,
-    periode,
-    type,
-    kostnadssted,
-    kommentar,
-    beskrivelse,
-    deltakere,
-  } = tilsagn;
+  const { bestillingsnummer, status, periode, type, kostnadssted, kommentar, beskrivelse } =
+    tilsagn;
 
   return (
     <>

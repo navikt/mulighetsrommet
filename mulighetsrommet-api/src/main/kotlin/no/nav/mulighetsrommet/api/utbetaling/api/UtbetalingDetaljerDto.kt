@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
@@ -33,6 +34,7 @@ data class UtbetalingLinje(
     val gjorOppTilsagn: Boolean,
     val opprettelse: TotrinnskontrollDto?,
     val handlinger: Set<UtbetalingLinjeHandling>,
+    val deltakere: List<TilsagnDeltakerDto>,
 )
 
 @Serializable

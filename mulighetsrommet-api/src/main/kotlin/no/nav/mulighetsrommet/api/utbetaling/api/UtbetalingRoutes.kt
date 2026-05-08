@@ -382,7 +382,8 @@ fun Route.utbetalingRoutes() {
                             gjorOppTilsagn = linje.gjorOppTilsagn,
                             pris = linje.pris,
                             status = UtbetalingLinjeStatusDto.fromUtbetalingLinjeStatus(linje.status),
-                            tilsagn = TilsagnDto.from(tilsagn, deltakere),
+                            tilsagn = TilsagnDto.from(tilsagn),
+                            deltakere = deltakere,
                             opprettelse = opprettelse.toDto(),
                             handlinger = UtbetalingService.linjeHandlinger(
                                 linje,
@@ -414,7 +415,8 @@ fun Route.utbetalingRoutes() {
 
                             UtbetalingLinje(
                                 id = UUID.randomUUID(),
-                                tilsagn = TilsagnDto.from(tilsagn, deltakere),
+                                tilsagn = TilsagnDto.from(tilsagn),
+                                deltakere = deltakere,
                                 status = null,
                                 pris = 0.withValuta(utbetaling.valuta),
                                 gjorOppTilsagn = false,

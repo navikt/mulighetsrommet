@@ -1,24 +1,25 @@
 import { HStack } from "@navikt/ds-react";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { TilsagnDto } from "@tiltaksadministrasjon/api-client";
+import { TilsagnDeltakerDto, TilsagnDto } from "@tiltaksadministrasjon/api-client";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { tilsagnTekster } from "../tilsagn/TilsagnTekster";
 import { TilsagnDeltakerCompact } from "../personalia/TilsagnDeltakerCompact";
 
 interface TilsagnInformasjonProps {
   tilsagn: TilsagnDto;
+  deltakere: TilsagnDeltakerDto[];
 }
 
-export function TilsagnInformasjon({ tilsagn }: TilsagnInformasjonProps) {
+export function TilsagnInformasjon({ tilsagn, deltakere }: TilsagnInformasjonProps) {
   return (
     <HStack gap="space-16">
       <MetadataVStack label="Totalbeløp på tilsagn" value={formaterValutaBelop(tilsagn.pris)} />
-      {tilsagn.deltakere.length > 0 && (
+      {deltakere.length > 0 && (
         <MetadataVStack
           label={tilsagnTekster.deltakere.label}
           value={
             <ul>
-              {tilsagn.deltakere.map((d) => {
+              {deltakere.map((d) => {
                 return (
                   <li key={d.deltakerId}>
                     <TilsagnDeltakerCompact deltaker={d} />

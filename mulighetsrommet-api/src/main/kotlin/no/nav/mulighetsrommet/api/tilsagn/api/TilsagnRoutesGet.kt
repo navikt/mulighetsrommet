@@ -65,12 +65,13 @@ fun Route.tilsagnRoutesGet() {
                     TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))
                 }
                 TilsagnDetaljerDto(
-                    tilsagn = TilsagnDto.from(tilsagn, deltakere),
+                    tilsagn = TilsagnDto.from(tilsagn),
                     beregning = TilsagnBeregningDto.from(tilsagn.beregning),
                     opprettelse = opprettelse,
                     annullering = annullering,
                     tilOppgjor = tilOppgjor,
                     handlinger = service.handlinger(tilsagn, ansatt),
+                    deltakere = deltakere,
                 )
             }
 

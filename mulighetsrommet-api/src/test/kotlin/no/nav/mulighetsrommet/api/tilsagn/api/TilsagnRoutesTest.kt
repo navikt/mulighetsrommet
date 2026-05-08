@@ -139,7 +139,7 @@ class TilsagnRoutesTest : FunSpec({
 
             response.status shouldBe HttpStatusCode.OK
             val body = response.body<TilsagnDetaljerDto>()
-            body.tilsagn.deltakere.first { it.deltakerId == deltaker.id } should {
+            body.deltakere.first { it.deltakerId == deltaker.id } should {
                 it.norskIdent.shouldBeNull()
                 it.navn shouldBe "Skjermet"
                 it.innholdAnnet.shouldNotBeNull()

@@ -31,10 +31,9 @@ data class TilsagnDto(
     val status: TilsagnStatusDto,
     val kommentar: String?,
     val beskrivelse: String?,
-    val deltakere: List<TilsagnDeltakerDto>,
 ) {
     companion object {
-        fun from(tilsagn: Tilsagn, deltakere: List<TilsagnDeltakerDto>) = TilsagnDto(
+        fun from(tilsagn: Tilsagn) = TilsagnDto(
             id = tilsagn.id,
             type = tilsagn.type,
             periode = tilsagn.periode,
@@ -46,7 +45,6 @@ data class TilsagnDto(
             status = TilsagnStatusDto(tilsagn.status),
             kommentar = tilsagn.kommentar,
             beskrivelse = tilsagn.beskrivelse,
-            deltakere = deltakere,
         )
     }
 }

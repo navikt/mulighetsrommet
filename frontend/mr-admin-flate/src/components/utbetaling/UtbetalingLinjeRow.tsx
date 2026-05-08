@@ -81,7 +81,7 @@ export function UtbetalingLinjeRow({
             </InfoCard>
           )}
           <HStack gap="space-16" justify="space-between">
-            <TilsagnInformasjon tilsagn={linje.tilsagn} />
+            <TilsagnInformasjon tilsagn={linje.tilsagn} deltakere={linje.deltakere} />
             {linje.opprettelse && <BehandlerInformasjon opprettelse={linje.opprettelse} />}
           </HStack>
         </VStack>

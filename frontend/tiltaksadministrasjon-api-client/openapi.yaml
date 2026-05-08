@@ -6236,16 +6236,11 @@ components:
           type:
           - "null"
           - string
-        deltakere:
-          type: array
-          items:
-            $ref: "#/components/schemas/TilsagnDeltakerDto"
       required:
       - belopBrukt
       - belopGjenstaende
       - beskrivelse
       - bestillingsnummer
-      - deltakere
       - id
       - kommentar
       - kostnadssted
@@ -6291,63 +6286,6 @@ components:
       required:
       - status
       - type
-    TilsagnDeltakerDto:
-      type: object
-      properties:
-        deltakerId:
-          type: string
-          format: uuid
-        norskIdent:
-          type:
-          - "null"
-          - string
-        startDato:
-          type:
-          - "null"
-          - string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        navn:
-          type: string
-        oppfolgingEnhet:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/NavEnhetDto"
-        geografiskEnhet:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/NavEnhetDto"
-        innholdAnnet:
-          type:
-          - "null"
-          - string
-        status:
-          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
-        gradering:
-          $ref: "#/components/schemas/Gradering"
-      required:
-      - deltakerId
-      - geografiskEnhet
-      - gradering
-      - innholdAnnet
-      - navn
-      - norskIdent
-      - oppfolgingEnhet
-      - sluttDato
-      - startDato
-      - status
-    Gradering:
-      type: string
-      enum:
-      - STRENGT_FORTROLIG_ADRESSE
-      - STRENGT_FORTROLIG_UTLAND
-      - FORTROLIG_ADRESSE
-      - SKJERMING
-      - UGRADERT
     TilsagnBeregningDto:
       type: object
       properties:
@@ -6424,6 +6362,63 @@ components:
       - GODKJENN_ANNULLERING
       - AVSLA_OPPGJOR
       - GODKJENN_OPPGJOR
+    TilsagnDeltakerDto:
+      type: object
+      properties:
+        deltakerId:
+          type: string
+          format: uuid
+        norskIdent:
+          type:
+          - "null"
+          - string
+        startDato:
+          type:
+          - "null"
+          - string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        navn:
+          type: string
+        oppfolgingEnhet:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/NavEnhetDto"
+        geografiskEnhet:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/NavEnhetDto"
+        innholdAnnet:
+          type:
+          - "null"
+          - string
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+        gradering:
+          $ref: "#/components/schemas/Gradering"
+      required:
+      - deltakerId
+      - geografiskEnhet
+      - gradering
+      - innholdAnnet
+      - navn
+      - norskIdent
+      - oppfolgingEnhet
+      - sluttDato
+      - startDato
+      - status
+    Gradering:
+      type: string
+      enum:
+      - STRENGT_FORTROLIG_ADRESSE
+      - STRENGT_FORTROLIG_UTLAND
+      - FORTROLIG_ADRESSE
+      - SKJERMING
+      - UGRADERT
     TilsagnDetaljerDto:
       type: object
       properties:
@@ -6446,9 +6441,14 @@ components:
           items:
             $ref: "#/components/schemas/TilsagnHandling"
           uniqueItems: true
+        deltakere:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnDeltakerDto"
       required:
       - annullering
       - beregning
+      - deltakere
       - handlinger
       - opprettelse
       - tilOppgjor
@@ -7079,7 +7079,12 @@ components:
           items:
             $ref: "#/components/schemas/UtbetalingLinjeHandling"
           uniqueItems: true
+        deltakere:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnDeltakerDto"
       required:
+      - deltakere
       - gjorOppTilsagn
       - handlinger
       - id
