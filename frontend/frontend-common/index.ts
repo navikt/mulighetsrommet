@@ -1,7 +1,5 @@
 import useDebounce from "./hooks/useDebounce";
-import { SokeSelect } from "./components/SokeSelect";
 import { shallowEquals } from "./utils/shallow-equals";
-import { ControlledSokeSelect } from "./components/ControlledSokeSelect";
 import {
   CheckboxGroup,
   CheckboxGroupProps,
@@ -37,8 +35,6 @@ import { PortableText } from "./components/portabletext/PortableText";
 
 export {
   useDebounce,
-  SokeSelect,
-  ControlledSokeSelect,
   shallowEquals,
   CheckboxGroup,
   type CheckboxGroupProps,

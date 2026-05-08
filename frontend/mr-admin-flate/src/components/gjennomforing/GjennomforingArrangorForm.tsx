@@ -12,6 +12,7 @@ import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { GjennomforingFormInput } from "@/pages/gjennomforing/form/validation";
 import { FormCombobox } from "@/components/skjema/FormCombobox";
+import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 
 interface Props {
   arrangor: AvtaleArrangorHovedenhet;
@@ -43,8 +44,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
           options={arrangorOptions}
         />
         <VStack>
-          <FormCombobox
-            isMultiSelect
+          <FormComboboxMulti
             label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
             name={"arrangorKontaktpersoner"}
             readOnly={!arrangor}

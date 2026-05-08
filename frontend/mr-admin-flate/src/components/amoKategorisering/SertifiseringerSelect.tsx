@@ -1,9 +1,8 @@
-import { FieldValues, Path, useFormContext } from "react-hook-form";
+import { UNSAFE_Combobox } from "@navikt/ds-react";
+import { FieldValues, Path, useController, useFormContext } from "react-hook-form";
 import { useState } from "react";
-import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { useSokSertifiseringer } from "@/api/janzz/useSokSertifiseringer";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
-import { SelectOption } from "@mr/frontend-common/components/SokeSelect";
 import { AmoKategoriseringBransjeOgYrkesrettetSertifisering as Sertifisering } from "@tiltaksadministrasjon/api-client";
 
 export function SertifiseringerSkjema<T extends FieldValues>(props: {
@@ -13,58 +12,52 @@ export function SertifiseringerSkjema<T extends FieldValues>(props: {
   const { path, options } = props;
   const [janzzQuery, setJanzzQuery] = useState<string>("");
   const { data: sertifiseringerFraSok } = useSokSertifiseringer(janzzQuery);
-  const { watch, register } = useFormContext<T>();
+  const { control } = useFormContext<T>();
+  const { field, fieldState } = useController({ name: path, control });
 
-  const sertifiseringer = watch(path);
+  const sertifiseringer: Sertifisering[] = Array.isArray(field.value) ? field.value : [];
 
-  function sertifiseringerOptions() {
-    const selected =
-      sertifiseringer?.map((s: Sertifisering) => ({
-        label: s.label,
-        value: s,
-      })) ?? [];
+  const selectedOptions = sertifiseringer.map((s) => ({
+    value: String(s.konseptId),
+    label: s.label,
+  }));
 
-    if (!options) {
-      sertifiseringerFraSok
-        ?.filter(
-          (s: Sertifisering) =>
-            !selected.some((o: SelectOption<Sertifisering>) => o.value.konseptId === s.konseptId),
-        )
-        .forEach((s: Sertifisering) =>
-          selected.push({
-            label: s.label,
-            value: { konseptId: s.konseptId, label: s.label },
-          }),
-        );
+  const selectedKonseptIds = new Set(sertifiseringer.map((s) => s.konseptId));
+  const source = options ?? sertifiseringerFraSok ?? [];
+  const unselected = source
+    .filter((s) => !selectedKonseptIds.has(s.konseptId))
+    .map((s) => ({ value: String(s.konseptId), label: s.label }));
+  const allOptions = [...selectedOptions, ...unselected];
+
+  function handleToggleSelected(optionValue: string, isSelected: boolean) {
+    if (isSelected) {
+      const source = options ?? sertifiseringerFraSok ?? [];
+      const found = source.find((s) => String(s.konseptId) === optionValue);
+      if (found) {
+        field.onChange([...sertifiseringer, { konseptId: found.konseptId, label: found.label }]);
+      }
     } else {
-      options
-        .filter(
-          (s: Sertifisering) =>
-            !selected.some((o: SelectOption<Sertifisering>) => o.value.konseptId === s.konseptId),
-        )
-        .forEach((s: Sertifisering) =>
-          selected.push({
-            label: s.label,
-            value: { konseptId: s.konseptId, label: s.label },
-          }),
-        );
+      field.onChange(sertifiseringer.filter((s) => String(s.konseptId) !== optionValue));
     }
-
-    return selected;
   }
 
   return (
-    <ControlledMultiSelect<{ konseptId: number; label: string }>
+    <UNSAFE_Combobox
       size="small"
+      isMultiSelect
       placeholder="Søk etter sertifiseringer"
       label={gjennomforingTekster.sertifiseringerLabel}
-      {...register(path)}
-      onInputChange={(s: string) => {
+      name={field.name}
+      options={allOptions}
+      selectedOptions={selectedOptions}
+      filteredOptions={allOptions}
+      error={fieldState.error?.message}
+      onChange={(value) => {
         if (!options) {
-          setJanzzQuery(s);
+          setJanzzQuery(value);
         }
       }}
-      options={sertifiseringerOptions()}
+      onToggleSelected={handleToggleSelected}
     />
   );
 }

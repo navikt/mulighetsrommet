@@ -6,7 +6,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useUpdateTiltakstypeVeilederinfo } from "@/api/tiltakstyper/useUpdateTiltakstypeVeilederinfo";
 import { useRedaksjoneltInnholdLenker } from "@/api/redaksjonelt-innhold/useRedaksjoneltInnholdLenker";
 import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
-import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
+import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 import { FormButtons } from "@/components/skjema/FormButtons";
 import { FormCombobox } from "@/components/skjema/FormCombobox";
 import { FormListInput } from "@/components/skjema/FormListInput";
@@ -31,7 +31,6 @@ export function TiltakstypeInformasjonForVeiledereForm({
   onCancel,
 }: Props) {
   const mutation = useUpdateTiltakstypeVeilederinfo(tiltakstype.id);
-  const tiltakstyper = useTiltakstyper();
   const [modalOpen, setModalOpen] = useState(false);
 
   const methods = useForm<TiltakstypeRedaksjoneltInnholdFormValues>({
@@ -68,10 +67,6 @@ export function TiltakstypeInformasjonForVeiledereForm({
     onSuccess();
   }
 
-  const andreKombinasjonOptions = tiltakstyper
-    .filter((t) => t.id !== tiltakstype.id)
-    .map((t) => ({ value: t.id, label: t.navn }));
-
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -87,13 +82,7 @@ export function TiltakstypeInformasjonForVeiledereForm({
             <Heading size="medium" level="3">
               Kan kombineres med
             </Heading>
-            <ControlledMultiSelect
-              name="kanKombineresMed"
-              label="Tiltakstyper som kan kombineres med denne"
-              placeholder="Søk etter tiltakstyper..."
-              size="small"
-              options={andreKombinasjonOptions}
-            />
+            <KanKombineresMedInput tiltakstype={tiltakstype} />
 
             <HStack justify="space-between" align="center">
               <Heading size="medium" level="3">
@@ -108,7 +97,7 @@ export function TiltakstypeInformasjonForVeiledereForm({
                 Administrer lenker
               </Button>
             </HStack>
-            <FaglenkerSkjema />
+            <FaglenkerInput />
             <RedaksjoneltInnholdLenkeModal open={modalOpen} onClose={() => setModalOpen(false)} />
           </VStack>
         </TwoColumnGrid>
@@ -119,7 +108,24 @@ export function TiltakstypeInformasjonForVeiledereForm({
   );
 }
 
-function FaglenkerSkjema() {
+function KanKombineresMedInput({ tiltakstype }: { tiltakstype: TiltakstypeDto }) {
+  const tiltakstyper = useTiltakstyper();
+
+  const andreKombinasjonOptions = tiltakstyper
+    .filter((t) => t.id !== tiltakstype.id)
+    .map((t) => ({ value: t.id, label: t.navn }));
+
+  return (
+    <FormComboboxMulti<TiltakstypeRedaksjoneltInnholdFormValues>
+      name="kanKombineresMed"
+      label="Tiltakstyper som kan kombineres med denne"
+      placeholder="Søk etter tiltakstyper..."
+      options={andreKombinasjonOptions}
+    />
+  );
+}
+
+function FaglenkerInput() {
   const lenker = useRedaksjoneltInnholdLenker();
 
   return (
@@ -139,6 +145,7 @@ function FaglenkerSkjema() {
     />
   );
 }
+
 function getLabel(lenke: RedaksjoneltInnholdLenke) {
   const label = lenke.navn ?? lenke.url;
   return lenke.beskrivelse ? `${label} (${lenke.beskrivelse})` : label;

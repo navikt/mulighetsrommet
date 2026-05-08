@@ -1,7 +1,6 @@
 import { Alert, Select } from "@navikt/ds-react";
-import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { ControlledMultiSelect } from "@/components/skjema/ControlledMultiSelect";
+import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 import { AvtaleDto } from "@tiltaksadministrasjon/api-client";
 import { kreverUtdanningslop } from "@/utils/tiltakstype";
 import { GjennomforingFormValues } from "@/pages/gjennomforing/form/validation";
@@ -11,8 +10,6 @@ interface Props {
 }
 
 export function GjennomforingUtdanningslopForm({ avtale }: Props) {
-  const { register } = useFormContext<GjennomforingFormValues>();
-
   if (!kreverUtdanningslop(avtale.tiltakstype.tiltakskode)) {
     return null;
   }
@@ -28,14 +25,14 @@ export function GjennomforingUtdanningslopForm({ avtale }: Props) {
       <Select size="small" readOnly label={avtaletekster.utdanning.utdanningsprogram.label}>
         <option>{avtale.utdanningslop.utdanningsprogram.navn}</option>
       </Select>
-      <ControlledMultiSelect
-        size="small"
+      <FormComboboxMulti<GjennomforingFormValues>
         label={avtaletekster.utdanning.laerefag.label}
         placeholder={avtaletekster.utdanning.laerefag.velg}
-        {...register("utdanningslop.utdanninger")}
-        options={avtale.utdanningslop.utdanninger.map((utdanning) => {
-          return { value: utdanning.id, label: utdanning.navn };
-        })}
+        name="utdanningslop.utdanninger"
+        options={avtale.utdanningslop.utdanninger.map((utdanning) => ({
+          value: utdanning.id,
+          label: utdanning.navn,
+        }))}
       />
     </>
   );

@@ -6,16 +6,17 @@ import React, { useState } from "react";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
-import { ControlledSokeSelect } from "@mr/frontend-common";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { RedaksjoneltInnholdForm } from "@/components/redaksjoneltInnhold/RedaksjoneltInnholdForm";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormListInput } from "@/components/skjema/FormListInput";
+import { FormCombobox } from "@/components/skjema/FormCombobox";
+import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 import { GjennomforingFormValues } from "@/pages/gjennomforing/form/validation";
+import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 
 interface Props {
   tiltakId: string;
@@ -82,32 +83,35 @@ function RegionerOgEnheterOgKontaktpersoner({
         Geografisk tilgjengelighet
       </Heading>
       <VStack gap="space-8">
-        <ControlledMultiSelect
-          inputId={"navRegioner"}
-          size="small"
+        <FormComboboxMulti<GjennomforingFormValues>
+          id="navRegioner"
           placeholder="Velg en"
           label={avtaletekster.navRegionerLabel}
-          name={"veilederinformasjon.navRegioner"}
+          name="veilederinformasjon.navRegioner"
           options={regionerOptions}
         />
-        <ControlledMultiSelect
-          inputId={"navKontorer"}
-          size="small"
-          velgAlle
+        <FormComboboxMulti<GjennomforingFormValues>
+          id="navKontorer"
+          selectAll
           placeholder="Velg en"
-          label={avtaletekster.navEnheterLabel}
-          helpText="Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen."
-          name={"veilederinformasjon.navKontorer"}
+          label={
+            <LabelWithHelpText label={avtaletekster.navEnheterLabel}>
+              Bestemmer hvilke Nav-enheter som kan velges i gjennomføringene til avtalen.
+            </LabelWithHelpText>
+          }
+          name="veilederinformasjon.navKontorer"
           options={kontorerOptions}
         />
-        <ControlledMultiSelect
-          inputId={"navAndreEnheter"}
-          size="small"
-          velgAlle
+        <FormComboboxMulti<GjennomforingFormValues>
+          id="navAndreEnheter"
+          selectAll
           placeholder="Velg en (valgfritt)"
-          label={avtaletekster.navAndreEnheterLabel}
-          helpText="Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen."
-          name={"veilederinformasjon.navAndreEnheter"}
+          label={
+            <LabelWithHelpText label={avtaletekster.navAndreEnheterLabel}>
+              Bestemmer hvilke andre Nav-enheter som kan velges i gjennomføringene til avtalen.
+            </LabelWithHelpText>
+          }
+          name="veilederinformasjon.navAndreEnheter"
           options={andreEnheterOptions}
         />
         {kontaktpersonForm && (
@@ -187,13 +191,13 @@ function SokEtterKontaktperson({
 
   return (
     <>
-      <ControlledSokeSelect
-        size="small"
+      <FormCombobox<GjennomforingFormValues>
         placeholder="Søk etter kontaktperson"
         label={gjennomforingTekster.kontaktpersonNav.navnLabel}
         name={`veilederinformasjon.kontaktpersoner.${index}.navIdent`}
-        onInputChange={setKontaktpersonerQuery}
+        onChange={(value) => setKontaktpersonerQuery(value)}
         options={kontaktpersonerOption(index)}
+        filteredOptions={kontaktpersonerOption(index)}
       />
       <FormTextField<GjennomforingFormValues>
         name={`veilederinformasjon.kontaktpersoner.${index}.beskrivelse`}

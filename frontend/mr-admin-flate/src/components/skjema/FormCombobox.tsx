@@ -1,6 +1,5 @@
 import { type ComboboxProps, UNSAFE_Combobox } from "@navikt/ds-react";
 import {
-  ControllerRenderProps,
   type FieldPath,
   type FieldValues,
   type RegisterOptions,
@@ -8,14 +7,17 @@ import {
   useFormContext,
 } from "react-hook-form";
 
-type Option = { label: string; value: string };
+export interface ComboboxOption {
+  label: string;
+  value: string;
+}
 
 type FormComboboxProps<TFieldValues extends FieldValues> = Omit<
   ComboboxProps,
-  "value" | "error" | "name" | "options" | "selectedOptions"
+  "value" | "error" | "name" | "options" | "selectedOptions" | "isMultiSelect"
 > & {
   name: FieldPath<TFieldValues>;
-  options: Option[];
+  options: ComboboxOption[];
   rules?: RegisterOptions<TFieldValues>;
 };
 
@@ -24,19 +26,18 @@ export function FormCombobox<TFieldValues extends FieldValues>({
   options,
   rules,
   size = "small",
-  isMultiSelect = false,
   onToggleSelected: onToggleSelectedProp,
   ...props
 }: FormComboboxProps<TFieldValues>) {
   const { control } = useFormContext<TFieldValues>();
   const { field, fieldState } = useController({ name, control, rules });
 
-  const { resolvedOptions, selectedOptions, onToggleSelected } = isMultiSelect
-    ? resolveMultiSelect(field, options)
-    : resolveSingleSelect(field, options);
+  const value = field.value as string | undefined;
+  const resolvedOptions = getResolvedOptions(options, value);
+  const selectedOptions = resolvedOptions.filter((o) => o.value === value);
 
   function handleToggleSelected(option: string, isSelected: boolean, isCustomOption: boolean) {
-    onToggleSelected(option, isSelected);
+    field.onChange(isSelected ? option : null);
     onToggleSelectedProp?.(option, isSelected, isCustomOption);
   }
 
@@ -48,53 +49,14 @@ export function FormCombobox<TFieldValues extends FieldValues>({
       options={resolvedOptions}
       selectedOptions={selectedOptions}
       error={fieldState.error?.message}
-      isMultiSelect={isMultiSelect}
       onToggleSelected={handleToggleSelected}
     />
   );
 }
 
-function resolveSingleSelect<
-  TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>,
->(field: ControllerRenderProps<TFieldValues, TName>, options: Option[]) {
-  const value = field.value as string | undefined;
-  const resolvedOptions = getResolvedOptionsSingle(options, value);
-  const selectedOptions = resolvedOptions.filter((o) => o.value === value);
-  function onToggleSelected(optionValue: string, isSelected: boolean) {
-    field.onChange(isSelected ? optionValue : null);
-  }
-  return { resolvedOptions, selectedOptions, onToggleSelected };
-}
-
-function getResolvedOptionsSingle(options: Option[], value: string | undefined) {
+function getResolvedOptions(options: ComboboxOption[], value: string | undefined) {
   if (typeof value === "string" && value && !options.some((o) => o.value === value)) {
     return [...options, { value: value, label: value }];
   }
   return options;
-}
-
-function resolveMultiSelect<
-  TFieldValues extends FieldValues,
-  TName extends FieldPath<TFieldValues>,
->(field: ControllerRenderProps<TFieldValues, TName>, options: Option[]) {
-  const value = Array.isArray(field.value) ? (field.value as string[]) : ([] as string[]);
-  const resolvedOptions = getResolvedOptionsMulti(options, value);
-  const selectedOptions = resolvedOptions.filter((o) => value.includes(o.value));
-  function onToggleSelected(optionValue: string, isSelected: boolean) {
-    const currentValues = Array.isArray(field.value) ? field.value : [];
-    field.onChange(
-      isSelected
-        ? [...currentValues, optionValue]
-        : currentValues.filter((v: string) => v !== optionValue),
-    );
-  }
-  return { resolvedOptions, selectedOptions, onToggleSelected };
-}
-
-function getResolvedOptionsMulti(options: Option[], values: string[]) {
-  const missing = values.filter((value) => !options.some((o) => o.value === value));
-  return missing.length > 0
-    ? [...options, ...missing.map((value) => ({ value, label: value }))]
-    : options;
 }

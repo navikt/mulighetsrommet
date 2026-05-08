@@ -1,9 +1,9 @@
-import { Select } from "@navikt/ds-react";
 import { Suspense, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import { useUtdanningsprogrammer } from "@/api/utdanning/useUtdanningsprogrammer";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { ControlledMultiSelect } from "../skjema/ControlledMultiSelect";
+import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
+import { FormSelect } from "@/components/skjema/FormSelect";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { Laster } from "../laster/Laster";
 import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
@@ -30,12 +30,7 @@ export function AvtaleUtdanningslopForm({ tiltakskode }: Props) {
 
 function SelectAvtaleUtdanning() {
   const { data: utdanninger } = useUtdanningsprogrammer();
-  const {
-    register,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useFormContext<AvtaleFormValues>();
+  const { watch, setValue } = useFormContext<AvtaleFormValues>();
 
   const utdanningsprogram = watch("detaljer.utdanningslop.utdanningsprogram");
   const utdanningsprogrammer = useMemo(
@@ -49,22 +44,22 @@ function SelectAvtaleUtdanning() {
 
   return (
     <>
-      <Select
-        size="small"
+      <FormSelect
         label={avtaletekster.utdanning.utdanningsprogram.label}
-        {...register("detaljer.utdanningslop.utdanningsprogram")}
-        onChange={(e) => {
-          if (e.currentTarget.value !== utdanningsprogram) {
-            setValue("detaljer.utdanningslop.utdanninger", []);
-          }
+        name={"detaljer.utdanningslop.utdanningsprogram"}
+        rules={{
+          onChange(e) {
+            if (e.currentTarget.value !== utdanningsprogram) {
+              setValue("detaljer.utdanningslop.utdanninger", []);
+            }
 
-          if (e.currentTarget.value !== "") {
-            setValue("detaljer.utdanningslop.utdanningsprogram", e.currentTarget.value);
-          } else {
-            setValue("detaljer.utdanningslop", null);
-          }
+            if (e.currentTarget.value !== "") {
+              setValue("detaljer.utdanningslop.utdanningsprogram", e.currentTarget.value);
+            } else {
+              setValue("detaljer.utdanningslop", null);
+            }
+          },
         }}
-        error={errors.detaljer?.utdanningslop?.utdanninger?.message}
       >
         <option value={""}>{avtaletekster.utdanning.utdanningsprogram.velg}</option>
         {utdanningsprogrammer.map((utdanningsprogram) => (
@@ -72,19 +67,16 @@ function SelectAvtaleUtdanning() {
             {utdanningsprogram.navn}
           </option>
         ))}
-      </Select>
+      </FormSelect>
       {utdanningsprogram && (
-        <ControlledMultiSelect
-          size="small"
+        <FormComboboxMulti<AvtaleFormValues>
           label={avtaletekster.utdanning.laerefag.label}
           placeholder={avtaletekster.utdanning.laerefag.velg}
-          {...register("detaljer.utdanningslop.utdanninger")}
-          options={utdanningerForUtdanningsprogram.map((utdanning) => {
-            return {
-              value: utdanning.id,
-              label: utdanning.navn,
-            };
-          })}
+          name="detaljer.utdanningslop.utdanninger"
+          options={utdanningerForUtdanningsprogram.map((utdanning) => ({
+            value: utdanning.id,
+            label: utdanning.navn,
+          }))}
         />
       )}
     </>

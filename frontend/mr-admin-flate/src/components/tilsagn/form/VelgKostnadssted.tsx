@@ -1,5 +1,4 @@
-import { ControlledSokeSelect } from "@mr/frontend-common";
-import { useFormContext } from "react-hook-form";
+import { FormCombobox } from "@/components/skjema/FormCombobox";
 import { tilsagnTekster } from "../TilsagnTekster";
 
 interface Props {
@@ -12,22 +11,22 @@ export interface KostnadsstedOption {
 }
 
 export function VelgKostnadssted({ kostnadssteder }: Props) {
-  const { register } = useFormContext<{ kostnadssted: string }>();
+  const options = kostnadssteder
+    .sort((a, b) => a.navn.localeCompare(b.navn))
+    .map(({ navn, enhetsnummer }) => {
+      return {
+        value: enhetsnummer,
+        label: `${navn} - ${enhetsnummer}`,
+      };
+    });
 
   return (
-    <ControlledSokeSelect
+    <FormCombobox<{ kostnadssted: string }>
       placeholder="Velg kostnadssted"
       size="small"
       label={tilsagnTekster.kostnadssted.label}
-      {...register("kostnadssted")}
-      options={kostnadssteder
-        .sort((a, b) => a.navn.localeCompare(b.navn))
-        .map(({ navn, enhetsnummer }) => {
-          return {
-            value: enhetsnummer,
-            label: `${navn} - ${enhetsnummer}`,
-          };
-        })}
+      name="kostnadssted"
+      options={options}
     />
   );
 }

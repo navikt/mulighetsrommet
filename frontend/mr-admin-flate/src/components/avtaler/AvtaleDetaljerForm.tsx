@@ -23,16 +23,14 @@ import { useParams } from "react-router";
 import { useTiltakstyperForAvtaler } from "@/api/tiltakstyper/useTiltakstyperForAvtaler";
 import { erUtfaset } from "@/utils/tiltakstype";
 import { SkjemaKolonne } from "@/layouts/SkjemaKolonne";
-import { administratorOptions } from "@/components/skjema/administratorOptions";
 import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
 import { SelectAvtaletype } from "@/components/avtaler/SelectAvtaletype";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormSelect } from "@/components/skjema/FormSelect";
-import { FormCombobox } from "@/components/skjema/FormCombobox";
+import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 
 export function AvtaleDetaljerForm() {
   const { avtaleId } = useParams();
-  const { data: navAnsatte } = useNavAnsatte([Rolle.AVTALER_SKRIV]);
   const tiltakstyper = useTiltakstyperForAvtaler();
   const { data: avtale } = usePotentialAvtale(avtaleId ?? null);
 
@@ -148,21 +146,32 @@ export function AvtaleDetaljerForm() {
       </SkjemaKolonne>
       <SkjemaKolonne>
         <FormGroup>
-          <FormCombobox<AvtaleFormValues>
-            name="detaljer.administratorer"
-            id="administratorer"
-            label={
-              <LabelWithHelpText label={avtaletekster.administratorerForAvtalenLabel}>
-                Bestemmer hvem som eier avtalen. Notifikasjoner sendes til administratorene.
-              </LabelWithHelpText>
-            }
-            placeholder="Administratorer"
-            isMultiSelect
-            options={administratorOptions(navAnsatte)}
-          />
+          <SelectAvtaleAdministratorer />
         </FormGroup>
         <AvtaleArrangorForm />
       </SkjemaKolonne>
     </TwoColumnGrid>
+  );
+}
+
+export function SelectAvtaleAdministratorer() {
+  const { data: administratorer } = useNavAnsatte([Rolle.AVTALER_SKRIV]);
+
+  const options = administratorer.map((a) => ({
+    value: a.navIdent,
+    label: `${a.fornavn} ${a.etternavn} - ${a.navIdent}`,
+  }));
+
+  return (
+    <FormComboboxMulti<AvtaleFormValues>
+      name="detaljer.administratorer"
+      label={
+        <LabelWithHelpText label={avtaletekster.administratorerForAvtalenLabel}>
+          Bestemmer hvem som eier avtalen. Notifikasjoner sendes til administratorene.
+        </LabelWithHelpText>
+      }
+      placeholder="Administratorer"
+      options={options}
+    />
   );
 }

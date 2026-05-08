@@ -3,9 +3,9 @@ import {
   AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje,
   Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
-import { useFormContext } from "react-hook-form";
 import { bransjeToString } from "@/utils/Utils";
-import { ControlledSokeSelect } from "@mr/frontend-common";
+import { FormCombobox } from "@/components/skjema/FormCombobox";
+import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { SertifiseringerSkjema } from "./SertifiseringerSelect";
 import { ForerkortForm } from "./ForerkortForm";
 import { InnholdElementerForm } from "./InnholdElementerForm";
@@ -16,15 +16,16 @@ interface Props {
 }
 
 export function AvtaleBransjeForm({ tiltakskode }: Props) {
-  const { register } = useFormContext<AvtaleFormValues>();
-
   return (
     <>
-      <ControlledSokeSelect
+      <FormCombobox<AvtaleFormValues>
         size="small"
-        helpText={<BransjeHelpText />}
-        label="Bransje"
-        {...register("detaljer.amoKategorisering.bransje")}
+        label={
+          <LabelWithHelpText label="Bransje">
+            <BransjeHelpText />
+          </LabelWithHelpText>
+        }
+        name="detaljer.amoKategorisering.bransje"
         placeholder="Velg bransje"
         options={[
           {
