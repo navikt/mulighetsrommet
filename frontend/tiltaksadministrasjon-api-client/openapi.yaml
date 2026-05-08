@@ -6603,6 +6603,7 @@ components:
       - FORTROLIG_ADRESSE
       - SKJERMING
       - UGRADERT
+      - GEOGRAFISK
     TilsagnDetaljerDto:
       type: object
       properties:
