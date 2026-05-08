@@ -16,10 +16,15 @@ class OpplaringKategoriseringTest : FunSpec({
         prettyPrint = true
         prettyPrintIndent = "  "
     }
+    val inserts = listOf(
+        UTDANNINGSPROGRAM_SQL,
+        UTDANNING_SQL,
+    )
     beforeSpec {
         MulighetsrommetTestDomain {
-            this.session.execute(queryOf(UTDANNINGSPROGRAM_SQL, emptyMap()))
-            this.session.execute(queryOf(UTDANNING_SQL, emptyMap()))
+            inserts.forEach {
+                this.session.execute(queryOf(it))
+            }
         }.initialize(dbListener.db)
     }
 
@@ -67,7 +72,7 @@ const val NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON = """{
           "visningsnavn": "Grunnleggende ferdigheter"
         },
         {
-          "id": "19544ff4-25e5-4925-b942-6109b2a98552",
+          "id": "347ef4a1-be8c-47b6-8e67-54244b648a9f",
           "visningsnavn": "FOV (Forberedende opplæring for voksne)"
         }
       ]
@@ -171,44 +176,44 @@ const val ARBEIDSMARKEDSOPPLAERING = """{
       "seleksjonstype": "ENKELTVALG",
       "alternativer": [
         {
+          "id": "d9b1c8e0-1c3a-4f5b-9c2e-1a2b3c4d5e6f",
+          "visningsnavn": "Bygg og anlegg"
+        },
+        {
           "id": "d04dff0d-fdca-4839-9bdc-44c722af5d6f",
-          "visningsnavn": "INGENIOR_OG_IKT_FAG"
+          "visningsnavn": "Ingeniør- og IKT-fag"
         },
         {
           "id": "82bd7ce0-70f1-448b-8773-9015dea613e7",
-          "visningsnavn": "HELSE_PLEIE_OG_OMSORG"
+          "visningsnavn": "Helse, pleie og omsorg"
         },
         {
           "id": "14886bad-a495-420a-9bae-d33e2d88041a",
-          "visningsnavn": "BARNE_OG_UNGDOMSARBEID"
+          "visningsnavn": "Barne- og ungdomsarbeid"
         },
         {
           "id": "a86c1f7a-47c3-4f69-b138-89341107e0eb",
-          "visningsnavn": "KONTORARBEID"
+          "visningsnavn": "Kontorarbeid"
         },
         {
           "id": "e6749d6c-aacf-452d-baf2-d5fb5021912b",
-          "visningsnavn": "BUTIKK_OG_SALGSARBEID"
-        },
-        {
-          "id": "7cc9f791-2980-4c31-8050-e6c53afd5e8d",
-          "visningsnavn": "BYGG_OG_ANLEGG"
+          "visningsnavn": "Butikk- og salgsarbeid"
         },
         {
           "id": "4733d7ef-d106-47a4-b335-bfd132c8ad31",
-          "visningsnavn": "INDUSTRIARBEID"
+          "visningsnavn": "Industriarbeid"
         },
         {
           "id": "c8851a31-6362-4ee2-8989-e5da95726076",
-          "visningsnavn": "REISELIV_SERVERING_OG_TRANSPORT"
+          "visningsnavn": "Reiseliv, servering og transport"
         },
         {
           "id": "47c9d5f0-66ea-4e68-949d-86733346ee80",
-          "visningsnavn": "SERVICEYRKER_OG_ANNET_ARBEID"
+          "visningsnavn": "Serviceyrker og annet arbeid"
         },
         {
           "id": "54ccb278-92ea-4835-8566-659e98602905",
-          "visningsnavn": "ANDRE_BRANSJER"
+          "visningsnavn": "Andre bransjer"
         }
       ]
     },
@@ -221,75 +226,75 @@ const val ARBEIDSMARKEDSOPPLAERING = """{
       "alternativer": [
         {
           "id": "810fe1c6-56b0-4e00-8ae6-00fb574299e5",
-          "visningsnavn": "A"
+          "visningsnavn": "A - Motorsykkel"
         },
         {
           "id": "c67006e4-2629-4993-a047-92f31b0db557",
-          "visningsnavn": "A1"
+          "visningsnavn": "A1 - Lett motorsykkel"
         },
         {
           "id": "ed44bd3a-aedb-4225-a3d8-c8f1b95fec5a",
-          "visningsnavn": "A2"
+          "visningsnavn": "A2 - Mellomtung motorsykkel"
         },
         {
           "id": "dee7d6b8-02dc-4b7e-bb3a-fa71cc9248e3",
-          "visningsnavn": "AM"
+          "visningsnavn": "AM - Moped"
         },
         {
           "id": "ee66eb0b-d4a8-4527-800a-135dd3c0d422",
-          "visningsnavn": "AM_147"
+          "visningsnavn": "AM 147 - Mopedbil"
         },
         {
           "id": "79d1a970-e8f0-4ecd-8d5e-e7c8d5f3394c",
-          "visningsnavn": "B"
+          "visningsnavn": "B - Personbil"
         },
         {
           "id": "84a40884-421c-406c-994d-4c4c15ef8bcc",
-          "visningsnavn": "B_78"
+          "visningsnavn": "B 78 - Personbil med automatgir"
         },
         {
           "id": "cdbebefc-2cec-48d0-9c8e-bd464e56cfaa",
-          "visningsnavn": "BE"
+          "visningsnavn": "BE - Personbil med tilhenger"
         },
         {
           "id": "e3fcf1f7-1f20-4fca-bad5-422b7ee0418f",
-          "visningsnavn": "C"
+          "visningsnavn": "C - Lastebil"
         },
         {
           "id": "c65936e4-479f-4c84-b106-6c9ec0cf9aee",
-          "visningsnavn": "C1"
+          "visningsnavn": "C1 - Lett lastebil"
         },
         {
           "id": "69f88a08-e2de-461f-9258-4f8be546104a",
-          "visningsnavn": "C1E"
+          "visningsnavn": "C1E - Lett lastebil med tilhenger"
         },
         {
           "id": "9a85cdeb-2f6d-44f6-bef2-2add850f7b27",
-          "visningsnavn": "CE"
+          "visningsnavn": "CE - Lastebil med tilhenger"
         },
         {
           "id": "e637320c-a5f0-4f7d-ad44-0a7c4654b4c2",
-          "visningsnavn": "D"
+          "visningsnavn": "D - Buss"
         },
         {
           "id": "5d890e23-6800-4574-a05d-24ca81f35a2a",
-          "visningsnavn": "D1"
+          "visningsnavn": "D1 - Minibuss"
         },
         {
           "id": "34d00562-f382-4027-953d-2b6f6bb7e0e5",
-          "visningsnavn": "D1E"
+          "visningsnavn": "D1E - Minibuss med tilhenger"
         },
         {
           "id": "a7376d16-b0da-4140-8e67-c589be2c0ea2",
-          "visningsnavn": "DE"
+          "visningsnavn": "DE - Buss med tilhenger"
         },
         {
           "id": "5b1e1732-a5e8-45ca-955f-548c65d11065",
-          "visningsnavn": "S"
+          "visningsnavn": "S - Snøscooter"
         },
         {
           "id": "53896c05-7650-48ed-bf23-54ae78794eba",
-          "visningsnavn": "T"
+          "visningsnavn": "T - Traktor"
         }
       ]
     },
