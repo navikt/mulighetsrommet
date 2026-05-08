@@ -1,4 +1,4 @@
-import { ArrangorflateTilsagnDto, ArrangorflateTilsagnDtoDeltakerPersonalia } from "api-client";
+import { ArrangorflatePersonalia, ArrangorflateTilsagnDto } from "api-client";
 import { tekster } from "~/tekster";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
 import {
@@ -47,8 +47,8 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
             label="Deltakere"
             value={
               <ul>
-                {tilsagn.deltakere.map((d) => {
-                  return <li key={d.deltakerId}>{formatTilsagnDeltaker(d)}</li>;
+                {tilsagn.deltakere.map((d, index) => {
+                  return <li key={index}>{formatTilsagnDeltaker(d)}</li>;
                 })}
               </ul>
             }
@@ -59,6 +59,6 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
   );
 }
 
-function formatTilsagnDeltaker(deltaker: ArrangorflateTilsagnDtoDeltakerPersonalia): string {
-  return `${deltaker.navn} · ${deltaker.norskIdent}`;
+function formatTilsagnDeltaker(deltaker: ArrangorflatePersonalia): string {
+  return `${deltaker.navn} · ${deltaker.norskIdent ?? "-"}`;
 }
