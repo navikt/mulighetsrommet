@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeDeltakerinfoRequest
+import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeVeilederinfoRequest
 import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
@@ -19,6 +20,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import java.util.UUID
 
@@ -147,6 +149,50 @@ class TiltakstypeDetaljerServiceTest : FunSpec({
             database.run {
                 queries.kafkaProducerRecord.getRecords(10, listOf(TEST_TILTAKSTYPE_TOPIC)).shouldBeEmpty()
             }
+        }
+    }
+
+    context("getAll") {
+        test("returnerer kun tiltakstyper med VISES_I_TILTAKSADMINISTRASJON") {
+            val service = createService(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)
+
+            val result = service.getAll(
+                TiltakstypeFilter(egenskaper = setOf()),
+            )
+
+            result.shouldHaveSize(1)
+            result.first().id shouldBe TiltakstypeFixtures.AFT.id
+        }
+
+        test("returnerer ingen tiltakstyper når ingen har VISES_I_TILTAKSADMINISTRASJON") {
+            val service = createService()
+
+            val result = service.getAll(
+                TiltakstypeFilter(egenskaper = setOf()),
+            )
+
+            result.shouldBeEmpty()
+        }
+
+        test("returnerer tiltakstyper som inkluderer egenskaper fra filter") {
+            val service = createService(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)
+
+            val result = service.getAll(
+                TiltakstypeFilter(egenskaper = setOf(TiltakstypeEgenskap.STOTTER_AVTALER)),
+            )
+
+            result.shouldHaveSize(1)
+            result.first().id shouldBe TiltakstypeFixtures.AFT.id
+        }
+
+        test("returnerer ingen tiltakstyper når ingen matcher egenskaper fra filter") {
+            val service = createService(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)
+
+            val result = service.getAll(
+                TiltakstypeFilter(egenskaper = setOf(TiltakstypeEgenskap.STOTTER_ENKELTPLASSER)),
+            )
+
+            result.shouldBeEmpty()
         }
     }
 })

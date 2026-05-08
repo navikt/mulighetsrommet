@@ -13,12 +13,12 @@ import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeVeilederinfoRequest
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
+import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeHandling
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKompaktDto
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeSystem
 import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import java.time.LocalDateTime
@@ -70,10 +70,17 @@ class TiltakstypeDetaljerService(
     }
 
     fun getAll(filter: TiltakstypeFilter): List<TiltakstypeKompaktDto> {
+        val enabled = tiltakstypeService
+            .getTiltakskodeByFeatures(setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON))
+            .ifEmpty { return listOf() }
+
         val tiltakskoder = if (filter.egenskaper.isNotEmpty()) {
-            Tiltakskode.entries.filter { kode -> kode.egenskaper.any { it in filter.egenskaper } }.toSet()
+            enabled
+                .filter { kode -> kode.egenskaper.any { it in filter.egenskaper } }
+                .toSet()
+                .ifEmpty { return listOf() }
         } else {
-            setOf()
+            enabled
         }
 
         val tiltakstyper = db.session {
