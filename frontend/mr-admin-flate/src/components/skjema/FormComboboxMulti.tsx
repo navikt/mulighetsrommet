@@ -53,45 +53,12 @@ export function FormComboboxMulti<TFieldValues extends FieldValues>({
     onToggleSelectedProp?.(option, isSelected, isCustomOption);
   }
 
-  if (selectAll) {
-    const allSelected = options.length > 0 && options.every((o) => values.includes(o.value));
-    return (
-      <VStack gap="space-4">
-        <HStack justify="space-between" align="center">
-          <Label htmlFor={id} size={size}>
-            {label}
-          </Label>
-          <Button
-            size="xsmall"
-            variant="tertiary"
-            type="button"
-            onClick={() => field.onChange(allSelected ? [] : options.map((o) => o.value))}
-          >
-            {allSelected ? "Fjern alle" : "Velg alle"}
-          </Button>
-        </HStack>
-        <UNSAFE_Combobox
-          {...props}
-          id={id}
-          label={label}
-          hideLabel
-          size={size}
-          isMultiSelect
-          name={field.name}
-          options={resolvedOptions}
-          selectedOptions={selectedOptions}
-          error={fieldState.error?.message}
-          onToggleSelected={handleToggleSelected}
-        />
-      </VStack>
-    );
-  }
-
-  return (
+  const combobox = (
     <UNSAFE_Combobox
       {...props}
       id={id}
       label={label}
+      hideLabel={selectAll}
       size={size}
       isMultiSelect
       name={field.name}
@@ -100,6 +67,30 @@ export function FormComboboxMulti<TFieldValues extends FieldValues>({
       error={fieldState.error?.message}
       onToggleSelected={handleToggleSelected}
     />
+  );
+
+  if (!selectAll) {
+    return combobox;
+  }
+
+  const allSelected = options.length > 0 && options.every((o) => values.includes(o.value));
+  return (
+    <VStack gap="space-4">
+      <HStack justify="space-between" align="center">
+        <Label htmlFor={id} size={size}>
+          {label}
+        </Label>
+        <Button
+          size="xsmall"
+          variant="tertiary"
+          type="button"
+          onClick={() => field.onChange(allSelected ? [] : options.map((o) => o.value))}
+        >
+          {allSelected ? "Fjern alle" : "Velg alle"}
+        </Button>
+      </HStack>
+      {combobox}
+    </VStack>
   );
 }
 
