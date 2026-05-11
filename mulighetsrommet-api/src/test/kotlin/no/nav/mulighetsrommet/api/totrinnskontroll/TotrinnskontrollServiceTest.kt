@@ -61,7 +61,9 @@ class TotrinnskontrollServiceTest : FunSpec({
                 payload.entityId shouldBe entityId
                 payload.type shouldBe Totrinnskontroll.Type.TILSAGN_OPPRETTELSE
                 payload.behandletAv shouldBe behandletAv
+                payload.behandletTidspunkt shouldBe stored.behandletTidspunkt
                 payload.besluttelse shouldBe null
+                payload.besluttetTidspunkt shouldBe null
             }
         }
 
@@ -107,28 +109,37 @@ class TotrinnskontrollServiceTest : FunSpec({
                 val hendelse = Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString())
                 hendelse.besluttelse shouldBe Besluttelse.GODKJENT
                 hendelse.besluttetAv shouldBe besluttetAv
+                hendelse.behandletTidspunkt shouldBe stored.behandletTidspunkt
+                hendelse.besluttetTidspunkt shouldBe stored.besluttetTidspunkt
             }
         }
 
-        test("avviser med årsaker og forklaring") {
+        test("avviser eksisterende totrinnskontroll og publiserer ny Kafka-melding") {
             database.run {
                 service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
 
                 val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
 
-                service.avvist(
-                    existing,
-                    besluttetAv,
-                    aarsaker = listOf("FEIL_BELOP"),
-                    forklaring = "Belopet er feil",
-                ).shouldBeRight()
+                service.avvist(existing, besluttetAv, listOf("FEIL_BELOP"), "Beløp er feil").shouldBeRight()
             }
 
             database.run {
                 val stored = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
                 stored.besluttelse shouldBe Besluttelse.AVVIST
-                stored.aarsaker shouldBe listOf("FEIL_BELOP")
-                stored.forklaring shouldBe "Belopet er feil"
+                stored.besluttetAv shouldBe besluttetAv
+                stored.besluttetTidspunkt shouldNotBe null
+
+                val records = queries.kafkaProducerRecord.getRecords(10, listOf(TOPIC))
+                records shouldHaveSize 2
+
+                val record = records.last()
+                val hendelse = Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString())
+                hendelse.besluttelse shouldBe Besluttelse.AVVIST
+                hendelse.besluttetAv shouldBe besluttetAv
+                hendelse.aarsaker shouldBe listOf("FEIL_BELOP")
+                hendelse.forklaring shouldBe "Beløp er feil"
+                hendelse.behandletTidspunkt shouldBe stored.behandletTidspunkt
+                hendelse.besluttetTidspunkt shouldBe stored.besluttetTidspunkt
             }
         }
 

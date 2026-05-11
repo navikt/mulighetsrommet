@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -160,7 +161,7 @@ fun QueryContext.setUtbetalingLinjeStatus(
     status: UtbetalingLinjeStatus,
     behandletAv: NavIdent = NavAnsattFixture.DonaldDuck.navIdent,
     besluttetAv: NavIdent = NavAnsattFixture.MikkeMus.navIdent,
-    besluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    besluttetTidspunkt: Instant = Instant.now(),
 ) {
     val dto = queries.utbetalingLinje.get(utbetalingLinjeDbo.id)
         ?: throw IllegalStateException("Dbo må være gitt til domain først")

@@ -16,7 +16,8 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavIdent
-import java.time.LocalDateTime
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class TotrinnskontrollService(private val topic: String) {
@@ -44,7 +45,7 @@ class TotrinnskontrollService(private val topic: String) {
             entityId = entityId,
             type = type,
             behandletAv = behandletAv,
-            behandletTidspunkt = LocalDateTime.now(),
+            behandletTidspunkt = instantAsMicros(),
             besluttetAv = null,
             besluttetTidspunkt = null,
             besluttelse = null,
@@ -72,7 +73,7 @@ class TotrinnskontrollService(private val topic: String) {
             behandletAv = existing.behandletAv,
             behandletTidspunkt = existing.behandletTidspunkt,
             besluttetAv = besluttetAv,
-            besluttetTidspunkt = LocalDateTime.now(),
+            besluttetTidspunkt = instantAsMicros(),
             besluttelse = Besluttelse.GODKJENT,
             aarsaker = existing.aarsaker,
             forklaring = existing.forklaring,
@@ -98,7 +99,7 @@ class TotrinnskontrollService(private val topic: String) {
             behandletAv = existing.behandletAv,
             behandletTidspunkt = existing.behandletTidspunkt,
             besluttetAv = besluttetAv,
-            besluttetTidspunkt = LocalDateTime.now(),
+            besluttetTidspunkt = instantAsMicros(),
             besluttelse = Besluttelse.AVVIST,
             aarsaker = aarsaker.ifEmpty { existing.aarsaker },
             forklaring = forklaring ?: existing.forklaring,
@@ -132,3 +133,5 @@ class TotrinnskontrollService(private val topic: String) {
         )
     }
 }
+
+private fun instantAsMicros(): Instant = Instant.now().truncatedTo(ChronoUnit.MICROS)

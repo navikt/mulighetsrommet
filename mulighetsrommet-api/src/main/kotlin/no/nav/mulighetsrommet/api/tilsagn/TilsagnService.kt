@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -60,7 +61,6 @@ import no.nav.tiltak.okonomi.toOkonomiPart
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.collections.orEmpty
 
 class TilsagnService(
     val config: Config,
@@ -632,9 +632,9 @@ class TilsagnService(
             belop = tilsagn.beregning.output.pris.belop,
             periode = tilsagn.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = opprettelse.behandletTidspunkt,
+            behandletTidspunkt = opprettelse.behandletTidspunkt.tilNorskLocalDateTime(),
             besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = opprettelse.besluttetTidspunkt,
+            besluttetTidspunkt = opprettelse.besluttetTidspunkt.tilNorskLocalDateTime(),
             valuta = tilsagn.beregning.output.pris.valuta,
         )
 
@@ -650,9 +650,9 @@ class TilsagnService(
         val annullerBestilling = AnnullerBestilling(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             behandletAv = annullering.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = annullering.behandletTidspunkt,
+            behandletTidspunkt = annullering.behandletTidspunkt.tilNorskLocalDateTime(),
             besluttetAv = annullering.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = annullering.besluttetTidspunkt,
+            besluttetTidspunkt = annullering.besluttetTidspunkt.tilNorskLocalDateTime(),
         )
 
         storeOkonomiMelding(
@@ -670,9 +670,9 @@ class TilsagnService(
         val faktura = GjorOppBestilling(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             behandletAv = oppgjor.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = oppgjor.behandletTidspunkt,
+            behandletTidspunkt = oppgjor.behandletTidspunkt.tilNorskLocalDateTime(),
             besluttetAv = oppgjor.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = oppgjor.besluttetTidspunkt,
+            besluttetTidspunkt = oppgjor.besluttetTidspunkt.tilNorskLocalDateTime(),
         )
 
         storeOkonomiMelding(

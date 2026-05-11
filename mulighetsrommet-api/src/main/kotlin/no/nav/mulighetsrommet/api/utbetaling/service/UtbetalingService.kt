@@ -49,6 +49,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsa
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.clamav.Vedlegg
@@ -743,9 +744,9 @@ class UtbetalingService(
             betalingsinformasjon = betalingsinformasjon,
             periode = linje.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = opprettelse.behandletTidspunkt,
+            behandletTidspunkt = opprettelse.behandletTidspunkt.tilNorskLocalDateTime(),
             besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = opprettelse.besluttetTidspunkt,
+            besluttetTidspunkt = opprettelse.besluttetTidspunkt.tilNorskLocalDateTime(),
             gjorOppBestilling = linje.gjorOppTilsagn,
             beskrivelse = beskrivelse,
             belop = linje.pris.belop,

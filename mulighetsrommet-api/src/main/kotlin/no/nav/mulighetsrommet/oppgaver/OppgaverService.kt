@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -28,7 +29,12 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
 
         return OppgaveType.entries
             .filter { it.rolle in roller }
-            .filter { isEnkeltplassEnabled() || it.kategori !in setOf(Kategori.ENKELTPLASS, Kategori.TILSKUDDBEHANDLING) }
+            .filter {
+                isEnkeltplassEnabled() || it.kategori !in setOf(
+                    Kategori.ENKELTPLASS,
+                    Kategori.TILSKUDDBEHANDLING,
+                )
+            }
             .map { OppgaveTypeDto(navn = it.navn, type = it) }
     }
 
@@ -263,7 +269,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 description = "Tilsagnet ${data.bestillingsnummer} er sendt til godkjenning",
                 tiltakstype = tiltakstype,
                 link = link,
-                createdAt = opprettelse.behandletTidspunkt,
+                createdAt = opprettelse.behandletTidspunkt.tilNorskLocalDateTime(),
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN,
@@ -287,7 +293,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 description = "Tilsagnet ${data.bestillingsnummer} er returnert av beslutter",
                 tiltakstype = tiltakstype,
                 link = link,
-                createdAt = opprettelse.besluttetTidspunkt,
+                createdAt = opprettelse.besluttetTidspunkt.tilNorskLocalDateTime(),
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.REDIGER,
@@ -311,7 +317,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 description = "Tilsagnet ${data.bestillingsnummer} er sendt til annullering",
                 tiltakstype = tiltakstype,
                 link = link,
-                createdAt = annullering.behandletTidspunkt,
+                createdAt = annullering.behandletTidspunkt.tilNorskLocalDateTime(),
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN_ANNULLERING,
@@ -335,7 +341,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 description = "Tilsagnet ${data.bestillingsnummer} er klar til oppgjør",
                 tiltakstype = tiltakstype,
                 link = link,
-                createdAt = tilOppgjor.behandletTidspunkt,
+                createdAt = tilOppgjor.behandletTidspunkt.tilNorskLocalDateTime(),
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN_OPPGJOR,

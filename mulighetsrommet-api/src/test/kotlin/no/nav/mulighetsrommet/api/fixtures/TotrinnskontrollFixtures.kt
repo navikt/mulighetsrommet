@@ -5,14 +5,14 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.NavIdent
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 
 fun QueryContext.setTilGodkjenning(
     uuid: UUID,
     type: Totrinnskontroll.Type,
     behandletAv: NavIdent,
-    behandletTidspunkt: LocalDateTime = LocalDateTime.now(),
+    behandletTidspunkt: Instant = Instant.now(),
 ) = queries.totrinnskontroll.upsert(
     TotrinnskontrollDbo(
         id = UUID.randomUUID(),
@@ -33,8 +33,8 @@ fun QueryContext.setGodkjent(
     type: Totrinnskontroll.Type,
     behandletAv: NavIdent,
     besluttetAv: NavIdent,
-    behandletTidspunkt: LocalDateTime = LocalDateTime.now(),
-    besluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    behandletTidspunkt: Instant = Instant.now(),
+    besluttetTidspunkt: Instant = Instant.now(),
 ) = queries.totrinnskontroll.upsert(
     TotrinnskontrollDbo(
         id = UUID.randomUUID(),
@@ -55,8 +55,8 @@ fun QueryContext.setAvvist(
     type: Totrinnskontroll.Type,
     behandletAv: NavIdent,
     besluttetAv: NavIdent,
-    behandletTidspunkt: LocalDateTime = LocalDateTime.now(),
-    besluttetTidspunkt: LocalDateTime = LocalDateTime.now(),
+    behandletTidspunkt: Instant = Instant.now(),
+    besluttetTidspunkt: Instant = Instant.now(),
 ) = queries.totrinnskontroll.upsert(
     TotrinnskontrollDbo(
         id = UUID.randomUUID(),

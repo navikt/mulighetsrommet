@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 
 class TotrinnskontrollQueriesTest : FunSpec({
@@ -26,10 +26,10 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     entityId = entityId,
                     type = Totrinnskontroll.Type.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
-                    behandletTidspunkt = LocalDateTime.now(),
+                    behandletTidspunkt = Instant.now(),
                     besluttelse = Besluttelse.GODKJENT,
                     besluttetAv = Tiltaksadministrasjon,
-                    besluttetTidspunkt = LocalDateTime.now(),
+                    besluttetTidspunkt = Instant.now(),
                     aarsaker = emptyList(),
                     forklaring = null,
                 ),
@@ -41,10 +41,10 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     entityId = entityId,
                     type = Totrinnskontroll.Type.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
-                    behandletTidspunkt = LocalDateTime.now(),
+                    behandletTidspunkt = Instant.now(),
                     besluttelse = Besluttelse.AVVIST,
                     besluttetAv = Arena,
-                    besluttetTidspunkt = LocalDateTime.now(),
+                    besluttetTidspunkt = Instant.now(),
                     aarsaker = emptyList(),
                     forklaring = null,
                 ),
