@@ -38,20 +38,20 @@ export function VelgDeltakere({ gjennomforingId }: Props) {
       <Heading size="small">Deltakere</Heading>
       <TilsagnDeltakereTable
         deltakere={deltakere.filter((d) => selected?.some((s) => s.deltakerId === d.deltakerId))}
+        selected={selected ?? []}
       />
       <HStack justify="end">
         <Button
           size="small"
           type="button"
+          icon={<PlusIcon aria-hidden fontSize="1.5rem" />}
           variant="tertiary"
           onClick={() => {
             setModalOpen(true);
             clearErrors("deltakere");
           }}
         >
-          <HStack gap="space-4" align="center">
-            <PlusIcon title="a11y-title" fontSize="1.5rem" /> Legg til deltakere
-          </HStack>
+          Legg til deltakere
         </Button>
       </HStack>
       <VelgDeltakereModal
