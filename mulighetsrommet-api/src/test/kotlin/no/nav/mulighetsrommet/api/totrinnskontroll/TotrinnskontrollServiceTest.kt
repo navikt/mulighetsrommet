@@ -88,11 +88,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
                 val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
 
-                service.besluttet(
-                    existing,
-                    besluttetAv,
-                    Besluttelse.GODKJENT,
-                )
+                service.godkjent(existing, besluttetAv)
             }
 
             database.run {
@@ -117,10 +113,9 @@ class TotrinnskontrollServiceTest : FunSpec({
 
                 val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
 
-                service.besluttet(
+                service.avvist(
                     existing,
                     besluttetAv,
-                    Besluttelse.AVVIST,
                     aarsaker = listOf("FEIL_BELOP"),
                     forklaring = "Belopet er feil",
                 )
@@ -145,11 +140,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
                 val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_ANNULLERING)
 
-                service.besluttet(
-                    existing,
-                    besluttetAv,
-                    Besluttelse.GODKJENT,
-                )
+                service.godkjent(existing, besluttetAv)
             }
 
             database.run {

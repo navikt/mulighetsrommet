@@ -580,7 +580,7 @@ class UtbetalingService(
         }
 
         queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.GODKJENT)
-        totrinnskontroll.besluttet(opprettelse, besluttetAv, Besluttelse.GODKJENT)
+        totrinnskontroll.godkjent(opprettelse, besluttetAv)
 
         val linjer = queries.utbetalingLinje.getByUtbetalingId(utbetalingLinje.utbetalingId)
             .associateWith { linje ->
@@ -673,7 +673,7 @@ class UtbetalingService(
     ) {
         queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.RETURNERT)
         val opprettelse = totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
-        totrinnskontroll.besluttet(opprettelse, besluttetAv, Besluttelse.AVVIST, aarsaker.map { it.name }, forklaring)
+        totrinnskontroll.avvist(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring)
     }
 
     private fun TransactionalQueryContext.logEndring(

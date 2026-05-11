@@ -39,7 +39,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
@@ -362,7 +361,7 @@ class TilsagnService(
             return FieldError.of("Du kan ikke beslutte et tilsagn du selv har opprettet").nel().left()
         }
 
-        totrinnskontroll.besluttet(opprettelse, besluttetAv, Besluttelse.GODKJENT)
+        totrinnskontroll.godkjent(opprettelse, besluttetAv)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
         return logEndring("Tilsagn godkjent", tilsagn.id, besluttetAv).right()
@@ -385,10 +384,9 @@ class TilsagnService(
         }
 
         val opprettelse = totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
-        totrinnskontroll.besluttet(
+        totrinnskontroll.avvist(
             opprettelse,
             besluttetAv,
-            Besluttelse.AVVIST,
             aarsaker.map { it.name },
             forklaring,
         )
@@ -434,7 +432,7 @@ class TilsagnService(
             return FieldError.of("Du kan ikke beslutte annullering du selv har opprettet").nel().left()
         }
 
-        totrinnskontroll.besluttet(annullering, besluttetAv, Besluttelse.GODKJENT)
+        totrinnskontroll.godkjent(annullering, besluttetAv)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
 
         return logEndring("Tilsagn annullert", tilsagn.id, besluttetAv).right()
@@ -453,10 +451,9 @@ class TilsagnService(
         }
 
         val annullering = totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.TILSAGN_ANNULLERING)
-        totrinnskontroll.besluttet(
+        totrinnskontroll.avvist(
             annullering,
             besluttetAv,
-            Besluttelse.AVVIST,
             aarsaker.map { it.name },
             forklaring,
         )
@@ -510,7 +507,7 @@ class TilsagnService(
             return FieldError.of("Du kan ikke beslutte oppgjør du selv har opprettet").nel().left()
         }
 
-        totrinnskontroll.besluttet(oppgjor, besluttetAv, Besluttelse.GODKJENT)
+        totrinnskontroll.godkjent(oppgjor, besluttetAv)
         queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
 
         return logEndring(operation, tilsagn.id, besluttetAv).right()
@@ -529,10 +526,9 @@ class TilsagnService(
         }
 
         val oppgjor = totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.TILSAGN_OPPGJOR)
-        totrinnskontroll.besluttet(
+        totrinnskontroll.avvist(
             oppgjor,
             besluttetAv,
-            Besluttelse.AVVIST,
             aarsaker.map { it.name },
             forklaring,
         )

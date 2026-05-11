@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingReq
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -88,7 +87,7 @@ class TilskuddBehandlingService(
                 .left()
         }
 
-        totrinnskontroll.besluttet(opprettelse, navIdent, Besluttelse.GODKJENT)
+        totrinnskontroll.godkjent(opprettelse, navIdent)
         queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
 
         logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent).right()
@@ -112,10 +111,9 @@ class TilskuddBehandlingService(
 
         val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE)
 
-        totrinnskontroll.besluttet(
+        totrinnskontroll.avvist(
             opprettelse,
             navIdent,
-            Besluttelse.AVVIST,
             aarsaker,
             forklaring,
         )

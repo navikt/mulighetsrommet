@@ -48,11 +48,30 @@ class TotrinnskontrollService(private val topic: String) {
     }
 
     context(tx: TransactionalQueryContext)
-    fun besluttet(
+    fun godkjent(
         existing: Totrinnskontroll,
         besluttetAv: Agent,
-        besluttelse: Besluttelse,
-        aarsaker: List<String>? = null,
+    ) {
+        val dbo = TotrinnskontrollDbo(
+            id = existing.id,
+            entityId = existing.entityId,
+            type = existing.type,
+            behandletAv = existing.behandletAv,
+            behandletTidspunkt = existing.behandletTidspunkt,
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = LocalDateTime.now(),
+            besluttelse = Besluttelse.GODKJENT,
+            aarsaker = existing.aarsaker,
+            forklaring = existing.forklaring,
+        )
+        upsert(dbo)
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun avvist(
+        existing: Totrinnskontroll,
+        besluttetAv: Agent,
+        aarsaker: List<String> = emptyList(),
         forklaring: String? = null,
     ) {
         val dbo = TotrinnskontrollDbo(
@@ -63,8 +82,8 @@ class TotrinnskontrollService(private val topic: String) {
             behandletTidspunkt = existing.behandletTidspunkt,
             besluttetAv = besluttetAv,
             besluttetTidspunkt = LocalDateTime.now(),
-            besluttelse = besluttelse,
-            aarsaker = aarsaker ?: existing.aarsaker,
+            besluttelse = Besluttelse.AVVIST,
+            aarsaker = aarsaker.ifEmpty { existing.aarsaker },
             forklaring = forklaring ?: existing.forklaring,
         )
         upsert(dbo)

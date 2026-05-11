@@ -94,7 +94,7 @@ class GjennomforingEnkeltplassService(
                     Tiltaksadministrasjon, Arrangor -> error("$agent er ikke tillatt å opprette enkeltplasser")
 
                     is NavIdent -> {
-                        createTotrinnskontroll(it.id, agent)
+                        totrinnskontroll.opprett(it.id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI, agent)
                         logEndring("Deltaker søkt inn", it.id, agent)
                     }
                 }
@@ -196,7 +196,7 @@ class GjennomforingEnkeltplassService(
                 .left()
         }
 
-        totrinnskontroll.besluttet(opprettelse, navIdent, Besluttelse.GODKJENT)
+        totrinnskontroll.godkjent(opprettelse.copy(forklaring = null), navIdent)
 
         logEndring("Enkeltplass ble godkjent", id, navIdent).right()
     }
@@ -215,10 +215,9 @@ class GjennomforingEnkeltplassService(
                 .left()
         }
 
-        totrinnskontroll.besluttet(
+        totrinnskontroll.avvist(
             opprettelse,
             navIdent,
-            Besluttelse.AVVIST,
             forklaring = forklaring,
         )
 
