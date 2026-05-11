@@ -63,8 +63,20 @@ from gjennomforing
                                      join arrangor_kontaktperson kontaktperson on id = arrangor_kontaktperson_id
                             where gjennomforing_id = gjennomforing.id) on true
          left join lateral (select jsonb_build_object(
-                                           'kurstype', k.kurstype,
-                                           'bransje', k.bransje,
+                                           'kurstype', (select jsonb_build_object(
+                'id', okk.id,
+                'navn', okk.navn,
+                'kode', okk.kode
+                                                                                 )
+                                                        from opplaring_kategorisering_kurstype okk
+                                                        where okk.id = k.kurstype_id),
+                                           'bransje', (select jsonb_build_object(
+                'id', okb.id,
+                'navn', okb.navn,
+                'kode', okb.kode
+                                                                                )
+                                                       from opplaring_kategorisering_bransje okb
+                                                       where okb.id = k.bransje_id),
                                            'forerkort', k.forerkort,
                                            'norskprove', k.norskprove,
                                            'sertifiseringer',

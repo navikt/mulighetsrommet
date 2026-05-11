@@ -48,15 +48,22 @@ object AmoKategoriseringQueries {
                 bransje,
                 norskprove,
                 forerkort,
-                innhold_elementer
-            ) values (
+                innhold_elementer,
+                bransje_id,
+                kurstype_id,
+            ) select
                 :${foreignName}_id::uuid,
                 :kurstype::amo_kurstype,
                 :bransje::amo_bransje,
                 :norskprove::boolean,
                 :forerkort,
-                :innhold_elementer
-            ) on conflict (${foreignName}_id) do update set
+                :innhold_elementer,
+                ok_bransje.id,
+                ok_kurstype.id,
+            from opplaring_kategorisering_bransje ok_bransje
+            join opplaring_kategorisering_kurstype ok_kurstype on ok_kurstype.kode = :kurstype
+            where ok_bransje.kode = :bransje
+            on conflict (${foreignName}_id) do update set
                 kurstype = excluded.kurstype,
                 bransje = excluded.bransje,
                 norskprove = excluded.norskprove,
