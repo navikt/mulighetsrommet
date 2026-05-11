@@ -376,9 +376,9 @@ class UtbetalingService(
             innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
-            blokkeringer = upsert.blokkeringer,
         )
         queries.utbetaling.upsert(dbo)
+        queries.utbetaling.setBlokkeringer(dbo.id, upsert.blokkeringer)
         return dbo.right()
     }
 
@@ -406,7 +406,6 @@ class UtbetalingService(
             },
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
-            blokkeringer = emptySet(),
         )
 
         queries.utbetaling.upsert(dbo)
@@ -457,7 +456,6 @@ class UtbetalingService(
             innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
-            blokkeringer = emptySet(),
         )
 
         queries.utbetaling.upsert(dbo)

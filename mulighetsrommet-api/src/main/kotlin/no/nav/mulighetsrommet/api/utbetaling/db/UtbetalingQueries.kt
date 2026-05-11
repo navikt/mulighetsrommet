@@ -143,7 +143,6 @@ class UtbetalingQueries(private val session: Session) {
 
         execute(queryOf(utbetalingQuery, params))
         setBeregning(dbo.id, dbo.beregning)
-        setBlokkeringer(dbo.id, dbo.blokkeringer)
     }
 
     fun setBeregning(id: UUID, beregning: UtbetalingBeregning) = withTransaction(session) {
