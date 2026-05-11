@@ -563,7 +563,7 @@ class UtbetalingService(
 
         queries.utbetalingLinje.upsert(dbo)
 
-        totrinnskontroll.opprett(id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE, behandletAv)
+        totrinnskontroll.opprett(id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE, behandletAv)
     }
 
     private fun TransactionalQueryContext.godkjennUtbetalingLinje(
@@ -571,7 +571,7 @@ class UtbetalingService(
         utbetalingLinje: UtbetalingLinje,
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
-        val opprettelse = totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
+        val opprettelse = totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE)
         totrinnskontroll.godkjent(opprettelse, besluttetAv).onLeft { return it.left() }
         queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.GODKJENT)
 
@@ -617,7 +617,7 @@ class UtbetalingService(
     }
 
     private fun TransactionalQueryContext.gjorOppTilsagnForUtbetalingLinje(utbetalingLinjeId: UUID, tilsagn: Tilsagn) {
-        val opprettelse = totrinnskontroll.getOrError(utbetalingLinjeId, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
+        val opprettelse = totrinnskontroll.getOrError(utbetalingLinjeId, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE)
         val tilsagnTilOppgjor = tilsagnService.setTilOppgjor(
             tilsagn,
             opprettelse.behandletAv,
@@ -665,7 +665,7 @@ class UtbetalingService(
         besluttetAv: Agent,
     ) {
         queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.RETURNERT)
-        val opprettelse = totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
+        val opprettelse = totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE)
         totrinnskontroll.avvist(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring).onLeft {
             throw AttesterUtbetalingException(it)
         }
@@ -700,7 +700,7 @@ class UtbetalingService(
     }
 
     private fun TransactionalQueryContext.publishOpprettFaktura(linje: UtbetalingLinje) {
-        val opprettelse = totrinnskontroll.getOrError(linje.id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
+        val opprettelse = totrinnskontroll.getOrError(linje.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE)
         check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null && opprettelse.besluttelse == Besluttelse.GODKJENT) {
             "UtbetalingLinje id=${linje.id} må være besluttet godkjent for å sendes til økonomi"
         }

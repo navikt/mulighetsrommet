@@ -14,7 +14,7 @@ insert into totrinnskontroll_type (value)
 values ('TILSAGN_OPPRETTELSE'),
        ('TILSAGN_ANNULLERING'),
        ('TILSAGN_OPPGJOR'),
-       ('UTBETALING_OPPRETTELSE'),
+       ('UTBETALING_LINJE_OPPRETTELSE'),
        ('ENKELTPLASS_OKONOMI'),
        ('TILSKUDD_OPPRETTELSE');
 
@@ -36,7 +36,7 @@ where type = 'OPPRETT'
   and entity_id in (select id from tilsagn);
 
 update totrinnskontroll
-set type = 'UTBETALING_OPPRETTELSE'
+set type = 'UTBETALING_LINJE_OPPRETTELSE'
 where type = 'OPPRETT'
   and entity_id in (select id from utbetaling_linje);
 

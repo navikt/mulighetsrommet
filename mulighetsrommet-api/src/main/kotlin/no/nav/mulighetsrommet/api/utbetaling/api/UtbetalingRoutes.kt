@@ -368,7 +368,7 @@ fun Route.utbetalingRoutes() {
                         val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
 
                         val opprettelse = queries.totrinnskontroll
-                            .getOrError(linje.id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
+                            .getOrError(linje.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE)
 
                         val personalia = personaliaService.getPersonalia(
                             tilsagn.deltakere.map { it.deltakerId },

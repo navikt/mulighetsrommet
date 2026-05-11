@@ -210,7 +210,7 @@ class OppgaveQueries(private val session: Session) {
             INNER JOIN (
                 SELECT DISTINCT ON (entity_id) *
                 FROM totrinnskontroll
-                WHERE type = 'UTBETALING_OPPRETTELSE'
+                WHERE type = 'UTBETALING_LINJE_OPPRETTELSE'
                 ORDER BY entity_id, behandlet_tidspunkt DESC
             ) tk ON tk.entity_id = utbetaling_linje.id
             WHERE
