@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
@@ -223,13 +224,31 @@ val ApplicationConfigLocal = AppConfig(
                 val jsonString = (request.body as TextContent).text
                 val requests = JsonIgnoreUnknownKeys.decodeFromString<List<TilgangsmaskinRequest>>(jsonString)
 
+                // Personidenter som matcher mock-personer med STRENGT_FORTROLIG eller STRENGT_FORTROLIG_UTLAND
+                val identerUtenTilgang = setOf("01019212345", "15039054321")
+
                 val payload =
                     TilgangsmaskinResponse(
                         requests.map { req ->
-                            TilgangsmaskinResponse.Resultat(
-                                req.brukerId,
-                                status = 204,
-                            )
+                            if (req.brukerId in identerUtenTilgang) {
+                                TilgangsmaskinResponse.Resultat(
+                                    req.brukerId,
+                                    status = 403,
+                                    detaljer = object : ProblemDetail() {
+                                        override val type = ""
+                                        override val title = "AVVIST_SKJERMING"
+                                        override val status = 403
+                                        override val detail = ""
+                                        override val instance = null
+                                        override val extensions = null
+                                    },
+                                )
+                            } else {
+                                TilgangsmaskinResponse.Resultat(
+                                    req.brukerId,
+                                    status = 204,
+                                )
+                            }
                         },
                     )
                 respond(
@@ -273,20 +292,40 @@ val ApplicationConfigLocal = AppConfig(
             if (request.url.toString().endsWith("/external/deltakere/personalia")) {
                 val jsonString = (request.body as TextContent).text
                 val deltakerIds = JsonIgnoreUnknownKeys.decodeFromString<List<String>>(jsonString)
-                val content = deltakerIds.joinToString(prefix = "[", postfix = "]", separator = ",\n") { id ->
+
+                data class MockPerson(
+                    val personident: String,
+                    val fornavn: String,
+                    val etternavn: String,
+                    val navEnhetsnummer: String,
+                    val erSkjermet: Boolean,
+                    val adressebeskyttelse: String,
+                )
+
+                val mockPersonalia = listOf(
+                    MockPerson("12345678901", "Ola", "Nordmann", "1206", false, "UGRADERT"),
+                    MockPerson("98765432100", "Kari", "Hansen", "0301", false, "UGRADERT"),
+                    MockPerson("27017809100", "Per", "Johansen", "0106", false, "FORTROLIG"),
+                    MockPerson("01019212345", "Lise", "Berg", "1505", true, "STRENGT_FORTROLIG"),
+                    MockPerson("15039054321", "Erik", "Solberg", "4601", false, "STRENGT_FORTROLIG_UTLAND"),
+                )
+
+                val content = deltakerIds.mapIndexed { index, id ->
+                    val person = mockPersonalia[index % mockPersonalia.size]
                     """
                           {
                             "deltakerId": "$id",
-                            "personident": "27017809100",
-                            "fornavn": "Ola",
+                            "personident": "${person.personident}",
+                            "fornavn": "${person.fornavn}",
                             "mellomnavn": null,
-                            "etternavn": "Nordmann",
-                            "navEnhetsnummer": "1206",
-                            "erSkjermet": true,
-                            "adressebeskyttelse": "UGRADERT"
+                            "etternavn": "${person.etternavn}",
+                            "navEnhetsnummer": "${person.navEnhetsnummer}",
+                            "erSkjermet": ${person.erSkjermet},
+                            "adressebeskyttelse": "${person.adressebeskyttelse}"
                           }
                     """.trimIndent()
-                }
+                }.joinToString(prefix = "[", postfix = "]", separator = ",\n")
+
                 respond(
                     content = ByteReadChannel(content),
                     status = HttpStatusCode.OK,

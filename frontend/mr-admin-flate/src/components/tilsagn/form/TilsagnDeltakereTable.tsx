@@ -1,39 +1,77 @@
 import { NavnOgGradering } from "@/components/personalia/NavnOgGradering";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { CheckmarkCircleIcon } from "@navikt/aksel-icons";
-import { BodyShort, Box, Table, VStack } from "@navikt/ds-react";
-import { TilsagnDeltakerDto } from "@tiltaksadministrasjon/api-client";
+import { BodyShort, Box, Checkbox, Table, VStack } from "@navikt/ds-react";
+import { addOrRemove } from "@mr/frontend-common/utils/utils";
+import { TilsagnDeltakerDto, TilsagnDeltakerRequest } from "@tiltaksadministrasjon/api-client";
 import { useState } from "react";
 
 interface Props {
   deltakere: TilsagnDeltakerDto[];
-  selected?: (a: TilsagnDeltakerDto) => boolean;
-  onClick?: (a: TilsagnDeltakerDto) => void;
+  selected: TilsagnDeltakerRequest[];
+  setSelected?: (a: TilsagnDeltakerRequest[]) => void;
+  editable?: boolean;
 }
 
-export function TilsagnDeltakereTable({ deltakere, selected, onClick }: Props) {
+export function TilsagnDeltakereTable({ deltakere, selected, setSelected }: Props) {
+  const allSelected = selected.length === deltakere.length;
+  const indeterminate = selected.length > 0 && selected.length !== deltakere.length;
+
   return (
     <Table>
       <Table.Header>
         <Table.Row>
+          {setSelected && (
+            <Table.DataCell>
+              <Checkbox
+                checked={allSelected}
+                indeterminate={indeterminate}
+                onChange={() =>
+                  allSelected
+                    ? setSelected([])
+                    : setSelected(
+                        deltakere.map((d) => ({
+                          deltakerId: d.deltakerId,
+                          innholdAnnet: d.innholdAnnet,
+                        })),
+                      )
+                }
+                hideLabel
+              >
+                Velg alle rader
+              </Checkbox>
+            </Table.DataCell>
+          )}
           <Table.HeaderCell scope="col">Deltaker</Table.HeaderCell>
           <Table.HeaderCell scope="col">Oppfølgingsenhet</Table.HeaderCell>
           <Table.HeaderCell scope="col">Innhold</Table.HeaderCell>
           <Table.HeaderCell scope="col">Start</Table.HeaderCell>
           <Table.HeaderCell scope="col">Slutt</Table.HeaderCell>
           <Table.HeaderCell scope="col">Status</Table.HeaderCell>
-          <Table.HeaderCell scope="col"></Table.HeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {deltakere.map((deltaker, i) => {
+        {deltakere.map((deltaker) => {
           return (
-            <Table.Row
-              key={i + deltaker.deltakerId}
-              selected={selected?.(deltaker)}
-              onClick={() => onClick?.(deltaker)}
-            >
+            <Table.Row key={deltaker.deltakerId}>
+              {setSelected && (
+                <Table.DataCell>
+                  <Checkbox
+                    checked={selected.some((s) => s.deltakerId === deltaker.deltakerId)}
+                    onChange={() =>
+                      setSelected(
+                        addOrRemove(selected, {
+                          deltakerId: deltaker.deltakerId,
+                          innholdAnnet: deltaker.innholdAnnet,
+                        }),
+                      )
+                    }
+                    hideLabel
+                  >
+                    {`Velg deltaker ${deltaker.navn}`}
+                  </Checkbox>
+                </Table.DataCell>
+              )}
               <Table.HeaderCell scope="row">
                 <VStack>
                   <NavnOgGradering navn={deltaker.navn} gradering={deltaker.gradering} />
@@ -48,16 +86,6 @@ export function TilsagnDeltakereTable({ deltakere, selected, onClick }: Props) {
               <Table.DataCell>{formaterDato(deltaker.sluttDato)}</Table.DataCell>
               <Table.DataCell>
                 <DataElementStatusTag {...deltaker.status} />
-              </Table.DataCell>
-              <Table.DataCell>
-                {selected?.(deltaker) && (
-                  <CheckmarkCircleIcon
-                    color="var(--ax-text-success-decoration)"
-                    className="text-ax-success-strong"
-                    title="a11y-title"
-                    fontSize="2rem"
-                  />
-                )}
               </Table.DataCell>
             </Table.Row>
           );

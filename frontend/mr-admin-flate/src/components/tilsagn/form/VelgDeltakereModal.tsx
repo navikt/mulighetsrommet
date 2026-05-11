@@ -1,5 +1,4 @@
-import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { Button, HStack, InlineMessage, Modal } from "@navikt/ds-react";
+import { Button, HStack, InlineMessage, Modal, VStack } from "@navikt/ds-react";
 import { TilsagnDeltakerRequest, TilsagnDeltakerDto } from "@tiltaksadministrasjon/api-client";
 import { useState } from "react";
 import { TilsagnDeltakereTable } from "./TilsagnDeltakereTable";
@@ -30,24 +29,24 @@ export function VelgDeltakereModal({
       header={{ heading: "Velg deltakere" }}
     >
       <Modal.Body className="max-h-[70vh] overflow-y-auto">
-        <InlineMessage status="info">
-          Du kan velge deltakere som overlapper med tilsagnsperioden
-        </InlineMessage>
-        <TilsagnDeltakereTable
-          deltakere={deltakere}
-          selected={(d) => selected.some((s) => s.deltakerId === d.deltakerId)}
-          onClick={(d) =>
-            setSelected(
-              addOrRemove(selected, { deltakerId: d.deltakerId, innholdAnnet: d.innholdAnnet }),
-            )
-          }
-        />
+        <VStack gap="space-8">
+          <InlineMessage status="info">
+            Du kan velge deltakere som overlapper med tilsagnsperioden
+          </InlineMessage>
+          <TilsagnDeltakereTable
+            deltakere={deltakere}
+            selected={selected}
+            setSelected={setSelected}
+          />
+        </VStack>
       </Modal.Body>
       <Modal.Footer>
-        <HStack gap="space-4" onClick={() => onBekreft(selected)} className="flex-row-reverse">
-          <Button type="button">Bekreft</Button>
+        <HStack gap="space-4">
           <Button type="button" variant="tertiary" onClick={onClose}>
             Avbryt
+          </Button>
+          <Button type="button" onClick={() => onBekreft(selected)}>
+            Bekreft
           </Button>
         </HStack>
       </Modal.Footer>
