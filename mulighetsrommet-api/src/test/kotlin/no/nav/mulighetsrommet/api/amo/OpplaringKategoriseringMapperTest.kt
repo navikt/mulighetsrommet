@@ -64,16 +64,16 @@ const val NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON = """{
       "seleksjonstype": "ENKELTVALG",
       "alternativer": [
         {
-          "id": "8e294221-bf60-466a-96bd-7c59c338ee5e",
-          "visningsnavn": "Norskopplæring"
+          "id": "347ef4a1-be8c-47b6-8e67-54244b648a9f",
+          "visningsnavn": "FOV (Forberedende opplæring for voksne)"
         },
         {
           "id": "19544ff4-25e5-4925-b942-6109b2a98552",
           "visningsnavn": "Grunnleggende ferdigheter"
         },
         {
-          "id": "347ef4a1-be8c-47b6-8e67-54244b648a9f",
-          "visningsnavn": "FOV (Forberedende opplæring for voksne)"
+          "id": "8e294221-bf60-466a-96bd-7c59c338ee5e",
+          "visningsnavn": "Norskopplæring"
         }
       ]
     }
@@ -176,32 +176,32 @@ const val ARBEIDSMARKEDSOPPLAERING = """{
       "seleksjonstype": "ENKELTVALG",
       "alternativer": [
         {
-          "id": "d9b1c8e0-1c3a-4f5b-9c2e-1a2b3c4d5e6f",
-          "visningsnavn": "Bygg og anlegg"
-        },
-        {
-          "id": "d04dff0d-fdca-4839-9bdc-44c722af5d6f",
-          "visningsnavn": "Ingeniør- og IKT-fag"
-        },
-        {
-          "id": "82bd7ce0-70f1-448b-8773-9015dea613e7",
-          "visningsnavn": "Helse, pleie og omsorg"
-        },
-        {
           "id": "14886bad-a495-420a-9bae-d33e2d88041a",
           "visningsnavn": "Barne- og ungdomsarbeid"
-        },
-        {
-          "id": "a86c1f7a-47c3-4f69-b138-89341107e0eb",
-          "visningsnavn": "Kontorarbeid"
         },
         {
           "id": "e6749d6c-aacf-452d-baf2-d5fb5021912b",
           "visningsnavn": "Butikk- og salgsarbeid"
         },
         {
+          "id": "d9b1c8e0-1c3a-4f5b-9c2e-1a2b3c4d5e6f",
+          "visningsnavn": "Bygg og anlegg"
+        },
+        {
+          "id": "82bd7ce0-70f1-448b-8773-9015dea613e7",
+          "visningsnavn": "Helse, pleie og omsorg"
+        },
+        {
           "id": "4733d7ef-d106-47a4-b335-bfd132c8ad31",
           "visningsnavn": "Industriarbeid"
+        },
+        {
+          "id": "d04dff0d-fdca-4839-9bdc-44c722af5d6f",
+          "visningsnavn": "Ingeniør- og IKT-fag"
+        },
+        {
+          "id": "a86c1f7a-47c3-4f69-b138-89341107e0eb",
+          "visningsnavn": "Kontorarbeid"
         },
         {
           "id": "c8851a31-6362-4ee2-8989-e5da95726076",

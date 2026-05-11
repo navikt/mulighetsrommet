@@ -106,7 +106,8 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
     }
 
     private fun QueryContext.arenaAmo(): OpplaringKategoriseringResponse {
-        val bransjer = queries.opplaringKategorisering.getBransjer()
+        val bransjer = queries.opplaringKategorisering.getBransjer().toMutableList()
+        val andreBransjer = bransjer.indexOfFirst { it.kode == Bransje.Kode.ANDRE_BRANSJER }.let { bransjer.removeAt(it) }
         val forerkort = queries.opplaringKategorisering.getForerkortKlasser()
         return OpplaringKategoriseringResponse(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
@@ -121,7 +122,10 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
                             id = bransje.id,
                             visningsnavn = bransje.navn,
                         )
-                    },
+                    } + OpplaringKategoriseringResponse.Alternativ.Verdi(
+                        id = andreBransjer.id,
+                        visningsnavn = andreBransjer.navn,
+                    ),
                 ),
                 OpplaringKategoriseringResponse.Alternativ.Verdigruppe(
                     id = null,

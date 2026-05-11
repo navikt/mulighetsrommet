@@ -13,6 +13,7 @@ class OpplaringKategoriseringQueries(private val session: Session) {
             select id, kode, navn, aktiv
             from opplaring_kategorisering_kurstype
             where (:alle::bool = true or aktiv = true)
+            order by navn
         """.trimIndent()
         val params = mapOf("alle" to inkluderInaktive)
 
@@ -25,6 +26,7 @@ class OpplaringKategoriseringQueries(private val session: Session) {
         val query = """
             select id, kode, navn
             from opplaring_kategorisering_forerkort
+            order by navn
         """.trimIndent()
 
         val forerkortKlasser = session.list(queryOf(query)) { it.toForerkortKlasse() }
@@ -36,6 +38,7 @@ class OpplaringKategoriseringQueries(private val session: Session) {
         val query = """
             select id, kode, navn
             from opplaring_kategorisering_bransje
+            order by navn
         """.trimIndent()
 
         val bransjer = session.list(queryOf(query)) { it.toBransje() }
