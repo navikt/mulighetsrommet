@@ -1,4 +1,4 @@
-import { ArrangorflateTilsagnDtoDeltakerPersonalia, ArrangorflateTilsagnDto } from "api-client";
+import { ArrangorflatePersonalia, ArrangorflateTilsagnDto } from "api-client";
 import { tekster } from "~/tekster";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
 import {
@@ -59,6 +59,6 @@ export function TilsagnDetaljer({ tilsagn, headingLevel, minimal = false }: Prop
   );
 }
 
-function formatTilsagnDeltaker(deltaker: ArrangorflateTilsagnDtoDeltakerPersonalia): string {
+function formatTilsagnDeltaker(deltaker: ArrangorflatePersonalia): string {
   return `${deltaker.navn} · ${deltaker.norskIdent ?? "-"}`;
 }
