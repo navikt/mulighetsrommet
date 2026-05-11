@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -39,12 +40,14 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
@@ -59,6 +62,7 @@ import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.tiltak.okonomi.FakturaStatusType
@@ -138,6 +142,22 @@ class UtbetalingService(
         return upsert(rediger, agent).map {
             logEndring("Utbetaling redigert", it.id, agent)
         }
+    }
+
+    fun oppdaterBeregning(
+        id: UUID,
+        beregning: UtbetalingBeregning,
+        agent: Agent,
+    ): Validated<Utbetaling> = db.transaction {
+        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+
+        if (beregning == utbetaling.beregning) {
+            return utbetaling.right()
+        }
+
+        queries.utbetaling.setBeregning(id, beregning)
+
+        logEndring("Beregning oppdatert", id, agent).right()
     }
 
     fun opprettUtbetalingLinjer(
@@ -331,8 +351,35 @@ class UtbetalingService(
         upsert: UpsertUtbetaling,
         agent: Agent,
     ): Either<NonEmptyList<FieldError>, UtbetalingDbo> = when (upsert) {
+        is UpsertUtbetaling.Generering -> upsertGenerering(upsert)
         is UpsertUtbetaling.Anskaffelse -> upsertAnskaffelse(upsert, agent)
         is UpsertUtbetaling.Korreksjon -> upsertKorreksjon(upsert)
+    }
+
+    private suspend fun TransactionalQueryContext.upsertGenerering(
+        upsert: UpsertUtbetaling.Generering,
+    ): Either<NonEmptyList<FieldError>, UtbetalingDbo> {
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(upsert.gjennomforingId)
+
+        val dbo = UtbetalingDbo(
+            id = upsert.id,
+            gjennomforingId = upsert.gjennomforingId,
+            status = UtbetalingStatusType.GENERERT,
+            valuta = upsert.beregning.output.pris.valuta,
+            beregning = upsert.beregning,
+            periode = upsert.periode,
+            kommentar = null,
+            korreksjonGjelderUtbetalingId = null,
+            korreksjonBegrunnelse = null,
+            tilskuddstype = upsert.tilskuddstype,
+            journalpostId = null,
+            innsendtAvArrangorTidspunkt = null,
+            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
+            utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
+            blokkeringer = upsert.blokkeringer,
+        )
+        queries.utbetaling.upsert(dbo)
+        return dbo.right()
     }
 
     private suspend fun TransactionalQueryContext.upsertAnskaffelse(
@@ -358,10 +405,7 @@ class UtbetalingService(
                 else -> null
             },
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
-            utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
-                gjennomforing.tiltakstype.tiltakskode,
-                upsert.periode,
-            ),
+            utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
             blokkeringer = emptySet(),
         )
 
@@ -412,10 +456,7 @@ class UtbetalingService(
             journalpostId = null,
             innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
-            utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
-                gjennomforing.tiltakstype.tiltakskode,
-                upsert.periode,
-            ),
+            utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
             blokkeringer = emptySet(),
         )
 
@@ -429,6 +470,13 @@ class UtbetalingService(
             is Betalingsinformasjon.BBan -> Betalingsinformasjon.BBan(betalingsinformasjon.kontonummer, kid)
             is Betalingsinformasjon.IBan -> betalingsinformasjon
         }
+    }
+
+    private fun getUtbetalesTidligstTidspunkt(
+        gjennomforing: GjennomforingTiltaksadministrasjon,
+        periode: Periode,
+    ): Instant? {
+        return config.tidligstTidspunktForUtbetaling.calculate(gjennomforing.tiltakstype.tiltakskode, periode)
     }
 
     private fun TransactionalQueryContext.logUtbetalingLinjeUtbetalt(
@@ -465,7 +513,7 @@ class UtbetalingService(
             automatiskUtbetaling(utbetalingId).also { result ->
                 log.info("Automatisk utbetaling for utbetaling=$utbetalingId resulterte i: $result")
             }
-        } catch (error: AttesterUtbetalingException) {
+        } catch (error: UtbetalingException) {
             log.error("Uventet valideringsfeil oppsto under automatisk utbetaling: ${error.errors}")
             AutomatiskUtbetalingResult.VALIDERINGSFEIL
         }
@@ -519,7 +567,7 @@ class UtbetalingService(
         val linje = queries.utbetalingLinje.getOrError(id)
         godkjennUtbetalingLinje(utbetaling, linje, Tiltaksadministrasjon)
             .map { AutomatiskUtbetalingResult.GODKJENT }
-            .getOrElse { throw AttesterUtbetalingException(it) }
+            .getOrElse { throw UtbetalingException(it) }
     }
 
     private fun TransactionalQueryContext.upsertUtbetalingLinje(
@@ -656,7 +704,7 @@ class UtbetalingService(
             requireNotNull(opprettelse.besluttetAv),
             operation = "Tilsagn oppgjort ved attestering av utbetaling",
         ).onLeft { errors ->
-            throw AttesterUtbetalingException(errors)
+            throw UtbetalingException(errors)
         }
     }
 
@@ -946,15 +994,6 @@ class UtbetalingService(
         }
     }
 }
-
-/**
- * Ved unntakstilfeller så kan attestering av utbetalinger feile pga. uventede valideringsfeil. Årsaker
- * kan f.eks. være samtidighetsproblemer, glemte preconditions/låser eller andre bugs/mangler i koden.
- *
- * Disse blir kastet som exceptions i stedet for returneres som en [Either.Left] fordi det integrerer bedre med
- * automatisk rollback av database-transaksjoner.
- */
-private class AttesterUtbetalingException(val errors: List<FieldError>) : Exception()
 
 private fun kanRedigeres(utbetaling: Utbetaling): Boolean = utbetaling.innsending == null && when (utbetaling.status) {
     UtbetalingStatusType.GENERERT,

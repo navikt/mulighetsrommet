@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
-import arrow.core.Either
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -15,11 +14,10 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.amt.model.AmtArrangorMelding
 import no.nav.amt.model.EndringAarsak
+import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -50,7 +48,6 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
@@ -64,41 +61,44 @@ import java.util.UUID
 
 class GenererUtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
-    val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient = mockk(relaxed = true)
 
     afterEach {
         database.truncateAll()
     }
+
+    val arrangorService = mockk<ArrangorService>()
 
     fun createUtbetalingService(
         gyldigTilsagnPeriode: Map<Tiltakskode, Periode> = Tiltakskode.entries.associateWith {
             Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
         },
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = TidligstTidspunktForUtbetalingCalculator { _, _ -> null },
-    ) = GenererUtbetalingService(
-        config = GenererUtbetalingService.Config(gyldigTilsagnPeriode, tidligstTidspunktForUtbetaling),
-        db = database.db,
-        prismodeller = setOf(
-            FastSatsPerTiltaksplassPerManedBeregning,
-            PrisPerManedBeregning,
-            PrisPerUkeBeregning,
-            PrisPerHeleUkeBeregning,
-        ),
-        kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
-    )
+    ): GenererUtbetalingService {
+        return GenererUtbetalingService(
+            config = GenererUtbetalingService.Config(gyldigTilsagnPeriode),
+            db = database.db,
+            utbetalingService = UtbetalingService(
+                config = UtbetalingService.Config(
+                    bestillingTopic = "",
+                    tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
+                ),
+                db = database.db,
+                tilsagnService = mockk(),
+                arrangorService = arrangorService,
+                journalforUtbetaling = mockk(),
+            ),
+            prismodeller = setOf(
+                FastSatsPerTiltaksplassPerManedBeregning,
+                PrisPerManedBeregning,
+                PrisPerUkeBeregning,
+                PrisPerHeleUkeBeregning,
+            ),
+        )
+    }
 
-    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("123456789")) } returns Either.Right(
-        KontonummerResponse(
-            mottaker = "123456789",
-            kontonr = "12345678901",
-        ),
-    )
-
-    coEvery { kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("976663934")) } returns Either.Right(
-        KontonummerResponse(
-            mottaker = "976663934",
-            kontonr = "12345678901",
-        ),
+    coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
+        kontonummer = Kontonummer("12345678901"),
+        kid = null,
     )
 
     val januar = Periode.forMonthOf(LocalDate.of(2025, 1, 1))

@@ -468,26 +468,22 @@ private fun services(appConfig: AppConfig) = module {
     single { KostnadsstedService(get()) }
     single { ArrangorService(get(), get(), get()) }
     single {
-        val db: ApiDatabase = get()
         GenererUtbetalingService(
-            // TODO: Refaktorer "Opprett utbetaling" slik at vi ikke trenger å duplisere logikk for utledning av "tidligstTidspunktForUtbetaling"
             config = GenererUtbetalingService.Config(
                 gyldigTilsagnPeriode = appConfig.okonomi.gyldigTilsagnPeriode,
-                tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
-            db = db,
+            db = get(),
+            utbetalingService = get(),
             prismodeller = setOf(
                 FastSatsPerTiltaksplassPerManedBeregning,
                 PrisPerManedBeregning,
                 PrisPerUkeBeregning,
                 PrisPerHeleUkeBeregning,
             ),
-            get(),
         )
     }
     single {
         UtbetalingService(
-            // TODO: Refaktorer "Opprett utbetaling" slik at vi ikke trenger å duplisere logikk for utledning av "tidligstTidspunktForUtbetaling"
             UtbetalingService.Config(
                 bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
                 tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,

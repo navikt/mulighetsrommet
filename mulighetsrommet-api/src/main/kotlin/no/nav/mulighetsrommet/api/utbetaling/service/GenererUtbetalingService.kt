@@ -1,60 +1,47 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
-import com.github.benmanes.caffeine.cache.Cache
-import com.github.benmanes.caffeine.cache.Caffeine
+import arrow.core.getOrElse
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
-import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.SystemgenerertPrismodell
+import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
-import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
-import no.nav.mulighetsrommet.utils.CacheUtils
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.UUID
-import java.util.concurrent.TimeUnit
 
 class GenererUtbetalingService(
     private val config: Config,
     private val db: ApiDatabase,
+    private val utbetalingService: UtbetalingService,
     private val prismodeller: Set<SystemgenerertPrismodell<*>>,
-    private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     class Config(
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
-        val tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator,
     )
 
     @Serializable
@@ -74,39 +61,19 @@ class GenererUtbetalingService(
         val periode: Periode,
     )
 
-    private val kontonummerCache: Cache<String, Kontonummer> = Caffeine.newBuilder()
-        .expireAfterWrite(30, TimeUnit.MINUTES)
-        .maximumSize(10_000)
-        .recordStats()
-        .build()
-
     suspend fun genererUtbetalingerForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
-        getContextForGenereringAvUtbetalinger(periode)
-            .mapNotNull { context ->
-                val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(context.gjennomforingId)
-                genererUtbetaling(
-                    utbetalingId = UUID.randomUUID(),
-                    gjennomforing = gjennomforing,
-                    periode = context.periode,
-                )
-            }
-            .map { utbetaling ->
-                queries.utbetaling.upsert(utbetaling)
-                logEndring("Utbetaling opprettet", utbetaling.id, Tiltaksadministrasjon)
-            }
+        getContextForGenereringAvUtbetalinger(periode).mapNotNull { context ->
+            val beregning = beregnUtbetaling(context.gjennomforingId, context.periode) ?: return@mapNotNull null
+            createUtbetaling(context.gjennomforingId, context.periode, beregning)
+        }
     }
 
-    suspend fun beregnUtbetalingerForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
-        getContextForBeregningAvUtbetalinger(periode)
-            .mapNotNull { context ->
-                val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(context.gjennomforingId)
-                val utbetaling = genererUtbetaling(
-                    utbetalingId = UUID.randomUUID(),
-                    gjennomforing = gjennomforing,
-                    periode = context.periode,
-                )
-                utbetaling?.let { UtbetalingMapper.toNewUtbetaling(it, gjennomforing) }
-            }
+    fun beregnUtbetalingerForPeriode(periode: Periode): List<Utbetaling> = db.transaction {
+        getContextForBeregningAvUtbetalinger(periode).mapNotNull { context ->
+            val beregning = beregnUtbetaling(context.gjennomforingId, context.periode) ?: return@mapNotNull null
+            val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(context.gjennomforingId)
+            UtbetalingMapper.toNewUtbetaling(context.periode, gjennomforing, beregning)
+        }
     }
 
     fun skedulerOppdaterUtbetalingerForGjennomforing(gjennomforingId: UUID, tidspunkt: Instant): Unit = db.transaction {
@@ -124,29 +91,25 @@ class GenererUtbetalingService(
     //  I disse tilfellene vil ikke systemet fange opp at utbetlinagen _burde_ blitt generert etterskuddsvis.
     //  Hvis vi skal støtte dette så må vi sørge for det ikke genereres opp utbetalinger lengre tilbake i tid enn f.eks.
     //  gyldige tilsagnsperioder.
-    suspend fun oppdaterUtbetalingerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforingId)
+    fun oppdaterUtbetalingerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> = db.transaction {
+        hentGenererteUtbetalinger(gjennomforingId).mapNotNull { utbetaling ->
+            val oppdatertBeregning = beregnUtbetaling(gjennomforingId, utbetaling.periode)
 
-        hentGenererteUtbetalinger(gjennomforing.id)
-            .mapNotNull { utbetaling ->
-                val oppdatertUtbetaling = genererUtbetaling(
-                    utbetalingId = utbetaling.id,
-                    gjennomforing = gjennomforing,
-                    periode = utbetaling.periode,
-                )
-
-                if (oppdatertUtbetaling == null) {
-                    log.info("Sletter utbetaling=${utbetaling.id} fordi den ikke lengre er relevant for arrangør")
-                    queries.utbetaling.delete(utbetaling.id)
-                    return@mapNotNull null
-                }
-
-                oppdatertUtbetaling.takeIf { it.isNotEqualTo(utbetaling) }
+            if (oppdatertBeregning == null) {
+                log.info("Sletter utbetaling=${utbetaling.id} fordi den ikke lengre er relevant for arrangør")
+                queries.utbetaling.delete(utbetaling.id)
+                return@mapNotNull null
             }
-            .map { utbetaling ->
-                queries.utbetaling.upsert(utbetaling)
-                logEndring("Utbetaling beregning oppdatert", utbetaling.id, Tiltaksadministrasjon)
+
+            if (oppdatertBeregning == utbetaling.beregning) {
+                return@mapNotNull null
             }
+
+            // TODO: samme transaksjon?
+            utbetalingService.oppdaterBeregning(utbetaling.id, oppdatertBeregning, Tiltaksadministrasjon).getOrElse {
+                throw UtbetalingException(it)
+            }
+        }
     }
 
     fun oppdaterUtbetalingBlokkeringerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> = db.transaction {
@@ -160,9 +123,7 @@ class GenererUtbetalingService(
     }
 
     suspend fun regenererUtbetaling(utbetaling: Utbetaling): Utbetaling = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
-
-        val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(gjennomforing.id)
+        val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(utbetaling.gjennomforing.id)
             .filter { it.periode == utbetaling.periode }
 
         val alleredeRegenerert = utbetalingerSammePeriode
@@ -173,18 +134,11 @@ class GenererUtbetalingService(
             throw IllegalArgumentException("Allerede regenerert med id=${alleredeRegenerert.id}")
         }
 
-        val nyUtbetaling = genererUtbetaling(
-            utbetalingId = UUID.randomUUID(),
-            gjennomforing = gjennomforing,
-            periode = utbetaling.periode,
-        )
-
-        if (nyUtbetaling == null) {
-            throw IllegalArgumentException("Generert utbetaling var null utbetaling=${utbetaling.id} fordi den ikke lengre er relevant for arrangør")
+        val beregning = requireNotNull(beregnUtbetaling(utbetaling.gjennomforing.id, utbetaling.periode)) {
+            "Generert utbetaling med id=${utbetaling.id} kunne ikke beregnes på nytt fordi den ikke lengre er relevant for arrangør"
         }
 
-        queries.utbetaling.upsert(nyUtbetaling)
-        logEndring("Utbetaling opprettet", nyUtbetaling.id, Tiltaksadministrasjon)
+        createUtbetaling(utbetaling.gjennomforing.id, utbetaling.periode, beregning)
     }
 
     private fun QueryContext.hentGenererteUtbetalinger(gjennomforingId: UUID): List<Utbetaling> {
@@ -204,11 +158,11 @@ class GenererUtbetalingService(
         }
     }
 
-    private suspend fun QueryContext.genererUtbetaling(
-        utbetalingId: UUID,
-        gjennomforing: GjennomforingAvtale,
+    private fun QueryContext.beregnUtbetaling(
+        gjennomforingId: UUID,
         periode: Periode,
-    ): UtbetalingDbo? {
+    ): UtbetalingBeregning? {
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforingId)
         if (!isValidUtbetalingPeriode(gjennomforing.tiltakstype.tiltakskode, periode)) {
             log.info("Genererer ikke utbetaling for gjennomforing=${gjennomforing.id} fordi utbetalingsperioden ikke er tillatt tiltakskode=${gjennomforing.tiltakstype.tiltakskode}, periode=$periode")
             return null
@@ -222,56 +176,34 @@ class GenererUtbetalingService(
 
         val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
 
-        return prismodell.beregn(gjennomforing, deltakere, periode).takeIf { it.output.pris.belop > 0 }?.let {
-            createUtbetaling(
-                utbetalingId = utbetalingId,
-                gjennomforing = gjennomforing,
-                periode = periode,
-                beregning = it,
-            )
-        }
+        return prismodell.beregn(gjennomforing, deltakere, periode).takeIf { it.output.pris.belop > 0 }
     }
 
     private suspend fun QueryContext.createUtbetaling(
-        utbetalingId: UUID,
-        gjennomforing: Gjennomforing,
+        gjennomforingId: UUID,
         periode: Periode,
         beregning: UtbetalingBeregning,
-    ): UtbetalingDbo {
-        val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforing.id)
-        val kontonummer = getKontonummer(gjennomforing.arrangor.organisasjonsnummer)
-        val utbetalesTidligstTidspunkt = config.tidligstTidspunktForUtbetaling.calculate(
-            gjennomforing.tiltakstype.tiltakskode,
-            periode,
-        )
+    ): Utbetaling {
+        val forrigeKrav = queries.utbetaling.getSisteGodkjenteUtbetaling(gjennomforingId)
         val forrigeKid = when (forrigeKrav?.betalingsinformasjon) {
             is Betalingsinformasjon.BBan -> forrigeKrav.betalingsinformasjon.kid
             else -> null
         }
-        val forslag = queries.deltakerForslag.getForslagByGjennomforing(gjennomforing.id)
-
-        return UtbetalingDbo(
-            id = utbetalingId,
-            gjennomforingId = gjennomforing.id,
-            status = UtbetalingStatusType.GENERERT,
-            valuta = beregning.output.pris.valuta,
-            beregning = beregning,
-            betalingsinformasjon = kontonummer?.let {
-                Betalingsinformasjon.BBan(
-                    kontonummer = it,
-                    kid = forrigeKid,
-                )
-            },
+        val forslag = queries.deltakerForslag.getForslagByGjennomforing(gjennomforingId)
+        val blokkeringer = blokkeringer(periode, beregning, forslag)
+        val opprett = UpsertUtbetaling.Generering(
+            id = UUID.randomUUID(),
+            gjennomforingId = gjennomforingId,
             periode = periode,
-            kommentar = null,
-            korreksjonGjelderUtbetalingId = null,
-            korreksjonBegrunnelse = null,
+            beregning = beregning,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-            journalpostId = null,
-            innsendtAvArrangorTidspunkt = null,
-            utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
-            blokkeringer = blokkeringer(periode, beregning, forslag),
+            kid = forrigeKid,
+            blokkeringer = blokkeringer,
         )
+        // TODO: samme transasksjon som QueryContext?
+        return utbetalingService.opprettUtbetaling(opprett, Tiltaksadministrasjon).getOrElse {
+            throw UtbetalingException(it)
+        }
     }
 
     private fun blokkeringer(
@@ -286,22 +218,6 @@ class GenererUtbetalingService(
                 relevanteForslag.isNotEmpty()
             },
         )
-    }
-
-    private suspend fun getKontonummer(organisasjonsnummer: Organisasjonsnummer): Kontonummer? {
-        return CacheUtils.tryCacheFirstNullable(kontonummerCache, organisasjonsnummer.value) {
-            kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(organisasjonsnummer).fold(
-                { error ->
-                    log.warn(
-                        "Kunne ikke hente kontonummer for organisasjon ${organisasjonsnummer.value}. Error: $error",
-                    )
-                    null
-                },
-                { response ->
-                    Kontonummer(response.kontonr)
-                },
-            )
-        }
     }
 
     private fun QueryContext.getContextForGenereringAvUtbetalinger(periode: Periode): List<UtbetalingContext> {
@@ -367,44 +283,4 @@ class GenererUtbetalingService(
     private fun isValidUtbetalingPeriode(tiltakskode: Tiltakskode, periode: Periode): Boolean {
         return config.gyldigTilsagnPeriode[tiltakskode]?.contains(periode) ?: false
     }
-
-    private fun QueryContext.logEndring(
-        operation: String,
-        id: UUID,
-        endretAv: Agent,
-    ): Utbetaling {
-        val utbetaling = getOrError(id)
-        queries.endringshistorikk.logEndring(
-            EndringshistorikkType.UTBETALING,
-            operation,
-            endretAv,
-            id,
-            LocalDateTime.now(),
-        ) {
-            Json.encodeToJsonElement(utbetaling)
-        }
-        return utbetaling
-    }
-
-    private fun QueryContext.getOrError(id: UUID): Utbetaling {
-        return queries.utbetaling.getOrError(id)
-    }
 }
-
-private fun UtbetalingDbo.isNotEqualTo(utbetaling: Utbetaling): Boolean = this != UtbetalingDbo(
-    id = utbetaling.id,
-    gjennomforingId = utbetaling.gjennomforing.id,
-    status = utbetaling.status,
-    valuta = utbetaling.valuta,
-    beregning = utbetaling.beregning,
-    betalingsinformasjon = utbetaling.betalingsinformasjon,
-    periode = utbetaling.periode,
-    kommentar = utbetaling.kommentar,
-    korreksjonGjelderUtbetalingId = utbetaling.korreksjon?.gjelderUtbetalingId,
-    korreksjonBegrunnelse = utbetaling.korreksjon?.begrunnelse,
-    tilskuddstype = utbetaling.tilskuddstype,
-    journalpostId = utbetaling.journalpostId,
-    innsendtAvArrangorTidspunkt = utbetaling.innsending?.tidspunkt,
-    utbetalesTidligstTidspunkt = utbetaling.utbetalesTidligstTidspunkt,
-    blokkeringer = utbetaling.blokkeringer,
-)
