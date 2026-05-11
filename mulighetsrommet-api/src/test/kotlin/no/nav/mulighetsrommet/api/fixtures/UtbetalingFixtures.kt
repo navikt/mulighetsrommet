@@ -43,7 +43,6 @@ object UtbetalingFixtures {
         journalpostId = null,
         innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
-        blokkeringer = emptySet(),
     )
 
     val utbetalingDto1 = Utbetaling(
@@ -102,7 +101,6 @@ object UtbetalingFixtures {
         journalpostId = null,
         innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
-        blokkeringer = emptySet(),
     )
 
     val utbetaling3 = UtbetalingDbo(
@@ -123,7 +121,6 @@ object UtbetalingFixtures {
         journalpostId = null,
         innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
-        blokkeringer = emptySet(),
     )
 
     val utbetalingLinje1 = UtbetalingLinjeDbo(

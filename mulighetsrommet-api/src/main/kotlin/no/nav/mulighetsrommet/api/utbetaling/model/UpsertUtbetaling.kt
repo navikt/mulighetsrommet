@@ -10,6 +10,16 @@ import java.util.UUID
 sealed class UpsertUtbetaling {
     abstract val id: UUID
 
+    data class Generering(
+        override val id: UUID,
+        val periode: Periode,
+        val gjennomforingId: UUID,
+        val beregning: UtbetalingBeregning,
+        val tilskuddstype: Tilskuddstype,
+        val kid: Kid?,
+        val blokkeringer: Set<Utbetaling.Blokkering>,
+    ) : UpsertUtbetaling()
+
     data class Anskaffelse(
         override val id: UUID,
         val periode: Periode,
