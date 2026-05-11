@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
@@ -86,6 +87,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 tilsagnService = mockk(),
                 arrangorService = arrangorService,
                 journalforUtbetaling = mockk(),
+                totrinnskontroll = TotrinnskontrollService(""),
             ),
             prismodeller = setOf(
                 FastSatsPerTiltaksplassPerManedBeregning,
