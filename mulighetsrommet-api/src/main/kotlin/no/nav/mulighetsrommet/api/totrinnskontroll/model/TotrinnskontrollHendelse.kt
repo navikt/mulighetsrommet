@@ -9,32 +9,21 @@ import java.time.Instant
 import java.util.UUID
 
 @Serializable
-data class Totrinnskontroll(
+data class TotrinnskontrollHendelse(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val entityId: UUID,
-    val type: Type,
+    val type: Totrinnskontroll.Type,
     @Serializable(with = AgentSerializer::class)
     val behandletAv: Agent,
-    val behandletAvNavn: String?,
     @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
-    val aarsaker: List<String>,
-    val forklaring: String?,
     @Serializable(with = AgentSerializer::class)
     val besluttetAv: Agent?,
-    val besluttetAvNavn: String?,
     @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant?,
     val besluttelse: Besluttelse?,
-) {
-    enum class Type {
-        TILSAGN_OPPRETTELSE,
-        TILSAGN_ANNULLERING,
-        TILSAGN_OPPGJOR,
-        UTBETALING_LINJE_OPPRETTELSE,
-        ENKELTPLASS_OKONOMI,
-        TILSKUDD_OPPRETTELSE,
-    }
-}
+    val aarsaker: List<String>,
+    val forklaring: String?,
+)

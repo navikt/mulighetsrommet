@@ -3,10 +3,9 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.api
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Arrangor
@@ -48,20 +47,20 @@ sealed class TotrinnskontrollDto {
 }
 
 fun Totrinnskontroll.toDto() = when {
-    besluttetAv == null -> TilBeslutning(
+    besluttetAv == null -> TotrinnskontrollDto.TilBeslutning(
         behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
-        behandletTidspunkt = behandletTidspunkt,
+        behandletTidspunkt = behandletTidspunkt.tilNorskLocalDateTime(),
         aarsaker = aarsaker,
         forklaring = forklaring,
     )
 
-    else -> Besluttet(
+    else -> TotrinnskontrollDto.Besluttet(
         behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
-        behandletTidspunkt = behandletTidspunkt,
+        behandletTidspunkt = behandletTidspunkt.tilNorskLocalDateTime(),
         aarsaker = aarsaker,
         forklaring = forklaring,
         besluttetAv = AgentDto.fromAgent(besluttetAv, besluttetAvNavn),
-        besluttetTidspunkt = checkNotNull(besluttetTidspunkt),
+        besluttetTidspunkt = checkNotNull(besluttetTidspunkt).tilNorskLocalDateTime(),
         besluttelse = checkNotNull(besluttelse),
     )
 }

@@ -179,35 +179,35 @@ fun QueryContext.setTilsagnStatus(
 
     when (status) {
         TilsagnStatus.TIL_GODKJENNING -> {
-            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv)
+            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
         }
 
         TilsagnStatus.GODKJENT -> {
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
         }
 
         TilsagnStatus.TIL_OPPGJOR -> {
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
-            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.GJOR_OPP, behandletAv)
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
+            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.TILSAGN_OPPGJOR, behandletAv)
         }
 
         TilsagnStatus.OPPGJORT -> {
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.GJOR_OPP, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.TILSAGN_OPPGJOR, behandletAv, besluttetAv)
         }
 
         TilsagnStatus.RETURNERT -> {
-            setAvvist(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
+            setAvvist(tilsagnDbo.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
         }
 
         TilsagnStatus.TIL_ANNULLERING -> {
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
-            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.ANNULLER, behandletAv)
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
+            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.TILSAGN_ANNULLERING, behandletAv)
         }
 
         TilsagnStatus.ANNULLERT -> {
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.ANNULLER, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.TILSAGN_ANNULLERING, behandletAv, besluttetAv)
         }
     }
 }

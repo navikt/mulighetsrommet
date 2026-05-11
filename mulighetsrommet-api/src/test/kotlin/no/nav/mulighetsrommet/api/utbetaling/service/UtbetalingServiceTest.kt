@@ -48,6 +48,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
@@ -82,6 +83,10 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.UUID
 
+private const val BESTILLING_TOPIC = "bestilling-topic"
+
+private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
+
 class UtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
@@ -93,9 +98,10 @@ class UtbetalingServiceTest : FunSpec({
     val arrangorService: ArrangorService = mockk()
 
     fun createTilsagnService(): TilsagnService = TilsagnService(
-        TilsagnService.Config("bestilling-topic", mapOf()),
+        TilsagnService.Config(bestillingTopic = BESTILLING_TOPIC, gyldigTilsagnPeriode = mapOf()),
         db = database.db,
         navAnsattService = mockk(),
+        totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
     )
 
     fun createUtbetalingService(
@@ -104,13 +110,14 @@ class UtbetalingServiceTest : FunSpec({
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
     ) = UtbetalingService(
         config = UtbetalingService.Config(
-            bestillingTopic = "bestilling-topic",
+            bestillingTopic = BESTILLING_TOPIC,
             tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
         ),
         db = database.db,
         tilsagnService = tilsagnService,
         journalforUtbetaling = journalforUtbetaling,
         arrangorService = arrangorService,
+        totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
     )
 
     context("opprett og rediger utbetaling") {
@@ -373,7 +380,7 @@ class UtbetalingServiceTest : FunSpec({
                 id = linje.id,
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ) shouldBeLeft listOf(
-                FieldError.of("Kan ikke attestere en utbetaling du selv har opprettet"),
+                FieldError.of("Du kan ikke beslutte noe du selv har behandlet"),
             )
         }
 
@@ -742,13 +749,13 @@ class UtbetalingServiceTest : FunSpec({
 
             database.run {
                 queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.RETURNERT
-                queries.totrinnskontroll.getOrError(utbetalingLinje1.id, Totrinnskontroll.Type.OPPRETT).should {
+                queries.totrinnskontroll.getOrError(utbetalingLinje1.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE).should {
                     it.besluttelse shouldBe Besluttelse.AVVIST
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                 }
 
                 queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.RETURNERT
-                queries.totrinnskontroll.getOrError(utbetalingLinje2.id, Totrinnskontroll.Type.OPPRETT).should {
+                queries.totrinnskontroll.getOrError(utbetalingLinje2.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE).should {
                     it.besluttelse shouldBe Besluttelse.AVVIST
                     it.besluttetAv shouldBe domain.ansatte[0].navIdent
                 }
@@ -978,17 +985,17 @@ class UtbetalingServiceTest : FunSpec({
                     second.status shouldBe UtbetalingLinjeStatus.RETURNERT
                 }
 
-                queries.totrinnskontroll.getOrError(utbetalingLinje1.id, Totrinnskontroll.Type.OPPRETT).should {
+                queries.totrinnskontroll.getOrError(utbetalingLinje1.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE).should {
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                     it.besluttelse shouldBe Besluttelse.AVVIST
                 }
 
-                queries.totrinnskontroll.getOrError(utbetalingLinje2.id, Totrinnskontroll.Type.OPPRETT).should {
+                queries.totrinnskontroll.getOrError(utbetalingLinje2.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE).should {
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                     it.besluttelse shouldBe Besluttelse.AVVIST
                 }
 
-                queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()
+                queries.kafkaProducerRecord.getRecords(10, listOf(BESTILLING_TOPIC)).shouldBeEmpty()
             }
         }
 
@@ -1113,7 +1120,7 @@ class UtbetalingServiceTest : FunSpec({
                 queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING
                 queries.utbetalingLinje.getOrError(utbetalingLinje2.id).status shouldBe UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING
 
-                val records = queries.kafkaProducerRecord.getRecords(10)
+                val records = queries.kafkaProducerRecord.getRecords(10, listOf(BESTILLING_TOPIC))
                 records.shouldHaveSize(2)
 
                 Json.decodeFromString<OkonomiBestillingMelding>(records[0].value.decodeToString())
@@ -1171,7 +1178,8 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
 
             database.run {
-                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
+                val record =
+                    queries.kafkaProducerRecord.getRecords(10, listOf(BESTILLING_TOPIC)).shouldHaveSize(1).first()
 
                 val header = KafkaUtils.jsonToHeaders(record.headersJson).shouldHaveSize(1).first()
 
@@ -1215,10 +1223,9 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
 
             database.run {
-                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
+                val records = queries.kafkaProducerRecord.getRecords(10, listOf(BESTILLING_TOPIC)).shouldHaveSize(1)
 
-                val header = KafkaUtils.jsonToHeaders(record.headersJson).shouldHaveSize(1).first()
-
+                val header = KafkaUtils.jsonToHeaders(records.first().headersJson).shouldHaveSize(1).first()
                 header.key() shouldBe KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
                 String(header.value()) shouldBe "2025-01-31T23:00:00Z"
             }
@@ -1342,7 +1349,7 @@ class UtbetalingServiceTest : FunSpec({
                     it.pris shouldBe 1000.withValuta(Valuta.NOK)
                 }
 
-                queries.totrinnskontroll.getOrError(linje.id, Totrinnskontroll.Type.OPPRETT).should {
+                queries.totrinnskontroll.getOrError(linje.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE).should {
                     it.behandletAv shouldBe Tiltaksadministrasjon
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                 }
@@ -1351,7 +1358,7 @@ class UtbetalingServiceTest : FunSpec({
                     it.belopBrukt shouldBe 1000.withValuta(Valuta.NOK)
                 }
 
-                val records = queries.kafkaProducerRecord.getRecords(50)
+                val records = queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC))
                 records.shouldHaveSize(1)
                 Json.decodeFromString<OkonomiBestillingMelding>(records[0].value.decodeToString())
                     .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()

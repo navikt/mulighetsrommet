@@ -668,7 +668,7 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setTilGodkjenning(
                     GjennomforingFixtures.EnkelAmo.id,
-                    Totrinnskontroll.Type.OKONOMI,
+                    Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -693,7 +693,7 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setTilGodkjenning(
                     GjennomforingFixtures.EnkelAmo.id,
-                    Totrinnskontroll.Type.OKONOMI,
+                    Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -716,7 +716,7 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setTilGodkjenning(
                     GjennomforingFixtures.EnkelAmo.id,
-                    Totrinnskontroll.Type.OKONOMI,
+                    Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -739,7 +739,7 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setGodkjent(
                     GjennomforingFixtures.EnkelAmo.id,
-                    Totrinnskontroll.Type.OKONOMI,
+                    Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
@@ -763,7 +763,7 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setAvvist(
                     GjennomforingFixtures.EnkelAmo.id,
-                    Totrinnskontroll.Type.OKONOMI,
+                    Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
@@ -789,7 +789,7 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setAvvist(
                     GjennomforingFixtures.EnkelAmo.id,
-                    Totrinnskontroll.Type.OKONOMI,
+                    Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
@@ -813,7 +813,7 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setAvvist(
                     GjennomforingFixtures.EnkelAmo.id,
-                    Totrinnskontroll.Type.OKONOMI,
+                    Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
@@ -835,7 +835,7 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setTilGodkjenning(
                     GjennomforingFixtures.EnkelAmo.id,
-                    Totrinnskontroll.Type.OKONOMI,
+                    Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -867,12 +867,12 @@ class OppgaverServiceTest : FunSpec({
             ) {
                 setTilGodkjenning(
                     enkeltplassInnlandet.id,
-                    Totrinnskontroll.Type.OKONOMI,
+                    Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
                 setTilGodkjenning(
                     enkeltplassOslo.id,
-                    Totrinnskontroll.Type.OKONOMI,
+                    Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -901,7 +901,7 @@ class OppgaverServiceTest : FunSpec({
                 queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
                 setTilGodkjenning(
                     TilskuddFixtures.Behandling.id,
-                    Totrinnskontroll.Type.OPPRETT,
+                    Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -927,7 +927,7 @@ class OppgaverServiceTest : FunSpec({
                 queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
                 setTilGodkjenning(
                     TilskuddFixtures.Behandling.id,
-                    Totrinnskontroll.Type.OPPRETT,
+                    Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)
@@ -955,7 +955,7 @@ class OppgaverServiceTest : FunSpec({
                 )
                 setAvvist(
                     TilskuddFixtures.Behandling.id,
-                    Totrinnskontroll.Type.OPPRETT,
+                    Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
@@ -987,7 +987,7 @@ class OppgaverServiceTest : FunSpec({
                 )
                 setGodkjent(
                     TilskuddFixtures.Behandling.id,
-                    Totrinnskontroll.Type.OPPRETT,
+                    Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
@@ -1037,13 +1037,13 @@ class OppgaverServiceTest : FunSpec({
                 queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
                 setTilGodkjenning(
                     TilskuddFixtures.Behandling.id,
-                    Totrinnskontroll.Type.OPPRETT,
+                    Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
                 queries.tilskuddBehandling.upsert(behandlingOslo)
                 setTilGodkjenning(
                     behandlingOslo.id,
-                    Totrinnskontroll.Type.OPPRETT,
+                    Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
             }.initialize(database.db)

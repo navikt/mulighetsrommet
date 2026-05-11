@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
-import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -17,10 +16,8 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingHan
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompakt
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.toDbo
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -28,7 +25,11 @@ import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDateTime
 import java.util.UUID
 
-class TilskuddBehandlingService(private val db: ApiDatabase) {
+class TilskuddBehandlingService(
+    private val db: ApiDatabase,
+    private val totrinnskontroll: TotrinnskontrollService,
+) {
+
     fun upsert(
         request: TilskuddBehandlingRequest,
         navIdent: NavIdent,
@@ -38,22 +39,7 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
-
-                    queries.totrinnskontroll.upsert(
-                        TotrinnskontrollDbo(
-                            id = UUID.randomUUID(),
-                            entityId = dbo.id,
-                            type = Totrinnskontroll.Type.OPPRETT,
-                            behandletAv = navIdent,
-                            behandletTidspunkt = LocalDateTime.now(),
-                            besluttelse = null,
-                            besluttetAv = null,
-                            besluttetTidspunkt = null,
-                            aarsaker = emptyList(),
-                            forklaring = null,
-                        ),
-                    )
-
+                    totrinnskontroll.opprett(dbo.id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE, navIdent)
                     logEndring("Sendt til attestering", dbo.id, navIdent)
                 }
             }
@@ -65,7 +51,7 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
             behandling?.let {
                 TilskuddBehandlingDetaljerDto(
                     it,
-                    requireNotNull(queries.totrinnskontroll.get(id, Totrinnskontroll.Type.OPPRETT)).toDto(),
+                    totrinnskontroll.getOrError(id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE).toDto(),
                     handlinger(it, navIdent),
                 )
             }
@@ -86,23 +72,11 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
                 .left()
         }
 
-        val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT)
-        if (navIdent == opprettelse.behandletAv) {
-            return FieldError
-                .of("Du kan ikke beslutte en tilskuddsbehandling du selv har opprettet")
-                .nel()
-                .left()
+        val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE)
+        totrinnskontroll.godkjent(opprettelse, navIdent).map {
+            queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
+            logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent)
         }
-
-        val godkjentOpprettelse = opprettelse.copy(
-            besluttetAv = navIdent,
-            besluttetTidspunkt = LocalDateTime.now(),
-            besluttelse = Besluttelse.GODKJENT,
-        )
-        queries.totrinnskontroll.upsert(godkjentOpprettelse.toDbo())
-        queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
-
-        logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent).right()
     }
 
     fun returner(
@@ -121,19 +95,11 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
                 .left()
         }
 
-        val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT)
-
-        val avvistOpprettelse = opprettelse.copy(
-            besluttetAv = navIdent,
-            besluttetTidspunkt = LocalDateTime.now(),
-            besluttelse = Besluttelse.AVVIST,
-            aarsaker = aarsaker,
-            forklaring = forklaring,
-        )
-        queries.totrinnskontroll.upsert(avvistOpprettelse.toDbo())
-        queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
-
-        logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent).right()
+        val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE)
+        totrinnskontroll.avvist(opprettelse, navIdent, aarsaker, forklaring).map {
+            queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
+            logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
+        }
     }
 
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {
@@ -155,7 +121,7 @@ class TilskuddBehandlingService(private val db: ApiDatabase) {
     }
 
     fun handlinger(behandling: TilskuddBehandlingDto, navIdent: NavIdent): Set<TilskuddBehandlingHandling> = db.session {
-        val opprettelse = queries.totrinnskontroll.getOrError(behandling.id, Totrinnskontroll.Type.OPPRETT)
+        val opprettelse = totrinnskontroll.getOrError(behandling.id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE)
 
         return setOfNotNull(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },
