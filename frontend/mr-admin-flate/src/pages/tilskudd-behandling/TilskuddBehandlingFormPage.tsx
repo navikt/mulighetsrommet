@@ -7,7 +7,7 @@ import { VedtakForm } from "@/components/tilskudd-behandling/VedtakForm";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { TilskuddBehandlingRequest, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { Box, Button, HStack, Tabs } from "@navikt/ds-react";
-import { useState } from "react";
+import { ReactElement, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import { v4 } from "uuid";
@@ -23,15 +23,21 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { applyValidationErrors } from "@/components/skjema/helpers";
+import { CalculatorIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
 
 interface Tab {
   key: TilskuddBehandlingTab;
   label: string;
+  icon: ReactElement;
 }
 
 const tabs: Tab[] = [
-  { key: "saksopplysninger", label: "Saksopplysninger" },
-  { key: "vedtak", label: "Vedtak og beregning" },
+  {
+    key: "saksopplysninger",
+    label: "Saksopplysninger",
+    icon: <PersonRectangleIcon fontSize="1.5rem" />,
+  },
+  { key: "vedtak", label: "Vedtak og beregning", icon: <CalculatorIcon fontSize="1.5rem" /> },
 ];
 
 export function TilskuddBehandlingFormPage() {
@@ -152,6 +158,7 @@ export function TilskuddBehandlingFormPage() {
                     value={tab.key}
                     label={tab.label}
                     hasError={tabHasErrors(tab)}
+                    icon={tab.icon}
                   />
                 ))}
               </Tabs.List>
