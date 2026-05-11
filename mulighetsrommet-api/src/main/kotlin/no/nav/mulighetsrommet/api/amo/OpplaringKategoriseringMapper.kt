@@ -125,7 +125,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
                             id = bransje.id,
                             visningsnavn = bransje.navn,
                         )
-                    }
+                    },
                 ),
                 OpplaringKategoriseringResponse.Alternativ.Verdigruppe(
                     id = null,
