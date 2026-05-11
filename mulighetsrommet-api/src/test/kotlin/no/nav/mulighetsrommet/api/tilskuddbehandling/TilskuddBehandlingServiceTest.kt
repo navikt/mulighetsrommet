@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingReq
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -66,9 +67,14 @@ class TilskuddBehandlingServiceTest : FunSpec({
         ),
     )
 
+    fun createService() = TilskuddBehandlingService(
+        database.db,
+        TotrinnskontrollService(""),
+    )
+
     context("godkjenn") {
         test("kan ikke attestere sin egen behandling") {
-            val service = TilskuddBehandlingService(database.db)
+            val service = createService()
 
             service.upsert(gyldigRequest, ansatt1).shouldBeRight()
 
@@ -78,12 +84,14 @@ class TilskuddBehandlingServiceTest : FunSpec({
         }
 
         test("annen ansatt kan attestere behandling") {
-            val service = TilskuddBehandlingService(database.db)
+            val service = createService()
 
             service.upsert(gyldigRequest, ansatt1).shouldBeRight()
 
             service.godkjenn(gyldigRequest.id, ansatt2).shouldBeRight()
-            service.getDetaljerDto(gyldigRequest.id, ansatt1)?.behandling?.status?.type shouldBe TilskuddBehandlingStatus.FERDIG_BEHANDLET
+
+            val detaljer = service.getDetaljerDto(gyldigRequest.id, ansatt1)
+            detaljer?.behandling?.status?.type shouldBe TilskuddBehandlingStatus.FERDIG_BEHANDLET
         }
     }
 })

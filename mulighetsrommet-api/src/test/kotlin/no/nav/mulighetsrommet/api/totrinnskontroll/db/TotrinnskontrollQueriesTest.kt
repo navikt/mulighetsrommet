@@ -24,7 +24,7 @@ class TotrinnskontrollQueriesTest : FunSpec({
                 TotrinnskontrollDbo(
                     id = id,
                     entityId = entityId,
-                    type = Totrinnskontroll.Type.OPPRETT,
+                    type = Totrinnskontroll.Type.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
                     behandletTidspunkt = LocalDateTime.now(),
                     besluttelse = Besluttelse.GODKJENT,
@@ -39,7 +39,7 @@ class TotrinnskontrollQueriesTest : FunSpec({
                 TotrinnskontrollDbo(
                     id = id,
                     entityId = entityId,
-                    type = Totrinnskontroll.Type.OPPRETT,
+                    type = Totrinnskontroll.Type.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
                     behandletTidspunkt = LocalDateTime.now(),
                     besluttelse = Besluttelse.AVVIST,
@@ -50,7 +50,7 @@ class TotrinnskontrollQueriesTest : FunSpec({
                 ),
             )
 
-            queries.totrinnskontroll.getOrError(entityId, Totrinnskontroll.Type.OPPRETT).should {
+            queries.totrinnskontroll.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE).should {
                 it.besluttetAv shouldBe Arena
                 it.besluttelse shouldBe Besluttelse.AVVIST
             }

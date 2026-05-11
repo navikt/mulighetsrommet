@@ -24,8 +24,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.toDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
@@ -78,6 +77,7 @@ class UtbetalingService(
     private val tilsagnService: TilsagnService,
     private val arrangorService: ArrangorService,
     private val journalforUtbetaling: JournalforUtbetaling,
+    private val totrinnskontroll: TotrinnskontrollService,
 ) {
     data class Config(
         val bestillingTopic: String,
@@ -562,19 +562,7 @@ class UtbetalingService(
 
         queries.utbetalingLinje.upsert(dbo)
 
-        val opprettelse = TotrinnskontrollDbo(
-            id = UUID.randomUUID(),
-            entityId = id,
-            type = Totrinnskontroll.Type.OPPRETT,
-            behandletAv = behandletAv,
-            behandletTidspunkt = LocalDateTime.now(),
-            besluttetAv = null,
-            besluttetTidspunkt = null,
-            besluttelse = null,
-            aarsaker = emptyList(),
-            forklaring = null,
-        )
-        queries.totrinnskontroll.upsert(opprettelse)
+        totrinnskontroll.opprett(id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE, behandletAv)
     }
 
     private fun TransactionalQueryContext.godkjennUtbetalingLinje(
@@ -582,7 +570,7 @@ class UtbetalingService(
         utbetalingLinje: UtbetalingLinje,
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
-        val opprettelse = queries.totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.OPPRETT)
+        val opprettelse = totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
         require(opprettelse.besluttetAv == null) {
             "Utbetaling er allerede besluttet"
         }
@@ -592,14 +580,7 @@ class UtbetalingService(
         }
 
         queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.GODKJENT)
-        val godkjentOpprettelse = opprettelse.copy(
-            besluttetAv = besluttetAv,
-            besluttelse = Besluttelse.GODKJENT,
-            besluttetTidspunkt = LocalDateTime.now(),
-            aarsaker = emptyList(),
-            forklaring = null,
-        )
-        queries.totrinnskontroll.upsert(godkjentOpprettelse.toDbo())
+        totrinnskontroll.besluttet(opprettelse, besluttetAv, Besluttelse.GODKJENT)
 
         val linjer = queries.utbetalingLinje.getByUtbetalingId(utbetalingLinje.utbetalingId)
             .associateWith { linje ->
@@ -643,7 +624,7 @@ class UtbetalingService(
     }
 
     private fun TransactionalQueryContext.gjorOppTilsagnForUtbetalingLinje(utbetalingLinjeId: UUID, tilsagn: Tilsagn) {
-        val opprettelse = queries.totrinnskontroll.getOrError(utbetalingLinjeId, Totrinnskontroll.Type.OPPRETT)
+        val opprettelse = totrinnskontroll.getOrError(utbetalingLinjeId, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
         val tilsagnTilOppgjor = tilsagnService.setTilOppgjor(
             tilsagn,
             opprettelse.behandletAv,
@@ -691,15 +672,8 @@ class UtbetalingService(
         besluttetAv: Agent,
     ) {
         queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.RETURNERT)
-        val opprettelse = queries.totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.OPPRETT)
-        val avvistOpprettelse = opprettelse.copy(
-            besluttetAv = besluttetAv,
-            besluttelse = Besluttelse.AVVIST,
-            aarsaker = aarsaker.map { it.name },
-            forklaring = forklaring,
-            besluttetTidspunkt = LocalDateTime.now(),
-        )
-        queries.totrinnskontroll.upsert(avvistOpprettelse.toDbo())
+        val opprettelse = totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
+        totrinnskontroll.besluttet(opprettelse, besluttetAv, Besluttelse.AVVIST, aarsaker.map { it.name }, forklaring)
     }
 
     private fun TransactionalQueryContext.logEndring(
@@ -731,7 +705,7 @@ class UtbetalingService(
     }
 
     private fun TransactionalQueryContext.publishOpprettFaktura(linje: UtbetalingLinje) {
-        val opprettelse = queries.totrinnskontroll.getOrError(linje.id, Totrinnskontroll.Type.OPPRETT)
+        val opprettelse = totrinnskontroll.getOrError(linje.id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
         check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null && opprettelse.besluttelse == Besluttelse.GODKJENT) {
             "UtbetalingLinje id=${linje.id} må være besluttet godkjent for å sendes til økonomi"
         }

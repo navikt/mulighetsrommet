@@ -247,9 +247,9 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
         link = "/gjennomforinger/${data.gjennomforing.id}/tilsagn/${data.id}",
     )
 
-    val opprettelse = queries.totrinnskontroll.getOrError(data.id, Totrinnskontroll.Type.OPPRETT)
-    val annullering = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.ANNULLER)
-    val tilOppgjor = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.GJOR_OPP)
+    val opprettelse = queries.totrinnskontroll.getOrError(data.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+    val annullering = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.TILSAGN_ANNULLERING)
+    val tilOppgjor = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.TILSAGN_OPPGJOR)
 
     val title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing)
     return when (data.status) {

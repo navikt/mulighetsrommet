@@ -9,6 +9,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
@@ -22,8 +23,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.toDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
@@ -71,6 +71,7 @@ class GjennomforingEnkeltplassService(
     private val db: ApiDatabase,
     private val personaliaService: PersonaliaService,
     private val tiltakstyper: TiltakstypeService,
+    private val totrinnskontroll: TotrinnskontrollService,
 ) {
     data class Config(
         val gjennomforingV2Topic: String,
@@ -93,7 +94,7 @@ class GjennomforingEnkeltplassService(
                     Tiltaksadministrasjon, Arrangor -> error("$agent er ikke tillatt å opprette enkeltplasser")
 
                     is NavIdent -> {
-                        createTotrinnskontroll(it.id, Totrinnskontroll.Type.OKONOMI, agent)
+                        createTotrinnskontroll(it.id, agent)
                         logEndring("Deltaker søkt inn", it.id, agent)
                     }
                 }
@@ -184,7 +185,7 @@ class GjennomforingEnkeltplassService(
     ): Either<List<FieldError>, GjennomforingEnkeltplass> = db.transaction {
         getAndAquireLock(id)
 
-        val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OKONOMI)
+        val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI)
         if (opprettelse.besluttelse == Besluttelse.GODKJENT) {
             return FieldError.of("Kan ikke godkjenne enkeltplass som allerede er behandlet")
                 .nel()
@@ -195,13 +196,7 @@ class GjennomforingEnkeltplassService(
                 .left()
         }
 
-        val godkjentOpprettelse = opprettelse.copy(
-            besluttetAv = navIdent,
-            besluttetTidspunkt = LocalDateTime.now(),
-            besluttelse = Besluttelse.GODKJENT,
-            forklaring = null,
-        )
-        queries.totrinnskontroll.upsert(godkjentOpprettelse.toDbo())
+        totrinnskontroll.besluttet(opprettelse, navIdent, Besluttelse.GODKJENT)
 
         logEndring("Enkeltplass ble godkjent", id, navIdent).right()
     }
@@ -213,20 +208,19 @@ class GjennomforingEnkeltplassService(
     ): Either<List<FieldError>, GjennomforingEnkeltplass> = db.transaction {
         getAndAquireLock(id)
 
-        val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OKONOMI)
+        val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI)
         if (opprettelse.besluttelse != null) {
             return FieldError.of("Kan ikke sette enkeltplass på vent når den allerede er behandlet")
                 .nel()
                 .left()
         }
 
-        val paVentOpprettelse = opprettelse.copy(
-            besluttetAv = navIdent,
-            besluttetTidspunkt = LocalDateTime.now(),
-            besluttelse = Besluttelse.AVVIST,
+        totrinnskontroll.besluttet(
+            opprettelse,
+            navIdent,
+            Besluttelse.AVVIST,
             forklaring = forklaring,
         )
-        queries.totrinnskontroll.upsert(paVentOpprettelse.toDbo())
 
         logEndring("Godkjenning ble satt på vent", id, navIdent).right()
     }
@@ -272,24 +266,12 @@ class GjennomforingEnkeltplassService(
         return queries.gjennomforing.getGjennomforingEnkeltplassOrError(dbo.id)
     }
 
-    private fun QueryContext.createTotrinnskontroll(
-        gjennomforingId: UUID,
-        type: Totrinnskontroll.Type,
-        behandletAv: Agent,
-    ) {
-        val dbo = TotrinnskontrollDbo(
-            id = UUID.randomUUID(),
-            entityId = gjennomforingId,
-            type = type,
-            behandletAv = behandletAv,
-            behandletTidspunkt = LocalDateTime.now(),
-            aarsaker = emptyList(),
-            forklaring = null,
-            besluttelse = null,
-            besluttetAv = null,
-            besluttetTidspunkt = null,
+    private fun TransactionalQueryContext.createTotrinnskontroll(gjennomforingId: UUID, behandletAv: Agent) {
+        totrinnskontroll.opprett(
+            gjennomforingId,
+            Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
+            behandletAv,
         )
-        queries.totrinnskontroll.upsert(dbo)
     }
 
     private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingEnkeltplass, norskIdent: NorskIdent?) {

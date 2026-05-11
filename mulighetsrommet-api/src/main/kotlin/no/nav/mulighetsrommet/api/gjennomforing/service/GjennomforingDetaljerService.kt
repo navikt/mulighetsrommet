@@ -74,11 +74,10 @@ class GjennomforingDetaljerService(
             }
 
             is GjennomforingEnkeltplass -> db.session {
-                val okonomi = queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI)
+                val okonomi = queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI)
                 val deltakerDto = getDeltaker(gjennomforing.id)?.let {
                     DeltakerDto.from(it, personaliaService.getPersonalia(it.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType)))
                 }
-
                 GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerDto)
             }
         }
@@ -195,7 +194,7 @@ class GjennomforingDetaljerService(
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
         val totrinnskontroll = db.session {
-            queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI)
+            queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI)
         }
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,

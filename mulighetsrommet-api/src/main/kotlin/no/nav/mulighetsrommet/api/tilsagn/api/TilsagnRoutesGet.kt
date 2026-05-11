@@ -53,9 +53,9 @@ fun Route.tilsagnRoutesGet() {
                 val ansatt = queries.ansatt.getByNavIdent(navIdent)
                     ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
 
-                val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT).toDto()
-                val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.toDto()
-                val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.toDto()
+                val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE).toDto()
+                val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.TILSAGN_ANNULLERING)?.toDto()
+                val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.TILSAGN_OPPGJOR)?.toDto()
 
                 val personalia = personaliaService.getPersonalia(
                     tilsagn.deltakere.map { it.deltakerId },

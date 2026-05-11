@@ -80,7 +80,7 @@ class JournalforEnkeltplassTilsagnsbrev(
             logger.info("Tilsagn med id $tilsagnId er allrede journalført med id ${tilsagn.journalpost.id}")
             return@transaction Either.Right(tilsagn.journalpost.id)
         }
-        val totrinn = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.OPPRETT)
+        val totrinn = queries.totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
         val behandlere = listOfNotNull(totrinn.besluttetAvNavn, totrinn.behandletAvNavn)
 
         val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
