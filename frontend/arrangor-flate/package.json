@@ -32,7 +32,7 @@
     "@navikt/ds-css": "8.10.2",
     "@navikt/ds-react": "8.10.2",
     "@navikt/ds-tailwind": "8.10.2",
-    "@navikt/nav-dekoratoren-moduler": "3.7.1",
+    "@navikt/nav-dekoratoren-moduler": "4.0.0",
     "@navikt/oasis": "4.1.4",
     "@react-router/express": "7.14.2",
     "@react-router/node": "7.14.2",
