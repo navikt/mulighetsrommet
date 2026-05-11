@@ -149,16 +149,14 @@ class GenererUtbetalingService(
             }
     }
 
-    fun oppdaterUtbetalingBlokkeringerForGjennomforing(gjennomforingId: UUID) = db.transaction {
+    fun oppdaterUtbetalingBlokkeringerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> = db.transaction {
         val forslag = queries.deltakerForslag.getForslagByGjennomforing(gjennomforingId)
 
-        hentGenererteUtbetalinger(gjennomforingId)
-            .forEach { utbetaling ->
-                queries.utbetaling.setBlokkeringer(
-                    utbetaling.id,
-                    blokkeringer(utbetaling.periode, utbetaling.beregning, forslag),
-                )
-            }
+        return hentGenererteUtbetalinger(gjennomforingId).map { utbetaling ->
+            val blokkeringer = blokkeringer(utbetaling.periode, utbetaling.beregning, forslag)
+            queries.utbetaling.setBlokkeringer(utbetaling.id, blokkeringer)
+            utbetaling.copy(blokkeringer = blokkeringer)
+        }
     }
 
     suspend fun regenererUtbetaling(utbetaling: Utbetaling): Utbetaling = db.transaction {

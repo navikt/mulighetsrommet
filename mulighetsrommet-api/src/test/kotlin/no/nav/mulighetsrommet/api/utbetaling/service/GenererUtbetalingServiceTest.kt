@@ -13,6 +13,8 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.amt.model.AmtArrangorMelding
+import no.nav.amt.model.EndringAarsak
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
@@ -28,12 +30,14 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
@@ -56,6 +60,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.util.UUID
 
 class GenererUtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -870,6 +875,90 @@ class GenererUtbetalingServiceTest : FunSpec({
             service.regenererUtbetaling(utbetaling)
             shouldThrow<IllegalArgumentException> {
                 service.regenererUtbetaling(utbetaling).shouldBeNull()
+            }
+        }
+    }
+
+    context("blokkeringer") {
+        val service = createUtbetalingService()
+
+        val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
+            AFT1.id,
+            startDato = LocalDate.of(2025, 1, 1),
+            sluttDato = LocalDate.of(2025, 1, 31),
+            statusType = DeltakerStatusType.DELTAR,
+            deltakelsesprosent = 100.0,
+        )
+
+        fun createForslag(deltakerId: UUID) = DeltakerForslag(
+            id = UUID.randomUUID(),
+            deltakerId = deltakerId,
+            endring = AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse(
+                aarsak = EndringAarsak.TrengerAnnenStotte,
+                harDeltatt = false,
+            ),
+            status = DeltakerForslag.Status.VENTER_PA_SVAR,
+        )
+
+        beforeEach {
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+            ).initialize(database.db)
+        }
+
+        test("generert utbetaling har ingen blokkeringer når det ikke finnes forslag") {
+            MulighetsrommetTestDomain(
+                deltakere = listOf(deltaker),
+            ).initialize(database.db)
+
+            val utbetaling = service.genererUtbetalingerForPeriode(januar)
+                .shouldHaveSize(1)
+                .first()
+
+            utbetaling.blokkeringer.shouldBeEmpty()
+        }
+
+        test("generert utbetaling blir blokkert når det finnes relevante forslag") {
+            MulighetsrommetTestDomain(
+                deltakere = listOf(deltaker),
+            ) {
+                queries.deltakerForslag.upsert(createForslag(deltaker.id))
+            }.initialize(database.db)
+
+            val utbetaling = service.genererUtbetalingerForPeriode(januar)
+                .shouldHaveSize(1)
+                .first()
+
+            utbetaling.blokkeringer shouldBe setOf(Utbetaling.Blokkering.UBEHANDLET_FORSLAG)
+        }
+
+        test("oppdaterUtbetalingBlokkeringerForGjennomforing setter blokkering når forslag dukker opp") {
+            MulighetsrommetTestDomain(
+                deltakere = listOf(deltaker),
+            ).initialize(database.db)
+
+            val forslag = createForslag(deltaker.id)
+
+            service.genererUtbetalingerForPeriode(januar).first().should {
+                it.blokkeringer.shouldBeEmpty()
+            }
+
+            database.run {
+                queries.deltakerForslag.upsert(forslag)
+            }
+
+            service.oppdaterUtbetalingBlokkeringerForGjennomforing(AFT1.id).first().should {
+                it.blokkeringer shouldBe setOf(Utbetaling.Blokkering.UBEHANDLET_FORSLAG)
+            }
+
+            database.run {
+                queries.deltakerForslag.delete(forslag.id)
+            }
+
+            service.oppdaterUtbetalingBlokkeringerForGjennomforing(AFT1.id).first().should {
+                it.blokkeringer.shouldBeEmpty()
             }
         }
     }
