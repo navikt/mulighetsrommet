@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.db.ArrangorQueries
 import no.nav.mulighetsrommet.api.arrangorflate.db.ArrangorflateQueries
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
@@ -94,6 +95,7 @@ open class QueryContext(open val session: Session) {
         val scheduledTask = ScheduledTaskQueries(session)
         val kafkaConsumerRecords = KafkaConsumerRecordQueries(session)
         val opplaeringtilskudd = OpplaeringtilskuddQueries(session)
+        val opplaringKategorisering = OpplaringKategoriseringQueries(session)
         val tilskuddBehandling = TilskuddBehandlingQueries(session)
     }
 }
