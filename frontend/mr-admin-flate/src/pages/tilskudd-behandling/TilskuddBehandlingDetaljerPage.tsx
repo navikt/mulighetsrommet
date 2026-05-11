@@ -14,7 +14,7 @@ import {
   ValidationError,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
-import { Alert, BodyLong, BodyShort, Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Alert, BodyLong, Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
@@ -27,16 +27,16 @@ import {
   Separator,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
-import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { Handlinger } from "@/components/handlinger/Handlinger";
-import { PadlockLockedIcon } from "@navikt/aksel-icons";
 import { isBesluttet } from "@/utils/totrinnskontroll";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
+import { TotaltBelopBox } from "@/components/tilskudd-behandling/TotaltBelopBox";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -169,49 +169,23 @@ export function TilskuddBehandlingDetaljerPage() {
                     </Box>
                   ))}
                 </VStack>
-                <Box
-                  className="w-full"
-                  borderWidth="2"
-                  borderRadius="8"
-                  borderColor="neutral-subtle"
-                  padding="space-8"
-                >
-                  <HStack justify="space-between">
-                    <HStack align="center" gap="space-8">
-                      <PadlockLockedIcon title="a11y-title" fontSize="1.5rem" />
-                      <BodyShort size="large">Totalt beløp fra søknad</BodyShort>
-                    </HStack>
-                    <BodyShort size="large">
-                      {formaterValuta(
-                        behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
-                        behandling.tilskudd.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
-                      )}
-                    </BodyShort>
-                  </HStack>
-                </Box>
-                <Box
-                  className="w-full"
-                  borderWidth="2"
-                  borderRadius="8"
-                  borderColor="neutral-subtle"
-                  padding="space-8"
-                >
-                  <HStack justify="space-between">
-                    <HStack align="center" gap="space-8">
-                      <PadlockLockedIcon title="a11y-title" fontSize="1.5rem" />
-                      <BodyShort size="large">Totalt beløp til utbetaling</BodyShort>
-                    </HStack>
-                    <BodyShort size="large">
-                      {formaterValuta(
-                        behandling.tilskudd.reduce(
-                          (sum, t) => sum + (t.utbetalingBelop?.belop ?? 0),
-                          0,
-                        ),
-                        Valuta.NOK,
-                      )}
-                    </BodyShort>
-                  </HStack>
-                </Box>
+                <TotaltBelopBox
+                  label="Totalt beløp fra søknad"
+                  belop={{
+                    belop: behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
+                    valuta: behandling.tilskudd.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
+                  }}
+                />
+                <TotaltBelopBox
+                  label="Totalt beløp til utbetaling"
+                  belop={{
+                    belop: behandling.tilskudd.reduce(
+                      (sum, t) => sum + (t.utbetalingBelop?.belop ?? 0),
+                      0,
+                    ),
+                    valuta: Valuta.NOK,
+                  }}
+                />
                 <MetadataFritekstfelt
                   label="Kommentar (internt i Nav)"
                   value={behandling.kommentarIntern}

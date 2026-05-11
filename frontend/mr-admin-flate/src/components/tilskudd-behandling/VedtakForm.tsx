@@ -11,6 +11,9 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
+import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import { formaterDato } from "@mr/frontend-common/utils/date";
+import { TotaltBelopBox } from "./TotaltBelopBox";
 
 export function VedtakForm() {
   const {
@@ -23,10 +26,26 @@ export function VedtakForm() {
 
   return (
     <>
-      <Heading size="medium" level="3" spacing>
-        Vedtak
-      </Heading>
-      <VStack gap="space-20" align="start">
+      <VStack gap="space-20">
+        <VStack gap="space-8">
+          <Definisjonsliste
+            definitions={[
+              { key: "JournalpostID", value: watch("soknadJournalpostId") },
+              { key: "Søknadsdato", value: formaterDato(watch("soknadDato")) },
+            ]}
+          />
+          <Separator />
+          <Heading size="small" level="3" spacing>
+            Søknadsperiode
+          </Heading>
+          <Definisjonsliste
+            definitions={[
+              { key: "Periodestart", value: watch("periodeStart") },
+              { key: "Periodeslutt", value: watch("periodeSlutt") },
+              { key: "Kostnadssted", value: watch("kostnadssted") },
+            ]}
+          />
+        </VStack>
         {tilskudd.map((t, index) => (
           <FormGroup key={index}>
             <VStack gap="space-4">
@@ -91,6 +110,20 @@ export function VedtakForm() {
             </Box>
           </FormGroup>
         ))}
+        <TotaltBelopBox
+          label="Totalt beløp fra søknad"
+          belop={{
+            belop: watch("tilskudd").reduce((sum, t) => sum + (t.soknadBelop?.belop ?? 0), 0),
+            valuta: watch("tilskudd").at(0)?.soknadBelop?.valuta ?? Valuta.NOK,
+          }}
+        />
+        <TotaltBelopBox
+          label="Totalt beløp til utbetaling"
+          belop={{
+            belop: watch("tilskudd").reduce((sum, t) => sum + (t.belop ?? 0), 0),
+            valuta: Valuta.NOK,
+          }}
+        />
         <FormTextarea className="w-full" label="Kommentar (internt i Nav)" name="kommentarIntern" />
       </VStack>
     </>
