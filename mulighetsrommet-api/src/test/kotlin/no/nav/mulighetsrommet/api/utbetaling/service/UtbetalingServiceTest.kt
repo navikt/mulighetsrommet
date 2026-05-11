@@ -380,7 +380,7 @@ class UtbetalingServiceTest : FunSpec({
                 id = linje.id,
                 navIdent = NavAnsattFixture.DonaldDuck.navIdent,
             ) shouldBeLeft listOf(
-                FieldError.of("Kan ikke attestere en utbetaling du selv har opprettet"),
+                FieldError.of("Du kan ikke beslutte noe du selv har behandlet"),
             )
         }
 

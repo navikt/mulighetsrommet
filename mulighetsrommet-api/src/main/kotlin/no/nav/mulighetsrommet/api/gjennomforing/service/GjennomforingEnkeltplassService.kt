@@ -9,7 +9,6 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
@@ -24,7 +23,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -186,19 +184,9 @@ class GjennomforingEnkeltplassService(
         getAndAquireLock(id)
 
         val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI)
-        if (opprettelse.besluttelse == Besluttelse.GODKJENT) {
-            return FieldError.of("Kan ikke godkjenne enkeltplass som allerede er behandlet")
-                .nel()
-                .left()
-        } else if (opprettelse.behandletAv == navIdent) {
-            return FieldError.of("Du kan ikke godkjenne økonomi for en gjennomføring du selv har opprettet")
-                .nel()
-                .left()
+        totrinnskontroll.godkjent(opprettelse.copy(forklaring = null), navIdent).map {
+            logEndring("Enkeltplass ble godkjent", id, navIdent)
         }
-
-        totrinnskontroll.godkjent(opprettelse.copy(forklaring = null), navIdent)
-
-        logEndring("Enkeltplass ble godkjent", id, navIdent).right()
     }
 
     fun settPaVentOkonomi(
@@ -209,22 +197,15 @@ class GjennomforingEnkeltplassService(
         getAndAquireLock(id)
 
         val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI)
-        if (opprettelse.besluttelse != null) {
-            return FieldError.of("Kan ikke sette enkeltplass på vent når den allerede er behandlet")
-                .nel()
-                .left()
+        totrinnskontroll.avvist(opprettelse, navIdent, forklaring = forklaring).map {
+            logEndring("Godkjenning ble satt på vent", id, navIdent)
         }
-
-        totrinnskontroll.avvist(
-            opprettelse,
-            navIdent,
-            forklaring = forklaring,
-        )
-
-        logEndring("Godkjenning ble satt på vent", id, navIdent).right()
     }
 
-    private suspend fun QueryContext.getDeltakerPersonalia(gjennomforingId: UUID, onBehalfOf: PersonaliaService.OnBehalfOf): Personalia? {
+    private suspend fun QueryContext.getDeltakerPersonalia(
+        gjennomforingId: UUID,
+        onBehalfOf: PersonaliaService.OnBehalfOf,
+    ): Personalia? {
         return getDeltaker(gjennomforingId)?.let {
             personaliaService.getPersonalia(it.id, onBehalfOf)
         }
@@ -263,14 +244,6 @@ class GjennomforingEnkeltplassService(
         )
         queries.gjennomforing.upsert(dbo)
         return queries.gjennomforing.getGjennomforingEnkeltplassOrError(dbo.id)
-    }
-
-    private fun TransactionalQueryContext.createTotrinnskontroll(gjennomforingId: UUID, behandletAv: Agent) {
-        totrinnskontroll.opprett(
-            gjennomforingId,
-            Totrinnskontroll.Type.ENKELTPLASS_OKONOMI,
-            behandletAv,
-        )
     }
 
     private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingEnkeltplass, norskIdent: NorskIdent?) {

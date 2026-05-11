@@ -125,7 +125,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.godkjennOkonomi(gjennomforing.id, opprettetAv)
                 .shouldBeLeft()
-                .first().detail shouldBe "Du kan ikke godkjenne økonomi for en gjennomføring du selv har opprettet"
+                .first().detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
         }
 
         test("kan godkjenne enkeltplass etter avvisning") {
@@ -170,11 +170,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.godkjennOkonomi(gjennomforing.id, besluttetAv)
                 .shouldBeLeft()
-                .first().detail shouldBe "Kan ikke godkjenne enkeltplass som allerede er behandlet"
+                .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
 
             service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Angret")
                 .shouldBeLeft()
-                .first().detail shouldBe "Kan ikke sette enkeltplass på vent når den allerede er behandlet"
+                .first().detail shouldBe "Totrinnskontrollen er allerede behandlet"
         }
     }
 

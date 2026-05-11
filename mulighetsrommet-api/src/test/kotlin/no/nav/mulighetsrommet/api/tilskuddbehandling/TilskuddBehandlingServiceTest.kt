@@ -79,7 +79,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
             service.upsert(gyldigRequest, ansatt1).shouldBeRight()
 
             service.godkjenn(gyldigRequest.id, ansatt1).shouldBeLeft().shouldHaveSize(1).first().should {
-                it.detail shouldBe "Du kan ikke beslutte en tilskuddsbehandling du selv har opprettet"
+                it.detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
             }
         }
 

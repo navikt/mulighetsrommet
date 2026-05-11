@@ -116,13 +116,7 @@ class TilsagnService(
             }
             .map { dbo ->
                 queries.tilsagn.upsert(dbo)
-
-                totrinnskontroll.opprett(
-                    request.id,
-                    Totrinnskontroll.Type.TILSAGN_OPPRETTELSE,
-                    navIdent,
-                )
-
+                totrinnskontroll.opprett(request.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, navIdent)
                 logEndring("Sendt til godkjenning", dbo.id, navIdent).also {
                     updateFreeTextSearch(dbo)
                 }
@@ -357,14 +351,10 @@ class TilsagnService(
         }
 
         val opprettelse = totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
-        if (besluttetAv == opprettelse.behandletAv) {
-            return FieldError.of("Du kan ikke beslutte et tilsagn du selv har opprettet").nel().left()
+        return totrinnskontroll.godkjent(opprettelse, besluttetAv).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
+            logEndring("Tilsagn godkjent", tilsagn.id, besluttetAv)
         }
-
-        totrinnskontroll.godkjent(opprettelse, besluttetAv)
-        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
-
-        return logEndring("Tilsagn godkjent", tilsagn.id, besluttetAv).right()
     }
 
     private fun TransactionalQueryContext.returnerTilsagn(
@@ -384,15 +374,10 @@ class TilsagnService(
         }
 
         val opprettelse = totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
-        totrinnskontroll.avvist(
-            opprettelse,
-            besluttetAv,
-            aarsaker.map { it.name },
-            forklaring,
-        )
-        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
-
-        return logEndring("Tilsagn returnert", tilsagn.id, besluttetAv).right()
+        return totrinnskontroll.avvist(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
+            logEndring("Tilsagn returnert", tilsagn.id, besluttetAv)
+        }
     }
 
     private fun TransactionalQueryContext.setTilAnnullering(
@@ -428,14 +413,10 @@ class TilsagnService(
         }
 
         val annullering = totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.TILSAGN_ANNULLERING)
-        if (besluttetAv == annullering.behandletAv) {
-            return FieldError.of("Du kan ikke beslutte annullering du selv har opprettet").nel().left()
+        return totrinnskontroll.godkjent(annullering, besluttetAv).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
+            logEndring("Tilsagn annullert", tilsagn.id, besluttetAv)
         }
-
-        totrinnskontroll.godkjent(annullering, besluttetAv)
-        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
-
-        return logEndring("Tilsagn annullert", tilsagn.id, besluttetAv).right()
     }
 
     private fun TransactionalQueryContext.avvisAnnullering(
@@ -451,19 +432,15 @@ class TilsagnService(
         }
 
         val annullering = totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.TILSAGN_ANNULLERING)
-        totrinnskontroll.avvist(
-            annullering,
-            besluttetAv,
-            aarsaker.map { it.name },
-            forklaring,
-        )
-        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
+        return totrinnskontroll.avvist(annullering, besluttetAv, aarsaker.map { it.name }, forklaring).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-        if (annullering.behandletAv is NavIdent) {
-            sendNotifikasjonOmAvvistAnnullering(tilsagn, besluttetAv, annullering.behandletAv)
+            if (annullering.behandletAv is NavIdent) {
+                sendNotifikasjonOmAvvistAnnullering(tilsagn, besluttetAv, annullering.behandletAv)
+            }
+
+            logEndring("Annullering avvist", tilsagn.id, besluttetAv)
         }
-
-        return logEndring("Annullering avvist", tilsagn.id, besluttetAv).right()
     }
 
     context(tx: TransactionalQueryContext)
@@ -503,14 +480,10 @@ class TilsagnService(
         }
 
         val oppgjor = totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.TILSAGN_OPPGJOR)
-        if (besluttetAv is NavIdent && oppgjor.behandletAv == besluttetAv) {
-            return FieldError.of("Du kan ikke beslutte oppgjør du selv har opprettet").nel().left()
+        totrinnskontroll.godkjent(oppgjor, besluttetAv).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
+            logEndring(operation, tilsagn.id, besluttetAv)
         }
-
-        totrinnskontroll.godkjent(oppgjor, besluttetAv)
-        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
-
-        return logEndring(operation, tilsagn.id, besluttetAv).right()
     }
 
     private fun TransactionalQueryContext.avvisOppgjor(
@@ -526,19 +499,15 @@ class TilsagnService(
         }
 
         val oppgjor = totrinnskontroll.getOrError(tilsagn.id, Totrinnskontroll.Type.TILSAGN_OPPGJOR)
-        totrinnskontroll.avvist(
-            oppgjor,
-            besluttetAv,
-            aarsaker.map { it.name },
-            forklaring,
-        )
-        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
+        return totrinnskontroll.avvist(oppgjor, besluttetAv, aarsaker.map { it.name }, forklaring).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-        if (oppgjor.behandletAv is NavIdent) {
-            sendNotifikasjonOmAvvistOppgjor(tilsagn, besluttetAv, oppgjor.behandletAv)
+            if (oppgjor.behandletAv is NavIdent) {
+                sendNotifikasjonOmAvvistOppgjor(tilsagn, besluttetAv, oppgjor.behandletAv)
+            }
+
+            logEndring("Oppgjør avvist", tilsagn.id, besluttetAv)
         }
-
-        return logEndring("Oppgjør avvist", tilsagn.id, besluttetAv).right()
     }
 
     private fun QueryContext.sendNotifikasjonOmAvvistAnnullering(

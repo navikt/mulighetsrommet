@@ -383,7 +383,7 @@ class TilsagnServiceTest : FunSpec({
             service.godkjennTilsagn(
                 id = requestId,
                 navIdent = ansatt1,
-            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte et tilsagn du selv har opprettet"))
+            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
         }
 
         test("kan ikke beslutte to ganger") {
@@ -637,7 +637,7 @@ class TilsagnServiceTest : FunSpec({
             service.godkjennTilsagn(
                 id = requestId,
                 navIdent = ansatt1,
-            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte annullering du selv har opprettet"))
+            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
             database.run { queries.tilsagn.getOrError(requestId).status shouldBe TilsagnStatus.TIL_ANNULLERING }
         }
     }
@@ -662,7 +662,7 @@ class TilsagnServiceTest : FunSpec({
             service.godkjennTilsagn(
                 id = requestId,
                 navIdent = ansatt1,
-            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte oppgjør du selv har opprettet"))
+            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
 
             database.run {
                 queries.tilsagn.getOrError(requestId).status shouldBe TilsagnStatus.TIL_OPPGJOR

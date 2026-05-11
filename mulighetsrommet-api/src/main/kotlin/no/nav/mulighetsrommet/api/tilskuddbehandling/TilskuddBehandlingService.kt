@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
-import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -40,13 +39,7 @@ class TilskuddBehandlingService(
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
-
-                    totrinnskontroll.opprett(
-                        dbo.id,
-                        Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE,
-                        navIdent,
-                    )
-
+                    totrinnskontroll.opprett(dbo.id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE, navIdent)
                     logEndring("Sendt til attestering", dbo.id, navIdent)
                 }
             }
@@ -80,17 +73,10 @@ class TilskuddBehandlingService(
         }
 
         val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE)
-        if (navIdent == opprettelse.behandletAv) {
-            return FieldError
-                .of("Du kan ikke beslutte en tilskuddsbehandling du selv har opprettet")
-                .nel()
-                .left()
+        totrinnskontroll.godkjent(opprettelse, navIdent).map {
+            queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
+            logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent)
         }
-
-        totrinnskontroll.godkjent(opprettelse, navIdent)
-        queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
-
-        logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent).right()
     }
 
     fun returner(
@@ -110,16 +96,10 @@ class TilskuddBehandlingService(
         }
 
         val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE)
-
-        totrinnskontroll.avvist(
-            opprettelse,
-            navIdent,
-            aarsaker,
-            forklaring,
-        )
-        queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
-
-        logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent).right()
+        totrinnskontroll.avvist(opprettelse, navIdent, aarsaker, forklaring).map {
+            queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
+            logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
+        }
     }
 
     fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {

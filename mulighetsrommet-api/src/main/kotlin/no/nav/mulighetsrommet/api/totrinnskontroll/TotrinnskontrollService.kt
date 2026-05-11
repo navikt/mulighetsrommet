@@ -1,14 +1,21 @@
 package no.nav.mulighetsrommet.api.totrinnskontroll
 
+import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.right
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -51,7 +58,13 @@ class TotrinnskontrollService(private val topic: String) {
     fun godkjent(
         existing: Totrinnskontroll,
         besluttetAv: Agent,
-    ) {
+    ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
+        if (existing.besluttelse == Besluttelse.GODKJENT) {
+            return FieldError.of("Totrinnskontrollen er allerede godkjent").nel().left()
+        }
+        if (besluttetAv is NavIdent && besluttetAv == existing.behandletAv) {
+            return FieldError.of("Du kan ikke beslutte noe du selv har behandlet").nel().left()
+        }
         val dbo = TotrinnskontrollDbo(
             id = existing.id,
             entityId = existing.entityId,
@@ -65,6 +78,7 @@ class TotrinnskontrollService(private val topic: String) {
             forklaring = existing.forklaring,
         )
         upsert(dbo)
+        return dbo.right()
     }
 
     context(tx: TransactionalQueryContext)
@@ -73,7 +87,10 @@ class TotrinnskontrollService(private val topic: String) {
         besluttetAv: Agent,
         aarsaker: List<String> = emptyList(),
         forklaring: String? = null,
-    ) {
+    ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
+        if (existing.besluttelse != null) {
+            return FieldError.of("Totrinnskontrollen er allerede behandlet").nel().left()
+        }
         val dbo = TotrinnskontrollDbo(
             id = existing.id,
             entityId = existing.entityId,
@@ -87,11 +104,12 @@ class TotrinnskontrollService(private val topic: String) {
             forklaring = forklaring ?: existing.forklaring,
         )
         upsert(dbo)
+        return dbo.right()
     }
 
     context(tx: TransactionalQueryContext)
-    private fun upsert(dbo: TotrinnskontrollDbo) = with(tx) {
-        queries.totrinnskontroll.upsert(dbo)
+    private fun upsert(dbo: TotrinnskontrollDbo) {
+        tx.queries.totrinnskontroll.upsert(dbo)
         val hendelse = TotrinnskontrollHendelse(
             id = dbo.id,
             entityId = dbo.entityId,
@@ -104,7 +122,7 @@ class TotrinnskontrollService(private val topic: String) {
             aarsaker = dbo.aarsaker,
             forklaring = dbo.forklaring,
         )
-        queries.kafkaProducerRecord.storeRecord(
+        tx.queries.kafkaProducerRecord.storeRecord(
             StoredProducerRecord(
                 topic,
                 hendelse.entityId.toString().toByteArray(),

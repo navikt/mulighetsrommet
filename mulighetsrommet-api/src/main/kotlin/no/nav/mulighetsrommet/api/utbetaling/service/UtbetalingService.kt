@@ -571,16 +571,8 @@ class UtbetalingService(
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
         val opprettelse = totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
-        require(opprettelse.besluttetAv == null) {
-            "Utbetaling er allerede besluttet"
-        }
-
-        if (besluttetAv is NavIdent && opprettelse.behandletAv is NavIdent && besluttetAv == opprettelse.behandletAv) {
-            return listOf(FieldError.of("Kan ikke attestere en utbetaling du selv har opprettet")).left()
-        }
-
+        totrinnskontroll.godkjent(opprettelse, besluttetAv).onLeft { return it.left() }
         queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.GODKJENT)
-        totrinnskontroll.godkjent(opprettelse, besluttetAv)
 
         val linjer = queries.utbetalingLinje.getByUtbetalingId(utbetalingLinje.utbetalingId)
             .associateWith { linje ->
@@ -673,7 +665,9 @@ class UtbetalingService(
     ) {
         queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.RETURNERT)
         val opprettelse = totrinnskontroll.getOrError(utbetalingLinje.id, Totrinnskontroll.Type.UTBETALING_OPPRETTELSE)
-        totrinnskontroll.avvist(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring)
+        totrinnskontroll.avvist(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring).onLeft {
+            throw AttesterUtbetalingException(it)
+        }
     }
 
     private fun TransactionalQueryContext.logEndring(
