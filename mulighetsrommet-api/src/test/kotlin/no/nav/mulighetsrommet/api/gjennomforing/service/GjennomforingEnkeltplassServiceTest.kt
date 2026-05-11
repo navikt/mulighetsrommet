@@ -174,7 +174,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Angret")
                 .shouldBeLeft()
-                .first().detail shouldBe "Totrinnskontrollen er allerede behandlet"
+                .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
         }
     }
 

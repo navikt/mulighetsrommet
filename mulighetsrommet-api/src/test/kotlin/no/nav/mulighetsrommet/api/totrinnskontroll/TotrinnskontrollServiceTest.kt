@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import java.util.UUID
 
 private const val TOPIC = "test-totrinnskontroll-topic"
@@ -202,22 +203,6 @@ class TotrinnskontrollServiceTest : FunSpec({
                 service.godkjent(afterGodkjent, besluttetAv) shouldBeLeft listOf(
                     FieldError.of("Totrinnskontrollen er allerede godkjent"),
                 )
-                service.avvist(afterGodkjent, besluttetAv) shouldBeLeft listOf(
-                    FieldError.of("Totrinnskontrollen er allerede behandlet"),
-                )
-            }
-        }
-
-        test("avvisning feiler når totrinnskontroll allerede er besluttet") {
-            database.run {
-                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
-                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
-                service.avvist(existing, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
-
-                val afterAvvist = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
-                service.avvist(afterAvvist, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
-                    FieldError.of("Totrinnskontrollen er allerede behandlet"),
-                )
             }
         }
 
@@ -234,6 +219,46 @@ class TotrinnskontrollServiceTest : FunSpec({
             database.run {
                 val stored = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
                 stored.besluttelse shouldBe Besluttelse.GODKJENT
+            }
+        }
+
+        test("avvisning feiler når totrinnskontroll allerede er godkjent") {
+            database.run {
+                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+
+                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                service.godkjent(existing, besluttetAv).shouldBeRight()
+
+                val afterGodkjent = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                service.avvist(afterGodkjent, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
+                    FieldError.of("Totrinnskontrollen er allerede godkjent"),
+                )
+            }
+        }
+
+        test("avvisning feiler når totrinnskontroll allerede er avvist") {
+            database.run {
+                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+
+                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                service.avvist(existing, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
+
+                val afterAvvist = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                service.avvist(afterAvvist, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
+                    FieldError.of("Totrinnskontrollen er allerede avvist"),
+                )
+            }
+        }
+
+        test("systemet er tillatt å endre fra godkjent til avvist") {
+            database.run {
+                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+
+                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                service.godkjent(existing, besluttetAv).shouldBeRight()
+
+                val afterGodkjent = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                service.avvist(afterGodkjent, Tiltaksadministrasjon, listOf("PROPAGERT_RETUR")).shouldBeRight()
             }
         }
     }

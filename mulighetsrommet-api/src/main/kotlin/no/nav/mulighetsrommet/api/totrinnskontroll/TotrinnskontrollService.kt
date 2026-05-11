@@ -61,7 +61,7 @@ class TotrinnskontrollService(private val topic: String) {
         besluttetAv: Agent,
     ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
         if (existing.besluttelse == Besluttelse.GODKJENT) {
-            return FieldError.of("Totrinnskontrollen er allerede godkjent").nel().left()
+            return alleredeBesluttetError(existing.besluttelse)
         }
         if (besluttetAv is NavIdent && besluttetAv == existing.behandletAv) {
             return FieldError.of("Du kan ikke beslutte noe du selv har behandlet").nel().left()
@@ -89,8 +89,8 @@ class TotrinnskontrollService(private val topic: String) {
         aarsaker: List<String> = emptyList(),
         forklaring: String? = null,
     ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
-        if (existing.besluttelse != null) {
-            return FieldError.of("Totrinnskontrollen er allerede behandlet").nel().left()
+        if (existing.besluttelse != null && besluttetAv is NavIdent) {
+            return alleredeBesluttetError(existing.besluttelse)
         }
         val dbo = TotrinnskontrollDbo(
             id = existing.id,
@@ -135,3 +135,11 @@ class TotrinnskontrollService(private val topic: String) {
 }
 
 private fun instantAsMicros(): Instant = Instant.now().truncatedTo(ChronoUnit.MICROS)
+
+private fun alleredeBesluttetError(besluttelse: Besluttelse): Either<NonEmptyList<FieldError>, Nothing> {
+    val besluttelse = when (besluttelse) {
+        Besluttelse.AVVIST -> "avvist"
+        Besluttelse.GODKJENT -> "godkjent"
+    }
+    return FieldError.of("Totrinnskontrollen er allerede $besluttelse").nel().left()
+}
