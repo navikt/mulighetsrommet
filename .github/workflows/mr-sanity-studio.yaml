@@ -35,7 +35,7 @@ jobs:
         run: npx turbo run build --filter=mulighetsrommet-cms
       - name: Push docker image to GAR and sign image
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
-        uses: nais/docker-build-push@cd5ec5663feb0e05c3fa374d1fb442605b046c6b # v0
+        uses: nais/docker-build-push@be85229e81c0293c265c646c084f05317fb6e0d2 # v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
