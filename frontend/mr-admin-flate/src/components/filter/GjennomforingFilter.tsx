@@ -18,6 +18,7 @@ import { GjennomforingTiltakstypeFilter } from "@/components/filter/Gjennomforin
 import { KontorstrukturFilter } from "@/components/filter/KontorstrukturFilter";
 import { ArrangorerFilter } from "./ArrangorerFilter";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { gjennomforingTypeToString } from "@/utils/Utils";
 
 type Filters = "tiltakstype";
 
@@ -89,11 +90,11 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
               <CheckboxList
                 items={[
                   {
-                    label: "Gruppe",
+                    label: gjennomforingTypeToString(GjennomforingType.AVTALE),
                     value: GjennomforingType.AVTALE,
                   },
                   {
-                    label: "Enkeltplass",
+                    label: gjennomforingTypeToString(GjennomforingType.ENKELTPLASS),
                     value: GjennomforingType.ENKELTPLASS,
                   },
                 ]}
