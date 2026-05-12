@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.toAgentHendelse
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.Instant
@@ -115,9 +116,9 @@ class TotrinnskontrollService(private val topic: String) {
             id = dbo.id,
             entityId = dbo.entityId,
             type = dbo.type,
-            behandletAv = dbo.behandletAv,
+            behandletAv = dbo.behandletAv.toAgentHendelse(),
             behandletTidspunkt = dbo.behandletTidspunkt,
-            besluttetAv = dbo.besluttetAv,
+            besluttetAv = dbo.besluttetAv?.toAgentHendelse(),
             besluttetTidspunkt = dbo.besluttetTidspunkt,
             besluttelse = dbo.besluttelse,
             aarsaker = dbo.aarsaker,

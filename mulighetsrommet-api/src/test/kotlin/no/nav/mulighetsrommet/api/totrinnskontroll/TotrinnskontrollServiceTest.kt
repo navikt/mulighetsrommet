@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
@@ -61,7 +62,7 @@ class TotrinnskontrollServiceTest : FunSpec({
                 val payload = Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString())
                 payload.entityId shouldBe entityId
                 payload.type shouldBe Totrinnskontroll.Type.TILSAGN_OPPRETTELSE
-                payload.behandletAv shouldBe behandletAv
+                payload.behandletAv shouldBe TotrinnskontrollAgent.NavAnsatt(behandletAv.value)
                 payload.behandletTidspunkt shouldBe stored.behandletTidspunkt
                 payload.besluttelse shouldBe null
                 payload.besluttetTidspunkt shouldBe null
@@ -109,7 +110,7 @@ class TotrinnskontrollServiceTest : FunSpec({
                 val record = records.last()
                 val hendelse = Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString())
                 hendelse.besluttelse shouldBe Besluttelse.GODKJENT
-                hendelse.besluttetAv shouldBe besluttetAv
+                hendelse.besluttetAv shouldBe TotrinnskontrollAgent.NavAnsatt(besluttetAv.value)
                 hendelse.behandletTidspunkt shouldBe stored.behandletTidspunkt
                 hendelse.besluttetTidspunkt shouldBe stored.besluttetTidspunkt
             }
@@ -136,7 +137,7 @@ class TotrinnskontrollServiceTest : FunSpec({
                 val record = records.last()
                 val hendelse = Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString())
                 hendelse.besluttelse shouldBe Besluttelse.AVVIST
-                hendelse.besluttetAv shouldBe besluttetAv
+                hendelse.besluttetAv shouldBe TotrinnskontrollAgent.NavAnsatt(besluttetAv.value)
                 hendelse.aarsaker shouldBe listOf("FEIL_BELOP")
                 hendelse.forklaring shouldBe "Beløp er feil"
                 hendelse.behandletTidspunkt shouldBe stored.behandletTidspunkt
