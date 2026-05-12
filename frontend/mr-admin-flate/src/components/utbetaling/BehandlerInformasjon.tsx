@@ -1,4 +1,7 @@
-import { Besluttelse, TotrinnskontrollDto } from "@tiltaksadministrasjon/api-client";
+import {
+  TotrinnskontrollBesluttelse,
+  TotrinnskontrollDto,
+} from "@tiltaksadministrasjon/api-client";
 import { HStack } from "@navikt/ds-react";
 import { isBesluttet } from "@/utils/totrinnskontroll";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
@@ -11,9 +14,11 @@ export function BehandlerInformasjon({ opprettelse }: BehandlerInformasjonProps)
   return (
     <HStack gap="space-16">
       <MetadataVStack label="Behandlet av" value={opprettelse.behandletAv.navn} />
-      {isBesluttet(opprettelse) && opprettelse.besluttelse === Besluttelse.AVVIST ? (
+      {isBesluttet(opprettelse) &&
+      opprettelse.besluttelse === TotrinnskontrollBesluttelse.AVVIST ? (
         <MetadataVStack label="Returnert av" value={opprettelse.besluttetAv.navn} />
-      ) : isBesluttet(opprettelse) && opprettelse.besluttelse === Besluttelse.GODKJENT ? (
+      ) : isBesluttet(opprettelse) &&
+        opprettelse.besluttelse === TotrinnskontrollBesluttelse.GODKJENT ? (
         <MetadataVStack label="Attestert av" value={opprettelse.besluttetAv.navn} />
       ) : null}
     </HStack>

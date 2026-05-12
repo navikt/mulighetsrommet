@@ -6,7 +6,7 @@ import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBeha
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import {
-  Besluttelse,
+  TotrinnskontrollBesluttelse,
   EndringshistorikkType,
   FieldError,
   TilskuddBehandlingHandling,
@@ -84,12 +84,13 @@ export function TilskuddBehandlingDetaljerPage() {
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
       <>
-        {isBesluttet(opprettelse) && opprettelse.besluttelse === Besluttelse.AVVIST && (
-          <ToTrinnsOpprettelsesForklaring
-            heading="Behandlingen ble returnert"
-            opprettelse={opprettelse}
-          />
-        )}
+        {isBesluttet(opprettelse) &&
+          opprettelse.besluttelse === TotrinnskontrollBesluttelse.AVVIST && (
+            <ToTrinnsOpprettelsesForklaring
+              heading="Behandlingen ble returnert"
+              opprettelse={opprettelse}
+            />
+          )}
         <Box marginBlock="space-16">
           <HStack gap="space-8" justify="end">
             <EndringshistorikkPopover>

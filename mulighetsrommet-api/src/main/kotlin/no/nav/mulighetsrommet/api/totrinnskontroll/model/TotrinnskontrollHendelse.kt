@@ -12,14 +12,14 @@ data class TotrinnskontrollHendelse(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val entityId: UUID,
-    val type: Totrinnskontroll.Type,
+    val type: TotrinnskontrollType,
     val behandletAv: TotrinnskontrollAgent,
     @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
     val besluttetAv: TotrinnskontrollAgent?,
     @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant?,
-    val besluttelse: Besluttelse?,
+    val besluttelse: TotrinnskontrollBesluttelse?,
     val aarsaker: List<String>,
     val forklaring: String?,
 )

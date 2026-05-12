@@ -26,8 +26,9 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
@@ -609,7 +610,7 @@ class UtbetalingService(
 
         queries.utbetalingLinje.upsert(dbo)
 
-        totrinnskontroll.opprett(id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE, behandletAv)
+        totrinnskontroll.opprett(id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE, behandletAv)
     }
 
     private fun TransactionalQueryContext.godkjennUtbetalingLinje(
@@ -747,7 +748,7 @@ class UtbetalingService(
 
     private fun TransactionalQueryContext.publishOpprettFaktura(linje: UtbetalingLinje) {
         val opprettelse = getTotrinnskontroll(linje.id)
-        check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null && opprettelse.besluttelse == Besluttelse.GODKJENT) {
+        check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null && opprettelse.besluttelse == TotrinnskontrollBesluttelse.GODKJENT) {
             "UtbetalingLinje id=${linje.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
@@ -806,7 +807,7 @@ class UtbetalingService(
     }
 
     private fun QueryContext.getTotrinnskontroll(utbetalingLinjeId: UUID): Totrinnskontroll {
-        return totrinnskontroll.getOrError(utbetalingLinjeId, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE)
+        return totrinnskontroll.getOrError(utbetalingLinjeId, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE)
     }
 
     private fun TransactionalQueryContext.storeOkonomiMelding(

@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
@@ -53,9 +53,9 @@ fun Route.tilsagnRoutesGet() {
                 val ansatt = queries.ansatt.getByNavIdent(navIdent)
                     ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
 
-                val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE).toDto()
-                val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.TILSAGN_ANNULLERING)?.toDto()
-                val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.TILSAGN_OPPGJOR)?.toDto()
+                val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSAGN_OPPRETTELSE).toDto()
+                val annullering = queries.totrinnskontroll.get(id, TotrinnskontrollType.TILSAGN_ANNULLERING)?.toDto()
+                val tilOppgjor = queries.totrinnskontroll.get(id, TotrinnskontrollType.TILSAGN_OPPGJOR)?.toDto()
 
                 val personalia = personaliaService.getPersonalia(
                     tilsagn.deltakere.map { it.deltakerId },

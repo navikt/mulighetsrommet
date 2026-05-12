@@ -27,7 +27,7 @@ import {
 import { GjennomforingDetaljerVarighet } from "@/pages/gjennomforing/GjennomforingDetaljerVarighet";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import {
-  Besluttelse,
+  TotrinnskontrollBesluttelse,
   DeltakerDto,
   GjennomforingEnkeltplassDto,
   GjennomforingHandling,
@@ -226,7 +226,7 @@ interface CardData {
 }
 
 function resolveCard(okonomi: TotrinnskontrollDto): CardData {
-  if (isBesluttet(okonomi) && okonomi.besluttelse === Besluttelse.GODKJENT) {
+  if (isBesluttet(okonomi) && okonomi.besluttelse === TotrinnskontrollBesluttelse.GODKJENT) {
     return {
       color: "success",
       title: "Økonomi godkjent",
@@ -239,7 +239,7 @@ function resolveCard(okonomi: TotrinnskontrollDto): CardData {
     };
   }
 
-  if (isBesluttet(okonomi) && okonomi.besluttelse === Besluttelse.AVVIST) {
+  if (isBesluttet(okonomi) && okonomi.besluttelse === TotrinnskontrollBesluttelse.AVVIST) {
     return {
       color: "warning",
       title: "Enkeltplass satt på vent",

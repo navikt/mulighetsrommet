@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -39,7 +40,7 @@ class TilskuddBehandlingService(
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
-                    totrinnskontroll.opprett(dbo.id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE, navIdent)
+                    totrinnskontroll.opprett(dbo.id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE, navIdent)
                     logEndring("Sendt til attestering", dbo.id, navIdent)
                 }
             }
@@ -51,7 +52,7 @@ class TilskuddBehandlingService(
             behandling?.let {
                 TilskuddBehandlingDetaljerDto(
                     it,
-                    totrinnskontroll.getOrError(id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE).toDto(),
+                    totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE).toDto(),
                     handlinger(it, navIdent),
                 )
             }
@@ -72,7 +73,7 @@ class TilskuddBehandlingService(
                 .left()
         }
 
-        val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE)
+        val opprettelse = totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
         totrinnskontroll.godkjent(opprettelse, navIdent).map {
             queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
             logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent)
@@ -95,7 +96,7 @@ class TilskuddBehandlingService(
                 .left()
         }
 
-        val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE)
+        val opprettelse = totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
         totrinnskontroll.avvist(opprettelse, navIdent, aarsaker, forklaring).map {
             queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
             logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
@@ -121,7 +122,7 @@ class TilskuddBehandlingService(
     }
 
     fun handlinger(behandling: TilskuddBehandlingDto, navIdent: NavIdent): Set<TilskuddBehandlingHandling> = db.session {
-        val opprettelse = totrinnskontroll.getOrError(behandling.id, Totrinnskontroll.Type.TILSKUDD_OPPRETTELSE)
+        val opprettelse = totrinnskontroll.getOrError(behandling.id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
 
         return setOfNotNull(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },

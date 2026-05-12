@@ -49,8 +49,8 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
@@ -749,14 +749,14 @@ class UtbetalingServiceTest : FunSpec({
 
             database.run {
                 queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.RETURNERT
-                queries.totrinnskontroll.getOrError(utbetalingLinje1.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE).should {
-                    it.besluttelse shouldBe Besluttelse.AVVIST
+                queries.totrinnskontroll.getOrError(utbetalingLinje1.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE).should {
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                 }
 
                 queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.RETURNERT
-                queries.totrinnskontroll.getOrError(utbetalingLinje2.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE).should {
-                    it.besluttelse shouldBe Besluttelse.AVVIST
+                queries.totrinnskontroll.getOrError(utbetalingLinje2.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE).should {
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                     it.besluttetAv shouldBe domain.ansatte[0].navIdent
                 }
             }
@@ -985,14 +985,14 @@ class UtbetalingServiceTest : FunSpec({
                     second.status shouldBe UtbetalingLinjeStatus.RETURNERT
                 }
 
-                queries.totrinnskontroll.getOrError(utbetalingLinje1.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE).should {
+                queries.totrinnskontroll.getOrError(utbetalingLinje1.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE).should {
                     it.besluttetAv shouldBe Tiltaksadministrasjon
-                    it.besluttelse shouldBe Besluttelse.AVVIST
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                 }
 
-                queries.totrinnskontroll.getOrError(utbetalingLinje2.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE).should {
+                queries.totrinnskontroll.getOrError(utbetalingLinje2.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE).should {
                     it.besluttetAv shouldBe Tiltaksadministrasjon
-                    it.besluttelse shouldBe Besluttelse.AVVIST
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                 }
 
                 queries.kafkaProducerRecord.getRecords(10, listOf(BESTILLING_TOPIC)).shouldBeEmpty()
@@ -1349,7 +1349,7 @@ class UtbetalingServiceTest : FunSpec({
                     it.pris shouldBe 1000.withValuta(Valuta.NOK)
                 }
 
-                queries.totrinnskontroll.getOrError(linje.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE).should {
+                queries.totrinnskontroll.getOrError(linje.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE).should {
                     it.behandletAv shouldBe Tiltaksadministrasjon
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                 }

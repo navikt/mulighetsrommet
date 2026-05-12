@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -24,10 +24,10 @@ class TotrinnskontrollQueriesTest : FunSpec({
                 TotrinnskontrollDbo(
                     id = id,
                     entityId = entityId,
-                    type = Totrinnskontroll.Type.TILSAGN_OPPRETTELSE,
+                    type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
                     behandletTidspunkt = Instant.now(),
-                    besluttelse = Besluttelse.GODKJENT,
+                    besluttelse = TotrinnskontrollBesluttelse.GODKJENT,
                     besluttetAv = Tiltaksadministrasjon,
                     besluttetTidspunkt = Instant.now(),
                     aarsaker = emptyList(),
@@ -39,10 +39,10 @@ class TotrinnskontrollQueriesTest : FunSpec({
                 TotrinnskontrollDbo(
                     id = id,
                     entityId = entityId,
-                    type = Totrinnskontroll.Type.TILSAGN_OPPRETTELSE,
+                    type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
                     behandletTidspunkt = Instant.now(),
-                    besluttelse = Besluttelse.AVVIST,
+                    besluttelse = TotrinnskontrollBesluttelse.AVVIST,
                     besluttetAv = Arena,
                     besluttetTidspunkt = Instant.now(),
                     aarsaker = emptyList(),
@@ -50,9 +50,9 @@ class TotrinnskontrollQueriesTest : FunSpec({
                 ),
             )
 
-            queries.totrinnskontroll.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE).should {
+            queries.totrinnskontroll.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                 it.besluttetAv shouldBe Arena
-                it.besluttelse shouldBe Besluttelse.AVVIST
+                it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
             }
         }
     }

@@ -11,9 +11,10 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.toAgentHendelse
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavIdent
@@ -24,19 +25,19 @@ import java.util.UUID
 class TotrinnskontrollService(private val topic: String) {
 
     context(tx: QueryContext)
-    fun get(entityId: UUID, type: Totrinnskontroll.Type): Totrinnskontroll? = with(tx) {
+    fun get(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll? = with(tx) {
         queries.totrinnskontroll.get(entityId, type)
     }
 
     context(tx: QueryContext)
-    fun getOrError(entityId: UUID, type: Totrinnskontroll.Type): Totrinnskontroll = with(tx) {
+    fun getOrError(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll = with(tx) {
         queries.totrinnskontroll.getOrError(entityId, type)
     }
 
     context(tx: TransactionalQueryContext)
     fun opprett(
         entityId: UUID,
-        type: Totrinnskontroll.Type,
+        type: TotrinnskontrollType,
         behandletAv: Agent,
         aarsaker: List<String> = emptyList(),
         forklaring: String? = null,
@@ -61,7 +62,7 @@ class TotrinnskontrollService(private val topic: String) {
         existing: Totrinnskontroll,
         besluttetAv: Agent,
     ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
-        if (existing.besluttelse == Besluttelse.GODKJENT) {
+        if (existing.besluttelse == TotrinnskontrollBesluttelse.GODKJENT) {
             return alleredeBesluttetError(existing.besluttelse)
         }
         if (besluttetAv is NavIdent && besluttetAv == existing.behandletAv) {
@@ -75,7 +76,7 @@ class TotrinnskontrollService(private val topic: String) {
             behandletTidspunkt = existing.behandletTidspunkt,
             besluttetAv = besluttetAv,
             besluttetTidspunkt = instantAsMicros(),
-            besluttelse = Besluttelse.GODKJENT,
+            besluttelse = TotrinnskontrollBesluttelse.GODKJENT,
             aarsaker = existing.aarsaker,
             forklaring = existing.forklaring,
         )
@@ -101,7 +102,7 @@ class TotrinnskontrollService(private val topic: String) {
             behandletTidspunkt = existing.behandletTidspunkt,
             besluttetAv = besluttetAv,
             besluttetTidspunkt = instantAsMicros(),
-            besluttelse = Besluttelse.AVVIST,
+            besluttelse = TotrinnskontrollBesluttelse.AVVIST,
             aarsaker = aarsaker.ifEmpty { existing.aarsaker },
             forklaring = forklaring ?: existing.forklaring,
         )
@@ -137,10 +138,10 @@ class TotrinnskontrollService(private val topic: String) {
 
 private fun instantAsMicros(): Instant = Instant.now().truncatedTo(ChronoUnit.MICROS)
 
-private fun alleredeBesluttetError(besluttelse: Besluttelse): Either<NonEmptyList<FieldError>, Nothing> {
+private fun alleredeBesluttetError(besluttelse: TotrinnskontrollBesluttelse): Either<NonEmptyList<FieldError>, Nothing> {
     val besluttelse = when (besluttelse) {
-        Besluttelse.AVVIST -> "avvist"
-        Besluttelse.GODKJENT -> "godkjent"
+        TotrinnskontrollBesluttelse.AVVIST -> "avvist"
+        TotrinnskontrollBesluttelse.GODKJENT -> "godkjent"
     }
     return FieldError.of("Totrinnskontrollen er allerede $besluttelse").nel().left()
 }

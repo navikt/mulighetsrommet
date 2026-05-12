@@ -14,7 +14,7 @@ data class Totrinnskontroll(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val entityId: UUID,
-    val type: Type,
+    val type: TotrinnskontrollType,
     @Serializable(with = AgentSerializer::class)
     val behandletAv: Agent,
     val behandletAvNavn: String?,
@@ -27,14 +27,20 @@ data class Totrinnskontroll(
     val besluttetAvNavn: String?,
     @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant?,
-    val besluttelse: Besluttelse?,
-) {
-    enum class Type {
-        TILSAGN_OPPRETTELSE,
-        TILSAGN_ANNULLERING,
-        TILSAGN_OPPGJOR,
-        UTBETALING_LINJE_OPPRETTELSE,
-        ENKELTPLASS_OKONOMI,
-        TILSKUDD_OPPRETTELSE,
-    }
+    val besluttelse: TotrinnskontrollBesluttelse?,
+)
+
+enum class TotrinnskontrollType {
+    TILSAGN_OPPRETTELSE,
+    TILSAGN_ANNULLERING,
+    TILSAGN_OPPGJOR,
+    UTBETALING_LINJE_OPPRETTELSE,
+    ENKELTPLASS_OKONOMI,
+    TILSKUDD_OPPRETTELSE,
+}
+
+@Serializable
+enum class TotrinnskontrollBesluttelse {
+    GODKJENT,
+    AVVIST,
 }

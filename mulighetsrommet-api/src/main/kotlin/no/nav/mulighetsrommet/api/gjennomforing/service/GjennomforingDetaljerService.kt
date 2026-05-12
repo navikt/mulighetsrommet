@@ -27,8 +27,8 @@ import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
@@ -74,7 +74,7 @@ class GjennomforingDetaljerService(
             }
 
             is GjennomforingEnkeltplass -> db.session {
-                val okonomi = queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI)
+                val okonomi = queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
                 val deltakerDto = getDeltaker(gjennomforing.id)?.let {
                     DeltakerDto.from(it, personaliaService.getPersonalia(it.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType)))
                 }
@@ -194,7 +194,7 @@ class GjennomforingDetaljerService(
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
         val totrinnskontroll = db.session {
-            queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI)
+            queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
         }
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
@@ -203,7 +203,7 @@ class GjennomforingDetaljerService(
                 totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.besluttelse == null
             },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
-                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.besluttelse != Besluttelse.GODKJENT
+                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.besluttelse != TotrinnskontrollBesluttelse.GODKJENT
             },
         )
             .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
