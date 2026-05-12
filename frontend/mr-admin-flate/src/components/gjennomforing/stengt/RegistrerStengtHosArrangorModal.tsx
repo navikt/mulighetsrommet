@@ -1,6 +1,6 @@
 import { RegistrerStengtHosArrangorForm } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorForm";
 import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
-import { Button, Modal, VStack } from "@navikt/ds-react";
+import { BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject, useState } from "react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
@@ -34,18 +34,18 @@ export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforingId }: P
     >
       <Modal.Body>
         <VStack gap="space-16">
-          <div className="prose">
-            <p>
-              Her kan du legge inn perioder der tiltakstilbudet er stengt hos arrangør, for eksempel
-              ved stengt i en sommerperiode.
-            </p>
-            <br></br>
-            <p>
-              Hvis en prismodell med automatisk beregning basert på deltakelse er brukt, vil
-              arrangør ikke få betalt for deltakelser som er aktive i disse periodene. Merk at
-              deltakere fortsatt kan være påmeldt tiltaket med en aktiv status.
-            </p>
-          </div>
+          <BodyShort>
+            Her kan du legge inn perioder hvor tiltakstilbudet er stengt hos arrangør, for eksempel
+            ved stengt i en sommerperiode.
+          </BodyShort>
+          <BodyShort>
+            Hvis tiltaket har en prismodell med beregning basert på deltakelser, vil ikke arrangør
+            få betalt for deltakelser som er aktive i disse periodene. Merk at deltakere fortsatt
+            kan være påmeldt tiltaket med en aktiv status.
+          </BodyShort>
+          <BodyShort>
+            Informasjon om feriestengte perioder vil også synes på tiltaket i Modia.
+          </BodyShort>
           <RegistrerStengtHosArrangorForm key={key} gjennomforingId={gjennomforingId} />
           <StengtHosArrangorTable gjennomforing={gjennomforing} />
         </VStack>
