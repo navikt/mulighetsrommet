@@ -12,7 +12,7 @@ data class AmoKategorisering(
     val bransje: Bransje? = null,
     val forerkort: Set<ForerkortKlasse> = emptySet(),
     val innholdElementer: Set<InnholdElement> = emptySet(),
-    val norskprove: Boolean = false,
+    val norskprove: Boolean? = null,
     val sertifiseringer: Set<Sertifisering> = emptySet(),
 ) {
     enum class InnholdElement {

@@ -1086,7 +1086,7 @@ class AvtaleValidatorTest : FunSpec({
             validateCreateAvtale(
                 gruppeAmo,
                 ctx,
-            ).shouldBeRight().detaljerDbo.amoKategorisering?.kurstype.shouldBe(Kurstype.Kode.STUDIESPESIALISERING)
+            ).shouldBeRight().detaljerDbo.amoKategorisering?.kurstype?.kode.shouldBe(Kurstype.Kode.STUDIESPESIALISERING)
 
             validateCreateAvtale(
                 gruppeAmo.copy(
@@ -1096,7 +1096,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 ctx,
-            ).shouldBeRight().detaljerDbo.amoKategorisering?.kurstype.shouldBe(Kurstype.Kode.STUDIESPESIALISERING)
+            ).shouldBeRight().detaljerDbo.amoKategorisering?.kurstype?.kode.shouldBe(Kurstype.Kode.STUDIESPESIALISERING)
 
             validateCreateAvtale(
                 gruppeAmo.copy(
@@ -1109,7 +1109,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 ctx,
-            ).shouldBeRight().detaljerDbo.amoKategorisering?.kurstype.shouldBe(Kurstype.Kode.STUDIESPESIALISERING)
+            ).shouldBeRight().detaljerDbo.amoKategorisering?.kurstype?.kode.shouldBe(Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE)
 
             validateCreateAvtale(
                 gruppeAmo.copy(
@@ -1125,7 +1125,7 @@ class AvtaleValidatorTest : FunSpec({
                 ),
                 ctx,
             ).shouldBeRight().detaljerDbo.amoKategorisering.should {
-                it?.kurstype shouldBe Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER
+                it?.kurstype?.kode shouldBe Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER
                 it?.innholdElementer shouldContainExactly listOf(
                     AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
                 )
@@ -1152,11 +1152,11 @@ class AvtaleValidatorTest : FunSpec({
                 ),
                 ctx,
             ).shouldBeRight().detaljerDbo.amoKategorisering should {
-                it?.kurstype shouldBe Kurstype.Kode.BRANSJE_OG_YRKESRETTET
-                it?.bransje shouldBe Bransje.Kode.KONTORARBEID
+                it?.kurstype shouldBe KurstypeFixtures.bransjeOgYrkesrettet
+                it?.bransje shouldBe BransjeFixtures.kontorarbeid
                 it?.forerkort shouldContainExactlyInAnyOrder setOf(
-                    ForerkortKlasse.Kode.A,
-                    ForerkortKlasse.Kode.B,
+                    ForerkortFixtures.A,
+                    ForerkortFixtures.B,
                 )
                 it?.sertifiseringer shouldContainExactly setOf(
                     Sertifisering(

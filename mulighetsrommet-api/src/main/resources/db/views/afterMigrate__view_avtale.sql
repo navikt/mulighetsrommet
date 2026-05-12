@@ -100,21 +100,39 @@ from avtale
                             from avtale_opsjon_logg
                             where avtale_id = avtale.id) on true
          left join lateral (select jsonb_build_object(
-                                           'kurstype', (select jsonb_strip_nulls(jsonb_build_object(
-                'id', okk.id,
-                'navn', okk.navn,
-                'kode', okk.kode
-                                                                                 ))
+                                           'kurstype', (select jsonb_strip_nulls(
+                                                                       jsonb_build_object(
+                                                                               'id', okk.id,
+                                                                               'navn', okk.navn,
+                                                                               'kode', okk.kode,
+                                                                               'aktiv', okk.aktiv
+                                                                       )
+                                                               )
                                                         from opplaring_kategorisering_kurstype okk
                                                         where okk.id = avtale_amo_kategorisering.kurstype_id),
-                                           'bransje', (select jsonb_strip_nulls(jsonb_build_object(
-                'id', okb.id,
-                'navn', okb.navn,
-                'kode', okb.kode
-                                                                                ))
+                                           'bransje', (select jsonb_strip_nulls(
+                                                                      jsonb_build_object(
+                                                                              'id', okb.id,
+                                                                              'navn', okb.navn,
+                                                                              'kode', okb.kode
+                                                                      )
+                                                              )
                                                        from opplaring_kategorisering_bransje okb
                                                        where okb.id = avtale_amo_kategorisering.bransje_id),
-                                           'forerkort', coalesce((select jsonb_strip_nulls(jsonb_agg(jsonb_build_object())))
+                                           'forerkort', coalesce(
+                                                   (select jsonb_strip_nulls(
+                                                                   jsonb_agg(
+                                                                           jsonb_build_object(
+                                                                                   'id', okf.id,
+                                                                                   'navn', okf.navn,
+                                                                                   'kode', okf.kode
+                                                                           )
+                                                                   )
+                                                           )
+                                                    from opplaring_kategorisering_forerkort okf
+                                                             join avtale_amo_kategorisering_forerkort aokf on aokf.forerkort_id = okf.id
+                                                    where aokf.avtale_id = avtale_amo_kategorisering.avtale_id),
+                                                   '[]'::jsonb),
                                            'norskprove', avtale_amo_kategorisering.norskprove,
                                            'sertifiseringer',
                                            coalesce((select jsonb_strip_nulls(
