@@ -59,7 +59,6 @@ data class VeilederflateTiltakGruppe(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: VeilederflateTiltakGruppeStatus,
-    val tiltaksnummer: String?,
     val apentForPamelding: Boolean,
     val lopenummer: String,
     @Serializable(with = LocalDateSerializer::class)

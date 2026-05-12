@@ -218,7 +218,6 @@ class VeilederflateService(
             enheter = gjennomforing.enheter,
             id = gjennomforing.id,
             status = gjennomforing.status,
-            tiltaksnummer = gjennomforing.tiltaksnummer,
             apentForPamelding = gjennomforing.apentForPamelding,
             oppstartsdato = gjennomforing.oppstartsdato,
             sluttdato = gjennomforing.sluttdato,
