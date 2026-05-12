@@ -1,7 +1,7 @@
 import { NavnOgGradering } from "@/components/personalia/NavnOgGradering";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { BodyShort, Box, Checkbox, Table, VStack } from "@navikt/ds-react";
+import { BodyShort, Box, Checkbox, Table } from "@navikt/ds-react";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { TilsagnDeltakerDto, TilsagnDeltakerRequest } from "@tiltaksadministrasjon/api-client";
 import { useState } from "react";
@@ -73,10 +73,11 @@ export function TilsagnDeltakereTable({ deltakere, selected, setSelected }: Prop
                 </Table.DataCell>
               )}
               <Table.HeaderCell scope="row">
-                <VStack>
-                  <NavnOgGradering navn={deltaker.navn} gradering={deltaker.gradering} />
-                  <BodyShort>{deltaker.norskIdent}</BodyShort>
-                </VStack>
+                <NavnOgGradering
+                  navn={deltaker.navn}
+                  gradering={deltaker.gradering}
+                  norskIdent={deltaker.norskIdent}
+                />
               </Table.HeaderCell>
               <Table.DataCell>{deltaker.oppfolgingEnhet?.navn ?? "-"}</Table.DataCell>
               <Table.DataCell>

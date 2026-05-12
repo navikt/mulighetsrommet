@@ -1,6 +1,6 @@
 import { NavnOgGradering } from "@/components/personalia/NavnOgGradering";
 import { compare, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { SortState, BodyShort, Table, VStack } from "@navikt/ds-react";
+import { SortState, Table } from "@navikt/ds-react";
 import { BeregningDeltakerDto, UtbetalingBeregningType } from "@tiltaksadministrasjon/api-client";
 import { useState } from "react";
 
@@ -87,10 +87,11 @@ export function BeregningDeltakereTable({ deltakere, type }: Props) {
           return (
             <Table.Row key={i}>
               <Table.HeaderCell scope="row">
-                <VStack>
-                  <NavnOgGradering navn={deltaker.navn} gradering={deltaker.gradering} />
-                  <BodyShort>{deltaker.norskIdent}</BodyShort>
-                </VStack>
+                <NavnOgGradering
+                  navn={deltaker.navn}
+                  gradering={deltaker.gradering}
+                  norskIdent={deltaker.norskIdent}
+                />
               </Table.HeaderCell>
               <Table.DataCell>{deltaker.region}</Table.DataCell>
               <Table.DataCell>{deltaker.oppfolgingEnhet}</Table.DataCell>

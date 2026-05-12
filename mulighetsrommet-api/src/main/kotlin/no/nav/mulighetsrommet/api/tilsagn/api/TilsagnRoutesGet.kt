@@ -62,7 +62,7 @@ fun Route.tilsagnRoutesGet() {
                     PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
                 )
                 val deltakere = tilsagn.deltakere.map {
-                    TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))
+                    TilsagnDeltakerDto.from(it, personalia.find { p -> p.deltakerId == it.deltakerId })
                 }
                 TilsagnDetaljerDto(
                     tilsagn = TilsagnDto.from(tilsagn),
