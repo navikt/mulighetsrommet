@@ -1,15 +1,20 @@
 package no.nav.mulighetsrommet.api.datavarehus.db
 
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
+import no.nav.mulighetsrommet.api.amo.models.Bransje
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.requireSingle
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -87,11 +92,11 @@ class DatavarehusTiltakQueries(private val session: Session) {
         """.trimIndent()
 
         val sertifiseringer = session.list(queryOf(sertifiseringQuery, id)) {
-            AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
+            Sertifisering(
                 konseptId = it.long("konsept_id"),
                 label = it.string("label"),
             )
-        }
+        }.toSet()
 
         @Language("PostgreSQL")
         val amoKategoriseringQuery = """
@@ -109,43 +114,17 @@ class DatavarehusTiltakQueries(private val session: Session) {
 }
 
 private fun Row.toAmoKategorisering(
-    sertifiseringer: List<AmoKategorisering.BransjeOgYrkesrettet.Sertifisering>,
-): AmoKategorisering {
-    val kurstype = AmoKurstype.valueOf(string("kurstype"))
-    return when (kurstype) {
-        AmoKurstype.BRANSJE_OG_YRKESRETTET -> AmoKategorisering.BransjeOgYrkesrettet(
-            bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.valueOf(string("bransje")),
-            sertifiseringer = sertifiseringer,
-            forerkort = array<String>("forerkort")
-                .toList()
-                .map { AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.valueOf(it) },
-            innholdElementer = array<String>("innhold_elementer")
-                .toList()
-                .map { AmoKategorisering.InnholdElement.valueOf(it) },
-        )
-
-        AmoKurstype.NORSKOPPLAERING -> AmoKategorisering.Norskopplaering(
-            norskprove = boolean("norskprove"),
-            innholdElementer = array<String>("innhold_elementer")
-                .toList()
-                .map { AmoKategorisering.InnholdElement.valueOf(it) },
-        )
-
-        AmoKurstype.GRUNNLEGGENDE_FERDIGHETER -> AmoKategorisering.GrunnleggendeFerdigheter(
-            innholdElementer = array<String>("innhold_elementer")
-                .toList()
-                .map { AmoKategorisering.InnholdElement.valueOf(it) },
-        )
-
-        AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategorisering.ForberedendeOpplaeringForVoksne(
-            innholdElementer = array<String>("innhold_elementer")
-                .toList()
-                .map { AmoKategorisering.InnholdElement.valueOf(it) },
-        )
-
-        AmoKurstype.STUDIESPESIALISERING -> AmoKategorisering.Studiespesialisering
-    }
-}
+    sertifiseringer: Set<Sertifisering>,
+): AmoKategorisering = AmoKategorisering(
+    kurstype = Json.decodeFromString<Kurstype>(string("kurstype")),
+    bransje = Json.decodeFromString<Bransje>(string("bransje")),
+    sertifiseringer = sertifiseringer,
+    forerkort = array<String>("forerkort")
+        .map { Json.decodeFromString<ForerkortKlasse>(it) }.toSet(),
+    innholdElementer = array<String>("innhold_elementer")
+        .map { AmoKategorisering.InnholdElement.valueOf(it) }.toSet(),
+    norskprove = false,
+)
 
 private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
     val tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode"))

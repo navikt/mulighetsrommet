@@ -3,9 +3,10 @@ package no.nav.mulighetsrommet.api.amo
 import kotlinx.serialization.json.Json
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.createBigintArray
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKurstype
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.util.UUID
@@ -68,14 +69,16 @@ object AmoKategoriseringQueries {
                 bransje = excluded.bransje,
                 norskprove = excluded.norskprove,
                 forerkort = excluded.forerkort,
-                innhold_elementer = excluded.innhold_elementer
+                innhold_elementer = excluded.innhold_elementer,
+                bransje_id = excluded.bransje_id,
+                kurstype_id = excluded.kurstype_id
         """.trimIndent()
 
         val params = mutableMapOf("${foreignName}_id" to foreignId) + (amoKategorisering.toSqlParameters())
 
         session.execute(queryOf(query, params))
 
-        if (amoKategorisering is AmoKategorisering.BransjeOgYrkesrettet) {
+        if (amoKategorisering.kurstype?.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
             updateSertifiseringer(foreignId, foreignName, amoKategorisering.sertifiseringer)
         }
     }
@@ -84,7 +87,7 @@ object AmoKategoriseringQueries {
     private fun updateSertifiseringer(
         foreignId: UUID,
         foreignName: String,
-        sertifiseringer: List<AmoKategorisering.BransjeOgYrkesrettet.Sertifisering>,
+        sertifiseringer: Set<Sertifisering>,
     ) {
         @Language("PostgreSQL")
         val upsertSertifiseringer = """
@@ -134,45 +137,47 @@ object AmoKategoriseringQueries {
 
         session.update(queryOf(query, foreignId))
 
-        updateSertifiseringer(foreignId, foreignName, emptyList())
+        updateSertifiseringer(foreignId, foreignName, emptySet())
     }
 
     context(session: Session)
-    private fun AmoKategorisering.toSqlParameters() = when (this) {
-        is AmoKategorisering.BransjeOgYrkesrettet -> mapOf(
-            "kurstype" to AmoKurstype.BRANSJE_OG_YRKESRETTET.name,
-            "bransje" to bransje.name,
+    private fun AmoKategorisering.toSqlParameters() = when (kurstype?.kode) {
+        Kurstype.Kode.BRANSJE_OG_YRKESRETTET -> mapOf(
+            "kurstype" to kurstype.kode.name,
+            "bransje" to bransje?.kode?.name,
             "forerkort" to session.createArrayOfForerkortKlasse(forerkort),
             "sertifiseringer" to Json.encodeToString(sertifiseringer),
             "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
 
-        is AmoKategorisering.ForberedendeOpplaeringForVoksne -> mapOf(
-            "kurstype" to AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE.name,
+        Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> mapOf(
+            "kurstype" to kurstype.kode.name,
             "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
 
-        is AmoKategorisering.GrunnleggendeFerdigheter -> mapOf(
-            "kurstype" to AmoKurstype.GRUNNLEGGENDE_FERDIGHETER.name,
+        Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER -> mapOf(
+            "kurstype" to kurstype.kode.name,
             "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
 
-        is AmoKategorisering.Norskopplaering -> mapOf(
-            "kurstype" to AmoKurstype.NORSKOPPLAERING.name,
+        Kurstype.Kode.NORSKOPPLAERING -> mapOf(
+            "kurstype" to kurstype.kode.name,
             "norskprove" to norskprove,
             "innhold_elementer" to session.createArrayOfAmoInnholdElement(innholdElementer),
         )
 
-        AmoKategorisering.Studiespesialisering -> mapOf(
-            "kurstype" to AmoKurstype.STUDIESPESIALISERING.name,
+        Kurstype.Kode.STUDIESPESIALISERING -> mapOf(
+            "kurstype" to kurstype.kode.name,
         )
+
+        null -> emptyMap()
     }
 }
 
 fun Session.createArrayOfForerkortKlasse(
-    items: List<AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse>,
-): Array = createArrayOf("forerkort_klasse", items)
+    items: Collection<ForerkortKlasse>,
+): Array = createArrayOf("forerkort_klasse", items.map { it.kode.name })
 
 fun Session.createArrayOfAmoInnholdElement(
-    items: List<AmoKategorisering.InnholdElement>,
+    items: Collection<AmoKategorisering.InnholdElement>,
 ): Array = createArrayOf("amo_innhold_element", items)

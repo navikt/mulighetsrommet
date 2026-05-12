@@ -454,6 +454,12 @@ class AvtaleService(
 
         val systembestemtPrismodell = queries.prismodell.getBySystemId(request.tiltakskode.name)
 
+        val opplaringKategorisering = AvtaleValidator.Ctx.OpplaringKategorisering(
+            kurstyper = queries.opplaringKategorisering.getKurstyper(),
+            bransjer = queries.opplaringKategorisering.getBransjer(),
+            forerkort = queries.opplaringKategorisering.getForerkortKlasser(),
+        )
+
         AvtaleValidator.Ctx(
             previous = previous,
             arrangor = arrangor,
@@ -464,6 +470,7 @@ class AvtaleService(
             ),
             navEnheter = navEnheter,
             systembestemtPrismodell = systembestemtPrismodell?.id,
+            kategorisering = opplaringKategorisering,
         )
     }
 

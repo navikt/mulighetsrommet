@@ -6,7 +6,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.janzz.PamOntologiService
-import no.nav.mulighetsrommet.model.AmoKategorisering
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
@@ -26,7 +26,7 @@ fun Route.janzzRoutes() {
         response {
             code(HttpStatusCode.OK) {
                 description = "Liste over sertifiseringer som matcher søket"
-                body<List<AmoKategorisering.BransjeOgYrkesrettet.Sertifisering>>()
+                body<List<Sertifisering>>()
             }
             default {
                 description = "Problem details"

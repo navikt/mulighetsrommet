@@ -66,7 +66,13 @@ class GjennomforingAvtaleService(
             }
             val avtale = queries.avtale.getOrError(request.avtaleId)
             val arrangor = request.detaljer.arrangorId?.let { queries.arrangor.getById(it) }
-            GjennomforingValidator.Context(today, avtale, arrangor)
+            val opplaringKategorisering = GjennomforingValidator.Context.OpplaringKategorisering(
+                kurstyper = queries.opplaringKategorisering.getKurstyper(),
+                bransjer = queries.opplaringKategorisering.getBransjer(),
+                forerkort = queries.opplaringKategorisering.getForerkortKlasser(),
+            )
+
+            GjennomforingValidator.Context(today, avtale, arrangor, opplaringKategorisering)
         }
         val result = GjennomforingValidator.validateCreateGjennomforing(ctx, request.id, request.detaljer).bind()
 
@@ -96,10 +102,17 @@ class GjennomforingAvtaleService(
             val avtale = queries.avtale.getOrError(previous.avtaleId)
             val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
             val antallDeltakere = queries.deltaker.getByGjennomforingId(id).size
+
+            val opplaringKategorisering = GjennomforingValidator.Context.OpplaringKategorisering(
+                kurstyper = queries.opplaringKategorisering.getKurstyper(),
+                bransjer = queries.opplaringKategorisering.getBransjer(),
+                forerkort = queries.opplaringKategorisering.getForerkortKlasser(),
+            )
             GjennomforingValidator.Context(
                 today = today,
                 avtale = avtale,
                 arrangor = arrangor,
+                kategorisering = opplaringKategorisering,
                 previous = GjennomforingValidator.Context.Gjennomforing(
                     arrangorId = previous.arrangor.id,
                     status = previous.status,

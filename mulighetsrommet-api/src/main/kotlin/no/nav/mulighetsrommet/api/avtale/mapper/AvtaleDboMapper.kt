@@ -1,6 +1,10 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.models.Bransje
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -14,13 +18,6 @@ import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKategorisering.BransjeOgYrkesrettet
-import no.nav.mulighetsrommet.model.AmoKategorisering.ForberedendeOpplaeringForVoksne
-import no.nav.mulighetsrommet.model.AmoKategorisering.GrunnleggendeFerdigheter
-import no.nav.mulighetsrommet.model.AmoKategorisering.Norskopplaering
-import no.nav.mulighetsrommet.model.AmoKategorisering.Studiespesialisering
-import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import java.util.UUID
 
@@ -133,29 +130,65 @@ fun PersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(
     personopplysninger = personopplysninger,
 )
 
-fun AmoKategoriseringRequest.toDbo(): AmoKategorisering {
+fun AmoKategoriseringRequest.toDbo(
+    kurstyper: Set<Kurstype>,
+    bransjer: Set<Bransje>,
+    forerkort: Set<ForerkortKlasse>,
+): AmoKategorisering {
+    val kurstype = this.kurstype?.let { kurstype -> kurstyper.find { it.kode == kurstype } }
+    val bransje = this.bransje?.let { bransje -> bransjer.find { it.kode == bransje } }
+    val forerkort = (this.forerkort ?: emptySet()).let { forerkortListe ->
+        forerkort.filter { it.kode in forerkortListe }
+    }.toSet()
+    val sertifiseringer = this.sertifiseringer?.toSet() ?: emptySet()
+    val innholdsElementer = this.innholdElementer?.toSet() ?: emptySet()
+    val norskprove = this.norskprove ?: false
+
     return when (this.kurstype) {
-        AmoKurstype.BRANSJE_OG_YRKESRETTET -> BransjeOgYrkesrettet(
-            bransje = requireNotNull(this.bransje),
-            sertifiseringer = this.sertifiseringer ?: emptyList(),
-            innholdElementer = this.innholdElementer ?: emptyList(),
-            forerkort = this.forerkort ?: emptyList(),
+        Kurstype.Kode.BRANSJE_OG_YRKESRETTET -> AmoKategorisering(
+            kurstype = kurstype,
+            bransje = requireNotNull(bransje),
+            sertifiseringer = sertifiseringer,
+            innholdElementer = innholdsElementer,
+            forerkort = forerkort,
+            norskprove = false,
         )
 
-        AmoKurstype.NORSKOPPLAERING -> Norskopplaering(
-            norskprove = this.norskprove ?: false,
-            innholdElementer = this.innholdElementer ?: emptyList(),
+        Kurstype.Kode.NORSKOPPLAERING -> AmoKategorisering(
+            kurstype = kurstype,
+            norskprove = norskprove,
+            innholdElementer = innholdsElementer,
+            bransje = null,
+            forerkort = emptySet(),
+            sertifiseringer = emptySet(),
         )
 
-        AmoKurstype.GRUNNLEGGENDE_FERDIGHETER -> GrunnleggendeFerdigheter(
-            innholdElementer = this.innholdElementer ?: emptyList(),
+        Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER -> AmoKategorisering(
+            kurstype = kurstype,
+            innholdElementer = innholdsElementer,
+            norskprove = false,
+            bransje = null,
+            forerkort = emptySet(),
+            sertifiseringer = emptySet(),
         )
 
-        AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> ForberedendeOpplaeringForVoksne(
-            innholdElementer = this.innholdElementer ?: emptyList(),
+        Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategorisering(
+            kurstype = kurstype,
+            innholdElementer = innholdsElementer,
+            norskprove = false,
+            bransje = null,
+            forerkort = emptySet(),
+            sertifiseringer = emptySet(),
         )
 
-        AmoKurstype.STUDIESPESIALISERING -> Studiespesialisering
+        Kurstype.Kode.STUDIESPESIALISERING -> AmoKategorisering(
+            kurstype = kurstype,
+            innholdElementer = emptySet(),
+            norskprove = false,
+            bransje = null,
+            forerkort = emptySet(),
+            sertifiseringer = emptySet(),
+        )
 
         else -> throw IllegalArgumentException("Kurstype må være satt")
     }

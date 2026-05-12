@@ -2,7 +2,11 @@ package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.Either
 import arrow.core.right
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.models.Bransje
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
@@ -35,8 +39,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Avtaletyper
@@ -60,6 +62,7 @@ object AvtaleValidator {
         val administratorer: List<NavAnsatt>,
         val tiltakstype: Tiltakstype,
         val navEnheter: List<NavEnhetDto>,
+        val kategorisering: OpplaringKategorisering,
         val systembestemtPrismodell: UUID?,
     ) {
         data class Avtale(
@@ -83,6 +86,12 @@ object AvtaleValidator {
         data class Tiltakstype(
             val navn: String,
             val id: UUID,
+        )
+
+        data class OpplaringKategorisering(
+            val kurstyper: Set<Kurstype>,
+            val bransjer: Set<Bransje>,
+            val forerkort: Set<ForerkortKlasse>,
         )
     }
 
@@ -426,7 +435,8 @@ object AvtaleValidator {
                 }
             }
         }
-        val amoKategorisering = validateAmoKategorisering(request.tiltakskode, request.amoKategorisering)
+        val amoKategorisering =
+            context(ctx.kategorisering) { validateAmoKategorisering(request.tiltakskode, request.amoKategorisering) }
         validateUtdanningslop(request.tiltakskode, request.utdanningslop)
 
         validateSlettetNavAnsatte(ctx.administratorer)
@@ -535,6 +545,7 @@ object AvtaleValidator {
         }
     }
 
+    context(ctx: Ctx.OpplaringKategorisering)
     private fun FieldValidator.validateAmoKategorisering(
         tiltakskode: Tiltakskode,
         amoKategorisering: AmoKategoriseringRequest?,
@@ -547,7 +558,7 @@ object AvtaleValidator {
                     AmoKategoriseringRequest::kurstype,
                 )
             }
-            if (amoKategorisering.kurstype == AmoKurstype.BRANSJE_OG_YRKESRETTET) {
+            if (amoKategorisering.kurstype == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
                 requireValid(amoKategorisering.bransje != null) {
                     FieldError.of(
                         "Du må velge en bransje",
@@ -567,7 +578,7 @@ object AvtaleValidator {
                     AmoKategoriseringRequest::bransje,
                 )
             }
-            amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET)
+            amoKategorisering.copy(kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET)
         }
 
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
@@ -580,9 +591,9 @@ object AvtaleValidator {
             }
             validate(
                 amoKategorisering.kurstype in listOf(
-                    AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-                    AmoKurstype.NORSKOPPLAERING,
-                    AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+                    Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+                    Kurstype.Kode.NORSKOPPLAERING,
+                    Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
                 ),
             ) {
                 FieldError.of(
@@ -595,10 +606,10 @@ object AvtaleValidator {
         }
 
         Tiltakskode.STUDIESPESIALISERING,
-        -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
+        -> AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING)
 
         else -> null
-    }?.toDbo().right()
+    }?.toDbo(ctx.kurstyper, ctx.bransjer, ctx.forerkort).right()
 
     private fun FieldValidator.validateUtdanningslop(
         tiltakskode: Tiltakskode,

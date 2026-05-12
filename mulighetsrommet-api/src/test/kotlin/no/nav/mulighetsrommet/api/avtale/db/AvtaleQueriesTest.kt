@@ -15,6 +15,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
@@ -27,6 +28,8 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
+import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
@@ -35,8 +38,8 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NOK
@@ -325,7 +328,10 @@ class AvtaleQueriesTest : FunSpec({
                     ),
                 )
                 queries.avtale.getOrError(avtale.id).should {
-                    it.personopplysninger.map { it.type } shouldContainExactly listOf(Personopplysning.Type.KJONN, Personopplysning.Type.ADFERD)
+                    it.personopplysninger.map { it.type } shouldContainExactly listOf(
+                        Personopplysning.Type.KJONN,
+                        Personopplysning.Type.ADFERD,
+                    )
                 }
 
                 queries.avtale.updatePersonvern(
@@ -419,16 +425,18 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val amoKategorisering = AmoKategorisering.BransjeOgYrkesrettet(
-                    bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.INDUSTRIARBEID,
-                    forerkort = emptyList(),
-                    sertifiseringer = listOf(
-                        AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
+                val amoKategorisering = AmoKategorisering(
+                    kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                    bransje = BransjeFixtures.industriarbeid,
+                    forerkort = emptySet(),
+                    sertifiseringer = setOf(
+                        Sertifisering(
                             konseptId = 1,
                             label = "label",
                         ),
                     ),
-                    innholdElementer = listOf(AmoKategorisering.InnholdElement.TEORETISK_OPPLAERING),
+                    innholdElementer = setOf(AmoKategorisering.InnholdElement.TEORETISK_OPPLAERING),
+                    norskprove = false,
                 )
                 val avtale = AvtaleFixtures.oppfolging.copy(
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(amoKategorisering = amoKategorisering),
@@ -439,9 +447,9 @@ class AvtaleQueriesTest : FunSpec({
                 }
 
                 val amoEndring = amoKategorisering.copy(
-                    bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.HELSE_PLEIE_OG_OMSORG,
-                    sertifiseringer = listOf(
-                        AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
+                    bransje = BransjeFixtures.helseOgPleier,
+                    sertifiseringer = setOf(
+                        Sertifisering(
                             konseptId = 2,
                             label = "label2",
                         ),

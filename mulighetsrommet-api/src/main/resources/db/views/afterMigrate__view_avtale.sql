@@ -114,7 +114,7 @@ from avtale
                                                                                 ))
                                                        from opplaring_kategorisering_bransje okb
                                                        where okb.id = avtale_amo_kategorisering.bransje_id),
-                                           'forerkort', avtale_amo_kategorisering.forerkort,
+                                           'forerkort', coalesce((select jsonb_strip_nulls(jsonb_agg(jsonb_build_object())))
                                            'norskprove', avtale_amo_kategorisering.norskprove,
                                            'sertifiseringer',
                                            coalesce((select jsonb_strip_nulls(

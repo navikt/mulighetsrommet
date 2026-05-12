@@ -1,7 +1,11 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import arrow.core.Either
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.models.Bransje
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
@@ -19,8 +23,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -43,6 +45,7 @@ object GjennomforingValidator {
         val today: LocalDate,
         val avtale: Avtale,
         val arrangor: ArrangorDto?,
+        val kategorisering: OpplaringKategorisering,
         val previous: Gjennomforing? = null,
     ) {
         data class Gjennomforing(
@@ -51,6 +54,12 @@ object GjennomforingValidator {
             val oppstart: GjennomforingOppstartstype,
             val pameldingType: GjennomforingPameldingType,
             val antallDeltakere: Int,
+        )
+
+        data class OpplaringKategorisering(
+            val kurstyper: Set<Kurstype>,
+            val bransjer: Set<Bransje>,
+            val forerkort: Set<ForerkortKlasse>,
         )
 
         fun harEgenskap(vararg egenskap: TiltakstypeEgenskap): Boolean {
@@ -282,7 +291,12 @@ object GjennomforingValidator {
         detaljer = validateOrResetTilgjengeligForArrangorDato(detaljer)
 
         val utdanningslop = validateUtdanningslop(ctx.avtale, detaljer.utdanningslop).bind()
-        val amoKategorisering = validateAmoKategorisering(ctx.avtale, detaljer.amoKategorisering).bind()
+        val amoKategorisering = context(ctx.kategorisering) {
+            validateAmoKategorisering(
+                ctx.avtale,
+                detaljer.amoKategorisering,
+            ).bind()
+        }
 
         DetaljerResult(
             detaljer = GjennomforingDetaljerDbo(
@@ -414,6 +428,7 @@ object GjennomforingValidator {
         utdanningslop
     }
 
+    context(ctx: Context.OpplaringKategorisering)
     fun validateAmoKategorisering(
         avtale: Avtale,
         amoKategorisering: AmoKategoriseringRequest?,
@@ -439,7 +454,7 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::kurstype,
                     )
                 }
-                if (amoKategorisering.kurstype == AmoKurstype.BRANSJE_OG_YRKESRETTET) {
+                if (amoKategorisering.kurstype == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
                     requireValid(amoKategorisering.bransje != null) {
                         FieldError.of(
                             "Du må velge en bransje",
@@ -459,7 +474,7 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::bransje,
                     )
                 }
-                amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET)
+                amoKategorisering.copy(kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET)
             }
 
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
@@ -474,10 +489,14 @@ object GjennomforingValidator {
             }
 
             Tiltakskode.STUDIESPESIALISERING,
-            -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
+            -> AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING)
 
             else -> null
-        }?.toDbo()
+        }?.toDbo(
+            ctx.kurstyper,
+            ctx.bransjer,
+            ctx.forerkort,
+        )
     }
 
     private fun resolveStatus(

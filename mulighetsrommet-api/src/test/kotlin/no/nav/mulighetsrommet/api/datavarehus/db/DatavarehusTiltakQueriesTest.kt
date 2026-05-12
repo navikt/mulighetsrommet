@@ -6,6 +6,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
@@ -13,15 +14,18 @@ import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
+import no.nav.mulighetsrommet.api.fixtures.ForerkortFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeAmo1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeFagYrke1
+import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -95,27 +99,31 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
 
         test("henter Gruppe AMO med amo-kategorisering") {
-            val studiespesialisering = AmoKategorisering.Studiespesialisering
-            val fov = AmoKategorisering.ForberedendeOpplaeringForVoksne(
-                innholdElementer = listOf(
+            val studiespesialisering = AmoKategorisering()
+            val fov = AmoKategorisering(
+                kurstype = KurstypeFixtures.fov,
+                innholdElementer = setOf(
                     AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING,
                 ),
             )
-            val grunnleggende = AmoKategorisering.GrunnleggendeFerdigheter(
-                innholdElementer = listOf(
+            val grunnleggende = AmoKategorisering(
+                kurstype = KurstypeFixtures.grunnleggendeFerdigheter,
+                innholdElementer = setOf(
                     AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
                 ),
             )
-            val norskopplaering = AmoKategorisering.Norskopplaering(
+            val norskopplaering = AmoKategorisering(
+                kurstype = KurstypeFixtures.norskopplaering,
                 norskprove = true,
-                innholdElementer = listOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING),
+                innholdElementer = setOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING),
             )
-            val bransje = AmoKategorisering.BransjeOgYrkesrettet(
-                bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID,
-                innholdElementer = listOf(AmoKategorisering.InnholdElement.PRAKSIS),
-                forerkort = listOf(AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A),
-                sertifiseringer = listOf(
-                    AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(konseptId = 1, label = "Jobb"),
+            val bransje = AmoKategorisering(
+                kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                bransje = BransjeFixtures.kontorarbeid,
+                innholdElementer = setOf(AmoKategorisering.InnholdElement.PRAKSIS),
+                forerkort = setOf(ForerkortFixtures.A),
+                sertifiseringer = setOf(
+                    Sertifisering(konseptId = 1, label = "Jobb"),
                 ),
             )
             val domain = MulighetsrommetTestDomain(
