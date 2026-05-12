@@ -171,7 +171,7 @@ fun Route.tilsagnRoutesBeregning() {
                 PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
             )
             deltakelser.map {
-                TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.id }))
+                TilsagnDeltakerDto.from(it, personalia.find { p -> p.deltakerId == it.id })
             }
         } else {
             emptyList()

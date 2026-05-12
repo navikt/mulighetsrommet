@@ -75,29 +75,29 @@ data class TilsagnDeltakerDto(
     companion object {
         fun from(
             deltaker: Tilsagn.Deltaker,
-            personalia: Personalia,
+            personalia: Personalia?,
         ) = TilsagnDeltakerDto(
             deltakerId = deltaker.deltakerId,
-            norskIdent = personalia.norskIdent(),
-            navn = personalia.navn(),
-            oppfolgingEnhet = personalia.oppfolgingEnhet(),
-            geografiskEnhet = personalia.geografiskEnhet(),
+            norskIdent = personalia?.norskIdent(),
+            navn = personalia?.navn() ?: "Ukjent",
+            oppfolgingEnhet = personalia?.oppfolgingEnhet(),
+            geografiskEnhet = personalia?.geografiskEnhet(),
             innholdAnnet = deltaker.innholdAnnet,
             status = deltaker.status.toDataElement(),
-            gradering = personalia.gradering,
+            gradering = personalia?.gradering ?: Gradering.UGRADERT,
             startDato = deltaker.startDato,
             sluttDato = deltaker.sluttDato,
         )
 
-        fun from(deltaker: Deltaker, personalia: Personalia) = TilsagnDeltakerDto(
+        fun from(deltaker: Deltaker, personalia: Personalia?) = TilsagnDeltakerDto(
             deltakerId = deltaker.id,
-            norskIdent = personalia.norskIdent(),
-            navn = personalia.navn(),
-            oppfolgingEnhet = personalia.oppfolgingEnhet(),
-            geografiskEnhet = personalia.geografiskEnhet(),
+            norskIdent = personalia?.norskIdent(),
+            navn = personalia?.navn() ?: "Ukjent",
+            oppfolgingEnhet = personalia?.oppfolgingEnhet(),
+            geografiskEnhet = personalia?.geografiskEnhet(),
             innholdAnnet = deltaker.innholdAnnet,
             status = deltaker.status.type.toDataElement(),
-            gradering = personalia.gradering,
+            gradering = personalia?.gradering ?: Gradering.UGRADERT,
             startDato = deltaker.startDato,
             sluttDato = deltaker.sluttDato,
         )
