@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -92,7 +92,7 @@ class GjennomforingEnkeltplassService(
                     Tiltaksadministrasjon, Arrangor -> error("$agent er ikke tillatt å opprette enkeltplasser")
 
                     is NavIdent -> {
-                        totrinnskontroll.opprett(it.id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI, agent)
+                        totrinnskontroll.opprett(it.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI, agent)
                         logEndring("Deltaker søkt inn", it.id, agent)
                     }
                 }
@@ -183,7 +183,7 @@ class GjennomforingEnkeltplassService(
     ): Either<List<FieldError>, GjennomforingEnkeltplass> = db.transaction {
         getAndAquireLock(id)
 
-        val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI)
+        val opprettelse = totrinnskontroll.getOrError(id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
         totrinnskontroll.godkjent(opprettelse.copy(forklaring = null), navIdent).map {
             logEndring("Enkeltplass ble godkjent", id, navIdent)
         }
@@ -196,7 +196,7 @@ class GjennomforingEnkeltplassService(
     ): Either<List<FieldError>, GjennomforingEnkeltplass> = db.transaction {
         getAndAquireLock(id)
 
-        val opprettelse = totrinnskontroll.getOrError(id, Totrinnskontroll.Type.ENKELTPLASS_OKONOMI)
+        val opprettelse = totrinnskontroll.getOrError(id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
         totrinnskontroll.avvist(opprettelse, navIdent, forklaring = forklaring).map {
             logEndring("Godkjenning ble satt på vent", id, navIdent)
         }

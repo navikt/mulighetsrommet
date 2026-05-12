@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -167,13 +167,13 @@ fun QueryContext.setUtbetalingLinjeStatus(
 
     when (status) {
         UtbetalingLinjeStatus.TIL_ATTESTERING -> {
-            setTilGodkjenning(dto.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE, behandletAv)
+            setTilGodkjenning(dto.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE, behandletAv)
         }
 
         UtbetalingLinjeStatus.GODKJENT, UtbetalingLinjeStatus.UTBETALT, UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING -> {
             setGodkjent(
                 dto.id,
-                Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE,
+                TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 behandletAv,
                 besluttetAv,
                 besluttetTidspunkt = besluttetTidspunkt,
@@ -183,7 +183,7 @@ fun QueryContext.setUtbetalingLinjeStatus(
         UtbetalingLinjeStatus.RETURNERT -> {
             setAvvist(
                 dto.id,
-                Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE,
+                TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 behandletAv,
                 besluttetAv,
                 besluttetTidspunkt = besluttetTidspunkt,

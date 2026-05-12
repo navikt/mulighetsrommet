@@ -6,7 +6,6 @@ import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBeha
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import {
-  Besluttelse,
   EndringshistorikkType,
   FieldError,
   TilskuddBehandlingHandling,
@@ -33,7 +32,7 @@ import { Definisjonsliste } from "@mr/frontend-common/components/definisjonslist
 import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
 import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
 import { Handlinger } from "@/components/handlinger/Handlinger";
-import { isBesluttet } from "@/utils/totrinnskontroll";
+import { isAvvist } from "@/utils/totrinnskontroll";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { TotaltBelopBox } from "@/components/tilskudd-behandling/TotaltBelopBox";
@@ -84,7 +83,7 @@ export function TilskuddBehandlingDetaljerPage() {
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
       <>
-        {isBesluttet(opprettelse) && opprettelse.besluttelse === Besluttelse.AVVIST && (
+        {isAvvist(opprettelse) && (
           <ToTrinnsOpprettelsesForklaring
             heading="Behandlingen ble returnert"
             opprettelse={opprettelse}

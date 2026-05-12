@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
@@ -253,9 +253,9 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
         link = "/gjennomforinger/${data.gjennomforing.id}/tilsagn/${data.id}",
     )
 
-    val opprettelse = queries.totrinnskontroll.getOrError(data.id, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
-    val annullering = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.TILSAGN_ANNULLERING)
-    val tilOppgjor = queries.totrinnskontroll.get(data.id, Totrinnskontroll.Type.TILSAGN_OPPGJOR)
+    val opprettelse = queries.totrinnskontroll.getOrError(data.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
+    val annullering = queries.totrinnskontroll.get(data.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
+    val tilOppgjor = queries.totrinnskontroll.get(data.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
 
     val title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing)
     return when (data.status) {

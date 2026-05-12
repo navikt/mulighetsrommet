@@ -35,8 +35,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -144,7 +144,7 @@ class TilsagnServiceTest : FunSpec({
             database.run {
                 queries.totrinnskontroll.getAll(requestId).shouldHaveSize(1).first().should {
                     it.behandletAv shouldBe ansatt1
-                    it.type shouldBe Totrinnskontroll.Type.TILSAGN_OPPRETTELSE
+                    it.type shouldBe TotrinnskontrollType.TILSAGN_OPPRETTELSE
                 }
             }
         }
@@ -431,7 +431,7 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -446,10 +446,10 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe Besluttelse.AVVIST
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                 }
             }
 
@@ -457,7 +457,7 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe NavIdent("T888888")
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -470,10 +470,10 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe NavIdent("T888888")
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                 }
 
                 queries.totrinnskontroll.getAll(requestId).shouldHaveSize(2)
@@ -554,7 +554,7 @@ class TilsagnServiceTest : FunSpec({
             ).status shouldBe TilsagnStatus.TIL_ANNULLERING
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.TILSAGN_ANNULLERING).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_ANNULLERING).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -569,10 +569,10 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.TILSAGN_ANNULLERING).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_ANNULLERING).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                     it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
                     it.forklaring shouldBe "Velg et annet beløp"
                 }
@@ -711,7 +711,7 @@ class TilsagnServiceTest : FunSpec({
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.TILSAGN_OPPGJOR).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPGJOR).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -724,10 +724,10 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.OPPGJORT
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.TILSAGN_OPPGJOR).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPGJOR).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                 }
             }
 

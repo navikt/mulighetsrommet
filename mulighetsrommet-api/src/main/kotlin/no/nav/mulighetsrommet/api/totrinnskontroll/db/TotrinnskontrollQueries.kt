@@ -3,8 +3,9 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.textRepr
 import no.nav.mulighetsrommet.model.toAgent
@@ -64,13 +65,13 @@ class TotrinnskontrollQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun getOrError(entityId: UUID, type: Totrinnskontroll.Type): Totrinnskontroll {
+    fun getOrError(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll {
         return requireNotNull(get(entityId, type)) {
             "Totrinnskontroll mangler for type $type"
         }
     }
 
-    fun get(entityId: UUID, type: Totrinnskontroll.Type): Totrinnskontroll? {
+    fun get(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll? {
         @Language("PostgreSQL")
         val query = """
             select
@@ -118,14 +119,14 @@ class TotrinnskontrollQueries(private val session: Session) {
         return Totrinnskontroll(
             id = uuid("id"),
             entityId = uuid("entity_id"),
-            type = Totrinnskontroll.Type.valueOf(string("type")),
+            type = TotrinnskontrollType.valueOf(string("type")),
             behandletAv = string("behandlet_av").toAgent(),
             behandletTidspunkt = instant("behandlet_tidspunkt"),
             aarsaker = array<String>("aarsaker").toList(),
             forklaring = stringOrNull("forklaring"),
             besluttetAv = stringOrNull("besluttet_av")?.toAgent(),
             besluttetTidspunkt = instantOrNull("besluttet_tidspunkt"),
-            besluttelse = stringOrNull("besluttelse")?.let { Besluttelse.valueOf(it) },
+            besluttelse = stringOrNull("besluttelse")?.let { TotrinnskontrollBesluttelse.valueOf(it) },
             besluttetAvNavn = stringOrNull("besluttet_av_navn"),
             behandletAvNavn = stringOrNull("behandlet_av_navn"),
         )

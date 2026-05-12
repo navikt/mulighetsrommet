@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.api
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
@@ -42,7 +42,7 @@ sealed class TotrinnskontrollDto {
         val besluttetAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
         val besluttetTidspunkt: LocalDateTime,
-        val besluttelse: Besluttelse,
+        val besluttelse: TotrinnskontrollBesluttelse,
     ) : TotrinnskontrollDto()
 }
 

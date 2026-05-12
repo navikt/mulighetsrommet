@@ -13,9 +13,10 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -43,11 +44,11 @@ class TotrinnskontrollServiceTest : FunSpec({
     context("opprett") {
         test("lagrer totrinnskontroll med blank besluttelse og publiserer Kafka-melding") {
             database.run {
-                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
             }
 
             database.run {
-                val stored = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 stored.entityId shouldBe entityId
                 stored.behandletAv shouldBe behandletAv
                 stored.besluttelse shouldBe null
@@ -60,8 +61,8 @@ class TotrinnskontrollServiceTest : FunSpec({
                 record.key.decodeToString() shouldBe entityId.toString()
                 val payload = Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString())
                 payload.entityId shouldBe entityId
-                payload.type shouldBe Totrinnskontroll.Type.TILSAGN_OPPRETTELSE
-                payload.behandletAv shouldBe behandletAv
+                payload.type shouldBe TotrinnskontrollType.TILSAGN_OPPRETTELSE
+                payload.behandletAv shouldBe TotrinnskontrollAgent.NavAnsatt(behandletAv.value)
                 payload.behandletTidspunkt shouldBe stored.behandletTidspunkt
                 payload.besluttelse shouldBe null
                 payload.besluttetTidspunkt shouldBe null
@@ -72,7 +73,7 @@ class TotrinnskontrollServiceTest : FunSpec({
             database.run {
                 service.opprett(
                     entityId,
-                    Totrinnskontroll.Type.TILSAGN_ANNULLERING,
+                    TotrinnskontrollType.TILSAGN_ANNULLERING,
                     behandletAv,
                     aarsaker = listOf("FEIL_PERIODE"),
                     forklaring = "Perioden er feil",
@@ -80,7 +81,7 @@ class TotrinnskontrollServiceTest : FunSpec({
             }
 
             database.run {
-                val stored = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_ANNULLERING)
+                val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_ANNULLERING)
                 stored.aarsaker shouldBe listOf("FEIL_PERIODE")
                 stored.forklaring shouldBe "Perioden er feil"
             }
@@ -90,16 +91,16 @@ class TotrinnskontrollServiceTest : FunSpec({
     context("besluttet") {
         test("godkjenner eksisterende totrinnskontroll og publiserer ny Kafka-melding") {
             database.run {
-                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
 
                 service.godkjent(existing, besluttetAv).shouldBeRight()
             }
 
             database.run {
-                val stored = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe Besluttelse.GODKJENT
+                val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
+                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                 stored.besluttetAv shouldBe besluttetAv
                 stored.besluttetTidspunkt shouldNotBe null
 
@@ -108,8 +109,8 @@ class TotrinnskontrollServiceTest : FunSpec({
 
                 val record = records.last()
                 val hendelse = Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString())
-                hendelse.besluttelse shouldBe Besluttelse.GODKJENT
-                hendelse.besluttetAv shouldBe besluttetAv
+                hendelse.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                hendelse.besluttetAv shouldBe TotrinnskontrollAgent.NavAnsatt(besluttetAv.value)
                 hendelse.behandletTidspunkt shouldBe stored.behandletTidspunkt
                 hendelse.besluttetTidspunkt shouldBe stored.besluttetTidspunkt
             }
@@ -117,16 +118,16 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("avviser eksisterende totrinnskontroll og publiserer ny Kafka-melding") {
             database.run {
-                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
 
                 service.avvist(existing, besluttetAv, listOf("FEIL_BELOP"), "Beløp er feil").shouldBeRight()
             }
 
             database.run {
-                val stored = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe Besluttelse.AVVIST
+                val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
+                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                 stored.besluttetAv shouldBe besluttetAv
                 stored.besluttetTidspunkt shouldNotBe null
 
@@ -135,8 +136,8 @@ class TotrinnskontrollServiceTest : FunSpec({
 
                 val record = records.last()
                 val hendelse = Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString())
-                hendelse.besluttelse shouldBe Besluttelse.AVVIST
-                hendelse.besluttetAv shouldBe besluttetAv
+                hendelse.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                hendelse.besluttetAv shouldBe TotrinnskontrollAgent.NavAnsatt(besluttetAv.value)
                 hendelse.aarsaker shouldBe listOf("FEIL_BELOP")
                 hendelse.forklaring shouldBe "Beløp er feil"
                 hendelse.behandletTidspunkt shouldBe stored.behandletTidspunkt
@@ -146,9 +147,9 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("godkjenning feiler når behandletAv og besluttetAv er samme NavIdent") {
             database.run {
-                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
 
                 service.godkjent(existing, behandletAv) shouldBeLeft listOf(
                     FieldError.of("Du kan ikke beslutte noe du selv har behandlet"),
@@ -158,16 +159,16 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("avvisning kan gjøres av samme NavIdent som behandletAv") {
             database.run {
-                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
 
                 service.avvist(existing, behandletAv, listOf("FEIL_BELOP"), "Beløp er feil").shouldBeRight()
             }
 
             database.run {
-                val stored = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe Besluttelse.AVVIST
+                val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
+                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                 stored.besluttetAv shouldBe behandletAv
             }
         }
@@ -176,30 +177,30 @@ class TotrinnskontrollServiceTest : FunSpec({
             database.run {
                 service.opprett(
                     entityId,
-                    Totrinnskontroll.Type.TILSAGN_ANNULLERING,
+                    TotrinnskontrollType.TILSAGN_ANNULLERING,
                     behandletAv,
                     aarsaker = listOf("FEIL_PERIODE"),
                 )
 
-                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_ANNULLERING)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_ANNULLERING)
 
                 service.godkjent(existing, besluttetAv).shouldBeRight()
             }
 
             database.run {
-                val stored = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_ANNULLERING)
+                val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_ANNULLERING)
                 stored.aarsaker shouldBe listOf("FEIL_PERIODE")
             }
         }
 
         test("godkjenning feiler når totrinnskontroll allerede er godkjent") {
             database.run {
-                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.godkjent(existing, besluttetAv).shouldBeRight()
 
-                val afterGodkjent = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val afterGodkjent = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.godkjent(afterGodkjent, besluttetAv) shouldBeLeft listOf(
                     FieldError.of("Totrinnskontrollen er allerede godkjent"),
                 )
@@ -208,28 +209,28 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("godkjenning er tillatt etter avvisning") {
             database.run {
-                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
-                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.avvist(existing, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
 
-                val afterAvvist = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val afterAvvist = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.godkjent(afterAvvist, besluttetAv).shouldBeRight()
             }
 
             database.run {
-                val stored = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe Besluttelse.GODKJENT
+                val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
+                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
             }
         }
 
         test("avvisning feiler når totrinnskontroll allerede er godkjent") {
             database.run {
-                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.godkjent(existing, besluttetAv).shouldBeRight()
 
-                val afterGodkjent = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val afterGodkjent = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.avvist(afterGodkjent, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
                     FieldError.of("Totrinnskontrollen er allerede godkjent"),
                 )
@@ -238,12 +239,12 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("avvisning feiler når totrinnskontroll allerede er avvist") {
             database.run {
-                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.avvist(existing, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
 
-                val afterAvvist = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val afterAvvist = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.avvist(afterAvvist, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
                     FieldError.of("Totrinnskontrollen er allerede avvist"),
                 )
@@ -252,12 +253,12 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("systemet er tillatt å endre fra godkjent til avvist") {
             database.run {
-                service.opprett(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE, behandletAv)
+                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.godkjent(existing, besluttetAv).shouldBeRight()
 
-                val afterGodkjent = service.getOrError(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                val afterGodkjent = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.avvist(afterGodkjent, Tiltaksadministrasjon, listOf("PROPAGERT_RETUR")).shouldBeRight()
             }
         }
@@ -266,14 +267,14 @@ class TotrinnskontrollServiceTest : FunSpec({
     context("get og getOrError") {
         test("get returnerer null når totrinnskontroll ikke finnes") {
             database.run {
-                service.get(UUID.randomUUID(), Totrinnskontroll.Type.TILSAGN_OPPRETTELSE).shouldBeNull()
+                service.get(UUID.randomUUID(), TotrinnskontrollType.TILSAGN_OPPRETTELSE).shouldBeNull()
             }
         }
 
         test("getOrError kaster exception når totrinnskontroll ikke finnes") {
             database.run {
                 shouldThrow<Exception> {
-                    service.getOrError(UUID.randomUUID(), Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                    service.getOrError(UUID.randomUUID(), TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 }
             }
         }
@@ -282,13 +283,13 @@ class TotrinnskontrollServiceTest : FunSpec({
             database.run {
                 service.opprett(
                     entityId,
-                    Totrinnskontroll.Type.TILSAGN_OPPRETTELSE,
+                    TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv,
                 )
             }
 
             database.run {
-                service.get(entityId, Totrinnskontroll.Type.TILSAGN_OPPRETTELSE)
+                service.get(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                     .shouldNotBeNull().entityId shouldBe entityId
             }
         }

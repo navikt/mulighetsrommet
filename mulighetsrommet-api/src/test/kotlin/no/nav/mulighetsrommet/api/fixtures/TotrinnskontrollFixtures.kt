@@ -2,15 +2,15 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.Instant
 import java.util.UUID
 
 fun QueryContext.setTilGodkjenning(
     uuid: UUID,
-    type: Totrinnskontroll.Type,
+    type: TotrinnskontrollType,
     behandletAv: NavIdent,
     behandletTidspunkt: Instant = Instant.now(),
 ) = queries.totrinnskontroll.upsert(
@@ -30,7 +30,7 @@ fun QueryContext.setTilGodkjenning(
 
 fun QueryContext.setGodkjent(
     uuid: UUID,
-    type: Totrinnskontroll.Type,
+    type: TotrinnskontrollType,
     behandletAv: NavIdent,
     besluttetAv: NavIdent,
     behandletTidspunkt: Instant = Instant.now(),
@@ -44,7 +44,7 @@ fun QueryContext.setGodkjent(
         behandletTidspunkt = behandletTidspunkt,
         besluttetAv = besluttetAv,
         besluttetTidspunkt = besluttetTidspunkt,
-        besluttelse = Besluttelse.GODKJENT,
+        besluttelse = TotrinnskontrollBesluttelse.GODKJENT,
         aarsaker = emptyList(),
         forklaring = null,
     ),
@@ -52,7 +52,7 @@ fun QueryContext.setGodkjent(
 
 fun QueryContext.setAvvist(
     uuid: UUID,
-    type: Totrinnskontroll.Type,
+    type: TotrinnskontrollType,
     behandletAv: NavIdent,
     besluttetAv: NavIdent,
     behandletTidspunkt: Instant = Instant.now(),
@@ -66,7 +66,7 @@ fun QueryContext.setAvvist(
         behandletTidspunkt = behandletTidspunkt,
         besluttetAv = besluttetAv,
         besluttetTidspunkt = besluttetTidspunkt,
-        besluttelse = Besluttelse.AVVIST,
+        besluttelse = TotrinnskontrollBesluttelse.AVVIST,
         aarsaker = listOf("Årsak 1"),
         forklaring = null,
     ),

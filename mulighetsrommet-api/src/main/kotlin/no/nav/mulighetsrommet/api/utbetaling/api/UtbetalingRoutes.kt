@@ -31,7 +31,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
@@ -368,7 +368,7 @@ fun Route.utbetalingRoutes() {
                         val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
 
                         val opprettelse = queries.totrinnskontroll
-                            .getOrError(linje.id, Totrinnskontroll.Type.UTBETALING_LINJE_OPPRETTELSE)
+                            .getOrError(linje.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE)
 
                         val personalia = personaliaService.getPersonalia(
                             tilsagn.deltakere.map { it.deltakerId },

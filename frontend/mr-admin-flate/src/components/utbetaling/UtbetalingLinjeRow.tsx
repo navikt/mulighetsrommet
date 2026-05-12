@@ -1,11 +1,11 @@
 import {
-  utbetalingLinjeAarsakTilTekst,
   tilsagnTypeToString,
+  utbetalingLinjeAarsakTilTekst,
   ValidationMessage,
 } from "@/utils/Utils";
-import { UtbetalingLinjeReturnertAarsak, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
+import { UtbetalingLinje, UtbetalingLinjeReturnertAarsak } from "@tiltaksadministrasjon/api-client";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
-import { Alert, Heading, HStack, List, Table, VStack, Link, InfoCard } from "@navikt/ds-react";
+import { Alert, Heading, HStack, InfoCard, Link, List, Table, VStack } from "@navikt/ds-react";
 import React, { useState } from "react";
 import { Link as ReactRouterLink } from "react-router";
 import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
@@ -13,7 +13,8 @@ import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { UtbetalingLinjeStatusTag } from "./UtbetalingLinjeStatusTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
-import { isBesluttet } from "@/utils/totrinnskontroll";
+import { isAvvist, isBesluttet } from "@/utils/totrinnskontroll";
+
 interface Props {
   gjennomforingId: string;
   linje: UtbetalingLinje;
@@ -45,7 +46,7 @@ export function UtbetalingLinjeRow({
       className={`[&>td:nth-of-type(-n+5)]:bg-ax-neutral-200`}
       content={
         <VStack gap="space-16">
-          {isBesluttet(linje.opprettelse) && linje.opprettelse.besluttelse === "AVVIST" ? (
+          {isAvvist(linje.opprettelse) ? (
             <VStack>
               {linje.opprettelse.aarsaker.includes(
                 UtbetalingLinjeReturnertAarsak.PROPAGERT_RETUR,
