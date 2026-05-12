@@ -10,7 +10,6 @@ import { mockTiltakstyper } from "./mockTiltakstyper";
 export const tiltakAvklaring: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   lopenummer: "2025/13145",
   type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
-  tiltaksnummer: "123123",
   id: "f4cea25b-c372-4d4c-8106-535ab10cd586",
   oppstartsdato: "2024-01-01",
   navn: "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
@@ -168,7 +167,6 @@ export const tiltakAmoGruppe: VeilederflateTiltak & VeilederflateTiltakGruppe = 
   personvernBekreftet: true,
   personopplysningerSomKanBehandles: [],
   stengtPerioder: [],
-  tiltaksnummer: "2024/123",
   navn: "Kurs i overlevelsesteknikk",
   oppmoteSted: "2050 JESSHEIM",
   apentForPamelding: true,
@@ -382,7 +380,6 @@ export const tiltakVta: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   fylker: [],
   enheter: [],
   beskrivelse: null,
-  tiltaksnummer: null,
   estimertVentetid: null,
 };
 
@@ -450,7 +447,6 @@ export const tiltakJobbklubb: VeilederflateTiltak & VeilederflateTiltakGruppe = 
   fylker: [],
   enheter: [],
   beskrivelse: null,
-  tiltaksnummer: null,
   estimertVentetid: null,
 };
 
@@ -503,7 +499,6 @@ export const tiltakAft: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   enheter: [],
   beskrivelse: null,
   faneinnhold: null,
-  tiltaksnummer: null,
   estimertVentetid: null,
 };
 
@@ -545,7 +540,6 @@ export const tiltakOppfolging: VeilederflateTiltak & VeilederflateTiltakGruppe =
   enheter: [],
   beskrivelse: null,
   faneinnhold: null,
-  tiltaksnummer: null,
   estimertVentetid: null,
 };
 
