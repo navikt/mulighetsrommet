@@ -13,6 +13,7 @@ import {
   AmoKurstype,
   Tiltakskode,
   TilskuddOpplaeringType,
+  GjennomforingType,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -335,4 +336,15 @@ export function kursOgTiltakErStudiespesialisering(
   return (
     amo === AmoKurstype.STUDIESPESIALISERING && tiltakskode === Tiltakskode.STUDIESPESIALISERING
   );
+}
+
+export function gjennomforingTypeToString(type: GjennomforingType): string {
+  switch (type) {
+    case GjennomforingType.ARENA:
+      return "Arena";
+    case GjennomforingType.AVTALE:
+      return "Gruppe";
+    case GjennomforingType.ENKELTPLASS:
+      return "Enkeltplass";
+  }
 }
