@@ -1,6 +1,6 @@
 import {
-  TotrinnskontrollBesluttelse,
   TilsagnStatusAarsak,
+  TotrinnskontrollBesluttelse,
   TotrinnskontrollDto,
 } from "@tiltaksadministrasjon/api-client";
 import { AarsakerOgForklaring } from "./AarsakerOgForklaring";

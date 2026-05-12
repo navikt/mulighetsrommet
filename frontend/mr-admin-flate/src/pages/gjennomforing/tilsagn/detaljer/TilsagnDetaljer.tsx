@@ -16,7 +16,7 @@ import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useTilsagn } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
+import { isAvvist, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnRegnestykke } from "@/components/tilsagn/beregning/TilsagnRegnestykke";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
@@ -88,7 +88,7 @@ export function TilsagnDetaljer() {
           forklaring={annullering.forklaring}
         />
       )}
-      {isBesluttet(annullering) && annullering.besluttelse === "AVVIST" && !tilOppgjor && (
+      {isAvvist(annullering) && !tilOppgjor && (
         <AarsakerOgForklaring
           heading="Annullering avvist"
           tekster={[
@@ -117,7 +117,7 @@ export function TilsagnDetaljer() {
           forklaring={tilOppgjor.forklaring}
         />
       )}
-      {isBesluttet(tilOppgjor) && tilOppgjor.besluttelse === "AVVIST" && (
+      {isAvvist(tilOppgjor) && (
         <AarsakerOgForklaring
           heading="Oppgjør avvist"
           tekster={[
