@@ -9,18 +9,21 @@ import {
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   ArrowForwardIcon,
+  FileSearchIcon,
   HourglassBottomFilledIcon,
   LocationPinIcon,
   PlusIcon,
 } from "@navikt/aksel-icons";
 import {
   Alert,
+  BodyShort,
   Box,
   Button,
   Heading,
   HelpText,
   HGrid,
   HStack,
+  List,
   Skeleton,
   Tabs,
   VStack,
@@ -280,18 +283,18 @@ function ManglerSisteDeltakelserFraTeamKometMelding() {
       Vi får ikke kontakt med baksystemene og informasjon om deltakelser på gruppetiltakene kan
       derfor være utdatert.
       <HelpText>
-        Gjelder følgende tiltakstyper:
-        <ul>
-          <li>Arbeidsforberedende trening</li>
-          <li>Arbeidsmarkedsopplæring (gruppe)</li>
-          <li>Arbeidsrettet rehabilitering</li>
-          <li>Avklaring</li>
-          <li>Digitalt jobbsøkerkurs</li>
-          <li>Fag- og yrkesopplæring (gruppe)</li>
-          <li>Jobbklubb</li>
-          <li>Oppfølging</li>
-          <li>Varig tilrettelagt arbeid i skjermet virksomhet</li>
-        </ul>
+        <BodyShort spacing>Gjelder følgende tiltakstyper:</BodyShort>
+        <List as="ul">
+          <List.Item>Arbeidsforberedende trening</List.Item>
+          <List.Item>Arbeidsmarkedsopplæring (gruppe)</List.Item>
+          <List.Item>Arbeidsrettet rehabilitering</List.Item>
+          <List.Item>Avklaring</List.Item>
+          <List.Item>Digitalt jobbsøkerkurs</List.Item>
+          <List.Item>Fag- og yrkesopplæring (gruppe)</List.Item>
+          <List.Item>Jobbklubb</List.Item>
+          <List.Item>Oppfølging</List.Item>
+          <List.Item>Varig tilrettelagt arbeid i skjermet virksomhet</List.Item>
+        </List>
       </HelpText>
     </Melding>
   );
@@ -305,16 +308,16 @@ function ManglerDeltakelserFraTeamTiltakMelding() {
         <TeamTiltakTiltaksgjennomforingAvtalerLink />
         mangler derfor i visningen.
         <HelpText>
-          Gjelder følgende tiltakstyper:
-          <ul>
-            <li>Arbeidstrening</li>
-            <li>Inkluderingstilskudd</li>
-            <li>Mentor</li>
-            <li>Midlertidig lønnstilskudd</li>
-            <li>Tilskudd til sommerjobb</li>
-            <li>Varig lønnstilskudd</li>
-            <li>Varig tilrettelagt arbeid i ordinær virksomhet</li>
-          </ul>
+          <BodyShort spacing>Gjelder følgende tiltakstyper:</BodyShort>
+          <List as="ul">
+            <List.Item>Arbeidstrening</List.Item>
+            <List.Item>Inkluderingstilskudd</List.Item>
+            <List.Item>Mentor</List.Item>
+            <List.Item>Midlertidig lønnstilskudd</List.Item>
+            <List.Item>Tilskudd til sommerjobb</List.Item>
+            <List.Item>Varig lønnstilskudd</List.Item>
+            <List.Item>Varig tilrettelagt arbeid i ordinær virksomhet</List.Item>
+          </List>
         </HelpText>
       </HStack>
     </Melding>
@@ -338,11 +341,11 @@ export function IngenFunnetBox(props: { title: string }) {
   return (
     <Box background="default" borderRadius="4" padding="space-20">
       <VStack align="center">
-        <img
-          src="public/ingen-funn.svg"
-          alt="Bilde av forstørrelsesglass som ser på et dokument"
-          className="w-32.5 h-22.5"
+        <FileSearchIcon
+          title="Bilde av forstørrelsesglass som ser på et dokument"
+          fontSize="4rem"
         />
+
         <Heading level="2" size="medium">
           {props.title}
         </Heading>
