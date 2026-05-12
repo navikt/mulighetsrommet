@@ -5734,6 +5734,10 @@ components:
       - AVVIST_HABILITET
       - AVVIST_VERGE
       - AVVIST_GEOGRAFISK
+      - AVVIST_AVDOED
+      - AVVIST_VERGEMAAL
+      - AVVIST_PERSON_UTLAND
+      - AVVIST_UKJENT_BOSTED
     GjennomforingDetaljerDto:
       type: object
       properties:
