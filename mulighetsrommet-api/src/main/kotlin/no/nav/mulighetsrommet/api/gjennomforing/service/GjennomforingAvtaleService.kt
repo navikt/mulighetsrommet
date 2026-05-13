@@ -14,6 +14,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
@@ -377,7 +378,7 @@ class GjennomforingAvtaleService(
         return GjennomforingValidator.validateVeilederinfo(request, avtale, kontaktpersoner)
     }
 
-    private fun QueryContext.setDetaljer(
+    private fun TransactionalQueryContext.setDetaljer(
         id: UUID,
         result: GjennomforingValidator.DetaljerResult,
         navIdent: NavIdent,

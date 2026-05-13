@@ -290,7 +290,7 @@ class GjennomforingValidatorTest : FunSpec({
                 id = TiltakstypeFixtures.GruppeAmo.id,
                 navn = TiltakstypeFixtures.GruppeAmo.navn,
             ),
-            amoKategorisering = AmoKategorisering(kurstype = KurstypeFixtures.norskopplaering),
+            amoKategorisering = AmoKategorisering(kurstype = KurstypeFixtures.studiespesialisering),
         )
 
         context(kategorisering) {

@@ -436,7 +436,6 @@ class AvtaleQueriesTest : FunSpec({
                         ),
                     ),
                     innholdElementer = setOf(AmoKategorisering.InnholdElement.TEORETISK_OPPLAERING),
-                    norskprove = false,
                 )
                 val avtale = AvtaleFixtures.oppfolging.copy(
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(amoKategorisering = amoKategorisering),

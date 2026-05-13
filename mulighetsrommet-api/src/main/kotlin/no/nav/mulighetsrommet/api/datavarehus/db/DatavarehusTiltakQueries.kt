@@ -6,14 +6,10 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
-import no.nav.mulighetsrommet.api.amo.models.Bransje
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
-import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -83,48 +79,17 @@ class DatavarehusTiltakQueries(private val session: Session) {
 
     private fun getAmoKategorisering(id: UUID): AmoKategorisering? {
         @Language("PostgreSQL")
-        val sertifiseringQuery = """
-            select s.label,
-                   s.konsept_id
-            from gjennomforing_amo_kategorisering_sertifisering k
-                     join amo_sertifisering s on k.konsept_id = s.konsept_id
-            where k.gjennomforing_id = ?
-        """.trimIndent()
-
-        val sertifiseringer = session.list(queryOf(sertifiseringQuery, id)) {
-            Sertifisering(
-                konseptId = it.long("konsept_id"),
-                label = it.string("label"),
-            )
-        }.toSet()
-
-        @Language("PostgreSQL")
         val amoKategoriseringQuery = """
-            select kurstype,
-                   bransje,
-                   forerkort,
-                   norskprove,
-                   innhold_elementer
-            from gjennomforing_amo_kategorisering
-            where gjennomforing_id = ?
+            select amo_kategorisering_json
+            from view_gjennomforing_avtale_detaljer
+            where id = ?
         """.trimIndent()
 
-        return session.single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering(sertifiseringer) }
+        return session.single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering() }
     }
 }
 
-private fun Row.toAmoKategorisering(
-    sertifiseringer: Set<Sertifisering>,
-): AmoKategorisering = AmoKategorisering(
-    kurstype = Json.decodeFromString<Kurstype>(string("kurstype")),
-    bransje = Json.decodeFromString<Bransje>(string("bransje")),
-    sertifiseringer = sertifiseringer,
-    forerkort = array<String>("forerkort")
-        .map { Json.decodeFromString<ForerkortKlasse>(it) }.toSet(),
-    innholdElementer = array<String>("innhold_elementer")
-        .map { AmoKategorisering.InnholdElement.valueOf(it) }.toSet(),
-    norskprove = false,
-)
+private fun Row.toAmoKategorisering(): AmoKategorisering = Json.decodeFromString(string("amo_kategorisering_json"))
 
 private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
     val tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode"))

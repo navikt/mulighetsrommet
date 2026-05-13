@@ -99,7 +99,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
 
         test("henter Gruppe AMO med amo-kategorisering") {
-            val studiespesialisering = AmoKategorisering()
+            val studiespesialisering = AmoKategorisering(kurstype = KurstypeFixtures.studiespesialisering)
             val fov = AmoKategorisering(
                 kurstype = KurstypeFixtures.fov,
                 innholdElementer = setOf(

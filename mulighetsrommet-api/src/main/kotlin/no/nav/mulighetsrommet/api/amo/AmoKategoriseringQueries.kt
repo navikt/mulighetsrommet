@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.createBigintArray
+import no.nav.mulighetsrommet.database.createUuidArray
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.util.UUID
@@ -51,7 +52,7 @@ object AmoKategoriseringQueries {
                 forerkort,
                 innhold_elementer,
                 bransje_id,
-                kurstype_id,
+                kurstype_id
             ) select
                 :${foreignName}_id::uuid,
                 :kurstype::amo_kurstype,
@@ -60,10 +61,10 @@ object AmoKategoriseringQueries {
                 :forerkort,
                 :innhold_elementer,
                 ok_bransje.id,
-                ok_kurstype.id,
-            from opplaring_kategorisering_bransje ok_bransje
-            join opplaring_kategorisering_kurstype ok_kurstype on ok_kurstype.kode = :kurstype
-            where ok_bransje.kode = :bransje
+                ok_kurstype.id
+            from opplaring_kategorisering_kurstype ok_kurstype
+            left join opplaring_kategorisering_bransje ok_bransje on ok_bransje.kode = :bransje
+            where ok_kurstype.kode = :kurstype
             on conflict (${foreignName}_id) do update set
                 kurstype = excluded.kurstype,
                 bransje = excluded.bransje,
@@ -80,7 +81,39 @@ object AmoKategoriseringQueries {
 
         if (amoKategorisering.kurstype?.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
             updateSertifiseringer(foreignId, foreignName, amoKategorisering.sertifiseringer)
+            updateForerkort(foreignId, foreignName, amoKategorisering.forerkort)
         }
+    }
+
+    context(session: Session)
+    private fun updateForerkort(
+        foreignId: UUID,
+        foreignName: String,
+        forerkort: Set<ForerkortKlasse>,
+    ) {
+        @Language("PostgreSQL")
+        val upsertJoinTable = """
+        insert into ${foreignName}_amo_kategorisering_forerkort (
+            ${foreignName}_id,
+           forerkort_id
+        )
+        values (?, ?)
+        on conflict do nothing
+        """.trimIndent()
+
+        @Language("PostgreSQL")
+        val deleteJoins = """
+            delete from ${foreignName}_amo_kategorisering_forerkort
+            where ${foreignName}_id = ? and not (forerkort_id = any (?))
+        """.trimIndent()
+
+        session.batchPreparedStatement(
+            upsertJoinTable,
+            forerkort.map { fk -> listOf(foreignId, fk.id) },
+        )
+        session.execute(
+            queryOf(deleteJoins, foreignId, session.createUuidArray(forerkort.map { it.id })),
+        )
     }
 
     context(session: Session)
@@ -138,6 +171,7 @@ object AmoKategoriseringQueries {
         session.update(queryOf(query, foreignId))
 
         updateSertifiseringer(foreignId, foreignName, emptySet())
+        updateForerkort(foreignId, foreignName, emptySet())
     }
 
     context(session: Session)

@@ -84,15 +84,16 @@ from gjennomforing
                                                    (select jsonb_strip_nulls(
                                                                    jsonb_agg(
                                                                            jsonb_build_object(
-                                                                                'id',  okf.id,
-                                                                                'navn', okf.navn,
-                                                                                'kode', okf.kode
+                                                                                   'id', okf.id,
+                                                                                   'navn', okf.navn,
+                                                                                   'kode', okf.kode
                                                                            )
                                                                    )
-                                                           ) from opplaring_kategorisering_forerkort okf
-                                                            join gjennomforing_amo_kategorisering_forerkort gokf on gokf.forerkort_id = okf.id
-                                                             where gokf.gjennomforing_id = k.gjennomforing_id
-                                                                 ), '[]'::jsonb),
+                                                           )
+                                                    from opplaring_kategorisering_forerkort okf
+                                                             join gjennomforing_amo_kategorisering_forerkort gokf on gokf.forerkort_id = okf.id
+                                                    where gokf.gjennomforing_id = k.gjennomforing_id),
+                                                   '[]'::jsonb),
                                            'norskprove', k.norskprove,
                                            'sertifiseringer',
                                            coalesce((select jsonb_strip_nulls(
