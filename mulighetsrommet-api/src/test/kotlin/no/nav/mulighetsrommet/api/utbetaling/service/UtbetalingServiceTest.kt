@@ -54,7 +54,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
-import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
+import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -1232,7 +1232,7 @@ class UtbetalingServiceTest : FunSpec({
         }
     }
 
-    context("Automatisk utbetaling når arrangør godkjenner") {
+    context("Automatisert utbetaling når arrangør godkjenner") {
         val utbetaling1Id = utbetaling1.id
 
         val utbetaling1Forhandsgodkjent = utbetaling1.copy(
@@ -1295,12 +1295,12 @@ class UtbetalingServiceTest : FunSpec({
             }
 
             listOf(job1.await(), job2.await()) shouldContainExactlyInAnyOrder listOf(
-                AutomatiskUtbetalingResult.GODKJENT.right(),
+                AutomatisertUtbetalingResult.GODKJENT.right(),
                 FieldError.of("Utbetaling er allerede godkjent").nel().left(),
             )
         }
 
-        test("utbetales ikke automatisk hvis det allerede finnes en utbetalingslinje når arrangør godkjenner") {
+        test("utbetales ikke hvis det allerede finnes en utbetalingslinje når arrangør godkjenner") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1316,11 +1316,11 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatiskUtbetalingResult.UTBETALINGLINJER_ALLEREDE_OPPRETTET,
+                AutomatisertUtbetalingResult.UTBETALINGLINJER_ALLEREDE_OPPRETTET,
             )
         }
 
-        test("utbetales automatisk når det finnes et enkelt tilsagn med nok midler og det er godkjent") {
+        test("utbetales når det finnes et enkelt tilsagn med nok midler og det er godkjent") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1340,7 +1340,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatiskUtbetalingResult.GODKJENT,
+                AutomatisertUtbetalingResult.GODKJENT,
             )
 
             database.run {
@@ -1390,7 +1390,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatiskUtbetalingResult.GODKJENT,
+                AutomatisertUtbetalingResult.GODKJENT,
             )
 
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeLeft(
@@ -1398,7 +1398,7 @@ class UtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("ingen automatisk utbetaling hvis tilsagn ikke er godkjent") {
+        test("ingen utbetaling hvis tilsagn ikke er godkjent") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1410,7 +1410,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN,
+                AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN,
             )
 
             database.run {
@@ -1419,7 +1419,7 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("ingen automatisk utbetaling hvis ingen tilsagn") {
+        test("ingen utbetaling hvis ingen tilsagn") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1430,7 +1430,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN,
+                AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN,
             )
 
             database.run {
@@ -1439,7 +1439,7 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("ingen automatisk utbetaling hvis flere tilsagn") {
+        test("ingen utbetaling hvis flere tilsagn") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1454,7 +1454,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN,
+                AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN,
             )
 
             database.run {
@@ -1463,7 +1463,7 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("ingen automatisk utbetaling hvis tilsagn ikke har nok penger") {
+        test("ingen utbetaling hvis tilsagn ikke har nok penger") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1483,7 +1483,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatiskUtbetalingResult.IKKE_NOK_PENGER,
+                AutomatisertUtbetalingResult.IKKE_NOK_PENGER,
             )
 
             database.run {
@@ -1492,7 +1492,7 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("ingen automatisk utbetaling når prismodell er fri") {
+        test("ingen utbetaling når prismodell er fri") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1512,7 +1512,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatiskUtbetalingResult.FEIL_PRISMODELL,
+                AutomatisertUtbetalingResult.FEIL_PRISMODELL,
             )
 
             database.run {
@@ -1547,7 +1547,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatiskUtbetalingResult.GODKJENT,
+                AutomatisertUtbetalingResult.GODKJENT,
             )
 
             database.run {
@@ -1560,7 +1560,7 @@ class UtbetalingServiceTest : FunSpec({
             }
         }
 
-        test("Tilsagn gjøres opp automatisk når siste dato i tilsagnsperioden er inkludert i utbetalingsperioden") {
+        test("Tilsagn gjøres opp når siste dato i tilsagnsperioden er inkludert i utbetalingsperioden") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -1586,7 +1586,7 @@ class UtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.godkjentAvArrangor(utbetaling1.id, kid = null).shouldBeRight(
-                AutomatiskUtbetalingResult.GODKJENT,
+                AutomatisertUtbetalingResult.GODKJENT,
             )
 
             database.run {
@@ -1635,7 +1635,7 @@ class UtbetalingServiceTest : FunSpec({
             service.godkjentAvArrangor(
                 utbetaling1.id,
                 kid = null,
-            ) shouldBeRight AutomatiskUtbetalingResult.VALIDERINGSFEIL
+            ) shouldBeRight AutomatisertUtbetalingResult.VALIDERINGSFEIL
 
             database.run {
                 queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_BEHANDLING

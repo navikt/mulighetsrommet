@@ -35,7 +35,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
+import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -95,8 +95,8 @@ class UtbetalingService(
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         kid: Kid?,
-    ): Either<List<FieldError>, AutomatiskUtbetalingResult> {
-        db.transaction {
+    ): Either<List<FieldError>, AutomatisertUtbetalingResult> {
+        val utbetaling = db.transaction {
             val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
             if (utbetaling.status != UtbetalingStatusType.GENERERT) {
                 return FieldError.of("Utbetaling er allerede godkjent").nel().left()
@@ -111,7 +111,7 @@ class UtbetalingService(
             logEndring("Utbetaling sendt inn", utbetalingId, Arrangor)
         }
 
-        return tryAutomatiskUtbetaling(utbetalingId).right()
+        return tryAutomatisertUtbetaling(utbetaling).right()
     }
 
     suspend fun opprettUtbetaling(
@@ -507,31 +507,34 @@ class UtbetalingService(
         }
     }
 
-    private fun tryAutomatiskUtbetaling(utbetalingId: UUID): AutomatiskUtbetalingResult {
+    private fun tryAutomatisertUtbetaling(utbetaling: Utbetaling): AutomatisertUtbetalingResult {
         return try {
-            automatiskUtbetaling(utbetalingId).also { result ->
-                log.info("Automatisk utbetaling for utbetaling=$utbetalingId resulterte i: $result")
+            when (utbetaling.beregning) {
+                is UtbetalingBeregningFri,
+                is UtbetalingBeregningPrisPerManedsverk,
+                is UtbetalingBeregningPrisPerUkesverk,
+                is UtbetalingBeregningPrisPerHeleUkesverk,
+                is UtbetalingBeregningPrisPerTimeOppfolging,
+                -> AutomatisertUtbetalingResult.FEIL_PRISMODELL
+
+                is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+                -> prosesserUtbetalingForhandsgodkjentSatsPerBenyttetTiltaksplass(utbetaling.id)
+            }.also { result ->
+                log.info("Automatisert utbetaling for utbetaling=${utbetaling.id} resulterte i: $result")
             }
         } catch (error: UtbetalingException) {
-            log.error("Uventet valideringsfeil oppsto under automatisk utbetaling: ${error.errors}")
-            AutomatiskUtbetalingResult.VALIDERINGSFEIL
+            log.error("Uventet valideringsfeil oppsto under utbetaling: ${error.errors}")
+            AutomatisertUtbetalingResult.VALIDERINGSFEIL
         }
     }
 
-    private fun automatiskUtbetaling(utbetalingId: UUID): AutomatiskUtbetalingResult = db.transaction {
+    private fun prosesserUtbetalingForhandsgodkjentSatsPerBenyttetTiltaksplass(
+        utbetalingId: UUID,
+    ): AutomatisertUtbetalingResult = db.transaction {
         val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
 
-        when (utbetaling.beregning) {
-            is UtbetalingBeregningFri,
-            is UtbetalingBeregningPrisPerManedsverk,
-            is UtbetalingBeregningPrisPerUkesverk,
-            is UtbetalingBeregningPrisPerHeleUkesverk,
-            is UtbetalingBeregningPrisPerTimeOppfolging,
-            -> return AutomatiskUtbetalingResult.FEIL_PRISMODELL
-
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-            -> Unit
-        }
+        val beregning = utbetaling.beregning as? UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+            ?: return AutomatisertUtbetalingResult.FEIL_PRISMODELL
 
         val relevanteTilsagn = queries.tilsagn.getAll(
             gjennomforingId = utbetaling.gjennomforing.id,
@@ -540,29 +543,29 @@ class UtbetalingService(
             periodeIntersectsWith = utbetaling.periode,
         )
         if (relevanteTilsagn.size != 1) {
-            return AutomatiskUtbetalingResult.FEIL_ANTALL_TILSAGN
+            return AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN
         }
 
         val tilsagn = queries.tilsagn.getAndAquireLock(relevanteTilsagn[0].id)
-        if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.pris) {
-            return AutomatiskUtbetalingResult.IKKE_NOK_PENGER
+        if (tilsagn.gjenstaendeBelop() < beregning.output.pris) {
+            return AutomatisertUtbetalingResult.IKKE_NOK_PENGER
         }
 
         val utbetalingLinjer = queries.utbetalingLinje.getByUtbetalingId(utbetalingId)
         if (utbetalingLinjer.isNotEmpty()) {
-            return AutomatiskUtbetalingResult.UTBETALINGLINJER_ALLEREDE_OPPRETTET
+            return AutomatisertUtbetalingResult.UTBETALINGLINJER_ALLEREDE_OPPRETTET
         }
 
         val linje = upsertUtbetalingLinje(
             id = UUID.randomUUID(),
             utbetaling = utbetaling,
             tilsagn = tilsagn,
-            pris = utbetaling.beregning.output.pris,
+            pris = beregning.output.pris,
             gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
             behandletAv = Tiltaksadministrasjon,
         )
         godkjennUtbetalingLinje(linje, Tiltaksadministrasjon)
-            .map { AutomatiskUtbetalingResult.GODKJENT }
+            .map { AutomatisertUtbetalingResult.GODKJENT }
             .getOrElse { throw UtbetalingException(it) }
     }
 
