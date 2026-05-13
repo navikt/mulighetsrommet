@@ -69,6 +69,7 @@ fun Route.apiRoutes(config: AppConfig) {
         authenticate(AuthProvider.NAIS_APP_GJENNOMFORING_ACCESS) {
             gjennomforingPublicRoutes()
             arrangorPublicRoutes()
+            kodeverkRoutes()
         }
     }
 

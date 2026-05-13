@@ -1,23 +1,31 @@
 package no.nav.mulighetsrommet.api.utbetaling.mapper
 
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDateTime
+import java.util.UUID
 
 object UtbetalingMapper {
-    fun toNewUtbetaling(dbo: UtbetalingDbo, gjennomforing: GjennomforingAvtale): Utbetaling {
+    fun toNewUtbetaling(
+        periode: Periode,
+        gjennomforing: GjennomforingAvtale,
+        beregning: UtbetalingBeregning,
+    ): Utbetaling {
         return Utbetaling(
-            id = dbo.id,
-            status = dbo.status,
-            periode = dbo.periode,
-            utbetalesTidligstTidspunkt = dbo.utbetalesTidligstTidspunkt,
+            id = UUID.randomUUID(),
+            status = UtbetalingStatusType.GENERERT,
+            periode = periode,
+            utbetalesTidligstTidspunkt = null,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now(),
-            betalingsinformasjon = dbo.betalingsinformasjon,
-            tilskuddstype = dbo.tilskuddstype,
-            valuta = dbo.valuta,
-            beregning = dbo.beregning,
+            betalingsinformasjon = null,
+            tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+            valuta = beregning.output.pris.valuta,
+            beregning = beregning,
             tiltakstype = Utbetaling.Tiltakstype(
                 gjennomforing.tiltakstype.navn,
                 gjennomforing.tiltakstype.tiltakskode,

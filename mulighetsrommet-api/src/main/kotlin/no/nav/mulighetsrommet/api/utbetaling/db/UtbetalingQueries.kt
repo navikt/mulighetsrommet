@@ -129,16 +129,6 @@ class UtbetalingQueries(private val session: Session) {
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
             "periode" to dbo.periode.toDaterange(),
-            "beregning_type" to when (dbo.beregning) {
-                is UtbetalingBeregningFri -> UtbetalingBeregningType.FRI
-                is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
-                is UtbetalingBeregningPrisPerManedsverk -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
-                is UtbetalingBeregningPrisPerUkesverk -> UtbetalingBeregningType.PRIS_PER_UKESVERK
-                is UtbetalingBeregningPrisPerHeleUkesverk -> UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK
-                is UtbetalingBeregningPrisPerTimeOppfolging -> UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING
-            }.name,
-            "belop_beregnet" to dbo.beregning.output.pris.belop,
-            "valuta" to dbo.beregning.output.pris.valuta.name,
             "kommentar" to dbo.kommentar,
             "korreksjon_gjelder_utbetaling_id" to dbo.korreksjonGjelderUtbetalingId,
             "korreksjon_begrunnelse" to dbo.korreksjonBegrunnelse,
@@ -149,79 +139,64 @@ class UtbetalingQueries(private val session: Session) {
             "status" to dbo.status.name,
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
-        ) + bankKontoParams(dbo.betalingsinformasjon)
+        ) + getBeregningParams(dbo.id, dbo.beregning) + bankKontoParams(dbo.betalingsinformasjon)
 
         execute(queryOf(utbetalingQuery, params))
-        setBlokkeringer(dbo.id, dbo.blokkeringer)
+        setBeregning(dbo.id, dbo.beregning)
+    }
 
-        when (dbo.beregning) {
+    fun setBeregning(id: UUID, beregning: UtbetalingBeregning) = withTransaction(session) {
+        @Language("PostgreSQL")
+        val query = """
+            update utbetaling
+            set beregning_type = :beregning_type::utbetaling_beregning_type,
+                belop_beregnet = :belop_beregnet,
+                valuta = :valuta::currency
+            where id = :id
+        """.trimIndent()
+
+        execute(queryOf(query, getBeregningParams(id, beregning)))
+
+        when (beregning) {
             is UtbetalingBeregningFri -> Unit
 
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
-                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.satser)
-                upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
-                upsertUtbetalingBeregningInputDeltakelsesprosentPerioder(dbo.id, dbo.beregning.input.deltakelser)
-                upsertUtbetalingBeregningOutputDeltakelseFaktor(dbo.id, dbo.beregning.output.deltakelser)
+                upsertUtbetalingBeregningInputSats(id, beregning.input.satser)
+                upsertUtbetalingBeregningInputStengt(id, beregning.input.stengt)
+                upsertUtbetalingBeregningInputDeltakelsesprosentPerioder(id, beregning.input.deltakelser)
+                upsertUtbetalingBeregningOutputDeltakelseFaktor(id, beregning.output.deltakelser)
             }
 
             is UtbetalingBeregningPrisPerManedsverk -> upsertBeregning(
-                dbo.id,
-                dbo.beregning.input.satser,
-                dbo.beregning.input.stengt,
-                dbo.beregning.input.deltakelser,
-                dbo.beregning.output.deltakelser,
+                id,
+                beregning.input.satser,
+                beregning.input.stengt,
+                beregning.input.deltakelser,
+                beregning.output.deltakelser,
             )
 
             is UtbetalingBeregningPrisPerUkesverk -> upsertBeregning(
-                dbo.id,
-                dbo.beregning.input.satser,
-                dbo.beregning.input.stengt,
-                dbo.beregning.input.deltakelser,
-                dbo.beregning.output.deltakelser,
+                id,
+                beregning.input.satser,
+                beregning.input.stengt,
+                beregning.input.deltakelser,
+                beregning.output.deltakelser,
             )
 
             is UtbetalingBeregningPrisPerHeleUkesverk -> upsertBeregning(
-                dbo.id,
-                dbo.beregning.input.satser,
-                dbo.beregning.input.stengt,
-                dbo.beregning.input.deltakelser,
-                dbo.beregning.output.deltakelser,
+                id,
+                beregning.input.satser,
+                beregning.input.stengt,
+                beregning.input.deltakelser,
+                beregning.output.deltakelser,
             )
 
             is UtbetalingBeregningPrisPerTimeOppfolging -> {
-                upsertUtbetalingBeregningInputSats(dbo.id, dbo.beregning.input.satser)
-                upsertUtbetalingBeregningInputStengt(dbo.id, dbo.beregning.input.stengt)
-                upsertUtbetalingBeregningInputDeltakelsePerioder(dbo.id, dbo.beregning.input.deltakelser)
+                upsertUtbetalingBeregningInputSats(id, beregning.input.satser)
+                upsertUtbetalingBeregningInputStengt(id, beregning.input.stengt)
+                upsertUtbetalingBeregningInputDeltakelsePerioder(id, beregning.input.deltakelser)
             }
         }
-    }
-
-    private fun bankKontoParams(betalingsinformasjon: Betalingsinformasjon?) = when (betalingsinformasjon) {
-        is Betalingsinformasjon.BBan -> mapOf(
-            "kontonummer" to betalingsinformasjon.kontonummer.value,
-            "kid" to betalingsinformasjon.kid?.value,
-            "bic" to null,
-            "iban" to null,
-            "bank_land_kode" to null,
-            "bank_navn" to null,
-        )
-
-        is Betalingsinformasjon.IBan -> mapOf(
-            "kontonummer" to null,
-            "kid" to null,
-            "bic" to betalingsinformasjon.bic,
-            "iban" to betalingsinformasjon.iban,
-            "bank_land_kode" to betalingsinformasjon.bankLandKode,
-            "bank_navn" to betalingsinformasjon.bankNavn,
-        )
-
-        null -> mapOf(
-            "kontonummer" to null,
-            "bic" to null,
-            "iban" to null,
-            "bank_land_kode" to null,
-            "bank_navn" to null,
-        )
     }
 
     private fun TransactionalSession.upsertBeregning(
@@ -950,4 +925,46 @@ class UtbetalingQueries(private val session: Session) {
             )
         }
     }
+}
+
+private fun getBeregningParams(id: UUID, beregning: UtbetalingBeregning) = mapOf(
+    "id" to id,
+    "beregning_type" to when (beregning) {
+        is UtbetalingBeregningFri -> UtbetalingBeregningType.FRI
+        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
+        is UtbetalingBeregningPrisPerManedsverk -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
+        is UtbetalingBeregningPrisPerUkesverk -> UtbetalingBeregningType.PRIS_PER_UKESVERK
+        is UtbetalingBeregningPrisPerHeleUkesverk -> UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK
+        is UtbetalingBeregningPrisPerTimeOppfolging -> UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING
+    }.name,
+    "belop_beregnet" to beregning.output.pris.belop,
+    "valuta" to beregning.output.pris.valuta.name,
+)
+
+private fun bankKontoParams(betalingsinformasjon: Betalingsinformasjon?) = when (betalingsinformasjon) {
+    is Betalingsinformasjon.BBan -> mapOf(
+        "kontonummer" to betalingsinformasjon.kontonummer.value,
+        "kid" to betalingsinformasjon.kid?.value,
+        "bic" to null,
+        "iban" to null,
+        "bank_land_kode" to null,
+        "bank_navn" to null,
+    )
+
+    is Betalingsinformasjon.IBan -> mapOf(
+        "kontonummer" to null,
+        "kid" to null,
+        "bic" to betalingsinformasjon.bic,
+        "iban" to betalingsinformasjon.iban,
+        "bank_land_kode" to betalingsinformasjon.bankLandKode,
+        "bank_navn" to betalingsinformasjon.bankNavn,
+    )
+
+    null -> mapOf(
+        "kontonummer" to null,
+        "bic" to null,
+        "iban" to null,
+        "bank_land_kode" to null,
+        "bank_navn" to null,
+    )
 }

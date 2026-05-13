@@ -7,6 +7,7 @@ import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { KontorstrukturFilterTag } from "@/components/filter/KontorstrukturFilterTag";
 import { Chips } from "@navikt/ds-react";
 import { TiltakskodeFilterTags } from "@/components/filter/TiltakskodeFilterTags";
+import { gjennomforingTypeToString } from "@/utils/Utils";
 
 interface Props {
   filter: GjennomforingFilterType;
@@ -68,6 +69,11 @@ export function GjennomforingFilterTags({
         {filter.arrangorer.map((id) => (
           <Chips.Removable key={id} onClick={() => removeArrayItem("arrangorer", id)}>
             {arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
+          </Chips.Removable>
+        ))}
+        {filter.gjennomforingTyper.map((type) => (
+          <Chips.Removable key={type} onClick={() => removeArrayItem("gjennomforingTyper", type)}>
+            {gjennomforingTypeToString(type)}
           </Chips.Removable>
         ))}
       </Chips>

@@ -1,13 +1,14 @@
 import { EarthIcon, EyeSlashIcon, ShieldLockIcon } from "@navikt/aksel-icons";
-import { BodyShort, Tooltip } from "@navikt/ds-react";
+import { BodyShort, Tooltip, VStack } from "@navikt/ds-react";
 import { Gradering } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   navn: string;
   gradering: Gradering;
+  norskIdent: string | null;
 }
 
-export function NavnOgGradering({ navn, gradering }: Props) {
+export function NavnOgGradering({ navn, gradering, norskIdent }: Props) {
   function graderingIkon() {
     switch (gradering) {
       case Gradering.STRENGT_FORTROLIG_ADRESSE:
@@ -55,11 +56,14 @@ export function NavnOgGradering({ navn, gradering }: Props) {
   }
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
-      <BodyShort as="span" className="font-bold">
-        {navn}
-      </BodyShort>
-      {graderingIkon()}
-    </div>
+    <VStack>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+        <BodyShort as="span" className="font-bold">
+          {navn}
+        </BodyShort>
+        {graderingIkon()}
+      </div>
+      {norskIdent && <BodyShort>{norskIdent}</BodyShort>}
+    </VStack>
   );
 }

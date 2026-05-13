@@ -78,6 +78,7 @@ import no.nav.mulighetsrommet.api.tiltakstype.service.RedaksjoneltInnholdLenkeSe
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
+import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
@@ -438,6 +439,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
+            get(),
         )
     }
     single {
@@ -468,30 +470,27 @@ private fun services(appConfig: AppConfig) = module {
     single { KostnadsstedService(get()) }
     single { ArrangorService(get(), get(), get()) }
     single {
-        val db: ApiDatabase = get()
         GenererUtbetalingService(
-            // TODO: Refaktorer "Opprett utbetaling" slik at vi ikke trenger å duplisere logikk for utledning av "tidligstTidspunktForUtbetaling"
             config = GenererUtbetalingService.Config(
                 gyldigTilsagnPeriode = appConfig.okonomi.gyldigTilsagnPeriode,
-                tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
-            db = db,
+            db = get(),
+            utbetalingService = get(),
             prismodeller = setOf(
                 FastSatsPerTiltaksplassPerManedBeregning,
                 PrisPerManedBeregning,
                 PrisPerUkeBeregning,
                 PrisPerHeleUkeBeregning,
             ),
-            get(),
         )
     }
     single {
         UtbetalingService(
-            // TODO: Refaktorer "Opprett utbetaling" slik at vi ikke trenger å duplisere logikk for utledning av "tidligstTidspunktForUtbetaling"
             UtbetalingService.Config(
                 bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
                 tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
+            get(),
             get(),
             get(),
             get(),
@@ -502,6 +501,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PersonaliaService(get(), get(), get(), get(), get()) }
     single<FeatureToggleService> { UnleashFeatureToggleService(appConfig.unleash) }
     single { LagretFilterService(get()) }
+    single { TotrinnskontrollService(appConfig.kafka.topics.totrinnskontrollTopic) }
     single {
         TilsagnService(
             config = TilsagnService.Config(
@@ -510,9 +510,10 @@ private fun services(appConfig: AppConfig) = module {
             ),
             db = get(),
             navAnsattService = get(),
+            totrinnskontroll = get(),
         )
     }
-    single { TilskuddBehandlingService(get()) }
+    single { TilskuddBehandlingService(get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }
     single { ArrangorflateService(get(), get(), get()) }

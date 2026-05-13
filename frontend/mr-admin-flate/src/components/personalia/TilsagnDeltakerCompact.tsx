@@ -8,9 +8,13 @@ interface Props {
 
 export function TilsagnDeltakerCompact({ deltaker }: Props) {
   return (
-    <HStack gap="space-8" align="center">
-      <NavnOgGradering navn={deltaker.navn} gradering={deltaker.gradering} />
-      <BodyShort>{deltaker.oppfolgingEnhet?.navn ?? "-"}</BodyShort>
+    <HStack gap="space-8" align="start">
+      <NavnOgGradering
+        navn={deltaker.navn}
+        gradering={deltaker.gradering}
+        norskIdent={deltaker.norskIdent}
+      />
+      <BodyShort>{` / ${deltaker.oppfolgingEnhet?.navn ?? "-"}`}</BodyShort>
     </HStack>
   );
 }

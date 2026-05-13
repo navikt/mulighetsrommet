@@ -1,15 +1,16 @@
 import { ExclamationmarkTriangleFillIcon } from "@navikt/aksel-icons";
-import { Tabs } from "@navikt/ds-react";
+import { HStack, Tabs } from "@navikt/ds-react";
 
 interface Props {
   hasError: boolean;
   onClick: () => void;
   value: string;
   label: string;
+  icon?: React.ReactElement;
 }
 
 export function TabWithErrorBorder(props: Props) {
-  const { hasError, onClick, value, label } = props;
+  const { hasError, onClick, value, label, icon } = props;
 
   return (
     <Tabs.Tab
@@ -25,7 +26,10 @@ export function TabWithErrorBorder(props: Props) {
             <ExclamationmarkTriangleFillIcon aria-label={label} /> {label}
           </span>
         ) : (
-          `${label}`
+          <HStack gap="space-4" align="center">
+            {icon && icon}
+            {label}
+          </HStack>
         )
       }
     />

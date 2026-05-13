@@ -4,12 +4,12 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.databaseConfig
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 
 class TotrinnskontrollQueriesTest : FunSpec({
@@ -24,12 +24,12 @@ class TotrinnskontrollQueriesTest : FunSpec({
                 TotrinnskontrollDbo(
                     id = id,
                     entityId = entityId,
-                    type = Totrinnskontroll.Type.OPPRETT,
+                    type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
-                    behandletTidspunkt = LocalDateTime.now(),
-                    besluttelse = Besluttelse.GODKJENT,
+                    behandletTidspunkt = Instant.now(),
+                    besluttelse = TotrinnskontrollBesluttelse.GODKJENT,
                     besluttetAv = Tiltaksadministrasjon,
-                    besluttetTidspunkt = LocalDateTime.now(),
+                    besluttetTidspunkt = Instant.now(),
                     aarsaker = emptyList(),
                     forklaring = null,
                 ),
@@ -39,20 +39,20 @@ class TotrinnskontrollQueriesTest : FunSpec({
                 TotrinnskontrollDbo(
                     id = id,
                     entityId = entityId,
-                    type = Totrinnskontroll.Type.OPPRETT,
+                    type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
-                    behandletTidspunkt = LocalDateTime.now(),
-                    besluttelse = Besluttelse.AVVIST,
+                    behandletTidspunkt = Instant.now(),
+                    besluttelse = TotrinnskontrollBesluttelse.AVVIST,
                     besluttetAv = Arena,
-                    besluttetTidspunkt = LocalDateTime.now(),
+                    besluttetTidspunkt = Instant.now(),
                     aarsaker = emptyList(),
                     forklaring = null,
                 ),
             )
 
-            queries.totrinnskontroll.getOrError(entityId, Totrinnskontroll.Type.OPPRETT).should {
+            queries.totrinnskontroll.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                 it.besluttetAv shouldBe Arena
-                it.besluttelse shouldBe Besluttelse.AVVIST
+                it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
             }
         }
     }

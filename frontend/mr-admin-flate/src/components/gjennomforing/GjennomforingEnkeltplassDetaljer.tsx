@@ -27,7 +27,6 @@ import {
 import { GjennomforingDetaljerVarighet } from "@/pages/gjennomforing/GjennomforingDetaljerVarighet";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import {
-  Besluttelse,
   DeltakerDto,
   GjennomforingEnkeltplassDto,
   GjennomforingHandling,
@@ -36,7 +35,7 @@ import {
   TiltakstypeDto,
   TotrinnskontrollDto,
 } from "@tiltaksadministrasjon/api-client";
-import { isBesluttet, isTilBeslutning } from "@/utils/totrinnskontroll";
+import { isAvvist, isGodkjent, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
 import { ReactNode, useState } from "react";
@@ -226,7 +225,7 @@ interface CardData {
 }
 
 function resolveCard(okonomi: TotrinnskontrollDto): CardData {
-  if (isBesluttet(okonomi) && okonomi.besluttelse === Besluttelse.GODKJENT) {
+  if (isGodkjent(okonomi)) {
     return {
       color: "success",
       title: "Økonomi godkjent",
@@ -239,7 +238,7 @@ function resolveCard(okonomi: TotrinnskontrollDto): CardData {
     };
   }
 
-  if (isBesluttet(okonomi) && okonomi.besluttelse === Besluttelse.AVVIST) {
+  if (isAvvist(okonomi)) {
     return {
       color: "warning",
       title: "Enkeltplass satt på vent",

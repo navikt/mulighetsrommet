@@ -34,8 +34,9 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -46,6 +47,9 @@ import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
 import java.time.LocalDate
 import java.util.UUID
+
+private const val BESTILLING_TOPIC = "bestilling-topic"
+private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
 
 class TilsagnServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -116,7 +120,7 @@ class TilsagnServiceTest : FunSpec({
         return TilsagnService(
             db = database.db,
             config = TilsagnService.Config(
-                bestillingTopic = "topic",
+                bestillingTopic = BESTILLING_TOPIC,
                 gyldigTilsagnPeriode = mapOf(
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
                     Tiltakskode.ARBEIDSRETTET_REHABILITERING to gyldigTilsagnPeriode,
@@ -124,6 +128,7 @@ class TilsagnServiceTest : FunSpec({
                 ),
             ),
             navAnsattService = navAnsattService,
+            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
         )
     }
 
@@ -139,7 +144,7 @@ class TilsagnServiceTest : FunSpec({
             database.run {
                 queries.totrinnskontroll.getAll(requestId).shouldHaveSize(1).first().should {
                     it.behandletAv shouldBe ansatt1
-                    it.type shouldBe Totrinnskontroll.Type.OPPRETT
+                    it.type shouldBe TotrinnskontrollType.TILSAGN_OPPRETTELSE
                 }
             }
         }
@@ -378,7 +383,7 @@ class TilsagnServiceTest : FunSpec({
             service.godkjennTilsagn(
                 id = requestId,
                 navIdent = ansatt1,
-            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte et tilsagn du selv har opprettet"))
+            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
         }
 
         test("kan ikke beslutte to ganger") {
@@ -405,7 +410,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            val value = database.run { queries.kafkaProducerRecord.getRecords(50) }
+            val value = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
                 .shouldHaveSize(1)
                 .first().value
             Json.decodeFromString<OkonomiBestillingMelding>(value.decodeToString())
@@ -426,7 +431,7 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.OPPRETT).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -441,10 +446,10 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.OPPRETT).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe Besluttelse.AVVIST
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                 }
             }
 
@@ -452,7 +457,7 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.OPPRETT).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe NavIdent("T888888")
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -465,10 +470,10 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.OPPRETT).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe NavIdent("T888888")
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                 }
 
                 queries.totrinnskontroll.getAll(requestId).shouldHaveSize(2)
@@ -549,7 +554,7 @@ class TilsagnServiceTest : FunSpec({
             ).status shouldBe TilsagnStatus.TIL_ANNULLERING
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.ANNULLER).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_ANNULLERING).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -564,10 +569,10 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.ANNULLER).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_ANNULLERING).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                     it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
                     it.forklaring shouldBe "Velg et annet beløp"
                 }
@@ -583,7 +588,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
-            var value = database.run { queries.kafkaProducerRecord.getRecords(50) }
+            var value = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
                 .shouldHaveSize(1)
                 .first().value
             val bestillingsnummer = Json.decodeFromString<OkonomiBestillingMelding>(value.decodeToString())
@@ -604,7 +609,7 @@ class TilsagnServiceTest : FunSpec({
                 navIdent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
-            value = database.run { queries.kafkaProducerRecord.getRecords(50) }
+            value = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
                 .shouldHaveSize(2).elementAt(1).value
             Json.decodeFromString<OkonomiBestillingMelding>(value.decodeToString())
                 .shouldBeTypeOf<OkonomiBestillingMelding.Annullering>()
@@ -632,7 +637,7 @@ class TilsagnServiceTest : FunSpec({
             service.godkjennTilsagn(
                 id = requestId,
                 navIdent = ansatt1,
-            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte annullering du selv har opprettet"))
+            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
             database.run { queries.tilsagn.getOrError(requestId).status shouldBe TilsagnStatus.TIL_ANNULLERING }
         }
     }
@@ -657,7 +662,7 @@ class TilsagnServiceTest : FunSpec({
             service.godkjennTilsagn(
                 id = requestId,
                 navIdent = ansatt1,
-            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte oppgjør du selv har opprettet"))
+            ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
 
             database.run {
                 queries.tilsagn.getOrError(requestId).status shouldBe TilsagnStatus.TIL_OPPGJOR
@@ -706,7 +711,7 @@ class TilsagnServiceTest : FunSpec({
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.GJOR_OPP).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPGJOR).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
                     it.besluttelse shouldBe null
@@ -719,14 +724,14 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.OPPGJORT
 
             database.run {
-                queries.totrinnskontroll.getOrError(requestId, Totrinnskontroll.Type.GJOR_OPP).should {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPGJOR).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                 }
             }
 
-            val value = database.run { queries.kafkaProducerRecord.getRecords(50) }
+            val value = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
                 .shouldHaveSize(2)
                 .elementAt(1).value
             Json.decodeFromString<OkonomiBestillingMelding>(value.decodeToString())

@@ -104,11 +104,10 @@ data class TilgangsmaskinResponse(
 
                     else -> TilgangsmaskinResult.Resultat.Avvist(
                         it.brukerId,
-                        grunn = AvvistGrunn.valueOf(requireNotNull(it.detaljer).title),
+                        grunn = AvvistGrunn.fromString(requireNotNull(it.detaljer).title),
                     )
                 }
             },
-
         )
     }
 }
@@ -139,5 +138,29 @@ data class TilgangsmaskinResult(
         AVVIST_HABILITET,
         AVVIST_VERGE,
         AVVIST_GEOGRAFISK,
+        AVVIST_AVDOED,
+        AVVIST_VERGEMAAL,
+        AVVIST_PERSON_UTLAND,
+        AVVIST_UKJENT_BOSTED,
+        ;
+
+        companion object {
+            fun fromString(value: String): AvvistGrunn {
+                return when (value) {
+                    "AVVIST_STRENGT_FORTROLIG_ADRESSE" -> AVVIST_STRENGT_FORTROLIG_ADRESSE
+                    "AVVIST_STRENGT_FORTROLIG_UTLAND" -> AVVIST_STRENGT_FORTROLIG_UTLAND
+                    "AVVIST_FORTROLIG_ADRESSE" -> AVVIST_FORTROLIG_ADRESSE
+                    "AVVIST_SKJERMING" -> AVVIST_SKJERMING
+                    "AVVIST_HABILITET" -> AVVIST_HABILITET
+                    "AVVIST_VERGE" -> AVVIST_VERGE
+                    "AVVIST_GEOGRAFISK" -> AVVIST_GEOGRAFISK
+                    "AVVIST_AVDØD" -> AVVIST_AVDOED
+                    "AVVIST_VERGEMÅL" -> AVVIST_VERGEMAAL
+                    "AVVIST_PERSON_UTLAND" -> AVVIST_PERSON_UTLAND
+                    "AVVIST_UKJENT_BOSTE" -> AVVIST_UKJENT_BOSTED
+                    else -> throw IllegalArgumentException("Ukjent avvist g runn fra tilgangsmaskinen: $value")
+                }
+            }
+        }
     }
 }

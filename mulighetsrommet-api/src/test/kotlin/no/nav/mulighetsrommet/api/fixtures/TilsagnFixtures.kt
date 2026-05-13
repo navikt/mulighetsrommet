@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
@@ -179,35 +179,35 @@ fun QueryContext.setTilsagnStatus(
 
     when (status) {
         TilsagnStatus.TIL_GODKJENNING -> {
-            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv)
+            setTilGodkjenning(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
         }
 
         TilsagnStatus.GODKJENT -> {
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
         }
 
         TilsagnStatus.TIL_OPPGJOR -> {
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
-            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.GJOR_OPP, behandletAv)
+            setGodkjent(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
+            setTilGodkjenning(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPGJOR, behandletAv)
         }
 
         TilsagnStatus.OPPGJORT -> {
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.GJOR_OPP, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPGJOR, behandletAv, besluttetAv)
         }
 
         TilsagnStatus.RETURNERT -> {
-            setAvvist(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
+            setAvvist(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
         }
 
         TilsagnStatus.TIL_ANNULLERING -> {
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
-            setTilGodkjenning(tilsagnDbo.id, Totrinnskontroll.Type.ANNULLER, behandletAv)
+            setGodkjent(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
+            setTilGodkjenning(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_ANNULLERING, behandletAv)
         }
 
         TilsagnStatus.ANNULLERT -> {
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.OPPRETT, behandletAv, besluttetAv)
-            setGodkjent(tilsagnDbo.id, Totrinnskontroll.Type.ANNULLER, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
+            setGodkjent(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_ANNULLERING, behandletAv, besluttetAv)
         }
     }
 }

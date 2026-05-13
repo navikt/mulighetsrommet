@@ -22,7 +22,6 @@ import { LagreFilterButton } from "./components/lagreFilter/LagreFilterButton";
 import { StatusTag } from "./components/tags/StatusTag";
 import { ExpandableStatusTag } from "./components/tags/ExpandableStatusTag";
 import { LagredeFilterOversikt } from "./components/lagreFilter/LagredeFilterOversikt";
-import { TilbakemeldingsLenke } from "./components/tilbakemelding/Tilbakemeldingslenke";
 import { FilterContainer } from "./components/filter/FilterContainer";
 import { useOpenFilterWhenThreshold } from "./hooks/useOpenFilterWhenThreshold";
 import { useApiQuery, useApiSuspenseQuery } from "./hooks/useApiQuery";
@@ -52,7 +51,6 @@ export {
   LokalInformasjonContainer,
   LagreFilterButton,
   LagredeFilterOversikt,
-  TilbakemeldingsLenke,
   StatusTag,
   ExpandableStatusTag,
   FilterContainer,

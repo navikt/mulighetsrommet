@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
+import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -69,6 +70,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             database.db,
             mockk(),
             TiltakstypeService(TiltakstypeService.Config(), database.db),
+            TotrinnskontrollService(""),
         )
 
         val gjennomforingId = UUID.randomUUID()

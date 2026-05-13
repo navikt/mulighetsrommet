@@ -41,7 +41,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
-import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
@@ -69,7 +68,6 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tokenprovider.requireTokenX
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
@@ -273,7 +271,6 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             val utbetaling = getUtbetalingOrRespondNotFound()
             requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
 
-            val accessType = call.getAccessType().requireTokenX()
             val response = arrangorflateService.toArrangorflateUtbetaling(utbetaling)
             call.respond(response)
         }

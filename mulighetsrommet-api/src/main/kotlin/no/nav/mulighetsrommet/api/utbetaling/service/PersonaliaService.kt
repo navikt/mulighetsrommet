@@ -16,10 +16,6 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
-import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
-import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn.AVVIST_SKJERMING
-import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE
-import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn.AVVIST_STRENGT_FORTROLIG_UTLAND
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -73,8 +69,6 @@ class PersonaliaService(
             }
             val avvistGrunn = tilgangerByDeltakerId[p.deltakerId]
 
-            val erSkjermet = p.erSkjermet || (avvistGrunn?.erSkjermet() ?: false)
-
             Personalia(
                 deltakerId = p.deltakerId,
                 norskIdent = p.norskIdent,
@@ -83,7 +77,7 @@ class PersonaliaService(
                 geografiskEnhet = geografiskEnhet,
                 region = region,
                 avvistGrunn = avvistGrunn,
-                gradering = Gradering.from(p.adressebeskyttelse, avvistGrunn, erSkjermet),
+                gradering = Gradering.from(p.adressebeskyttelse, avvistGrunn, p.erSkjermet),
             )
         }
     }
@@ -109,14 +103,14 @@ class PersonaliaService(
 
                     NaisEnv.ProdGCP -> amtPersonalia.associate {
                         val grunn = when (it.adressebeskyttelse) {
-                            PdlGradering.FORTROLIG -> AVVIST_FORTROLIG_ADRESSE
+                            PdlGradering.FORTROLIG -> AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
 
-                            PdlGradering.STRENGT_FORTROLIG -> AVVIST_STRENGT_FORTROLIG_ADRESSE
+                            PdlGradering.STRENGT_FORTROLIG -> AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE
 
-                            PdlGradering.STRENGT_FORTROLIG_UTLAND -> AVVIST_STRENGT_FORTROLIG_UTLAND
+                            PdlGradering.STRENGT_FORTROLIG_UTLAND -> AvvistGrunn.AVVIST_STRENGT_FORTROLIG_UTLAND
 
                             PdlGradering.UGRADERT -> when (it.erSkjermet) {
-                                true -> AVVIST_SKJERMING
+                                true -> AvvistGrunn.AVVIST_SKJERMING
                                 false -> null
                             }
                         }
@@ -127,9 +121,9 @@ class PersonaliaService(
 
             is OnBehalfOf.Arrangor -> amtPersonalia.associate {
                 val grunn = when (it.adressebeskyttelse) {
-                    PdlGradering.FORTROLIG -> AVVIST_FORTROLIG_ADRESSE
-                    PdlGradering.STRENGT_FORTROLIG -> AVVIST_STRENGT_FORTROLIG_ADRESSE
-                    PdlGradering.STRENGT_FORTROLIG_UTLAND -> AVVIST_STRENGT_FORTROLIG_UTLAND
+                    PdlGradering.FORTROLIG -> AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
+                    PdlGradering.STRENGT_FORTROLIG -> AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE
+                    PdlGradering.STRENGT_FORTROLIG_UTLAND -> AvvistGrunn.AVVIST_STRENGT_FORTROLIG_UTLAND
                     PdlGradering.UGRADERT -> null
                 }
                 it.deltakerId to grunn
@@ -256,12 +250,33 @@ enum class Gradering {
                 PdlGradering.STRENGT_FORTROLIG_UTLAND -> STRENGT_FORTROLIG_UTLAND
 
                 PdlGradering.UGRADERT -> {
-                    if (erSkjermet == true || avvistGrunn?.erSkjermet() == true) {
+                    if (erSkjermet == true) {
                         SKJERMING
-                    } else if (avvistGrunn == AvvistGrunn.AVVIST_GEOGRAFISK) {
-                        GEOGRAFISK
                     } else {
-                        UGRADERT
+                        when (avvistGrunn) {
+                            AvvistGrunn.AVVIST_SKJERMING,
+                            AvvistGrunn.AVVIST_HABILITET,
+                            AvvistGrunn.AVVIST_VERGE,
+                            AvvistGrunn.AVVIST_VERGEMAAL,
+                            AvvistGrunn.AVVIST_AVDOED,
+                            -> SKJERMING
+
+                            AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE,
+                            -> STRENGT_FORTROLIG_ADRESSE
+
+                            AvvistGrunn.AVVIST_STRENGT_FORTROLIG_UTLAND,
+                            -> STRENGT_FORTROLIG_UTLAND
+
+                            AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
+                            -> FORTROLIG_ADRESSE
+
+                            AvvistGrunn.AVVIST_GEOGRAFISK,
+                            AvvistGrunn.AVVIST_PERSON_UTLAND,
+                            AvvistGrunn.AVVIST_UKJENT_BOSTED,
+                            -> GEOGRAFISK
+
+                            null -> UGRADERT
+                        }
                     }
                 }
             }
@@ -277,20 +292,11 @@ enum class AvvistGrunn {
     AVVIST_HABILITET,
     AVVIST_VERGE,
     AVVIST_GEOGRAFISK,
+    AVVIST_AVDOED,
+    AVVIST_VERGEMAAL,
+    AVVIST_PERSON_UTLAND,
+    AVVIST_UKJENT_BOSTED,
     ;
-
-    fun erSkjermet(): Boolean = when (this) {
-        AVVIST_SKJERMING,
-        AVVIST_HABILITET,
-        AVVIST_VERGE,
-        -> true
-
-        AVVIST_STRENGT_FORTROLIG_ADRESSE,
-        AVVIST_STRENGT_FORTROLIG_UTLAND,
-        AVVIST_FORTROLIG_ADRESSE,
-        AVVIST_GEOGRAFISK,
-        -> false
-    }
 
     companion object {
         fun fromTilgangsmaskinResultat(resultat: TilgangsmaskinResult.Resultat): AvvistGrunn? {

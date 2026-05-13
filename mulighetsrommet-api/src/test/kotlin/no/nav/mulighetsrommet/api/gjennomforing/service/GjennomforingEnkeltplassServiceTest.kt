@@ -17,8 +17,9 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Besluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arena
@@ -55,6 +56,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             db = database.db,
             personaliaService = mockk(),
             tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.db),
+            totrinnskontroll = TotrinnskontrollService(""),
         )
     }
 
@@ -84,7 +86,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.create(gjennomforing, opprettetAv).shouldBeRight()
 
             database.run {
-                queries.totrinnskontroll.getOrError(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).should {
+                queries.totrinnskontroll.getOrError(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
                     it.behandletAv shouldBe opprettetAv
                     it.besluttelse.shouldBeNull()
                 }
@@ -96,7 +98,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.create(gjennomforing, Arena).shouldBeRight()
 
             database.run {
-                queries.totrinnskontroll.get(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).shouldBeNull()
+                queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).shouldBeNull()
             }
         }
     }
@@ -110,8 +112,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
 
             database.run {
-                queries.totrinnskontroll.getOrError(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).should {
-                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                queries.totrinnskontroll.getOrError(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                     it.besluttetAv shouldBe besluttetAv
                 }
             }
@@ -123,7 +125,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.godkjennOkonomi(gjennomforing.id, opprettetAv)
                 .shouldBeLeft()
-                .first().detail shouldBe "Du kan ikke godkjenne økonomi for en gjennomføring du selv har opprettet"
+                .first().detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
         }
 
         test("kan godkjenne enkeltplass etter avvisning") {
@@ -134,8 +136,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
 
             database.run {
-                queries.totrinnskontroll.getOrError(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).should {
-                    it.besluttelse shouldBe Besluttelse.GODKJENT
+                queries.totrinnskontroll.getOrError(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                     it.forklaring shouldBe null
                 }
             }
@@ -152,8 +154,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil").shouldBeRight()
 
             database.run {
-                queries.totrinnskontroll.getOrError(gjennomforing.id, Totrinnskontroll.Type.OKONOMI).should {
-                    it.besluttelse shouldBe Besluttelse.AVVIST
+                queries.totrinnskontroll.getOrError(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
+                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                     it.besluttetAv shouldBe besluttetAv
                     it.forklaring shouldBe "Feil"
                 }
@@ -168,11 +170,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.godkjennOkonomi(gjennomforing.id, besluttetAv)
                 .shouldBeLeft()
-                .first().detail shouldBe "Kan ikke godkjenne enkeltplass som allerede er behandlet"
+                .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
 
             service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Angret")
                 .shouldBeLeft()
-                .first().detail shouldBe "Kan ikke sette enkeltplass på vent når den allerede er behandlet"
+                .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
         }
     }
 

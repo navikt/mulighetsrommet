@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
@@ -53,16 +53,16 @@ fun Route.tilsagnRoutesGet() {
                 val ansatt = queries.ansatt.getByNavIdent(navIdent)
                     ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
 
-                val opprettelse = queries.totrinnskontroll.getOrError(id, Totrinnskontroll.Type.OPPRETT).toDto()
-                val annullering = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.ANNULLER)?.toDto()
-                val tilOppgjor = queries.totrinnskontroll.get(id, Totrinnskontroll.Type.GJOR_OPP)?.toDto()
+                val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSAGN_OPPRETTELSE).toDto()
+                val annullering = queries.totrinnskontroll.get(id, TotrinnskontrollType.TILSAGN_ANNULLERING)?.toDto()
+                val tilOppgjor = queries.totrinnskontroll.get(id, TotrinnskontrollType.TILSAGN_OPPGJOR)?.toDto()
 
                 val personalia = personaliaService.getPersonalia(
                     tilsagn.deltakere.map { it.deltakerId },
                     PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd()),
                 )
                 val deltakere = tilsagn.deltakere.map {
-                    TilsagnDeltakerDto.from(it, requireNotNull(personalia.find { p -> p.deltakerId == it.deltakerId }))
+                    TilsagnDeltakerDto.from(it, personalia.find { p -> p.deltakerId == it.deltakerId })
                 }
                 TilsagnDetaljerDto(
                     tilsagn = TilsagnDto.from(tilsagn),

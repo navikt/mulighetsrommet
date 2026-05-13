@@ -153,4 +153,68 @@ class TilgangsmaskinClientTest : FunSpec({
             client.bulk(listOf(norskIdent), obo)
         }.message shouldContain "Feil mot tilgangsmaskinen"
     }
+
+    test("serialisering av AVVIST_AVDØD") {
+        val responseJson = """
+            {
+              "ansattId": "Z123456",
+              "resultater": [
+                {
+                  "brukerId": "03508331575",
+                  "detaljer": {
+                    "title": "AVVIST_AVDØD",
+                    "status": 403
+                  },
+                  "status": 403
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val engine = MockEngine {
+            respond(
+                content = responseJson,
+                status = HttpStatusCode.MultiStatus,
+                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+            )
+        }
+
+        val client = createClient(engine)
+
+        client.bulk(listOf(norskIdent), obo).resultater[0]
+            .shouldBeTypeOf<TilgangsmaskinResult.Resultat.Avvist>()
+            .grunn shouldBe TilgangsmaskinResult.AvvistGrunn.AVVIST_AVDOED
+    }
+
+    test("serialisering av AVVIST_VERGEMÅL") {
+        val responseJson = """
+            {
+              "ansattId": "Z123456",
+              "resultater": [
+                {
+                  "brukerId": "03508331575",
+                  "detaljer": {
+                    "title": "AVVIST_VERGEMÅL",
+                    "status": 403
+                  },
+                  "status": 403
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val engine = MockEngine {
+            respond(
+                content = responseJson,
+                status = HttpStatusCode.MultiStatus,
+                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+            )
+        }
+
+        val client = createClient(engine)
+
+        client.bulk(listOf(norskIdent), obo).resultater[0]
+            .shouldBeTypeOf<TilgangsmaskinResult.Resultat.Avvist>()
+            .grunn shouldBe TilgangsmaskinResult.AvvistGrunn.AVVIST_VERGEMAAL
+    }
 })

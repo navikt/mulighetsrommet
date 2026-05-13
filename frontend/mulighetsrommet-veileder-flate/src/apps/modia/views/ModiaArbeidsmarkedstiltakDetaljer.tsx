@@ -4,7 +4,6 @@ import {
   isTiltakGruppe,
   useModiaArbeidsmarkedstiltakById,
 } from "@/api/queries/useArbeidsmarkedstiltakById";
-import { useNavKontorstruktur } from "@/api/queries/useNavKontorstruktur";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
 import { useDeltMedBruker } from "@/apps/modia/hooks/useDeltMedBruker";
@@ -16,7 +15,6 @@ import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGru
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { SidemenyLenker } from "@/components/sidemeny/SidemenyLenker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
-import { PORTEN_URL_FOR_TILBAKEMELDING } from "@/constants";
 import { paginationAtom } from "@/core/atoms";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
@@ -28,12 +26,10 @@ import {
   Tiltakskode,
   VeilederflateTiltakstype,
 } from "@api-client";
-import { TilbakemeldingsLenke } from "@mr/frontend-common";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
-import { isTilbakemeldingerEnabled } from "@/apps/modia/features";
 import { OpprettAvtale } from "@/components/pamelding/OpprettAvtale";
 import { StartRegistreringEnkeltplass } from "@/components/pamelding/StartRegistreringEnkeltplass";
 import { isProduction } from "@/environment";
@@ -47,7 +43,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
   const { data: veileder } = useVeilederdata();
   const { data: brukerdata } = useBrukerdata();
   const { data: tiltak } = useModiaArbeidsmarkedstiltakById();
-  const { data: regioner } = useNavKontorstruktur();
 
   const pagination = useAtomValue(paginationAtom);
 
@@ -60,12 +55,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
         dialogId: deltMedBruker.deling.dialogId,
       })
     : null;
-
-  const tiltaksnummer = "tiltaksnummer" in tiltak ? tiltak.tiltaksnummer : undefined;
-  const fylke = regioner
-    .filter(({ region }) => tiltak.fylker.includes(region.enhetsnummer))
-    .map(({ region }) => region.navn)
-    .join(", ");
 
   return (
     <>
@@ -141,13 +130,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
             )}
 
             <SidemenyLenker tiltak={tiltak} />
-
-            {isTilbakemeldingerEnabled(tiltak) && (
-              <TilbakemeldingsLenke
-                url={PORTEN_URL_FOR_TILBAKEMELDING(tiltaksnummer ?? "", fylke)}
-                tekst="Gi tilbakemelding via Porten"
-              />
-            )}
           </>
         }
       />

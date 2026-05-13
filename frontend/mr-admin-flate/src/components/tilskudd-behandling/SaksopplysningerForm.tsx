@@ -10,15 +10,16 @@ import {
   TilskuddBehandlingRequestTilskuddRequest,
   TilskuddOpplaeringType,
   Valuta,
+  ValutaBelop,
 } from "@tiltaksadministrasjon/api-client";
 import { VelgKostnadssted } from "../tilsagn/form/VelgKostnadssted";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
-import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { BetalingsinformasjonFields } from "../utbetaling/form/BetalingsinformasjonFields";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { defaultTilskuddRequest } from "./defaultTilskuddRequest";
+import { TotaltBelopBox } from "./TotaltBelopBox";
 
 interface Props {
   arrangorId: string;
@@ -39,8 +40,11 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
 
   const { data: kostnadssteder } = useKostnadssteder();
 
-  function totaltBelop(): number {
-    return fields.reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0);
+  function totaltBelop(): ValutaBelop {
+    return {
+      belop: fields.reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0),
+      valuta: fields.at(0)?.soknadBelop?.valuta ?? Valuta.NOK,
+    };
   }
 
   return (
@@ -143,15 +147,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
         >
           Legg til tilskudd
         </Button>
-        <TextField
-          size="small"
-          readOnly
-          label="Totalt beløp fra søknad"
-          value={formaterValutaBelop({
-            belop: totaltBelop(),
-            valuta: Valuta.NOK,
-          })}
-        />
+        <TotaltBelopBox label="Totalt beløp fra søknad" belop={totaltBelop()} />
       </VStack>
     </>
   );

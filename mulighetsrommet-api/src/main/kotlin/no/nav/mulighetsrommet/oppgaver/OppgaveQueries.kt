@@ -49,7 +49,7 @@ class OppgaveQueries(private val session: Session) {
             INNER JOIN (
                 SELECT DISTINCT ON (entity_id) *
                 FROM totrinnskontroll
-                WHERE type = 'OKONOMI'
+                WHERE type = 'ENKELTPLASS_OKONOMI'
                 ORDER BY entity_id, behandlet_tidspunkt DESC
             ) tk ON tk.entity_id = gjennomforing.id
             WHERE gjennomforing.gjennomforing_type = 'ENKELTPLASS'
@@ -101,7 +101,7 @@ class OppgaveQueries(private val session: Session) {
             INNER JOIN (
                 SELECT DISTINCT ON (entity_id) *
                 FROM totrinnskontroll
-                WHERE type = 'OKONOMI'
+                WHERE type = 'ENKELTPLASS_OKONOMI'
                 ORDER BY entity_id, behandlet_tidspunkt DESC
             ) tk ON tk.entity_id = gjennomforing.id
             WHERE gjennomforing.gjennomforing_type = 'ENKELTPLASS'
@@ -210,7 +210,7 @@ class OppgaveQueries(private val session: Session) {
             INNER JOIN (
                 SELECT DISTINCT ON (entity_id) *
                 FROM totrinnskontroll
-                WHERE type = 'OPPRETT'
+                WHERE type = 'UTBETALING_LINJE_OPPRETTELSE'
                 ORDER BY entity_id, behandlet_tidspunkt DESC
             ) tk ON tk.entity_id = utbetaling_linje.id
             WHERE
@@ -417,7 +417,7 @@ class OppgaveQueries(private val session: Session) {
                 inner join (
                     select distinct on (entity_id) *
                     from totrinnskontroll
-                    where type = 'OPPRETT'
+                    where type = 'TILSKUDD_OPPRETTELSE'
                     order by entity_id, behandlet_tidspunkt desc
                 ) tk on tk.entity_id = tb.id
             where

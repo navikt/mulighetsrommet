@@ -44,7 +44,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew :mulighetsrommet-arena-adapter:check :mulighetsrommet-arena-adapter:installDist
       - name: Build and push Docker image
-        uses: nais/docker-build-push@cd5ec5663feb0e05c3fa374d1fb442605b046c6b # v0
+        uses: nais/docker-build-push@be85229e81c0293c265c646c084f05317fb6e0d2 # v0
         id: docker-build-push
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         with:
@@ -66,7 +66,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Deploy
-        uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # v2
+        uses: nais/deploy/actions/deploy@2f28259ff29ea37915f5a0c9e2a8e3542c429df7 # v2
         env:
           CLUSTER: dev-gcp
           RESOURCE: mulighetsrommet-arena-adapter/.nais/nais-dev.yaml
@@ -83,7 +83,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Deploy
-        uses: nais/deploy/actions/deploy@fa754451577294aae42872a69b888b3470478ec1 # v2
+        uses: nais/deploy/actions/deploy@2f28259ff29ea37915f5a0c9e2a8e3542c429df7 # v2
         env:
           CLUSTER: prod-gcp
           RESOURCE: mulighetsrommet-arena-adapter/.nais/nais-prod.yaml
