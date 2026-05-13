@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.vedtak.OpplaeringtilskuddQueries
-import no.nav.mulighetsrommet.api.veilederflate.db.VeilederJoyrideQueries
 import no.nav.mulighetsrommet.api.veilederflate.db.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordQueries
@@ -88,7 +87,6 @@ open class QueryContext(open val session: Session) {
         val utbetalingLinje = UtbetalingLinjeQueries(session)
         val totrinnskontroll = TotrinnskontrollQueries(session)
         val veilderTiltak = VeilederflateTiltakQueries(session)
-        val veilederJoyride = VeilederJoyrideQueries(session)
         val kafkaProducerRecord = KafkaProducerRecordQueries(session)
         val oppgave = OppgaveQueries(session)
         val arrangorflate = ArrangorflateQueries(session)

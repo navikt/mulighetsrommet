@@ -1,22 +1,14 @@
 package no.nav.mulighetsrommet.api.veilederflate.routes
 
 import io.github.smiley4.ktoropenapi.get
-import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.route
-import io.ktor.server.util.getOrFail
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
-import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.veilederflate.models.JoyrideType
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideDto
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederJoyrideRequest
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -56,69 +48,6 @@ fun Route.veilederRoutes() {
         )
 
         call.respond(veileder)
-    }
-
-    route("joyride") {
-        post("lagre", {
-            description = "Lagrer at en veileder er ferdig med en joyride"
-            tags = setOf("Joyride")
-            operationId = "lagreJoyrideHarKjort"
-            request {
-                body<VeilederJoyrideRequest> {
-                    required = true
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Lagret ok"
-                }
-                default {
-                    description = "En feil har oppstått"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val request = call.receive<VeilederJoyrideRequest>()
-
-            val dto = VeilederJoyrideDto(
-                navIdent = getNavIdent(),
-                fullfort = request.fullfort,
-                type = request.joyrideType,
-            )
-            db.session { queries.veilederJoyride.upsert(dto) }
-
-            call.respond(HttpStatusCode.OK)
-        }
-
-        get("{type}/har-fullfort", {
-            description = "Finner ut om en veileder har fullført en joyride"
-            tags = setOf("Joyride")
-            operationId = "veilederHarFullfortJoyride"
-            request {
-                pathParameter<JoyrideType>("type") {
-                    description = "Type joyride som skal sjekkes"
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Indikerer om veileder har fullført joyride"
-                    body<Boolean>()
-                }
-                default {
-                    description = "En feil har oppstått"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val navIdent = getNavIdent()
-            val type = call.parameters.getOrFail("type").let { JoyrideType.valueOf(it) }
-
-            val fullfort = db.session {
-                queries.veilederJoyride.harFullfortJoyride(navIdent, type)
-            }
-
-            call.respond(fullfort)
-        }
     }
 }
 
