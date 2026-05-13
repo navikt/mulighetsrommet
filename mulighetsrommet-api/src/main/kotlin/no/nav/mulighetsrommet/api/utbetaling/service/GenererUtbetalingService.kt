@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.SystemgenerertPrismodell
@@ -170,13 +171,30 @@ class GenererUtbetalingService(
         }
 
         val type = gjennomforing.prismodell.type
-        val prismodell = prismodeller.singleOrNull { it.type == type } ?: run {
-            log.info("Genererer ikke utbetaling for gjennomføring=${gjennomforing.id} fordi prismodellen ikke er støttet type=$type")
-            return null
+        val beregning = when (val prismodell = prismodeller.singleOrNull { it.type == type }) {
+            is SystemgenerertPrismodell.FraTilsagn -> {
+                val tilsagn = db.session {
+                    queries.tilsagn.getAll(
+                        gjennomforingId = gjennomforing.id,
+                        statuser = listOf(TilsagnStatus.GODKJENT),
+                        periodeIntersectsWith = periode,
+                    )
+                }
+                prismodell.beregn(gjennomforing, periode, tilsagn)
+            }
+
+            is SystemgenerertPrismodell.FraDeltakelser -> {
+                val deltakere = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
+                prismodell.beregn(gjennomforing, periode, deltakere)
+            }
+
+            null -> {
+                log.info("Genererer ikke utbetaling for gjennomføring=${gjennomforing.id} fordi prismodellen ikke er støttet type=$type")
+                return null
+            }
         }
 
-        val deltakere = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
-        return prismodell.beregn(gjennomforing, periode, deltakere).takeIf { it.output.pris.belop > 0 }
+        return beregning.takeIf { it.output.pris.belop > 0 }
     }
 
     private suspend fun createUtbetaling(

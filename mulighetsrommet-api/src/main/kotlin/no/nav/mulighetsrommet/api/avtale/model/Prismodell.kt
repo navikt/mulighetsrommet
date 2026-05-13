@@ -39,6 +39,18 @@ sealed class Prismodell {
     }
 
     @Serializable
+    data class ForhandsgodkjentPrisPerAvtaltTiltaksplass(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        override val valuta: Valuta,
+        override val tilsagnPerDeltaker: Boolean,
+        val satser: List<AvtaltSatsDto>,
+    ) : Prismodell() {
+        @Transient
+        override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS
+    }
+
+    @Serializable
     data class AvtaltPrisPerManedsverk(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
@@ -112,6 +124,13 @@ sealed class Prismodell {
                 )
 
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> ForhandsgodkjentPrisPerManedsverk(
+                    id = id,
+                    valuta = valuta,
+                    satser = satser,
+                    tilsagnPerDeltaker = tilsagnPerDeltaker,
+                )
+
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS -> ForhandsgodkjentPrisPerAvtaltTiltaksplass(
                     id = id,
                     valuta = valuta,
                     satser = satser,

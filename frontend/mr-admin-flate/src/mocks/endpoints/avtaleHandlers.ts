@@ -35,7 +35,7 @@ export const avtaleHandlers = [
       const prismodeller: PrismodellInfo[] = [
         {
           type: PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-          navn: "Fast sats per tiltaksplass per måned",
+          navn: "Fast sats per benyttet tiltaksplass per måned",
           beskrivelse: [],
         },
         {

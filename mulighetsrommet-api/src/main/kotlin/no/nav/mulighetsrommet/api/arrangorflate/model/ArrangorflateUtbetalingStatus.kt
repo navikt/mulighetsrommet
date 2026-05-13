@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.model
 
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 
 enum class ArrangorflateUtbetalingStatus {
@@ -15,10 +16,12 @@ enum class ArrangorflateUtbetalingStatus {
 
     companion object {
         fun fromUtbetaling(utbetaling: Utbetaling): ArrangorflateUtbetalingStatus = when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT -> if (utbetaling.blokkeringer.isEmpty()) {
-                KLAR_FOR_GODKJENNING
-            } else {
+            UtbetalingStatusType.GENERERT -> if (utbetaling.beregning is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed) {
+                BEHANDLES_AV_NAV
+            } else if (utbetaling.blokkeringer.isNotEmpty()) {
                 UBEHANDLET_FORSLAG
+            } else {
+                KLAR_FOR_GODKJENNING
             }
 
             UtbetalingStatusType.TIL_BEHANDLING,

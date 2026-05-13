@@ -49,7 +49,7 @@ export const tilsagnTekster = {
       label: (type: TilsagnBeregningType) => {
         switch (type) {
           case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
-            return "Fast sats per tiltaksplass per måned";
+            return "Fast sats per benyttet tiltaksplass per måned";
           case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
             return "Avtalt månedspris per tiltaksplass";
           case TilsagnBeregningType.PRIS_PER_UKESVERK:

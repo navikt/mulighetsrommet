@@ -276,6 +276,7 @@ fun resolveTilsagnDefaults(
         is Prismodell.AnnenAvtaltPris -> null
 
         is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
         -> getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
 
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
@@ -404,6 +405,7 @@ private fun resolveBeregningTypeAndPrisbetingelser(
     is Prismodell.AvtaltPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK to prismodell.prisbetingelser
     is Prismodell.AvtaltPrisPerHeleUkesverk -> TilsagnBeregningType.PRIS_PER_HELE_UKESVERK to prismodell.prisbetingelser
     is Prismodell.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
+    is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
 }
 
 @Serializable

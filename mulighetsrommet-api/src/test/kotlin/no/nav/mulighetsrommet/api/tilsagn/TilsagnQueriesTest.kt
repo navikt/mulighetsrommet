@@ -181,7 +181,7 @@ class TilsagnQueriesTest : FunSpec({
             }
         }
 
-        test("upsert beregning - fast sats per tiltaksplass per måned") {
+        test("upsert beregning - Fast sats per benyttet tiltaksplass per måned") {
             database.runAndRollback { session ->
                 domain.setup(session)
 

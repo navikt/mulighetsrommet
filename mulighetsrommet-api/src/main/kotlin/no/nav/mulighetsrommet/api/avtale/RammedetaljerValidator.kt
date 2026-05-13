@@ -59,7 +59,9 @@ object RammedetaljerValidator {
     }
 
     private fun kanHaRammedetaljer(prismodellType: PrismodellType) = when (prismodellType) {
-        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> false
+        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
+        -> false
 
         PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
         PrismodellType.AVTALT_PRIS_PER_UKESVERK,

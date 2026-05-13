@@ -34,9 +34,7 @@ fun RoutingContext.getArrangorflateUtbetalingFilter(arrangorer: Set<Organisasjon
     val type = ArrangorflateFilterType.from(call.queryParameters["type"])
     val pagination = when (type) {
         ArrangorflateFilterType.AKTIVE -> Pagination.all()
-
-        ArrangorflateFilterType.HISTORISKE ->
-            getPaginationParams()
+        ArrangorflateFilterType.HISTORISKE -> getPaginationParams()
     }
     val orderBy = ArrangorflateUtbetalingFilter.OrderBy.from(call.parameters["orderBy"])
     val direction = ArrangorflateFilterDirection.from(call.parameters["direction"])

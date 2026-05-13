@@ -31,8 +31,7 @@ data class UtbetalingBeregningPrisPerManedsverk(
     }
 }
 
-object PrisPerManedBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPerManedsverk> {
-
+object PrisPerManedBeregning : SystemgenerertPrismodell.FraDeltakelser<UtbetalingBeregningPrisPerManedsverk> {
     override val type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK
     override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 

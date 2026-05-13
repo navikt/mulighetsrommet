@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
@@ -294,6 +295,7 @@ object UtbetalingValidator {
         }
         when (utbetaling.beregning) {
             is UtbetalingBeregningFri,
+            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
             is UtbetalingBeregningPrisPerTimeOppfolging,
             -> error {
                 FieldError.root("Utbetalingen kan ikke regenereres")
