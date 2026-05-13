@@ -6,6 +6,7 @@ import {
   LagretFilterType,
   NotificationStatus,
   Rolle,
+  Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 
 export const QueryKeys = {
@@ -85,6 +86,7 @@ export const QueryKeys = {
   innsendinger: (filter?: object) => ["innsendinger", { ...filter }] as const,
   arrangorBetalingsinfo: (orgnr: string) => ["arrangorBetalingsinfo", orgnr],
   opplaeringtilskudd: () => ["opplaeringtilskudd"],
+  opplaringKategorisering: (tiltakskode: Tiltakskode) => ["opplaring-kategorisering", tiltakskode],
   tilskuddBehandlinger: (gjennomforingId?: string) => ["tilskudd-behandling", gjennomforingId],
   tilskuddBehandling: (behandlingId: string) => ["tilskudd-behandling", behandlingId],
 };

@@ -1,13 +1,8 @@
 import { List, Heading, Box } from "@navikt/ds-react";
-import {
-  AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje,
-  Tiltakskode,
-} from "@tiltaksadministrasjon/api-client";
-import { bransjeToString } from "@/utils/Utils";
+import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { FormCombobox } from "@/components/skjema/FormCombobox";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { SertifiseringerSkjema } from "./SertifiseringerSelect";
-import { ForerkortForm } from "./ForerkortForm";
 import { InnholdElementerForm } from "./InnholdElementerForm";
 import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 
@@ -27,50 +22,8 @@ export function AvtaleBransjeForm({ tiltakskode }: Props) {
         }
         name="detaljer.amoKategorisering.bransje"
         placeholder="Velg bransje"
-        options={[
-          {
-            value: Bransje.INGENIOR_OG_IKT_FAG,
-            label: bransjeToString(Bransje.INGENIOR_OG_IKT_FAG),
-          },
-          {
-            value: Bransje.HELSE_PLEIE_OG_OMSORG,
-            label: bransjeToString(Bransje.HELSE_PLEIE_OG_OMSORG),
-          },
-          {
-            value: Bransje.BARNE_OG_UNGDOMSARBEID,
-            label: bransjeToString(Bransje.BARNE_OG_UNGDOMSARBEID),
-          },
-          {
-            value: Bransje.KONTORARBEID,
-            label: bransjeToString(Bransje.KONTORARBEID),
-          },
-          {
-            value: Bransje.BUTIKK_OG_SALGSARBEID,
-            label: bransjeToString(Bransje.BUTIKK_OG_SALGSARBEID),
-          },
-          {
-            value: Bransje.BYGG_OG_ANLEGG,
-            label: bransjeToString(Bransje.BYGG_OG_ANLEGG),
-          },
-          {
-            value: Bransje.INDUSTRIARBEID,
-            label: bransjeToString(Bransje.INDUSTRIARBEID),
-          },
-          {
-            value: Bransje.REISELIV_SERVERING_OG_TRANSPORT,
-            label: bransjeToString(Bransje.REISELIV_SERVERING_OG_TRANSPORT),
-          },
-          {
-            value: Bransje.SERVICEYRKER_OG_ANNET_ARBEID,
-            label: bransjeToString(Bransje.SERVICEYRKER_OG_ANNET_ARBEID),
-          },
-          {
-            value: Bransje.ANDRE_BRANSJER,
-            label: bransjeToString(Bransje.ANDRE_BRANSJER),
-          },
-        ]}
+        options={[]}
       />
-      <ForerkortForm<AvtaleFormValues> path="detaljer.amoKategorisering.forerkort" />
       <SertifiseringerSkjema<AvtaleFormValues> path="detaljer.amoKategorisering.sertifiseringer" />
       <InnholdElementerForm<AvtaleFormValues>
         tiltakskode={tiltakskode}

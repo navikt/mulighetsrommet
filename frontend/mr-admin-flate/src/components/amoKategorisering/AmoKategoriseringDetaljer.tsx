@@ -1,12 +1,10 @@
-import { AmoKategoriseringDto } from "@tiltaksadministrasjon/api-client";
+import { AmoKategoriseringDto, Bransje, Kurstype } from "@tiltaksadministrasjon/api-client";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
+import { innholdElementToString } from "@/utils/Utils";
 import {
-  forerkortKlasseToString,
-  innholdElementToString,
-  kurstypeToString,
-  bransjeToString,
-} from "@/utils/Utils";
-import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+  Definisjonsliste,
+  Definition,
+} from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 
 interface Props {
   amoKategorisering: AmoKategoriseringDto;
@@ -17,10 +15,8 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
     <Definisjonsliste
       title="Kursdetaljer"
       definitions={[
-        amoKategorisering.kurstype && {
-          key: gjennomforingTekster.kurstypeLabel,
-          value: `${kurstypeToString(amoKategorisering.kurstype)}${amoKategorisering.bransje ? `- ${bransjeToString(amoKategorisering.bransje)}` : ""}`,
-        },
+        amoKategorisering.kurstype &&
+          kurstypeOgBransje(amoKategorisering.kurstype, amoKategorisering.bransje),
         ...(amoKategorisering.forerkort && amoKategorisering.forerkort.length > 0
           ? [
               {
@@ -28,7 +24,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
                 value: (
                   <ul>
                     {amoKategorisering.forerkort.map((klasse) => (
-                      <li key={klasse}>{forerkortKlasseToString(klasse)}</li>
+                      <li key={klasse.id}>{klasse.navn}</li>
                     ))}
                   </ul>
                 ),
@@ -68,4 +64,12 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
       ].filter((definition) => !!definition)}
     />
   );
+}
+
+function kurstypeOgBransje(kurstype: Kurstype, bransje: Bransje | null): Definition {
+  const bransjeTekst = bransje ? `- ${bransje.navn}` : "";
+  return {
+    key: gjennomforingTekster.kurstypeLabel,
+    value: `${kurstype.navn}${bransjeTekst}`,
+  };
 }
