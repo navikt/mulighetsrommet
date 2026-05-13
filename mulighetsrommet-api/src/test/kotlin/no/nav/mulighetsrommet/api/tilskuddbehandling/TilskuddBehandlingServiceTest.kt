@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -13,9 +14,12 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -92,6 +96,28 @@ class TilskuddBehandlingServiceTest : FunSpec({
 
             val detaljer = service.getDetaljerDto(gyldigRequest.id, ansatt1)
             detaljer?.behandling?.status?.type shouldBe TilskuddBehandlingStatus.FERDIG_BEHANDLET
+        }
+    }
+
+    context("returner") {
+        test("happy case returner") {
+            val service = createService()
+
+            service.upsert(gyldigRequest, ansatt1).shouldBeRight()
+
+            service.returner(
+                gyldigRequest.id,
+                ansatt2,
+                listOf(TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT, TilskuddBehandlingStatusAarsak.ANNET),
+                forklaring = "fordi",
+            ).shouldBeRight()
+
+            service.getDetaljerDto(gyldigRequest.id, ansatt1)?.opprettelse.shouldBeTypeOf<TotrinnskontrollDto.Besluttet>() should {
+                it.aarsaker shouldBe listOf(TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT, TilskuddBehandlingStatusAarsak.ANNET).map { it.name }
+                it.forklaring shouldBe "fordi"
+                it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                it.besluttetAv.navn shouldBe "Mikke Mus"
+            }
         }
     }
 })

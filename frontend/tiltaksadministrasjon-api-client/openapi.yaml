@@ -3442,7 +3442,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_String"
+              $ref: "#/components/schemas/AarsakerOgForklaringRequest_TilskuddBehandlingStatusAarsak"
         required: false
       responses:
         "200":
@@ -8256,13 +8256,20 @@ components:
       - soknadDato
       - soknadJournalpostId
       - tilskudd
-    AarsakerOgForklaringRequest_String:
+    TilskuddBehandlingStatusAarsak:
+      type: string
+      enum:
+      - FEIL_SAKSOPPLYSNINGER
+      - FEIL_BELOP
+      - FEIL_VEDTAKSRESULTAT
+      - ANNET
+    AarsakerOgForklaringRequest_TilskuddBehandlingStatusAarsak:
       type: object
       properties:
         aarsaker:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/TilskuddBehandlingStatusAarsak"
         forklaring:
           type:
           - "null"

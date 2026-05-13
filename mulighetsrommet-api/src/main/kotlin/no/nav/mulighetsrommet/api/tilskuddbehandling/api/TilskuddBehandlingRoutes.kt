@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDet
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompakt
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 import java.util.UUID
@@ -144,7 +145,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 operationId = "returnerTilskuddBehandling"
                 request {
                     pathParameterUuid("id")
-                    body<AarsakerOgForklaringRequest<String>>()
+                    body<AarsakerOgForklaringRequest<TilskuddBehandlingStatusAarsak>>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -157,7 +158,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 }
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<AarsakerOgForklaringRequest<String>>()
+                val request = call.receive<AarsakerOgForklaringRequest<TilskuddBehandlingStatusAarsak>>()
                 val navIdent = getNavIdent()
 
                 val result = request.validate()

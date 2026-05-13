@@ -22,7 +22,7 @@ import {
   useTilsagnTilAnnullering,
   useTilsagnTilOppgjor,
 } from "@/api/tilsagn/mutations";
-import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { aarsakTilTekst } from "@/utils/Utils";
 import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 const tilAnnuleringAarsaker = [
@@ -32,7 +32,7 @@ const tilAnnuleringAarsaker = [
   TilsagnStatusAarsak.ANNET,
 ].map((aarsak) => ({
   value: aarsak,
-  label: tilsagnAarsakTilTekst(aarsak),
+  label: aarsakTilTekst(aarsak),
 }));
 
 export function TilsagnHandlinger() {

@@ -2,15 +2,19 @@ import { useTilskuddBehandlinger } from "@/api/tilskudd-behandling/useTilskuddBe
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { DataElementStatusTag } from "@mr/frontend-common";
+import { DataElementStatusTag, useSortableData } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Alert, Table } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
+import { TableColumnHeader } from "@navikt/ds-react/Table";
 
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: behandlinger } = useTilskuddBehandlinger(gjennomforingId);
+  const { sortedData, sort, toggleSort } = useSortableData(behandlinger, undefined, (item, key) =>
+    key.split(".").reduce((obj: any, k) => obj?.[k], item),
+  );
 
   return (
     <>
@@ -33,21 +37,31 @@ export function TilskuddBehandlingerPage() {
           Det finnes ingen tilskuddsbehandlinger for dette tiltaket
         </Alert>
       )}
-      {behandlinger.length > 0 && (
-        <Table>
+      {sortedData.length > 0 && (
+        <Table sort={sort} onSortChange={(sortKey) => toggleSort(sortKey as string)}>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell>Innsendt</Table.HeaderCell>
-              <Table.HeaderCell>JournalpostId</Table.HeaderCell>
-              <Table.HeaderCell>Periodestart</Table.HeaderCell>
-              <Table.HeaderCell>Periodeslutt</Table.HeaderCell>
-              <Table.HeaderCell>Tilskuddstype</Table.HeaderCell>
-              <Table.HeaderCell>Behandlingsstatus</Table.HeaderCell>
+              <TableColumnHeader sortKey="soknadDato" sortable>
+                Innsendt
+              </TableColumnHeader>
+              <TableColumnHeader sortKey="journalpostId" sortable>
+                JournalpostId
+              </TableColumnHeader>
+              <TableColumnHeader sortKey="periode.start" sortable>
+                Periodestart
+              </TableColumnHeader>
+              <TableColumnHeader sortKey="periode.slutt" sortable>
+                Periodeslutt
+              </TableColumnHeader>
+              <TableColumnHeader>Tilskuddstype</TableColumnHeader>
+              <TableColumnHeader sortKey="status.type" sortable>
+                Behandlingsstatus
+              </TableColumnHeader>
               <Table.HeaderCell></Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {behandlinger.map((b) => (
+            {sortedData.map((b) => (
               <Table.Row key={b.id}>
                 <Table.DataCell>{formaterDato(b.soknadDato)}</Table.DataCell>
                 <Table.DataCell>{b.journalpostId}</Table.DataCell>

@@ -1,5 +1,4 @@
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { tilsagnAarsakTilTekst } from "@/utils/Utils";
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
   FieldError,
@@ -32,6 +31,7 @@ import { getDataElement } from "@mr/frontend-common";
 import { useGodkjennTilsagn, useReturnerTilsagn } from "@/api/tilsagn/mutations";
 import { TilsagnHandlinger } from "./TilsagnHandlinger";
 import { TilsagnDeltakerCompact } from "@/components/personalia/TilsagnDeltakerCompact";
+import { aarsakTilTekst } from "@/utils/Utils";
 
 export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
@@ -83,7 +83,7 @@ export function TilsagnDetaljer() {
             )}.`,
           ]}
           aarsaker={annullering.aarsaker.map((aarsak) =>
-            tilsagnAarsakTilTekst(aarsak as TilsagnStatusAarsak),
+            aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
           forklaring={annullering.forklaring}
         />
@@ -97,7 +97,7 @@ export function TilsagnDetaljer() {
             )}.`,
           ]}
           aarsaker={annullering.aarsaker.map((aarsak) =>
-            tilsagnAarsakTilTekst(aarsak as TilsagnStatusAarsak),
+            aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
           forklaring={annullering.forklaring}
         />
@@ -112,7 +112,7 @@ export function TilsagnDetaljer() {
             )}.`,
           ]}
           aarsaker={tilOppgjor.aarsaker.map((aarsak) =>
-            tilsagnAarsakTilTekst(aarsak as TilsagnStatusAarsak),
+            aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
           forklaring={tilOppgjor.forklaring}
         />
@@ -126,7 +126,7 @@ export function TilsagnDetaljer() {
             )}.`,
           ]}
           aarsaker={tilOppgjor.aarsaker.map((aarsak) =>
-            tilsagnAarsakTilTekst(aarsak as TilsagnStatusAarsak),
+            aarsakTilTekst(aarsak as TilsagnStatusAarsak),
           )}
           forklaring={tilOppgjor.forklaring}
         />
@@ -237,7 +237,7 @@ export function TilsagnDetaljer() {
                 <MetadataVStack
                   label={"Årsaker"}
                   value={(tilOppgjor?.aarsaker || annullering?.aarsaker)
-                    ?.map((arsak) => tilsagnAarsakTilTekst(arsak as TilsagnStatusAarsak))
+                    ?.map((arsak) => aarsakTilTekst(arsak as TilsagnStatusAarsak))
                     .join(", ")}
                 />
                 <MetadataFritekstfelt
@@ -311,15 +311,24 @@ export function TilsagnDetaljer() {
           aarsaker={[
             {
               value: TilsagnStatusAarsak.FEIL_ANTALL_PLASSER,
-              label: "Feil i antall plasser",
+              label: aarsakTilTekst(TilsagnStatusAarsak.FEIL_ANTALL_PLASSER),
             },
             {
               value: TilsagnStatusAarsak.FEIL_KOSTNADSSTED,
-              label: "Feil kostnadssted",
+              label: aarsakTilTekst(TilsagnStatusAarsak.FEIL_KOSTNADSSTED),
             },
-            { value: TilsagnStatusAarsak.FEIL_PERIODE, label: "Feil periode" },
-            { value: TilsagnStatusAarsak.FEIL_BELOP, label: "Feil beløp" },
-            { value: TilsagnStatusAarsak.ANNET, label: "Annet" },
+            {
+              value: TilsagnStatusAarsak.FEIL_PERIODE,
+              label: aarsakTilTekst(TilsagnStatusAarsak.FEIL_PERIODE),
+            },
+            {
+              value: TilsagnStatusAarsak.FEIL_BELOP,
+              label: aarsakTilTekst(TilsagnStatusAarsak.FEIL_BELOP),
+            },
+            {
+              value: TilsagnStatusAarsak.ANNET,
+              label: aarsakTilTekst(TilsagnStatusAarsak.ANNET),
+            },
           ]}
           header="Send i retur med forklaring"
           buttonLabel="Send i retur"

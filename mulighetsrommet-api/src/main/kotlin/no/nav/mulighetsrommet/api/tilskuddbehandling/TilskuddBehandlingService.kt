@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingHan
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompakt
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
@@ -83,7 +84,7 @@ class TilskuddBehandlingService(
     fun returner(
         id: UUID,
         navIdent: NavIdent,
-        aarsaker: List<String>,
+        aarsaker: List<TilskuddBehandlingStatusAarsak>,
         forklaring: String?,
     ): Either<List<FieldError>, TilskuddBehandlingDto> = db.transaction {
         val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
@@ -97,7 +98,7 @@ class TilskuddBehandlingService(
         }
 
         val opprettelse = totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-        totrinnskontroll.avvist(opprettelse, navIdent, aarsaker, forklaring).map {
+        totrinnskontroll.avvist(opprettelse, navIdent, aarsaker.map { it.name }, forklaring).map {
             queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
             logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
         }
