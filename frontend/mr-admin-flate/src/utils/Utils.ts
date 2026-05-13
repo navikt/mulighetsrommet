@@ -14,6 +14,7 @@ import {
   Tiltakskode,
   TilskuddOpplaeringType,
   GjennomforingType,
+  TilskuddBehandlingStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -236,8 +237,14 @@ export function getPublisertStatus(statuser: string[] = []): boolean | undefined
   return undefined;
 }
 
-export function tilsagnAarsakTilTekst(aarsak: TilsagnStatusAarsak): string {
+export function aarsakTilTekst(
+  aarsak: TilsagnStatusAarsak | TilskuddBehandlingStatusAarsak,
+): string {
   switch (aarsak) {
+    case TilskuddBehandlingStatusAarsak.FEIL_SAKSOPPLYSNINGER:
+      return "Feil i saksopplysninger";
+    case TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT:
+      return "Feil vedtaksresultat";
     case TilsagnStatusAarsak.FEIL_PERIODE:
       return "Feil periode";
     case TilsagnStatusAarsak.FEIL_ANTALL_PLASSER:
@@ -245,6 +252,7 @@ export function tilsagnAarsakTilTekst(aarsak: TilsagnStatusAarsak): string {
     case TilsagnStatusAarsak.FEIL_KOSTNADSSTED:
       return "Feil kostnadssted";
     case TilsagnStatusAarsak.FEIL_BELOP:
+    case TilskuddBehandlingStatusAarsak.FEIL_BELOP:
       return "Feil beløp";
     case TilsagnStatusAarsak.FEIL_REGISTRERING:
       return "Feilregistrering";
@@ -253,6 +261,7 @@ export function tilsagnAarsakTilTekst(aarsak: TilsagnStatusAarsak): string {
     case TilsagnStatusAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
       return "Arrangør har ikke sendt krav";
     case TilsagnStatusAarsak.ANNET:
+    case TilskuddBehandlingStatusAarsak.ANNET:
       return "Annet";
   }
 }

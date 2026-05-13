@@ -10,6 +10,7 @@ import {
   FieldError,
   TilskuddBehandlingHandling,
   TilskuddBehandlingStatus,
+  TilskuddBehandlingStatusAarsak,
   ValidationError,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
@@ -36,6 +37,7 @@ import { isAvvist } from "@/utils/totrinnskontroll";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { TotaltBelopBox } from "@/components/tilskudd-behandling/TotaltBelopBox";
+import { aarsakTilTekst } from "@/utils/Utils";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -228,8 +230,25 @@ export function TilskuddBehandlingDetaljerPage() {
               {error.detail}
             </Alert>
           ))}
-          <AarsakerOgForklaringModal<string>
-            aarsaker={[{ value: "ANNET", label: "Annet" }]}
+          <AarsakerOgForklaringModal<TilskuddBehandlingStatusAarsak>
+            aarsaker={[
+              {
+                value: TilskuddBehandlingStatusAarsak.FEIL_SAKSOPPLYSNINGER,
+                label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.FEIL_SAKSOPPLYSNINGER),
+              },
+              {
+                value: TilskuddBehandlingStatusAarsak.FEIL_BELOP,
+                label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.FEIL_BELOP),
+              },
+              {
+                value: TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT,
+                label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT),
+              },
+              {
+                value: TilskuddBehandlingStatusAarsak.ANNET,
+                label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.ANNET),
+              },
+            ]}
             header="Send i retur med forklaring"
             buttonLabel="Send i retur"
             open={returModalOpen}

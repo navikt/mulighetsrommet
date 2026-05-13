@@ -1,10 +1,11 @@
 import {
   TilsagnStatusAarsak,
   TotrinnskontrollBesluttelse,
+  TilskuddBehandlingStatusAarsak,
   TotrinnskontrollDto,
 } from "@tiltaksadministrasjon/api-client";
 import { AarsakerOgForklaring } from "./AarsakerOgForklaring";
-import { tilsagnAarsakTilTekst } from "@/utils/Utils";
+import { aarsakTilTekst } from "@/utils/Utils";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { isBesluttet } from "@/utils/totrinnskontroll";
 
@@ -27,7 +28,7 @@ export function ToTrinnsOpprettelsesForklaring({ heading, opprettelse }: Props) 
         )}.`,
       ]}
       aarsaker={opprettelse.aarsaker.map((aarsak) =>
-        tilsagnAarsakTilTekst(aarsak as TilsagnStatusAarsak),
+        aarsakTilTekst(aarsak as TilsagnStatusAarsak | TilskuddBehandlingStatusAarsak),
       )}
       forklaring={opprettelse.forklaring}
     />
