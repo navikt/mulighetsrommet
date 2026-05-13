@@ -67,7 +67,10 @@ export function TilskuddBehandlingDetaljerPage() {
     });
   }
 
-  function sendIRetur(data: { aarsaker: string[]; forklaring: string | null }) {
+  function sendIRetur(data: {
+    aarsaker: TilskuddBehandlingStatusAarsak[];
+    forklaring: string | null;
+  }) {
     returnerMutation.mutate(
       { id: behandling.id, body: { ...data } },
       {
