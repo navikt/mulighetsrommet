@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
@@ -38,7 +39,7 @@ object TilskuddFixtures {
         ),
         vedtakResultat = VedtakResultat.INNVILGELSE,
         kommentarVedtaksbrev = null,
-        utbetalingMottaker = "Universitetet i Oslo",
+        utbetalingMottaker = TilskuddMottaker.ARRANGOR,
         kid = Kid.parse("116"),
     )
 }

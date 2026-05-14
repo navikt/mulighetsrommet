@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
@@ -50,7 +51,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 ),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = "k1",
-                utbetalingMottaker = "bruker",
+                utbetalingMottaker = TilskuddMottaker.BRUKER,
                 kid = null,
             ),
             TilskuddDbo(
@@ -66,7 +67,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 ),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = "k2",
-                utbetalingMottaker = "arrangor",
+                utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kid = Kid.parse("116"),
             ),
             TilskuddDbo(
@@ -79,7 +80,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 utbetalingBelop = null,
                 vedtakResultat = VedtakResultat.AVSLAG,
                 kommentarVedtaksbrev = "k2",
-                utbetalingMottaker = "arrangor",
+                utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kid = null,
             ),
         ),
@@ -112,7 +113,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.soknadBelop.valuta shouldBe Valuta.SEK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k1"
-                        v.utbetalingMottaker shouldBe "bruker"
+                        v.utbetalingMottaker shouldBe TilskuddMottaker.BRUKER
                         v.kid shouldBe null
                         v.utbetalingBelop?.valuta shouldBe Valuta.NOK
                         v.utbetalingBelop?.belop shouldBe 100
@@ -124,7 +125,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.soknadBelop.valuta shouldBe Valuta.NOK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
                         v.kommentarVedtaksbrev shouldBe "k2"
-                        v.utbetalingMottaker shouldBe "arrangor"
+                        v.utbetalingMottaker shouldBe TilskuddMottaker.ARRANGOR
                         v.kid shouldBe Kid.parse("116")
                         v.utbetalingBelop?.belop shouldBe 200
                         v.utbetalingBelop?.valuta shouldBe Valuta.NOK

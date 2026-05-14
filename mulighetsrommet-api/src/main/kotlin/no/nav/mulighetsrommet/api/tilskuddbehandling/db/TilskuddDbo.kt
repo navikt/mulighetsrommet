@@ -12,7 +12,12 @@ data class TilskuddDbo(
     val soknadBelop: ValutaBelop,
     val vedtakResultat: VedtakResultat,
     val kommentarVedtaksbrev: String?,
-    val utbetalingMottaker: String,
+    val utbetalingMottaker: TilskuddMottaker,
     val kid: Kid?,
     val utbetalingBelop: ValutaBelop?,
 )
+
+enum class TilskuddMottaker {
+    BRUKER,
+    ARRANGOR,
+}

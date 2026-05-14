@@ -113,7 +113,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "valuta" to tilskudd.utbetalingBelop?.valuta?.name,
             "vedtak_resultat" to tilskudd.vedtakResultat.name,
             "kommentar_vedtaksbrev" to tilskudd.kommentarVedtaksbrev,
-            "utbetaling_mottaker" to tilskudd.utbetalingMottaker,
+            "utbetaling_mottaker" to tilskudd.utbetalingMottaker.name,
             "kid" to tilskudd.kid?.value,
             "belop" to tilskudd.utbetalingBelop?.belop,
         )
