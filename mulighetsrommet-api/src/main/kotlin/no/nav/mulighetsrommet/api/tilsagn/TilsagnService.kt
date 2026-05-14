@@ -74,7 +74,12 @@ class TilsagnService(
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
     )
 
-    fun upsert(request: TilsagnRequest, navIdent: NavIdent): Either<List<FieldError>, Tilsagn> = db.transaction {
+    fun upsert(request: TilsagnRequest, agent: Agent): Either<List<FieldError>, Tilsagn> = db.transaction {
+        upsertInTx(request, agent)
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun upsertInTx(request: TilsagnRequest, agent: Agent): Either<List<FieldError>, Tilsagn> = with(tx) {
         requireNotNull(request.id) { "id mangler" }
 
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
@@ -117,8 +122,8 @@ class TilsagnService(
             }
             .map { dbo ->
                 queries.tilsagn.upsert(dbo)
-                totrinnskontroll.opprett(request.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, navIdent)
-                logEndring("Sendt til godkjenning", dbo.id, navIdent).also {
+                totrinnskontroll.opprett(request.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, agent)
+                logEndring("Sendt til godkjenning", dbo.id, agent).also {
                     updateFreeTextSearch(dbo)
                 }
             }
@@ -278,24 +283,30 @@ class TilsagnService(
 
     fun godkjennTilsagn(
         id: UUID,
-        navIdent: NavIdent,
-    ): Either<List<FieldError>, Tilsagn> = db.transaction {
-        validateAccessAndLockTilsagn(id, navIdent).flatMap { tilsagn ->
+        agent: Agent,
+    ): Either<List<FieldError>, Tilsagn> = db.transaction { godkjennTilsagnInTx(id, agent) }
+
+    context(tx: TransactionalQueryContext)
+    fun godkjennTilsagnInTx(
+        id: UUID,
+        agent: Agent,
+    ): Either<List<FieldError>, Tilsagn> = with(tx) {
+        validateAccessAndLockTilsagn(id, agent).flatMap { tilsagn ->
             when (tilsagn.status) {
                 TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT,
                 -> FieldError.of("Tilsagnet kan ikke godkjennes fordi det har status ${tilsagn.status.beskrivelse}")
                     .nel()
                     .left()
 
-                TilsagnStatus.TIL_GODKJENNING -> godkjennTilsagn(tilsagn, navIdent).onRight {
+                TilsagnStatus.TIL_GODKJENNING -> godkjennTilsagn(tilsagn, agent).onRight {
                     publishOpprettBestilling(it)
                 }
 
-                TilsagnStatus.TIL_ANNULLERING -> annullerTilsagn(tilsagn, navIdent).onRight {
+                TilsagnStatus.TIL_ANNULLERING -> annullerTilsagn(tilsagn, agent).onRight {
                     publishAnnullerBestilling(it)
                 }
 
-                TilsagnStatus.TIL_OPPGJOR -> gjorOppTilsagn(tilsagn, navIdent, "Tilsagn oppgjort").onRight {
+                TilsagnStatus.TIL_OPPGJOR -> gjorOppTilsagn(tilsagn, agent, "Tilsagn oppgjort").onRight {
                     publishGjorOppBestilling(it)
                 }
             }
@@ -324,12 +335,14 @@ class TilsagnService(
         }
     }
 
-    private fun QueryContext.validateAccessAndLockTilsagn(id: UUID, navIdent: NavIdent) = validation {
+    private fun QueryContext.validateAccessAndLockTilsagn(id: UUID, agent: Agent) = validation {
         val tilsagn = queries.tilsagn.getAndAquireLock(id)
 
-        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
-        validate(ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
-            FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})")
+        if (agent is NavIdent) {
+            val ansatt = queries.ansatt.getByNavIdentOrError(agent)
+            validate(ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
+                FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})")
+            }
         }
 
         tilsagn
@@ -343,7 +356,7 @@ class TilsagnService(
 
     private fun TransactionalQueryContext.godkjennTilsagn(
         tilsagn: Tilsagn,
-        besluttetAv: NavIdent,
+        besluttetAv: Agent,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_GODKJENNING) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_GODKJENNING} for å godkjennes")
@@ -405,7 +418,7 @@ class TilsagnService(
 
     private fun TransactionalQueryContext.annullerTilsagn(
         tilsagn: Tilsagn,
-        besluttetAv: NavIdent,
+        besluttetAv: Agent,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_ANNULLERING) {
             return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_ANNULLERING} for at annullering skal godkjennes")

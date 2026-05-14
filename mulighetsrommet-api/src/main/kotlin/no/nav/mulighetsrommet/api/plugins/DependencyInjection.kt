@@ -513,7 +513,7 @@ private fun services(appConfig: AppConfig) = module {
             totrinnskontroll = get(),
         )
     }
-    single { TilskuddBehandlingService(get(), get()) }
+    single { TilskuddBehandlingService(get(), get(), get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }
     single { ArrangorflateService(get(), get(), get()) }
