@@ -28,14 +28,14 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -178,8 +178,8 @@ class UtbetalingQueriesTest : FunSpec({
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
-                val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-                    input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+                val beregning = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(
+                    input = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Input(
                         satser = setOf(SatsPeriode(periode, 20_205.NOK)),
                         stengt = setOf(
                             StengtPeriode(
@@ -216,7 +216,7 @@ class UtbetalingQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                    output = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Output(
                         pris = 100_000.NOK,
                         deltakelser = setOf(
                             UtbetalingBeregningOutputDeltakelse(
@@ -261,8 +261,8 @@ class UtbetalingQueriesTest : FunSpec({
                     deltakelseId = UUID.randomUUID(),
                     perioder = listOf(deltakelsePeriode, deltakelsePeriode),
                 )
-                val beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-                    input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+                val beregning = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(
+                    input = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Input(
                         satser = setOf(
                             SatsPeriode(
                                 Periode.forMonthOf(LocalDate.of(2023, 1, 1)),
@@ -272,7 +272,7 @@ class UtbetalingQueriesTest : FunSpec({
                         stengt = setOf(),
                         deltakelser = setOf(deltakelse),
                     ),
-                    output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                    output = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Output(
                         pris = 0.NOK,
                         deltakelser = setOf(),
                     ),
@@ -290,8 +290,8 @@ class UtbetalingQueriesTest : FunSpec({
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
-                val beregning = UtbetalingBeregningPrisPerManedsverk(
-                    input = UtbetalingBeregningPrisPerManedsverk.Input(
+                val beregning = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed(
+                    input = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(
                         satser = setOf(
                             SatsPeriode(
                                 Periode(periode.start, LocalDate.of(2023, 1, 15)),
@@ -319,7 +319,7 @@ class UtbetalingQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = UtbetalingBeregningPrisPerManedsverk.Output(
+                    output = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                         pris = 100_000.NOK,
                         deltakelser = setOf(
                             UtbetalingBeregningOutputDeltakelse(
@@ -360,8 +360,8 @@ class UtbetalingQueriesTest : FunSpec({
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
-                val beregning = UtbetalingBeregningPrisPerUkesverk(
-                    input = UtbetalingBeregningPrisPerUkesverk.Input(
+                val beregning = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke(
+                    input = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
                         satser = setOf(SatsPeriode(periode, 2999.NOK)),
                         stengt = setOf(
                             StengtPeriode(
@@ -380,7 +380,7 @@ class UtbetalingQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = UtbetalingBeregningPrisPerUkesverk.Output(
+                    output = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Output(
                         pris = 5999.NOK,
                         deltakelser = setOf(
                             UtbetalingBeregningOutputDeltakelse(
@@ -421,8 +421,8 @@ class UtbetalingQueriesTest : FunSpec({
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
-                val beregning = UtbetalingBeregningPrisPerHeleUkesverk(
-                    input = UtbetalingBeregningPrisPerHeleUkesverk.Input(
+                val beregning = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke(
+                    input = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Input(
                         satser = setOf(SatsPeriode(periode, 2999.NOK)),
                         stengt = setOf(
                             StengtPeriode(
@@ -441,7 +441,7 @@ class UtbetalingQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = UtbetalingBeregningPrisPerHeleUkesverk.Output(
+                    output = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Output(
                         pris = 5999.NOK,
                         deltakelser = setOf(
                             UtbetalingBeregningOutputDeltakelse(
@@ -482,8 +482,8 @@ class UtbetalingQueriesTest : FunSpec({
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
-                val beregning = UtbetalingBeregningPrisPerTimeOppfolging(
-                    input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
+                val beregning = UtbetalingBeregningAvtaltPrisPerTimeOppfolging(
+                    input = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Input(
                         pris = 1999.NOK,
                         satser = setOf(
                             SatsPeriode(periode, 100.NOK),
@@ -506,7 +506,7 @@ class UtbetalingQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = UtbetalingBeregningPrisPerTimeOppfolging.Output(
+                    output = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Output(
                         pris = 1999.NOK,
                     ),
                 )

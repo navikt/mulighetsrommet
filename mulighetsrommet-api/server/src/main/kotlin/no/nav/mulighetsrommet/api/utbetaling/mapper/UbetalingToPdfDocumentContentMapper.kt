@@ -14,14 +14,14 @@ import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -72,14 +72,16 @@ object UbetalingToPdfDocumentContentMapper {
         addStengtHosArrangorSection(utbetaling.beregning)
 
         when (utbetaling.beregning) {
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
+            is UtbetalingBeregningFri -> Unit
+
+            is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed -> {
                 addDeltakelsesmengderSection(utbetaling.beregning, personalia)
             }
 
-            is UtbetalingBeregningPrisPerUkesverk,
-            is UtbetalingBeregningPrisPerHeleUkesverk,
-            is UtbetalingBeregningPrisPerTimeOppfolging,
-            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
             -> {
                 addDeltakerperioderSection(utbetaling.beregning.deltakelsePerioder(), personalia)
             }
@@ -90,8 +92,12 @@ object UbetalingToPdfDocumentContentMapper {
         }
 
         when (utbetaling.beregning) {
-            is UtbetalingBeregningPrisPerManedsverk,
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+            is UtbetalingBeregningFri -> Unit
+
+            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging -> Unit
+
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+            is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
             -> addDeltakelsesfaktorSection(
                 sectionHeader = "Beregnet månedsverk",
                 deltakelseFaktorColumnName = "Månedsverk",
@@ -99,8 +105,8 @@ object UbetalingToPdfDocumentContentMapper {
                 personalia = personalia,
             )
 
-            is UtbetalingBeregningPrisPerHeleUkesverk,
-            is UtbetalingBeregningPrisPerUkesverk,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
             -> addDeltakelsesfaktorSection(
                 sectionHeader = "Beregnet ukesverk",
                 deltakelseFaktorColumnName = "Ukesverk",
@@ -110,7 +116,7 @@ object UbetalingToPdfDocumentContentMapper {
 
             is UtbetalingBeregningFri,
             is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerTimeOppfolging,
+            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
             -> Unit
         }
     }
@@ -260,7 +266,7 @@ private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
 }
 
 private fun PdfDocumentContentBuilder.addDeltakelsesmengderSection(
-    beregning: UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+    beregning: UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
     personalia: List<Personalia>,
 ) {
     section("Deltakerperioder") {

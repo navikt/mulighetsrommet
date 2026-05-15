@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
-class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
+class UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUkeTest : FunSpec({
 
     context("filtrering av deltakere og satser") {
         test("deltakere med irrelevant status inkluderes ikke i beregningen") {
@@ -103,7 +103,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
 
             val result = PrisPerUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.input shouldBe UtbetalingBeregningPrisPerUkesverk.Input(
+            result.input shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
                 satser = setOf(SatsPeriode(periode, 50.NOK)),
                 stengt = emptySet(),
                 deltakelser = setOf(
@@ -112,7 +112,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                     DeltakelsePeriode(deltakere[2].id, Periode(periodeStart, periodeMidt)),
                 ),
             )
-            result.output shouldBe UtbetalingBeregningPrisPerUkesverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Output(
                 pris = 170.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -165,7 +165,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
 
             val result = PrisPerUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.input shouldBe UtbetalingBeregningPrisPerUkesverk.Input(
+            result.input shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
                 satser = setOf(SatsPeriode(periode, 50.NOK)),
                 stengt = setOf(
                     StengtPeriode(Periode(LocalDate.of(2025, 2, 3), LocalDate.of(2025, 2, 5)), "Stengt 1"),
@@ -176,7 +176,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
                     DeltakelsePeriode(deltakere[1].id, Periode(periodeMidt, periodeSlutt)),
                 ),
             )
-            result.output shouldBe UtbetalingBeregningPrisPerUkesverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Output(
                 pris = 110.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -228,14 +228,14 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
 
             val result = PrisPerUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.input shouldBe UtbetalingBeregningPrisPerUkesverk.Input(
+            result.input shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
                 satser = setOf(SatsPeriode(periodeGjennomforing, 50.NOK)),
                 stengt = setOf(),
                 deltakelser = setOf(
                     DeltakelsePeriode(deltakere[0].id, periodeGjennomforing),
                 ),
             )
-            result.output shouldBe UtbetalingBeregningPrisPerUkesverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Output(
                 pris = 100.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -266,7 +266,7 @@ class UtbetalingBeregningPrisPerUkesverkTest : FunSpec({
 
             val result = PrisPerUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.output shouldBe UtbetalingBeregningPrisPerUkesverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Output(
                 pris = 60.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(

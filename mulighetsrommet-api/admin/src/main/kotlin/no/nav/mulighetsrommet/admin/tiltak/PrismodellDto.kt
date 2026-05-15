@@ -32,39 +32,15 @@ data class PrismodellDto(
 }
 
 fun Prismodell.toPrismodellDto(): PrismodellDto {
-    val satser = when (this) {
-        is Prismodell.AnnenAvtaltPris -> null
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> satser
-        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> satser
-        is Prismodell.AvtaltPrisPerManedsverk -> satser
-        is Prismodell.AvtaltPrisPerUkesverk -> satser
-        is Prismodell.AvtaltPrisPerHeleUkesverk -> satser
-        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> satser
-        is Prismodell.TilskuddTilOpplaering -> null
-        is Prismodell.IngenKostnader -> null
-    }
-
-    val prisbetingelser = when (this) {
-        is Prismodell.AnnenAvtaltPris -> prisbetingelser
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
-        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> null
-        is Prismodell.AvtaltPrisPerManedsverk -> prisbetingelser
-        is Prismodell.AvtaltPrisPerUkesverk -> prisbetingelser
-        is Prismodell.AvtaltPrisPerHeleUkesverk -> prisbetingelser
-        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
-        is Prismodell.TilskuddTilOpplaering -> tilleggsopplysninger
-        is Prismodell.IngenKostnader -> tilleggsopplysninger
-    }
-
     val tilsagnPerDeltaker = when (this) {
         is Prismodell.AnnenAvtaltPris -> tilsagnPerDeltaker
 
-        is Prismodell.AvtaltPrisPerHeleUkesverk,
-        is Prismodell.AvtaltPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
-        is Prismodell.AvtaltPrisPerUkesverk,
-        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
+        is Prismodell.FastSatsPerAvtaltPlassPerManed,
+        is Prismodell.FastSatsPerBenyttetPlassPerManed,
         is Prismodell.TilskuddTilOpplaering,
         is Prismodell.IngenKostnader,
         -> null
@@ -76,12 +52,12 @@ fun Prismodell.toPrismodellDto(): PrismodellDto {
         }.toList()
 
         is Prismodell.AnnenAvtaltPris,
-        is Prismodell.AvtaltPrisPerHeleUkesverk,
-        is Prismodell.AvtaltPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
-        is Prismodell.AvtaltPrisPerUkesverk,
-        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
+        is Prismodell.FastSatsPerAvtaltPlassPerManed,
+        is Prismodell.FastSatsPerBenyttetPlassPerManed,
         is Prismodell.IngenKostnader,
         -> emptyList()
     }
@@ -89,12 +65,12 @@ fun Prismodell.toPrismodellDto(): PrismodellDto {
     val totalbelop = when (this) {
         is Prismodell.AnnenAvtaltPris -> totalbelop
 
-        is Prismodell.AvtaltPrisPerHeleUkesverk,
-        is Prismodell.AvtaltPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
-        is Prismodell.AvtaltPrisPerUkesverk,
-        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
+        is Prismodell.FastSatsPerAvtaltPlassPerManed,
+        is Prismodell.FastSatsPerBenyttetPlassPerManed,
         is Prismodell.IngenKostnader,
         is Prismodell.TilskuddTilOpplaering,
         -> null
@@ -103,13 +79,13 @@ fun Prismodell.toPrismodellDto(): PrismodellDto {
     val aarsak = when (this) {
         is Prismodell.IngenKostnader -> aarsak
 
-        is Prismodell.AvtaltPrisPerHeleUkesverk,
-        is Prismodell.AvtaltPrisPerManedsverk,
-        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
-        is Prismodell.AvtaltPrisPerUkesverk,
-        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
         is Prismodell.AnnenAvtaltPris,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
+        is Prismodell.FastSatsPerAvtaltPlassPerManed,
+        is Prismodell.FastSatsPerBenyttetPlassPerManed,
         is Prismodell.TilskuddTilOpplaering,
         -> null
     }
@@ -118,10 +94,10 @@ fun Prismodell.toPrismodellDto(): PrismodellDto {
         id = id,
         type = type,
         valuta = valuta,
-        satser = (satser ?: listOf()).windowed(size = 2, partialWindows = true).map { sats ->
+        satser = satser().windowed(size = 2, partialWindows = true).map { sats ->
             AvtaltSatsDto.fromAvtaltSats(sats[0], sats.getOrNull(1))
         },
-        prisbetingelser = prisbetingelser,
+        prisbetingelser = prisbetingelser(),
         tilsagnPerDeltaker = tilsagnPerDeltaker,
         tilskudd = tilskudd,
         totalBelop = totalbelop,

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.ValutaBelop
 
 @Serializable
-data class UtbetalingBeregningPrisPerTimeOppfolging(
+data class UtbetalingBeregningAvtaltPrisPerTimeOppfolging(
     override val input: Input,
     override val output: Output,
 ) : UtbetalingBeregning() {
@@ -36,8 +36,8 @@ data class UtbetalingBeregningPrisPerTimeOppfolging(
             stengt: Set<StengtPeriode>,
             deltakelser: Set<DeltakelsePeriode>,
             pris: ValutaBelop,
-        ): UtbetalingBeregningPrisPerTimeOppfolging {
-            return UtbetalingBeregningPrisPerTimeOppfolging(
+        ): UtbetalingBeregningAvtaltPrisPerTimeOppfolging {
+            return UtbetalingBeregningAvtaltPrisPerTimeOppfolging(
                 input = Input(satser, pris, stengt, deltakelser),
                 output = Output(pris),
             )

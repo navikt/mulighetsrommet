@@ -4,13 +4,13 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -54,12 +54,12 @@ data class ArrangorflateUtbetaling(
 ) {
     fun arrangorInnsendtAnnenAvtaltPris(): Boolean {
         return when (beregning) {
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+            is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
             is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerHeleUkesverk,
-            is UtbetalingBeregningPrisPerManedsverk,
-            is UtbetalingBeregningPrisPerTimeOppfolging,
-            is UtbetalingBeregningPrisPerUkesverk,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
             -> false
 
             is UtbetalingBeregningFri -> innsending != null

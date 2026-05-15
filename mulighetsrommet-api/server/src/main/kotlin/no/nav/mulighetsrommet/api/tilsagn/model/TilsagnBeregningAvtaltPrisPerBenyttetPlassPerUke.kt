@@ -8,8 +8,8 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 
 @Serializable
-@SerialName("PRIS_PER_HELE_UKESVERK")
-data class TilsagnBeregningPrisPerHeleUkesverk(
+@SerialName("PRIS_PER_UKESVERK")
+data class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke(
     override val input: Input,
     override val output: Output,
 ) : TilsagnBeregning() {
@@ -31,20 +31,16 @@ data class TilsagnBeregningPrisPerHeleUkesverk(
     ) : TilsagnBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): TilsagnBeregningPrisPerHeleUkesverk {
+        fun beregn(input: Input): TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke {
             val aktivePerioder = input.periode.subtractPeriods(input.stengt.map { it.periode })
 
-            val totalWholeWeeks = aktivePerioder
-                .map { UtbetalingBeregningHelpers.calculateWholeWeeksInPeriode(it) }
+            val totalWeeks = aktivePerioder
+                .map { UtbetalingBeregningHelpers.calculateWeeksInPeriode(it) }
                 .sumOf { it }
 
-            val belop = UtbetalingBeregningHelpers.multiplyBySatsAndPlasser(
-                totalWholeWeeks,
-                input.sats,
-                input.antallPlasser,
-            )
+            val belop = UtbetalingBeregningHelpers.multiplyBySatsAndPlasser(totalWeeks, input.sats, input.antallPlasser)
 
-            return TilsagnBeregningPrisPerHeleUkesverk(input, Output(belop))
+            return TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke(input, Output(belop))
         }
     }
 }

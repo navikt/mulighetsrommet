@@ -30,7 +30,7 @@ class TilsagnValidatorTest : FunSpec({
         )
 
         val forhandsgodkjent = Prismodell.from(
-            type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            type = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
             id = UUID.randomUUID(),
             valuta = Valuta.NOK,
             prisbetingelser = null,
@@ -272,7 +272,7 @@ class TilsagnValidatorTest : FunSpec({
             )
         }
 
-        context("TilsagnBeregningFri.Input") {
+        context("TilsagnBeregningAnnenAvtaltPris.Input") {
             test("should return field error if linjer is empty") {
                 val input = TilsagnBeregningRequest(
                     type = TilsagnBeregningType.FRI,

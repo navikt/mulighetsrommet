@@ -32,7 +32,7 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerAvtaltTiltaksplassPerManedBeregning
@@ -42,13 +42,13 @@ import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -166,7 +166,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer
 
         val prismodellOppfolging = PrismodellFixtures.createPrismodell(
-            type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+            type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 100.NOK),
             ),
@@ -358,7 +358,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .first()
 
             utbetaling.gjennomforing.id shouldBe oppfolging.id
-            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>().output.pris shouldBe 100.NOK
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed>().output.pris shouldBe 100.NOK
         }
 
         test("genererer en utbetaling for avtalt pris per ukesverk med korrekt beløp") {
@@ -374,7 +374,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 prismodeller = listOf(
                     PrismodellFixtures.createPrismodell(
                         id = prismodellOppfolging.id,
-                        type = PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+                        type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
                         satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 100.NOK)),
                     ),
                 ),
@@ -385,7 +385,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .first()
 
             utbetaling.gjennomforing.id shouldBe oppfolging.id
-            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerUkesverk>().output.pris shouldBe 460.NOK
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke>().output.pris shouldBe 460.NOK
         }
 
         test("utbetalinger blir oppdatert med ny beregning når avtalens prismodell endres") {
@@ -401,13 +401,13 @@ class GenererUtbetalingServiceTest : FunSpec({
             ).initialize(database.api)
 
             val generertUtbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
-            generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
+            generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed>()
 
             database.run {
                 queries.prismodell.upsert(
                     PrismodellFixtures.createPrismodell(
                         id = prismodellOppfolging.id,
-                        type = PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+                        type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
                         satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 100.NOK)),
                     ),
                 )
@@ -416,7 +416,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val oppdatertUtbetaling = service.oppdaterUtbetalingerForGjennomforing(oppfolging.id)
                 .shouldHaveSize(1).first()
             oppdatertUtbetaling.id shouldBe generertUtbetaling.id
-            oppdatertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerUkesverk>()
+            oppdatertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke>()
         }
 
         test("utbetalinger blir ikke oppdatert hvis oppdatert utbetaling er uendret") {
@@ -482,7 +482,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ).initialize(database.api)
 
             val generertUtbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
-            generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk>()
+            generertUtbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed>()
 
             database.run {
                 queries.prismodell.upsert(
@@ -617,7 +617,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             val utbetaling = service.genererUtbetalingerForPeriode(januar).first()
 
             utbetaling.beregning.input
-                .shouldBeTypeOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input>()
+                .shouldBeTypeOf<UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Input>()
                 .should {
                     it.deltakelser.shouldHaveSize(1).first().deltakelseId.shouldBe(domain.deltakere[0].id)
                 }
@@ -628,7 +628,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val service = createUtbetalingService()
 
         val prismodell = PrismodellFixtures.createPrismodell(
-            type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+            type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2026, 2, 1), 100.NOK),
             ),
@@ -647,13 +647,13 @@ class GenererUtbetalingServiceTest : FunSpec({
         )
 
         val periode = Periode.forMonthOf(LocalDate.of(2026, 2, 1))
-        val beregning = UtbetalingBeregningPrisPerManedsverk(
-            input = UtbetalingBeregningPrisPerManedsverk.Input(
+        val beregning = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed(
+            input = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(
                 satser = setOf(SatsPeriode(periode, 100.NOK)),
                 stengt = setOf(),
                 deltakelser = setOf(DeltakelsePeriode(deltaker.id, periode)),
             ),
-            output = UtbetalingBeregningPrisPerManedsverk.Output(
+            output = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                 pris = 100.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -695,7 +695,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 .shouldHaveSize(1)
                 .first()
 
-            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Output>().pris shouldBe 50.NOK
+            utbetaling.beregning.output.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output>().pris shouldBe 50.NOK
         }
 
         test("oppdaterer ikke utbetaling hvis den allerede er godkjent av arrangør") {
@@ -717,7 +717,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             database.run {
                 queries.utbetaling.getOrError(utbetaling1.id).beregning.output
-                    .shouldBeTypeOf<UtbetalingBeregningPrisPerManedsverk.Output>()
+                    .shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output>()
                     .pris shouldBe 100.NOK
             }
         }
@@ -728,7 +728,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val service = createUtbetalingService(mapOf(Tiltakskode.OPPFOLGING to gyldigTilsagnPeriode))
 
         val prismodell = PrismodellFixtures.createPrismodell(
-            type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+            type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2024, 1, 1), 100.NOK),
             ),
@@ -770,7 +770,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             utbetaling.periode shouldBe Periode(LocalDate.of(2024, 12, 30), LocalDate.of(2025, 2, 3))
             utbetaling.gjennomforing.id shouldBe gjennomforing.id
-            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerHeleUkesverk>().output.pris shouldBe 100.NOK
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke>().output.pris shouldBe 100.NOK
         }
 
         test("ikke for deltakelse 29. sep fordi uken skal med i oktober") {
@@ -823,7 +823,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val service = createUtbetalingService()
 
         val prismodell = PrismodellFixtures.createPrismodell(
-            type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+            type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 100.NOK),
             ),
@@ -910,14 +910,14 @@ class GenererUtbetalingServiceTest : FunSpec({
             gjennomforingId = GjennomforingFixtures.TAO.id,
             periode = januar,
             belopBrukt = 0.NOK,
-            beregning = TilsagnBeregningFastSatsPerTiltaksplassPerManed(
-                input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+            beregning = TilsagnBeregningFastSatsPerBenyttetPlassPerManed(
+                input = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Input(
                     periode = januar,
                     sats = 7_321.NOK,
                     antallPlasser = 1,
                     stengt = setOf(),
                 ),
-                output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
+                output = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Output(
                     pris = 7_321.NOK,
                 ),
             ),

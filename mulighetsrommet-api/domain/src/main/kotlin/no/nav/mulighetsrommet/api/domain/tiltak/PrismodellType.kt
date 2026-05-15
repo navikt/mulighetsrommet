@@ -10,29 +10,29 @@ enum class PrismodellType(val navn: String, val beskrivelse: List<String>) {
             "Arrangør benytter digital innsending og kan laste opp vedlegg som en del av innsendingen. Nav gjør ingen forhåndsberegning av beløp.",
         ),
     ),
-    FORHANDSGODKJENT_PRIS_PER_MANEDSVERK(
+    FAST_SATS_PER_BENYTTET_PLASS_PER_MANED(
         "Fast sats per benyttet tiltaksplass per måned",
         listOf(),
     ),
-    FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS(
+    FAST_SATS_PER_AVTALT_PLASS_PER_MANED(
         "Fast sats per avtalt tiltaksplass per måned",
         listOf(),
     ),
-    AVTALT_PRIS_PER_MANEDSVERK(
+    AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED(
         "Avtalt månedspris per tiltaksplass",
         listOf(
             "Nav beregner beløp til utbetaling ut fra den avtalte prisen som er lagt inn her, og registrerte deltakelser fra Deltakeroversikten.",
             "For deltakere som ikke har deltatt hele måneden, blir månedsverk beregnet ut fra antall hverdager bruker deltok på tiltaket, delt på det totale antallet hverdager i måneden.",
         ),
     ),
-    AVTALT_PRIS_PER_UKESVERK(
+    AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE(
         "Avtalt ukespris per tiltaksplass",
         listOf(
             "Nav beregner beløp til utbetaling ut fra den avtalte prisen som er lagt inn her, og registrerte deltakelser fra Deltakeroversikten.",
             "En dags deltakelse i tiltaket utgjør 0,2 ukesverk. En hel ukes deltakelse i tiltaket utgjør 1 ukesverk.",
         ),
     ),
-    AVTALT_PRIS_PER_HELE_UKESVERK(
+    AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE(
         "Avtalt pris per uke med påbegynt oppfølging per deltaker",
         listOf(
             "Beregningen brukes primært for tiltaket Digitalt jobbsøkerkurs.",
@@ -63,12 +63,12 @@ object Prismodeller {
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
         -> listOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER,
         -> listOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
+            PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED,
         )
 
         Tiltakskode.AVKLARING,
@@ -83,9 +83,9 @@ object Prismodeller {
         Tiltakskode.STUDIESPESIALISERING,
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
         -> listOf(
-            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-            PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+            PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
+            PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
+            PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE,
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             PrismodellType.ANNEN_AVTALT_PRIS,
         )

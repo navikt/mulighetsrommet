@@ -10,7 +10,7 @@ import java.util.UUID
 
 @Serializable
 @SerialName("FRI")
-data class TilsagnBeregningFri(
+data class TilsagnBeregningAnnenAvtaltPris(
     override val input: Input,
     override val output: Output,
 ) : TilsagnBeregning() {
@@ -38,8 +38,8 @@ data class TilsagnBeregningFri(
     ) : TilsagnBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): TilsagnBeregningFri {
-            return TilsagnBeregningFri(
+        fun beregn(input: Input): TilsagnBeregningAnnenAvtaltPris {
+            return TilsagnBeregningAnnenAvtaltPris(
                 input,
                 Output(
                     input.linjer.sumOf {

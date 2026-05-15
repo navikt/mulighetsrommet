@@ -15,10 +15,10 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse.BeregnetPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
@@ -77,8 +77,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             tidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         ),
         valuta = Valuta.NOK,
-        beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-            input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+        beregning = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(
+            input = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Input(
                 satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), sats)),
                 stengt = setOf(
                     StengtPeriode(
@@ -146,7 +146,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                     ),
                 ),
             ),
-            output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+            output = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Output(
                 pris = 100.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -235,8 +235,8 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
             tidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
         ),
         valuta = Valuta.NOK,
-        beregning = UtbetalingBeregningPrisPerTimeOppfolging(
-            input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
+        beregning = UtbetalingBeregningAvtaltPrisPerTimeOppfolging(
+            input = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Input(
                 satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34.NOK)),
                 stengt = setOf(
                     StengtPeriode(
@@ -268,7 +268,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 ),
                 pris = 100.NOK,
             ),
-            output = UtbetalingBeregningPrisPerTimeOppfolging.Output(
+            output = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Output(
                 pris = 100.NOK,
             ),
         ),

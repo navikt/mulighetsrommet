@@ -27,10 +27,10 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
   const valutaOptions = [Valuta.NOK, Valuta.SEK];
 
   const prismodellerMedSatser = [
-    PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-    PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+    PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE,
+    PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
     PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-    PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+    PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
   ];
 
   const { fields, append, remove } = useFieldArray({

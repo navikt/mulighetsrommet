@@ -19,12 +19,12 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
@@ -66,10 +66,10 @@ class TilsagnQueriesTest : FunSpec({
     )
 
     val beregningFri = {
-        TilsagnBeregningFri(
-            TilsagnBeregningFri.Input(
+        TilsagnBeregningAnnenAvtaltPris(
+            TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "Beskrivelse",
                         pris = 123.NOK,
@@ -78,7 +78,7 @@ class TilsagnQueriesTest : FunSpec({
                 ),
                 prisbetingelser = "Prisbetingelser fra avtale",
             ),
-            TilsagnBeregningFri.Output(
+            TilsagnBeregningAnnenAvtaltPris.Output(
                 pris = 123.NOK,
             ),
         )
@@ -128,12 +128,12 @@ class TilsagnQueriesTest : FunSpec({
                         organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
                         slettet = false,
                     )
-                    it.beregning shouldBe TilsagnBeregningFri(
-                        TilsagnBeregningFri.Input(
-                            linjer = (tilsagn.beregning as TilsagnBeregningFri).input.linjer,
+                    it.beregning shouldBe TilsagnBeregningAnnenAvtaltPris(
+                        TilsagnBeregningAnnenAvtaltPris.Input(
+                            linjer = (tilsagn.beregning as TilsagnBeregningAnnenAvtaltPris).input.linjer,
                             prisbetingelser = "Prisbetingelser fra avtale",
                         ),
-                        TilsagnBeregningFri.Output(
+                        TilsagnBeregningAnnenAvtaltPris.Output(
                             pris = 123.NOK,
                         ),
                     )
@@ -153,17 +153,17 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val beregning = TilsagnBeregningFri(
-                    input = TilsagnBeregningFri.Input(
+                val beregning = TilsagnBeregningAnnenAvtaltPris(
+                    input = TilsagnBeregningAnnenAvtaltPris.Input(
                         prisbetingelser = "Betingelser",
                         linjer = listOf(
-                            TilsagnBeregningFri.InputLinje(
+                            TilsagnBeregningAnnenAvtaltPris.InputLinje(
                                 id = UUID.randomUUID(),
                                 beskrivelse = "To ting",
                                 pris = 500.NOK,
                                 antall = 2,
                             ),
-                            TilsagnBeregningFri.InputLinje(
+                            TilsagnBeregningAnnenAvtaltPris.InputLinje(
                                 id = UUID.randomUUID(),
                                 beskrivelse = "En ting",
                                 pris = 100.NOK,
@@ -171,7 +171,7 @@ class TilsagnQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = TilsagnBeregningFri.Output(
+                    output = TilsagnBeregningAnnenAvtaltPris.Output(
                         pris = 1100.NOK,
                     ),
                 )
@@ -185,8 +185,8 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val beregning = TilsagnBeregningFastSatsPerTiltaksplassPerManed(
-                    input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                val beregning = TilsagnBeregningFastSatsPerBenyttetPlassPerManed(
+                    input = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Input(
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100.NOK,
@@ -197,7 +197,7 @@ class TilsagnQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
+                    output = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Output(
                         pris = 1000.NOK,
                     ),
                 )
@@ -211,8 +211,8 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val beregning = TilsagnBeregningPrisPerManedsverk(
-                    input = TilsagnBeregningPrisPerManedsverk.Input(
+                val beregning = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed(
+                    input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100.NOK,
@@ -224,7 +224,7 @@ class TilsagnQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = TilsagnBeregningPrisPerManedsverk.Output(
+                    output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                         pris = 1000.NOK,
                     ),
                 )
@@ -238,8 +238,8 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val beregning = TilsagnBeregningPrisPerUkesverk(
-                    input = TilsagnBeregningPrisPerUkesverk.Input(
+                val beregning = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke(
+                    input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100.NOK,
@@ -251,7 +251,7 @@ class TilsagnQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = TilsagnBeregningPrisPerUkesverk.Output(
+                    output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Output(
                         pris = 1000.NOK,
                     ),
                 )
@@ -265,8 +265,8 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val beregning = TilsagnBeregningPrisPerHeleUkesverk(
-                    input = TilsagnBeregningPrisPerHeleUkesverk.Input(
+                val beregning = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke(
+                    input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Input(
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100.NOK,
@@ -278,7 +278,7 @@ class TilsagnQueriesTest : FunSpec({
                             ),
                         ),
                     ),
-                    output = TilsagnBeregningPrisPerHeleUkesverk.Output(
+                    output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Output(
                         1000.NOK,
                     ),
                 )
@@ -292,15 +292,15 @@ class TilsagnQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val beregning = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
-                    input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                val beregning = TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker(
+                    input = TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.Input(
                         periode = tilsagn.periode,
                         sats = 100.NOK,
                         antallPlasser = 10,
                         antallTimerOppfolgingPerDeltaker = 5,
                         prisbetingelser = "Betingelser",
                     ),
-                    output = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Output(
+                    output = TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.Output(
                         pris = 5000.NOK,
                     ),
                 )

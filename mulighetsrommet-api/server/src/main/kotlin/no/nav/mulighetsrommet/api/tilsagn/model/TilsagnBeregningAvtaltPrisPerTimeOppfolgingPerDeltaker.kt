@@ -10,7 +10,7 @@ import java.math.RoundingMode
 
 @Serializable
 @SerialName("PRIS_PER_TIME_OPPFOLGING")
-data class TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
+data class TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker(
     override val input: Input,
     override val output: Output,
 ) : TilsagnBeregning() {
@@ -32,7 +32,7 @@ data class TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
     ) : TilsagnBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker {
+        fun beregn(input: Input): TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker {
             val belop = BigDecimal(input.sats.belop)
                 .multiply(BigDecimal(input.antallPlasser))
                 .multiply(BigDecimal(input.antallTimerOppfolgingPerDeltaker))
@@ -40,7 +40,7 @@ data class TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
                 .intValueExact()
                 .withValuta(input.sats.valuta)
 
-            return TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(input, Output(pris = belop))
+            return TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker(input, Output(pris = belop))
         }
     }
 }

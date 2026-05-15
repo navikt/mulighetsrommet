@@ -225,17 +225,7 @@ private fun Prismodell.toPrismodellRequest(): PrismodellRequest = PrismodellRequ
     id = id,
     type = type,
     valuta = valuta,
-    prisbetingelser = when (this) {
-        is Prismodell.AnnenAvtaltPris -> prisbetingelser
-        is Prismodell.AvtaltPrisPerManedsverk -> prisbetingelser
-        is Prismodell.AvtaltPrisPerUkesverk -> prisbetingelser
-        is Prismodell.AvtaltPrisPerHeleUkesverk -> prisbetingelser
-        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
-        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> null
-        is Prismodell.TilskuddTilOpplaering -> tilleggsopplysninger
-        is Prismodell.IngenKostnader -> tilleggsopplysninger
-    },
+    prisbetingelser = prisbetingelser(),
     satser = satser().map { AvtaltSatsRequest(it.gjelderFra, it.sats.belop) },
     tilsagnPerDeltaker = (this as? Prismodell.AnnenAvtaltPris)?.tilsagnPerDeltaker ?: false,
 )

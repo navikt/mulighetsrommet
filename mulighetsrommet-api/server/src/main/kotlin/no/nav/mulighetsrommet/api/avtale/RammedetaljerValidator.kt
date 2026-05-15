@@ -3,8 +3,7 @@ package no.nav.mulighetsrommet.api.avtale
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
-import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
-import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.validation.validation
 import java.util.UUID
@@ -14,20 +13,22 @@ import kotlin.contracts.ExperimentalContracts
 object RammedetaljerValidator {
     data class Ctx(
         val avtaleId: UUID,
-        val prismodeller: List<Prismodell>,
+        val prisinfo: Avtale.Prisinfo,
     )
 
     fun validateRammedetaljer(
         context: Ctx,
         request: RammedetaljerRequest,
     ): Either<List<FieldError>, RammedetaljerDbo> = validation {
-        validate(context.prismodeller.all { kanHaRammedetaljer(it.type) }) {
+        validate(context.prisinfo !is Avtale.Prisinfo.Systembestemt) {
             FieldError.of(
                 "Rammedetaljer kan kun legges til anskaffet avtaler",
                 RammedetaljerRequest::totalRamme,
             )
         }
-        validate(context.prismodeller.distinctBy { it.valuta }.count() == 1) {
+
+        val prismodeller = context.prisinfo.toList()
+        validate(prismodeller.distinctBy { it.valuta }.count() == 1) {
             FieldError.of(
                 "Rammedetaljer kan kun legges til avtaler med én type valuta på prismodellene",
                 RammedetaljerRequest::totalRamme,
@@ -52,24 +53,9 @@ object RammedetaljerValidator {
 
         RammedetaljerDbo(
             avtaleId = context.avtaleId,
-            valuta = context.prismodeller.first().valuta,
+            valuta = prismodeller.first().valuta,
             totalRamme = request.totalRamme,
             utbetaltArena = request.utbetaltArena,
         )
-    }
-
-    private fun kanHaRammedetaljer(prismodellType: PrismodellType) = when (prismodellType) {
-        PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-        PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
-        PrismodellType.TILSKUDD_TIL_OPPLAERING,
-        PrismodellType.INGEN_KOSTNADER,
-        -> false
-
-        PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-        PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-        PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-        PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-        PrismodellType.ANNEN_AVTALT_PRIS,
-        -> true
     }
 }

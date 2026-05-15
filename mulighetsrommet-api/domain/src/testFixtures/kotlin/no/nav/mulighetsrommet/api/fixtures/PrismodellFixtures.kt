@@ -33,7 +33,7 @@ object PrismodellFixtures {
         aarsak = aarsak,
     )
 
-    val ForhandsgodkjentAft = Prismodell.ForhandsgodkjentPrisPerManedsverk(
+    val ForhandsgodkjentAft = Prismodell.FastSatsPerBenyttetPlassPerManed(
         id = UUID.randomUUID(),
         systemId = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING.name,
         valuta = Valuta.NOK,
@@ -43,7 +43,7 @@ object PrismodellFixtures {
         ),
     )
 
-    val ForhandsgodkjentVtas = Prismodell.ForhandsgodkjentPrisPerManedsverk(
+    val ForhandsgodkjentVtas = Prismodell.FastSatsPerBenyttetPlassPerManed(
         id = UUID.randomUUID(),
         systemId = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name,
         valuta = Valuta.NOK,
@@ -53,7 +53,7 @@ object PrismodellFixtures {
         ),
     )
 
-    val ForhandsgodkjentTao = Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass(
+    val ForhandsgodkjentTao = Prismodell.FastSatsPerAvtaltPlassPerManed(
         id = UUID.randomUUID(),
         systemId = Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER.name,
         valuta = Valuta.NOK,
@@ -71,7 +71,7 @@ object PrismodellFixtures {
         ),
     )
 
-    val AvtaltPrisPerManedsverk = Prismodell.AvtaltPrisPerManedsverk(
+    val AvtaltPrisPerManedsverk = Prismodell.AvtaltPrisPerBenyttetPlassPerManed(
         id = UUID.randomUUID(),
         valuta = Valuta.NOK,
         prisbetingelser = null,
