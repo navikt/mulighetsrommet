@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.arrangorflate
 
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.request.post
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.json.Json
@@ -44,10 +43,10 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -89,18 +88,18 @@ object ArrangorflateTestUtils {
                     TilsagnBeregningFri.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "Beskrivelse",
-                        pris = 1000.withValuta(Valuta.NOK),
+                        pris = 1000.NOK,
                         antall = 1,
                     ),
                 ),
                 prisbetingelser = null,
             ),
             output = TilsagnBeregningFri.Output(
-                pris = 1000.withValuta(Valuta.NOK),
+                pris = 1000.NOK,
             ),
         ),
         type = TilsagnType.TILSAGN,
-        belopBrukt = 0.withValuta(Valuta.NOK),
+        belopBrukt = 0.NOK,
         bestillingStatus = BestillingStatusType.AKTIV,
         kommentar = null,
         beskrivelse = null,
@@ -119,7 +118,7 @@ object ArrangorflateTestUtils {
                     satser = setOf(
                         SatsPeriode(
                             periode = periode,
-                            sats = 20205.withValuta(Valuta.NOK),
+                            sats = 20205.NOK,
                         ),
                     ),
                     stengt = setOf(),
@@ -133,7 +132,7 @@ object ArrangorflateTestUtils {
                     ),
                 ),
                 output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
-                    pris = 10000.withValuta(Valuta.NOK),
+                    pris = 10000.NOK,
                     deltakelser = setOf(
                         UtbetalingBeregningOutputDeltakelse(
                             deltakerId,
@@ -141,7 +140,7 @@ object ArrangorflateTestUtils {
                                 UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
                                     periode,
                                     1.0,
-                                    20205.withValuta(Valuta.NOK),
+                                    20205.NOK,
                                 ),
                             ),
                         ),
@@ -166,8 +165,8 @@ object ArrangorflateTestUtils {
         status = UtbetalingStatusType.GENERERT,
         valuta = Valuta.NOK,
         beregning = UtbetalingBeregningFri(
-            input = UtbetalingBeregningFri.Input(5000.withValuta(Valuta.NOK)),
-            output = UtbetalingBeregningFri.Output(5000.withValuta(Valuta.NOK)),
+            input = UtbetalingBeregningFri.Input(5000.NOK),
+            output = UtbetalingBeregningFri.Output(5000.NOK),
         ),
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("12312312312"), null),
         periode = Periode.forMonthOf(LocalDate.of(2024, 8, 1)),

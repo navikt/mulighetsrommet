@@ -44,6 +44,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -174,7 +175,7 @@ class TilsagnService(
                                 TilsagnBeregningFri.InputLinje(
                                     id = it.id,
                                     beskrivelse = it.beskrivelse ?: "",
-                                    pris = it.pris ?: 0.withValuta(Valuta.NOK),
+                                    pris = it.pris ?: 0.NOK,
                                     antall = it.antall ?: 0,
                                 )
                             },

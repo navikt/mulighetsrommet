@@ -169,8 +169,7 @@ class UtbetalingService(
         val utbetaling = queries.utbetaling.getAndAquireLock(request.utbetalingId)
 
         val utbetalingLinjeTilsagn = request.utbetalingLinjer.associate { req ->
-            val tilsagn = queries.tilsagn.getOrError(req.tilsagnId)
-            req.id to tilsagn
+            req.id to queries.tilsagn.getOrError(req.tilsagnId)
         }
 
         UtbetalingValidator
@@ -178,7 +177,7 @@ class UtbetalingService(
                 UtbetalingValidator.OpprettUtbetalingLinjerCtx(
                     utbetaling = utbetaling,
                     linjer = request.utbetalingLinjer.map { req ->
-                        val tilsagn = requireNotNull(utbetalingLinjeTilsagn[req.id])
+                        val tilsagn = utbetalingLinjeTilsagn.getValue(req.id)
                         UtbetalingValidator.OpprettUtbetalingLinjerCtx.Linje(
                             request = req,
                             tilsagn = UtbetalingValidator.OpprettUtbetalingLinjerCtx.Tilsagn(
@@ -190,7 +189,7 @@ class UtbetalingService(
                     begrunnelse = request.begrunnelseMindreBetalt,
                 ),
             )
-            .map { linje ->
+            .map { linjer ->
                 // Slett de som ikke er med i requesten
                 queries.utbetalingLinje.getByUtbetalingId(utbetaling.id)
                     .filter { linje -> linje.id !in request.utbetalingLinjer.map { it.id } }
@@ -201,14 +200,14 @@ class UtbetalingService(
                         queries.utbetalingLinje.delete(linje.id)
                     }
 
-                linje.forEach {
+                linjer.forEach { linje ->
                     upsertUtbetalingLinje(
-                        utbetaling,
-                        requireNotNull(utbetalingLinjeTilsagn[it.id]),
-                        it.id,
-                        requireNotNull(it.pris),
-                        it.gjorOppTilsagn,
-                        navIdent,
+                        id = linje.id,
+                        utbetaling = utbetaling,
+                        tilsagn = utbetalingLinjeTilsagn.getValue(linje.id),
+                        pris = requireNotNull(linje.pris),
+                        gjorOppTilsagn = linje.gjorOppTilsagn,
+                        behandletAv = navIdent,
                     )
                 }
                 queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
@@ -223,7 +222,7 @@ class UtbetalingService(
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         validateAccessAndLockUtbetaling(id, navIdent).flatMap { (utbetaling, linje) ->
-            godkjennUtbetalingLinje(utbetaling, linje, navIdent)
+            godkjennUtbetalingLinje(linje, navIdent)
         }
     }
 
@@ -554,30 +553,27 @@ class UtbetalingService(
             return AutomatiskUtbetalingResult.UTBETALINGLINJER_ALLEREDE_OPPRETTET
         }
 
-        val id = UUID.randomUUID()
-        upsertUtbetalingLinje(
+        val linje = upsertUtbetalingLinje(
+            id = UUID.randomUUID(),
             utbetaling = utbetaling,
             tilsagn = tilsagn,
-            id = id,
             pris = utbetaling.beregning.output.pris,
             gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
             behandletAv = Tiltaksadministrasjon,
         )
-
-        val linje = queries.utbetalingLinje.getOrError(id)
-        godkjennUtbetalingLinje(utbetaling, linje, Tiltaksadministrasjon)
+        godkjennUtbetalingLinje(linje, Tiltaksadministrasjon)
             .map { AutomatiskUtbetalingResult.GODKJENT }
             .getOrElse { throw UtbetalingException(it) }
     }
 
     private fun TransactionalQueryContext.upsertUtbetalingLinje(
+        id: UUID,
         utbetaling: Utbetaling,
         tilsagn: Tilsagn,
-        id: UUID,
         pris: ValutaBelop,
         gjorOppTilsagn: Boolean,
         behandletAv: Agent,
-    ) {
+    ): UtbetalingLinje {
         require(tilsagn.status == TilsagnStatus.GODKJENT) {
             "Tilsagn er ikke godkjent id=${tilsagn.id} status=${tilsagn.status}"
         }
@@ -611,10 +607,11 @@ class UtbetalingService(
         queries.utbetalingLinje.upsert(dbo)
 
         totrinnskontroll.opprett(id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE, behandletAv)
+
+        return queries.utbetalingLinje.getOrError(id)
     }
 
     private fun TransactionalQueryContext.godkjennUtbetalingLinje(
-        utbetaling: Utbetaling,
         utbetalingLinje: UtbetalingLinje,
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
@@ -639,7 +636,7 @@ class UtbetalingService(
         return if (linjer.all { it.key.status == UtbetalingLinjeStatus.GODKJENT }) {
             godkjennUtbetaling(utbetalingLinje.utbetalingId, linjer)
         } else {
-            utbetaling
+            getOrError(utbetalingLinje.utbetalingId)
         }.right()
     }
 
@@ -687,14 +684,15 @@ class UtbetalingService(
         forklaring: String?,
         besluttetAv: Agent,
     ): Utbetaling {
-        setReturnertUtbetalingLinje(linje, aarsaker, forklaring, besluttetAv)
+        setReturnertUtbetalingLinje(linje.id, aarsaker, forklaring, besluttetAv)
 
         // Set også de resterende utbetalingslinjene som returnert
         queries.utbetalingLinje.getByUtbetalingId(linje.utbetalingId)
             .filter { it.id != linje.id }
             .forEach {
+                // TODO: propagert retur burde kanskje heller opprette nye rader i totrinnskontrollen, heller enn å overskrive besluttelsen?
                 setReturnertUtbetalingLinje(
-                    it,
+                    it.id,
                     listOf(UtbetalingLinjeReturnertAarsak.PROPAGERT_RETUR),
                     null,
                     Tiltaksadministrasjon,
@@ -706,13 +704,13 @@ class UtbetalingService(
     }
 
     private fun TransactionalQueryContext.setReturnertUtbetalingLinje(
-        utbetalingLinje: UtbetalingLinje,
+        utbetalingLinjeId: UUID,
         aarsaker: List<UtbetalingLinjeReturnertAarsak>,
         forklaring: String?,
         besluttetAv: Agent,
     ) {
-        queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.RETURNERT)
-        val opprettelse = getTotrinnskontroll(utbetalingLinje.id)
+        queries.utbetalingLinje.setStatus(utbetalingLinjeId, UtbetalingLinjeStatus.RETURNERT)
+        val opprettelse = getTotrinnskontroll(utbetalingLinjeId)
         totrinnskontroll.avvist(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring).onLeft {
             throw UtbetalingException(it)
         }
