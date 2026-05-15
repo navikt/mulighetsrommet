@@ -46,7 +46,6 @@ import java.util.UUID
 fun mapUtbetalingToArrangorflateUtbetaling(
     utbetaling: Utbetaling,
     gjennomforing: GjennomforingAvtale,
-    status: ArrangorflateUtbetalingStatus,
     deltakereById: Map<UUID, Deltaker>,
     personaliaById: Map<UUID, Personalia>,
     advarsler: List<DeltakerAdvarsel>,
@@ -69,7 +68,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
     val innsendtAvArrangorDato = utbetaling.innsending?.tidspunkt?.toLocalDate()
     return ArrangorflateUtbetalingDto(
         id = utbetaling.id,
-        status = status,
+        status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling),
         innsendtAvArrangorDato = innsendtAvArrangorDato,
         utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
         kanViseBeregning = kanViseBeregningMedDeltakelse,

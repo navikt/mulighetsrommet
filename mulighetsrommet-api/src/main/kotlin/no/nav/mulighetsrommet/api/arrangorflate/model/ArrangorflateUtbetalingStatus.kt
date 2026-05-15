@@ -14,8 +14,8 @@ enum class ArrangorflateUtbetalingStatus {
     ;
 
     companion object {
-        fun fromUtbetaling(status: UtbetalingStatusType, blokkeringer: Set<Utbetaling.Blokkering>): ArrangorflateUtbetalingStatus = when (status) {
-            UtbetalingStatusType.GENERERT -> if (blokkeringer.isEmpty()) {
+        fun fromUtbetaling(utbetaling: Utbetaling): ArrangorflateUtbetalingStatus = when (utbetaling.status) {
+            UtbetalingStatusType.GENERERT -> if (utbetaling.blokkeringer.isEmpty()) {
                 KLAR_FOR_GODKJENNING
             } else {
                 UBEHANDLET_FORSLAG
