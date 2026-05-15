@@ -56,7 +56,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                 createDeltaker(periode, status = DeltakerStatusType.VENTER_PA_OPPSTART),
             )
 
-            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
+            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
             result.input.deltakelser.map { it.deltakelseId } shouldBe setOf(
                 deltakere[0].id,
@@ -79,7 +79,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             )
             val deltakere = listOf(createDeltaker(periode))
 
-            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
+            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
             result.input.satser shouldBe setOf(
                 SatsPeriode(Periode(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 15)), 50.NOK),
@@ -100,7 +100,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                 createDeltaker(Periode(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 4, 1))),
             )
 
-            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
+            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
             result.input.deltakelser shouldBe setOf(DeltakelsePeriode(deltakere[0].id, periode))
         }
@@ -116,7 +116,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             )
             val deltakere = listOf(createDeltaker(periode))
 
-            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
+            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
             result.input shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Input(
                 satser = setOf(SatsPeriode(periode, 50.NOK)),
@@ -152,7 +152,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
                 createDeltaker(Periode(LocalDate.of(2025, 1, 31), LocalDate.of(2025, 2, 1))),
             )
 
-            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
+            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
             result.output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
                 pris = 210.NOK,
@@ -224,7 +224,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
             )
             val deltakere = listOf(createDeltaker(periode))
 
-            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, deltakere, periode)
+            val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
             result.input shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Input(
                 satser = setOf(SatsPeriode(periode, 10.NOK)),
