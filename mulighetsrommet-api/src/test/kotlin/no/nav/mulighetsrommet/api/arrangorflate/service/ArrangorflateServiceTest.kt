@@ -23,9 +23,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPe
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -69,7 +68,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.id shouldBe utbetaling.id
 
         result.beregning.shouldBeInstanceOf<UtbetalingBeregningFastSatsPerTiltaksplassPerManed>().should {
-            it.output.pris shouldBe 10000.withValuta(Valuta.NOK)
+            it.output.pris shouldBe 10000.NOK
         }
     }
 
@@ -112,7 +111,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.id shouldBe friUtbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
         result.beregning.shouldBeInstanceOf<ArrangorflateBeregning> {
-            it.pris shouldBe 5000.withValuta(Valuta.NOK)
+            it.pris shouldBe 5000.NOK
             it.displayName shouldBe "Annen avtalt pris"
         }
     }
@@ -171,10 +170,10 @@ class ArrangorflateServiceTest : FunSpec({
         items shouldHaveSize 2
 
         val forhandsgodkjent = items.first { it.id == utbetaling.id }
-        forhandsgodkjent.pris shouldBe 10000.withValuta(Valuta.NOK)
+        forhandsgodkjent.pris shouldBe 10000.NOK
 
         val fri = items.first { it.id == friUtbetaling.id }
-        fri.pris shouldBe 5000.withValuta(Valuta.NOK)
+        fri.pris shouldBe 5000.NOK
     }
 
     test("getAllUtbetalingKompakt returnerer tom liste for historiske når alle utbetalinger er aktive") {
@@ -228,9 +227,9 @@ class ArrangorflateServiceTest : FunSpec({
 
         items shouldHaveSize 2
         items[0].id shouldBe friUtbetaling.id
-        items[0].pris shouldBe 5000.withValuta(Valuta.NOK)
+        items[0].pris shouldBe 5000.NOK
         items[1].id shouldBe utbetaling.id
-        items[1].pris shouldBe 10000.withValuta(Valuta.NOK)
+        items[1].pris shouldBe 10000.NOK
     }
 
     test("getAllUtbetalingKompakt paginerer resultater riktig") {

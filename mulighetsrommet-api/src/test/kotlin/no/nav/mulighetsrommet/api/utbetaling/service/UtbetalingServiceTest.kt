@@ -69,11 +69,11 @@ import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -127,7 +127,7 @@ class UtbetalingServiceTest : FunSpec({
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             journalpostId = JournalpostId("123123123"),
             kid = null,
-            beregning = UtbetalingBeregningFri.from(10.withValuta(Valuta.NOK)),
+            beregning = UtbetalingBeregningFri.from(10.NOK),
             kommentar = "Arrangør trenger penger",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             vedlegg = listOf(),
@@ -256,7 +256,7 @@ class UtbetalingServiceTest : FunSpec({
             korreksjonGjelderUtbetalingId = utbetaling1.id,
             korreksjonBegrunnelse = "Feilutbetaling",
             kid = null,
-            beregning = UtbetalingBeregningFri.from(10.withValuta(Valuta.NOK)),
+            beregning = UtbetalingBeregningFri.from(10.NOK),
             kommentar = null,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
         )
@@ -365,7 +365,7 @@ class UtbetalingServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 tilsagnId = Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 100.withValuta(Valuta.NOK).toRequest(),
+                pris = 100.NOK.toRequest(),
             )
             val opprettRequest = OpprettUtbetalingLinjerRequest(
                 utbetalingId = utbetaling1.id,
@@ -404,7 +404,7 @@ class UtbetalingServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 tilsagnId = Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 100.withValuta(Valuta.NOK).toRequest(),
+                pris = 100.NOK.toRequest(),
             )
             val opprettRequest = OpprettUtbetalingLinjerRequest(
                 utbetalingId = utbetaling1.id,
@@ -441,7 +441,7 @@ class UtbetalingServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 tilsagnId = Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 100.withValuta(Valuta.NOK).toRequest(),
+                pris = 100.NOK.toRequest(),
             )
             val opprettRequest = OpprettUtbetalingLinjerRequest(
                 utbetalingId = utbetaling1.id,
@@ -484,7 +484,7 @@ class UtbetalingServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 tilsagnId = Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 100.withValuta(Valuta.NOK).toRequest(),
+                pris = 100.NOK.toRequest(),
             )
             val opprettRequest = OpprettUtbetalingLinjerRequest(
                 utbetalingId = utbetaling1.id,
@@ -561,7 +561,7 @@ class UtbetalingServiceTest : FunSpec({
                             utbetalingLinje1.id,
                             Tilsagn1.id,
                             gjorOppTilsagn = false,
-                            pris = 100.withValuta(Valuta.NOK).toRequest(),
+                            pris = 100.NOK.toRequest(),
                         ),
                     ),
                     begrunnelseMindreBetalt = "begrunnelse",
@@ -602,7 +602,7 @@ class UtbetalingServiceTest : FunSpec({
                         UUID.randomUUID(),
                         Tilsagn1.id,
                         gjorOppTilsagn = false,
-                        pris = 100.withValuta(Valuta.NOK).toRequest(),
+                        pris = 100.NOK.toRequest(),
                     ),
                 ),
                 begrunnelseMindreBetalt = "begrunnelse",
@@ -626,8 +626,8 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = utbetaling1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10.withValuta(Valuta.NOK)),
-                    output = UtbetalingBeregningFri.Output(10.withValuta(Valuta.NOK)),
+                    input = UtbetalingBeregningFri.Input(10.NOK),
+                    output = UtbetalingBeregningFri.Output(10.NOK),
                 ),
                 status = UtbetalingStatusType.TIL_BEHANDLING,
             )
@@ -652,13 +652,13 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK).toRequest(),
+                pris = 5.NOK.toRequest(),
             )
             val utbetalingLinje2 = UtbetalingLinjeRequest(
                 UUID.randomUUID(),
                 tilsagn2.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK).toRequest(),
+                pris = 5.NOK.toRequest(),
             )
             service.opprettUtbetalingLinjer(
                 OpprettUtbetalingLinjerRequest(utbetaling.id, listOf(utbetalingLinje1, utbetalingLinje2), null),
@@ -692,8 +692,8 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = utbetaling1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10.withValuta(Valuta.NOK)),
-                    output = UtbetalingBeregningFri.Output(10.withValuta(Valuta.NOK)),
+                    input = UtbetalingBeregningFri.Input(10.NOK),
+                    output = UtbetalingBeregningFri.Output(10.NOK),
                 ),
                 status = UtbetalingStatusType.TIL_BEHANDLING,
             )
@@ -718,13 +718,13 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK).toRequest(),
+                pris = 5.NOK.toRequest(),
             )
             val utbetalingLinje2 = UtbetalingLinjeRequest(
                 UUID.randomUUID(),
                 tilsagn2.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK).toRequest(),
+                pris = 5.NOK.toRequest(),
             )
             service.opprettUtbetalingLinjer(
                 OpprettUtbetalingLinjerRequest(utbetaling.id, listOf(utbetalingLinje1, utbetalingLinje2), null),
@@ -805,13 +805,13 @@ class UtbetalingServiceTest : FunSpec({
                             UUID.randomUUID(),
                             tilsagn1.id,
                             gjorOppTilsagn = false,
-                            pris = 50.withValuta(Valuta.NOK).toRequest(),
+                            pris = 50.NOK.toRequest(),
                         ),
                         UtbetalingLinjeRequest(
                             UUID.randomUUID(),
                             tilsagn2.id,
                             gjorOppTilsagn = false,
-                            pris = 50.withValuta(Valuta.NOK).toRequest(),
+                            pris = 50.NOK.toRequest(),
                         ),
                     ),
                     begrunnelseMindreBetalt = "begrunnelse",
@@ -827,7 +827,7 @@ class UtbetalingServiceTest : FunSpec({
                             UUID.randomUUID(),
                             tilsagn1.id,
                             gjorOppTilsagn = false,
-                            pris = 100.withValuta(Valuta.NOK).toRequest(),
+                            pris = 100.NOK.toRequest(),
                         ),
                     ),
                     begrunnelseMindreBetalt = "begrunnelse",
@@ -837,19 +837,19 @@ class UtbetalingServiceTest : FunSpec({
 
             database.run {
                 queries.utbetalingLinje.getByUtbetalingId(utbetaling1.id).should { (first, second) ->
-                    first.pris shouldBe 50.withValuta(Valuta.NOK)
+                    first.pris shouldBe 50.NOK
                     first.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15))
                     first.lopenummer shouldBe 1
                     first.faktura.fakturanummer shouldBe "A-2025/1-1-1"
 
-                    second.pris shouldBe 50.withValuta(Valuta.NOK)
+                    second.pris shouldBe 50.NOK
                     second.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15))
                     second.lopenummer shouldBe 1
                     second.faktura.fakturanummer shouldBe "A-2025/1-2-1"
                 }
 
                 queries.utbetalingLinje.getByUtbetalingId(utbetaling2.id).should { (first) ->
-                    first.pris shouldBe 100.withValuta(Valuta.NOK)
+                    first.pris shouldBe 100.NOK
                     first.lopenummer shouldBe 2
                     first.faktura.fakturanummer shouldBe "A-2025/1-1-2"
                     first.periode shouldBe Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 1))
@@ -878,7 +878,7 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK).toRequest(),
+                pris = 5.NOK.toRequest(),
             )
             service.opprettUtbetalingLinjer(
                 OpprettUtbetalingLinjerRequest(utbetaling1.id, listOf(utbetalingLinje1), "begrunnelse"),
@@ -924,7 +924,7 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 Tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 5.withValuta(Valuta.NOK).toRequest(),
+                pris = 5.NOK.toRequest(),
             )
             service.opprettUtbetalingLinjer(
                 OpprettUtbetalingLinjerRequest(utbetaling1.id, listOf(utbetalingLinje2), "begrunnelse"),
@@ -1002,14 +1002,14 @@ class UtbetalingServiceTest : FunSpec({
         test("tilsagn blir oppgjort når utbetaling benytter resten av tilsagnsbeløpet") {
             val tilsagn = Tilsagn1.copy(
                 periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 1)),
-                beregning = getTilsagnBeregning(pris = 10.withValuta(Valuta.NOK)),
+                beregning = getTilsagnBeregning(pris = 10.NOK),
             )
 
             val utbetaling = utbetaling1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 beregning = UtbetalingBeregningFri(
-                    input = UtbetalingBeregningFri.Input(10.withValuta(Valuta.NOK)),
-                    output = UtbetalingBeregningFri.Output(10.withValuta(Valuta.NOK)),
+                    input = UtbetalingBeregningFri.Input(10.NOK),
+                    output = UtbetalingBeregningFri.Output(10.NOK),
                 ),
                 status = UtbetalingStatusType.TIL_BEHANDLING,
             )
@@ -1034,7 +1034,7 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 tilsagn.id,
                 gjorOppTilsagn = false,
-                pris = 10.withValuta(Valuta.NOK).toRequest(),
+                pris = 10.NOK.toRequest(),
             )
             service.opprettUtbetalingLinjer(
                 OpprettUtbetalingLinjerRequest(utbetaling.id, listOf(linje), begrunnelseMindreBetalt = null),
@@ -1084,13 +1084,13 @@ class UtbetalingServiceTest : FunSpec({
                 UUID.randomUUID(),
                 tilsagn1.id,
                 gjorOppTilsagn = false,
-                pris = 1.withValuta(Valuta.NOK).toRequest(),
+                pris = 1.NOK.toRequest(),
             )
             val utbetalingLinje2 = UtbetalingLinjeRequest(
                 UUID.randomUUID(),
                 tilsagn2.id,
                 gjorOppTilsagn = false,
-                pris = 2.withValuta(Valuta.NOK).toRequest(),
+                pris = 2.NOK.toRequest(),
             )
             val opprettRequest = OpprettUtbetalingLinjerRequest(
                 utbetalingId = utbetaling1.id,
@@ -1239,7 +1239,7 @@ class UtbetalingServiceTest : FunSpec({
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             beregning = getForhandsgodkjentBeregning(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                pris = 1000.withValuta(Valuta.NOK),
+                pris = 1000.NOK,
             ),
         )
 
@@ -1272,7 +1272,7 @@ class UtbetalingServiceTest : FunSpec({
             val utbetaling = utbetaling1Forhandsgodkjent.copy(
                 beregning = getForhandsgodkjentBeregning(
                     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                    pris = 1.withValuta(Valuta.NOK),
+                    pris = 1.NOK,
                 ),
             )
             MulighetsrommetTestDomain(
@@ -1328,7 +1328,7 @@ class UtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(
                     Tilsagn1.copy(
                         beregning = getTilsagnBeregning(
-                            pris = 1000.withValuta(Valuta.NOK),
+                            pris = 1000.NOK,
                         ),
                     ),
                 ),
@@ -1346,7 +1346,7 @@ class UtbetalingServiceTest : FunSpec({
             database.run {
                 val linje = queries.utbetalingLinje.getByUtbetalingId(utbetaling1Id).shouldHaveSize(1).first().also {
                     it.status shouldBe UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING
-                    it.pris shouldBe 1000.withValuta(Valuta.NOK)
+                    it.pris shouldBe 1000.NOK
                 }
 
                 queries.totrinnskontroll.getOrError(linje.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE).should {
@@ -1355,7 +1355,7 @@ class UtbetalingServiceTest : FunSpec({
                 }
 
                 queries.tilsagn.getOrError(Tilsagn1.id).should {
-                    it.belopBrukt shouldBe 1000.withValuta(Valuta.NOK)
+                    it.belopBrukt shouldBe 1000.NOK
                 }
 
                 val records = queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC))
@@ -1471,7 +1471,7 @@ class UtbetalingServiceTest : FunSpec({
                 tilsagn = listOf(
                     Tilsagn1.copy(
                         beregning = getTilsagnBeregning(
-                            pris = 1.withValuta(Valuta.NOK),
+                            pris = 1.NOK,
                         ),
                     ),
                 ),
@@ -1501,8 +1501,8 @@ class UtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(
                     utbetaling1Forhandsgodkjent.copy(
                         beregning = UtbetalingBeregningFri(
-                            input = UtbetalingBeregningFri.Input(1.withValuta(Valuta.NOK)),
-                            output = UtbetalingBeregningFri.Output(1.withValuta(Valuta.NOK)),
+                            input = UtbetalingBeregningFri.Input(1.NOK),
+                            output = UtbetalingBeregningFri.Output(1.NOK),
                         ),
                     ),
                 ),
@@ -1536,7 +1536,7 @@ class UtbetalingServiceTest : FunSpec({
                         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                         beregning = getForhandsgodkjentBeregning(
                             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                            pris = 100.withValuta(Valuta.NOK),
+                            pris = 100.NOK,
                         ),
                     ),
                 ),
@@ -1575,7 +1575,7 @@ class UtbetalingServiceTest : FunSpec({
                         periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
                         beregning = getForhandsgodkjentBeregning(
                             periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
-                            pris = 100.withValuta(Valuta.NOK),
+                            pris = 100.NOK,
                         ),
                     ),
                 ),
@@ -1614,7 +1614,7 @@ class UtbetalingServiceTest : FunSpec({
                         periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
                         beregning = getForhandsgodkjentBeregning(
                             periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
-                            pris = 100.withValuta(Valuta.NOK),
+                            pris = 100.NOK,
                         ),
                     ),
                 ),
@@ -1854,7 +1854,7 @@ private fun QueryContext.setRoller(ansatt: NavAnsattDbo, roller: Set<NavAnsattRo
 
 private fun getForhandsgodkjentBeregning(periode: Periode, pris: ValutaBelop) = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
     input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-        satser = setOf(SatsPeriode(periode, 20205.withValuta(Valuta.NOK))),
+        satser = setOf(SatsPeriode(periode, 20205.NOK)),
         stengt = setOf(),
         deltakelser = setOf(),
     ),

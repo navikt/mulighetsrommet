@@ -24,12 +24,12 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -54,7 +54,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
     val deltaker4Id = UUID.randomUUID()
     val deltaker5Id = UUID.randomUUID()
 
-    val sats = 1000.withValuta(Valuta.NOK)
+    val sats = 1000.NOK
     val utbetalingFastSats = Utbetaling(
         id = UUID.randomUUID(),
         status = UtbetalingStatusType.FERDIG_BEHANDLET,
@@ -147,7 +147,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 ),
             ),
             output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
-                pris = 100.withValuta(Valuta.NOK),
+                pris = 100.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
                         deltakelseId = deltaker1Id,
@@ -237,7 +237,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
         valuta = Valuta.NOK,
         beregning = UtbetalingBeregningPrisPerTimeOppfolging(
             input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
-                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34.withValuta(Valuta.NOK))),
+                satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 34.NOK)),
                 stengt = setOf(
                     StengtPeriode(
                         periode = Periode(LocalDate.of(2025, 1, 7), LocalDate.of(2025, 1, 14)),
@@ -266,10 +266,10 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                     ),
                 ),
-                pris = 100.withValuta(Valuta.NOK),
+                pris = 100.NOK,
             ),
             output = UtbetalingBeregningPrisPerTimeOppfolging.Output(
-                pris = 100.withValuta(Valuta.NOK),
+                pris = 100.NOK,
             ),
         ),
         betalingsinformasjon = Betalingsinformasjon.BBan(kontonummer = Kontonummer("12345678901"), null),
@@ -344,7 +344,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 bestillingsnummer = "A-1-1",
             ),
             status = UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
-            pris = 99.withValuta(Valuta.NOK),
+            pris = 99.NOK,
             statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
         ),
         ArrangforflateUtbetalingLinje(
@@ -354,7 +354,7 @@ class UbetalingToPdfDocumentContentMapperTest : FunSpec({
                 bestillingsnummer = "A-1-2",
             ),
             status = UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
-            pris = 1.withValuta(Valuta.NOK),
+            pris = 1.NOK,
             statusSistOppdatert = LocalDate.of(2025, 1, 3).atStartOfDay(),
         ),
     )

@@ -13,8 +13,7 @@ import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.LocalDateTime
 import java.util.UUID
@@ -36,7 +35,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
         utbetalingId = UtbetalingFixtures.utbetaling1.id,
         status = UtbetalingLinjeStatus.TIL_ATTESTERING,
         fakturaStatusEndretTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0),
-        pris = 100.withValuta(Valuta.NOK),
+        pris = 100.NOK,
         gjorOppTilsagn = false,
         periode = UtbetalingFixtures.utbetaling1.periode,
         lopenummer = 1,
@@ -54,7 +53,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
                 it.tilsagnId shouldBe TilsagnFixtures.Tilsagn1.id
                 it.utbetalingId shouldBe UtbetalingFixtures.utbetaling1.id
                 it.status shouldBe UtbetalingLinjeStatus.TIL_ATTESTERING
-                it.pris shouldBe 100.withValuta(Valuta.NOK)
+                it.pris shouldBe 100.NOK
                 it.periode shouldBe UtbetalingFixtures.utbetaling1.periode
                 it.lopenummer shouldBe 1
                 it.faktura.fakturanummer shouldBe "1"

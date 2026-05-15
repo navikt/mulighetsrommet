@@ -13,9 +13,9 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -33,7 +33,7 @@ class TilsagnValidatorTest : FunSpec({
             id = UUID.randomUUID(),
             valuta = Valuta.NOK,
             prisbetingelser = null,
-            satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
+            satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.NOK)),
             tilsagnPerDeltaker = false,
         )
 
@@ -250,7 +250,7 @@ class TilsagnValidatorTest : FunSpec({
                     id = UUID.randomUUID(),
                     valuta = Valuta.NOK,
                     prisbetingelser = null,
-                    satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.withValuta(Valuta.NOK))),
+                    satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.NOK)),
                     tilsagnPerDeltaker = true,
                 ),
             ) shouldBeLeft listOf(
@@ -279,7 +279,7 @@ class TilsagnValidatorTest : FunSpec({
                     type = TilsagnBeregningType.FRI,
                     linjer = listOf(
                         TilsagnInputLinjeRequest(
-                            pris = 0.withValuta(Valuta.NOK),
+                            pris = 0.NOK,
                             id = UUID.randomUUID(),
                             beskrivelse = "",
                             antall = 0,
