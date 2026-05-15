@@ -6,12 +6,9 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.tiltak.okonomi.Tilskuddstype
-import java.time.DayOfWeek
-import java.time.temporal.TemporalAdjusters.nextOrSame
-import java.time.temporal.TemporalAdjusters.previousOrSame
 
 @Serializable
-data class UtbetalingBeregningPrisPerHeleUkesverk(
+data class UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed(
     override val input: Input,
     override val output: Output,
 ) : UtbetalingBeregning() {
@@ -34,46 +31,33 @@ data class UtbetalingBeregningPrisPerHeleUkesverk(
     }
 }
 
-object PrisPerHeleUkeBeregning : SystemgenerertPrismodell.FraDeltakelser<UtbetalingBeregningPrisPerHeleUkesverk> {
-    override val type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK
-    override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
+object PrisPerManedBeregning : SystemgenerertPrismodell.FraDeltakelser<UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed> {
 
-    override fun justerPeriodeForBeregning(periode: Periode): Periode {
-        val newStart = if (periode.start.dayOfWeek <= DayOfWeek.WEDNESDAY) {
-            periode.start.with(previousOrSame(DayOfWeek.MONDAY))
-        } else {
-            periode.start.with(nextOrSame(DayOfWeek.MONDAY))
-        }
-        val newSlutt = if (periode.slutt.dayOfWeek >= DayOfWeek.THURSDAY) {
-            periode.slutt.with(nextOrSame(DayOfWeek.MONDAY))
-        } else {
-            periode.slutt.with(previousOrSame(DayOfWeek.MONDAY))
-        }
-        return Periode(newStart, newSlutt)
-    }
+    override val type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED
+    override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
     override fun beregn(
         gjennomforing: GjennomforingAvtale,
         periode: Periode,
         deltakere: List<Deltaker>,
-    ): UtbetalingBeregningPrisPerHeleUkesverk {
+    ): UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
-        val input = UtbetalingBeregningPrisPerHeleUkesverk.Input(satser, stengt, deltakelser)
+        val input = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(satser, stengt, deltakelser)
 
-        val ukesverk = deltakelser
+        val manedsverk = deltakelser
             .map { deltakelse ->
-                UtbetalingBeregningHelpers.calculateDeltakelseHeleUkesverk(
+                UtbetalingBeregningHelpers.calculateDeltakelseManedsverk(
                     deltakelse,
                     satser,
                     stengt.map { it.periode },
                 )
             }
             .toSet()
-        val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(gjennomforing.prismodell.valuta, ukesverk)
-        val output = UtbetalingBeregningPrisPerHeleUkesverk.Output(belop, ukesverk)
+        val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(gjennomforing.prismodell.valuta, manedsverk)
+        val output = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(belop, manedsverk)
 
-        return UtbetalingBeregningPrisPerHeleUkesverk(input, output)
+        return UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed(input, output)
     }
 }

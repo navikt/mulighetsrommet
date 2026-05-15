@@ -38,7 +38,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
@@ -1230,8 +1230,8 @@ class AdminUtbetalingServiceTest : FunSpec({
     context("validering av utbetalingslinjer") {
         test("totalt beløp kan ikke overstige innsendt beløp") {
             val tilsagnMedHoytBelop = Tilsagn1.copy(
-                beregning = (Tilsagn1.beregning as TilsagnBeregningFri).copy(
-                    output = TilsagnBeregningFri.Output(pris = 2000.NOK),
+                beregning = (Tilsagn1.beregning as TilsagnBeregningAnnenAvtaltPris).copy(
+                    output = TilsagnBeregningAnnenAvtaltPris.Output(pris = 2000.NOK),
                 ),
             )
             MulighetsrommetTestDomain(
@@ -1638,10 +1638,10 @@ private fun QueryContext.setRoller(ansatt: NavAnsattDbo, roller: Set<NavAnsattRo
     )
 }
 
-fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri(
-    input = TilsagnBeregningFri.Input(
+fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningAnnenAvtaltPris(
+    input = TilsagnBeregningAnnenAvtaltPris.Input(
         linjer = listOf(
-            TilsagnBeregningFri.InputLinje(
+            TilsagnBeregningAnnenAvtaltPris.InputLinje(
                 id = UUID.randomUUID(),
                 beskrivelse = "Beskrivelse",
                 pris = pris,
@@ -1650,5 +1650,5 @@ fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri(
         ),
         prisbetingelser = null,
     ),
-    output = TilsagnBeregningFri.Output(pris),
+    output = TilsagnBeregningAnnenAvtaltPris.Output(pris),
 )

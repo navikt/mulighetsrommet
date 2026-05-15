@@ -309,12 +309,12 @@ class GjennomforingEnkeltplassService(
                 aarsak = prismodell.aarsak.name,
             )
 
-            is Prismodell.AvtaltPrisPerHeleUkesverk,
-            is Prismodell.AvtaltPrisPerManedsverk,
+            is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
+            is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
             is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
-            is Prismodell.AvtaltPrisPerUkesverk,
-            is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
-            is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+            is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
+            is Prismodell.FastSatsPerAvtaltPlassPerManed,
+            is Prismodell.FastSatsPerBenyttetPlassPerManed,
             -> error("${prismodell.type} er ikke støttet for enkeltplasser")
         }
         queries.prismodell.upsert(dbo)

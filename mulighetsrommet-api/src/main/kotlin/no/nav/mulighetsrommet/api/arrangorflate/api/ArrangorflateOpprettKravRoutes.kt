@@ -186,7 +186,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
 
             val stegListe = getVeiviserSteg(tiltak)
 
-            val tilsagnstyper = if (tiltak.prismodell.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+            val tilsagnstyper = if (tiltak.prismodell.type == PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED) {
                 listOf(TilsagnType.INVESTERING)
             } else {
                 listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
@@ -398,7 +398,7 @@ data class OpprettKravInnsendingSteg(
         }
 
         fun panelGuide(prismodell: PrismodellType?): GuidePanelType? = when (prismodell) {
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
+            PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED ->
                 GuidePanelType.INVESTERING_VTA_AFT
 
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
@@ -482,7 +482,7 @@ sealed class DatoVelger {
                 }
 
                 PrismodellType.ANNEN_AVTALT_PRIS,
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                 -> {
                     return DatoRange(
                         ArrangorflateUtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
@@ -524,7 +524,7 @@ data class OpprettKravVedleggSteg(
 
         companion object {
             fun from(prismodellType: PrismodellType?): GuidePanelType? = when (prismodellType) {
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> INVESTERING_VTA_AFT
+                PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED -> INVESTERING_VTA_AFT
                 PrismodellType.ANNEN_AVTALT_PRIS -> AVTALT_PRIS
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> TIMESPRIS
                 else -> null
@@ -550,7 +550,7 @@ data class OpprettKravDeltakere(
             personalia: Map<UUID, Personalia>,
         ): Either<BadRequest, OpprettKravDeltakere> {
             val guidePanel = when (tiltak.prismodell.type) {
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
+                PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED,
                 PrismodellType.TILSKUDD_TIL_OPPLAERING,
                 PrismodellType.INGEN_KOSTNADER,
                 -> return BadRequest("Kan ikke opprette krav for dette tiltaket").left()
@@ -559,10 +559,10 @@ data class OpprettKravDeltakere(
                 -> GuidePanelType.TIMESPRIS
 
                 PrismodellType.ANNEN_AVTALT_PRIS,
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
+                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
+                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
+                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE,
                 -> GuidePanelType.GENERELL
             }
             return OpprettKravDeltakere(

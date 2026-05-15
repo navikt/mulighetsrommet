@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createGjennomforingForPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toStengtPeriode
@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
-class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
+class UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
 
     context("filtrering av deltakere og satser") {
         test("deltakere med irrelevant status inkluderes ikke i beregningen") {
@@ -106,7 +106,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
             val result = PrisPerManedBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
+            result.input shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(
                 satser = setOf(SatsPeriode(periode, 100.NOK)),
                 stengt = emptySet(),
                 deltakelser = setOf(
@@ -115,7 +115,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
                     DeltakelsePeriode(deltakere[2].id, Periode(periodeMidt, periodeSlutt)),
                 ),
             )
-            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                 pris = 200.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -169,12 +169,12 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
             val result = PrisPerManedBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.input shouldBe UtbetalingBeregningPrisPerManedsverk.Input(
+            result.input shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(
                 satser = setOf(SatsPeriode(periode, 100.NOK)),
                 stengt = setOf(StengtPeriode(Periode(periodeStart, periodeMidt), "Stengt")),
                 deltakelser = setOf(DeltakelsePeriode(deltakere[0].id, periode)),
             )
-            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                 pris = 50.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -206,7 +206,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
             val result = PrisPerManedBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                 pris = 50.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -243,7 +243,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
             val result = PrisPerManedBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                 pris = 50.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -280,8 +280,8 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
             val utbetaling = PrisPerManedBeregning.beregn(gjennomforing, periode, deltakere)
 
-            val tilsagn = TilsagnBeregningPrisPerManedsverk.beregn(
-                TilsagnBeregningPrisPerManedsverk.Input(
+            val tilsagn = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(
+                TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(
                     periode = deltakelsePeriode,
                     sats = 20205.NOK,
                     antallPlasser = 1,
@@ -308,7 +308,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
             val result = PrisPerManedBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                 pris = 40.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -392,7 +392,7 @@ class UtbetalingBeregningPrisPerManedsverkTest : FunSpec({
 
             val result = PrisPerManedBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.output shouldBe UtbetalingBeregningPrisPerManedsverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                 pris = 40.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(

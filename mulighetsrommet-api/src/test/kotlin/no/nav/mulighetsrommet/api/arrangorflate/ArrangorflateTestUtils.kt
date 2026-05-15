@@ -23,7 +23,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
@@ -31,7 +31,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
@@ -82,10 +82,10 @@ object ArrangorflateTestUtils {
         lopenummer = 1,
         bestillingsnummer = "A-2025/1-1",
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
-        beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(
+        beregning = TilsagnBeregningAnnenAvtaltPris(
+            input = TilsagnBeregningAnnenAvtaltPris.Input(
                 linjer = listOf(
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "Beskrivelse",
                         pris = 1000.NOK,
@@ -94,7 +94,7 @@ object ArrangorflateTestUtils {
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(
+            output = TilsagnBeregningAnnenAvtaltPris.Output(
                 pris = 1000.NOK,
             ),
         ),
@@ -113,8 +113,8 @@ object ArrangorflateTestUtils {
             gjennomforingId = GjennomforingFixtures.AFT1.id,
             status = UtbetalingStatusType.GENERERT,
             valuta = Valuta.NOK,
-            beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-                input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+            beregning = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(
+                input = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Input(
                     satser = setOf(
                         SatsPeriode(
                             periode = periode,
@@ -131,7 +131,7 @@ object ArrangorflateTestUtils {
                         ),
                     ),
                 ),
-                output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                output = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Output(
                     pris = 10000.NOK,
                     deltakelser = setOf(
                         UtbetalingBeregningOutputDeltakelse(

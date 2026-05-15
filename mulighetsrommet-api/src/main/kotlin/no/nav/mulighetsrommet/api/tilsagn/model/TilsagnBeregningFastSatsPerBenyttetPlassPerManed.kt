@@ -7,34 +7,33 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 
 @Serializable
-@SerialName("PRIS_PER_MANEDSVERK")
-data class TilsagnBeregningPrisPerManedsverk(
+@SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
+data class TilsagnBeregningFastSatsPerBenyttetPlassPerManed(
     override val input: Input,
     override val output: Output,
 ) : TilsagnBeregning() {
 
     @Serializable
-    @SerialName("PRIS_PER_MANEDSVERK")
+    @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
     data class Input(
         val periode: Periode,
         val sats: ValutaBelop,
         val antallPlasser: Int,
-        val prisbetingelser: String?,
     ) : TilsagnBeregningInput()
 
     @Serializable
-    @SerialName("PRIS_PER_MANEDSVERK")
+    @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
     data class Output(
         override val pris: ValutaBelop,
     ) : TilsagnBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): TilsagnBeregningPrisPerManedsverk {
+        fun beregn(input: Input): TilsagnBeregningFastSatsPerBenyttetPlassPerManed {
             val (periode, sats, antallPlasser) = input
 
             val belop = UtbetalingBeregningHelpers.calculateManedsverkBelop(periode, sats, antallPlasser)
 
-            return TilsagnBeregningPrisPerManedsverk(input, Output(pris = belop))
+            return TilsagnBeregningFastSatsPerBenyttetPlassPerManed(input, Output(pris = belop))
         }
     }
 }

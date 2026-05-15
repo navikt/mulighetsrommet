@@ -14,14 +14,14 @@ import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.withValuta
@@ -204,15 +204,15 @@ private fun ExcelWorkbookBuilder.createUtbetalingerSheet(
 }
 
 private fun getDeltakelser(beregning: UtbetalingBeregning): Set<UtbetalingBeregningOutputDeltakelse> = when (beregning) {
-    is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-    is UtbetalingBeregningPrisPerHeleUkesverk,
-    is UtbetalingBeregningPrisPerManedsverk,
-    is UtbetalingBeregningPrisPerUkesverk,
+    is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
+    is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+    is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+    is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
     -> beregning.output.deltakelser()
 
     is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
     is UtbetalingBeregningFri,
-    is UtbetalingBeregningPrisPerTimeOppfolging,
+    is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
     -> setOf()
 }
 

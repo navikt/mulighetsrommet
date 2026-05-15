@@ -3,12 +3,12 @@ package no.nav.mulighetsrommet.api.arrangorflate.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflatePersonalia
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.DataDetails
@@ -68,13 +68,13 @@ data class ArrangorflateTilsagnDto(
 
 private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetails {
     val entries = when (tilsagn.beregning) {
-        is TilsagnBeregningFri -> listOf(
+        is TilsagnBeregningAnnenAvtaltPris -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.pris),
             LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
-        is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> listOf(
+        is TilsagnBeregningFastSatsPerBenyttetPlassPerManed -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
             LabeledDataElement.money("Sats per tiltaksplass per måned", tilsagn.beregning.input.sats),
@@ -82,7 +82,7 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetail
             LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
-        is TilsagnBeregningPrisPerManedsverk -> listOf(
+        is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
             LabeledDataElement.money("Avtalt månedspris per tiltaksplass", tilsagn.beregning.input.sats),
@@ -90,7 +90,7 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetail
             LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
-        is TilsagnBeregningPrisPerUkesverk -> listOf(
+        is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
             LabeledDataElement.money("Avtalt ukespris per tiltaksplass", tilsagn.beregning.input.sats),
@@ -98,7 +98,7 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetail
             LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
-        is TilsagnBeregningPrisPerHeleUkesverk -> listOf(
+        is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
             LabeledDataElement.money("Avtalt ukespris per tiltaksplass", tilsagn.beregning.input.sats),
@@ -106,7 +106,7 @@ private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetail
             LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
         )
 
-        is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> listOf(
+        is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.number("Antall plasser", tilsagn.beregning.input.antallPlasser),
             LabeledDataElement.money("Pris per time oppfølging", tilsagn.beregning.input.sats),

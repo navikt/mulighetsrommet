@@ -81,24 +81,24 @@ object AvtaleDboMapper {
 
 fun Prismodell.prisbetingelser(): String? = when (this) {
     is Prismodell.AnnenAvtaltPris -> prisbetingelser
-    is Prismodell.AvtaltPrisPerManedsverk -> prisbetingelser
-    is Prismodell.AvtaltPrisPerUkesverk -> prisbetingelser
-    is Prismodell.AvtaltPrisPerHeleUkesverk -> prisbetingelser
+    is Prismodell.AvtaltPrisPerBenyttetPlassPerManed -> prisbetingelser
+    is Prismodell.AvtaltPrisPerBenyttetPlassPerUke -> prisbetingelser
+    is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke -> prisbetingelser
     is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
-    is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
-    is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> null
+    is Prismodell.FastSatsPerBenyttetPlassPerManed -> null
+    is Prismodell.FastSatsPerAvtaltPlassPerManed -> null
     is Prismodell.TilskuddTilOpplaering -> tilleggsopplysninger
     is Prismodell.IngenKostnader -> tilleggsopplysninger
 }
 
 fun Prismodell.satser(): List<AvtaltSats> = when (this) {
     is Prismodell.AnnenAvtaltPris -> emptyList()
-    is Prismodell.AvtaltPrisPerManedsverk -> satser
-    is Prismodell.AvtaltPrisPerUkesverk -> satser
-    is Prismodell.AvtaltPrisPerHeleUkesverk -> satser
+    is Prismodell.AvtaltPrisPerBenyttetPlassPerManed -> satser
+    is Prismodell.AvtaltPrisPerBenyttetPlassPerUke -> satser
+    is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke -> satser
     is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> satser
-    is Prismodell.ForhandsgodkjentPrisPerManedsverk -> satser
-    is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> satser
+    is Prismodell.FastSatsPerBenyttetPlassPerManed -> satser
+    is Prismodell.FastSatsPerAvtaltPlassPerManed -> satser
     is Prismodell.TilskuddTilOpplaering -> listOf()
     is Prismodell.IngenKostnader -> listOf()
 }
