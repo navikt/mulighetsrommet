@@ -55,8 +55,8 @@ object PrisPerHeleUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPri
 
     override fun beregn(
         gjennomforing: GjennomforingAvtale,
-        deltakere: List<Deltaker>,
         periode: Periode,
+        deltakere: List<Deltaker>,
     ): UtbetalingBeregningPrisPerHeleUkesverk {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)

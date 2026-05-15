@@ -38,8 +38,8 @@ object PrisPerManedBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisP
 
     override fun beregn(
         gjennomforing: GjennomforingAvtale,
-        deltakere: List<Deltaker>,
         periode: Periode,
+        deltakere: List<Deltaker>,
     ): UtbetalingBeregningPrisPerManedsverk {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)

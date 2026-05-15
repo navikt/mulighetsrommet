@@ -11,5 +11,5 @@ interface SystemgenerertPrismodell<B : UtbetalingBeregning> {
 
     fun justerPeriodeForBeregning(periode: Periode): Periode = periode
 
-    fun beregn(gjennomforing: GjennomforingAvtale, deltakere: List<Deltaker>, periode: Periode): B
+    fun beregn(gjennomforing: GjennomforingAvtale, periode: Periode, deltakere: List<Deltaker>): B
 }

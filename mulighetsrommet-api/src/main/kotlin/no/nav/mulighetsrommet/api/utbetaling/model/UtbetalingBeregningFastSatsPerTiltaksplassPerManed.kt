@@ -39,8 +39,8 @@ object FastSatsPerTiltaksplassPerManedBeregning :
 
     override fun beregn(
         gjennomforing: GjennomforingAvtale,
-        deltakere: List<Deltaker>,
         periode: Periode,
+        deltakere: List<Deltaker>,
     ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)
