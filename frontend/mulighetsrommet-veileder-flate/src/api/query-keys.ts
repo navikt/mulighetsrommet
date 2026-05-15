@@ -1,4 +1,4 @@
-import { JoyrideType, LagretFilterType } from "@api-client";
+import { LagretFilterType } from "@api-client";
 
 export const QueryKeys = {
   Veilederdata: "veilederdata",
@@ -20,7 +20,6 @@ export const QueryKeys = {
   },
   navRegioner: ["navRegioner"],
   oppskrifter: (tiltakstypeId: string) => [tiltakstypeId, "oppskrifter"],
-  harFullfortJoyride: (joyrideType: JoyrideType) => [joyrideType, "joyride"],
   overordnetEnhet: (enhetsnummer: string) => ["overordnetEnhet", enhetsnummer],
   behandlingAvPersonopplysninger: (avtaleId?: string) => [
     "behandlingAvPersonopplysninger",

@@ -10,7 +10,6 @@ import { useDeltMedBruker } from "@/apps/modia/hooks/useDeltMedBruker";
 import { useModiaContext } from "@/apps/modia/hooks/useModiaContext";
 import { useVeilederdata } from "@/apps/modia/hooks/useVeilederdata";
 import { BrukerKvalifisererIkkeVarsel } from "@/apps/modia/varsler/BrukerKvalifisererIkkeVarsel";
-import { DetaljerJoyride } from "@/components/joyride/DetaljerJoyride";
 import { PameldingForGruppetiltak } from "@/components/pamelding/PameldingForGruppetiltak";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { SidemenyLenker } from "@/components/sidemeny/SidemenyLenker";
@@ -73,9 +72,6 @@ export function ModiaArbeidsmarkedstiltakDetaljer() {
               )}`}
               tekst="Gå til oversikt over aktuelle tiltak"
             />
-            <div>
-              <DetaljerJoyride />
-            </div>
           </>
         }
         brukerActions={

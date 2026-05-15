@@ -4,7 +4,6 @@ import { useAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useAlleTiltakDelt
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { Melding } from "@/components/melding/Melding";
 import { FilterMenu } from "@/components/filtrering/FilterMenu";
-import { OversiktenJoyride } from "@/components/joyride/OversiktenJoyride";
 import { ArbeidsmarkedstiltakList } from "@/components/oversikt/ArbeidsmarkedstiltakList";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import {
@@ -43,11 +42,7 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
         nullstillFilterButton={
           filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />
         }
-        buttons={
-          <>
-            <OversiktenJoyride />
-          </>
-        }
+        buttons={null}
         filter={<FilterMenu />}
         tags={<ModiaFilterTags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
         table={
