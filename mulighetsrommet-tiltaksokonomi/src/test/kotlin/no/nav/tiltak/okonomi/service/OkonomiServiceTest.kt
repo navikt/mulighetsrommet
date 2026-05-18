@@ -59,6 +59,7 @@ import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
 import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.intellij.lang.annotations.Language
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -755,9 +756,9 @@ private fun createOpprettBestilling(bestillingsnummer: String, organisasjonsnumm
     avtalenummer = null,
     belop = 1000,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-    behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+    behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-    besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+    besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
     kostnadssted = NavEnhetNummer("0400"),
     valuta = Valuta.NOK,
@@ -779,9 +780,9 @@ private fun createBestilling(
         status = status,
         opprettelse = Bestilling.Totrinnskontroll(
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
         ),
         annullering = null,
         linjer = listOf(
@@ -798,9 +799,9 @@ private fun createBestilling(
 private fun createAnnullerBestilling(bestillingsnummer: String) = AnnullerBestilling(
     bestillingsnummer = bestillingsnummer,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-    behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+    behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-    besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+    besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
 )
 
 private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: String) = OpprettFaktura(
@@ -813,9 +814,9 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
     belop = 1000,
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-    behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+    behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-    besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+    besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     gjorOppBestilling = false,
     beskrivelse = "Beskrivelse",
     valuta = Valuta.NOK,
@@ -824,7 +825,7 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
 private fun createGjorOppBestilling(bestillingsnummer: String) = GjorOppBestilling(
     bestillingsnummer = bestillingsnummer,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-    behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+    behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-    besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+    besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
 )

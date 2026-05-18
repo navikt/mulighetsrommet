@@ -10,6 +10,7 @@ import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettFaktura
+import java.time.Instant
 import java.time.LocalDate
 
 class FakturaTest : FunSpec({
@@ -25,9 +26,9 @@ class FakturaTest : FunSpec({
             belop = 1000,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
-            besluttetTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
+            besluttetTidspunkt = Instant.parse("2025-02-01T00:00:00Z"),
             gjorOppBestilling = false,
             beskrivelse = "Beskrivelse",
             valuta = Valuta.NOK,
@@ -55,9 +56,9 @@ class FakturaTest : FunSpec({
             faktura.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
             faktura.status shouldBe FakturaStatusType.SENDT
             faktura.behandletAv shouldBe OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
-            faktura.behandletTidspunkt shouldBe LocalDate.of(2025, 1, 1).atStartOfDay()
+            faktura.behandletTidspunkt shouldBe Instant.parse("2025-01-01T00:00:00Z")
             faktura.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavIdent("Z123456"))
-            faktura.besluttetTidspunkt shouldBe LocalDate.of(2025, 2, 1).atStartOfDay()
+            faktura.besluttetTidspunkt shouldBe Instant.parse("2025-02-01T00:00:00Z")
         }
 
         test("utleder fakturalinje basert på fakturaens periode og bestillingens linjer") {

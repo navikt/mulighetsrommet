@@ -9,7 +9,7 @@ import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.helpers.divideBelopByMonthsInPeriode
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class Bestilling(
     val tiltakskode: Tiltakskode,
@@ -28,9 +28,9 @@ data class Bestilling(
 ) {
     data class Totrinnskontroll(
         val behandletAv: OkonomiPart,
-        val behandletTidspunkt: LocalDateTime,
+        val behandletTidspunkt: Instant,
         val besluttetAv: OkonomiPart,
-        val besluttetTidspunkt: LocalDateTime,
+        val besluttetTidspunkt: Instant,
     )
 
     data class Linje(

@@ -1,15 +1,15 @@
 package no.nav.tiltak.okonomi
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
-import java.time.LocalDateTime
+import no.nav.mulighetsrommet.serializers.InstantOrLocalDateTimeSerializer
+import java.time.Instant
 
 @Serializable
 data class FakturaStatus(
     val fakturanummer: String,
     val status: FakturaStatusType,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val fakturaStatusSistOppdatert: LocalDateTime,
+    @Serializable(with = InstantOrLocalDateTimeSerializer::class)
+    val fakturaStatusSistOppdatert: Instant,
 )
 
 enum class FakturaStatusType {

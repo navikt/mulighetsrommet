@@ -78,8 +78,8 @@ import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.UUID
 
@@ -1681,7 +1681,7 @@ class UtbetalingServiceTest : FunSpec({
         }
 
         test("skal ikke prosessere fakturastatus eldre enn sist oppdatert") {
-            val lagretFakturaStatusSistOppdatert = LocalDateTime.of(2026, 1, 1, 0, 0, 0)
+            val lagretFakturaStatusSistOppdatert = Instant.parse("2026-01-01T00:00:00Z")
             val linje = utbetalingLinje1.copy(
                 status = UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
                 fakturanummer = "2025-abc-1",
@@ -1704,7 +1704,7 @@ class UtbetalingServiceTest : FunSpec({
             service.oppdaterFakturaStatus(
                 linje.fakturanummer,
                 FakturaStatusType.FEILET,
-                lagretFakturaStatusSistOppdatert.minusMinutes(1),
+                lagretFakturaStatusSistOppdatert.minusSeconds(60),
             ).status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
 
             database.run {
@@ -1722,7 +1722,7 @@ class UtbetalingServiceTest : FunSpec({
         }
 
         test("skal oppdatere utbetaling endringslogg når faktura status er utbetalt") {
-            val lagretFakturaStatusSistOppdatert = LocalDateTime.of(2026, 1, 1, 0, 0, 0)
+            val lagretFakturaStatusSistOppdatert = Instant.parse("2026-01-01T00:00:00Z")
             val linje = utbetalingLinje1.copy(
                 status = UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
                 fakturanummer = "2025-abc-1",
@@ -1742,7 +1742,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val fakturaStatusEndretTidspunkt = lagretFakturaStatusSistOppdatert.plusMinutes(1)
+            val fakturaStatusEndretTidspunkt = lagretFakturaStatusSistOppdatert.plusSeconds(60)
             service.oppdaterFakturaStatus(
                 linje.fakturanummer,
                 FakturaStatusType.FULLT_BETALT,
@@ -1764,7 +1764,7 @@ class UtbetalingServiceTest : FunSpec({
         }
 
         test("skal ikke oppdatere utbetaling endringslogg når utbetalingslinje allerede er utbetalt") {
-            val lagretFakturaStatusSistOppdatert = LocalDateTime.of(2026, 1, 1, 0, 0, 0)
+            val lagretFakturaStatusSistOppdatert = Instant.parse("2026-01-01T00:00:00Z")
             val linje = utbetalingLinje1.copy(
                 status = UtbetalingLinjeStatus.UTBETALT,
                 fakturanummer = "2025-abc-1",
@@ -1784,7 +1784,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val fakturaStatusEndretTidspunkt = lagretFakturaStatusSistOppdatert.plusMinutes(1)
+            val fakturaStatusEndretTidspunkt = lagretFakturaStatusSistOppdatert.plusSeconds(60)
             service.oppdaterFakturaStatus(
                 linje.fakturanummer,
                 FakturaStatusType.FULLT_BETALT,
@@ -1802,7 +1802,7 @@ class UtbetalingServiceTest : FunSpec({
         }
 
         test("skal oppdatere utbetaling status til delvis hvis minst en utbetalingslinje er utbetalt") {
-            val lagretFakturaStatusSistOppdatert = LocalDateTime.of(2026, 1, 1, 0, 0, 0)
+            val lagretFakturaStatusSistOppdatert = Instant.parse("2026-01-01T00:00:00Z")
             val linje1 = utbetalingLinje1.copy(
                 status = UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
                 fakturanummer = "2025-abc-1",
@@ -1829,7 +1829,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val fakturaStatusEndretTidspunkt = lagretFakturaStatusSistOppdatert.plusMinutes(1)
+            val fakturaStatusEndretTidspunkt = lagretFakturaStatusSistOppdatert.plusSeconds(60)
             service.oppdaterFakturaStatus(
                 linje1.fakturanummer,
                 FakturaStatusType.FULLT_BETALT,

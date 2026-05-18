@@ -42,6 +42,7 @@ import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.plugins.AppRoles
 import no.nav.tiltak.okonomi.withTestApplication
 import org.intellij.lang.annotations.Language
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -58,9 +59,9 @@ class OebsRoutesTest : FunSpec({
             avtalenummer = null,
             belop = 1000,
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             kostnadssted = NavEnhetNummer("0400"),
             valuta = Valuta.NOK,
@@ -78,9 +79,9 @@ class OebsRoutesTest : FunSpec({
             belop = 1000,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            besluttetTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             gjorOppBestilling = false,
             beskrivelse = null,
             valuta = Valuta.NOK,

@@ -4,6 +4,9 @@ import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.model.OebsKontering
+import java.time.ZoneId
+
+private val osloZone = ZoneId.of("Europe/Oslo")
 
 object OebsMeldingMapper {
     fun toOebsBestillingMelding(
@@ -25,7 +28,7 @@ object OebsMeldingMapper {
         return OebsBestillingMelding(
             kilde = OebsKilde.TILTADM,
             bestillingsNummer = bestilling.bestillingsnummer,
-            opprettelsesTidspunkt = bestilling.opprettelse.besluttetTidspunkt,
+            opprettelsesTidspunkt = bestilling.opprettelse.besluttetTidspunkt.atZone(osloZone).toLocalDateTime(),
             bestillingsType = OebsBestillingType.NY,
             selger = selger,
             rammeavtaleNummer = bestilling.avtalenummer,
@@ -49,7 +52,7 @@ object OebsMeldingMapper {
     ): OebsAnnulleringMelding {
         return OebsAnnulleringMelding(
             bestillingsNummer = bestilling.bestillingsnummer,
-            opprettelsesTidspunkt = annullerBestilling.besluttetTidspunkt,
+            opprettelsesTidspunkt = annullerBestilling.besluttetTidspunkt.atZone(osloZone).toLocalDateTime(),
             kilde = OebsKilde.TILTADM,
             bestillingsType = OebsBestillingType.ANNULLER,
             selger = OebsAnnulleringMelding.Selger(
@@ -77,13 +80,13 @@ object OebsMeldingMapper {
         return OebsFakturaMelding(
             kilde = OebsKilde.TILTADM,
             fakturaNummer = faktura.fakturanummer,
-            opprettelsesTidspunkt = faktura.besluttetTidspunkt,
+            opprettelsesTidspunkt = faktura.besluttetTidspunkt.atZone(osloZone).toLocalDateTime(),
             organisasjonsNummer = bestilling.arrangorHovedenhet.value,
             bedriftsNummer = bestilling.arrangorUnderenhet.value,
             totalSum = faktura.belop,
             saksbehandler = faktura.behandletAv.part,
             bdmGodkjenner = faktura.besluttetAv.part,
-            fakturaDato = faktura.besluttetTidspunkt.toLocalDate(),
+            fakturaDato = faktura.besluttetTidspunkt.atZone(osloZone).toLocalDate(),
             betalingsKanal = faktura.betalingsinformasjon?.betalingsKanal ?: OebsBetalingskanal.BBAN,
             bankKontoNummer = faktura.betalingsinformasjon?.kontonummer?.value ?: faktura.betalingsinformasjon?.iban,
             kidNummer = faktura.betalingsinformasjon?.kid?.value,
