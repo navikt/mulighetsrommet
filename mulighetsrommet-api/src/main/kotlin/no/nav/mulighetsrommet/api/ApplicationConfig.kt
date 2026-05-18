@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import java.util.Properties
 import java.util.UUID
+import kotlin.String
 
 data class AppConfig(
     val engine: HttpClientEngine = CIO.create(),
@@ -130,6 +131,11 @@ class KafkaClients(
         id = "handter-gjennomforing-request",
         topic = "team-mulighetsrommet.gjennomforing-request-v1",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.handter-gjennomforing-request.v1"),
+    )
+    var tilskuddArrangorUtbetaling: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "tilskudd-arrangor-utbetaling",
+        topic = "team-mulighetsrommet.totrinnskontroll-v1",
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.tilskudd-arrangor-utbetaling.v1"),
     )
     var replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "replicate-bestilling-status",

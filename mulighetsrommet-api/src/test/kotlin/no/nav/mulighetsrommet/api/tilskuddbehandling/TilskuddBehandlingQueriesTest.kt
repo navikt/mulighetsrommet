@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
@@ -137,6 +138,22 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.vedtakResultat.type shouldBe VedtakResultat.AVSLAG
                     }
                 }
+            }
+        }
+    }
+
+    test("utbetaling_id kan settes") {
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            val tilskudd = behandling.tilskudd[0]
+            queries.tilskuddBehandling.upsert(behandling)
+            queries.utbetaling.upsert(UtbetalingFixtures.utbetaling1)
+
+            queries.tilskuddBehandling.setUtbetaling(tilskudd.id, UtbetalingFixtures.utbetaling1.id)
+
+            queries.utbetaling.getByTilskudd(tilskudd.id) should {
+                it!!.id shouldBe UtbetalingFixtures.utbetaling1.id
             }
         }
     }
