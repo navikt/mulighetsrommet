@@ -27,7 +27,7 @@ export function TabWithErrorBorder(props: Props) {
           </span>
         ) : (
           <HStack gap="space-4" align="center">
-            {icon && icon}
+            {icon}
             {label}
           </HStack>
         )
