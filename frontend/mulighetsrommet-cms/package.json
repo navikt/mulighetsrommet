@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@types/react": "19.2.14",
-    "postcss": "8.5.13",
+    "postcss": "8.5.14",
     "sass-embedded": "1.99.0"
   }
 }
