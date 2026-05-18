@@ -221,7 +221,7 @@ class UtbetalingService(
         id: UUID,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        validateAccessAndLockUtbetaling(id, navIdent).flatMap { (utbetaling, linje) ->
+        validateAccessAndLockUtbetaling(id, navIdent).flatMap { (_, linje) ->
             godkjennUtbetalingLinje(linje, navIdent)
         }
     }
