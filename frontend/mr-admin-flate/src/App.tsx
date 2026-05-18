@@ -60,6 +60,7 @@ import { AvtaleRedaksjoneltInnhold } from "@/pages/avtaler/AvtaleRedaksjoneltInn
 import { TilskuddBehandlingDetaljerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingDetaljerPage";
 import { TilskuddBehandlingFormPage } from "./pages/tilskudd-behandling/TilskuddBehandlingFormPage";
 import { TilskuddBehandlingerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingerPage";
+import { isProduction } from "./environment";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -77,6 +78,18 @@ if (import.meta.env.VITE_FARO_URL) {
   });
 }
 
+const SPORING_SRC = isProduction()
+  ? "https://cdn.nav.no/team-researchops/sporing/sporing.js"
+  : "https://cdn.nav.no/team-researchops/sporing/sporing-dev.js";
+
+const SPORING_WEBSITE_ID = isProduction()
+  ? "182ed73a-eaa9-4ea0-9e30-7a0a74c5c396"
+  : "7b4a1f84-e34c-46d9-ae4a-de244d3c9ea9";
+
+const SPORING_DATA_DOMAINS = isProduction()
+  ? "tiltaksadministrasjon.intern.nav.no, tiltaksadministrasjon.ansatt.nav.no"
+  : "tiltaksadministrasjon.intern.dev.nav.no";
+
 export function App() {
   const router = createBrowserRouter(routes, { basename });
   return <RouterProvider router={router} />;
@@ -88,17 +101,9 @@ function AppLayout() {
       <Head>
         <script
           defer
-          src="https://cdn.nav.no/team-researchops/sporing/sporing.js"
-          data-host-url="https://umami.nav.no"
-          data-domains="tiltaksadministrasjon.intern.dev.nav.no"
-          data-website-id="7b4a1f84-e34c-46d9-ae4a-de244d3c9ea9"
-        />
-        <script
-          defer
-          src="https://cdn.nav.no/team-researchops/sporing/sporing.js"
-          data-host-url="https://umami.nav.no"
-          data-domains="tiltaksadministrasjon.intern.nav.no, tiltaksadministrasjon.ansatt.nav.no"
-          data-website-id="182ed73a-eaa9-4ea0-9e30-7a0a74c5c396"
+          src={SPORING_SRC}
+          data-website-id={SPORING_WEBSITE_ID}
+          data-domains={SPORING_DATA_DOMAINS}
         />
       </Head>
       <Theme theme="light" hasBackground={false}>
