@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
@@ -209,6 +210,7 @@ private fun getDeltakelser(beregning: UtbetalingBeregning): Set<UtbetalingBeregn
     is UtbetalingBeregningPrisPerUkesverk,
     -> beregning.output.deltakelser()
 
+    is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
     is UtbetalingBeregningFri,
     is UtbetalingBeregningPrisPerTimeOppfolging,
     -> setOf()

@@ -108,7 +108,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
         }
     }
 
-    context("beregning for fast sats per tiltaksplass per måned") {
+    context("beregning for Fast sats per benyttet tiltaksplass per måned") {
         test("beløp beregnes fra månedsverk til deltakere og sats") {
             val periodeStart = LocalDate.of(2023, 6, 1)
             val periodeMidt = LocalDate.of(2023, 6, 16)

@@ -52,6 +52,18 @@ object PrismodellFixtures {
         tilsagnPerDeltaker = false,
     )
 
+    val ForhandsgodkjentTilpassetJobbstotte = PrismodellDbo(
+        id = UUID.randomUUID(),
+        systemId = Tiltakskode.TILPASSET_JOBBSTOTTE.name,
+        type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
+        valuta = Valuta.NOK,
+        prisbetingelser = null,
+        satser = listOf(
+            AvtaltSats(LocalDate.of(2025, 1, 1), 7_321.NOK),
+        ),
+        tilsagnPerDeltaker = false,
+    )
+
     val AvtaltPrisPerTimeOppfolging = createPrismodellDbo(
         type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
         satser = listOf(

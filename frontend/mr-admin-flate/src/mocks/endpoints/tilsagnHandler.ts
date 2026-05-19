@@ -99,7 +99,7 @@ const beregning: TilsagnBeregningDto = {
         label: "Prismodell",
         value: {
           type: "DATA_ELEMENT_TEXT",
-          value: "Fast sats per tiltaksplass per måned",
+          value: "Fast sats per benyttet tiltaksplass per måned",
           format: null,
         },
       },

@@ -317,7 +317,7 @@ class AvtaleServiceTest : FunSpec({
                 .shouldContain(
                     FieldError(
                         "/prismodeller",
-                        "Prismodell kan ikke opprettes med typen Fast sats per tiltaksplass per måned",
+                        "Prismodell kan ikke opprettes med typen Fast sats per benyttet tiltaksplass per måned",
                     ),
                 )
 

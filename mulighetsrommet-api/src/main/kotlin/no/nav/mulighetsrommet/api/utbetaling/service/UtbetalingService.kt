@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
@@ -523,6 +524,7 @@ class UtbetalingService(
                 is UtbetalingBeregningPrisPerUkesverk,
                 is UtbetalingBeregningPrisPerHeleUkesverk,
                 is UtbetalingBeregningPrisPerTimeOppfolging,
+                is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
                 -> AutomatisertUtbetalingResult.FEIL_PRISMODELL
 
                 is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,

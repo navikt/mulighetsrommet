@@ -85,6 +85,7 @@ import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerDeltakerKafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerFakturaStatusConsumer
+import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerAvtaltTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
@@ -484,6 +485,7 @@ private fun services(appConfig: AppConfig) = module {
             utbetalingService = get(),
             prismodeller = setOf(
                 FastSatsPerTiltaksplassPerManedBeregning,
+                FastSatsPerAvtaltTiltaksplassPerManedBeregning,
                 PrisPerManedBeregning,
                 PrisPerUkeBeregning,
                 PrisPerHeleUkeBeregning,

@@ -38,6 +38,7 @@ object ArrangorflateUtbetalingValidator {
             PrismodellType.ANNEN_AVTALT_PRIS,
             -> opprettKravPeriodeSluttDato
 
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,

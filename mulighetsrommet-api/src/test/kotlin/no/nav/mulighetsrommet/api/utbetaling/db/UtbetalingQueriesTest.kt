@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
@@ -654,6 +655,42 @@ class UtbetalingQueriesTest : FunSpec({
                         ),
                     )
                 }
+            }
+        }
+    }
+
+    context("utbetaling med beregning for fast sats per avtalt tiltaksplass per måned") {
+        test("upsert and get beregning") {
+            database.runAndRollback { session ->
+                domain.setup(session)
+
+                val tilsagnId = Tilsagn1.id
+                val beregning = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed(
+                    input = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.Input(
+                        tilsagn = listOf(
+                            UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.TilsagnInput(
+                                tilsagnId = tilsagnId,
+                                periode = Tilsagn1.periode,
+                                beregnetBelop = 1000.NOK,
+                                gjenstaendeBelop = 1000.NOK,
+                            ),
+                        ),
+                    ),
+                    output = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.Output(
+                        pris = 1000.NOK,
+                        tilsagnBidrag = listOf(
+                            UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.TilsagnBidrag(
+                                tilsagnId = tilsagnId,
+                                periode = periode,
+                                bidrag = 1000.NOK,
+                            ),
+                        ),
+                    ),
+                )
+
+                queries.utbetaling.upsert(utbetaling.copy(beregning = beregning))
+
+                queries.utbetaling.getOrError(utbetaling.id).beregning shouldBe beregning
             }
         }
     }

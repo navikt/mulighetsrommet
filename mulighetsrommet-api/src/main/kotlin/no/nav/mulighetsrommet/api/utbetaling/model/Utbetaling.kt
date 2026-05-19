@@ -48,6 +48,7 @@ data class Utbetaling(
     fun arrangorInnsendtAnnenAvtaltPris(): Boolean {
         return when (beregning) {
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
             is UtbetalingBeregningPrisPerHeleUkesverk,
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningPrisPerTimeOppfolging,

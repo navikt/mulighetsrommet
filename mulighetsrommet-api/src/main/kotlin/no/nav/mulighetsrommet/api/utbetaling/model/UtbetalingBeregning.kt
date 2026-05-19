@@ -292,6 +292,37 @@ object UtbetalingBeregningHelpers {
         return UtbetalingBeregningOutputDeltakelse(deltakelseId, perioderOutput)
     }
 
+    fun distributeAmountByMonthsInPeriode(amount: Int, periode: Periode): List<Pair<Periode, Int>> {
+        val months = periode.splitByMonth()
+
+        val monthsFractions = months.map { getMonthsFraction(it) }
+        val totalMonths = monthsFractions.sumOf { it }
+        val exactAmountPerMonth = monthsFractions.map { fraction ->
+            BigDecimal(amount).multiply(fraction).divide(totalMonths, CALCULATION_PRECISION, RoundingMode.HALF_UP)
+        }
+        val flooredAmountPerMonth = exactAmountPerMonth.map { it.setScale(0, RoundingMode.FLOOR).intValueExact() }
+
+        // Fordel restbeløp med "største brøks metode" (ved lik desimal blir første periode prioritert)
+        val remainder = amount - flooredAmountPerMonth.sum()
+        val fractions = exactAmountPerMonth.map { it.remainder(BigDecimal.ONE) }
+        val sortedByFraction = fractions.indices.sortedWith(compareByDescending<Int> { fractions[it] }.thenBy { it })
+
+        val amounts = flooredAmountPerMonth.toMutableList()
+        repeat(remainder) { i -> amounts[sortedByFraction[i]]++ }
+
+        return months.zip(amounts)
+    }
+
+    fun amountForOverlap(overlap: Periode, amountByMonth: List<Pair<Periode, Int>>): Int {
+        val total = overlap.splitByMonth().fold(BigDecimal.ZERO) { acc, overlapMonth ->
+            val (month, amount) = amountByMonth.first { (p, _) -> p.intersects(overlapMonth) }
+            val fraction = getMonthsFraction(overlapMonth)
+                .divide(getMonthsFraction(month), CALCULATION_PRECISION, RoundingMode.HALF_UP)
+            acc + BigDecimal(amount) * fraction
+        }
+        return total.setScale(0, RoundingMode.FLOOR).intValueExact()
+    }
+
     private fun applyDeltakelsesprosent(
         tiltakskode: Tiltakskode,
         periode: Periode,

@@ -2,14 +2,21 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
 
-interface SystemgenerertPrismodell<B : UtbetalingBeregning> {
+sealed interface SystemgenerertPrismodell<B : UtbetalingBeregning> {
     val type: PrismodellType
     val tilskuddstype: Tilskuddstype
 
     fun justerPeriodeForBeregning(periode: Periode): Periode = periode
 
-    fun beregn(gjennomforing: GjennomforingAvtale, periode: Periode, deltakere: List<Deltaker>): B
+    interface FraDeltakelser<B : UtbetalingBeregning> : SystemgenerertPrismodell<B> {
+        fun beregn(gjennomforing: GjennomforingAvtale, periode: Periode, deltakere: List<Deltaker>): B
+    }
+
+    interface FraTilsagn<B : UtbetalingBeregning> : SystemgenerertPrismodell<B> {
+        fun beregn(gjennomforing: GjennomforingAvtale, periode: Periode, tilsagn: List<Tilsagn>): B
+    }
 }

@@ -34,8 +34,7 @@ data class UtbetalingBeregningPrisPerHeleUkesverk(
     }
 }
 
-object PrisPerHeleUkeBeregning : SystemgenerertPrismodell<UtbetalingBeregningPrisPerHeleUkesverk> {
-
+object PrisPerHeleUkeBeregning : SystemgenerertPrismodell.FraDeltakelser<UtbetalingBeregningPrisPerHeleUkesverk> {
     override val type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK
     override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 

@@ -11,7 +11,11 @@ enum class PrismodellType(val navn: String, val beskrivelse: List<String>) {
         ),
     ),
     FORHANDSGODKJENT_PRIS_PER_MANEDSVERK(
-        "Fast sats per tiltaksplass per måned",
+        "Fast sats per benyttet tiltaksplass per måned",
+        listOf(),
+    ),
+    FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS(
+        "Fast sats per avtalt tiltaksplass per måned",
         listOf(),
     ),
     AVTALT_PRIS_PER_MANEDSVERK(
@@ -50,9 +54,13 @@ object Prismodeller {
     fun getPrismodellerForTiltak(tiltakskode: Tiltakskode): List<PrismodellType> = when (tiltakskode) {
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        Tiltakskode.TILPASSET_JOBBSTOTTE,
         -> listOf(
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        )
+
+        Tiltakskode.TILPASSET_JOBBSTOTTE,
+        -> listOf(
+            PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
         )
 
         Tiltakskode.AVKLARING,

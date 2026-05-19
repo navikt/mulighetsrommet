@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
@@ -82,8 +83,6 @@ object UbetalingToPdfDocumentContentMapper {
         addStengtHosArrangorSection(utbetaling.beregning)
 
         when (utbetaling.beregning) {
-            is UtbetalingBeregningFri -> Unit
-
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
                 addDeltakelsesmengderSection(utbetaling.beregning, personalia)
             }
@@ -95,13 +94,13 @@ object UbetalingToPdfDocumentContentMapper {
             -> {
                 addDeltakerperioderSection(utbetaling.beregning.deltakelsePerioder(), personalia)
             }
+
+            is UtbetalingBeregningFri,
+            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
+            -> Unit
         }
 
         when (utbetaling.beregning) {
-            is UtbetalingBeregningFri -> Unit
-
-            is UtbetalingBeregningPrisPerTimeOppfolging -> Unit
-
             is UtbetalingBeregningPrisPerManedsverk,
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
             -> addDeltakelsesfaktorSection(
@@ -119,6 +118,11 @@ object UbetalingToPdfDocumentContentMapper {
                 deltakelser = utbetaling.beregning.output.deltakelser(),
                 personalia = personalia,
             )
+
+            is UtbetalingBeregningFri,
+            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
+            is UtbetalingBeregningPrisPerTimeOppfolging,
+            -> Unit
         }
     }
 }
