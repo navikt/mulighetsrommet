@@ -6027,6 +6027,12 @@ components:
           format: uuid
         visningsnavn:
           type: string
+        representerer:
+          type:
+          - "null"
+          - string
+        required:
+          type: boolean
         alternativer:
           type: array
           items:
@@ -6034,6 +6040,8 @@ components:
       required:
       - alternativer
       - id
+      - representerer
+      - required
       - visningsnavn
     Verdigruppe:
       type: object
@@ -6045,6 +6053,8 @@ components:
           format: uuid
         visningsnavn:
           type: string
+        required:
+          type: boolean
         representerer:
           type: string
         seleksjonstype:
@@ -6057,6 +6067,7 @@ components:
       - alternativer
       - id
       - representerer
+      - required
       - seleksjonstype
       - visningsnavn
     OpplaringKategoriseringResponse.Seleksjonstype:
@@ -6072,11 +6083,8 @@ components:
           format: uuid
         visningsnavn:
           type: string
-        valgt:
-          type: boolean
       required:
       - id
-      - valgt
       - visningsnavn
     VerdigruppeSok:
       type: object
@@ -6088,6 +6096,8 @@ components:
           format: uuid
         visningsnavn:
           type: string
+        required:
+          type: boolean
         representerer:
           type: string
         seleksjonstype:
@@ -6098,6 +6108,7 @@ components:
       - id
       - kilde
       - representerer
+      - required
       - seleksjonstype
       - visningsnavn
     OpplaringKategoriseringResponse.Alternativ.VerdigruppeSok.Kilde:
