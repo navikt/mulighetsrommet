@@ -6,7 +6,6 @@ import { usePrismodeller } from "@/api/avtaler/usePrismodeller";
 import { AvtalteSatserForm } from "./AvtalteSatserForm";
 import { PrismodellType, Tiltakskode, Valuta } from "@tiltaksadministrasjon/api-client";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { isProduction } from "@/environment";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormCheckbox } from "@/components/skjema/FormCheckbox";
@@ -49,7 +48,6 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
         : [{ gjelderTil: null, gjelderFra: "", pris: 0 }],
     );
   };
-  const enabledMedDeltakereCheckbox = !isProduction();
 
   return (
     <VStack gap="space-16">
@@ -99,20 +97,19 @@ export default function AvtalePrismodellForm({ tiltakskode, avtaleStartDato }: P
                     ))}
                   </FormSelect>
                 </HStack>
-                {enabledMedDeltakereCheckbox &&
-                  selectedType === PrismodellType.ANNEN_AVTALT_PRIS && (
-                    <HStack align="center" gap="space-8">
-                      <FormCheckbox<PrismodellValues>
-                        name={`prismodeller.${index}.tilsagnPerDeltaker`}
-                      >
-                        Tilsagn skal knyttes til deltakere
-                      </FormCheckbox>
-                      <HelpText title="Hva betyr dette?">
-                        Når denne er huket av må alle tilsagn kobles til en eller flere deltakere i
-                        perioden.
-                      </HelpText>
-                    </HStack>
-                  )}
+                {selectedType === PrismodellType.ANNEN_AVTALT_PRIS && (
+                  <HStack align="center" gap="space-8">
+                    <FormCheckbox<PrismodellValues>
+                      name={`prismodeller.${index}.tilsagnPerDeltaker`}
+                    >
+                      Tilsagn skal knyttes til deltakere
+                    </FormCheckbox>
+                    <HelpText title="Hva betyr dette?">
+                      Når denne er huket av må alle tilsagn kobles til en eller flere deltakere i
+                      perioden.
+                    </HelpText>
+                  </HStack>
+                )}
                 {beskrivelse &&
                   beskrivelse.map((tekst, i) => <BodyShort key={i}>{tekst}</BodyShort>)}
                 {prismodellerMedSatser.includes(type) && (

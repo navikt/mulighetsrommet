@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -85,37 +84,15 @@ class PersonaliaService(
     private suspend fun tilgangTilPerson(amtPersonalia: Set<AmtDeltakerPersonalia>, onBehalfOf: OnBehalfOf): Map<UUID, AvvistGrunn?> {
         return when (onBehalfOf) {
             is OnBehalfOf.NavAnsatt -> {
-                when (NaisEnv.current()) {
-                    NaisEnv.Local,
-                    NaisEnv.DevGCP,
-                    -> {
-                        val identer = amtPersonalia.map { it.norskIdent }
-                        val tilgangsmaskinResult = tilgangsmaskinClient.bulk(identer, onBehalfOf.token)
+                val identer = amtPersonalia.map { it.norskIdent }
+                val tilgangsmaskinResult = tilgangsmaskinClient.bulk(identer, onBehalfOf.token)
 
-                        amtPersonalia.associate { p ->
-                            val resultat = requireNotNull(tilgangsmaskinResult.resultater.find { it.brukerId == p.norskIdent.value }) {
-                                "Fant ikke deltaker i respons fra tilgangsmaskin"
-                            }
-
-                            p.deltakerId to AvvistGrunn.fromTilgangsmaskinResultat(resultat)
-                        }
+                amtPersonalia.associate { p ->
+                    val resultat = requireNotNull(tilgangsmaskinResult.resultater.find { it.brukerId == p.norskIdent.value }) {
+                        "Fant ikke deltaker i respons fra tilgangsmaskin"
                     }
 
-                    NaisEnv.ProdGCP -> amtPersonalia.associate {
-                        val grunn = when (it.adressebeskyttelse) {
-                            PdlGradering.FORTROLIG -> AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
-
-                            PdlGradering.STRENGT_FORTROLIG -> AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE
-
-                            PdlGradering.STRENGT_FORTROLIG_UTLAND -> AvvistGrunn.AVVIST_STRENGT_FORTROLIG_UTLAND
-
-                            PdlGradering.UGRADERT -> when (it.erSkjermet) {
-                                true -> AvvistGrunn.AVVIST_SKJERMING
-                                false -> null
-                            }
-                        }
-                        it.deltakerId to grunn
-                    }
+                    p.deltakerId to AvvistGrunn.fromTilgangsmaskinResultat(resultat)
                 }
             }
 
