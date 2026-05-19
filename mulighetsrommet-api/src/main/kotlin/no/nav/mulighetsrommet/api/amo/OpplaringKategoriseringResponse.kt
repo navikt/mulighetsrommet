@@ -90,6 +90,8 @@ data class OpplaringKategoriseringResponse(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID?,
             override val visningsnavn: String,
+            val representerer: String?,
+            val required: Boolean,
             val alternativer: List<Container>,
         ) : Container
 
@@ -113,6 +115,7 @@ data class OpplaringKategoriseringResponse(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID?,
             override val visningsnavn: String,
+            val required: Boolean,
             val representerer: String,
             val seleksjonstype: Seleksjonstype,
             val alternativer: List<Verdi>,
@@ -136,6 +139,7 @@ data class OpplaringKategoriseringResponse(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID?,
             override val visningsnavn: String,
+            val required: Boolean,
             val representerer: String,
             val seleksjonstype: Seleksjonstype,
             val kilde: Kilde,
@@ -164,7 +168,6 @@ data class OpplaringKategoriseringResponse(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID,
             override val visningsnavn: String,
-            val valgt: Boolean = false, // kun internt hos Komet, ikke i kodeverket
         ) : Alternativ
     }
 }
