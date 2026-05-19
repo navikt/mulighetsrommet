@@ -86,6 +86,7 @@ data class OpprettBestilling(
 enum class Tilskuddstype {
     TILTAK_DRIFTSTILSKUDD,
     TILTAK_INVESTERINGER,
+    TILTAK_OPPLAERING_TILSKUDD,
 }
 
 @Serializable
@@ -158,7 +159,7 @@ sealed class OkonomiPart(val part: String) {
         fun fromString(value: String): OkonomiPart {
             return try {
                 System(OkonomiSystem.valueOf(value))
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 NavAnsatt(NavIdent(value))
             }
         }

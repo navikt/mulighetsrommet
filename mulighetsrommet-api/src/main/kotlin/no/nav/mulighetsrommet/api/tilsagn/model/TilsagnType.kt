@@ -18,6 +18,7 @@ enum class TilsagnType {
         fun fromTilskuddstype(tilskuddstype: Tilskuddstype): List<TilsagnType> = when (tilskuddstype) {
             Tilskuddstype.TILTAK_DRIFTSTILSKUDD -> listOf(EKSTRATILSAGN, TILSAGN)
             Tilskuddstype.TILTAK_INVESTERINGER -> listOf(INVESTERING)
+            Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD -> listOf(EKSTRATILSAGN, TILSAGN)
         }
     }
 }
