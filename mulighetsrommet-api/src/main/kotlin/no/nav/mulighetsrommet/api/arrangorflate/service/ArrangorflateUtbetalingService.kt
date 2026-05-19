@@ -18,8 +18,11 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
+import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
+import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.util.UUID
@@ -43,8 +46,23 @@ class ArrangorflateUtbetalingService(
                 journalpostId = null,
                 kommentar = null,
             )
-            utbetalingService.opprettUtbetaling(utbetaling, Arrangor)
+            db.transaction { utbetalingService.opprettUtbetaling(utbetaling, Arrangor) }
         }
+    }
+
+    fun godkjentAvArrangor(
+        utbetalingId: UUID,
+        kid: Kid?,
+    ): Either<List<FieldError>, AutomatisertUtbetalingResult> = db.transaction {
+        utbetalingService.godkjentAvArrangor(utbetalingId, kid)
+    }
+
+    fun avbrytUtbetaling(
+        utbetalingId: UUID,
+        begrunnelse: String,
+        agent: Agent,
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        utbetalingService.avbrytUtbetaling(utbetalingId, begrunnelse, agent)
     }
 
     fun getAvtaltPrisPerTimeOppfolgingData(gjennomforingId: UUID, periode: Periode): AvtaltPrisPerTimeOppfolgingData = db.session {

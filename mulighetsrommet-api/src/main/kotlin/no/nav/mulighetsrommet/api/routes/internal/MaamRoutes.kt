@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
-import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordDbo
@@ -44,7 +44,7 @@ fun Route.maamRoutes() {
     val db: ApiDatabase by inject()
     val arrangor: ArrangorService by inject()
     val tilsagnService: TilsagnService by inject()
-    val utbetalingService: UtbetalingService by inject()
+    val utbetalingService: AdminUtbetalingService by inject()
 
     val initialLoadGjennomforinger: InitialLoadGjennomforinger by inject()
     val initialLoadTiltakstyper: InitialLoadTiltakstyper by inject()

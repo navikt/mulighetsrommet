@@ -41,11 +41,11 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
-import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.database.utils.map
@@ -105,7 +105,7 @@ suspend fun RoutingContext.requireTilgangHosArrangor(
 
 fun Route.arrangorflateRoutes(config: AppConfig) {
     val db: ApiDatabase by inject()
-    val utbetalingService: UtbetalingService by inject()
+    val utbetalingService: ArrangorflateUtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
     val arrangorflateService: ArrangorflateService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()

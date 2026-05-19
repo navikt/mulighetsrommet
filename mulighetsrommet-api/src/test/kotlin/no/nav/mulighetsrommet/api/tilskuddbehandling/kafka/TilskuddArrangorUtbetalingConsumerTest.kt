@@ -120,7 +120,6 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
                 bestillingTopic = BESTILLING_TOPIC,
                 tidligstTidspunktForUtbetaling = { _, _ -> null },
             ),
-            db = database.db,
             tilsagnService = tilsagnService,
             journalforUtbetaling = mockk(relaxed = true),
             arrangorService = arrangorService,

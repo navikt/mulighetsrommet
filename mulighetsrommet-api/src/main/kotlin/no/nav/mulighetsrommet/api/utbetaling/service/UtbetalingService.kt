@@ -11,7 +11,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.common.kafka.util.KafkaUtils
-import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
@@ -80,7 +79,6 @@ import java.util.UUID
 
 class UtbetalingService(
     private val config: Config,
-    private val db: ApiDatabase,
     private val tilsagnService: TilsagnService,
     private val arrangorService: ArrangorService,
     private val journalforUtbetaling: JournalforUtbetaling,
@@ -93,32 +91,31 @@ class UtbetalingService(
 
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
+    context(tx: TransactionalQueryContext)
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         kid: Kid?,
-    ): Either<List<FieldError>, AutomatisertUtbetalingResult> {
-        val utbetaling = db.transaction {
-            val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
-            if (utbetaling.status != UtbetalingStatusType.GENERERT) {
-                return FieldError.of("Utbetaling er allerede godkjent").nel().left()
-            }
-
-            queries.utbetaling.setInnsendtAvArrangor(utbetalingId, LocalDateTime.now())
-            queries.utbetaling.setKid(utbetalingId, kid)
-            queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.TIL_BEHANDLING)
-
-            scheduleJournalforUtbetaling(utbetalingId, vedlegg = emptyList())
-
-            logEndring("Utbetaling sendt inn", utbetalingId, Arrangor)
+    ): Either<List<FieldError>, AutomatisertUtbetalingResult> = with(tx) {
+        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
+        if (utbetaling.status != UtbetalingStatusType.GENERERT) {
+            return FieldError.of("Utbetaling er allerede godkjent").nel().left()
         }
 
-        return tryAutomatisertUtbetaling(utbetaling).right()
+        queries.utbetaling.setInnsendtAvArrangor(utbetalingId, LocalDateTime.now())
+        queries.utbetaling.setKid(utbetalingId, kid)
+        queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.TIL_BEHANDLING)
+
+        scheduleJournalforUtbetaling(utbetalingId, vedlegg = emptyList())
+
+        val updatedUtbetaling = logEndring("Utbetaling sendt inn", utbetalingId, Arrangor)
+        return tryAutomatisertUtbetaling(updatedUtbetaling).right()
     }
 
+    context(tx: TransactionalQueryContext)
     suspend fun opprettUtbetaling(
         opprett: UpsertUtbetaling,
         agent: Agent,
-    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+    ): Either<List<FieldError>, Utbetaling> = with(tx) {
         opprettUtbetalingInTx(opprett, agent)
     }
 
@@ -140,10 +137,11 @@ class UtbetalingService(
         }
     }
 
+    context(tx: TransactionalQueryContext)
     suspend fun redigerUtbetaling(
         rediger: UpsertUtbetaling,
         agent: Agent,
-    ): Validated<Utbetaling> = db.transaction {
+    ): Validated<Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(rediger.id)
 
         if (!kanRedigeres(utbetaling)) {
@@ -155,11 +153,12 @@ class UtbetalingService(
         }
     }
 
+    context(tx: TransactionalQueryContext)
     fun oppdaterBeregning(
         id: UUID,
         beregning: UtbetalingBeregning,
         agent: Agent,
-    ): Validated<Utbetaling> = db.transaction {
+    ): Validated<Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
 
         if (beregning == utbetaling.beregning) {
@@ -171,10 +170,11 @@ class UtbetalingService(
         logEndring("Beregning oppdatert", id, agent).right()
     }
 
+    context(tx: TransactionalQueryContext)
     fun opprettUtbetalingLinjer(
         request: OpprettUtbetalingLinjerRequest,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+    ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(request.utbetalingId)
 
         val utbetalingLinjeTilsagn = request.utbetalingLinjer.associate { req ->
@@ -226,21 +226,23 @@ class UtbetalingService(
             }
     }
 
+    context(tx: TransactionalQueryContext)
     fun godkjennUtbetalingLinje(
         id: UUID,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+    ): Either<List<FieldError>, Utbetaling> = with(tx) {
         validateAccessAndLockUtbetaling(id, navIdent).flatMap { (_, linje) ->
             godkjennUtbetalingLinje(linje, navIdent)
         }
     }
 
+    context(tx: TransactionalQueryContext)
     fun returnerUtbetalingLinje(
         id: UUID,
         aarsaker: List<UtbetalingLinjeReturnertAarsak>,
         forklaring: String?,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+    ): Either<List<FieldError>, Utbetaling> = with(tx) {
         validateAccessAndLockUtbetaling(id, navIdent).map { (_, linje) ->
             returnerUtbetalingLinje(linje, aarsaker, forklaring, navIdent)
         }
@@ -262,7 +264,8 @@ class UtbetalingService(
         Pair(utbetaling, linje)
     }
 
-    fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = db.transaction {
+    context(tx: TransactionalQueryContext)
+    fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
         when (utbetaling.status) {
             UtbetalingStatusType.RETURNERT,
@@ -292,7 +295,12 @@ class UtbetalingService(
         queries.utbetaling.delete(id).right()
     }
 
-    fun avbrytUtbetaling(utbetalingId: UUID, begrunnelse: String, agent: Agent): Either<List<FieldError>, Utbetaling> = db.transaction {
+    context(tx: TransactionalQueryContext)
+    fun avbrytUtbetaling(
+        utbetalingId: UUID,
+        begrunnelse: String,
+        agent: Agent,
+    ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
         when (utbetaling.status) {
             UtbetalingStatusType.GENERERT,
@@ -313,15 +321,17 @@ class UtbetalingService(
         logEndring("Utbetaling avbrutt", utbetaling.id, agent).right()
     }
 
-    fun republishFaktura(fakturanummer: String): UtbetalingLinje = db.transaction {
+    context(tx: TransactionalQueryContext)
+    fun republishFaktura(fakturanummer: String): UtbetalingLinje = with(tx) {
         queries.utbetalingLinje.getOrError(fakturanummer).also { publishOpprettFaktura(it) }
     }
 
+    context(tx: TransactionalQueryContext)
     fun oppdaterFakturaStatus(
         fakturanummer: String,
         nyStatus: FakturaStatusType,
         fakturaStatusEndretTidspunkt: Instant,
-    ): Utbetaling = db.transaction {
+    ): Utbetaling = with(tx) {
         val originalUtbetalingLinje = queries.utbetalingLinje.getOrError(fakturanummer)
         if (originalUtbetalingLinje.faktura.statusEndretTidspunkt != null &&
             originalUtbetalingLinje.faktura.statusEndretTidspunkt > fakturaStatusEndretTidspunkt
@@ -516,25 +526,22 @@ class UtbetalingService(
         }
     }
 
-    private fun tryAutomatisertUtbetaling(utbetaling: Utbetaling): AutomatisertUtbetalingResult {
-        return try {
-            when (utbetaling.beregning) {
-                is UtbetalingBeregningFri,
-                is UtbetalingBeregningPrisPerManedsverk,
-                is UtbetalingBeregningPrisPerUkesverk,
-                is UtbetalingBeregningPrisPerHeleUkesverk,
-                is UtbetalingBeregningPrisPerTimeOppfolging,
-                is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
+    private fun TransactionalQueryContext.tryAutomatisertUtbetaling(utbetaling: Utbetaling): AutomatisertUtbetalingResult {
+        return when (utbetaling.beregning) {
+            is UtbetalingBeregningFri,
+            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerUkesverk,
+            is UtbetalingBeregningPrisPerHeleUkesverk,
+            is UtbetalingBeregningPrisPerTimeOppfolging,
+            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
                 -> AutomatisertUtbetalingResult.FEIL_PRISMODELL
 
-                is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-                -> db.transaction { automatisertUtbetalingVedEttRelevantTilsagn(utbetaling.id) }
-            }.also { result ->
-                log.info("Automatisert utbetaling for utbetaling=${utbetaling.id} resulterte i: $result")
-            }
-        } catch (error: UtbetalingException) {
-            log.error("Uventet valideringsfeil oppsto under utbetaling: ${error.errors}")
-            AutomatisertUtbetalingResult.VALIDERINGSFEIL
+            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+            -> automatisertUtbetalingVedEttRelevantTilsagn(utbetaling.id)
+
+
+        }.also { result ->
+            log.info("Automatisert utbetaling for utbetaling=${utbetaling.id} resulterte i: $result")
         }
     }
 
@@ -572,7 +579,7 @@ class UtbetalingService(
             gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
             behandletAv = Tiltaksadministrasjon,
         )
-        godkjennUtbetalingLinje(linje, Tiltaksadministrasjon)
+        return godkjennUtbetalingLinje(linje, Tiltaksadministrasjon)
             .map { AutomatisertUtbetalingResult.GODKJENT }
             .getOrElse { throw UtbetalingException(it) }
     }
@@ -845,7 +852,8 @@ class UtbetalingService(
         return queries.utbetaling.getOrError(id)
     }
 
-    fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
+    context(tx: TransactionalQueryContext)
+    fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = with(tx) {
         return when (utbetaling.status) {
             UtbetalingStatusType.GENERERT -> {
                 val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)

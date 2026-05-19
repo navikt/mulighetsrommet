@@ -60,6 +60,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
@@ -108,17 +109,22 @@ class UtbetalingServiceTest : FunSpec({
         tilsagnService: TilsagnService = createTilsagnService(),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
-    ) = UtbetalingService(
-        config = UtbetalingService.Config(
-            bestillingTopic = BESTILLING_TOPIC,
-            tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
-        ),
-        db = database.db,
-        tilsagnService = tilsagnService,
-        journalforUtbetaling = journalforUtbetaling,
-        arrangorService = arrangorService,
-        totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
-    )
+    ): AdminUtbetalingService {
+        val utbetalingService = UtbetalingService(
+            config = UtbetalingService.Config(
+                bestillingTopic = BESTILLING_TOPIC,
+                tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
+            ),
+            tilsagnService = tilsagnService,
+            journalforUtbetaling = journalforUtbetaling,
+            arrangorService = arrangorService,
+            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
+        )
+        return AdminUtbetalingService(
+            db = database.db,
+            utbetalingService = utbetalingService,
+        )
+    }
 
     context("opprett og rediger utbetaling") {
         val upsert = UpsertUtbetaling.Anskaffelse(
@@ -1633,13 +1639,16 @@ class UtbetalingServiceTest : FunSpec({
             }
             val service = createUtbetalingService(tilsagnService = tilsagnService)
 
-            service.godkjentAvArrangor(
-                utbetaling1.id,
-                kid = null,
-            ) shouldBeRight AutomatisertUtbetalingResult.VALIDERINGSFEIL
+            val exception = shouldThrow<UtbetalingException> {
+                service.godkjentAvArrangor(
+                    utbetaling1.id,
+                    kid = null,
+                )
+            }
+            exception.errors shouldBe listOf(FieldError.of("Noe feil skjedde"))
 
             database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_BEHANDLING
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.GENERERT
                 queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.GODKJENT
                 queries.utbetalingLinje.getByUtbetalingId(utbetaling1.id).shouldBeEmpty()
             }

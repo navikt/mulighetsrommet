@@ -94,6 +94,7 @@ import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkP
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
@@ -502,9 +503,9 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
+    single { AdminUtbetalingService(get(), get()) }
     single { HelVedService(HelVedService.Config(appConfig.kafka.topics.helvedUtbetalingTopic), get(), get()) }
     single { PersonaliaService(get(), get(), get(), get(), get()) }
     single<FeatureToggleService> { UnleashFeatureToggleService(appConfig.unleash) }

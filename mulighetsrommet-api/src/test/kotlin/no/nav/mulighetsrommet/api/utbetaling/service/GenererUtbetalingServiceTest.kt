@@ -94,7 +94,6 @@ class GenererUtbetalingServiceTest : FunSpec({
         )
         val utbetalingService = UtbetalingService(
             config = UtbetalingService.Config(bestillingTopic, tidligstTidspunktForUtbetaling),
-            db = database.db,
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
             journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true),
