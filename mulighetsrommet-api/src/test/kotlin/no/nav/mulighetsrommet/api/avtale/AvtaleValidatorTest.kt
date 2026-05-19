@@ -512,7 +512,7 @@ class AvtaleValidatorTest : FunSpec({
             ).shouldBeLeft().shouldContain(
                 FieldError(
                     "/prismodeller/0/type",
-                    "Fast sats per tiltaksplass per måned er ikke tillatt for tiltakstype Oppfølging",
+                    "Fast sats per benyttet tiltaksplass per måned er ikke tillatt for tiltakstype Oppfølging",
                 ),
             )
             AvtaleValidator.validatePrismodeller(

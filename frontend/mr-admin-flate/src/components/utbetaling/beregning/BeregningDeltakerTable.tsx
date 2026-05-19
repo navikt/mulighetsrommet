@@ -38,6 +38,7 @@ export function BeregningDeltakereTable({ deltakere, type }: Props) {
       case UtbetalingBeregningType.PRIS_PER_UKESVERK:
       case UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK:
         return "Ukesverk";
+      case UtbetalingBeregningType.FAST_SATS_PER_AVTALT_TILTAKSPLASS_PER_MANED:
       case UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING:
       case UtbetalingBeregningType.FRI:
         return "";

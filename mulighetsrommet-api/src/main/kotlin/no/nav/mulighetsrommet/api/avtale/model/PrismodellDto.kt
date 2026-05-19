@@ -23,6 +23,7 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
     val satser = when (prismodell) {
         is Prismodell.AnnenAvtaltPris -> null
         is Prismodell.ForhandsgodkjentPrisPerManedsverk -> prismodell.satser
+        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> prismodell.satser
         is Prismodell.AvtaltPrisPerManedsverk -> prismodell.satser
         is Prismodell.AvtaltPrisPerUkesverk -> prismodell.satser
         is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.satser
@@ -31,6 +32,7 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
     val prisbetingelser = when (prismodell) {
         is Prismodell.AnnenAvtaltPris -> prismodell.prisbetingelser
         is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
+        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> null
         is Prismodell.AvtaltPrisPerManedsverk -> prismodell.prisbetingelser
         is Prismodell.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
         is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.prisbetingelser

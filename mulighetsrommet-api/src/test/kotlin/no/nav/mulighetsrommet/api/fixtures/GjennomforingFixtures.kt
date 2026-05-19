@@ -57,7 +57,6 @@ object GjennomforingFixtures {
         avtaleId = AvtaleFixtures.VTA.id,
         oppstart = GjennomforingOppstartstype.LOPENDE,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.ForhandsgodkjentVta.id,
         ansvarligEnhet = null,
@@ -78,9 +77,28 @@ object GjennomforingFixtures {
         avtaleId = AvtaleFixtures.AFT.id,
         oppstart = GjennomforingOppstartstype.LOPENDE,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.ForhandsgodkjentAft.id,
+        ansvarligEnhet = null,
+        arenaTiltaksnummer = null,
+        arenaAnsvarligEnhet = null,
+    )
+
+    val TilpassetJobbstotte = GjennomforingDbo(
+        id = UUID.randomUUID(),
+        type = GjennomforingType.AVTALE,
+        navn = "Tilpasset jobbstøtte",
+        tiltakstypeId = TiltakstypeFixtures.TilpassetJobbstotte.id,
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = null,
+        status = GjennomforingStatusType.GJENNOMFORES,
+        antallPlasser = 12,
+        avtaleId = AvtaleFixtures.TilpassetJobbstotte.id,
+        oppstart = GjennomforingOppstartstype.LOPENDE,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+        deltidsprosent = 100.0,
+        prismodellId = PrismodellFixtures.ForhandsgodkjentTilpassetJobbstotte.id,
         ansvarligEnhet = null,
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
@@ -99,7 +117,6 @@ object GjennomforingFixtures {
         avtaleId = AvtaleFixtures.gruppeAmo.id,
         oppstart = GjennomforingOppstartstype.FELLES,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
         ansvarligEnhet = null,
@@ -120,7 +137,6 @@ object GjennomforingFixtures {
         avtaleId = AvtaleFixtures.gruppeFagYrke.id,
         oppstart = GjennomforingOppstartstype.FELLES,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
         ansvarligEnhet = null,
@@ -141,7 +157,6 @@ object GjennomforingFixtures {
         avtaleId = AvtaleFixtures.ARR.id,
         oppstart = GjennomforingOppstartstype.FELLES,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-
         deltidsprosent = 100.0,
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
         ansvarligEnhet = null,
@@ -165,7 +180,6 @@ object GjennomforingFixtures {
         prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
         ansvarligEnhet = NavEnhetNummer("0400"),
         avtaleId = null,
-
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
     )
@@ -188,7 +202,6 @@ object GjennomforingFixtures {
         avtaleId = null,
         ansvarligEnhet = null,
         prismodellId = null,
-
     )
 
     val ArenaArbeidsrettetRehabilitering = GjennomforingDbo(
@@ -209,7 +222,6 @@ object GjennomforingFixtures {
         ansvarligEnhet = null,
         avtaleId = null,
         prismodellId = null,
-
     )
 
     fun createGjennomforingAvtale(

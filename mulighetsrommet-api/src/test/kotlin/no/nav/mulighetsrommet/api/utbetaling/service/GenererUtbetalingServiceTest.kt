@@ -26,17 +26,25 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
+import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
+import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerAvtaltTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
@@ -44,6 +52,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHel
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -74,25 +83,33 @@ class GenererUtbetalingServiceTest : FunSpec({
         },
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = TidligstTidspunktForUtbetalingCalculator { _, _ -> null },
     ): GenererUtbetalingService {
+        val totrinnskontrollTopic = ""
+        val bestillingTopic = ""
+        val totrinnskontroll = TotrinnskontrollService(totrinnskontrollTopic)
+        val tilsagnService = TilsagnService(
+            config = TilsagnService.Config(bestillingTopic, gyldigTilsagnPeriode),
+            db = database.db,
+            navAnsattService = mockk(),
+            totrinnskontroll = totrinnskontroll,
+        )
+        val utbetalingService = UtbetalingService(
+            config = UtbetalingService.Config(bestillingTopic, tidligstTidspunktForUtbetaling),
+            db = database.db,
+            tilsagnService = tilsagnService,
+            arrangorService = arrangorService,
+            journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true),
+            totrinnskontroll = totrinnskontroll,
+        )
         return GenererUtbetalingService(
             config = GenererUtbetalingService.Config(gyldigTilsagnPeriode),
             db = database.db,
-            utbetalingService = UtbetalingService(
-                config = UtbetalingService.Config(
-                    bestillingTopic = "",
-                    tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
-                ),
-                db = database.db,
-                tilsagnService = mockk(),
-                arrangorService = arrangorService,
-                journalforUtbetaling = mockk(),
-                totrinnskontroll = TotrinnskontrollService(""),
-            ),
+            utbetalingService = utbetalingService,
             prismodeller = setOf(
                 FastSatsPerTiltaksplassPerManedBeregning,
                 PrisPerManedBeregning,
                 PrisPerUkeBeregning,
                 PrisPerHeleUkeBeregning,
+                FastSatsPerAvtaltTiltaksplassPerManedBeregning,
             ),
         )
     }
@@ -868,6 +885,65 @@ class GenererUtbetalingServiceTest : FunSpec({
             service.regenererUtbetaling(utbetaling)
             shouldThrow<IllegalArgumentException> {
                 service.regenererUtbetaling(utbetaling).shouldBeNull()
+            }
+        }
+    }
+
+    context("generering av utbetalinger for TILPASSET_JOBBSTOTTE") {
+        val service = createUtbetalingService()
+
+        beforeEach {
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.TilpassetJobbstotte),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.TilpassetJobbstotte),
+                gjennomforinger = listOf(GjennomforingFixtures.TilpassetJobbstotte),
+                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTilpassetJobbstotte),
+            ).initialize(database.db)
+        }
+
+        val tilsagn = TilsagnFixtures.Tilsagn1.copy(
+            id = UUID.randomUUID(),
+            gjennomforingId = GjennomforingFixtures.TilpassetJobbstotte.id,
+            periode = januar,
+            belopBrukt = 0.NOK,
+            beregning = TilsagnBeregningFastSatsPerTiltaksplassPerManed(
+                input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                    periode = januar,
+                    sats = 7_321.NOK,
+                    antallPlasser = 1,
+                ),
+                output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
+                    pris = 7_321.NOK,
+                ),
+            ),
+        )
+
+        test("genererer ikke utbetaling når det ikke finnes tilsagn") {
+            service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
+        }
+
+        test("genererer ikke utbetaling når tilsagnet ikke er GODKJENT") {
+            MulighetsrommetTestDomain(tilsagn = listOf(tilsagn)) {
+                setTilsagnStatus(tilsagn, TilsagnStatus.TIL_GODKJENNING)
+            }.initialize(database.db)
+
+            service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
+        }
+
+        test("genererer utbetaling med beløp utledet fra godkjent tilsagn") {
+            MulighetsrommetTestDomain(tilsagn = listOf(tilsagn)) {
+                setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
+
+            utbetaling.status shouldBe UtbetalingStatusType.GENERERT
+
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed>().should {
+                it.output.pris shouldBe 7_321.NOK
+                it.output.tilsagnBidrag.shouldHaveSize(1)
+                it.output.tilsagnBidrag.first().tilsagnId shouldBe tilsagn.id
             }
         }
     }

@@ -2,7 +2,9 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.left
 import arrow.core.raise.either
+import arrow.core.right
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.ContentType
@@ -43,6 +45,7 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
@@ -265,17 +268,17 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
                 PersonaliaService.OnBehalfOf.Arrangor,
             ).associateBy { it.deltakerId }
 
-            call.respond(
-                OpprettKravDeltakere.from(
-                    tiltak,
-                    satser = avtaltPrisPerTimeOppfolgingPerDeltaker.satser,
-                    stengtHosArrangor = avtaltPrisPerTimeOppfolgingPerDeltaker.stengtHosArrangor,
-                    deltakere = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakere,
-                    deltakelsePerioder = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder
-                        .sortedBy { it.periode.start },
-                    personalia,
-                ),
+            val result = OpprettKravDeltakere.from(
+                tiltak,
+                satser = avtaltPrisPerTimeOppfolgingPerDeltaker.satser,
+                stengtHosArrangor = avtaltPrisPerTimeOppfolgingPerDeltaker.stengtHosArrangor,
+                deltakere = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakere,
+                deltakelsePerioder = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.sortedBy {
+                    it.periode.start
+                },
+                personalia,
             )
+            call.respondWithStatusResponse(result)
         }
 
         post({
@@ -545,9 +548,23 @@ data class OpprettKravDeltakere(
             deltakere: List<Deltaker>,
             deltakelsePerioder: List<DeltakelsePeriode>,
             personalia: Map<UUID, Personalia>,
-        ): OpprettKravDeltakere {
+        ): Either<BadRequest, OpprettKravDeltakere> {
+            val guidePanel = when (tiltak.prismodell.type) {
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
+                -> return BadRequest("Kan ikke opprette krav for dette tiltaket").left()
+
+                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                -> GuidePanelType.TIMESPRIS
+
+                PrismodellType.ANNEN_AVTALT_PRIS,
+                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                -> GuidePanelType.GENERELL
+            }
             return OpprettKravDeltakere(
-                guidePanel = GuidePanelType.from(tiltak.prismodell.type),
+                guidePanel = guidePanel,
                 stengtHosArrangor = stengtHosArrangor,
                 tabell = DataDrivenTableDto(
                     columns = deltakelseCommonColumns(),
@@ -562,7 +579,7 @@ data class OpprettKravDeltakere(
                     },
                 ),
                 tabellFooter = tableFooter(satser, deltakelsePerioder.size),
-            )
+            ).right()
         }
 
         fun tableFooter(
@@ -583,25 +600,9 @@ data class OpprettKravDeltakere(
         }
     }
 
-    @Serializable
     enum class GuidePanelType {
         GENERELL,
         TIMESPRIS,
-        ;
-
-        companion object {
-            fun from(prismodellType: PrismodellType?): GuidePanelType = when (prismodellType) {
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> TIMESPRIS
-
-                PrismodellType.ANNEN_AVTALT_PRIS,
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
-                null,
-                -> GENERELL
-            }
-        }
     }
 }
 

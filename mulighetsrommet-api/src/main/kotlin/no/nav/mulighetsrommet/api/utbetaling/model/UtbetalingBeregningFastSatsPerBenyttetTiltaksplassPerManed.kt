@@ -32,7 +32,7 @@ data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
 }
 
 object FastSatsPerTiltaksplassPerManedBeregning :
-    SystemgenerertPrismodell<UtbetalingBeregningFastSatsPerTiltaksplassPerManed> {
+    SystemgenerertPrismodell.FraDeltakelser<UtbetalingBeregningFastSatsPerTiltaksplassPerManed> {
 
     override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
     override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD

@@ -126,6 +126,20 @@ object AvtaleFixtures {
         prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft.id),
     )
 
+    val TilpassetJobbstotte: AvtaleDbo = AvtaleDbo(
+        id = UUID.randomUUID(),
+        detaljerDbo = detaljerDbo().copy(
+            navn = "Avtalenavn for TJ",
+            tiltakstypeId = TiltakstypeFixtures.TilpassetJobbstotte.id,
+            sluttDato = null,
+            avtaletype = Avtaletype.FORHANDSGODKJENT,
+            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
+        ),
+        veilederinformasjonDbo = veilederinformasjonDbo(),
+        personvernDbo = personvernDbo(),
+        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTilpassetJobbstotte.id),
+    )
+
     val EnkelAmo: AvtaleDbo = AvtaleDbo(
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo().copy(

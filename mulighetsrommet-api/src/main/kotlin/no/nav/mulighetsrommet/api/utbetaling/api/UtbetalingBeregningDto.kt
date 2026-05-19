@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentP
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
@@ -50,6 +51,16 @@ data class UtbetalingBeregningDto(
                 is UtbetalingBeregningFri -> UtbetalingBeregningDto(
                     type = UtbetalingBeregningType.FRI,
                     heading = PrismodellType.ANNEN_AVTALT_PRIS.navn,
+                    deltakerRegioner = regioner,
+                    deltakere = emptyList(),
+                    pris = beregning.output.pris,
+                    satsDetaljer = emptyList(),
+                    advarsler = advarsler,
+                )
+
+                is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed -> UtbetalingBeregningDto(
+                    type = UtbetalingBeregningType.FAST_SATS_PER_AVTALT_TILTAKSPLASS_PER_MANED,
+                    heading = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS.navn,
                     deltakerRegioner = regioner,
                     deltakere = emptyList(),
                     pris = beregning.output.pris,

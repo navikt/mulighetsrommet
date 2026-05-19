@@ -2,18 +2,29 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
+import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -91,6 +102,80 @@ object BeregningTestHelpers {
         ),
         tiltakskode = tiltakskode,
         stengt = stengt,
+    )
+
+    fun createGjennomforingForForhandsgodkjentSatsPerAvtaltTiltaksplass(
+        id: UUID = UUID.randomUUID(),
+        tiltakskode: Tiltakskode = Tiltakskode.TILPASSET_JOBBSTOTTE,
+        periode: Periode,
+        sats: ValutaBelop = ValutaBelop(7_321, Valuta.NOK),
+    ): GjennomforingAvtale = createGjennomforing(
+        id = id,
+        periode = periode,
+        prismodell = Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass(
+            id = UUID.randomUUID(),
+            satser = listOf(AvtaltSatsDto(periode.start, sats)),
+            valuta = sats.valuta,
+            tilsagnPerDeltaker = false,
+        ),
+        tiltakskode = tiltakskode,
+        stengt = emptyList(),
+    )
+
+    fun createTilsagn(
+        gjennomforing: GjennomforingAvtale,
+        periode: Periode,
+        belop: ValutaBelop,
+    ): Tilsagn = Tilsagn(
+        id = UUID.randomUUID(),
+        type = TilsagnType.TILSAGN,
+        periode = periode,
+        belopBrukt = 0.withValuta(belop.valuta),
+        kostnadssted = NavEnhetDbo(
+            navn = "Test enhet",
+            enhetsnummer = NavEnhetNummer("0300"),
+            status = NavEnhetStatus.AKTIV,
+            type = Norg2Type.FYLKE,
+        ),
+        beregning = TilsagnBeregningFri(
+            input = TilsagnBeregningFri.Input(
+                listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "",
+                        pris = belop,
+                        antall = 1,
+                    ),
+                ),
+                prisbetingelser = null,
+            ),
+            output = TilsagnBeregningFri.Output(pris = belop),
+        ),
+        lopenummer = 1,
+        bestilling = Tilsagn.Bestilling(
+            bestillingsnummer = "TEST-1",
+            status = BestillingStatusType.AKTIV,
+        ),
+        tiltakstype = Tilsagn.Tiltakstype(
+            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+            navn = gjennomforing.tiltakstype.navn,
+        ),
+        gjennomforing = Tilsagn.Gjennomforing(
+            id = gjennomforing.id,
+            lopenummer = gjennomforing.lopenummer,
+            navn = gjennomforing.navn,
+        ),
+        arrangor = Tilsagn.Arrangor(
+            id = gjennomforing.arrangor.id,
+            organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+            navn = gjennomforing.arrangor.navn,
+            slettet = gjennomforing.arrangor.slettet,
+        ),
+        status = TilsagnStatus.GODKJENT,
+        kommentar = null,
+        beskrivelse = null,
+        journalpost = null,
+        deltakere = emptyList(),
     )
 
     private fun createGjennomforing(

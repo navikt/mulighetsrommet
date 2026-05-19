@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.arrangorflate.service
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangorflate.api.toArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
@@ -18,6 +17,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
@@ -30,6 +30,9 @@ import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -118,13 +121,11 @@ class ArrangorflateService(
         val personalia = personaliaService.getPersonalia(deltakere.map { it.id }, PersonaliaService.OnBehalfOf.Arrangor)
             .associateBy { it.deltakerId }
         val advarsler = getAdvarsler(utbetaling)
-        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
         val (kanRegenereres, regenrertId) = kanRegenereres(utbetaling)
 
         return mapUtbetalingToArrangorflateUtbetaling(
             utbetaling = utbetaling,
             gjennomforing = gjennomforing,
-            status = status,
             deltakereById = deltakere.associateBy { it.id },
             personaliaById = personalia,
             advarsler = advarsler,
@@ -170,6 +171,7 @@ class ArrangorflateService(
             is UtbetalingBeregningPrisPerUkesverk,
             -> Unit
 
+            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
             is UtbetalingBeregningPrisPerTimeOppfolging,
             is UtbetalingBeregningFri,
             -> return false to null
@@ -216,6 +218,28 @@ class ArrangorflateService(
                     p.navn(),
                 )
             }
+    }
+
+    private fun QueryContext.toArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
+        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling)
+        val godkjentBelop = when (status) {
+            ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+            ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
+            ArrangorflateUtbetalingStatus.UTBETALT,
+            -> getGodkjentBelopForUtbetaling(utbetaling.id, utbetaling.beregning.output.pris.valuta)
+
+            ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+            ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
+            ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
+            ArrangorflateUtbetalingStatus.AVBRUTT,
+            -> null
+        }
+        return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, gjennomforing, status, godkjentBelop)
+    }
+
+    private fun QueryContext.getGodkjentBelopForUtbetaling(id: UUID, valuta: Valuta): ValutaBelop {
+        return queries.utbetalingLinje.getByUtbetalingId(id).sumOf { it.pris.belop }.withValuta(valuta)
     }
 }
 

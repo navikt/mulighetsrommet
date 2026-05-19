@@ -15,6 +15,7 @@ interface Props {
 export function PrismodellDetaljer({ prismodeller }: Props) {
   const prismodellkort = prismodeller.map((prismodell) => {
     switch (prismodell.type) {
+      case PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS:
       case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
         return (
           <VStack key={prismodell.navn} gap="space-16">
