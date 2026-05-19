@@ -8,7 +8,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -172,27 +171,6 @@ class UtbetalingValidatorTest : FunSpec({
         }
     }
 
-    context("godkjenn utbetaling av arrangør") {
-        test("Kan ikke godkjenne før periode er passert") {
-            val request = GodkjennUtbetaling(
-                updatedAt = "asdf",
-                kid = null,
-            )
-
-            val result = UtbetalingValidator.validerGodkjennUtbetaling(
-                request = request,
-                utbetaling = UtbetalingFixtures.utbetalingDto1,
-                advarsler = emptyList(),
-                today = UtbetalingFixtures.utbetalingDto1.periode.start,
-            )
-            result.shouldBeLeft().shouldContainAll(
-                listOf(
-                    FieldError.root("Utbetalingen kan ikke godkjennes før perioden er passert"),
-                ),
-            )
-        }
-    }
-
     context("opprett utbetalingLinjer") {
         test("skal ikke kunne opprette utbetalingslinje hvis utbetalingen allerede er godkjent") {
             UtbetalingValidator.validateOpprettUtbetalingLinjer(
@@ -289,7 +267,7 @@ class UtbetalingValidatorTest : FunSpec({
                     begrunnelse = null,
                 ),
             ).shouldBeLeft().shouldContainAll(
-                FieldError.root("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp"),
+                FieldError.of("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp"),
             )
         }
     }

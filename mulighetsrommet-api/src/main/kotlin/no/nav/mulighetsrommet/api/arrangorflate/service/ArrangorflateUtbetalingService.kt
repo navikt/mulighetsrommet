@@ -12,24 +12,33 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.AvtaltPrisPerTimeOppfolgin
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
-import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
-import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.LocalDate
 import java.util.UUID
 
 class ArrangorflateUtbetalingService(
     private val db: ApiDatabase,
     private val utbetalingService: UtbetalingService,
+    private val genererUtbetalingService: GenererUtbetalingService,
 ) {
     suspend fun opprettUtbetaling(
         opprett: ArrangorflateOpprettUtbetaling,
@@ -53,16 +62,66 @@ class ArrangorflateUtbetalingService(
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         kid: Kid?,
+        today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, AutomatisertUtbetalingResult> = db.transaction {
-        utbetalingService.godkjentAvArrangor(utbetalingId, kid)
+        val utbetaling = getOrError(utbetalingId)
+        if (utbetaling.periode.slutt > today) {
+            return FieldError.of("Utbetalingen kan ikke godkjennes før perioden er passert").nel().left()
+        }
+
+        if (utbetaling.betalingsinformasjon == null) {
+            return FieldError.of("Utbetalingen kan ikke godkjennes fordi kontonummer mangler.").nel().left()
+        }
+
+        val advarsler = utbetalingService.getAdvarsler(utbetaling)
+        if (utbetaling.blokkeringer.isNotEmpty() || advarsler.isNotEmpty()) {
+            return FieldError.of("Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.")
+                .nel()
+                .left()
+        }
+
+        utbetalingService.godkjentAvArrangor(utbetaling.id, kid)
     }
 
     fun avbrytUtbetaling(
         utbetalingId: UUID,
         begrunnelse: String,
-        agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        utbetalingService.avbrytUtbetaling(utbetalingId, begrunnelse, agent)
+        val utbetaling = getOrError(utbetalingId)
+        if (arrangorAvbrytStatus(utbetaling) != ArrangorAvbrytStatus.ACTIVATED) {
+            return FieldError.of("Utbetalingen kan ikke avbrytes").nel().left()
+        }
+
+        utbetalingService.avbrytUtbetaling(utbetaling.id, begrunnelse, Arrangor)
+    }
+
+    suspend fun regenererUtbetaling(
+        utbetaling: Utbetaling,
+    ): Either<List<FieldError>, Utbetaling> = validation {
+        validate(utbetaling.status == UtbetalingStatusType.AVBRUTT) {
+            FieldError.of("Utbetalingen kan bare regenereres når den er avbrutt")
+        }
+        validateNotNull(utbetaling.innsending) {
+            FieldError.of("Utbetalingen kan bare regenereres når den er innsendt")
+        }
+        when (utbetaling.beregning) {
+            is UtbetalingBeregningFri,
+            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
+            is UtbetalingBeregningPrisPerTimeOppfolging,
+            -> error { FieldError.of("Utbetalingen kan ikke regenereres") }
+
+            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+            is UtbetalingBeregningPrisPerHeleUkesverk,
+            is UtbetalingBeregningPrisPerManedsverk,
+            is UtbetalingBeregningPrisPerUkesverk,
+            -> Unit
+        }
+    }.map {
+        genererUtbetalingService.regenererUtbetaling(utbetaling)
+    }
+
+    private fun QueryContext.getOrError(id: UUID): Utbetaling {
+        return queries.utbetaling.getOrError(id)
     }
 
     fun getAvtaltPrisPerTimeOppfolgingData(gjennomforingId: UUID, periode: Periode): AvtaltPrisPerTimeOppfolgingData = db.session {

@@ -278,16 +278,16 @@ class UtbetalingService(
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
             UtbetalingStatusType.AVBRUTT,
-            -> return FieldError.root("Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}")
+            -> return FieldError.of("Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}")
                 .nel()
                 .left()
         }
         if (UtbetalingType.from(utbetaling) != UtbetalingType.KORRIGERING) {
-            return FieldError.root("Kan kun slette korreksjoner").nel().left()
+            return FieldError.of("Kan kun slette korreksjoner").nel().left()
         }
         queries.utbetalingLinje.getByUtbetalingId(id).forEach { linje ->
             if (linje.status != UtbetalingLinjeStatus.RETURNERT) {
-                return FieldError.root("UtbetalingLinje var i feil status").nel().left()
+                return FieldError.of("UtbetalingLinje var i feil status").nel().left()
             }
             queries.utbetalingLinje.delete(linje.id)
         }
@@ -309,7 +309,7 @@ class UtbetalingService(
             UtbetalingStatusType.FERDIG_BEHANDLET,
             UtbetalingStatusType.UTBETALT,
             UtbetalingStatusType.AVBRUTT,
-            -> return FieldError.root("Utbetalingen kan ikke avbrytes").nel().left()
+            -> return FieldError.of("Utbetalingen kan ikke avbrytes").nel().left()
 
             UtbetalingStatusType.TIL_BEHANDLING,
             UtbetalingStatusType.RETURNERT,
@@ -534,12 +534,10 @@ class UtbetalingService(
             is UtbetalingBeregningPrisPerHeleUkesverk,
             is UtbetalingBeregningPrisPerTimeOppfolging,
             is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
-                -> AutomatisertUtbetalingResult.FEIL_PRISMODELL
+            -> AutomatisertUtbetalingResult.FEIL_PRISMODELL
 
             is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
             -> automatisertUtbetalingVedEttRelevantTilsagn(utbetaling.id)
-
-
         }.also { result ->
             log.info("Automatisert utbetaling for utbetaling=${utbetaling.id} resulterte i: $result")
         }

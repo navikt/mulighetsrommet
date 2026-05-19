@@ -4,7 +4,6 @@ import arrow.core.Either
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
-import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -12,7 +11,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.Instant
@@ -34,13 +32,6 @@ class AdminUtbetalingService(
         agent: Agent,
     ): Validated<Utbetaling> = db.transaction {
         utbetalingService.redigerUtbetaling(rediger, agent)
-    }
-
-    fun godkjentAvArrangor(
-        utbetalingId: UUID,
-        kid: Kid?,
-    ): Either<List<FieldError>, AutomatisertUtbetalingResult> = db.transaction {
-        utbetalingService.godkjentAvArrangor(utbetalingId, kid)
     }
 
     fun opprettUtbetalingLinjer(

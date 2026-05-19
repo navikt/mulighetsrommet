@@ -92,9 +92,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
+import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
-import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
@@ -210,7 +210,7 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get(), get()),
             config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
             config.clients.replicateBestillingStatus to ReplikerBestillingStatusConsumer(get()),
-            config.clients.replicateFakturaStatus to ReplikerFakturaStatusConsumer(get()),
+            config.clients.replicateFakturaStatus to ReplikerFakturaStatusConsumer(get(), get()),
             config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(get()),
             config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get(), get()),
         )
@@ -526,7 +526,7 @@ private fun services(appConfig: AppConfig) = module {
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }
     single { ArrangorflateService(get(), get(), get()) }
-    single { ArrangorflateUtbetalingService(get(), get()) }
+    single { ArrangorflateUtbetalingService(get(), get(), get()) }
     single {
         ClamAvClient(
             baseUrl = appConfig.clamav.url,
