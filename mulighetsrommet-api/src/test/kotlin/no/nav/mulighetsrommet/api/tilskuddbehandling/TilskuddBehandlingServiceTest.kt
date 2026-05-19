@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
@@ -45,13 +46,13 @@ class TilskuddBehandlingServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    val gyldigRequest = TilskuddBehandlingRequest(
+    val request = TilskuddBehandlingRequest(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         soknadJournalpostId = "J-2024-001",
         soknadDato = LocalDate.of(2024, 1, 15),
-        periodeStart = "2024-01-01",
-        periodeSlutt = "2024-07-01",
+        periodeStart = "2025-01-01",
+        periodeSlutt = "2025-07-01",
         kostnadssted = NavEnhetNummer("0502"),
         kommentarIntern = "kommentar intern",
         tilskudd = listOf(
@@ -64,25 +65,22 @@ class TilskuddBehandlingServiceTest : FunSpec({
                 ),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,
-                utbetalingMottaker = "Universitetet i Oslo",
+                utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kidNummer = "116",
                 belop = 100,
             ),
         ),
     )
 
-    fun createService() = TilskuddBehandlingService(
-        database.db,
-        TotrinnskontrollService(""),
-    )
+    fun createService() = TilskuddBehandlingService(database.db, TotrinnskontrollService(""))
 
-    context("godkjenn") {
+    context("attester og returner") {
         test("kan ikke attestere sin egen behandling") {
             val service = createService()
 
-            service.upsert(gyldigRequest, ansatt1).shouldBeRight()
+            service.upsert(request, ansatt1).shouldBeRight()
 
-            service.godkjenn(gyldigRequest.id, ansatt1).shouldBeLeft().shouldHaveSize(1).first().should {
+            service.godkjenn(request.id, ansatt1).shouldBeLeft().shouldHaveSize(1).first().should {
                 it.detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
             }
         }
@@ -90,29 +88,27 @@ class TilskuddBehandlingServiceTest : FunSpec({
         test("annen ansatt kan attestere behandling") {
             val service = createService()
 
-            service.upsert(gyldigRequest, ansatt1).shouldBeRight()
+            service.upsert(request, ansatt1).shouldBeRight()
 
-            service.godkjenn(gyldigRequest.id, ansatt2).shouldBeRight()
+            service.godkjenn(request.id, ansatt2).shouldBeRight()
 
-            val detaljer = service.getDetaljerDto(gyldigRequest.id, ansatt1)
+            val detaljer = service.getDetaljerDto(request.id, ansatt1)
             detaljer?.behandling?.status?.type shouldBe TilskuddBehandlingStatus.FERDIG_BEHANDLET
         }
-    }
 
-    context("returner") {
         test("happy case returner") {
             val service = createService()
 
-            service.upsert(gyldigRequest, ansatt1).shouldBeRight()
+            service.upsert(request, ansatt1).shouldBeRight()
 
             service.returner(
-                gyldigRequest.id,
+                request.id,
                 ansatt2,
                 listOf(TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT, TilskuddBehandlingStatusAarsak.ANNET),
                 forklaring = "fordi",
             ).shouldBeRight()
 
-            service.getDetaljerDto(gyldigRequest.id, ansatt1)?.opprettelse.shouldBeTypeOf<TotrinnskontrollDto.Besluttet>() should {
+            service.getDetaljerDto(request.id, ansatt1)?.opprettelse.shouldBeTypeOf<TotrinnskontrollDto.Besluttet>() should {
                 it.aarsaker shouldBe listOf(TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT, TilskuddBehandlingStatusAarsak.ANNET).map { it.name }
                 it.forklaring shouldBe "fordi"
                 it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST

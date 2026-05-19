@@ -74,6 +74,7 @@ import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
+import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddArrangorUtbetalingConsumer
 import no.nav.mulighetsrommet.api.tiltakstype.service.RedaksjoneltInnholdLenkeService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
@@ -178,6 +179,11 @@ private fun kafka(appConfig: AppConfig) = module {
     single {
         val consumers = mapOf(
             config.clients.handterGjennomforingRequest to GjennomforingRequestKafkaConsumer(
+                get(),
+                get(),
+                get(),
+            ),
+            config.clients.tilskuddArrangorUtbetaling to TilskuddArrangorUtbetalingConsumer(
                 get(),
                 get(),
                 get(),

@@ -113,7 +113,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "valuta" to tilskudd.utbetalingBelop?.valuta?.name,
             "vedtak_resultat" to tilskudd.vedtakResultat.name,
             "kommentar_vedtaksbrev" to tilskudd.kommentarVedtaksbrev,
-            "utbetaling_mottaker" to tilskudd.utbetalingMottaker,
+            "utbetaling_mottaker" to tilskudd.utbetalingMottaker.name,
             "kid" to tilskudd.kid?.value,
             "belop" to tilskudd.utbetalingBelop?.belop,
         )
@@ -130,6 +130,17 @@ class TilskuddBehandlingQueries(private val session: Session) {
         """.trimIndent()
 
         session.execute(queryOf(query, mapOf("id" to id, "status" to status.name)))
+    }
+
+    fun setUtbetaling(tilskuddId: UUID, utbetalingId: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilskudd
+            set utbetaling_id = :utbetaling_id::uuid
+            where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, mapOf("id" to tilskuddId, "utbetaling_id" to utbetalingId)))
     }
 
     fun get(id: UUID): TilskuddBehandlingDto? {

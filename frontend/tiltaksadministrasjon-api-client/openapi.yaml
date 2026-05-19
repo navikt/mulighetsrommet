@@ -8057,7 +8057,7 @@ components:
           - "null"
           - string
         utbetalingMottaker:
-          type: string
+          $ref: "#/components/schemas/TilskuddMottaker"
         kid:
           type:
           - "null"
@@ -8098,6 +8098,11 @@ components:
       enum:
       - INNVILGELSE
       - AVSLAG
+    TilskuddMottaker:
+      type: string
+      enum:
+      - BRUKER
+      - ARRANGOR
     TilskuddBehandlingStatusDto:
       type: object
       properties:
@@ -8189,9 +8194,9 @@ components:
           - "null"
           - string
         utbetalingMottaker:
-          type:
-          - "null"
-          - string
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TilskuddMottaker"
         kidNummer:
           type:
           - "null"

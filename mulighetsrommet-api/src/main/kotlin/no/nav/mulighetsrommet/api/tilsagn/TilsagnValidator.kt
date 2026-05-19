@@ -331,11 +331,12 @@ object TilsagnValidator {
         TilsagnBeregningFri.beregn(
             TilsagnBeregningFri.Input(
                 linjer = request.linjer.map {
+                    requireValid(it.beskrivelse != null && it.pris != null && it.antall != null)
                     TilsagnBeregningFri.InputLinje(
                         id = it.id,
-                        beskrivelse = it.beskrivelse!!,
-                        pris = it.pris!!,
-                        antall = it.antall!!,
+                        beskrivelse = it.beskrivelse,
+                        pris = it.pris,
+                        antall = it.antall,
                     )
                 },
                 prisbetingelser = request.prisbetingelser,

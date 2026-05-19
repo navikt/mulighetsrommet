@@ -21,17 +21,18 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.String
 
 class TilskuddBehandlingService(
     private val db: ApiDatabase,
     private val totrinnskontroll: TotrinnskontrollService,
 ) {
-
     fun upsert(
         request: TilskuddBehandlingRequest,
         navIdent: NavIdent,
@@ -47,6 +48,24 @@ class TilskuddBehandlingService(
             }
     }
 
+    fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {
+        return db.session {
+            queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId)
+                .map {
+                    TilskuddBehandlingKompakt(
+                        id = it.id,
+                        soknadDato = it.soknadDato,
+                        periode = it.periode,
+                        journalpostId = it.soknadJournalpostId,
+                        tilskuddtyper = it.tilskudd.map { tilskudd -> tilskudd.tilskuddOpplaeringType }
+                            .toSet(),
+                        kostnadssted = it.kostnadssted,
+                        status = it.status,
+                    )
+                }
+        }
+    }
+
     fun getDetaljerDto(id: UUID, navIdent: NavIdent): TilskuddBehandlingDetaljerDto? {
         return db.session {
             val behandling = queries.tilskuddBehandling.get(id)
@@ -60,25 +79,30 @@ class TilskuddBehandlingService(
         }
     }
 
-    fun godkjenn(
+    suspend fun godkjenn(
         id: UUID,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, TilskuddBehandlingDto> = db.transaction {
-        val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
-            "TilskuddBehandling med id $id ble ikke funnet"
-        }
-        if (behandling.status.type !== TilskuddBehandlingStatus.TIL_ATTESTERING) {
-            return FieldError
-                .of("Tilskuddsbehandling kan ikke godkjennes fordi det har status ${behandling.status.type.beskrivelse}")
-                .nel()
-                .left()
-        }
+    ): Either<List<FieldError>, TilskuddBehandlingDto> = try {
+        db.transaction {
+            val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
+                "TilskuddBehandling med id $id ble ikke funnet"
+            }
+            if (behandling.status.type !== TilskuddBehandlingStatus.TIL_ATTESTERING) {
+                return FieldError
+                    .of("Tilskuddsbehandling kan ikke godkjennes fordi det har status ${behandling.status.type.beskrivelse}")
+                    .nel()
+                    .left()
+            }
 
-        val opprettelse = totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-        totrinnskontroll.godkjent(opprettelse, navIdent).map {
-            queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
-            logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent)
+            val opprettelse = totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
+            totrinnskontroll.godkjent(opprettelse, navIdent)
+                .map {
+                    queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
+                    logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent)
+                }
         }
+    } catch (e: UtbetalingException) {
+        e.errors.left()
     }
 
     fun returner(
@@ -101,24 +125,6 @@ class TilskuddBehandlingService(
         totrinnskontroll.avvist(opprettelse, navIdent, aarsaker.map { it.name }, forklaring).map {
             queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
             logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
-        }
-    }
-
-    fun getByGjennomforingId(gjennomforingId: UUID): List<TilskuddBehandlingKompakt> {
-        return db.session {
-            queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId)
-                .map {
-                    TilskuddBehandlingKompakt(
-                        id = it.id,
-                        soknadDato = it.soknadDato,
-                        periode = it.periode,
-                        journalpostId = it.soknadJournalpostId,
-                        tilskuddtyper = it.tilskudd.map { tilskudd -> tilskudd.tilskuddOpplaeringType }
-                            .toSet(),
-                        kostnadssted = it.kostnadssted,
-                        status = it.status,
-                    )
-                }
         }
     }
 

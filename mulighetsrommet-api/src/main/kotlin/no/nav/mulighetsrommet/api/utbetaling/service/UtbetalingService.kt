@@ -119,6 +119,14 @@ class UtbetalingService(
         opprett: UpsertUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        opprettUtbetalingInTx(opprett, agent)
+    }
+
+    context(tx: TransactionalQueryContext)
+    suspend fun opprettUtbetalingInTx(
+        opprett: UpsertUtbetaling,
+        agent: Agent,
+    ): Either<List<FieldError>, Utbetaling> = with(tx) {
         if (queries.utbetaling.get(opprett.id) != null) {
             return FieldError.of("Utbetalingen er allerede opprettet").nel().left()
         }
@@ -520,7 +528,7 @@ class UtbetalingService(
                 -> AutomatisertUtbetalingResult.FEIL_PRISMODELL
 
                 is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-                -> prosesserUtbetalingForhandsgodkjentSatsPerBenyttetTiltaksplass(utbetaling.id)
+                -> db.transaction { automatisertUtbetalingVedEttRelevantTilsagn(utbetaling.id) }
             }.also { result ->
                 log.info("Automatisert utbetaling for utbetaling=${utbetaling.id} resulterte i: $result")
             }
@@ -530,13 +538,11 @@ class UtbetalingService(
         }
     }
 
-    private fun prosesserUtbetalingForhandsgodkjentSatsPerBenyttetTiltaksplass(
+    context(tx: TransactionalQueryContext)
+    fun automatisertUtbetalingVedEttRelevantTilsagn(
         utbetalingId: UUID,
-    ): AutomatisertUtbetalingResult = db.transaction {
+    ): AutomatisertUtbetalingResult = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
-
-        val beregning = utbetaling.beregning as? UtbetalingBeregningFastSatsPerTiltaksplassPerManed
-            ?: return AutomatisertUtbetalingResult.FEIL_PRISMODELL
 
         val relevanteTilsagn = queries.tilsagn.getAll(
             gjennomforingId = utbetaling.gjennomforing.id,
@@ -549,7 +555,7 @@ class UtbetalingService(
         }
 
         val tilsagn = queries.tilsagn.getAndAquireLock(relevanteTilsagn[0].id)
-        if (tilsagn.gjenstaendeBelop() < beregning.output.pris) {
+        if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.pris) {
             return AutomatisertUtbetalingResult.IKKE_NOK_PENGER
         }
 
@@ -562,7 +568,7 @@ class UtbetalingService(
             id = UUID.randomUUID(),
             utbetaling = utbetaling,
             tilsagn = tilsagn,
-            pris = beregning.output.pris,
+            pris = utbetaling.beregning.output.pris,
             gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
             behandletAv = Tiltaksadministrasjon,
         )

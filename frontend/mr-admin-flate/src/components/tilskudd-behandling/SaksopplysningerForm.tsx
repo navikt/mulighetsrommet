@@ -8,6 +8,7 @@ import { FormGroup } from "@/layouts/FormGroup";
 import {
   TilskuddBehandlingRequest,
   TilskuddBehandlingRequestTilskuddRequest,
+  TilskuddMottaker,
   TilskuddOpplaeringType,
   Valuta,
   ValutaBelop,
@@ -112,10 +113,10 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                   legend="Hvem skal motta utbetalingen?"
                   horisontal
                 >
-                  <Radio value="bruker">Utbetales til brukeren</Radio>
-                  <Radio value="arrangor">Utbetales til arrangøren</Radio>
+                  <Radio value={TilskuddMottaker.BRUKER}>Utbetales til brukeren</Radio>
+                  <Radio value={TilskuddMottaker.ARRANGOR}>Utbetales til arrangøren</Radio>
                 </ControlledRadioGroup>
-                {watch("tilskudd")[index].utbetalingMottaker === "arrangor" && (
+                {watch("tilskudd")[index].utbetalingMottaker === TilskuddMottaker.ARRANGOR && (
                   <BetalingsinformasjonFields<TilskuddBehandlingRequestTilskuddRequest>
                     arrangorId={arrangorId}
                     kidNummerName={
