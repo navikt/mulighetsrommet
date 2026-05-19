@@ -9,8 +9,7 @@ import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet1
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet2
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.Instant
 
 class AltinnRettigheterQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -32,12 +31,12 @@ class AltinnRettigheterQueriesTest : FunSpec({
             queries.altinnRettigheter.upsertRettigheter(
                 norskIdent = norskIdent1,
                 bedriftRettigheter = listOf(rettighetUnderenhet1),
-                expiry = LocalDateTime.of(2024, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+                expiry = Instant.parse("2024-01-01T00:00:00Z"),
             )
             queries.altinnRettigheter.upsertRettigheter(
                 norskIdent = norskIdent2,
                 bedriftRettigheter = listOf(rettighetUnderenhet2),
-                expiry = LocalDateTime.of(2024, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+                expiry = Instant.parse("2024-01-01T00:00:00Z"),
             )
 
             queries.altinnRettigheter.getRettigheter(norskIdent1) shouldContainExactly listOf(
@@ -46,7 +45,7 @@ class AltinnRettigheterQueriesTest : FunSpec({
                     listOf(
                         BedriftRettighetWithExpiry(
                             rettighet = AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING,
-                            expiry = LocalDateTime.of(2024, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+                            expiry = Instant.parse("2024-01-01T00:00:00Z"),
                         ),
                     ),
                 ),
@@ -55,7 +54,7 @@ class AltinnRettigheterQueriesTest : FunSpec({
             queries.altinnRettigheter.upsertRettigheter(
                 norskIdent = norskIdent1,
                 bedriftRettigheter = listOf(rettighetUnderenhet1, rettighetUnderenhet2),
-                expiry = LocalDateTime.of(2025, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+                expiry = Instant.parse("2025-01-01T00:00:00Z"),
             )
 
             queries.altinnRettigheter.getRettigheter(norskIdent1) shouldContainExactly listOf(
@@ -64,7 +63,7 @@ class AltinnRettigheterQueriesTest : FunSpec({
                     listOf(
                         BedriftRettighetWithExpiry(
                             rettighet = AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING,
-                            expiry = LocalDateTime.of(2025, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+                            expiry = Instant.parse("2025-01-01T00:00:00Z"),
                         ),
                     ),
                 ),
@@ -73,7 +72,7 @@ class AltinnRettigheterQueriesTest : FunSpec({
                     listOf(
                         BedriftRettighetWithExpiry(
                             rettighet = AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING,
-                            expiry = LocalDateTime.of(2025, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+                            expiry = Instant.parse("2025-01-01T00:00:00Z"),
                         ),
                     ),
                 ),
@@ -86,12 +85,12 @@ class AltinnRettigheterQueriesTest : FunSpec({
             queries.altinnRettigheter.upsertRettigheter(
                 norskIdent = norskIdent1,
                 bedriftRettigheter = listOf(rettighetUnderenhet1),
-                expiry = LocalDateTime.of(2024, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+                expiry = Instant.parse("2024-01-01T00:00:00Z"),
             )
             queries.altinnRettigheter.upsertRettigheter(
                 norskIdent = norskIdent1,
                 bedriftRettigheter = listOf(rettighetUnderenhet2),
-                expiry = LocalDateTime.of(2024, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+                expiry = Instant.parse("2024-01-01T00:00:00Z"),
             )
 
             queries.altinnRettigheter.getRettigheter(norskIdent1) shouldContainExactly listOf(
@@ -100,7 +99,7 @@ class AltinnRettigheterQueriesTest : FunSpec({
                     listOf(
                         BedriftRettighetWithExpiry(
                             rettighet = AltinnRessurs.TILTAK_ARRANGOR_BE_OM_UTBETALING,
-                            expiry = LocalDateTime.of(2024, 1, 1, 0, 0).toInstant(ZoneOffset.UTC),
+                            expiry = Instant.parse("2024-01-01T00:00:00Z"),
                         ),
                     ),
                 ),

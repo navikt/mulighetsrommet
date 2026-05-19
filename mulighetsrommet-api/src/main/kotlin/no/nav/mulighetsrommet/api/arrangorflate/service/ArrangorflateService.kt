@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTim
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -151,7 +152,7 @@ class ArrangorflateService(
                     id = linje.id,
                     pris = linje.pris,
                     status = linje.status,
-                    statusSistOppdatert = linje.faktura.statusEndretTidspunkt,
+                    statusSistOppdatert = linje.faktura.statusEndretTidspunkt?.tilNorskLocalDateTime(),
                     tilsagn = tilsagn,
                 )
             }

@@ -15,7 +15,7 @@ import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.model.Bestilling
 import org.intellij.lang.annotations.Language
-import java.time.LocalDateTime
+import java.time.Instant
 
 class BestillingQueries(private val session: Session) {
 
@@ -121,7 +121,7 @@ class BestillingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setAvstemtTidspunkt(tidspunkt: LocalDateTime, bestillingsnummer: List<String>) {
+    fun setAvstemtTidspunkt(tidspunkt: Instant, bestillingsnummer: List<String>) {
         @Language("PostgreSQL")
         val query = """
             update bestilling
@@ -260,16 +260,16 @@ class BestillingQueries(private val session: Session) {
             status = status,
             opprettelse = Bestilling.Totrinnskontroll(
                 behandletAv = OkonomiPart.fromString(this.string("opprettelse_behandlet_av")),
-                behandletTidspunkt = localDateTime("opprettelse_behandlet_tidspunkt"),
+                behandletTidspunkt = instant("opprettelse_behandlet_tidspunkt"),
                 besluttetAv = OkonomiPart.fromString(this.string("opprettelse_besluttet_av")),
-                besluttetTidspunkt = localDateTime("opprettelse_besluttet_tidspunkt"),
+                besluttetTidspunkt = instant("opprettelse_besluttet_tidspunkt"),
             ),
             annullering = this.stringOrNull("annullering_behandlet_av")?.let {
                 Bestilling.Totrinnskontroll(
                     behandletAv = OkonomiPart.fromString(it),
-                    behandletTidspunkt = localDateTime("annullering_behandlet_tidspunkt"),
+                    behandletTidspunkt = instant("annullering_behandlet_tidspunkt"),
                     besluttetAv = OkonomiPart.fromString(string("annullering_besluttet_av")),
-                    besluttetTidspunkt = localDateTime("annullering_besluttet_tidspunkt"),
+                    besluttetTidspunkt = instant("annullering_besluttet_tidspunkt"),
                 )
             },
             linjer = linjer,

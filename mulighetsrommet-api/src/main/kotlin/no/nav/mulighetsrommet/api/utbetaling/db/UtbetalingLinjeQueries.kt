@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.FakturaStatusType
 import org.intellij.lang.annotations.Language
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 
 class UtbetalingLinjeQueries(private val session: Session) {
@@ -127,7 +127,7 @@ class UtbetalingLinjeQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setFakturaSendtTidspunk(id: UUID, tidspunkt: LocalDateTime) {
+    fun setFakturaSendtTidspunk(id: UUID, tidspunkt: Instant) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling_linje
@@ -146,7 +146,7 @@ class UtbetalingLinjeQueries(private val session: Session) {
     fun setFakturaStatus(
         fakturanummer: String,
         status: FakturaStatusType,
-        fakturaStatusEndretTidspunkt: LocalDateTime,
+        fakturaStatusEndretTidspunkt: Instant,
     ) {
         @Language("PostgreSQL")
         val query = """
@@ -240,14 +240,14 @@ private fun Row.toUtbetalingLinje(): UtbetalingLinje {
         UtbetalingLinje.Faktura(
             fakturanummer = string("fakturanummer"),
             utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
-            sendtTidspunkt = localDateTime("faktura_sendt_tidspunkt"),
-            statusEndretTidspunkt = localDateTime("faktura_status_endret_tidspunkt"),
+            sendtTidspunkt = instantOrNull("faktura_sendt_tidspunkt"),
+            statusEndretTidspunkt = instantOrNull("faktura_status_endret_tidspunkt"),
             status = FakturaStatusType.valueOf(status),
         )
     } ?: UtbetalingLinje.Faktura(
         fakturanummer = string("fakturanummer"),
         utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
-        sendtTidspunkt = localDateTimeOrNull("faktura_sendt_tidspunkt"),
+        sendtTidspunkt = instantOrNull("faktura_sendt_tidspunkt"),
         statusEndretTidspunkt = null,
         status = null,
     )

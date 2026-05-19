@@ -41,7 +41,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NOK
@@ -647,9 +646,9 @@ class TilsagnService(
             belop = tilsagn.beregning.output.pris.belop,
             periode = tilsagn.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = opprettelse.behandletTidspunkt.tilNorskLocalDateTime(),
+            behandletTidspunkt = opprettelse.behandletTidspunkt,
             besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = opprettelse.besluttetTidspunkt.tilNorskLocalDateTime(),
+            besluttetTidspunkt = opprettelse.besluttetTidspunkt,
             valuta = tilsagn.beregning.output.pris.valuta,
         )
 
@@ -665,9 +664,9 @@ class TilsagnService(
         val annullerBestilling = AnnullerBestilling(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             behandletAv = annullering.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = annullering.behandletTidspunkt.tilNorskLocalDateTime(),
+            behandletTidspunkt = annullering.behandletTidspunkt,
             besluttetAv = annullering.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = annullering.besluttetTidspunkt.tilNorskLocalDateTime(),
+            besluttetTidspunkt = annullering.besluttetTidspunkt,
         )
 
         storeOkonomiMelding(
@@ -685,9 +684,9 @@ class TilsagnService(
         val faktura = GjorOppBestilling(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             behandletAv = oppgjor.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = oppgjor.behandletTidspunkt.tilNorskLocalDateTime(),
+            behandletTidspunkt = oppgjor.behandletTidspunkt,
             besluttetAv = oppgjor.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = oppgjor.besluttetTidspunkt.tilNorskLocalDateTime(),
+            besluttetTidspunkt = oppgjor.besluttetTidspunkt,
         )
 
         storeOkonomiMelding(

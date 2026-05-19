@@ -15,7 +15,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.tiltak.okonomi.FakturaStatusType
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 
 class UtbetalingLinjeQueriesTest : FunSpec({
@@ -34,7 +34,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
         tilsagnId = TilsagnFixtures.Tilsagn1.id,
         utbetalingId = UtbetalingFixtures.utbetaling1.id,
         status = UtbetalingLinjeStatus.TIL_ATTESTERING,
-        fakturaStatusEndretTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0),
+        fakturaStatusEndretTidspunkt = Instant.parse("2025-01-01T12:00:00Z"),
         pris = 100.NOK,
         gjorOppTilsagn = false,
         periode = UtbetalingFixtures.utbetaling1.periode,
@@ -80,7 +80,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
 
             queries.utbetalingLinje.getOrError(linje.id).faktura.sendtTidspunkt.shouldBeNull()
 
-            val tidspunkt = LocalDateTime.of(2025, 12, 1, 0, 0, 0)
+            val tidspunkt = Instant.parse("2025-12-01T00:00:00Z")
             queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, tidspunkt)
 
             queries.utbetalingLinje.getOrError(linje.id).faktura.sendtTidspunkt.shouldBe(tidspunkt)
@@ -92,7 +92,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
             domain.setup(session)
 
             queries.utbetalingLinje.upsert(linje)
-            val sendtTidspunkt = LocalDateTime.of(2025, 12, 1, 0, 0, 0)
+            val sendtTidspunkt = Instant.parse("2025-12-01T00:00:00Z")
             queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, sendtTidspunkt)
 
             queries.utbetalingLinje.getOrError(linje.id).faktura.should {
@@ -101,7 +101,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
                 it.status.shouldBeNull()
             }
 
-            val endretTidspunkt = LocalDateTime.of(2025, 12, 1, 1, 1, 1)
+            val endretTidspunkt = Instant.parse("2025-12-01T01:01:01Z")
             queries.utbetalingLinje.setFakturaStatus(
                 linje.fakturanummer,
                 FakturaStatusType.FULLT_BETALT,

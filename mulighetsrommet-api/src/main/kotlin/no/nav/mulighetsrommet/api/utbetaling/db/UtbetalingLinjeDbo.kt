@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.tiltak.okonomi.FakturaStatusType
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 
 data class UtbetalingLinjeDbo(
@@ -18,5 +18,5 @@ data class UtbetalingLinjeDbo(
     val lopenummer: Int,
     val fakturanummer: String,
     val fakturaStatus: FakturaStatusType?,
-    val fakturaStatusEndretTidspunkt: LocalDateTime?,
+    val fakturaStatusEndretTidspunkt: Instant?,
 )

@@ -320,7 +320,7 @@ class UtbetalingService(
     fun oppdaterFakturaStatus(
         fakturanummer: String,
         nyStatus: FakturaStatusType,
-        fakturaStatusEndretTidspunkt: LocalDateTime,
+        fakturaStatusEndretTidspunkt: Instant,
     ): Utbetaling = db.transaction {
         val originalUtbetalingLinje = queries.utbetalingLinje.getOrError(fakturanummer)
         if (originalUtbetalingLinje.faktura.statusEndretTidspunkt != null &&
@@ -489,14 +489,14 @@ class UtbetalingService(
 
     private fun TransactionalQueryContext.logUtbetalingLinjeUtbetalt(
         utbetalingLinje: UtbetalingLinje,
-        fakturaStatusEndretTidspunkt: LocalDateTime,
+        fakturaStatusEndretTidspunkt: Instant,
     ): Utbetaling {
         val tilsagn = queries.tilsagn.getOrError(utbetalingLinje.tilsagnId)
         return logEndring(
             "Betaling for tilsagn ${tilsagn.bestilling.bestillingsnummer} er utbetalt",
             utbetalingLinje.utbetalingId,
             Tiltaksadministrasjon,
-            timestamp = fakturaStatusEndretTidspunkt,
+            timestamp = fakturaStatusEndretTidspunkt.tilNorskLocalDateTime(),
         )
     }
 
@@ -792,7 +792,7 @@ class UtbetalingService(
             }
         }
 
-        queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, LocalDateTime.now())
+        queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, Instant.now())
 
         val faktura = OpprettFaktura(
             fakturanummer = linje.faktura.fakturanummer,
@@ -800,9 +800,9 @@ class UtbetalingService(
             betalingsinformasjon = betalingsinformasjon,
             periode = linje.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
-            behandletTidspunkt = opprettelse.behandletTidspunkt.tilNorskLocalDateTime(),
+            behandletTidspunkt = opprettelse.behandletTidspunkt,
             besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = opprettelse.besluttetTidspunkt.tilNorskLocalDateTime(),
+            besluttetTidspunkt = opprettelse.besluttetTidspunkt,
             gjorOppBestilling = linje.gjorOppTilsagn,
             beskrivelse = beskrivelse,
             belop = linje.pris.belop,

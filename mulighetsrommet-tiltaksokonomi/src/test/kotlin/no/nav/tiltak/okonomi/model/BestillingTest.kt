@@ -14,6 +14,7 @@ import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.Instant
 import java.time.LocalDate
 
 class BestillingTest : FunSpec({
@@ -27,9 +28,9 @@ class BestillingTest : FunSpec({
             avtalenummer = null,
             belop = 1000,
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
-            besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
+            besluttetTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             kostnadssted = NavEnhetNummer("0400"),
             valuta = Valuta.NOK,
@@ -45,9 +46,9 @@ class BestillingTest : FunSpec({
             bestilling.arrangorHovedenhet shouldBe Organisasjonsnummer("123456789")
             bestilling.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
             bestilling.opprettelse.behandletAv shouldBe OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
-            bestilling.opprettelse.behandletTidspunkt shouldBe LocalDate.of(2025, 1, 1).atStartOfDay()
+            bestilling.opprettelse.behandletTidspunkt shouldBe Instant.parse("2025-01-01T00:00:00Z")
             bestilling.opprettelse.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavIdent("Z123456"))
-            bestilling.opprettelse.besluttetTidspunkt shouldBe LocalDate.of(2025, 1, 2).atStartOfDay()
+            bestilling.opprettelse.besluttetTidspunkt shouldBe Instant.parse("2025-01-02T00:00:00Z")
             bestilling.annullering.shouldBeNull()
         }
 

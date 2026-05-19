@@ -15,8 +15,8 @@ import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 object Fixtures {
 
@@ -32,9 +32,9 @@ object Fixtures {
         status = BestillingStatusType.AKTIV,
         opprettelse = Bestilling.Totrinnskontroll(
             behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-            behandletTidspunkt = LocalDate.of(2025, 1, 1).atStartOfDay(),
+            behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
-            besluttetTidspunkt = LocalDate.of(2025, 1, 2).atStartOfDay(),
+            besluttetTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
         ),
         annullering = null,
         valuta = Valuta.NOK,
@@ -73,11 +73,11 @@ object Fixtures {
         belop = 500,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         status = FakturaStatusType.SENDT,
-        fakturaStatusSistOppdatert = LocalDateTime.of(2025, 1, 1, 0, 0),
+        fakturaStatusSistOppdatert = Instant.parse("2025-01-01T00:00:00Z"),
         behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-        behandletTidspunkt = LocalDate.of(2025, 2, 1).atStartOfDay(),
+        behandletTidspunkt = Instant.parse("2025-02-01T00:00:00Z"),
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
-        besluttetTidspunkt = LocalDate.of(2025, 2, 2).atStartOfDay(),
+        besluttetTidspunkt = Instant.parse("2025-02-02T00:00:00Z"),
         linjer = listOf(
             Faktura.Linje(
                 linjenummer = 1,

@@ -12,7 +12,7 @@ import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.test.Fixtures
-import java.time.LocalDate
+import java.time.Instant
 
 class BestillingQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -55,9 +55,9 @@ class BestillingQueriesTest : FunSpec({
 
             val annullering = Bestilling.Totrinnskontroll(
                 behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
-                behandletTidspunkt = LocalDate.of(2025, 1, 3).atStartOfDay(),
+                behandletTidspunkt = Instant.parse("2025-01-03T00:00:00Z"),
                 besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
-                besluttetTidspunkt = LocalDate.of(2025, 1, 4).atStartOfDay(),
+                besluttetTidspunkt = Instant.parse("2025-01-04T00:00:00Z"),
             )
             queries.setAnnullering("A-1", annullering)
 

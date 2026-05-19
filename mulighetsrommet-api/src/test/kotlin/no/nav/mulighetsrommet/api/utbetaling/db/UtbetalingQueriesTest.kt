@@ -49,7 +49,6 @@ import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.UUID
 
 class UtbetalingQueriesTest : FunSpec({
@@ -71,7 +70,7 @@ class UtbetalingQueriesTest : FunSpec({
         output = UtbetalingBeregningFri.Output(pris = 137_077.NOK),
     )
 
-    val utbetalesTidligstTidspunkt = LocalDate.of(2025, 12, 1).atStartOfDay().toInstant(ZoneOffset.UTC)
+    val utbetalesTidligstTidspunkt = Instant.parse("2025-12-01T00:00:00Z")
     val utbetaling = UtbetalingDbo(
         id = UUID.randomUUID(),
         gjennomforingId = AFT1.id,

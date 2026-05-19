@@ -14,8 +14,8 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
-import java.time.LocalDateTime
+import no.nav.mulighetsrommet.serializers.InstantOrLocalDateTimeSerializer
+import java.time.Instant
 
 @Serializable
 sealed class OkonomiBestillingMelding {
@@ -55,11 +55,11 @@ data class OpprettBestilling(
     val belop: Int,
     val periode: Periode,
     val behandletAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val behandletTidspunkt: LocalDateTime,
+    @Serializable(with = InstantOrLocalDateTimeSerializer::class)
+    val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val besluttetTidspunkt: LocalDateTime,
+    @Serializable(with = InstantOrLocalDateTimeSerializer::class)
+    val besluttetTidspunkt: Instant,
     val valuta: Valuta,
 ) {
     @Serializable
@@ -92,22 +92,22 @@ enum class Tilskuddstype {
 data class AnnullerBestilling(
     val bestillingsnummer: String,
     val behandletAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val behandletTidspunkt: LocalDateTime,
+    @Serializable(with = InstantOrLocalDateTimeSerializer::class)
+    val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val besluttetTidspunkt: LocalDateTime,
+    @Serializable(with = InstantOrLocalDateTimeSerializer::class)
+    val besluttetTidspunkt: Instant,
 )
 
 @Serializable
 data class GjorOppBestilling(
     val bestillingsnummer: String,
     val behandletAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val behandletTidspunkt: LocalDateTime,
+    @Serializable(with = InstantOrLocalDateTimeSerializer::class)
+    val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val besluttetTidspunkt: LocalDateTime,
+    @Serializable(with = InstantOrLocalDateTimeSerializer::class)
+    val besluttetTidspunkt: Instant,
 )
 
 @Serializable
@@ -118,11 +118,11 @@ data class OpprettFaktura(
     val belop: Int,
     val periode: Periode,
     val behandletAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val behandletTidspunkt: LocalDateTime,
+    @Serializable(with = InstantOrLocalDateTimeSerializer::class)
+    val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val besluttetTidspunkt: LocalDateTime,
+    @Serializable(with = InstantOrLocalDateTimeSerializer::class)
+    val besluttetTidspunkt: Instant,
     val gjorOppBestilling: Boolean,
     val beskrivelse: String?,
     val valuta: Valuta,

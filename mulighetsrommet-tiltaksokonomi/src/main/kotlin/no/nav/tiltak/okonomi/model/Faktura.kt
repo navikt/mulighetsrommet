@@ -11,7 +11,7 @@ import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.helpers.divideBelopByMonthsInPeriode
 import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
 import no.nav.tiltak.okonomi.service.gjorOppFakturanummer
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class Faktura(
     val bestillingsnummer: String,
@@ -20,11 +20,11 @@ data class Faktura(
     val belop: Int,
     val periode: Periode,
     val status: FakturaStatusType,
-    val fakturaStatusSistOppdatert: LocalDateTime,
+    val fakturaStatusSistOppdatert: Instant,
     val behandletAv: OkonomiPart,
-    val behandletTidspunkt: LocalDateTime,
+    val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    val besluttetTidspunkt: LocalDateTime,
+    val besluttetTidspunkt: Instant,
     val linjer: List<Linje>,
     val beskrivelse: String?,
     val valuta: Valuta,
@@ -89,7 +89,7 @@ data class Faktura(
                 belop = faktura.belop,
                 periode = faktura.periode,
                 status = FakturaStatusType.SENDT,
-                fakturaStatusSistOppdatert = LocalDateTime.now(),
+                fakturaStatusSistOppdatert = Instant.now(),
                 behandletAv = faktura.behandletAv,
                 behandletTidspunkt = faktura.behandletTidspunkt,
                 besluttetAv = faktura.besluttetAv,
@@ -119,7 +119,7 @@ data class Faktura(
                 belop = 0,
                 periode = sisteBestillingLinje.periode,
                 status = FakturaStatusType.SENDT,
-                fakturaStatusSistOppdatert = LocalDateTime.now(),
+                fakturaStatusSistOppdatert = Instant.now(),
                 behandletAv = gjorOppBestilling.behandletAv,
                 behandletTidspunkt = gjorOppBestilling.behandletTidspunkt,
                 besluttetAv = gjorOppBestilling.besluttetAv,

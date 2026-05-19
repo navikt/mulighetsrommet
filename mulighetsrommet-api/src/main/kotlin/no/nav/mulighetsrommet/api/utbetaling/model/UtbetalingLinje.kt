@@ -4,11 +4,9 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.InstantSerializer
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.UUID
 
 @Serializable
@@ -31,10 +29,10 @@ data class UtbetalingLinje(
         val fakturanummer: String,
         @Serializable(with = InstantSerializer::class)
         val utbetalesTidligstTidspunkt: Instant?,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val sendtTidspunkt: LocalDateTime?,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val statusEndretTidspunkt: LocalDateTime?,
+        @Serializable(with = InstantSerializer::class)
+        val sendtTidspunkt: Instant?,
+        @Serializable(with = InstantSerializer::class)
+        val statusEndretTidspunkt: Instant?,
         val status: FakturaStatusType?,
     ) {
         fun erUtbetalt() = status in setOf(FakturaStatusType.DELVIS_BETALT, FakturaStatusType.FULLT_BETALT)
