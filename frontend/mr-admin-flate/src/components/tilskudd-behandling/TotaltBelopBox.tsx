@@ -19,8 +19,8 @@ export function TotaltBelopBox({ label, belop }: Props) {
     >
       <HStack justify="space-between">
         <HStack align="center" gap="space-8">
-          <PadlockLockedIcon title="a11y-title" fontSize="1.5rem" />
-          <BodyShort size="large">{label}</BodyShort>
+          <PadlockLockedIcon fontSize="1.5rem" />
+          <BodyShort size="medium">{label}</BodyShort>
         </HStack>
         <BodyShort size="large">{formaterValutaBelop(belop)}</BodyShort>
       </HStack>

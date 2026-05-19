@@ -15,6 +15,7 @@ import {
   TilskuddOpplaeringType,
   GjennomforingType,
   TilskuddBehandlingStatusAarsak,
+  TilskuddMottaker,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -180,6 +181,15 @@ export function opplaeringTilskuddToString(tilskuddType: TilskuddOpplaeringType)
       return "Skolepenger";
     case TilskuddOpplaeringType.STUDIEREISE:
       return "Studiereise";
+  }
+}
+
+export function tilskuddMottakerToString(mottaker: TilskuddMottaker): string {
+  switch (mottaker) {
+    case TilskuddMottaker.BRUKER:
+      return "Utbetales til brukeren";
+    case TilskuddMottaker.ARRANGOR:
+      return "Utbetales til arrangøren";
   }
 }
 

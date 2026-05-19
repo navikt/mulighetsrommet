@@ -37,7 +37,11 @@ import { isAvvist } from "@/utils/totrinnskontroll";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { TotaltBelopBox } from "@/components/tilskudd-behandling/TotaltBelopBox";
-import { aarsakTilTekst } from "@/utils/Utils";
+import {
+  aarsakTilTekst,
+  opplaeringTilskuddToString,
+  tilskuddMottakerToString,
+} from "@/utils/Utils";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -86,7 +90,7 @@ export function TilskuddBehandlingDetaljerPage() {
   const erTilAttestering = behandling.status.type === TilskuddBehandlingStatus.TIL_ATTESTERING;
 
   return (
-    <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
+    <TilskuddBehandlingLayout gjennomforingId={gjennomforingId} status={behandling.status.status}>
       <>
         {isAvvist(opprettelse) && (
           <ToTrinnsOpprettelsesForklaring
@@ -144,8 +148,14 @@ export function TilskuddBehandlingDetaljerPage() {
                       <VStack gap="space-8">
                         <Definisjonsliste
                           definitions={[
-                            { key: "Tilskuddstype", value: t.tilskuddOpplaeringType },
-                            { key: "Hvem skal motta utbetalingen?", value: t.utbetalingMottaker },
+                            {
+                              key: "Tilskuddstype",
+                              value: opplaeringTilskuddToString(t.tilskuddOpplaeringType),
+                            },
+                            {
+                              key: "Hvem skal motta utbetalingen?",
+                              value: tilskuddMottakerToString(t.utbetalingMottaker),
+                            },
                             {
                               key: "Beløp fra søknad",
                               value: formaterValutaBelop(t.soknadBelop),

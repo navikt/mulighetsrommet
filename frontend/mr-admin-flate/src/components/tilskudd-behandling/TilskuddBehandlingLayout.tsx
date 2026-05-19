@@ -3,18 +3,21 @@ import { Header } from "@/components/detaljside/Header";
 import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
+import { DataElementStatusTag } from "@mr/frontend-common";
 import { GavelSoundBlockFillIcon } from "@navikt/aksel-icons";
 import { Heading } from "@navikt/ds-react";
+import { DataElementStatus } from "@tiltaksadministrasjon/api-client";
 import React from "react";
 
 export type TilskuddBehandlingTab = "saksopplysninger" | "vedtak";
 
 interface Props {
   gjennomforingId: string;
+  status?: DataElementStatus;
   children: React.ReactNode;
 }
 
-export function TilskuddBehandlingLayout({ gjennomforingId, children }: Props) {
+export function TilskuddBehandlingLayout({ gjennomforingId, status, children }: Props) {
   const { gjennomforing } = useEnkeltplassGjennomforingOrError(gjennomforingId);
 
   return (
@@ -41,6 +44,7 @@ export function TilskuddBehandlingLayout({ gjennomforingId, children }: Props) {
         <Heading size="large" level="2">
           Tilskuddsbehandling
         </Heading>
+        {status && <DataElementStatusTag {...status} />}
       </Header>
       <WhitePaddedBox>
         <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
