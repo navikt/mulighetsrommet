@@ -63,6 +63,7 @@ const val NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON = """{
       "type": "Verdigruppe",
       "id": null,
       "visningsnavn": "Kurstype",
+      "required": true,
       "representerer": "kurstype",
       "seleksjonstype": "ENKELTVALG",
       "alternativer": [
@@ -90,16 +91,21 @@ const val FAG_OG_YRKESOPPLAERING = """{
       "type": "Gruppe",
       "id": null,
       "visningsnavn": "Utdanningsprogram",
+      "representerer": "utdanningsprogram",
+      "required": true,
       "alternativer": [
         {
           "type": "Gruppe",
           "id": "1390a963-e9b2-4677-bb87-243f4638b7a1",
           "visningsnavn": "Bygg- og anleggsteknikk",
+          "representerer": null,
+          "required": false,
           "alternativer": [
             {
               "type": "Verdigruppe",
               "id": null,
               "visningsnavn": "Lærefag",
+              "required": true,
               "representerer": "larefag",
               "seleksjonstype": "FLERVALG",
               "alternativer": [
@@ -131,11 +137,14 @@ const val FAG_OG_YRKESOPPLAERING = """{
           "type": "Gruppe",
           "id": "1626096d-f1ac-4c34-aa93-741503bc5584",
           "visningsnavn": "Håndverk, design og produktutvikling",
+          "representerer": null,
+          "required": false,
           "alternativer": [
             {
               "type": "Verdigruppe",
               "id": null,
               "visningsnavn": "Lærefag",
+              "required": true,
               "representerer": "larefag",
               "seleksjonstype": "FLERVALG",
               "alternativer": [
@@ -175,6 +184,7 @@ const val ARBEIDSMARKEDSOPPLAERING = """{
       "type": "Verdigruppe",
       "id": null,
       "visningsnavn": "Bransje",
+      "required": true,
       "representerer": "bransje",
       "seleksjonstype": "ENKELTVALG",
       "alternativer": [
@@ -224,6 +234,7 @@ const val ARBEIDSMARKEDSOPPLAERING = """{
       "type": "Verdigruppe",
       "id": null,
       "visningsnavn": "Førerkort",
+      "required": false,
       "representerer": "forerkort",
       "seleksjonstype": "FLERVALG",
       "alternativer": [
@@ -305,6 +316,7 @@ const val ARBEIDSMARKEDSOPPLAERING = """{
       "type": "VerdigruppeSok",
       "id": null,
       "visningsnavn": "Sertifiseringer",
+      "required": false,
       "representerer": "sertifiseringer",
       "seleksjonstype": "FLERVALG",
       "kilde": "JANZZ_SERTIFISERING"
