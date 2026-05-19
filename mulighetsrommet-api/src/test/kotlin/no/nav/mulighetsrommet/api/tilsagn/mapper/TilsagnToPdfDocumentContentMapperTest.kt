@@ -17,14 +17,13 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
@@ -84,7 +83,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
             lopenummer = Tiltaksnummer("2025/11457"),
             navn = "Truckførerkurs",
         ),
-        belopBrukt = 0.withValuta(Valuta.NOK),
+        belopBrukt = 0.NOK,
         periode = Periode.of(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 2, 1))!!,
         lopenummer = 1,
         bestilling = Tilsagn.Bestilling(
@@ -114,14 +113,14 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
                     TilsagnBeregningFri.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "1234",
-                        pris = 1234.withValuta(Valuta.NOK),
+                        pris = 1234.NOK,
                         antall = 1,
                     ),
                 ),
                 prisbetingelser = null,
             ),
             output = TilsagnBeregningFri.Output(
-                pris = 1234.withValuta(Valuta.NOK),
+                pris = 1234.NOK,
             ),
         ),
         deltakere = emptyList(),

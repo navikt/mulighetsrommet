@@ -3,7 +3,6 @@ import { DemoImageHeader } from "@/components/DemoImageHeader";
 import { ArbeidsmarkedstiltakDetaljerSuspense } from "@/components/suspense/ArbeidsmarkedstiltakDetaljerSuspense";
 import { AppContainer } from "@/layouts/AppContainer";
 import { Navigate, Route, Routes } from "react-router";
-import "./polyfill";
 import { Landingsside } from "./views/Landingsside";
 import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";
 import { ModiaArbeidsmarkedstiltakOversikt } from "./views/ModiaArbeidsmarkedstiltakOversikt";

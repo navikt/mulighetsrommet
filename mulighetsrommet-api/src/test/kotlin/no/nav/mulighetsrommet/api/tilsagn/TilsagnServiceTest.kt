@@ -38,11 +38,11 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
 import java.time.LocalDate
@@ -65,7 +65,7 @@ class TilsagnServiceTest : FunSpec({
                 TilsagnInputLinjeRequest(
                     id = UUID.randomUUID(),
                     beskrivelse = "Beskrivelse",
-                    pris = 1500.withValuta(Valuta.NOK),
+                    pris = 1500.NOK,
                     antall = 1,
                 ),
             ),
@@ -158,7 +158,7 @@ class TilsagnServiceTest : FunSpec({
                     TilsagnInputLinjeRequest(
                         id = UUID.randomUUID(),
                         beskrivelse = "1500",
-                        pris = 1500.withValuta(Valuta.NOK),
+                        pris = 1500.NOK,
                         antall = 1,
                     ),
                 ),

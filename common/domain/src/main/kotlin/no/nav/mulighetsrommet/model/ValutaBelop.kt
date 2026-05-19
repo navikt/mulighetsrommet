@@ -30,3 +30,6 @@ data class ValutaBelop(
 }
 
 fun Int.withValuta(valuta: Valuta) = ValutaBelop(this, valuta)
+
+val Int.NOK: ValutaBelop
+    get() = ValutaBelop(this, Valuta.NOK)

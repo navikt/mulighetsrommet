@@ -347,62 +347,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/veilederflate/joyride/lagre:
-    post:
-      tags:
-      - Joyride
-      description: Lagrer at en veileder er ferdig med en joyride
-      operationId: lagreJoyrideHarKjort
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/VeilederJoyrideRequest"
-        required: true
-      responses:
-        "200":
-          description: Lagret ok
-          headers: {}
-        default:
-          description: En feil har oppstått
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/veilederflate/joyride/{type}/har-fullfort:
-    get:
-      tags:
-      - Joyride
-      description: Finner ut om en veileder har fullført en joyride
-      operationId: veilederHarFullfortJoyride
-      parameters:
-      - name: type
-        in: path
-        description: Type joyride som skal sjekkes
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          $ref: "#/components/schemas/JoyrideType"
-      responses:
-        "200":
-          description: Indikerer om veileder har fullført joyride
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: boolean
-        default:
-          description: En feil har oppstått
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/veilederflate/innsatsgrupper:
     get:
       tags:
@@ -1378,22 +1322,6 @@ components:
       - fornavn
       - hovedenhet
       - navIdent
-    JoyrideType:
-      type: string
-      enum:
-      - OVERSIKT
-      - DETALJER
-      - HAR_VIST_OPPRETT_AVTALE
-    VeilederJoyrideRequest:
-      type: object
-      properties:
-        fullfort:
-          type: boolean
-        joyrideType:
-          $ref: "#/components/schemas/JoyrideType"
-      required:
-      - fullfort
-      - joyrideType
     VeilederflateInnsatsgruppe:
       type: object
       properties:

@@ -176,7 +176,7 @@ class GenererUtbetalingService(
         }
 
         val deltakere = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
-        return prismodell.beregn(gjennomforing, deltakere, periode).takeIf { it.output.pris.belop > 0 }
+        return prismodell.beregn(gjennomforing, periode, deltakere).takeIf { it.output.pris.belop > 0 }
     }
 
     private suspend fun createUtbetaling(

@@ -20,7 +20,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.utbetaling.model.AutomatiskUtbetalingResult
+import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -159,9 +159,9 @@ class TilskuddArrangorUtbetalingConsumer(
             Tiltaksadministrasjon,
         )
             .map {
-                when (utbetalingService.automatiskUtbetaling(it.id)) {
-                    AutomatiskUtbetalingResult.GODKJENT -> AutomatiskUtbetalingResult.GODKJENT
-                    else -> throw IllegalStateException("Feil ved automatisk utbetaling av tilskudd til arrangør. Errors: $it")
+                when (val result = utbetalingService.automatisertUtbetalingVedEttRelevantTilsagn(it.id)) {
+                    AutomatisertUtbetalingResult.GODKJENT -> Unit
+                    else -> throw IllegalStateException("Feil ved automatisk utbetaling av tilskudd til arrangør. Errors: $result")
                 }
                 it
             }

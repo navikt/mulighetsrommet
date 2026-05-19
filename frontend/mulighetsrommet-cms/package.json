@@ -14,7 +14,7 @@
     "sanity"
   ],
   "dependencies": {
-    "@navikt/aksel-icons": "8.10.4",
+    "@navikt/aksel-icons": "8.10.5",
     "@portabletext/react": "6.0.3",
     "@sanity/client": "7.22.0",
     "@sanity/ui": "3.2.0",
@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@types/react": "19.2.14",
-    "postcss": "8.5.13",
+    "postcss": "8.5.14",
     "sass-embedded": "1.99.0"
   }
 }

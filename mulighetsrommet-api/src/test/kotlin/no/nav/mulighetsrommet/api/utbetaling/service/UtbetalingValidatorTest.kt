@@ -17,10 +17,10 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.model.JournalpostId
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
@@ -211,13 +211,13 @@ class UtbetalingValidatorTest : FunSpec({
                         UtbetalingValidator.OpprettUtbetalingLinjerCtx.Linje(
                             request = UtbetalingLinjeRequest(
                                 id = UUID.randomUUID(),
-                                pris = 10000000.withValuta(Valuta.NOK).toRequest(),
+                                pris = 10000000.NOK.toRequest(),
                                 gjorOppTilsagn = true,
                                 tilsagnId = UUID.randomUUID(),
                             ),
                             tilsagn = UtbetalingValidator.OpprettUtbetalingLinjerCtx.Tilsagn(
                                 status = TilsagnStatus.GODKJENT,
-                                gjenstaendeBelop = 10000000.withValuta(Valuta.NOK),
+                                gjenstaendeBelop = 10000000.NOK,
                             ),
                         ),
                     ),
@@ -236,13 +236,13 @@ class UtbetalingValidatorTest : FunSpec({
                         UtbetalingValidator.OpprettUtbetalingLinjerCtx.Linje(
                             request = UtbetalingLinjeRequest(
                                 id = UUID.randomUUID(),
-                                pris = 1.withValuta(Valuta.NOK).toRequest(),
+                                pris = 1.NOK.toRequest(),
                                 gjorOppTilsagn = true,
                                 tilsagnId = UUID.randomUUID(),
                             ),
                             tilsagn = UtbetalingValidator.OpprettUtbetalingLinjerCtx.Tilsagn(
                                 status = TilsagnStatus.GODKJENT,
-                                gjenstaendeBelop = 10.withValuta(Valuta.NOK),
+                                gjenstaendeBelop = 10.NOK,
                             ),
                         ),
                     ),

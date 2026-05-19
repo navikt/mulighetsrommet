@@ -1,10 +1,11 @@
 import { NavnOgGradering } from "@/components/personalia/NavnOgGradering";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { BodyShort, Box, Checkbox, Table } from "@navikt/ds-react";
+import { BodyShort, Checkbox, Table } from "@navikt/ds-react";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { TilsagnDeltakerDto, TilsagnDeltakerRequest } from "@tiltaksadministrasjon/api-client";
 import { useState } from "react";
+import { ChevronDownIcon, ChevronUpIcon } from "@navikt/aksel-icons";
 
 interface Props {
   deltakere: TilsagnDeltakerDto[];
@@ -81,7 +82,7 @@ export function TilsagnDeltakereTable({ deltakere, selected, setSelected }: Prop
               </Table.HeaderCell>
               <Table.DataCell>{deltaker.oppfolgingEnhet?.navn ?? "-"}</Table.DataCell>
               <Table.DataCell>
-                <InnholdAnnetCell text={deltaker.innholdAnnet ?? ""} />
+                {deltaker.innholdAnnet && <InnholdCell innhold={deltaker.innholdAnnet} />}
               </Table.DataCell>
               <Table.DataCell>{formaterDato(deltaker.startDato)}</Table.DataCell>
               <Table.DataCell>{formaterDato(deltaker.sluttDato)}</Table.DataCell>
@@ -96,42 +97,41 @@ export function TilsagnDeltakereTable({ deltakere, selected, setSelected }: Prop
   );
 }
 
-const MAX_LENGTH = 30;
+const TRUNCATE_INNHOLD_AT = 60;
 
-function InnholdAnnetCell({ text }: { text: string }) {
-  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
-  const truncated = text.length > MAX_LENGTH ? `${text.substring(0, MAX_LENGTH - 3)}...` : text;
+function InnholdCell({ innhold }: { innhold: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const needsTruncation = innhold.length > TRUNCATE_INNHOLD_AT;
+
+  if (!needsTruncation) {
+    return <BodyShort>{innhold}</BodyShort>;
+  }
 
   return (
-    <div
-      style={{ display: "inline-block" }}
-      onMouseEnter={(e) => {
-        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-        setPos({ top: rect.top, left: rect.left });
-      }}
-      onMouseLeave={() => setPos(null)}
-    >
-      <BodyShort>{truncated}</BodyShort>
-      {pos && text.length > MAX_LENGTH && (
-        <Box
-          background="default"
-          borderColor="neutral"
-          borderRadius="8"
-          borderWidth="1"
-          shadow="dialog"
-          padding="space-4"
-          style={{
-            position: "fixed",
-            top: pos.top,
-            left: pos.left,
-            zIndex: 1000,
-            whiteSpace: "pre-wrap",
-            width: "320px",
-          }}
-        >
-          <BodyShort>{text}</BodyShort>
-        </Box>
-      )}
+    <div className="flex flex-col items-center">
+      <BodyShort className="self-stretch whitespace-pre-wrap">
+        {expanded ? innhold : `${innhold.slice(0, TRUNCATE_INNHOLD_AT).trimEnd()}...`}
+      </BodyShort>
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="mt-1 cursor-pointer text-blue-600 hover:text-blue-800"
+        aria-expanded={expanded}
+      >
+        {expanded ? (
+          <ChevronUpIcon
+            style={{ color: "var(--ax-text-info-decoration)" }}
+            title="Vis mindre"
+            fontSize="1.5rem"
+          />
+        ) : (
+          <ChevronDownIcon
+            style={{ color: "var(--ax-text-info-decoration)" }}
+            title="Vis mer"
+            fontSize="1.5rem"
+          />
+        )}
+      </button>
     </div>
   );
 }

@@ -41,10 +41,10 @@ import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -687,7 +687,7 @@ class AvtaleValidatorTest : FunSpec({
                 ),
                 getContext(),
             ).shouldBeRight()[0].satser shouldBe listOf(
-                AvtaltSats(LocalDate.of(2025, 1, 1), 1.withValuta(Valuta.NOK)),
+                AvtaltSats(LocalDate.of(2025, 1, 1), 1.NOK),
             )
         }
 
@@ -762,9 +762,9 @@ class AvtaleValidatorTest : FunSpec({
                 ),
                 getContext(),
             ).shouldBeRight()[0].satser shouldBe listOf(
-                AvtaltSats(LocalDate.of(2025, 1, 1), 1.withValuta(Valuta.NOK)),
-                AvtaltSats(LocalDate.of(2025, 2, 1), 2.withValuta(Valuta.NOK)),
-                AvtaltSats(LocalDate.of(2025, 3, 1), 3.withValuta(Valuta.NOK)),
+                AvtaltSats(LocalDate.of(2025, 1, 1), 1.NOK),
+                AvtaltSats(LocalDate.of(2025, 2, 1), 2.NOK),
+                AvtaltSats(LocalDate.of(2025, 3, 1), 3.NOK),
             )
         }
     }

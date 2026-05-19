@@ -12,9 +12,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@navikt/aksel-icons": "8.10.4",
-    "@navikt/ds-css": "8.10.4",
-    "@navikt/ds-react": "8.10.4",
+    "@navikt/aksel-icons": "8.10.5",
+    "@navikt/ds-css": "8.10.5",
+    "@navikt/ds-react": "8.10.5",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hot-toast": "2.6.0",
@@ -28,6 +28,6 @@
     "@vitejs/plugin-react": "6.0.1",
     "eslint": "10.3.0",
     "typescript": "6.0.3",
-    "vite": "8.0.10"
+    "vite": "8.0.11"
   }
 }
