@@ -18,7 +18,7 @@ import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { ControlledRadioGroup } from "../skjema/ControlledRadioGroup";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 import { BetalingsinformasjonFields } from "../utbetaling/form/BetalingsinformasjonFields";
-import { opplaeringTilskuddToString } from "@/utils/Utils";
+import { opplaeringTilskuddToString, tilskuddMottakerToString } from "@/utils/Utils";
 import { defaultTilskuddRequest } from "./defaultTilskuddRequest";
 import { TotaltBelopBox } from "./TotaltBelopBox";
 
@@ -113,8 +113,12 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                   legend="Hvem skal motta utbetalingen?"
                   horisontal
                 >
-                  <Radio value={TilskuddMottaker.BRUKER}>Utbetales til brukeren</Radio>
-                  <Radio value={TilskuddMottaker.ARRANGOR}>Utbetales til arrangøren</Radio>
+                  <Radio value={TilskuddMottaker.BRUKER}>
+                    {tilskuddMottakerToString(TilskuddMottaker.BRUKER)}
+                  </Radio>
+                  <Radio value={TilskuddMottaker.ARRANGOR}>
+                    {tilskuddMottakerToString(TilskuddMottaker.ARRANGOR)}
+                  </Radio>
                 </ControlledRadioGroup>
                 {watch("tilskudd")[index].utbetalingMottaker === TilskuddMottaker.ARRANGOR && (
                   <BetalingsinformasjonFields<TilskuddBehandlingRequestTilskuddRequest>
