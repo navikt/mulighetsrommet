@@ -143,7 +143,7 @@ class TilskuddArrangorUtbetalingConsumer(
         belop: ValutaBelop,
         kid: Kid?,
     ): Utbetaling {
-        return utbetalingService.opprettUtbetalingInTx(
+        return utbetalingService.opprettUtbetaling(
             UpsertUtbetaling.Generering(
                 id = UUID.randomUUID(),
                 periode = periode,

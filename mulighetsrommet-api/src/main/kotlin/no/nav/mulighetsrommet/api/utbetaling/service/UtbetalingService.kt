@@ -116,14 +116,6 @@ class UtbetalingService(
         opprett: UpsertUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
-        opprettUtbetalingInTx(opprett, agent)
-    }
-
-    context(tx: TransactionalQueryContext)
-    suspend fun opprettUtbetalingInTx(
-        opprett: UpsertUtbetaling,
-        agent: Agent,
-    ): Either<List<FieldError>, Utbetaling> = with(tx) {
         if (queries.utbetaling.get(opprett.id) != null) {
             return FieldError.of("Utbetalingen er allerede opprettet").nel().left()
         }
