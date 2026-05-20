@@ -65,13 +65,14 @@ class TilskuddArrangorUtbetalingConsumer(
         val behandling = db.session { queries.tilskuddBehandling.get(key) }
             ?: throw IllegalStateException("Fant ikke attestert tilskudd_behandling id=$key")
 
-        foo(behandling)
+        utbetalTilskuddTilArrangor(behandling)
     }
 
-    private suspend fun foo(behandling: TilskuddBehandlingDto) {
+    private suspend fun utbetalTilskuddTilArrangor(behandling: TilskuddBehandlingDto) {
         behandling.tilskudd
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
             .filter { it.utbetalingMottaker == TilskuddMottaker.ARRANGOR }
+            // Idempotency check
             .filter { db.session { queries.utbetaling.getByTilskudd(it.id) } == null }
             .forEach { t ->
                 db.transaction {
@@ -115,7 +116,6 @@ class TilskuddArrangorUtbetalingConsumer(
                     linjer = listOf(
                         TilsagnInputLinjeRequest(
                             id = UUID.randomUUID(),
-                            // TODO: Beskrivelse
                             beskrivelse = "Automatisk tilsagn for opplæringstilskudd",
                             pris = belop,
                             antall = 1,
@@ -126,7 +126,6 @@ class TilskuddArrangorUtbetalingConsumer(
                 beskrivelse = null,
                 periodeStart = periode.start.toString(),
                 periodeSlutt = periode.getLastInclusiveDate().toString(),
-                // TODO: Er det vits i å lagre deltakeren på tilsagn her?
                 deltakere = emptyList(),
             ),
             Tiltaksadministrasjon,
