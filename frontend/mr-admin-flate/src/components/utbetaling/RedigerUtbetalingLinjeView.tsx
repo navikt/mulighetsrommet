@@ -273,6 +273,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
 function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
   switch (tilskuddstype) {
     case Tilskuddstype.TILTAK_DRIFTSTILSKUDD:
+    case Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD:
       return TilsagnType.EKSTRATILSAGN;
     case Tilskuddstype.TILTAK_INVESTERINGER:
       return TilsagnType.INVESTERING;

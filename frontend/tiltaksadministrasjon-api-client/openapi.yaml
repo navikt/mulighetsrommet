@@ -7128,6 +7128,7 @@ components:
       enum:
       - TILTAK_DRIFTSTILSKUDD
       - TILTAK_INVESTERINGER
+      - TILTAK_OPPLAERING_TILSKUDD
     UtbetalingHandling:
       type: string
       enum:

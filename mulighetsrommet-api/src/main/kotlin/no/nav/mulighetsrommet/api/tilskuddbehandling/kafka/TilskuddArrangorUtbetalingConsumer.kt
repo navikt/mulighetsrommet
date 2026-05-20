@@ -151,10 +151,9 @@ class TilskuddArrangorUtbetalingConsumer(
                 periode = periode,
                 gjennomforingId = gjennomforingId,
                 beregning = UtbetalingBeregningFri.from(belop),
-                tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+                tilskuddstype = Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD,
                 kid = kid,
                 blokkeringer = emptySet(),
-
             ),
             Tiltaksadministrasjon,
         )

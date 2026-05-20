@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -142,6 +143,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         database.run {
             val utbetaling = queries.utbetaling.getByGjennomforing(request.gjennomforingId).shouldHaveSize(1)[0]
             utbetaling.status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
+            utbetaling.tilskuddstype shouldBe Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD
             val linje = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id).shouldHaveSize(1)[0]
             linje.status shouldBe UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING
         }
