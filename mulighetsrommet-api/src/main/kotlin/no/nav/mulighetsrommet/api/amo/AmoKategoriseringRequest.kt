@@ -1,17 +1,20 @@
 package no.nav.mulighetsrommet.api.amo
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.amo.models.Bransje
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
+import no.nav.mulighetsrommet.serializers.UUIDListSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.util.UUID
 
 @Serializable
 data class AmoKategoriseringRequest(
-    val kurstype: Kurstype.Kode? = null,
-    val bransje: Bransje.Kode? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val kurstypeId: UUID? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val bransjeId: UUID? = null,
     val sertifiseringer: Set<Sertifisering>? = null,
-    val forerkort: Set<ForerkortKlasse.Kode>? = null,
+    @Serializable(with = UUIDListSerializer::class)
+    val forerkort: List<UUID>? = null,
     val innholdElementer: Set<AmoKategorisering.InnholdElement>? = null,
     val norskprove: Boolean? = null,
 )

@@ -548,65 +548,72 @@ object AvtaleValidator {
     context(ctx: Ctx.OpplaringKategorisering)
     private fun FieldValidator.validateAmoKategorisering(
         tiltakskode: Tiltakskode,
-        amoKategorisering: AmoKategoriseringRequest?,
+        request: AmoKategoriseringRequest?,
     ): Either<List<FieldError>, AmoKategorisering?> = when (tiltakskode) {
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
-            requireValid(amoKategorisering?.kurstype != null) {
+            requireValid(request?.kurstypeId != null && ctx.kurstyper.any { it.id == request.kurstypeId }) {
                 FieldError.of(
                     "Du må velge en kurstype",
                     DetaljerRequest::amoKategorisering,
-                    AmoKategoriseringRequest::kurstype,
+                    AmoKategoriseringRequest::kurstypeId,
                 )
             }
-            if (amoKategorisering.kurstype == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
-                requireValid(amoKategorisering.bransje != null) {
+            val kurstype = ctx.kurstyper.find { it.id === request.kurstypeId }
+            if (kurstype?.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
+                requireValid(request.bransjeId != null && ctx.bransjer.any { it.id == request.bransjeId }) {
                     FieldError.of(
                         "Du må velge en bransje",
                         DetaljerRequest::amoKategorisering,
-                        AmoKategoriseringRequest::bransje,
+                        AmoKategoriseringRequest::bransjeId,
                     )
                 }
             }
-            amoKategorisering
+            request
         }
 
         Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
-            requireValid(amoKategorisering?.bransje != null) {
+            requireValid(request?.bransjeId != null && ctx.bransjer.any { it.id == request.bransjeId }) {
                 FieldError.of(
                     "Du må velge en bransje",
                     DetaljerRequest::amoKategorisering,
-                    AmoKategoriseringRequest::bransje,
+                    AmoKategoriseringRequest::bransjeId,
                 )
             }
-            amoKategorisering.copy(kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET)
+            val kurstype = ctx.kurstyper.find { it.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET }
+            request.copy(kurstypeId = kurstype?.id)
         }
 
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
-            requireValid(amoKategorisering?.kurstype != null) {
+            requireValid(request?.kurstypeId != null) {
                 FieldError.of(
                     "Du må velge en kurstype",
                     DetaljerRequest::amoKategorisering,
-                    AmoKategoriseringRequest::kurstype,
+                    AmoKategoriseringRequest::kurstypeId,
                 )
             }
+            val norskGrunnFov = setOf(
+                Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+                Kurstype.Kode.NORSKOPPLAERING,
+                Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
+            )
+            val kurstyper = ctx.kurstyper.filter { kurstype -> kurstype.kode in norskGrunnFov }.map { it.id }.toSet()
             validate(
-                amoKategorisering.kurstype in listOf(
-                    Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-                    Kurstype.Kode.NORSKOPPLAERING,
-                    Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
-                ),
+                request.kurstypeId in kurstyper,
             ) {
                 FieldError.of(
                     "Ugyldig kurstype",
                     DetaljerRequest::amoKategorisering,
-                    AmoKategoriseringRequest::kurstype,
+                    AmoKategoriseringRequest::kurstypeId,
                 )
             }
-            amoKategorisering
+            request
         }
 
         Tiltakskode.STUDIESPESIALISERING,
-        -> AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING)
+        -> {
+            val studiespes = ctx.kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }
+            AmoKategoriseringRequest(kurstypeId = studiespes?.id)
+        }
 
         else -> null
     }?.toDbo(ctx.kurstyper, ctx.bransjer, ctx.forerkort).right()

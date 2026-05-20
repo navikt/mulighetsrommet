@@ -431,7 +431,7 @@ object GjennomforingValidator {
     context(ctx: Context.OpplaringKategorisering)
     fun validateAmoKategorisering(
         avtale: Avtale,
-        amoKategorisering: AmoKategoriseringRequest?,
+        request: AmoKategoriseringRequest?,
     ): Either<List<FieldError>, AmoKategorisering?> = validation {
         when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
@@ -447,49 +447,54 @@ object GjennomforingValidator {
 
         when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
-                requireValid(amoKategorisering?.kurstype != null) {
+                requireValid(request?.kurstypeId != null) {
                     FieldError.of(
                         "Du må velge en kurstype",
                         GjennomforingDetaljerRequest::amoKategorisering,
-                        AmoKategoriseringRequest::kurstype,
+                        AmoKategoriseringRequest::kurstypeId,
                     )
                 }
-                if (amoKategorisering.kurstype == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
-                    requireValid(amoKategorisering.bransje != null) {
+                val valgtKurstype = ctx.kurstyper.find { it.id == request.kurstypeId }
+                if (valgtKurstype?.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
+                    requireValid(request.bransjeId != null) {
                         FieldError.of(
                             "Du må velge en bransje",
                             GjennomforingDetaljerRequest::amoKategorisering,
-                            AmoKategoriseringRequest::bransje,
+                            AmoKategoriseringRequest::bransjeId,
                         )
                     }
                 }
-                amoKategorisering
+                request
             }
 
             Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
-                requireValid(amoKategorisering?.bransje != null) {
+                requireValid(request?.bransjeId != null && ctx.bransjer.any { it.id == request.bransjeId }) {
                     FieldError.of(
                         "Du må velge en bransje",
                         GjennomforingDetaljerRequest::amoKategorisering,
-                        AmoKategoriseringRequest::bransje,
+                        AmoKategoriseringRequest::bransjeId,
                     )
                 }
-                amoKategorisering.copy(kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET)
+                val kurstype = ctx.kurstyper.find { it.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET }
+                request.copy(kurstypeId = kurstype?.id)
             }
 
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
-                requireValid(amoKategorisering?.kurstype != null) {
+                requireValid(request?.kurstypeId != null && ctx.kurstyper.any { it.id == request.kurstypeId }) {
                     FieldError.of(
                         "Du må velge en kurstype",
                         GjennomforingDetaljerRequest::amoKategorisering,
-                        AmoKategoriseringRequest::kurstype,
+                        AmoKategoriseringRequest::kurstypeId,
                     )
                 }
-                amoKategorisering
+                request
             }
 
             Tiltakskode.STUDIESPESIALISERING,
-            -> AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING)
+            -> {
+                val kurstype = ctx.kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }
+                AmoKategoriseringRequest(kurstypeId = kurstype?.id)
+            }
 
             else -> null
         }?.toDbo(

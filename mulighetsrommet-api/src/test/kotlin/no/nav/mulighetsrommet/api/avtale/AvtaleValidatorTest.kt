@@ -11,8 +11,6 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.models.Bransje
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx.Tiltakstype
@@ -65,7 +63,7 @@ class AvtaleValidatorTest : FunSpec({
     val gruppeAmo = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-        amo = AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING),
+        amo = AmoKategoriseringRequest(kurstypeId = KurstypeFixtures.studiespesialisering.id),
     )
     val forhaandsgodkjent = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -1062,7 +1060,7 @@ class AvtaleValidatorTest : FunSpec({
                 gruppeAmo.copy(detaljer = gruppeAmo.detaljer.copy(amoKategorisering = null)),
                 ctx,
             ).shouldBeLeft(
-                listOf(FieldError("/detaljer/amoKategorisering/kurstype", "Du må velge en kurstype")),
+                listOf(FieldError("/detaljer/amoKategorisering/kurstypeId", "Du må velge en kurstype")),
             )
         }
 
@@ -1072,13 +1070,13 @@ class AvtaleValidatorTest : FunSpec({
                     detaljer = gruppeAmo.detaljer.copy(
                         tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
                         amoKategorisering = AmoKategoriseringRequest(
-                            kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET,
+                            kurstypeId = KurstypeFixtures.bransjeOgYrkesrettet.id,
                         ),
                     ),
                 ),
                 ctx,
             ).shouldBeLeft(
-                listOf(FieldError("/detaljer/amoKategorisering/bransje", "Du må velge en bransje")),
+                listOf(FieldError("/detaljer/amoKategorisering/bransjeId", "Du må velge en bransje")),
             )
         }
 
@@ -1103,7 +1101,7 @@ class AvtaleValidatorTest : FunSpec({
                     detaljer = gruppeAmo.detaljer.copy(
                         tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
                         amoKategorisering = AmoKategoriseringRequest(
-                            kurstype = Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+                            kurstypeId = KurstypeFixtures.fov.id,
 
                         ),
                     ),
@@ -1116,7 +1114,7 @@ class AvtaleValidatorTest : FunSpec({
                     detaljer = gruppeAmo.detaljer.copy(
                         tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
                         amoKategorisering = AmoKategoriseringRequest(
-                            kurstype = Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
+                            kurstypeId = KurstypeFixtures.grunnleggendeFerdigheter.id,
                             innholdElementer = setOf(
                                 AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
                             ),
@@ -1135,11 +1133,11 @@ class AvtaleValidatorTest : FunSpec({
                 gruppeAmo.copy(
                     detaljer = gruppeAmo.detaljer.copy(
                         amoKategorisering = AmoKategoriseringRequest(
-                            kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET,
-                            bransje = Bransje.Kode.KONTORARBEID,
-                            forerkort = setOf(
-                                ForerkortKlasse.Kode.A,
-                                ForerkortKlasse.Kode.B,
+                            kurstypeId = KurstypeFixtures.bransjeOgYrkesrettet.id,
+                            bransjeId = BransjeFixtures.kontorarbeid.id,
+                            forerkort = listOf(
+                                ForerkortFixtures.A.id,
+                                ForerkortFixtures.B.id,
                             ),
                             sertifiseringer = setOf(
                                 Sertifisering(

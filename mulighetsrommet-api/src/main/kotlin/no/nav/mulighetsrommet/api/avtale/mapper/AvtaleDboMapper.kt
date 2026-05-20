@@ -135,16 +135,19 @@ fun AmoKategoriseringRequest.toDbo(
     bransjer: Set<Bransje>,
     forerkort: Set<ForerkortKlasse>,
 ): AmoKategorisering {
-    val kurstype = this.kurstype?.let { kurstype -> kurstyper.find { it.kode == kurstype } }
-    val bransje = this.bransje?.let { bransje -> bransjer.find { it.kode == bransje } }
+    val kurstyperById = kurstyper.associateBy { it.id }
+    val bransjerById = bransjer.associateBy { it.id }
+    val forerkortById = forerkort.associateBy { it.id }
+    val kurstype = this.kurstypeId?.let(kurstyperById::get)
+    val bransje = this.bransjeId?.let(bransjerById::get)
     val forerkort = (this.forerkort ?: emptySet()).let { forerkortListe ->
-        forerkort.filter { it.kode in forerkortListe }
+        forerkortListe.mapNotNull(forerkortById::get)
     }.toSet()
     val sertifiseringer = this.sertifiseringer?.toSet() ?: emptySet()
     val innholdsElementer = this.innholdElementer?.toSet() ?: emptySet()
     val norskprove = this.norskprove ?: false
 
-    return when (this.kurstype) {
+    return when (kurstype?.kode) {
         Kurstype.Kode.BRANSJE_OG_YRKESRETTET -> AmoKategorisering(
             kurstype = kurstype,
             bransje = requireNotNull(bransje),
