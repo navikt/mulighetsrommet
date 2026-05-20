@@ -24,6 +24,10 @@ export function OpplaringKategoriseringForm({ tiltakskode }: { tiltakskode: Tilt
   ));
 }
 
+function getPath<T extends FieldValues>(propName: string | null): Path<T> {
+  return `detaljer.amoKategorisering.${propName}` as Path<T>;
+}
+
 function ContainerVelger({ container }: { container: Container }) {
   switch (container.type) {
     case "Gruppe":
@@ -41,25 +45,30 @@ function ContainerVelger({ container }: { container: Container }) {
 
 function GruppeVelger({ gruppe }: { gruppe: Gruppe }) {
   if (!gruppe.id && gruppe.representerer) {
-    <GruppeVerdiVelger gruppe={gruppe} />;
+    return <GruppeVerdiVelger gruppe={gruppe} />;
   }
   return null;
 }
 
 function GruppeVerdiVelger<T extends FieldValues>({ gruppe }: { gruppe: Gruppe }) {
-  const { watch } = useFormContext<T>();
-  const name = `detaljer.amoKategorisering.${gruppe.representerer}` as Path<T>;
+  const { watch, resetField } = useFormContext<T>();
+  const name = getPath<T>(gruppe.representerer);
   const valgtGruppe = watch(name);
   const undervalg: Container[] = useMemo(() => {
-    const valgtUndergruppe: Container | undefined | null = gruppe.alternativer.find(
-      (c: Container) => c.id === valgtGruppe,
-    );
+    const valgtUndergruppe: Container | null =
+      gruppe.alternativer.find((c: Container) => c.id === valgtGruppe) ?? null;
     switch (valgtUndergruppe?.type) {
-      case "Gruppe":
+      case "Gruppe": {
+        valgtUndergruppe.alternativer.forEach((refName) =>
+          resetField(getPath<T>(refName.representerer)),
+        );
         return valgtUndergruppe.alternativer;
+      }
       case "Verdigruppe":
-      case "VerdigruppeSok":
+      case "VerdigruppeSok": {
+        resetField(getPath<T>(valgtUndergruppe.representerer));
         return [valgtUndergruppe];
+      }
       case undefined:
         return [];
     }
