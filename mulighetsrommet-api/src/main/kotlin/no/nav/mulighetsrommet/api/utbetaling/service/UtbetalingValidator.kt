@@ -98,7 +98,19 @@ object UtbetalingValidator {
             )
         }
 
-        ctx.linjer.mapIndexed { index, linje ->
+        val filtrerteLinjer = ctx.linjer
+            // Filtrerer vekk 0 linjer så man slipper å trykke fjern
+            .filter { linje ->
+                linje.request.pris?.belop == null || linje.request.pris.belop > 0
+            }
+
+        validate(filtrerteLinjer.sumOf { it.request.pris?.belop ?: 0 } > 0) {
+            FieldError.root(
+                "Totalt beløp må være større enn 0",
+            )
+        }
+
+        filtrerteLinjer.mapIndexed { index, linje ->
             requireValid(linje.request.pris?.belop != null && linje.request.pris.belop > 0 && linje.request.pris.valuta != null) {
                 FieldError(
                     "/utbetalingLinjer/$index/pris/belop",

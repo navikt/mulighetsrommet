@@ -5,6 +5,9 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
@@ -226,6 +229,43 @@ class UtbetalingValidatorTest : FunSpec({
             ).shouldBeLeft().shouldContainAll(
                 FieldError.of("Kan ikke utbetale mer enn innsendt beløp"),
             )
+        }
+
+        test("0 linjer blir filtrert bort") {
+            UtbetalingValidator.validateOpprettUtbetalingLinjer(
+                UtbetalingValidator.OpprettUtbetalingLinjerCtx(
+                    utbetaling = UtbetalingFixtures.utbetalingDto1.copy(status = UtbetalingStatusType.TIL_BEHANDLING),
+                    linjer = listOf(
+                        UtbetalingValidator.OpprettUtbetalingLinjerCtx.Linje(
+                            request = UtbetalingLinjeRequest(
+                                id = UUID.randomUUID(),
+                                pris = 10.NOK.toRequest(),
+                                gjorOppTilsagn = true,
+                                tilsagnId = UUID.randomUUID(),
+                            ),
+                            tilsagn = UtbetalingValidator.OpprettUtbetalingLinjerCtx.Tilsagn(
+                                status = TilsagnStatus.GODKJENT,
+                                gjenstaendeBelop = 10.NOK,
+                            ),
+                        ),
+                        UtbetalingValidator.OpprettUtbetalingLinjerCtx.Linje(
+                            request = UtbetalingLinjeRequest(
+                                id = UUID.randomUUID(),
+                                pris = 0.NOK.toRequest(),
+                                gjorOppTilsagn = true,
+                                tilsagnId = UUID.randomUUID(),
+                            ),
+                            tilsagn = UtbetalingValidator.OpprettUtbetalingLinjerCtx.Tilsagn(
+                                status = TilsagnStatus.GODKJENT,
+                                gjenstaendeBelop = 10.NOK,
+                            ),
+                        ),
+                    ),
+                    begrunnelse = "fordi",
+                ),
+            ).shouldBeRight().shouldHaveSize(1)[0] should {
+                it.pris.belop shouldBe 10
+            }
         }
 
         test("begrunnelseMindreBeløp er påkrevd hvis mindre beløp") {
