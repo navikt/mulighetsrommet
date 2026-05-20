@@ -2,6 +2,7 @@ import {
   AmoKategoriseringInnholdElement as InnholdElement,
   AvtaleDto,
   Avtaletype,
+  Bransje,
   UtbetalingLinjeReturnertAarsak,
   TilsagnStatusAarsak,
   TilsagnType,
@@ -13,6 +14,7 @@ import {
   TilskuddBehandlingStatusAarsak,
   KurstypeKode,
   TilskuddMottaker,
+  BransjeKode,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -133,26 +135,26 @@ export function tilskuddMottakerToString(mottaker: TilskuddMottaker): string {
 }
 
 export function bransjeToString(bransje: Bransje): string {
-  switch (bransje) {
-    case Bransje.INGENIOR_OG_IKT_FAG:
+  switch (bransje.kode) {
+    case BransjeKode.INGENIOR_OG_IKT_FAG:
       return "Ingeniør- og IKT-fag";
-    case Bransje.HELSE_PLEIE_OG_OMSORG:
+    case BransjeKode.HELSE_PLEIE_OG_OMSORG:
       return "Helse, pleie og omsorg";
-    case Bransje.BARNE_OG_UNGDOMSARBEID:
+    case BransjeKode.BARNE_OG_UNGDOMSARBEID:
       return "Barne- og ungdomsarbeid";
-    case Bransje.KONTORARBEID:
+    case BransjeKode.KONTORARBEID:
       return "Kontorarbeid";
-    case Bransje.BUTIKK_OG_SALGSARBEID:
+    case BransjeKode.BUTIKK_OG_SALGSARBEID:
       return "Butikk- og salgsarbeid";
-    case Bransje.BYGG_OG_ANLEGG:
+    case BransjeKode.BYGG_OG_ANLEGG:
       return "Bygg og anlegg";
-    case Bransje.INDUSTRIARBEID:
+    case BransjeKode.INDUSTRIARBEID:
       return "Industriarbeid";
-    case Bransje.REISELIV_SERVERING_OG_TRANSPORT:
+    case BransjeKode.REISELIV_SERVERING_OG_TRANSPORT:
       return "Reiseliv, servering og transport";
-    case Bransje.SERVICEYRKER_OG_ANNET_ARBEID:
+    case BransjeKode.SERVICEYRKER_OG_ANNET_ARBEID:
       return "Serviceyrker og annet arbeid";
-    case Bransje.ANDRE_BRANSJER:
+    case BransjeKode.ANDRE_BRANSJER:
       return "Andre bransjer";
   }
 }
