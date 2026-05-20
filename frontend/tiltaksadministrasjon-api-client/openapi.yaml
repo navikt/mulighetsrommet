@@ -3995,14 +3995,16 @@ components:
     AmoKategoriseringRequest:
       type: object
       properties:
-        kurstype:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Kurstype.Kode"
-        bransje:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Bransje.Kode"
+        kurstypeId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        bransjeId:
+          type:
+          - "null"
+          - string
+          format: uuid
         sertifiseringer:
           type:
           - "null"
@@ -4014,7 +4016,8 @@ components:
           - "null"
           - array
           items:
-            $ref: "#/components/schemas/ForerkortKlasse.Kode"
+            type: string
+            format: uuid
         innholdElementer:
           type:
           - "null"
@@ -4026,33 +4029,12 @@ components:
           - "null"
           - boolean
       required:
-      - bransje
+      - bransjeId
       - forerkort
       - innholdElementer
-      - kurstype
+      - kurstypeId
       - norskprove
       - sertifiseringer
-    Kurstype.Kode:
-      type: string
-      enum:
-      - NORSKOPPLAERING
-      - GRUNNLEGGENDE_FERDIGHETER
-      - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
-      - BRANSJE_OG_YRKESRETTET
-      - STUDIESPESIALISERING
-    Bransje.Kode:
-      type: string
-      enum:
-      - INGENIOR_OG_IKT_FAG
-      - HELSE_PLEIE_OG_OMSORG
-      - BARNE_OG_UNGDOMSARBEID
-      - KONTORARBEID
-      - BUTIKK_OG_SALGSARBEID
-      - BYGG_OG_ANLEGG
-      - INDUSTRIARBEID
-      - REISELIV_SERVERING_OG_TRANSPORT
-      - SERVICEYRKER_OG_ANNET_ARBEID
-      - ANDRE_BRANSJER
     Sertifisering:
       type: object
       properties:
@@ -4064,27 +4046,6 @@ components:
       required:
       - konseptId
       - label
-    ForerkortKlasse.Kode:
-      type: string
-      enum:
-      - A
-      - A1
-      - A2
-      - AM
-      - AM_147
-      - B
-      - B_78
-      - BE
-      - C
-      - C1
-      - C1E
-      - CE
-      - D
-      - D1
-      - D1E
-      - DE
-      - S
-      - T
     AmoKategorisering.InnholdElement:
       type: string
       enum:

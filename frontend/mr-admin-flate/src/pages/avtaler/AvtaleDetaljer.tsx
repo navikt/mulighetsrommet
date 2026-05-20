@@ -148,7 +148,7 @@ export function AvtaleDetaljer() {
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering &&
             !kursOgTiltakErStudiespesialisering(
-              amoKategorisering.kurstype,
+              amoKategorisering.kurstype?.kode,
               tiltakstype.tiltakskode,
             ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
           {avtale.opsjonerRegistrert.length > 0 && <RegistrerteOpsjoner readOnly />}

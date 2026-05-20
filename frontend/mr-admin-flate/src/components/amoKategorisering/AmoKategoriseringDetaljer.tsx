@@ -67,7 +67,7 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
 }
 
 function kurstypeOgBransje(kurstype: Kurstype, bransje: Bransje | null): Definition {
-  const bransjeTekst = bransje ? `- ${bransje.navn}` : "";
+  const bransjeTekst = bransje ? ` - ${bransje.navn}` : "";
   return {
     key: gjennomforingTekster.kurstypeLabel,
     value: `${kurstype.navn}${bransjeTekst}`,

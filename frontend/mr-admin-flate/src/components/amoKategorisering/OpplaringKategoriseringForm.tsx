@@ -3,16 +3,19 @@ import {
   Container,
   Gruppe,
   OpplaringKategoriseringResponseSeleksjonstype,
+  OpplaringKategoriseringResponseTooltip,
   Tiltakskode,
+  Utlisting,
   Verdi,
   Verdigruppe,
 } from "@tiltaksadministrasjon/api-client";
 import { FormSelect } from "../skjema/FormSelect";
-import { HGrid } from "@navikt/ds-react";
+import { Box, Heading, HGrid, List } from "@navikt/ds-react";
 import { FieldValues, Path, useFormContext } from "react-hook-form";
 import { FormComboboxMulti } from "../skjema/FormComboboxMulti";
 import { SertifiseringerSkjema } from "./SertifiseringerSelect";
 import { useMemo } from "react";
+import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 
 export function OpplaringKategoriseringForm({ tiltakskode }: { tiltakskode: Tiltakskode }) {
   const { data: kodeverk } = useOpplaringKategorisering(tiltakskode);
@@ -93,11 +96,18 @@ function VerdiGruppeEnkeltvalg<T extends FieldValues>({
 }: {
   verdigruppe: Verdigruppe;
 }) {
+  const label = verdigruppe.tooltip ? (
+    <LabelWithHelpText label={verdigruppe.visningsnavn}>
+      <TooltipVelger tooltip={verdigruppe.tooltip} />
+    </LabelWithHelpText>
+  ) : (
+    verdigruppe.visningsnavn
+  );
   return (
     <HGrid gap="space-16" columns={1}>
       <FormSelect<T>
         name={`detaljer.amoKategorisering.${verdigruppe.representerer}` as Path<T>}
-        label={verdigruppe.visningsnavn}
+        label={label}
         required={verdigruppe.required}
       >
         <option value="">Velg en</option>
@@ -123,5 +133,48 @@ function VerdiGruppeFlervalg<T extends FieldValues>({ verdigruppe }: { verdigrup
         label: verdi.visningsnavn,
       }))}
     />
+  );
+}
+
+function TooltipVelger({ tooltip }: { tooltip: OpplaringKategoriseringResponseTooltip }) {
+  switch (tooltip.type) {
+    case "Utlisting":
+      return <TooltipUtlisting utlisting={tooltip} />;
+    case "FlereUtlistinger":
+      return (
+        <div
+          style={{
+            maxHeight: "400px",
+            overflow: "auto",
+          }}
+        >
+          {tooltip.liste.map((utlisting, index) => {
+            return <TooltipUtlisting key={`tooltip-${index}`} utlisting={utlisting} />;
+          })}
+        </div>
+      );
+    case undefined:
+      return null;
+  }
+}
+
+interface TooltipUtlistingProps {
+  utlisting: Utlisting;
+}
+
+function TooltipUtlisting({ utlisting }: TooltipUtlistingProps) {
+  return (
+    <div>
+      <Heading as="h3" size="xsmall">
+        {utlisting.header}
+      </Heading>
+      <Box marginBlock="space-12" asChild>
+        <List data-aksel-migrated-v8 as="ul" size="small">
+          {utlisting.items.map((item) => (
+            <List.Item key={item}>{item}</List.Item>
+          ))}
+        </List>
+      </Box>
+    </div>
   );
 }

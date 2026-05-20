@@ -290,7 +290,7 @@ export function extractValidationErrors(errors: FieldErrors): ValidationMessage[
 }
 
 export function kursOgTiltakErStudiespesialisering(
-  amo: KurstypeKode | null,
+  amo: KurstypeKode | undefined,
   tiltakskode: Tiltakskode,
 ) {
   return (

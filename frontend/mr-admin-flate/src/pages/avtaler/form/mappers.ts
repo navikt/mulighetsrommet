@@ -90,46 +90,46 @@ export function toAmoKategoriseringRequest(
   switch (amoKategorisering?.kurstype?.kode) {
     case KurstypeKode.BRANSJE_OG_YRKESRETTET:
       return {
-        kurstype: amoKategorisering.kurstype.id,
-        bransje: amoKategorisering.bransje?.id,
+        kurstypeId: amoKategorisering.kurstype.id,
+        bransjeId: amoKategorisering.bransje?.id ?? null,
         sertifiseringer: amoKategorisering.sertifiseringer,
-        forerkort: amoKategorisering.forerkort?.map((f) => f.id),
+        forerkort: amoKategorisering.forerkort?.map((f) => f.id) ?? null,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
       };
     case KurstypeKode.NORSKOPPLAERING:
       return {
-        kurstype: KurstypeKode.NORSKOPPLAERING,
+        kurstypeId: amoKategorisering.kurstype.id,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: amoKategorisering.norskprove,
-        bransje: null,
+        bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
       };
     case KurstypeKode.GRUNNLEGGENDE_FERDIGHETER:
       return {
-        kurstype: KurstypeKode.GRUNNLEGGENDE_FERDIGHETER,
+        kurstypeId: amoKategorisering.kurstype.id,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
-        bransje: null,
+        bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
       };
     case KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
       return {
-        kurstype: KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+        kurstypeId: amoKategorisering.kurstype.id,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
-        bransje: null,
+        bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
       };
     case KurstypeKode.STUDIESPESIALISERING:
       return {
-        kurstype: KurstypeKode.STUDIESPESIALISERING,
+        kurstypeId: amoKategorisering.kurstype.id,
         innholdElementer: null,
         norskprove: null,
-        bransje: null,
+        bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
       };
