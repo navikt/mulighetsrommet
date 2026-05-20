@@ -508,6 +508,7 @@ class UtbetalingServiceTest : FunSpec({
                 navIdent = domain.ansatte[0].navIdent,
             ) shouldBeLeft listOf(
                 FieldError.of("Utbetalingslinjer mangler"),
+                FieldError.of("Totalt beløp må være større enn 0"),
             )
 
             database.run {
