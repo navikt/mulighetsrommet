@@ -12,7 +12,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotliquery.Query
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.brreg.BrregClient
@@ -182,17 +181,12 @@ class ArrangorServiceTest : FunSpec({
             overordnetEnhet = null,
             underenheter = emptyList(),
             slettetDato = null,
-            erUtenlandsk = false,
+            erUtenlandsk = true,
         )
 
         beforeEach {
             database.run {
                 queries.arrangor.upsert(utenlandskArrangor)
-                it.execute(
-                    Query(
-                        "update arrangor set er_utenlandsk_virksomhet = true where id = '${utenlandskArrangor.id}'",
-                    ),
-                )
             }
         }
 

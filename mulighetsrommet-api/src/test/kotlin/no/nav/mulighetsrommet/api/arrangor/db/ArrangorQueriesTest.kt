@@ -7,7 +7,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKobling
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
@@ -65,7 +64,6 @@ class ArrangorQueriesTest : FunSpec({
                     erUtenlandsk = true,
                 )
                 queries.arrangor.upsert(utenlandsk)
-                session.execute(queryOf("update arrangor set er_utenlandsk_virksomhet = true where organisasjonsnummer = '${utenlandsk.organisasjonsnummer.value}'"))
 
                 queries.arrangor.getAll(utenlandsk = true).items shouldContainExactlyInAnyOrder listOf(utenlandsk)
                 queries.arrangor.getAll(utenlandsk = false).items shouldContainExactlyInAnyOrder listOf(
