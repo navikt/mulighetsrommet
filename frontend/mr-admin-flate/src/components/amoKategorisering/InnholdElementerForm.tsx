@@ -26,7 +26,6 @@ export function InnholdElementerForm<T extends FieldValues>({
   tiltakskode,
   kurstype,
 }: Props<T>) {
-  console.log({ kurstype: kurstype?.kode, tiltakskode });
   if (
     kurstype?.kode === KurstypeKode.STUDIESPESIALISERING ||
     tiltakskode === Tiltakskode.STUDIESPESIALISERING
