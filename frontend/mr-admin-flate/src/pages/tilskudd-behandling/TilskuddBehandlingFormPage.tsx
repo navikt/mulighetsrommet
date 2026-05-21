@@ -69,7 +69,7 @@ export function TilskuddBehandlingFormPage() {
             vedtakResultat: t.vedtakResultat.type,
             kommentarVedtaksbrev: t.kommentarVedtaksbrev,
             utbetalingMottaker: t.utbetalingMottaker,
-            belop: t.utbetalingBelop?.belop,
+            belop: t.utbetalingBelop?.belop ?? null,
             kidNummer: t.kid,
           })),
         }
