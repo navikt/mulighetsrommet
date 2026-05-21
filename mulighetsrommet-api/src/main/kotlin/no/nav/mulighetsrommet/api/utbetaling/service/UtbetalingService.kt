@@ -40,13 +40,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
@@ -71,8 +64,6 @@ import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.toOkonomiPart
 import org.apache.kafka.common.header.internals.RecordHeaders
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -89,13 +80,11 @@ class UtbetalingService(
         val tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator,
     )
 
-    private val log: Logger = LoggerFactory.getLogger(javaClass)
-
     context(tx: TransactionalQueryContext)
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         kid: Kid?,
-    ): Either<List<FieldError>, AutomatisertUtbetalingResult> = with(tx) {
+    ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
         if (utbetaling.status != UtbetalingStatusType.GENERERT) {
             return FieldError.of("Utbetaling er allerede godkjent").nel().left()
@@ -107,8 +96,7 @@ class UtbetalingService(
 
         scheduleJournalforUtbetaling(utbetalingId, vedlegg = emptyList())
 
-        val updatedUtbetaling = logEndring("Utbetaling sendt inn", utbetalingId, Arrangor)
-        return tryAutomatisertUtbetaling(updatedUtbetaling).right()
+        return logEndring("Utbetaling sendt inn", utbetalingId, Arrangor).right()
     }
 
     context(tx: TransactionalQueryContext)
@@ -240,22 +228,6 @@ class UtbetalingService(
         }
     }
 
-    private fun QueryContext.validateAccessAndLockUtbetaling(id: UUID, navIdent: NavIdent) = validation {
-        val linje = queries.utbetalingLinje.getOrError(id)
-        val utbetaling = queries.utbetaling.getAndAquireLock(linje.utbetalingId)
-        validate(utbetaling.status == UtbetalingStatusType.TIL_ATTESTERING && linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING) {
-            FieldError.of("Utbetaling er ikke satt til attestering")
-        }
-
-        val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
-        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
-        validate(ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
-            FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
-        }
-
-        Pair(utbetaling, linje)
-    }
-
     context(tx: TransactionalQueryContext)
     fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
@@ -357,6 +329,61 @@ class UtbetalingService(
                 }
             }
         }
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun automatisertUtbetalingVedEttRelevantTilsagn(
+        utbetalingId: UUID,
+    ): AutomatisertUtbetalingResult = with(tx) {
+        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
+
+        val relevanteTilsagn = queries.tilsagn.getAll(
+            gjennomforingId = utbetaling.gjennomforing.id,
+            statuser = listOf(TilsagnStatus.GODKJENT),
+            typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
+            periodeIntersectsWith = utbetaling.periode,
+        )
+        if (relevanteTilsagn.size != 1) {
+            return AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN
+        }
+
+        val tilsagn = queries.tilsagn.getAndAquireLock(relevanteTilsagn[0].id)
+        if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.pris) {
+            return AutomatisertUtbetalingResult.IKKE_NOK_PENGER
+        }
+
+        val utbetalingLinjer = queries.utbetalingLinje.getByUtbetalingId(utbetalingId)
+        if (utbetalingLinjer.isNotEmpty()) {
+            return AutomatisertUtbetalingResult.UTBETALINGLINJER_ALLEREDE_OPPRETTET
+        }
+
+        val linje = upsertUtbetalingLinje(
+            id = UUID.randomUUID(),
+            utbetaling = utbetaling,
+            tilsagn = tilsagn,
+            pris = utbetaling.beregning.output.pris,
+            gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
+            behandletAv = Tiltaksadministrasjon,
+        )
+        return godkjennUtbetalingLinje(linje, Tiltaksadministrasjon)
+            .map { AutomatisertUtbetalingResult.GODKJENT }
+            .getOrElse { throw UtbetalingException(it) }
+    }
+
+    private fun QueryContext.validateAccessAndLockUtbetaling(id: UUID, navIdent: NavIdent) = validation {
+        val linje = queries.utbetalingLinje.getOrError(id)
+        val utbetaling = queries.utbetaling.getAndAquireLock(linje.utbetalingId)
+        validate(utbetaling.status == UtbetalingStatusType.TIL_ATTESTERING && linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING) {
+            FieldError.of("Utbetaling er ikke satt til attestering")
+        }
+
+        val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
+        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
+        validate(ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
+            FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
+        }
+
+        Pair(utbetaling, linje)
     }
 
     private suspend fun TransactionalQueryContext.upsert(
@@ -516,62 +543,6 @@ class UtbetalingService(
         if (utbetaling.status != oppdatertUtbetalingStatus) {
             queries.utbetaling.setStatus(utbetaling.id, oppdatertUtbetalingStatus)
         }
-    }
-
-    private fun TransactionalQueryContext.tryAutomatisertUtbetaling(utbetaling: Utbetaling): AutomatisertUtbetalingResult {
-        return when (utbetaling.beregning) {
-            is UtbetalingBeregningFri,
-            is UtbetalingBeregningPrisPerManedsverk,
-            is UtbetalingBeregningPrisPerUkesverk,
-            is UtbetalingBeregningPrisPerHeleUkesverk,
-            is UtbetalingBeregningPrisPerTimeOppfolging,
-            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
-            -> AutomatisertUtbetalingResult.FEIL_PRISMODELL
-
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-            -> automatisertUtbetalingVedEttRelevantTilsagn(utbetaling.id)
-        }.also { result ->
-            log.info("Automatisert utbetaling for utbetaling=${utbetaling.id} resulterte i: $result")
-        }
-    }
-
-    context(tx: TransactionalQueryContext)
-    fun automatisertUtbetalingVedEttRelevantTilsagn(
-        utbetalingId: UUID,
-    ): AutomatisertUtbetalingResult = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
-
-        val relevanteTilsagn = queries.tilsagn.getAll(
-            gjennomforingId = utbetaling.gjennomforing.id,
-            statuser = listOf(TilsagnStatus.GODKJENT),
-            typer = listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN),
-            periodeIntersectsWith = utbetaling.periode,
-        )
-        if (relevanteTilsagn.size != 1) {
-            return AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN
-        }
-
-        val tilsagn = queries.tilsagn.getAndAquireLock(relevanteTilsagn[0].id)
-        if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.pris) {
-            return AutomatisertUtbetalingResult.IKKE_NOK_PENGER
-        }
-
-        val utbetalingLinjer = queries.utbetalingLinje.getByUtbetalingId(utbetalingId)
-        if (utbetalingLinjer.isNotEmpty()) {
-            return AutomatisertUtbetalingResult.UTBETALINGLINJER_ALLEREDE_OPPRETTET
-        }
-
-        val linje = upsertUtbetalingLinje(
-            id = UUID.randomUUID(),
-            utbetaling = utbetaling,
-            tilsagn = tilsagn,
-            pris = utbetaling.beregning.output.pris,
-            gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
-            behandletAv = Tiltaksadministrasjon,
-        )
-        return godkjennUtbetalingLinje(linje, Tiltaksadministrasjon)
-            .map { AutomatisertUtbetalingResult.GODKJENT }
-            .getOrElse { throw UtbetalingException(it) }
     }
 
     private fun TransactionalQueryContext.upsertUtbetalingLinje(
@@ -821,8 +792,6 @@ class UtbetalingService(
         message: OkonomiBestillingMelding,
         tidspunktForUtbetaling: Instant?,
     ) {
-        log.info("Lagrer faktura for utbetalingslinje med bestillingsnummer=$bestillingsnummer og tidspunkt for ubetaling=$tidspunktForUtbetaling for publisering på kafka")
-
         val headers = tidspunktForUtbetaling?.let {
             RecordHeaders().add(
                 KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT,

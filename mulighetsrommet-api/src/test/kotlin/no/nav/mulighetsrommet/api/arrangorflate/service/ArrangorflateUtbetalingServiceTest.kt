@@ -5,7 +5,6 @@ import arrow.core.nel
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
@@ -55,7 +54,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
@@ -692,15 +690,15 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             }
             val service = createUtbetalingService(tilsagnService = tilsagnService)
 
-            val exception = shouldThrow<UtbetalingException> {
-                service.godkjentAvArrangor(utbetaling1.id, kid = null)
-            }
-            exception.errors shouldBe listOf(FieldError.of("Noe feil skjedde"))
+            service.godkjentAvArrangor(
+                utbetaling1.id,
+                kid = null,
+            ) shouldBeRight AutomatisertUtbetalingResult.VALIDERINGSFEIL
 
             database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.GENERERT
-                queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.GODKJENT
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_BEHANDLING
                 queries.utbetalingLinje.getByUtbetalingId(utbetaling1.id).shouldBeEmpty()
+                queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.GODKJENT
             }
         }
     }

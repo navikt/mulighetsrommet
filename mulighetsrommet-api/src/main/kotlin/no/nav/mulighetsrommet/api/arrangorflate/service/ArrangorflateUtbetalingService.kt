@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHel
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
@@ -32,6 +33,8 @@ import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.UUID
 
@@ -40,6 +43,8 @@ class ArrangorflateUtbetalingService(
     private val utbetalingService: UtbetalingService,
     private val genererUtbetalingService: GenererUtbetalingService,
 ) {
+    private val log: Logger = LoggerFactory.getLogger(javaClass)
+
     fun getUtbetaling(id: UUID): Utbetaling? = db.session {
         return queries.utbetaling.get(id)
     }
@@ -72,24 +77,27 @@ class ArrangorflateUtbetalingService(
         utbetalingId: UUID,
         kid: Kid?,
         today: LocalDate = LocalDate.now(),
-    ): Either<List<FieldError>, AutomatisertUtbetalingResult> = db.transaction {
-        val utbetaling = getOrError(utbetalingId)
-        if (utbetaling.periode.slutt > today) {
-            return FieldError.of("Utbetalingen kan ikke godkjennes før perioden er passert").nel().left()
+    ): Either<List<FieldError>, AutomatisertUtbetalingResult> {
+        val result = db.transaction {
+            val utbetaling = getOrError(utbetalingId)
+            if (utbetaling.periode.slutt > today) {
+                return FieldError.of("Utbetalingen kan ikke godkjennes før perioden er passert").nel().left()
+            }
+
+            if (utbetaling.betalingsinformasjon == null) {
+                return FieldError.of("Utbetalingen kan ikke godkjennes fordi kontonummer mangler.").nel().left()
+            }
+
+            val advarsler = utbetalingService.getAdvarsler(utbetaling)
+            if (utbetaling.blokkeringer.isNotEmpty() || advarsler.isNotEmpty()) {
+                return FieldError.of("Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.")
+                    .nel()
+                    .left()
+            }
+            utbetalingService.godkjentAvArrangor(utbetaling.id, kid)
         }
 
-        if (utbetaling.betalingsinformasjon == null) {
-            return FieldError.of("Utbetalingen kan ikke godkjennes fordi kontonummer mangler.").nel().left()
-        }
-
-        val advarsler = utbetalingService.getAdvarsler(utbetaling)
-        if (utbetaling.blokkeringer.isNotEmpty() || advarsler.isNotEmpty()) {
-            return FieldError.of("Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.")
-                .nel()
-                .left()
-        }
-
-        utbetalingService.godkjentAvArrangor(utbetaling.id, kid)
+        return result.map { tryAutomatisertUtbetaling(it) }
     }
 
     fun avbrytUtbetaling(
@@ -175,5 +183,28 @@ class ArrangorflateUtbetalingService(
         val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
         val deltakelsePerioder = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
         return AvtaltPrisPerTimeOppfolgingData(satser, stengtHosArrangor, deltakere, deltakelsePerioder)
+    }
+
+    private fun tryAutomatisertUtbetaling(utbetaling: Utbetaling): AutomatisertUtbetalingResult {
+        return try {
+            when (utbetaling.beregning) {
+                is UtbetalingBeregningFri,
+                is UtbetalingBeregningPrisPerManedsverk,
+                is UtbetalingBeregningPrisPerUkesverk,
+                is UtbetalingBeregningPrisPerHeleUkesverk,
+                is UtbetalingBeregningPrisPerTimeOppfolging,
+                is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
+                -> AutomatisertUtbetalingResult.FEIL_PRISMODELL
+
+                is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> db.transaction {
+                    utbetalingService.automatisertUtbetalingVedEttRelevantTilsagn(utbetaling.id)
+                }
+            }.also { result ->
+                log.info("Automatisert utbetaling for utbetaling=${utbetaling.id} resulterte i: $result")
+            }
+        } catch (error: UtbetalingException) {
+            log.error("Uventet valideringsfeil oppsto under utbetaling: ${error.errors}")
+            AutomatisertUtbetalingResult.VALIDERINGSFEIL
+        }
     }
 }
