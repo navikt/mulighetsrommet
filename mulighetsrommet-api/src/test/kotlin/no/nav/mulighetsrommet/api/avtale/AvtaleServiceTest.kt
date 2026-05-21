@@ -399,7 +399,7 @@ class AvtaleServiceTest : FunSpec({
                     forklaring = null,
                 ),
             ).shouldBeLeft(
-                listOf(FieldError.root("Avtalen er allerede avbrutt")),
+                listOf(FieldError.of("Avtalen er allerede avbrutt")),
             )
             avtaleService.avbrytAvtale(
                 avsluttetAvtale.id,
@@ -410,7 +410,7 @@ class AvtaleServiceTest : FunSpec({
                 ),
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
-                listOf(FieldError.root("Avtalen er allerede avsluttet")),
+                listOf(FieldError.of("Avtalen er allerede avsluttet")),
             )
         }
 
@@ -440,7 +440,7 @@ class AvtaleServiceTest : FunSpec({
                 ),
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
-                listOf(FieldError.root("Avtalen har 2 aktive gjennomføringer og kan derfor ikke avbrytes")),
+                listOf(FieldError.of("Avtalen har 2 aktive gjennomføringer og kan derfor ikke avbrytes")),
             )
         }
 

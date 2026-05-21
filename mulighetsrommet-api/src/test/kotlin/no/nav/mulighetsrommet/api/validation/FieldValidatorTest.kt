@@ -14,7 +14,7 @@ class FieldValidatorTest : FunSpec({
             val g: Int? = null
 
             requireValid(g != null) {
-                FieldError.root("asdf")
+                FieldError.of("asdf")
             }
 
             g + 7

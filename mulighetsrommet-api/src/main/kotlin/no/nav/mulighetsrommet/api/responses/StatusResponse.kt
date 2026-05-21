@@ -41,10 +41,6 @@ data class FieldError(
                 detail = detail,
             )
         }
-
-        fun root(detail: String): FieldError {
-            return FieldError(pointer = "/", detail = detail)
-        }
     }
 
     fun withParent(vararg property: KProperty1<*, *>): FieldError {

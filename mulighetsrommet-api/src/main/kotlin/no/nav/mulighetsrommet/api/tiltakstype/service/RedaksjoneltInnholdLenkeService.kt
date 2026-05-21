@@ -27,7 +27,7 @@ class RedaksjoneltInnholdLenkeService(
     fun delete(id: UUID): Either<List<FieldError>, Unit> = db.session {
         val referencedBy = queries.regelverklenke.getReferencingTiltakstyper(id)
         if (referencedBy.isNotEmpty()) {
-            return referencedBy.map { navn -> FieldError.root("Lenken er i bruk av tiltakstypen «$navn»") }.left()
+            return referencedBy.map { navn -> FieldError.of("Lenken er i bruk av tiltakstypen «$navn»") }.left()
         }
 
         queries.regelverklenke.delete(id)

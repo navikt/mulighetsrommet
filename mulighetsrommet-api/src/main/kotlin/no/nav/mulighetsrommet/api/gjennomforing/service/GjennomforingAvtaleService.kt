@@ -91,7 +91,7 @@ class GjennomforingAvtaleService(
     ): Either<List<FieldError>, GjennomforingAvtale> = either {
         val ctx = db.session {
             val previous = ensureNotNull(getGjennomforingAvtale(id)) {
-                FieldError.root("Gjennomføringen finnes ikke").nel()
+                FieldError.of("Gjennomføringen finnes ikke").nel()
             }
             val avtale = queries.avtale.getOrError(previous.avtaleId)
             val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
@@ -126,7 +126,7 @@ class GjennomforingAvtaleService(
         navIdent: NavIdent,
     ): Either<List<FieldError>, GjennomforingAvtale> = either {
         val previous = db.session { getGjennomforingAvtale(id) }
-            ?: raise(listOf(FieldError.root("Gjennomføringen finnes ikke")))
+            ?: raise(listOf(FieldError.of("Gjennomføringen finnes ikke")))
 
         val veilederinfoResult = validateVeilederinfo(previous.avtaleId, request).bind()
 
@@ -243,10 +243,10 @@ class GjennomforingAvtaleService(
             GjennomforingStatusType.GJENNOMFORES -> Unit
 
             GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT ->
-                return FieldError.root("Gjennomføringen er allerede avbrutt").nel().left()
+                return FieldError.of("Gjennomføringen er allerede avbrutt").nel().left()
 
             GjennomforingStatusType.AVSLUTTET ->
-                return FieldError.root("Gjennomføringen er allerede avsluttet").nel().left()
+                return FieldError.of("Gjennomføringen er allerede avsluttet").nel().left()
         }
 
         val (status, nySluttDato) = if (sluttDato.isBefore(gjennomforing.startDato)) {

@@ -196,7 +196,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
         test("gir feil hvis gjennomføringen ikke finnes") {
             service.updateDetaljer(createRequest.id, createRequest.detaljer.copy(navn = "Test"), bertilNavIdent)
                 .shouldBeLeft().shouldContainAll(
-                    listOf(FieldError.root("Gjennomføringen finnes ikke")),
+                    listOf(FieldError.of("Gjennomføringen finnes ikke")),
                 )
         }
     }
@@ -263,7 +263,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             service.updateVeilederinfo(createRequest.id, veilederinfoRequest, bertilNavIdent)
                 .shouldBeLeft().shouldContainAll(
-                    listOf(FieldError.root("Gjennomføringen finnes ikke")),
+                    listOf(FieldError.of("Gjennomføringen finnes ikke")),
                 )
         }
     }
@@ -320,7 +320,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 ),
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
-                listOf(FieldError.root("Gjennomføringen er allerede avsluttet")),
+                listOf(FieldError.of("Gjennomføringen er allerede avsluttet")),
             )
         }
 
@@ -344,7 +344,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 ),
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
-                listOf(FieldError.root("Gjennomføringen er allerede avsluttet")),
+                listOf(FieldError.of("Gjennomføringen er allerede avsluttet")),
             )
         }
 

@@ -300,8 +300,8 @@ class AvtaleService(
             val avtale = getOrError(id)
             when (avtale.status) {
                 is AvtaleStatus.Utkast, is AvtaleStatus.Aktiv -> Unit
-                is AvtaleStatus.Avbrutt -> error { FieldError.root("Avtalen er allerede avbrutt") }
-                is AvtaleStatus.Avsluttet -> error { FieldError.root("Avtalen er allerede avsluttet") }
+                is AvtaleStatus.Avbrutt -> error { FieldError.of("Avtalen er allerede avbrutt") }
+                is AvtaleStatus.Avsluttet -> error { FieldError.of("Avtalen er allerede avsluttet") }
             }
 
             val antallAktiveGjennomforinger = queries.gjennomforing.getByAvtale(id).count {
@@ -314,7 +314,7 @@ class AvtaleService(
                     if (antallAktiveGjennomforinger > 1) "aktive gjennomføringer" else "aktiv gjennomføring",
                     "og kan derfor ikke avbrytes",
                 ).joinToString(" ")
-                FieldError.root(message)
+                FieldError.of(message)
             }
         }.map {
             queries.avtale.setStatus(

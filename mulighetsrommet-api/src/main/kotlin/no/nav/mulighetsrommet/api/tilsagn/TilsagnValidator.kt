@@ -112,7 +112,7 @@ object TilsagnValidator {
         )
 
         validate(beregning.output.pris.belop > 0) {
-            FieldError.root("Beløp må være større enn 0")
+            FieldError.of("Beløp må være større enn 0")
         }
 
         Validated(
