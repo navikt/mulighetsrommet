@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeRequest
@@ -118,7 +117,6 @@ object UtbetalingValidator {
 
     fun validateUpsertUtbetaling(
         request: UtbetalingRequest,
-        arrangor: ArrangorDto? = null,
     ): Either<List<FieldError>, UpsertUtbetaling> = validation {
         validateNotNull(request.periodeStart) {
             FieldError.of("Periodestart må være satt", UtbetalingRequest::periodeStart)
@@ -136,21 +134,15 @@ object UtbetalingValidator {
             }
         }
 
-        val utenlandskArrangor = arrangor?.erUtenlandsk ?: false
         val journalpostId = when (request.korrigererUtbetaling) {
-            null -> {
-                if (utenlandskArrangor) {
-                    null
-                } else {
-                    validateNotNull(request.journalpostId?.let { JournalpostId.parse(it) }) {
-                        FieldError.of("Journalpost-ID er på ugyldig format", UtbetalingRequest::journalpostId)
-                    }
+            null -> request.journalpostId?.let { value ->
+                validateNotNull(JournalpostId.parse(value)) {
+                    FieldError.of("Journalpost-ID er på ugyldig format", UtbetalingRequest::journalpostId)
                 }
             }
 
             else -> null
         }
-
         val kommentar = request.kommentar?.trim()?.takeIf { it.isNotEmpty() }?.also { value ->
             validate(value.length >= 10) {
                 FieldError.of("Kommentar må være minst 10 tegn", UtbetalingRequest::kommentar)
@@ -203,9 +195,6 @@ object UtbetalingValidator {
                 kommentar = kommentar,
             )
         } else {
-            if (!utenlandskArrangor) {
-                requireNotNull(journalpostId)
-            }
             UpsertUtbetaling.Anskaffelse(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,

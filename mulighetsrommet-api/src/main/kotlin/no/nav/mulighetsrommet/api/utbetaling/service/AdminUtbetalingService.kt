@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.nel
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
@@ -24,6 +26,15 @@ class AdminUtbetalingService(
         opprett: UpsertUtbetaling,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        if (opprett is UpsertUtbetaling.Anskaffelse && opprett.journalpostId == null) {
+            val arrangor = checkNotNull(queries.arrangor.getByGjennomforingId(opprett.gjennomforingId))
+            if (!arrangor.erUtenlandsk) {
+                return FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
+                    .nel()
+                    .left()
+            }
+        }
+
         utbetalingService.opprettUtbetaling(opprett, agent)
     }
 

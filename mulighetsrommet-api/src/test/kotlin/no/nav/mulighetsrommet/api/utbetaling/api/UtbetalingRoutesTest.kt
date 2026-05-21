@@ -122,7 +122,7 @@ class UtbetalingRoutesTest : FunSpec({
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                     contentType(ContentType.Application.Json)
                     setBody(
-                        UtbetalingRequest(id = id, gjennomforingId = AFT1.id),
+                        UtbetalingRequest(id = id, gjennomforingId = AFT1.id, journalpostId = "foo"),
                     )
                 }
 

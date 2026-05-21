@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -193,6 +194,33 @@ class AdminUtbetalingServiceTest : FunSpec({
             ).shouldBeRight()
 
             verify(exactly = 1) { journalforUtbetaling.schedule(utbetaling.id, any(), any(), any()) }
+        }
+
+        test("journalpostId er påkrevd for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                opprett = upsert.copy(journalpostId = null),
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ) shouldBeLeft listOf(
+                FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
+            )
+        }
+
+        test("journalpostId er ikke påkrevd for utenlandsk arrangør") {
+            val utenlandskArrangor = ArrangorFixtures.Utenlandsk.hovedenhet
+            val gjennomforingMedUtenlandskArrangor = AFT1.copy(arrangorId = utenlandskArrangor.id)
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(utenlandskArrangor),
+                gjennomforinger = listOf(gjennomforingMedUtenlandskArrangor),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                opprett = upsert.copy(gjennomforingId = gjennomforingMedUtenlandskArrangor.id, journalpostId = null),
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeRight()
         }
 
         test("kan redigeres når den er til behandling") {
