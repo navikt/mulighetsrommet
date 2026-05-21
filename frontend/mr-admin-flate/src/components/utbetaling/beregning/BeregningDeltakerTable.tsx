@@ -1,12 +1,8 @@
 import { NavnOgGradering } from "@/components/personalia/NavnOgGradering";
-import { compare, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { SortState, Table } from "@navikt/ds-react";
+import { useSortableData } from "@mr/frontend-common";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
+import { Table } from "@navikt/ds-react";
 import { BeregningDeltakerDto, UtbetalingBeregningType } from "@tiltaksadministrasjon/api-client";
-import { useState } from "react";
-
-interface ScopedSortState extends SortState {
-  orderBy: keyof BeregningDeltakerDto;
-}
 
 interface Props {
   deltakere: BeregningDeltakerDto[];
@@ -14,21 +10,9 @@ interface Props {
 }
 
 export function BeregningDeltakereTable({ deltakere, type }: Props) {
-  const [sort, setSort] = useState<ScopedSortState | undefined>();
-
-  function handleSort(sortKey: ScopedSortState["orderBy"]) {
-    setSort(
-      sort && sortKey === sort.orderBy && sort.direction === "descending"
-        ? undefined
-        : {
-            orderBy: sortKey,
-            direction:
-              sort && sortKey === sort.orderBy && sort.direction === "ascending"
-                ? "descending"
-                : "ascending",
-          },
-    );
-  }
+  const { sortedData, sort, toggleSort } = useSortableData(deltakere, undefined, (item, key) =>
+    key.split(".").reduce((obj: any, k) => obj?.[k], item),
+  );
 
   function faktorName() {
     switch (type) {
@@ -45,18 +29,8 @@ export function BeregningDeltakereTable({ deltakere, type }: Props) {
     }
   }
 
-  const sortedData = deltakere.slice().sort((a, b) => {
-    if (sort) {
-      return sort.direction === "ascending" ? compare(b, a) : compare(a, b);
-    }
-    return 1;
-  });
-
   return (
-    <Table
-      sort={sort}
-      onSortChange={(sortKey) => handleSort(sortKey as ScopedSortState["orderBy"])}
-    >
+    <Table sort={sort} onSortChange={(sortKey) => toggleSort(sortKey as string)}>
       <Table.Header>
         <Table.Row>
           <Table.ColumnHeader sortKey="navn" sortable>
@@ -76,7 +50,7 @@ export function BeregningDeltakereTable({ deltakere, type }: Props) {
               <Table.ColumnHeader sortKey="faktor" sortable>
                 {faktorName()}
               </Table.ColumnHeader>
-              <Table.ColumnHeader sortKey="belop" sortable>
+              <Table.ColumnHeader sortKey="belop.belop" sortable>
                 Beløp
               </Table.ColumnHeader>
             </>
