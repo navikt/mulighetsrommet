@@ -1,26 +1,14 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangorflate.api.AvbrytUtbetaling
-import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
-import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
-import no.nav.mulighetsrommet.api.arrangorflate.service.arrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -29,7 +17,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
-import java.time.LocalDate
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 
@@ -77,25 +64,17 @@ object UtbetalingValidator {
                 -> false
             },
         ) {
-            FieldError.root(
-                "Utbetaling kan ikke endres fordi den har status: ${ctx.utbetaling.status}",
-            )
+            FieldError.of("Utbetaling kan ikke endres fordi den har status: ${ctx.utbetaling.status}")
         }
         val totalBelopUtbetales = ctx.linjer.sumOf { it.request.pris?.belop ?: 0 }.withValuta(ctx.utbetaling.valuta)
         validate(totalBelopUtbetales <= ctx.utbetaling.beregning.output.pris) {
-            FieldError.root(
-                "Kan ikke utbetale mer enn innsendt beløp",
-            )
+            FieldError.of("Kan ikke utbetale mer enn innsendt beløp")
         }
         validate(totalBelopUtbetales >= ctx.utbetaling.beregning.output.pris || !ctx.begrunnelse.isNullOrBlank()) {
-            FieldError.root(
-                "Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp",
-            )
+            FieldError.of("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp")
         }
         validate(ctx.linjer.isNotEmpty()) {
-            FieldError.root(
-                "Utbetalingslinjer mangler",
-            )
+            FieldError.of("Utbetalingslinjer mangler")
         }
 
         val filtrerteLinjer = ctx.linjer
@@ -105,9 +84,7 @@ object UtbetalingValidator {
             }
 
         validate(filtrerteLinjer.sumOf { it.request.pris?.belop ?: 0 } > 0) {
-            FieldError.root(
-                "Totalt beløp må være større enn 0",
-            )
+            FieldError.of("Totalt beløp må være større enn 0")
         }
 
         filtrerteLinjer.mapIndexed { index, linje ->
@@ -140,7 +117,6 @@ object UtbetalingValidator {
 
     fun validateUpsertUtbetaling(
         request: UtbetalingRequest,
-        arrangor: ArrangorDto? = null,
     ): Either<List<FieldError>, UpsertUtbetaling> = validation {
         validateNotNull(request.periodeStart) {
             FieldError.of("Periodestart må være satt", UtbetalingRequest::periodeStart)
@@ -158,21 +134,15 @@ object UtbetalingValidator {
             }
         }
 
-        val utenlandskArrangor = arrangor?.erUtenlandsk ?: false
         val journalpostId = when (request.korrigererUtbetaling) {
-            null -> {
-                if (utenlandskArrangor) {
-                    null
-                } else {
-                    validateNotNull(request.journalpostId?.let { JournalpostId.parse(it) }) {
-                        FieldError.of("Journalpost-ID er på ugyldig format", UtbetalingRequest::journalpostId)
-                    }
+            null -> request.journalpostId?.let { value ->
+                validateNotNull(JournalpostId.parse(value)) {
+                    FieldError.of("Journalpost-ID er på ugyldig format", UtbetalingRequest::journalpostId)
                 }
             }
 
             else -> null
         }
-
         val kommentar = request.kommentar?.trim()?.takeIf { it.isNotEmpty() }?.also { value ->
             validate(value.length >= 10) {
                 FieldError.of("Kommentar må være minst 10 tegn", UtbetalingRequest::kommentar)
@@ -225,9 +195,6 @@ object UtbetalingValidator {
                 kommentar = kommentar,
             )
         } else {
-            if (!utenlandskArrangor) {
-                requireNotNull(journalpostId)
-            }
             UpsertUtbetaling.Anskaffelse(
                 id = request.id,
                 gjennomforingId = request.gjennomforingId,
@@ -239,85 +206,6 @@ object UtbetalingValidator {
                 vedlegg = emptyList(),
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             )
-        }
-    }
-
-    fun validerGodkjennUtbetaling(
-        request: GodkjennUtbetaling,
-        utbetaling: Utbetaling,
-        advarsler: List<DeltakerAdvarsel>,
-        today: LocalDate,
-    ): Either<List<FieldError>, Kid?> = validation {
-        when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT -> Unit
-
-            UtbetalingStatusType.TIL_BEHANDLING,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.AVBRUTT,
-            -> error { FieldError.root("Utbetalingen er allerede godkjent") }
-        }
-        validate(utbetaling.blokkeringer.isEmpty() && advarsler.isEmpty()) {
-            FieldError(
-                "/info",
-                "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.",
-            )
-        }
-        validate(utbetaling.periode.slutt.isBefore(today)) {
-            FieldError.root("Utbetalingen kan ikke godkjennes før perioden er passert")
-        }
-        validate(request.updatedAt == utbetaling.updatedAt.toString()) {
-            FieldError("/info", "Informasjonen i kravet har endret seg. Vennligst se over på nytt.")
-        }
-        validate(utbetaling.betalingsinformasjon != null) {
-            FieldError("/info", "Utbetalingen kan ikke godkjennes fordi kontonummer mangler.")
-        }
-        requireValid(request.kid == null || Kid.parse(request.kid) != null) {
-            FieldError.of("Ugyldig kid", GodkjennUtbetaling::kid)
-        }
-        request.kid?.let { Kid.parseOrThrow(it) }
-    }
-
-    fun validerAvbrytUtbetaling(
-        request: AvbrytUtbetaling,
-        utbetaling: Utbetaling,
-    ): Either<List<FieldError>, String> = validation {
-        validate(arrangorAvbrytStatus(utbetaling) == ArrangorAvbrytStatus.ACTIVATED) {
-            FieldError.root("Utbetalingen kan ikke avbrytes")
-        }
-        requireValid(!request.begrunnelse.isNullOrBlank()) {
-            FieldError.of("Begrunnelse må være satt", AvbrytUtbetaling::begrunnelse)
-        }
-        validate(request.begrunnelse.length <= 100) {
-            FieldError.of("Begrunnelse kan ikke være lengre enn 100 tegn", AvbrytUtbetaling::begrunnelse)
-        }
-        request.begrunnelse
-    }
-
-    // TODO: inline i GenererUtbetalingService
-    fun validerRegenererUtbetaling(utbetaling: Utbetaling): Either<List<FieldError>, Unit> = validation {
-        validate(utbetaling.status == UtbetalingStatusType.AVBRUTT) {
-            FieldError.root("Utbetalingen kan ikke regenereres")
-        }
-        validateNotNull(utbetaling.innsending) {
-            FieldError.root("Utbetalingen kan ikke regenereres")
-        }
-        when (utbetaling.beregning) {
-            is UtbetalingBeregningFri,
-            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerTimeOppfolging,
-            -> error {
-                FieldError.root("Utbetalingen kan ikke regenereres")
-            }
-
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerHeleUkesverk,
-            is UtbetalingBeregningPrisPerManedsverk,
-            is UtbetalingBeregningPrisPerUkesverk,
-            -> Unit
         }
     }
 }

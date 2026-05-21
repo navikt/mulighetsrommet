@@ -36,6 +36,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
@@ -54,7 +55,7 @@ import java.util.UUID
 
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
-    val utbetalingService: UtbetalingService by inject()
+    val utbetalingService: AdminUtbetalingService by inject()
     val personaliaService: PersonaliaService by inject()
 
     get("/utbetaling", {
@@ -139,9 +140,8 @@ fun Route.utbetalingRoutes() {
             }) {
                 val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
-                val arrangor = db.session { queries.arrangor.getByGjennomforingId(request.gjennomforingId) }
 
-                val result = UtbetalingValidator.validateUpsertUtbetaling(request, arrangor)
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
                     .flatMap { utbetalingService.opprettUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke opprette utbetaling", it) }
                     .map { HttpStatusCode.Created }
@@ -167,9 +167,8 @@ fun Route.utbetalingRoutes() {
             }) {
                 val request = call.receive<UtbetalingRequest>()
                 val navIdent = getNavIdent()
-                val arrangor = db.session { queries.arrangor.getByGjennomforingId(request.gjennomforingId) }
 
-                val result = UtbetalingValidator.validateUpsertUtbetaling(request, arrangor)
+                val result = UtbetalingValidator.validateUpsertUtbetaling(request)
                     .flatMap { utbetalingService.redigerUtbetaling(it, navIdent) }
                     .mapLeft { ValidationError("Klarte ikke redigere utbetaling", it) }
                     .map { HttpStatusCode.OK }

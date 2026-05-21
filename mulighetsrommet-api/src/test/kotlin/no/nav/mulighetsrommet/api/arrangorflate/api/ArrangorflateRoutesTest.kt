@@ -143,10 +143,7 @@ class ArrangorflateRoutesTest : FunSpec({
 
             response.status shouldBe HttpStatusCode.BadRequest
             response.body<ValidationError>().errors shouldBe listOf(
-                FieldError(
-                    "/info",
-                    "Informasjonen i kravet har endret seg. Vennligst se over på nytt.",
-                ),
+                FieldError.of("Informasjonen i kravet har endret seg. Vennligst se over på nytt."),
             )
         }
     }
@@ -234,10 +231,7 @@ class ArrangorflateRoutesTest : FunSpec({
 
             response.status shouldBe HttpStatusCode.BadRequest
             response.body<ValidationError>().errors shouldBe listOf(
-                FieldError(
-                    "/info",
-                    "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.",
-                ),
+                FieldError.of("Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn."),
             )
         }
     }

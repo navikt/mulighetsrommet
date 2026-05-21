@@ -42,14 +42,15 @@ class ArrangorQueries(private val session: Session) {
     fun upsert(arrangor: ArrangorDto) {
         @Language("PostgreSQL")
         val query = """
-            insert into arrangor(id, organisasjonsnummer, organisasjonsform, navn, overordnet_enhet, slettet_dato)
-            values (:id, :organisasjonsnummer, :organisasjonsform, :navn, :overordnet_enhet, :slettet_dato)
+            insert into arrangor(id, organisasjonsnummer, organisasjonsform, navn, overordnet_enhet, slettet_dato, er_utenlandsk_virksomhet)
+            values (:id, :organisasjonsnummer, :organisasjonsform, :navn, :overordnet_enhet, :slettet_dato, :er_utenlandsk_virksomhet)
             on conflict (id) do update set
                 organisasjonsnummer = excluded.organisasjonsnummer,
                 organisasjonsform = excluded.organisasjonsform,
                 navn = excluded.navn,
                 overordnet_enhet = excluded.overordnet_enhet,
-                slettet_dato = excluded.slettet_dato
+                slettet_dato = excluded.slettet_dato,
+                er_utenlandsk_virksomhet = excluded.er_utenlandsk_virksomhet
         """.trimIndent()
 
         val parameters = arrangor.run {
@@ -60,6 +61,7 @@ class ArrangorQueries(private val session: Session) {
                 "navn" to navn,
                 "overordnet_enhet" to overordnetEnhet?.value,
                 "slettet_dato" to slettetDato,
+                "er_utenlandsk_virksomhet" to erUtenlandsk,
             )
         }
 

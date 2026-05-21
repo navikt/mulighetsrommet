@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import arrow.core.flatMap
 import arrow.core.getOrElse
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -35,19 +36,20 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateUtbetalingFi
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTilsagnKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
+import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
-import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
-import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
+import no.nav.mulighetsrommet.api.validation.Validated
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
@@ -55,7 +57,7 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -65,6 +67,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.contracts.ExperimentalContracts
 
 suspend fun RoutingContext.respondWithManglerTilgangHosArrangor() = call.respondWithProblemDetail(
     Forbidden(
@@ -99,26 +102,41 @@ suspend fun RoutingContext.orgnrTilganger(
 suspend fun RoutingContext.requireTilgangHosArrangor(
     altinnRettigheterService: AltinnRettigheterService,
     organisasjonsnummer: Organisasjonsnummer,
-) = orgnrTilganger(altinnRettigheterService)
-    .find { it == organisasjonsnummer }
-    ?: throw StatusException(HttpStatusCode.Forbidden, "Ikke tilgang til bedrift")
+): Organisasjonsnummer {
+    return orgnrTilganger(altinnRettigheterService).find { it == organisasjonsnummer }
+        ?: throw StatusException(
+            HttpStatusCode.Forbidden,
+            "Ikke tilgang til bedrift med organisasjonsnummer $organisasjonsnummer",
+        )
+}
 
 fun Route.arrangorflateRoutes(config: AppConfig) {
     val db: ApiDatabase by inject()
-    val utbetalingService: UtbetalingService by inject()
+    val utbetalingService: ArrangorflateUtbetalingService by inject()
     val pdfClient: PdfGenClient by inject()
     val arrangorflateService: ArrangorflateService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
-    val genererUtbetalingService: GenererUtbetalingService by inject()
 
-    suspend fun RoutingContext.getTilsagnOrRespondNotFound(): ArrangorflateTilsagnDto {
+    suspend fun RoutingContext.getTilsagnOrRespondWithClientError(): ArrangorflateTilsagnDto {
         val id: UUID by call.parameters
-        return arrangorflateService.getTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
+
+        val tilsagn = arrangorflateService.getTilsagn(id)
+            ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
+
+        requireTilgangHosArrangor(altinnRettigheterService, tilsagn.arrangor.organisasjonsnummer)
+
+        return tilsagn
     }
 
-    fun RoutingContext.getUtbetalingOrRespondNotFound(): Utbetaling {
+    suspend fun RoutingContext.getUtbetalingOrRespondWithClientError(): Utbetaling {
         val id: UUID by call.parameters
-        return arrangorflateService.getUtbetaling(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
+
+        val utbetaling = utbetalingService.getUtbetaling(id)
+            ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
+
+        requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+
+        return utbetaling
     }
 
     arrangorflateOpprettKravRoutes(config.okonomi)
@@ -203,9 +221,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val tilsagn = getTilsagnOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, tilsagn.arrangor.organisasjonsnummer)
-
+            val tilsagn = getTilsagnOrRespondWithClientError()
             call.respond(tilsagn)
         }
     }
@@ -262,10 +278,10 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             val response = arrangorflateService.toArrangorflateUtbetaling(utbetaling)
+
             call.respond(response)
         }
 
@@ -291,23 +307,18 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             val request = call.receive<GodkjennUtbetaling>()
-            val advarsler = arrangorflateService.getAdvarsler(utbetaling)
-            UtbetalingValidator
-                .validerGodkjennUtbetaling(
-                    request,
-                    utbetaling,
-                    advarsler,
-                    today = LocalDate.now(),
-                )
-                .onLeft {
-                    call.respondWithProblemDetail(ValidationError(errors = it))
+
+            request.validate(utbetaling)
+                .flatMap { kid ->
+                    utbetalingService.godkjentAvArrangor(utbetaling.id, kid)
+                }
+                .onLeft { errors ->
+                    call.respondWithProblemDetail(ValidationError("Utbetalingen kan ikke godkjennes", errors))
                 }
                 .onRight {
-                    utbetalingService.godkjentAvArrangor(utbetaling.id, it)
                     call.respond(HttpStatusCode.OK)
                 }
         }
@@ -330,8 +341,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             if (utbetaling.innsending == null) {
                 return@get call.respondWithProblemDetail(NotFound("Utbetalingskravet er ikke sendt inn. Ingen kvittering tilgjengelig."))
@@ -369,18 +379,19 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             val request = call.receive<AvbrytUtbetaling>()
-            UtbetalingValidator
-                .validerAvbrytUtbetaling(request, utbetaling)
-                .map { utbetalingService.avbrytUtbetaling(utbetaling.id, it, Arrangor) }
+
+            request.validate()
+                .flatMap { begrunnelse ->
+                    utbetalingService.avbrytUtbetaling(utbetaling.id, begrunnelse)
+                }
+                .onLeft { errors ->
+                    call.respondWithProblemDetail(ValidationError("Utbetalingen kan ikke avbrytes", errors))
+                }
                 .onRight {
                     call.respond(HttpStatusCode.OK)
-                }
-                .onLeft {
-                    call.respondWithProblemDetail(ValidationError(errors = it))
                 }
         }
 
@@ -402,16 +413,13 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
-            UtbetalingValidator
-                .validerRegenererUtbetaling(utbetaling)
+            utbetalingService.regenererUtbetaling(utbetaling)
                 .onLeft {
-                    call.respondWithProblemDetail(ValidationError(errors = it))
+                    call.respondWithProblemDetail(ValidationError("Utbetalingen kan ikke regenereres", it))
                 }
                 .onRight {
-                    genererUtbetalingService.regenererUtbetaling(utbetaling)
                     call.respond(HttpStatusCode.OK)
                 }
         }
@@ -436,9 +444,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
-
+            val utbetaling = getUtbetalingOrRespondWithClientError()
             val linjer = arrangorflateService.getLinjer(utbetaling.id)
             val gjennomforing = db.session {
                 queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
@@ -480,8 +486,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             val tilsagn = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(utbetaling)
 
@@ -507,8 +512,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             arrangorflateService.synkroniserKontonummer(utbetaling)
                 .onLeft { error ->
@@ -536,12 +540,34 @@ data class KontonummerResponse(
 data class GodkjennUtbetaling(
     val updatedAt: String,
     val kid: String?,
-)
+) {
+    @OptIn(ExperimentalContracts::class)
+    fun validate(utbetaling: Utbetaling): Validated<Kid?> = validation {
+        validate(updatedAt == utbetaling.updatedAt.toString()) {
+            FieldError.of("Informasjonen i kravet har endret seg. Vennligst se over på nytt.")
+        }
+        requireValid(kid == null || Kid.parse(kid) != null) {
+            FieldError.of("Ugyldig kid", GodkjennUtbetaling::kid)
+        }
+        kid?.let { Kid.parseOrThrow(it) }
+    }
+}
 
 @Serializable
 data class AvbrytUtbetaling(
     val begrunnelse: String?,
-)
+) {
+    @OptIn(ExperimentalContracts::class)
+    fun validate(): Validated<String> = validation {
+        requireValid(!begrunnelse.isNullOrBlank()) {
+            FieldError.of("Begrunnelse må være satt", AvbrytUtbetaling::begrunnelse)
+        }
+        validate(begrunnelse.length <= 100) {
+            FieldError.of("Begrunnelse kan ikke være lengre enn 100 tegn", AvbrytUtbetaling::begrunnelse)
+        }
+        begrunnelse
+    }
+}
 
 @Serializable
 data class OpprettKravOmUtbetalingResponse(

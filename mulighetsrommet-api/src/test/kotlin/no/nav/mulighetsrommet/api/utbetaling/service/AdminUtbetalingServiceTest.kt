@@ -1,14 +1,10 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
-import arrow.core.left
-import arrow.core.nel
-import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -16,18 +12,15 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
-import io.mockk.spyk
 import io.mockk.verify
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -54,11 +47,8 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
-import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
-import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
@@ -84,10 +74,9 @@ import java.time.ZoneId
 import java.util.UUID
 
 private const val BESTILLING_TOPIC = "bestilling-topic"
-
 private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
 
-class UtbetalingServiceTest : FunSpec({
+class AdminUtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     afterEach {
@@ -108,17 +97,22 @@ class UtbetalingServiceTest : FunSpec({
         tilsagnService: TilsagnService = createTilsagnService(),
         journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
-    ) = UtbetalingService(
-        config = UtbetalingService.Config(
-            bestillingTopic = BESTILLING_TOPIC,
-            tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
-        ),
-        db = database.db,
-        tilsagnService = tilsagnService,
-        journalforUtbetaling = journalforUtbetaling,
-        arrangorService = arrangorService,
-        totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
-    )
+    ): AdminUtbetalingService {
+        val utbetalingService = UtbetalingService(
+            config = UtbetalingService.Config(
+                bestillingTopic = BESTILLING_TOPIC,
+                tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
+            ),
+            tilsagnService = tilsagnService,
+            journalforUtbetaling = journalforUtbetaling,
+            arrangorService = arrangorService,
+            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
+        )
+        return AdminUtbetalingService(
+            db = database.db,
+            utbetalingService = utbetalingService,
+        )
+    }
 
     context("opprett og rediger utbetaling") {
         val upsert = UpsertUtbetaling.Anskaffelse(
@@ -200,6 +194,33 @@ class UtbetalingServiceTest : FunSpec({
             ).shouldBeRight()
 
             verify(exactly = 1) { journalforUtbetaling.schedule(utbetaling.id, any(), any(), any()) }
+        }
+
+        test("journalpostId er påkrevd for norsk arrangør") {
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                opprett = upsert.copy(journalpostId = null),
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ) shouldBeLeft listOf(
+                FieldError("/journalpostId", "Journalpost-ID er påkrevd"),
+            )
+        }
+
+        test("journalpostId er ikke påkrevd for utenlandsk arrangør") {
+            val utenlandskArrangor = ArrangorFixtures.Utenlandsk.hovedenhet
+            val gjennomforingMedUtenlandskArrangor = AFT1.copy(arrangorId = utenlandskArrangor.id)
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(utenlandskArrangor),
+                gjennomforinger = listOf(gjennomforingMedUtenlandskArrangor),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.opprettUtbetaling(
+                opprett = upsert.copy(gjennomforingId = gjennomforingMedUtenlandskArrangor.id, journalpostId = null),
+                agent = NavAnsattFixture.DonaldDuck.navIdent,
+            ).shouldBeRight()
         }
 
         test("kan redigeres når den er til behandling") {
@@ -750,13 +771,19 @@ class UtbetalingServiceTest : FunSpec({
 
             database.run {
                 queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.RETURNERT
-                queries.totrinnskontroll.getOrError(utbetalingLinje1.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE).should {
+                queries.totrinnskontroll.getOrError(
+                    utbetalingLinje1.id,
+                    TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
+                ).should {
                     it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                 }
 
                 queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.RETURNERT
-                queries.totrinnskontroll.getOrError(utbetalingLinje2.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE).should {
+                queries.totrinnskontroll.getOrError(
+                    utbetalingLinje2.id,
+                    TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
+                ).should {
                     it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                     it.besluttetAv shouldBe domain.ansatte[0].navIdent
                 }
@@ -986,12 +1013,18 @@ class UtbetalingServiceTest : FunSpec({
                     second.status shouldBe UtbetalingLinjeStatus.RETURNERT
                 }
 
-                queries.totrinnskontroll.getOrError(utbetalingLinje1.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE).should {
+                queries.totrinnskontroll.getOrError(
+                    utbetalingLinje1.id,
+                    TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
+                ).should {
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                     it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                 }
 
-                queries.totrinnskontroll.getOrError(utbetalingLinje2.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE).should {
+                queries.totrinnskontroll.getOrError(
+                    utbetalingLinje2.id,
+                    TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
+                ).should {
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                     it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                 }
@@ -1233,419 +1266,6 @@ class UtbetalingServiceTest : FunSpec({
         }
     }
 
-    context("Automatisert utbetaling når arrangør godkjenner") {
-        val utbetaling1Id = utbetaling1.id
-
-        val utbetaling1Forhandsgodkjent = utbetaling1.copy(
-            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-            beregning = getForhandsgodkjentBeregning(
-                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                pris = 1000.NOK,
-            ),
-        )
-
-        test("utbetaling blir journalført når arrangør godkjenner") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true)
-            val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
-
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight()
-
-            database.run {
-                queries.utbetaling.getOrError(utbetaling1Id).innsending.shouldNotBeNull().tidspunkt.toLocalDate() shouldBe LocalDate.now()
-            }
-
-            verify(exactly = 1) {
-                journalforUtbetaling.schedule(utbetaling1Forhandsgodkjent.id, any(), any(), listOf())
-            }
-        }
-
-        test("utbetaling kan ikke godkjennes flere ganger samtidig") {
-            val utbetaling = utbetaling1Forhandsgodkjent.copy(
-                beregning = getForhandsgodkjentBeregning(
-                    periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                    pris = 1.NOK,
-                ),
-            )
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val service = createUtbetalingService()
-
-            val job1 = async(Dispatchers.Default) {
-                service.godkjentAvArrangor(utbetaling1Id, kid = null)
-            }
-            val job2 = async(Dispatchers.Default) {
-                service.godkjentAvArrangor(utbetaling1Id, kid = null)
-            }
-
-            listOf(job1.await(), job2.await()) shouldContainExactlyInAnyOrder listOf(
-                AutomatisertUtbetalingResult.GODKJENT.right(),
-                FieldError.of("Utbetaling er allerede godkjent").nel().left(),
-            )
-        }
-
-        test("utbetales ikke hvis det allerede finnes en utbetalingslinje når arrangør godkjenner") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
-                utbetalingLinjer = listOf(utbetalingLinje1),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-                setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val service = createUtbetalingService()
-
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatisertUtbetalingResult.UTBETALINGLINJER_ALLEREDE_OPPRETTET,
-            )
-        }
-
-        test("utbetales når det finnes et enkelt tilsagn med nok midler og det er godkjent") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(
-                    Tilsagn1.copy(
-                        beregning = getTilsagnBeregning(
-                            pris = 1000.NOK,
-                        ),
-                    ),
-                ),
-                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val service = createUtbetalingService()
-
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatisertUtbetalingResult.GODKJENT,
-            )
-
-            database.run {
-                val linje = queries.utbetalingLinje.getByUtbetalingId(utbetaling1Id).shouldHaveSize(1).first().also {
-                    it.status shouldBe UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING
-                    it.pris shouldBe 1000.NOK
-                }
-
-                queries.totrinnskontroll.getOrError(linje.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE).should {
-                    it.behandletAv shouldBe Tiltaksadministrasjon
-                    it.besluttetAv shouldBe Tiltaksadministrasjon
-                }
-
-                queries.tilsagn.getOrError(Tilsagn1.id).should {
-                    it.belopBrukt shouldBe 1000.NOK
-                }
-
-                val records = queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC))
-                records.shouldHaveSize(1)
-                Json.decodeFromString<OkonomiBestillingMelding>(records[0].value.decodeToString())
-                    .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
-                    .payload.should {
-                        it.belop shouldBe 1000
-                        it.behandletAv shouldBe Tiltaksadministrasjon.toOkonomiPart()
-                        it.besluttetAv shouldBe Tiltaksadministrasjon.toOkonomiPart()
-                        it.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
-                        it.beskrivelse shouldBe """
-                            Tiltakstype: Arbeidsforberedende trening
-                            Periode: 01.01.2025 - 31.01.2025
-                            Tilsagnsnummer: A-2025/1-1
-                        """.trimIndent()
-                    }
-            }
-        }
-
-        test("valideringsfeil hvis utbetaling forsøkes godkjennes flere ganger") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val service = createUtbetalingService()
-
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatisertUtbetalingResult.GODKJENT,
-            )
-
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeLeft(
-                listOf(FieldError.of("Utbetaling er allerede godkjent")),
-            )
-        }
-
-        test("ingen utbetaling hvis tilsagn ikke er godkjent") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
-            ).initialize(database.db)
-
-            val service = createUtbetalingService()
-
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN,
-            )
-
-            database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_BEHANDLING
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
-            }
-        }
-
-        test("ingen utbetaling hvis ingen tilsagn") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
-            ).initialize(database.db)
-
-            val service = createUtbetalingService()
-
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN,
-            )
-
-            database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_BEHANDLING
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
-            }
-        }
-
-        test("ingen utbetaling hvis flere tilsagn") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1, Tilsagn2.copy(periode = Tilsagn1.periode)),
-                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-                setTilsagnStatus(Tilsagn2, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val service = createUtbetalingService()
-
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN,
-            )
-
-            database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_BEHANDLING
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
-            }
-        }
-
-        test("ingen utbetaling hvis tilsagn ikke har nok penger") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(
-                    Tilsagn1.copy(
-                        beregning = getTilsagnBeregning(
-                            pris = 1.NOK,
-                        ),
-                    ),
-                ),
-                utbetalinger = listOf(utbetaling1Forhandsgodkjent),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val service = createUtbetalingService()
-
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatisertUtbetalingResult.IKKE_NOK_PENGER,
-            )
-
-            database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_BEHANDLING
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
-            }
-        }
-
-        test("ingen utbetaling når prismodell er fri") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(Tilsagn1),
-                utbetalinger = listOf(
-                    utbetaling1Forhandsgodkjent.copy(
-                        beregning = UtbetalingBeregningFri(
-                            input = UtbetalingBeregningFri.Input(1.NOK),
-                            output = UtbetalingBeregningFri.Output(1.NOK),
-                        ),
-                    ),
-                ),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatisertUtbetalingResult.FEIL_PRISMODELL,
-            )
-
-            database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_BEHANDLING
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling1Id).shouldBeEmpty()
-            }
-        }
-
-        test("Tilsagn gjøres ikke opp hvis det varer lengre enn utbetalingsperioden") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(
-                    Tilsagn1.copy(
-                        periode = Periode(LocalDate.of(2025, 1, 4), LocalDate.of(2025, 3, 1)),
-                    ),
-                ),
-                utbetalinger = listOf(
-                    utbetaling1.copy(
-                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                        beregning = getForhandsgodkjentBeregning(
-                            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-                            pris = 100.NOK,
-                        ),
-                    ),
-                ),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val service = createUtbetalingService()
-
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
-                AutomatisertUtbetalingResult.GODKJENT,
-            )
-
-            database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
-                queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.GODKJENT
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling1Id).first().should {
-                    it.status shouldBe UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING
-                    it.gjorOppTilsagn shouldBe false
-                }
-            }
-        }
-
-        test("Tilsagn gjøres opp når siste dato i tilsagnsperioden er inkludert i utbetalingsperioden") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(
-                    Tilsagn1.copy(
-                        periode = Periode(LocalDate.of(2025, 1, 4), LocalDate.of(2025, 3, 1)),
-                    ),
-                ),
-                utbetalinger = listOf(
-                    utbetaling1.copy(
-                        periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
-                        beregning = getForhandsgodkjentBeregning(
-                            periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
-                            pris = 100.NOK,
-                        ),
-                    ),
-                ),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val service = createUtbetalingService()
-
-            service.godkjentAvArrangor(utbetaling1.id, kid = null).shouldBeRight(
-                AutomatisertUtbetalingResult.GODKJENT,
-            )
-
-            database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
-                queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.OPPGJORT
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling1.id).shouldHaveSize(1).should { (first) ->
-                    first.status shouldBe UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING
-                    first.gjorOppTilsagn shouldBe true
-                }
-            }
-        }
-
-        test("blir ikke utbetalt hvis det oppstår valideringsfeil i forbindelse med oppgjør av tilsagnet") {
-            MulighetsrommetTestDomain(
-                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(AFT1),
-                tilsagn = listOf(
-                    Tilsagn1.copy(
-                        periode = Periode(LocalDate.of(2025, 1, 4), LocalDate.of(2025, 3, 1)),
-                    ),
-                ),
-                utbetalinger = listOf(
-                    utbetaling1.copy(
-                        periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
-                        beregning = getForhandsgodkjentBeregning(
-                            periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
-                            pris = 100.NOK,
-                        ),
-                    ),
-                ),
-            ) {
-                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
-
-            val tilsagnService: TilsagnService = spyk(createTilsagnService())
-            coEvery {
-                with(any<TransactionalQueryContext>()) {
-                    tilsagnService.gjorOppTilsagn(any(), any(), any())
-                }
-            } answers {
-                FieldError.root("Noe feil skjedde").nel().left()
-            }
-            val service = createUtbetalingService(tilsagnService = tilsagnService)
-
-            service.godkjentAvArrangor(
-                utbetaling1.id,
-                kid = null,
-            ) shouldBeRight AutomatisertUtbetalingResult.VALIDERINGSFEIL
-
-            database.run {
-                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_BEHANDLING
-                queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.GODKJENT
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling1.id).shouldBeEmpty()
-            }
-        }
-    }
-
     context("sletting og avbryting") {
         test("kan ikke slette ferdig behandlet") {
             MulighetsrommetTestDomain(
@@ -1657,7 +1277,7 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
             service.slettKorreksjon(utbetaling1.id) shouldBeLeft listOf(
-                FieldError.root("Kan ikke slette utbetaling fordi den har status: FERDIG_BEHANDLET"),
+                FieldError.of("Kan ikke slette utbetaling fordi den har status: FERDIG_BEHANDLET"),
             )
         }
 
@@ -1671,8 +1291,127 @@ class UtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
             service.slettKorreksjon(utbetaling1.id) shouldBeLeft listOf(
-                FieldError.root("Kan kun slette korreksjoner"),
+                FieldError.of("Kan kun slette korreksjoner"),
             )
+        }
+
+        test("kan slette korreksjon med status TIL_BEHANDLING uten utbetalingslinjer") {
+            val original = utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)
+            val korreksjon = utbetaling2.copy(
+                status = UtbetalingStatusType.TIL_BEHANDLING,
+                korreksjonGjelderUtbetalingId = original.id,
+                korreksjonBegrunnelse = "Feilutbetaling",
+            )
+
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(original, korreksjon),
+            ).initialize(database.db)
+
+            val service = createUtbetalingService()
+            service.slettKorreksjon(korreksjon.id).shouldBeRight()
+
+            database.run {
+                queries.utbetaling.get(korreksjon.id) shouldBe null
+            }
+        }
+
+        test("kan slette korreksjon med status RETURNERT og returnerte utbetalingslinjer") {
+            val original = utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)
+            val korreksjon = utbetaling2.copy(
+                status = UtbetalingStatusType.RETURNERT,
+                korreksjonGjelderUtbetalingId = original.id,
+                korreksjonBegrunnelse = "Feilutbetaling",
+            )
+            val linje = utbetalingLinje1.copy(
+                utbetalingId = korreksjon.id,
+            )
+
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(original, korreksjon),
+                utbetalingLinjer = listOf(linje),
+            ) {
+                setUtbetalingLinjeStatus(linje, UtbetalingLinjeStatus.RETURNERT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+            service.slettKorreksjon(korreksjon.id).shouldBeRight()
+
+            database.run {
+                queries.utbetaling.get(korreksjon.id) shouldBe null
+                queries.utbetalingLinje.getByUtbetalingId(korreksjon.id).shouldBeEmpty()
+            }
+        }
+
+        test("kan ikke slette korreksjon hvis utbetalingslinje ikke er i RETURNERT status") {
+            val original = utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)
+            val korreksjon = utbetaling2.copy(
+                status = UtbetalingStatusType.TIL_BEHANDLING,
+                korreksjonGjelderUtbetalingId = original.id,
+                korreksjonBegrunnelse = "Feilutbetaling",
+            )
+            val linje = utbetalingLinje1.copy(
+                utbetalingId = korreksjon.id,
+            )
+
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(original, korreksjon),
+                utbetalingLinjer = listOf(linje),
+            ) {
+                setUtbetalingLinjeStatus(linje, UtbetalingLinjeStatus.TIL_ATTESTERING)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+            service.slettKorreksjon(korreksjon.id) shouldBeLeft listOf(
+                FieldError.of("UtbetalingLinje var i feil status"),
+            )
+        }
+    }
+
+    context("republishFaktura") {
+        test("publiserer faktura på nytt og lagrer ny Kafka-melding") {
+            val linje = utbetalingLinje1.copy(
+                fakturanummer = "A-2025/1-1-1",
+                status = UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
+            )
+
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)),
+                utbetalingLinjer = listOf(linje),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+                setUtbetalingLinjeStatus(linje, UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.republishFaktura(linje.fakturanummer).id shouldBe linje.id
+
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10, listOf(BESTILLING_TOPIC)).shouldHaveSize(1)
+            }
+        }
+
+        test("kaster feil for ukjent fakturanummer") {
+            val service = createUtbetalingService()
+
+            shouldThrow<IllegalStateException> {
+                service.republishFaktura("ukjent-fakturanummer")
+            }
         }
     }
 
@@ -1853,18 +1592,6 @@ private fun QueryContext.setRoller(ansatt: NavAnsattDbo, roller: Set<NavAnsattRo
     )
 }
 
-private fun getForhandsgodkjentBeregning(periode: Periode, pris: ValutaBelop) = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-    input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
-        satser = setOf(SatsPeriode(periode, 20205.NOK)),
-        stengt = setOf(),
-        deltakelser = setOf(),
-    ),
-    output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
-        pris = pris,
-        deltakelser = setOf(),
-    ),
-)
-
 fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri(
     input = TilsagnBeregningFri.Input(
         linjer = listOf(
@@ -1877,8 +1604,6 @@ fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri(
         ),
         prisbetingelser = null,
     ),
-    output = TilsagnBeregningFri.Output(pris),
-).copy(
     output = TilsagnBeregningFri.Output(pris),
 )
 

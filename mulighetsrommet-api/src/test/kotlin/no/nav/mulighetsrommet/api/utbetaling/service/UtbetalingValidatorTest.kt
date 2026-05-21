@@ -8,8 +8,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.arrangorflate.api.GodkjennUtbetaling
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -84,7 +82,7 @@ class UtbetalingValidatorTest : FunSpec({
             )
         }
 
-        test("begrunnelse er påkrevd i stedet for journalpost-id for korreksjoner") {
+        test("begrunnelse er påkrevd for korreksjoner") {
             val request = UtbetalingRequest(
                 id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
@@ -141,54 +139,18 @@ class UtbetalingValidatorTest : FunSpec({
             )
         }
 
-        test("Journalpostid er påkrevd for arrangør med norsk orgnummer") {
+        test("Journalpostid må være på gyldig format") {
             val request = UtbetalingRequest(
                 id = UUID.randomUUID(),
                 gjennomforingId = UUID.randomUUID(),
                 periodeStart = periodeStart,
                 periodeSlutt = periodeSlutt,
-                journalpostId = null,
+                journalpostId = "foo",
                 pris = ValutaBelopRequest(150, Valuta.NOK),
             )
 
-            val result = UtbetalingValidator.validateUpsertUtbetaling(request, ArrangorFixtures.underenhet1)
-            result.shouldBeLeft() shouldContainExactlyInAnyOrder listOf(
+            UtbetalingValidator.validateUpsertUtbetaling(request) shouldBeLeft listOf(
                 FieldError.of(detail = "Journalpost-ID er på ugyldig format", UtbetalingRequest::journalpostId),
-            )
-        }
-
-        test("Journalpostid er ikke påkrevd for utenlandsk arrangør") {
-            val request = UtbetalingRequest(
-                id = UUID.randomUUID(),
-                gjennomforingId = UUID.randomUUID(),
-                periodeStart = periodeStart,
-                periodeSlutt = periodeSlutt,
-                journalpostId = null,
-                pris = ValutaBelopRequest(150, Valuta.SEK),
-            )
-
-            val result = UtbetalingValidator.validateUpsertUtbetaling(request, ArrangorFixtures.Utenlandsk.hovedenhet)
-            result.shouldBeRight()
-        }
-    }
-
-    context("godkjenn utbetaling av arrangør") {
-        test("Kan ikke godkjenne før periode er passert") {
-            val request = GodkjennUtbetaling(
-                updatedAt = "asdf",
-                kid = null,
-            )
-
-            val result = UtbetalingValidator.validerGodkjennUtbetaling(
-                request = request,
-                utbetaling = UtbetalingFixtures.utbetalingDto1,
-                advarsler = emptyList(),
-                today = UtbetalingFixtures.utbetalingDto1.periode.start,
-            )
-            result.shouldBeLeft().shouldContainAll(
-                listOf(
-                    FieldError.root("Utbetalingen kan ikke godkjennes før perioden er passert"),
-                ),
             )
         }
     }
@@ -289,7 +251,7 @@ class UtbetalingValidatorTest : FunSpec({
                     begrunnelse = null,
                 ),
             ).shouldBeLeft().shouldContainAll(
-                FieldError.root("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp"),
+                FieldError.of("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp"),
             )
         }
     }

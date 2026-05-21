@@ -35,7 +35,6 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.slf4j.LoggerFactory
-import java.lang.IllegalStateException
 import java.util.UUID
 
 class TilskuddArrangorUtbetalingConsumer(
@@ -144,7 +143,7 @@ class TilskuddArrangorUtbetalingConsumer(
         belop: ValutaBelop,
         kid: Kid?,
     ): Utbetaling {
-        return utbetalingService.opprettUtbetalingInTx(
+        return utbetalingService.opprettUtbetaling(
             UpsertUtbetaling.Generering(
                 id = UUID.randomUUID(),
                 periode = periode,

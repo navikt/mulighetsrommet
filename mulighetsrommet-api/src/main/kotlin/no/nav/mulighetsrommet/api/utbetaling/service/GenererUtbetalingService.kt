@@ -107,8 +107,14 @@ class GenererUtbetalingService(
                 return@mapNotNull null
             }
 
-            utbetalingService.oppdaterBeregning(utbetaling.id, oppdatertBeregning, Tiltaksadministrasjon).getOrElse {
-                throw UtbetalingException(it)
+            db.transaction {
+                utbetalingService.oppdaterBeregning(
+                    utbetaling.id,
+                    oppdatertBeregning,
+                    Tiltaksadministrasjon,
+                ).getOrElse {
+                    throw UtbetalingException(it)
+                }
             }
         }
     }
@@ -218,8 +224,10 @@ class GenererUtbetalingService(
             kid = forrigeKid,
             blokkeringer = blokkeringer,
         )
-        return utbetalingService.opprettUtbetaling(opprett, Tiltaksadministrasjon).getOrElse {
-            throw UtbetalingException(it)
+        return db.transaction {
+            utbetalingService.opprettUtbetaling(opprett, Tiltaksadministrasjon).getOrElse {
+                throw UtbetalingException(it)
+            }
         }
     }
 
