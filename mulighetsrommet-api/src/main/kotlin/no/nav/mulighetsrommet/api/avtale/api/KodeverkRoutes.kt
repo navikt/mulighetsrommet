@@ -2,12 +2,15 @@ package no.nav.mulighetsrommet.api.avtale.api
 
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.http.content.default
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringMapper
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringResponse
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.avtale.model.AvtaletypeInfo
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellInfo
 import no.nav.mulighetsrommet.api.avtale.model.Prismodeller
@@ -20,6 +23,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import org.koin.ktor.ext.inject
 
 fun Route.kodeverkRoutes() {
+    val db: ApiDatabase by inject()
     val opplaringKategorisering: OpplaringKategoriseringMapper by inject()
     val pamService: PamOntologiService by inject()
 
@@ -94,6 +98,25 @@ fun Route.kodeverkRoutes() {
                 }
                 val verk = opplaringKategorisering.from(tiltakskode)
                 call.respond(verk)
+            }
+
+            get("/kurstyper", {
+                tags = setOf("Kodeverk")
+                operationId = "getOpplaringKurstyper"
+                description = "Forskjellige kurstyper innen opplærings tiltakene"
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Kurstyper"
+                        body<Set<Kurstype>>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val kurstyper = db.session { queries.opplaringKategorisering.getKurstyper(true) }
+                call.respond(kurstyper)
             }
 
             get("/sertifiseringer/sok", {

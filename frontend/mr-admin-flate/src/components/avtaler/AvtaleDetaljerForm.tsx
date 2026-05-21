@@ -26,7 +26,7 @@ import { SelectAvtaletype } from "@/components/avtaler/SelectAvtaletype";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
-import { OpplaringKategoriseringForm } from "../amoKategorisering/OpplaringKategoriseringForm";
+import { AvtaleAmoKategoriseringForm } from "../amoKategorisering/AvtaleAmoKategoriseringForm";
 
 export function AvtaleDetaljerForm() {
   const { avtaleId } = useParams();
@@ -136,7 +136,7 @@ export function AvtaleDetaljerForm() {
               />
             )}
           </HGrid>
-          {tiltakskode && <OpplaringKategoriseringForm tiltakskode={tiltakskode} />}
+          {tiltakskode && <AvtaleAmoKategoriseringForm tiltakskode={tiltakskode} />}
         </FormGroup>
         <FormGroup>
           <AvtaleVarighet opsjonUtlost={antallOpsjonerUtlost > 0} />

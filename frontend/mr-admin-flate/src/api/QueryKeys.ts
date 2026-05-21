@@ -86,7 +86,12 @@ export const QueryKeys = {
   innsendinger: (filter?: object) => ["innsendinger", { ...filter }] as const,
   arrangorBetalingsinfo: (orgnr: string) => ["arrangorBetalingsinfo", orgnr],
   opplaeringtilskudd: () => ["opplaeringtilskudd"],
-  opplaringKategorisering: (tiltakskode: Tiltakskode) => ["opplaring-kategorisering", tiltakskode],
+  opplaringKategorisering: (tiltakskode: Tiltakskode) => [
+    "opplaring",
+    "kategorisering",
+    tiltakskode,
+  ],
+  opplaringKurstyper: () => ["opplaring", "kurstyper"],
   tilskuddBehandlinger: (gjennomforingId?: string) => ["tilskudd-behandling", gjennomforingId],
   tilskuddBehandling: (behandlingId: string) => ["tilskudd-behandling", behandlingId],
 };

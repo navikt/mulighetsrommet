@@ -22,7 +22,10 @@ export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
 
   return (
     <HGrid gap="space-16" columns={1}>
-      <OpplaringKategoriseringForm tiltakskode={avtale.tiltakstype.tiltakskode} />
+      <OpplaringKategoriseringForm
+        tiltakskode={avtale.tiltakstype.tiltakskode}
+        basePath={"amoKategorisering"}
+      />
       {(avtaleAmo.kurstype?.kode === KurstypeKode.GRUNNLEGGENDE_FERDIGHETER ||
         avtaleAmo.kurstype?.kode === KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE) && (
         <InnholdElementerForm

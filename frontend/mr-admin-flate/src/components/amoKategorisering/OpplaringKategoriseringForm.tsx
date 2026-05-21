@@ -17,42 +17,50 @@ import { SertifiseringerSkjema } from "./SertifiseringerSelect";
 import { useMemo } from "react";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 
-export function OpplaringKategoriseringForm({ tiltakskode }: { tiltakskode: Tiltakskode }) {
+interface Props<T> {
+  tiltakskode: Tiltakskode;
+  basePath: Path<T>;
+}
+export function OpplaringKategoriseringForm<T>({ tiltakskode, basePath }: Props<T>) {
   const { data: kodeverk } = useOpplaringKategorisering(tiltakskode);
   return kodeverk.alternativer.map((container, index) => (
-    <ContainerVelger key={`container-${index}`} container={container} />
+    <ContainerVelger key={`container-${index}`} container={container} basePath={basePath} />
   ));
 }
 
-function getPath<T extends FieldValues>(propName: string | null): Path<T> {
-  return `detaljer.amoKategorisering.${propName}` as Path<T>;
+function getPath<T extends FieldValues>(base: Path<T>, propName: string | null): Path<T> {
+  return `${base}.${propName}` as Path<T>;
 }
 
-function ContainerVelger({ container }: { container: Container }) {
+function ContainerVelger<T>({ container, basePath }: { container: Container; basePath: Path<T> }) {
   switch (container.type) {
     case "Gruppe":
-      return <GruppeVelger gruppe={container} />;
+      return <GruppeVelger gruppe={container} basePath={basePath} />;
     case "Verdigruppe":
-      return <VerdigruppeVelger verdigruppe={container} />;
+      return <VerdigruppeVelger verdigruppe={container} basePath={basePath} />;
     case "VerdigruppeSok":
-      return (
-        <SertifiseringerSkjema path={`detaljer.amoKategorisering.${container.representerer}`} />
-      );
+      return <SertifiseringerSkjema path={`${basePath}.${container.representerer}`} />;
     case undefined:
       throw Error("Ugyldig type container");
   }
 }
 
-function GruppeVelger({ gruppe }: { gruppe: Gruppe }) {
+function GruppeVelger<T>({ gruppe, basePath }: { gruppe: Gruppe; basePath: Path<T> }) {
   if (!gruppe.id && gruppe.representerer) {
-    return <GruppeVerdiVelger gruppe={gruppe} />;
+    return <GruppeVerdiVelger gruppe={gruppe} basePath={basePath} />;
   }
   return null;
 }
 
-function GruppeVerdiVelger<T extends FieldValues>({ gruppe }: { gruppe: Gruppe }) {
+function GruppeVerdiVelger<T extends FieldValues>({
+  gruppe,
+  basePath,
+}: {
+  gruppe: Gruppe;
+  basePath: Path<T>;
+}) {
   const { watch, resetField } = useFormContext<T>();
-  const name = getPath<T>(gruppe.representerer);
+  const name = getPath<T>(basePath, gruppe.representerer);
   const valgtGruppe = watch(name);
   const undervalg: Container[] = useMemo(() => {
     const valgtUndergruppe: Container | null =
@@ -60,13 +68,13 @@ function GruppeVerdiVelger<T extends FieldValues>({ gruppe }: { gruppe: Gruppe }
     switch (valgtUndergruppe?.type) {
       case "Gruppe": {
         valgtUndergruppe.alternativer.forEach((refName) =>
-          resetField(getPath<T>(refName.representerer)),
+          resetField(getPath<T>(basePath, refName.representerer)),
         );
         return valgtUndergruppe.alternativer;
       }
       case "Verdigruppe":
       case "VerdigruppeSok": {
-        resetField(getPath<T>(valgtUndergruppe.representerer));
+        resetField(getPath<T>(basePath, valgtUndergruppe.representerer));
         return [valgtUndergruppe];
       }
       case undefined:
@@ -85,25 +93,33 @@ function GruppeVerdiVelger<T extends FieldValues>({ gruppe }: { gruppe: Gruppe }
         ))}
       </FormSelect>
       {undervalg.map((c, index) => (
-        <ContainerVelger key={`container-${index}`} container={c} />
+        <ContainerVelger key={`container-${index}`} container={c} basePath={basePath} />
       ))}
     </>
   );
 }
 
-function VerdigruppeVelger({ verdigruppe }: { verdigruppe: Verdigruppe }) {
+function VerdigruppeVelger<T>({
+  verdigruppe,
+  basePath,
+}: {
+  verdigruppe: Verdigruppe;
+  basePath: Path<T>;
+}) {
   switch (verdigruppe.seleksjonstype) {
     case OpplaringKategoriseringResponseSeleksjonstype.ENKELTVALG:
-      return <VerdiGruppeEnkeltvalg verdigruppe={verdigruppe} />;
+      return <VerdiGruppeEnkeltvalg verdigruppe={verdigruppe} basePath={basePath} />;
     case OpplaringKategoriseringResponseSeleksjonstype.FLERVALG:
-      return <VerdiGruppeFlervalg verdigruppe={verdigruppe} />;
+      return <VerdiGruppeFlervalg verdigruppe={verdigruppe} basePath={basePath} />;
   }
 }
 
 function VerdiGruppeEnkeltvalg<T extends FieldValues>({
   verdigruppe,
+  basePath,
 }: {
   verdigruppe: Verdigruppe;
+  basePath: Path<T>;
 }) {
   const label = verdigruppe.tooltip ? (
     <LabelWithHelpText label={verdigruppe.visningsnavn}>
@@ -115,7 +131,7 @@ function VerdiGruppeEnkeltvalg<T extends FieldValues>({
   return (
     <HGrid gap="space-16" columns={1}>
       <FormSelect<T>
-        name={`detaljer.amoKategorisering.${verdigruppe.representerer}` as Path<T>}
+        name={`${basePath}.${verdigruppe.representerer}` as Path<T>}
         label={label}
         required={verdigruppe.required}
       >
@@ -130,12 +146,18 @@ function VerdiGruppeEnkeltvalg<T extends FieldValues>({
   );
 }
 
-function VerdiGruppeFlervalg<T extends FieldValues>({ verdigruppe }: { verdigruppe: Verdigruppe }) {
+function VerdiGruppeFlervalg<T extends FieldValues>({
+  verdigruppe,
+  basePath,
+}: {
+  verdigruppe: Verdigruppe;
+  basePath: Path<T>;
+}) {
   return (
     <FormComboboxMulti<T>
       label={verdigruppe.visningsnavn}
       placeholder={"Velg opptil flere"}
-      name={`detaljer.amoKategorisering.${verdigruppe.representerer}` as Path<T>}
+      name={`${basePath}.${verdigruppe.representerer}` as Path<T>}
       required={verdigruppe.required}
       options={verdigruppe.alternativer.map((verdi: Verdi) => ({
         value: verdi.id,

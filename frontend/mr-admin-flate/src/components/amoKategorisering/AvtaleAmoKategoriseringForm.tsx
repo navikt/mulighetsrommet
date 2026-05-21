@@ -1,83 +1,45 @@
 import { HGrid } from "@navikt/ds-react";
-import { useFormContext } from "react-hook-form";
-import { AvtaleBransjeForm } from "./AvtaleBransjeForm";
-import { NorksopplaeringForm } from "./NorskopplaeringForm";
+import { Path, useFormContext } from "react-hook-form";
 import { InnholdElementerForm } from "./InnholdElementerForm";
 import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { KurstypeKode, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { OpplaringKategoriseringForm } from "./OpplaringKategoriseringForm";
+import { useOpplaringKurstyper } from "@/api/amo/useOpplaringKurstyper";
+import { FormCheckbox } from "../skjema/FormCheckbox";
 
 interface Props {
   tiltakskode: Tiltakskode;
 }
 
 export function AvtaleAmoKategoriseringForm({ tiltakskode }: Props) {
-  if (tiltakskode === Tiltakskode.ARBEIDSMARKEDSOPPLAERING) {
-    return <AvtaleBransjeForm tiltakskode={Tiltakskode.ARBEIDSMARKEDSOPPLAERING} />;
-  } else if (tiltakskode === Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV) {
-    return (
-      <NorskopplaeringGrunnleggendeGerdigheterFOVForm
-        tiltakskode={Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV}
-      />
-    );
-  } else if (tiltakskode === Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) {
-    return <GruppeAmoForm tiltakskode={tiltakskode} />;
-  } else {
-    return null;
-  }
-}
-
-function NorskopplaeringGrunnleggendeGerdigheterFOVForm({
-  tiltakskode,
-}: {
-  tiltakskode: Tiltakskode;
-}) {
+  const { data: kurstyper } = useOpplaringKurstyper();
   const { watch } = useFormContext<AvtaleFormValues>();
 
-  const amoKategorisering = watch("detaljer.amoKategorisering");
+  const basePath = "detaljer.amoKategorisering" as Path<AvtaleFormValues>;
+  const amoKategorisering = watch(basePath);
+  const valgtKurstype = kurstyper.find((kurstype) => kurstype.id === amoKategorisering?.kurstypeId);
 
   return (
     <HGrid gap="space-16" columns={1}>
-      <OpplaringKategoriseringForm tiltakskode={tiltakskode} />
-      {amoKategorisering?.kurstypeId === KurstypeKode.NORSKOPPLAERING && (
-        <NorksopplaeringForm<AvtaleFormValues>
-          norskprovePath="detaljer.amoKategorisering.norskprove"
-          innholdElementerPath="detaljer.amoKategorisering.innholdElementer"
-          tiltakskode={Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV}
-        />
+      <OpplaringKategoriseringForm tiltakskode={tiltakskode} basePath={basePath} />
+      {valgtKurstype?.kode === KurstypeKode.NORSKOPPLAERING && (
+        <FormCheckbox name={`${basePath}.norskprove`}>Gir mulighet for norskprøve</FormCheckbox>
       )}
-      {(amoKategorisering?.kurstypeId === KurstypeKode.GRUNNLEGGENDE_FERDIGHETER ||
-        amoKategorisering?.kurstypeId === KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE) && (
-        <InnholdElementerForm<AvtaleFormValues>
-          path="detaljer.amoKategorisering.innholdElementer"
-          tiltakskode={Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV}
+      {harInnholdsElementer(tiltakskode) && (
+        <InnholdElementerForm
+          path={`${basePath}.innholdElementer`}
+          tiltakskode={tiltakskode}
+          kurstype={valgtKurstype}
         />
       )}
     </HGrid>
   );
 }
 
-function GruppeAmoForm({ tiltakskode }: { tiltakskode: Tiltakskode }) {
-  const { watch } = useFormContext<AvtaleFormValues>();
-
-  const amoKategorisering = watch("detaljer.amoKategorisering");
-
-  return (
-    <HGrid gap="space-16" columns={1}>
-      <OpplaringKategoriseringForm tiltakskode={tiltakskode} />
-      {amoKategorisering?.kurstypeId === KurstypeKode.NORSKOPPLAERING && (
-        <NorksopplaeringForm<AvtaleFormValues>
-          norskprovePath="detaljer.amoKategorisering.norskprove"
-          innholdElementerPath="detaljer.amoKategorisering.innholdElementer"
-          tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING}
-        />
-      )}
-      {amoKategorisering?.kurstypeId === KurstypeKode.GRUNNLEGGENDE_FERDIGHETER && (
-        <InnholdElementerForm<AvtaleFormValues>
-          path="detaljer.amoKategorisering.innholdElementer"
-          tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING}
-        />
-      )}
-    </HGrid>
-  );
+function harInnholdsElementer(tiltakskode: Tiltakskode): boolean {
+  return [
+    Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+    Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+    Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+  ].includes(tiltakskode);
 }

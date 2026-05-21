@@ -1697,6 +1697,32 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/kodeverk/opplaring/kurstyper:
+    get:
+      tags:
+      - Kodeverk
+      description: Forskjellige kurstyper innen opplærings tiltakene
+      operationId: getOpplaringKurstyper
+      parameters: []
+      responses:
+        "200":
+          description: Kurstyper
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Kurstype"
+                uniqueItems: true
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/kodeverk/opplaring/sertifiseringer/sok:
     get:
       tags:
