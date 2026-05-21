@@ -37,14 +37,21 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
+import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
 
@@ -639,6 +646,63 @@ class TilsagnServiceTest : FunSpec({
                 agent = ansatt1,
             ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
             database.run { queries.tilsagn.getOrError(requestId).status shouldBe TilsagnStatus.TIL_ANNULLERING }
+        }
+
+        test("kan ikke annullere tilsagn med utbetalinger") {
+            service.upsert(request, ansatt1).shouldBeRight()
+            service.godkjennTilsagn(
+                id = requestId,
+                agent = ansatt2,
+            ).shouldBeRight()
+            service.tilAnnulleringRequest(
+                id = requestId,
+                navIdent = ansatt1,
+                request = AarsakerOgForklaringRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = "Velg et annet beløp",
+                ),
+            )
+            database.run {
+                val belop = 10.withValuta(Valuta.NOK)
+                val utbetalingId = UUID.randomUUID()
+                queries.utbetaling.upsert(
+                    UtbetalingDbo(
+                        id = utbetalingId,
+                        status = UtbetalingStatusType.FERDIG_BEHANDLET,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                        gjennomforingId = request.gjennomforingId,
+                        valuta = Valuta.NOK,
+                        journalpostId = null,
+                        beregning = UtbetalingBeregningFri.from(belop),
+                        betalingsinformasjon = null,
+                        kommentar = null,
+                        korreksjonGjelderUtbetalingId = null,
+                        korreksjonBegrunnelse = null,
+                        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+                        innsendtAvArrangorTidspunkt = null,
+                        utbetalesTidligstTidspunkt = null,
+                    ),
+                )
+                queries.utbetalingLinje.upsert(
+                    UtbetalingLinjeDbo(
+                        id = UUID.randomUUID(),
+                        tilsagnId = requestId,
+                        utbetalingId = utbetalingId,
+                        status = UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING,
+                        pris = belop,
+                        gjorOppTilsagn = false,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                        lopenummer = 1,
+                        fakturanummer = "a-asdf2-3",
+                        fakturaStatus = null,
+                        fakturaStatusEndretTidspunkt = null,
+                    ),
+                )
+            }
+            service.godkjennTilsagn(
+                id = requestId,
+                agent = ansatt2,
+            ) shouldBeLeft listOf(FieldError.of("Tilsagnet kan ikke annulleres fordi det har blitt brukt i utbetalinger"))
         }
     }
 

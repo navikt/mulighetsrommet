@@ -425,6 +425,11 @@ class TilsagnService(
                 .nel()
                 .left()
         }
+        if (db.session { queries.utbetalingLinje.getNextLopenummerByTilsagn(tilsagn.id) } > 1) {
+            return FieldError.of("Tilsagnet kan ikke annulleres fordi det har blitt brukt i utbetalinger")
+                .nel()
+                .left()
+        }
 
         val annullering = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
         return totrinnskontroll.godkjent(annullering, besluttetAv).map {
