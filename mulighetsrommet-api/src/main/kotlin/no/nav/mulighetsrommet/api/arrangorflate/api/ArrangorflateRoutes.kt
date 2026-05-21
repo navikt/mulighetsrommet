@@ -102,9 +102,13 @@ suspend fun RoutingContext.orgnrTilganger(
 suspend fun RoutingContext.requireTilgangHosArrangor(
     altinnRettigheterService: AltinnRettigheterService,
     organisasjonsnummer: Organisasjonsnummer,
-) = orgnrTilganger(altinnRettigheterService)
-    .find { it == organisasjonsnummer }
-    ?: throw StatusException(HttpStatusCode.Forbidden, "Ikke tilgang til bedrift")
+): Organisasjonsnummer {
+    return orgnrTilganger(altinnRettigheterService).find { it == organisasjonsnummer }
+        ?: throw StatusException(
+            HttpStatusCode.Forbidden,
+            "Ikke tilgang til bedrift med organisasjonsnummer $organisasjonsnummer",
+        )
+}
 
 fun Route.arrangorflateRoutes(config: AppConfig) {
     val db: ApiDatabase by inject()
@@ -113,14 +117,26 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     val arrangorflateService: ArrangorflateService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
 
-    suspend fun RoutingContext.getTilsagnOrRespondNotFound(): ArrangorflateTilsagnDto {
+    suspend fun RoutingContext.getTilsagnOrRespondWithClientError(): ArrangorflateTilsagnDto {
         val id: UUID by call.parameters
-        return arrangorflateService.getTilsagn(id) ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
+
+        val tilsagn = arrangorflateService.getTilsagn(id)
+            ?: throw NotFoundException("Fant ikke tilsagn med id=$id")
+
+        requireTilgangHosArrangor(altinnRettigheterService, tilsagn.arrangor.organisasjonsnummer)
+
+        return tilsagn
     }
 
-    fun RoutingContext.getUtbetalingOrRespondNotFound(): Utbetaling {
+    suspend fun RoutingContext.getUtbetalingOrRespondWithClientError(): Utbetaling {
         val id: UUID by call.parameters
-        return arrangorflateService.getUtbetaling(id) ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
+
+        val utbetaling = utbetalingService.getUtbetaling(id)
+            ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
+
+        requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+
+        return utbetaling
     }
 
     arrangorflateOpprettKravRoutes(config.okonomi)
@@ -205,9 +221,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val tilsagn = getTilsagnOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, tilsagn.arrangor.organisasjonsnummer)
-
+            val tilsagn = getTilsagnOrRespondWithClientError()
             call.respond(tilsagn)
         }
     }
@@ -264,10 +278,10 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             val response = arrangorflateService.toArrangorflateUtbetaling(utbetaling)
+
             call.respond(response)
         }
 
@@ -293,8 +307,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             val request = call.receive<GodkjennUtbetaling>()
 
@@ -328,8 +341,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             if (utbetaling.innsending == null) {
                 return@get call.respondWithProblemDetail(NotFound("Utbetalingskravet er ikke sendt inn. Ingen kvittering tilgjengelig."))
@@ -367,8 +379,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             val request = call.receive<AvbrytUtbetaling>()
 
@@ -402,8 +413,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             utbetalingService.regenererUtbetaling(utbetaling)
                 .onLeft {
@@ -434,9 +444,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
-
+            val utbetaling = getUtbetalingOrRespondWithClientError()
             val linjer = arrangorflateService.getLinjer(utbetaling.id)
             val gjennomforing = db.session {
                 queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
@@ -478,8 +486,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             val tilsagn = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(utbetaling)
 
@@ -505,8 +512,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondNotFound()
-            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+            val utbetaling = getUtbetalingOrRespondWithClientError()
 
             arrangorflateService.synkroniserKontonummer(utbetaling)
                 .onLeft { error ->

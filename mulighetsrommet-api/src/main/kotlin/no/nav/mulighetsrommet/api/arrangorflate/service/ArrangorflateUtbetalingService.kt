@@ -40,6 +40,15 @@ class ArrangorflateUtbetalingService(
     private val utbetalingService: UtbetalingService,
     private val genererUtbetalingService: GenererUtbetalingService,
 ) {
+    fun getUtbetaling(id: UUID): Utbetaling? = db.session {
+        return queries.utbetaling.get(id)
+    }
+
+    fun getAvtaltPrisPerTimeOppfolgingData(gjennomforingId: UUID, periode: Periode): AvtaltPrisPerTimeOppfolgingData = db.session {
+        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforingId)
+        return getAvtaltPrisPerTimeOppfolgingData(gjennomforing, periode)
+    }
+
     suspend fun opprettUtbetaling(
         opprett: ArrangorflateOpprettUtbetaling,
     ): Either<List<FieldError>, Utbetaling> {
@@ -122,11 +131,6 @@ class ArrangorflateUtbetalingService(
 
     private fun QueryContext.getOrError(id: UUID): Utbetaling {
         return queries.utbetaling.getOrError(id)
-    }
-
-    fun getAvtaltPrisPerTimeOppfolgingData(gjennomforingId: UUID, periode: Periode): AvtaltPrisPerTimeOppfolgingData = db.session {
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforingId)
-        return getAvtaltPrisPerTimeOppfolgingData(gjennomforing, periode)
     }
 
     private fun beregnUtbetaling(
