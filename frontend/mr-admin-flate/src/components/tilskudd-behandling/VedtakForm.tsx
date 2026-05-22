@@ -9,7 +9,7 @@ import {
   Valuta,
   VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
-import { opplaeringTilskuddToString } from "@/utils/Utils";
+import { opplaeringTilskuddToString, tilskuddMottakerToString } from "@/utils/Utils";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { formaterDato } from "@mr/frontend-common/utils/date";
@@ -57,7 +57,10 @@ export function VedtakForm() {
                     : "-"
                 }
               />
-              <MetadataVStack label="Hvem skal motta utbetalingen?" value={t.utbetalingMottaker} />
+              <MetadataVStack
+                label="Hvem skal motta utbetalingen?"
+                value={t.utbetalingMottaker ? tilskuddMottakerToString(t.utbetalingMottaker) : "-"}
+              />
               <MetadataVStack
                 label="Beløp fra søknad"
                 value={formaterValuta(

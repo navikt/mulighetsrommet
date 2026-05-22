@@ -100,6 +100,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                     label="Valuta"
                     name={`tilskudd.${index}.soknadBelop.valuta`}
                     required
+                    readOnly
                   >
                     <option value={Valuta.NOK}>NOK</option>
                     <option value={Valuta.SEK}>SEK</option>

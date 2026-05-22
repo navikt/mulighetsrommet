@@ -51,39 +51,42 @@ export function TilskuddBehandlingFormPage() {
   const navigate = useNavigate();
   const mutation = useOpprettTilskuddBehandling(gjennomforingId);
 
+  const defaultValues: TilskuddBehandlingRequest = behandling
+    ? {
+        id: behandling.id,
+        gjennomforingId: behandling.gjennomforingId,
+        periodeStart: yyyyMMddFormatting(behandling.periode.start) ?? null,
+        periodeSlutt:
+          yyyyMMddFormatting(addDuration(behandling.periode.slutt, { days: 1 })) ?? null,
+        soknadJournalpostId: behandling.soknadJournalpostId,
+        kostnadssted: behandling.kostnadssted.enhetsnummer,
+        soknadDato: behandling.soknadDato,
+        kommentarIntern: behandling.kommentarIntern,
+        tilskudd: behandling.tilskudd.map((t) => ({
+          id: t.id,
+          tilskuddOpplaeringType: t.tilskuddOpplaeringType,
+          soknadBelop: t.soknadBelop,
+          vedtakResultat: t.vedtakResultat.type,
+          kommentarVedtaksbrev: t.kommentarVedtaksbrev,
+          utbetalingMottaker: t.utbetalingMottaker,
+          belop: t.utbetalingBelop?.belop ?? null,
+          kidNummer: t.kid,
+        })),
+      }
+    : {
+        id: v4(),
+        gjennomforingId,
+        periodeSlutt: null,
+        periodeStart: null,
+        soknadJournalpostId: null,
+        kostnadssted: null,
+        soknadDato: null,
+        kommentarIntern: null,
+        tilskudd: [defaultTilskuddRequest()],
+      };
+
   const form = useForm<TilskuddBehandlingRequest>({
-    defaultValues: behandling
-      ? {
-          id: behandling.id,
-          gjennomforingId: behandling.gjennomforingId,
-          periodeStart: yyyyMMddFormatting(behandling.periode.start),
-          periodeSlutt: yyyyMMddFormatting(addDuration(behandling.periode.slutt, { days: 1 })),
-          soknadJournalpostId: behandling.soknadJournalpostId,
-          kostnadssted: behandling.kostnadssted.enhetsnummer,
-          soknadDato: behandling.soknadDato,
-          kommentarIntern: behandling.kommentarIntern,
-          tilskudd: behandling.tilskudd.map((t) => ({
-            id: t.id,
-            tilskuddOpplaeringType: t.tilskuddOpplaeringType,
-            soknadBelop: t.soknadBelop,
-            vedtakResultat: t.vedtakResultat.type,
-            kommentarVedtaksbrev: t.kommentarVedtaksbrev,
-            utbetalingMottaker: t.utbetalingMottaker,
-            belop: t.utbetalingBelop?.belop ?? null,
-            kidNummer: t.kid,
-          })),
-        }
-      : {
-          id: v4(),
-          gjennomforingId,
-          periodeSlutt: null,
-          periodeStart: null,
-          soknadJournalpostId: null,
-          kostnadssted: null,
-          soknadDato: null,
-          kommentarIntern: null,
-          tilskudd: [defaultTilskuddRequest()],
-        },
+    defaultValues,
     mode: "onBlur",
   });
 
