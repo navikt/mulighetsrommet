@@ -7,6 +7,7 @@ import arrow.core.nel
 import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.AvtaltPrisPerTimeOppfolgingData
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
@@ -28,7 +29,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.validation.validation
+import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
@@ -42,6 +45,7 @@ class ArrangorflateUtbetalingService(
     private val db: ApiDatabase,
     private val utbetalingService: UtbetalingService,
     private val genererUtbetalingService: GenererUtbetalingService,
+    private val journalforUtbetaling: JournalforUtbetaling,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -65,9 +69,11 @@ class ArrangorflateUtbetalingService(
                 beregning = beregning,
                 kid = opprett.kidNummer,
                 tilskuddstype = tilskuddstype,
-                vedlegg = opprett.vedlegg,
             )
-            db.transaction { utbetalingService.opprettUtbetaling(utbetaling, Arrangor) }
+            db.transaction {
+                scheduleJournalforUtbetaling(utbetaling.id, opprett.vedlegg)
+                utbetalingService.opprettUtbetaling(utbetaling, Arrangor)
+            }
         }
     }
 
@@ -92,6 +98,7 @@ class ArrangorflateUtbetalingService(
                     .nel()
                     .left()
             }
+            scheduleJournalforUtbetaling(utbetalingId, listOf())
             utbetalingService.godkjentAvArrangor(utbetaling.id, kid)
         }
 
@@ -181,6 +188,10 @@ class ArrangorflateUtbetalingService(
         val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
         val deltakelsePerioder = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
         return AvtaltPrisPerTimeOppfolgingData(satser, stengtHosArrangor, deltakere, deltakelsePerioder)
+    }
+
+    private fun TransactionalQueryContext.scheduleJournalforUtbetaling(utbetalingId: UUID, vedlegg: List<Vedlegg>) {
+        journalforUtbetaling.schedule(JournalforUtbetaling.TaskData(utbetalingId, vedlegg), session)
     }
 
     private fun tryAutomatisertUtbetaling(utbetaling: Utbetaling): AutomatisertUtbetalingResult {

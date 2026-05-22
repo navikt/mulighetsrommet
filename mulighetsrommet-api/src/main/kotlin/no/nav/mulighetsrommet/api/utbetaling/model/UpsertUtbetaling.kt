@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
-import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
@@ -27,7 +26,6 @@ sealed class UpsertUtbetaling {
         val beregning: UtbetalingBeregning,
         val tilskuddstype: Tilskuddstype,
         val kid: Kid?,
-        val vedlegg: List<Vedlegg>,
     ) : UpsertUtbetaling()
 
     data class Anskaffelse(
@@ -38,10 +36,7 @@ sealed class UpsertUtbetaling {
         val tilskuddstype: Tilskuddstype,
         val kommentar: String?,
         val kid: Kid?,
-        // TODO: journalpostId burde ikke være nullable, i stedet burde utbetaling opprettes _etter_ at innsending er arkivert?
-        //  Da trenger ikke vedlegg være en del av denne modellen og det styres fra ArrangorflateUtbetalingService i stedet
         val journalpostId: JournalpostId?,
-        val vedlegg: List<Vedlegg>,
     ) : UpsertUtbetaling()
 
     data class Korreksjon(

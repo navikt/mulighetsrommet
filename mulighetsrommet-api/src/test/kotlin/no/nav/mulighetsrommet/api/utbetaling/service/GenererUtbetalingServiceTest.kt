@@ -52,7 +52,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHel
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -96,7 +95,6 @@ class GenererUtbetalingServiceTest : FunSpec({
             config = UtbetalingService.Config(bestillingTopic, tidligstTidspunktForUtbetaling),
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
-            journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true),
             totrinnskontroll = totrinnskontroll,
         )
         return GenererUtbetalingService(

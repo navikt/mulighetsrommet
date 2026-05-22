@@ -41,11 +41,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arrangor
@@ -67,7 +65,6 @@ class UtbetalingService(
     private val config: Config,
     private val tilsagnService: TilsagnService,
     private val arrangorService: ArrangorService,
-    private val journalforUtbetaling: JournalforUtbetaling,
     private val totrinnskontroll: TotrinnskontrollService,
 ) {
     data class Config(
@@ -88,8 +85,6 @@ class UtbetalingService(
         queries.utbetaling.setInnsendtAvArrangor(utbetalingId, LocalDateTime.now())
         queries.utbetaling.setKid(utbetalingId, kid)
         queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.TIL_BEHANDLING)
-
-        scheduleJournalforUtbetaling(utbetalingId, vedlegg = emptyList())
 
         return logEndring("Utbetaling sendt inn", utbetalingId, Arrangor).right()
     }
@@ -419,8 +414,6 @@ class UtbetalingService(
 
         queries.utbetaling.upsert(dbo)
 
-        scheduleJournalforUtbetaling(dbo.id, upsert.vedlegg)
-
         return dbo.right()
     }
 
@@ -695,15 +688,6 @@ class UtbetalingService(
             Json.encodeToJsonElement(utbetaling)
         }
         return utbetaling
-    }
-
-    private fun TransactionalQueryContext.scheduleJournalforUtbetaling(utbetalingId: UUID, vedlegg: List<Vedlegg>) {
-        journalforUtbetaling.schedule(
-            utbetalingId = utbetalingId,
-            startTime = Instant.now(),
-            tx = session,
-            vedlegg = vedlegg,
-        )
     }
 
     private fun TransactionalQueryContext.publishOpprettFaktura(linje: UtbetalingLinje) {

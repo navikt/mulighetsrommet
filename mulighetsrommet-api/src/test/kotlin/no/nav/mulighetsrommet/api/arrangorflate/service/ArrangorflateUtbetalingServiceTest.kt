@@ -60,6 +60,8 @@ import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.TidligstTidspunktForUtbetalingCalculator
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
+import no.nav.mulighetsrommet.clamav.Content
+import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NOK
@@ -105,7 +107,6 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
             ),
             tilsagnService = tilsagnService,
-            journalforUtbetaling = journalforUtbetaling,
             arrangorService = arrangorService,
             totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
         )
@@ -113,6 +114,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             db = database.db,
             utbetalingService = utbetalingService,
             genererUtbetalingService = genererUtbetalingService,
+            journalforUtbetaling = journalforUtbetaling,
         )
     }
 
@@ -241,17 +243,26 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
 
+            val vedlegg = listOf(
+                Vedlegg(Content("text/plain", "test".toByteArray()), "test.txt"),
+            )
             val utbetaling = service.opprettUtbetaling(
                 ArrangorflateOpprettUtbetaling(
                     gjennomforingId = AFT1.id,
                     periode = periode,
                     kidNummer = null,
                     pris = 1000.NOK,
-                    vedlegg = emptyList(),
+                    vedlegg = vedlegg,
                 ),
             ).shouldBeRight()
 
-            verify(exactly = 1) { journalforUtbetaling.schedule(utbetaling.id, any(), any(), any()) }
+            verify(exactly = 1) {
+                journalforUtbetaling.schedule(
+                    JournalforUtbetaling.TaskData(utbetaling.id, vedlegg),
+                    any(),
+                    any(),
+                )
+            }
         }
     }
 
@@ -344,7 +355,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             }
 
             verify(exactly = 1) {
-                journalforUtbetaling.schedule(utbetaling1Forhandsgodkjent.id, any(), any(), listOf())
+                journalforUtbetaling.schedule(
+                    JournalforUtbetaling.TaskData(utbetaling1Forhandsgodkjent.id, listOf()),
+                    any(),
+                    any(),
+                )
             }
         }
 

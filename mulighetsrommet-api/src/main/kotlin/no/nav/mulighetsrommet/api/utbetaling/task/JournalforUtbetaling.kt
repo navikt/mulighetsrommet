@@ -49,9 +49,9 @@ class JournalforUtbetaling(
             }
         }
 
-    fun schedule(utbetalingId: UUID, startTime: Instant, tx: TransactionalSession, vedlegg: List<Vedlegg>): UUID {
-        val id = UUID.randomUUID()
-        val instance = task.instance(id.toString(), TaskData(utbetalingId, vedlegg))
+    fun schedule(data: TaskData, tx: TransactionalSession, startTime: Instant = Instant.now()): UUID {
+        val id = data.utbetalingId
+        val instance = task.instance(id.toString(), data)
         val client = transactionalSchedulerClient(task, tx.connection.underlying)
         client.scheduleIfNotExists(instance, startTime)
         return id

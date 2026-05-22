@@ -12,7 +12,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
-import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.QueryContext
@@ -53,7 +52,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -94,7 +92,6 @@ class AdminUtbetalingServiceTest : FunSpec({
 
     fun createUtbetalingService(
         tilsagnService: TilsagnService = createTilsagnService(),
-        journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
     ): AdminUtbetalingService {
         val utbetalingService = UtbetalingService(
@@ -103,7 +100,6 @@ class AdminUtbetalingServiceTest : FunSpec({
                 tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
             ),
             tilsagnService = tilsagnService,
-            journalforUtbetaling = journalforUtbetaling,
             arrangorService = arrangorService,
             totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
         )
@@ -126,7 +122,6 @@ class AdminUtbetalingServiceTest : FunSpec({
             beregning = UtbetalingBeregningFri.from(10.NOK),
             kommentar = "Arrangør trenger penger",
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-            vedlegg = listOf(),
         )
 
         beforeEach {
@@ -164,19 +159,6 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.opprettUtbetaling(upsert, navIdent) shouldBeLeft listOf(
                 FieldError.of("Utbetalingen er allerede opprettet"),
             )
-        }
-
-        test("utbetaling blir ikke journalført når den blir opprettet av Nav-ansatt") {
-            val journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true)
-
-            val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
-
-            service.opprettUtbetaling(
-                upsert,
-                navIdent,
-            ).shouldBeRight().status shouldBe UtbetalingStatusType.TIL_BEHANDLING
-
-            verify(exactly = 0) { journalforUtbetaling.schedule(any(), any(), any(), any()) }
         }
 
         test("journalpostId er påkrevd for norsk arrangør") {
@@ -235,7 +217,6 @@ class AdminUtbetalingServiceTest : FunSpec({
                 beregning = upsert.beregning,
                 tilskuddstype = upsert.tilskuddstype,
                 kid = null,
-                vedlegg = listOf(),
             )
             service.opprettUtbetaling(
                 innsending,

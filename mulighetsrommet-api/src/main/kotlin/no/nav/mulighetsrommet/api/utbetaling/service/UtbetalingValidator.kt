@@ -203,7 +203,6 @@ object UtbetalingValidator {
                 beregning = beregning,
                 kid = kid,
                 kommentar = kommentar,
-                vedlegg = emptyList(),
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             )
         }
