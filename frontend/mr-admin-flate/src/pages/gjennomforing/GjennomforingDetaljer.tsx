@@ -1,4 +1,4 @@
-import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
+import { GetGjennomforingAuditLog, useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { isEnkeltplass, isGruppetiltak } from "@/api/gjennomforing/utils";
@@ -7,7 +7,7 @@ import { GjennomforingEnkeltplassDetaljer } from "@/components/gjennomforing/Gje
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const detaljer = useGjennomforing(gjennomforingId);
+  const detaljer = useGjennomforing(gjennomforingId, GetGjennomforingAuditLog.YES);
   const {
     gjennomforing,
     veilederinfo,

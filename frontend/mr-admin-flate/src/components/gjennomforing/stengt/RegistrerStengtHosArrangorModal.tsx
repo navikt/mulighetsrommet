@@ -2,23 +2,17 @@ import { RegistrerStengtHosArrangorForm } from "@/components/gjennomforing/steng
 import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
 import { BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject, useState } from "react";
-import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { isGruppetiltak } from "@/api/gjennomforing/utils";
+import { GjennomforingDtoStengtPeriode } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
   gjennomforingId: string;
+  stengt: GjennomforingDtoStengtPeriode[];
 }
 
-export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforingId }: Props) {
-  const { gjennomforing } = useGjennomforing(gjennomforingId);
-
+export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforingId, stengt }: Props) {
   // This key is used to re-render the form when the modal is closed
   const [key, setKey] = useState(0);
-
-  if (!isGruppetiltak(gjennomforing)) {
-    return null;
-  }
 
   function handleCloseModal() {
     modalRef.current?.close();
@@ -47,7 +41,7 @@ export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforingId }: P
             Informasjon om feriestengte perioder vil også synes på tiltaket i Modia.
           </BodyShort>
           <RegistrerStengtHosArrangorForm key={key} gjennomforingId={gjennomforingId} />
-          <StengtHosArrangorTable gjennomforing={gjennomforing} />
+          <StengtHosArrangorTable gjennomforingId={gjennomforingId} stengt={stengt} />
         </VStack>
       </Modal.Body>
       <Modal.Footer>

@@ -2,17 +2,22 @@ import { useDeleteStengtHosArrangor } from "@/api/gjennomforing/useDeleteStengtH
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Table } from "@navikt/ds-react";
-import { GjennomforingAvtaleDto } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingDtoStengtPeriode } from "@tiltaksadministrasjon/api-client";
 
 interface StengtHosArrangorTableProps {
-  gjennomforing: GjennomforingAvtaleDto;
+  gjennomforingId: string;
+  stengt: GjennomforingDtoStengtPeriode[];
   readOnly?: boolean;
 }
 
-export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArrangorTableProps) {
-  const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforing.id);
+export function StengtHosArrangorTable({
+  gjennomforingId,
+  stengt,
+  readOnly,
+}: StengtHosArrangorTableProps) {
+  const deleteStengtHosArrangor = useDeleteStengtHosArrangor(gjennomforingId);
 
-  if (gjennomforing.stengt.length === 0) {
+  if (stengt.length === 0) {
     return null;
   }
 
@@ -37,7 +42,7 @@ export function StengtHosArrangorTable({ gjennomforing, readOnly }: StengtHosArr
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {gjennomforing.stengt.map((periode) => {
+          {stengt.map((periode) => {
             return (
               <Table.Row key={periode.id}>
                 <Table.DataCell>{`${formaterDato(periode.start)} - ${formaterDato(periode.slutt)}`}</Table.DataCell>
