@@ -20,6 +20,16 @@ sealed class UpsertUtbetaling {
         val blokkeringer: Set<Utbetaling.Blokkering>,
     ) : UpsertUtbetaling()
 
+    data class Innsending(
+        override val id: UUID,
+        val periode: Periode,
+        val gjennomforingId: UUID,
+        val beregning: UtbetalingBeregning,
+        val tilskuddstype: Tilskuddstype,
+        val kid: Kid?,
+        val vedlegg: List<Vedlegg>,
+    ) : UpsertUtbetaling()
+
     data class Anskaffelse(
         override val id: UUID,
         val periode: Periode,

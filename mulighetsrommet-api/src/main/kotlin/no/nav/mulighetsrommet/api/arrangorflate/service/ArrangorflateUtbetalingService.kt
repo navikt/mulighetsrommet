@@ -58,7 +58,7 @@ class ArrangorflateUtbetalingService(
         opprett: ArrangorflateOpprettUtbetaling,
     ): Either<List<FieldError>, Utbetaling> {
         return beregnUtbetaling(opprett).flatMap { (tilskuddstype, beregning) ->
-            val utbetaling = UpsertUtbetaling.Anskaffelse(
+            val utbetaling = UpsertUtbetaling.Innsending(
                 id = UUID.randomUUID(),
                 gjennomforingId = opprett.gjennomforingId,
                 periode = opprett.periode,
@@ -66,8 +66,6 @@ class ArrangorflateUtbetalingService(
                 kid = opprett.kidNummer,
                 tilskuddstype = tilskuddstype,
                 vedlegg = opprett.vedlegg,
-                journalpostId = null,
-                kommentar = null,
             )
             db.transaction { utbetalingService.opprettUtbetaling(utbetaling, Arrangor) }
         }

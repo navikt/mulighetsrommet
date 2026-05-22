@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -29,8 +28,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
@@ -54,7 +51,6 @@ import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -108,7 +104,7 @@ class UtbetalingService(
             return FieldError.of("Utbetalingen er allerede opprettet").nel().left()
         }
 
-        return upsert(opprett, agent).map {
+        return upsert(opprett).map {
             val operation = when (agent) {
                 is Arrangor -> "Utbetaling sendt inn"
                 else -> "Utbetaling opprettet"
@@ -122,13 +118,7 @@ class UtbetalingService(
         rediger: UpsertUtbetaling,
         agent: Agent,
     ): Validated<Utbetaling> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(rediger.id)
-
-        if (!kanRedigeres(utbetaling)) {
-            return FieldError.of("Utbetalingen kan ikke redigeres").nel().left()
-        }
-
-        return upsert(rediger, agent).map {
+        return upsert(rediger).map {
             logEndring("Utbetaling redigert", it.id, agent)
         }
     }
@@ -386,12 +376,10 @@ class UtbetalingService(
         Pair(utbetaling, linje)
     }
 
-    private suspend fun TransactionalQueryContext.upsert(
-        upsert: UpsertUtbetaling,
-        agent: Agent,
-    ): Either<NonEmptyList<FieldError>, UtbetalingDbo> = when (upsert) {
+    private suspend fun TransactionalQueryContext.upsert(upsert: UpsertUtbetaling): Either<NonEmptyList<FieldError>, UtbetalingDbo> = when (upsert) {
         is UpsertUtbetaling.Generering -> upsertGenerering(upsert)
-        is UpsertUtbetaling.Anskaffelse -> upsertAnskaffelse(upsert, agent)
+        is UpsertUtbetaling.Innsending -> upsertInnsending(upsert)
+        is UpsertUtbetaling.Anskaffelse -> upsertAnskaffelse(upsert)
         is UpsertUtbetaling.Korreksjon -> upsertKorreksjon(upsert)
     }
 
@@ -407,23 +395,53 @@ class UtbetalingService(
             valuta = upsert.beregning.output.pris.valuta,
             beregning = upsert.beregning,
             periode = upsert.periode,
+            tilskuddstype = upsert.tilskuddstype,
             kommentar = null,
             korreksjonGjelderUtbetalingId = null,
             korreksjonBegrunnelse = null,
-            tilskuddstype = upsert.tilskuddstype,
             journalpostId = null,
             innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
         )
+
         queries.utbetaling.upsert(dbo)
         queries.utbetaling.setBlokkeringer(dbo.id, upsert.blokkeringer)
+
+        return dbo.right()
+    }
+
+    private suspend fun TransactionalQueryContext.upsertInnsending(
+        upsert: UpsertUtbetaling.Innsending,
+    ): Either<NonEmptyList<FieldError>, UtbetalingDbo> {
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(upsert.gjennomforingId)
+
+        val dbo = UtbetalingDbo(
+            id = upsert.id,
+            gjennomforingId = upsert.gjennomforingId,
+            status = UtbetalingStatusType.TIL_BEHANDLING,
+            valuta = upsert.beregning.output.pris.valuta,
+            beregning = upsert.beregning,
+            periode = upsert.periode,
+            tilskuddstype = upsert.tilskuddstype,
+            kommentar = null,
+            korreksjonGjelderUtbetalingId = null,
+            korreksjonBegrunnelse = null,
+            journalpostId = null,
+            innsendtAvArrangorTidspunkt = LocalDateTime.now(),
+            betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
+            utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
+        )
+
+        queries.utbetaling.upsert(dbo)
+
+        scheduleJournalforUtbetaling(dbo.id, upsert.vedlegg)
+
         return dbo.right()
     }
 
     private suspend fun TransactionalQueryContext.upsertAnskaffelse(
         upsert: UpsertUtbetaling.Anskaffelse,
-        agent: Agent,
     ): Either<NonEmptyList<FieldError>, UtbetalingDbo> {
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(upsert.gjennomforingId)
 
@@ -435,23 +453,16 @@ class UtbetalingService(
             beregning = upsert.beregning,
             periode = upsert.periode,
             kommentar = upsert.kommentar,
+            tilskuddstype = upsert.tilskuddstype,
             korreksjonGjelderUtbetalingId = null,
             korreksjonBegrunnelse = null,
-            tilskuddstype = upsert.tilskuddstype,
             journalpostId = upsert.journalpostId,
-            innsendtAvArrangorTidspunkt = when (agent) {
-                is Arrangor -> LocalDateTime.now()
-                else -> null
-            },
+            innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
         )
 
         queries.utbetaling.upsert(dbo)
-
-        if (agent is Arrangor) {
-            scheduleJournalforUtbetaling(dbo.id, upsert.vedlegg)
-        }
 
         return dbo.right()
     }
@@ -487,10 +498,10 @@ class UtbetalingService(
             valuta = upsert.beregning.output.pris.valuta,
             beregning = upsert.beregning,
             periode = upsert.periode,
+            tilskuddstype = upsert.tilskuddstype,
             kommentar = upsert.kommentar,
             korreksjonGjelderUtbetalingId = upsert.korreksjonGjelderUtbetalingId,
             korreksjonBegrunnelse = upsert.korreksjonBegrunnelse,
-            tilskuddstype = upsert.tilskuddstype,
             journalpostId = null,
             innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
@@ -833,126 +844,4 @@ class UtbetalingService(
             -> emptyList()
         }
     }
-
-    companion object {
-        fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
-            UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
-                when (utbetaling.status) {
-                    UtbetalingStatusType.TIL_BEHANDLING,
-                    UtbetalingStatusType.RETURNERT,
-                    -> true
-
-                    UtbetalingStatusType.FERDIG_BEHANDLET,
-                    UtbetalingStatusType.GENERERT,
-                    UtbetalingStatusType.TIL_ATTESTERING,
-                    UtbetalingStatusType.DELVIS_UTBETALT,
-                    UtbetalingStatusType.UTBETALT,
-                    UtbetalingStatusType.AVBRUTT,
-                    -> false
-                }
-            },
-            UtbetalingHandling.SLETT.takeIf {
-                when (utbetaling.status) {
-                    UtbetalingStatusType.RETURNERT,
-                    UtbetalingStatusType.TIL_BEHANDLING,
-                    -> UtbetalingType.from(utbetaling) == UtbetalingType.KORRIGERING
-
-                    UtbetalingStatusType.FERDIG_BEHANDLET,
-                    UtbetalingStatusType.GENERERT,
-                    UtbetalingStatusType.TIL_ATTESTERING,
-                    UtbetalingStatusType.DELVIS_UTBETALT,
-                    UtbetalingStatusType.UTBETALT,
-                    UtbetalingStatusType.AVBRUTT,
-                    -> false
-                }
-            },
-            UtbetalingHandling.OPPRETT_KORREKSJON.takeIf {
-                utbetaling.korreksjon == null && when (utbetaling.status) {
-                    UtbetalingStatusType.RETURNERT,
-                    UtbetalingStatusType.TIL_BEHANDLING,
-                    UtbetalingStatusType.GENERERT,
-                    UtbetalingStatusType.TIL_ATTESTERING,
-                    UtbetalingStatusType.AVBRUTT,
-                    -> false
-
-                    UtbetalingStatusType.FERDIG_BEHANDLET,
-                    UtbetalingStatusType.DELVIS_UTBETALT,
-                    UtbetalingStatusType.UTBETALT,
-                    -> true
-                }
-            },
-            UtbetalingHandling.REDIGER.takeIf { kanRedigeres(utbetaling) },
-        )
-            .filter {
-                tilgangTilHandling(handling = it, ansatt = ansatt)
-            }
-            .toSet()
-
-        fun linjeHandlinger(
-            linje: UtbetalingLinje,
-            opprettelse: Totrinnskontroll,
-            kostnadssted: NavEnhetNummer,
-            ansatt: NavAnsatt,
-        ): Set<UtbetalingLinjeHandling> {
-            return setOfNotNull(
-                UtbetalingLinjeHandling.ATTESTER.takeIf { linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING },
-                UtbetalingLinjeHandling.RETURNER.takeIf { linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING },
-            )
-                .filter {
-                    tilgangTilHandling(
-                        handling = it,
-                        ansatt = ansatt,
-                        kostnadssted = kostnadssted,
-                        behandletAv = opprettelse.behandletAv,
-                    )
-                }
-                .toSet()
-        }
-
-        fun tilgangTilHandling(handling: UtbetalingHandling, ansatt: NavAnsatt): Boolean {
-            val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-            return when (handling) {
-                UtbetalingHandling.OPPRETT_KORREKSJON -> saksbehandlerOkonomi
-                UtbetalingHandling.REDIGER -> saksbehandlerOkonomi
-                UtbetalingHandling.SEND_TIL_ATTESTERING -> saksbehandlerOkonomi
-                UtbetalingHandling.SLETT -> saksbehandlerOkonomi
-            }
-        }
-
-        fun tilgangTilHandling(
-            handling: UtbetalingLinjeHandling,
-            ansatt: NavAnsatt,
-            kostnadssted: NavEnhetNummer,
-            behandletAv: Agent,
-        ): Boolean {
-            val erBeslutter = ansatt.hasKontorspesifikkRolle(
-                Rolle.ATTESTANT_UTBETALING,
-                setOf(kostnadssted),
-            )
-            val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-
-            return when (handling) {
-                UtbetalingLinjeHandling.ATTESTER ->
-                    erBeslutter && behandletAv != ansatt.navIdent
-
-                UtbetalingLinjeHandling.RETURNER -> erBeslutter
-
-                UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
-            }
-        }
-    }
-}
-
-private fun kanRedigeres(utbetaling: Utbetaling): Boolean = utbetaling.innsending == null && when (utbetaling.status) {
-    UtbetalingStatusType.GENERERT,
-    UtbetalingStatusType.TIL_ATTESTERING,
-    UtbetalingStatusType.FERDIG_BEHANDLET,
-    UtbetalingStatusType.DELVIS_UTBETALT,
-    UtbetalingStatusType.UTBETALT,
-    UtbetalingStatusType.AVBRUTT,
-    -> false
-
-    UtbetalingStatusType.TIL_BEHANDLING,
-    UtbetalingStatusType.RETURNERT,
-    -> true
 }

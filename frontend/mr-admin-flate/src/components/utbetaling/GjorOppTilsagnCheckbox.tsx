@@ -1,5 +1,8 @@
 import { Checkbox, CheckboxProps, HelpText, HStack } from "@navikt/ds-react";
-import { OpprettUtbetalingLinjerRequest, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
+import {
+  OpprettUtbetalingLinjerRequest,
+  UtbetalingLinjeDto,
+} from "@tiltaksadministrasjon/api-client";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { useFormContext } from "react-hook-form";
 
@@ -8,7 +11,7 @@ interface FormVariant {
 }
 
 interface DisplayVariant {
-  linje: UtbetalingLinje;
+  linje: UtbetalingLinjeDto;
 }
 
 export function GjorOppTilsagnFormCheckbox({ index }: FormVariant) {

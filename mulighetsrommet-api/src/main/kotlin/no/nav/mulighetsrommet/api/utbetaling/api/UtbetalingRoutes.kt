@@ -14,7 +14,6 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
@@ -26,12 +25,6 @@ import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
-import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
@@ -39,7 +32,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
-import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -232,20 +224,10 @@ fun Route.utbetalingRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
-
                 val navIdent = getNavIdent()
 
-                val utbetaling = db.session {
-                    val utbetaling = queries.utbetaling.getOrError(id)
-                    val linjer = queries.utbetalingLinje.getByUtbetalingId(id)
-                    val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
+                val utbetaling = utbetalingService.getUtbetalingDetaljer(id, navIdent)
 
-                    val ansatt = queries.ansatt.getByNavIdent(navIdent)
-                        ?: throw MrExceptions.navAnsattNotFound(navIdent)
-                    val handlinger = UtbetalingService.utbetalingHandlinger(utbetaling, ansatt)
-
-                    UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
-                }
                 call.respond(utbetaling)
             }
         }
@@ -346,7 +328,7 @@ fun Route.utbetalingRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Utbetalingslinjer til utbetaling"
-                        body<List<UtbetalingLinje>>()
+                        body<List<UtbetalingLinjeDto>>()
                     }
                     default {
                         description = "Problem details"
@@ -358,74 +340,7 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
                 val onBehalfOf = PersonaliaService.OnBehalfOf.NavAnsatt(call.getAccessType().requireAzureAd())
 
-                val utbetalingsLinjer = db.session {
-                    val utbetaling = queries.utbetaling.getOrError(id)
-                    val ansatt = queries.ansatt.getByNavIdent(navIdent)
-                        ?: throw MrExceptions.navAnsattNotFound(navIdent)
-
-                    val linjer = queries.utbetalingLinje.getByUtbetalingId(id).map { linje ->
-                        val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
-
-                        val opprettelse = queries.totrinnskontroll
-                            .getOrError(linje.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE)
-
-                        val personalia = personaliaService.getPersonalia(
-                            tilsagn.deltakere.map { it.deltakerId },
-                            onBehalfOf,
-                        )
-                        val deltakere = tilsagn.deltakere.map {
-                            TilsagnDeltakerDto.from(it, personalia.find { p -> p.deltakerId == it.deltakerId })
-                        }
-                        UtbetalingLinje(
-                            id = linje.id,
-                            gjorOppTilsagn = linje.gjorOppTilsagn,
-                            pris = linje.pris,
-                            status = UtbetalingLinjeStatusDto.fromUtbetalingLinjeStatus(linje.status),
-                            tilsagn = TilsagnDto.from(tilsagn),
-                            deltakere = deltakere,
-                            opprettelse = opprettelse.toDto(),
-                            handlinger = UtbetalingService.linjeHandlinger(
-                                linje,
-                                opprettelse,
-                                tilsagn.kostnadssted.enhetsnummer,
-                                ansatt,
-                            ),
-                        )
-                    }
-
-                    val nyeLinjer = queries.tilsagn
-                        .getAll(
-                            statuser = listOf(TilsagnStatus.GODKJENT),
-                            gjennomforingId = utbetaling.gjennomforing.id,
-                            periodeIntersectsWith = utbetaling.periode,
-                            typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
-                            valuta = utbetaling.valuta,
-                        )
-                        .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
-                        .map { tilsagn ->
-                            val deltakerIds = tilsagn.deltakere.map { it.deltakerId }
-                            val personalia = personaliaService.getPersonalia(
-                                deltakerIds,
-                                onBehalfOf,
-                            )
-                            val deltakere = tilsagn.deltakere.map {
-                                TilsagnDeltakerDto.from(it, personalia.find { p -> p.deltakerId == it.deltakerId })
-                            }
-
-                            UtbetalingLinje(
-                                id = UUID.randomUUID(),
-                                tilsagn = TilsagnDto.from(tilsagn),
-                                deltakere = deltakere,
-                                status = null,
-                                pris = 0.withValuta(utbetaling.valuta),
-                                gjorOppTilsagn = false,
-                                opprettelse = null,
-                                handlinger = emptySet(),
-                            )
-                        }
-
-                    (linjer + nyeLinjer).sortedBy { it.tilsagn.bestillingsnummer }
-                }
+                val utbetalingsLinjer = utbetalingService.getUtbetalingLinjer(id, navIdent, onBehalfOf)
 
                 call.respond(utbetalingsLinjer)
             }

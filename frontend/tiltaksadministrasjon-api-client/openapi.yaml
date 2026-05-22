@@ -2367,7 +2367,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/UtbetalingLinje"
+                  $ref: "#/components/schemas/UtbetalingLinjeDto"
         default:
           description: Problem details
           headers: {}
@@ -7257,7 +7257,7 @@ components:
       - pris
       - satsDetaljer
       - type
-    UtbetalingLinje:
+    UtbetalingLinjeDto:
       type: object
       properties:
         id:

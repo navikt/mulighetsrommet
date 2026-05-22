@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
@@ -377,7 +377,7 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
                 link = link,
                 createdAt = data.opprettelse.behandletTidspunkt,
             ).takeIf {
-                UtbetalingService.tilgangTilHandling(
+                AdminUtbetalingService.tilgangTilHandling(
                     handling = UtbetalingLinjeHandling.ATTESTER,
                     ansatt = ansatt,
                     kostnadssted = data.kostnadssted.nummer,
@@ -398,7 +398,7 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
                 link = link,
                 createdAt = requireNotNull(data.opprettelse.besluttetTidspunkt),
             ).takeIf {
-                UtbetalingService.tilgangTilHandling(
+                AdminUtbetalingService.tilgangTilHandling(
                     handling = UtbetalingLinjeHandling.SEND_TIL_ATTESTERING,
                     ansatt = ansatt,
                     kostnadssted = data.kostnadssted.nummer,
@@ -436,7 +436,7 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
                     link = "/gjennomforinger/${data.gjennomforing.id}/utbetalinger/${data.id}",
                 ),
                 createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
-            ).takeIf { UtbetalingService.tilgangTilHandling(UtbetalingHandling.SEND_TIL_ATTESTERING, ansatt) }
+            ).takeIf { AdminUtbetalingService.tilgangTilHandling(UtbetalingHandling.SEND_TIL_ATTESTERING, ansatt) }
     }
 }
 

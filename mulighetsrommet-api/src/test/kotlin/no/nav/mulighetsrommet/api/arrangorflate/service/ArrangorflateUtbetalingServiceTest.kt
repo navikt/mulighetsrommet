@@ -230,6 +230,24 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 )
             }
         }
+
+        test("utbetaling blir journalført når den blir opprettet av Arrangør") {
+            val journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true)
+
+            val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
+
+            val utbetaling = service.opprettUtbetaling(
+                ArrangorflateOpprettUtbetaling(
+                    gjennomforingId = AFT1.id,
+                    periode = periode,
+                    kidNummer = null,
+                    pris = 1000.NOK,
+                    vedlegg = emptyList(),
+                ),
+            ).shouldBeRight()
+
+            verify(exactly = 1) { journalforUtbetaling.schedule(utbetaling.id, any(), any(), any()) }
+        }
     }
 
     context("Automatisert utbetaling når arrangør godkjenner") {

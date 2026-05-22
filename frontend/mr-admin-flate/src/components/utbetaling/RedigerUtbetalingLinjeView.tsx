@@ -4,7 +4,7 @@ import {
   Tilskuddstype,
   UtbetalingDto,
   UtbetalingHandling,
-  UtbetalingLinje,
+  UtbetalingLinjeDto,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { FileCheckmarkIcon, PencilIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
@@ -37,7 +37,7 @@ import { applyValidationErrors } from "@/components/skjema/helpers";
 export interface Props {
   utbetaling: UtbetalingDto;
   handlinger: UtbetalingHandling[];
-  utbetalingLinjer: UtbetalingLinje[];
+  utbetalingLinjer: UtbetalingLinjeDto[];
 }
 
 export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingLinjer }: Props) {
@@ -196,7 +196,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
             utbetaling={utbetaling}
             linjer={aktiveLinjer}
             utbetalesTotal={utbetalesTotalt.belop}
-            renderRow={(linje: UtbetalingLinje, index: number) => (
+            renderRow={(linje: UtbetalingLinjeDto, index: number) => (
               <UtbetalingLinjeRow
                 key={`${linje.id}-${linje.status?.type}`}
                 gjennomforingId={utbetaling.gjennomforingId}

@@ -4,16 +4,36 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.nel
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
+import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingDetaljerDto
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingDto
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeDto
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeStatusDto
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.Instant
 import java.util.UUID
@@ -21,10 +41,94 @@ import java.util.UUID
 class AdminUtbetalingService(
     private val db: ApiDatabase,
     private val utbetalingService: UtbetalingService,
+    private val personaliaService: PersonaliaService,
 ) {
+    fun getUtbetalingDetaljer(id: UUID, navIdent: NavIdent): UtbetalingDetaljerDto = db.session {
+        val utbetaling = queries.utbetaling.getOrError(id)
+        val linjer = queries.utbetalingLinje.getByUtbetalingId(id)
+        val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
+
+        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
+        val handlinger = utbetalingHandlinger(utbetaling, ansatt)
+
+        return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
+    }
+
+    suspend fun getUtbetalingLinjer(
+        id: UUID,
+        navIdent: NavIdent,
+        onBehalfOf: PersonaliaService.OnBehalfOf.NavAnsatt,
+    ): List<UtbetalingLinjeDto> = db.session {
+        val utbetaling = queries.utbetaling.getOrError(id)
+        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
+
+        val linjer = queries.utbetalingLinje.getByUtbetalingId(id).map { linje ->
+            val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
+
+            val opprettelse = queries.totrinnskontroll
+                .getOrError(linje.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE)
+
+            val personalia = personaliaService.getPersonalia(
+                tilsagn.deltakere.map { it.deltakerId },
+                onBehalfOf,
+            )
+            val deltakere = tilsagn.deltakere.map {
+                TilsagnDeltakerDto.from(it, personalia.find { p -> p.deltakerId == it.deltakerId })
+            }
+            UtbetalingLinjeDto(
+                id = linje.id,
+                gjorOppTilsagn = linje.gjorOppTilsagn,
+                pris = linje.pris,
+                status = UtbetalingLinjeStatusDto.fromUtbetalingLinjeStatus(linje.status),
+                tilsagn = TilsagnDto.from(tilsagn),
+                deltakere = deltakere,
+                opprettelse = opprettelse.toDto(),
+                handlinger = linjeHandlinger(
+                    linje,
+                    opprettelse,
+                    tilsagn.kostnadssted.enhetsnummer,
+                    ansatt,
+                ),
+            )
+        }
+
+        val nyeLinjer = queries.tilsagn
+            .getAll(
+                statuser = listOf(TilsagnStatus.GODKJENT),
+                gjennomforingId = utbetaling.gjennomforing.id,
+                periodeIntersectsWith = utbetaling.periode,
+                typer = TilsagnType.fromTilskuddstype(utbetaling.tilskuddstype),
+                valuta = utbetaling.valuta,
+            )
+            .filter { tilsagn -> linjer.none { it.tilsagn.id == tilsagn.id } }
+            .map { tilsagn ->
+                val deltakerIds = tilsagn.deltakere.map { it.deltakerId }
+                val personalia = personaliaService.getPersonalia(
+                    deltakerIds,
+                    onBehalfOf,
+                )
+                val deltakere = tilsagn.deltakere.map {
+                    TilsagnDeltakerDto.from(it, personalia.find { p -> p.deltakerId == it.deltakerId })
+                }
+
+                UtbetalingLinjeDto(
+                    id = UUID.randomUUID(),
+                    tilsagn = TilsagnDto.from(tilsagn),
+                    deltakere = deltakere,
+                    status = null,
+                    pris = ValutaBelop(0, utbetaling.valuta),
+                    gjorOppTilsagn = false,
+                    opprettelse = null,
+                    handlinger = emptySet(),
+                )
+            }
+
+        return (linjer + nyeLinjer).sortedBy { it.tilsagn.bestillingsnummer }
+    }
+
     suspend fun opprettUtbetaling(
         opprett: UpsertUtbetaling,
-        agent: Agent,
+        agent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         if (opprett is UpsertUtbetaling.Anskaffelse && opprett.journalpostId == null) {
             val arrangor = checkNotNull(queries.arrangor.getByGjennomforingId(opprett.gjennomforingId))
@@ -40,8 +144,14 @@ class AdminUtbetalingService(
 
     suspend fun redigerUtbetaling(
         rediger: UpsertUtbetaling,
-        agent: Agent,
+        agent: NavIdent,
     ): Validated<Utbetaling> = db.transaction {
+        val utbetaling = queries.utbetaling.getAndAquireLock(rediger.id)
+
+        if (!kanRedigeres(utbetaling)) {
+            return FieldError.of("Utbetalingen kan ikke redigeres").nel().left()
+        }
+
         utbetalingService.redigerUtbetaling(rediger, agent)
     }
 
@@ -72,10 +182,6 @@ class AdminUtbetalingService(
         utbetalingService.slettKorreksjon(id)
     }
 
-    fun republishFaktura(fakturanummer: String): UtbetalingLinje = db.transaction {
-        utbetalingService.republishFaktura(fakturanummer)
-    }
-
     fun oppdaterFakturaStatus(
         fakturanummer: String,
         nyStatus: FakturaStatusType,
@@ -87,4 +193,126 @@ class AdminUtbetalingService(
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.transaction {
         utbetalingService.getAdvarsler(utbetaling)
     }
+
+    companion object {
+        fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
+            UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
+                when (utbetaling.status) {
+                    UtbetalingStatusType.TIL_BEHANDLING,
+                    UtbetalingStatusType.RETURNERT,
+                    -> true
+
+                    UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.GENERERT,
+                    UtbetalingStatusType.TIL_ATTESTERING,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
+                    UtbetalingStatusType.AVBRUTT,
+                    -> false
+                }
+            },
+            UtbetalingHandling.SLETT.takeIf {
+                when (utbetaling.status) {
+                    UtbetalingStatusType.RETURNERT,
+                    UtbetalingStatusType.TIL_BEHANDLING,
+                    -> UtbetalingType.from(utbetaling) == UtbetalingType.KORRIGERING
+
+                    UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.GENERERT,
+                    UtbetalingStatusType.TIL_ATTESTERING,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
+                    UtbetalingStatusType.AVBRUTT,
+                    -> false
+                }
+            },
+            UtbetalingHandling.OPPRETT_KORREKSJON.takeIf {
+                utbetaling.korreksjon == null && when (utbetaling.status) {
+                    UtbetalingStatusType.RETURNERT,
+                    UtbetalingStatusType.TIL_BEHANDLING,
+                    UtbetalingStatusType.GENERERT,
+                    UtbetalingStatusType.TIL_ATTESTERING,
+                    UtbetalingStatusType.AVBRUTT,
+                    -> false
+
+                    UtbetalingStatusType.FERDIG_BEHANDLET,
+                    UtbetalingStatusType.DELVIS_UTBETALT,
+                    UtbetalingStatusType.UTBETALT,
+                    -> true
+                }
+            },
+            UtbetalingHandling.REDIGER.takeIf { kanRedigeres(utbetaling) },
+        )
+            .filter {
+                tilgangTilHandling(handling = it, ansatt = ansatt)
+            }
+            .toSet()
+
+        fun linjeHandlinger(
+            linje: UtbetalingLinje,
+            opprettelse: Totrinnskontroll,
+            kostnadssted: NavEnhetNummer,
+            ansatt: NavAnsatt,
+        ): Set<UtbetalingLinjeHandling> {
+            return setOfNotNull(
+                UtbetalingLinjeHandling.ATTESTER.takeIf { linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING },
+                UtbetalingLinjeHandling.RETURNER.takeIf { linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING },
+            )
+                .filter {
+                    tilgangTilHandling(
+                        handling = it,
+                        ansatt = ansatt,
+                        kostnadssted = kostnadssted,
+                        behandletAv = opprettelse.behandletAv,
+                    )
+                }
+                .toSet()
+        }
+
+        fun tilgangTilHandling(handling: UtbetalingHandling, ansatt: NavAnsatt): Boolean {
+            val saksbehandlerOkonomi = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+            return when (handling) {
+                UtbetalingHandling.OPPRETT_KORREKSJON -> saksbehandlerOkonomi
+                UtbetalingHandling.REDIGER -> saksbehandlerOkonomi
+                UtbetalingHandling.SEND_TIL_ATTESTERING -> saksbehandlerOkonomi
+                UtbetalingHandling.SLETT -> saksbehandlerOkonomi
+            }
+        }
+
+        fun tilgangTilHandling(
+            handling: UtbetalingLinjeHandling,
+            ansatt: NavAnsatt,
+            kostnadssted: NavEnhetNummer,
+            behandletAv: Agent,
+        ): Boolean {
+            val erBeslutter = ansatt.hasKontorspesifikkRolle(
+                Rolle.ATTESTANT_UTBETALING,
+                setOf(kostnadssted),
+            )
+            val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+
+            return when (handling) {
+                UtbetalingLinjeHandling.ATTESTER ->
+                    erBeslutter && behandletAv != ansatt.navIdent
+
+                UtbetalingLinjeHandling.RETURNER -> erBeslutter
+
+                UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
+            }
+        }
+    }
+}
+
+private fun kanRedigeres(utbetaling: Utbetaling): Boolean = utbetaling.innsending == null && when (utbetaling.status) {
+    UtbetalingStatusType.GENERERT,
+    UtbetalingStatusType.TIL_ATTESTERING,
+    UtbetalingStatusType.FERDIG_BEHANDLET,
+    UtbetalingStatusType.DELVIS_UTBETALT,
+    UtbetalingStatusType.UTBETALT,
+    UtbetalingStatusType.AVBRUTT,
+    -> false
+
+    UtbetalingStatusType.TIL_BEHANDLING,
+    UtbetalingStatusType.RETURNERT,
+    -> true
 }
