@@ -232,6 +232,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
         }
 
         test("utbetaling blir journalført når den blir opprettet av Arrangør") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+            ).initialize(database.db)
+
             val journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true)
 
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)

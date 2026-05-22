@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -76,26 +75,13 @@ fun Route.utbetalingRoutes() {
             queries.utbetaling.getByGjennomforing(gjennomforingId).map { utbetaling ->
                 val utbetalingLinjer = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id)
 
-                val (belopUtbetalt, kostnadssteder) = when (utbetaling.status) {
-                    UtbetalingStatusType.FERDIG_BEHANDLET,
-                    UtbetalingStatusType.DELVIS_UTBETALT,
-                    UtbetalingStatusType.UTBETALT,
-                    ->
-                        Pair(
-                            utbetalingLinjer.sumOf {
-                                it.pris.belop
-                            }.withValuta(utbetaling.valuta),
-                            utbetalingLinjer.map {
-                                queries.tilsagn.getOrError(it.tilsagnId).kostnadssted
-                            }.distinct(),
-                        )
-
-                    UtbetalingStatusType.GENERERT,
-                    UtbetalingStatusType.TIL_BEHANDLING,
-                    UtbetalingStatusType.TIL_ATTESTERING,
-                    UtbetalingStatusType.RETURNERT,
-                    UtbetalingStatusType.AVBRUTT,
-                    -> (null to emptyList())
+                val (belopUtbetalt, kostnadssteder) = if (utbetaling.erFerdigBehandlet()) {
+                    Pair(
+                        utbetalingLinjer.sumOf { it.pris.belop }.withValuta(utbetaling.valuta),
+                        utbetalingLinjer.map { queries.tilsagn.getOrError(it.tilsagnId).kostnadssted }.distinct(),
+                    )
+                } else {
+                    Pair(null, emptyList())
                 }
 
                 UtbetalingKompaktDto(

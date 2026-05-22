@@ -21,14 +21,12 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeStatusDto
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -130,13 +128,23 @@ class AdminUtbetalingService(
         opprett: UpsertUtbetaling,
         agent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        if (opprett is UpsertUtbetaling.Anskaffelse && opprett.journalpostId == null) {
-            val arrangor = checkNotNull(queries.arrangor.getByGjennomforingId(opprett.gjennomforingId))
-            if (!arrangor.erUtenlandsk) {
-                return FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
-                    .nel()
-                    .left()
+        when (opprett) {
+            is UpsertUtbetaling.Anskaffelse if opprett.journalpostId == null -> {
+                val arrangor = checkNotNull(queries.arrangor.getByGjennomforingId(opprett.gjennomforingId))
+                if (!arrangor.erUtenlandsk) {
+                    return FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
+                        .nel()
+                        .left()
+                }
             }
+
+            is UpsertUtbetaling.Korreksjon -> {
+                if (queries.utbetaling.get(opprett.korreksjonGjelderUtbetalingId) == null) {
+                    return FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
+                }
+            }
+
+            else -> Unit
         }
 
         utbetalingService.opprettUtbetaling(opprett, agent)
@@ -196,55 +204,13 @@ class AdminUtbetalingService(
 
     companion object {
         fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
-            UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf {
-                when (utbetaling.status) {
-                    UtbetalingStatusType.TIL_BEHANDLING,
-                    UtbetalingStatusType.RETURNERT,
-                    -> true
-
-                    UtbetalingStatusType.FERDIG_BEHANDLET,
-                    UtbetalingStatusType.GENERERT,
-                    UtbetalingStatusType.TIL_ATTESTERING,
-                    UtbetalingStatusType.DELVIS_UTBETALT,
-                    UtbetalingStatusType.UTBETALT,
-                    UtbetalingStatusType.AVBRUTT,
-                    -> false
-                }
-            },
-            UtbetalingHandling.SLETT.takeIf {
-                when (utbetaling.status) {
-                    UtbetalingStatusType.RETURNERT,
-                    UtbetalingStatusType.TIL_BEHANDLING,
-                    -> UtbetalingType.from(utbetaling) == UtbetalingType.KORRIGERING
-
-                    UtbetalingStatusType.FERDIG_BEHANDLET,
-                    UtbetalingStatusType.GENERERT,
-                    UtbetalingStatusType.TIL_ATTESTERING,
-                    UtbetalingStatusType.DELVIS_UTBETALT,
-                    UtbetalingStatusType.UTBETALT,
-                    UtbetalingStatusType.AVBRUTT,
-                    -> false
-                }
-            },
-            UtbetalingHandling.OPPRETT_KORREKSJON.takeIf {
-                utbetaling.korreksjon == null && when (utbetaling.status) {
-                    UtbetalingStatusType.RETURNERT,
-                    UtbetalingStatusType.TIL_BEHANDLING,
-                    UtbetalingStatusType.GENERERT,
-                    UtbetalingStatusType.TIL_ATTESTERING,
-                    UtbetalingStatusType.AVBRUTT,
-                    -> false
-
-                    UtbetalingStatusType.FERDIG_BEHANDLET,
-                    UtbetalingStatusType.DELVIS_UTBETALT,
-                    UtbetalingStatusType.UTBETALT,
-                    -> true
-                }
-            },
+            UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf { utbetaling.erTilBehandling() },
+            UtbetalingHandling.SLETT.takeIf { utbetaling.erTilBehandling() && utbetaling.erKorreksjon() },
+            UtbetalingHandling.OPPRETT_KORREKSJON.takeIf { utbetaling.erFerdigBehandlet() && !utbetaling.erKorreksjon() },
             UtbetalingHandling.REDIGER.takeIf { kanRedigeres(utbetaling) },
         )
-            .filter {
-                tilgangTilHandling(handling = it, ansatt = ansatt)
+            .filter { handling ->
+                tilgangTilHandling(handling, ansatt)
             }
             .toSet()
 
@@ -292,27 +258,12 @@ class AdminUtbetalingService(
             val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
 
             return when (handling) {
-                UtbetalingLinjeHandling.ATTESTER ->
-                    erBeslutter && behandletAv != ansatt.navIdent
-
+                UtbetalingLinjeHandling.ATTESTER -> erBeslutter && behandletAv != ansatt.navIdent
                 UtbetalingLinjeHandling.RETURNER -> erBeslutter
-
                 UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
             }
         }
     }
 }
 
-private fun kanRedigeres(utbetaling: Utbetaling): Boolean = utbetaling.innsending == null && when (utbetaling.status) {
-    UtbetalingStatusType.GENERERT,
-    UtbetalingStatusType.TIL_ATTESTERING,
-    UtbetalingStatusType.FERDIG_BEHANDLET,
-    UtbetalingStatusType.DELVIS_UTBETALT,
-    UtbetalingStatusType.UTBETALT,
-    UtbetalingStatusType.AVBRUTT,
-    -> false
-
-    UtbetalingStatusType.TIL_BEHANDLING,
-    UtbetalingStatusType.RETURNERT,
-    -> true
-}
+private fun kanRedigeres(utbetaling: Utbetaling): Boolean = utbetaling.erTilBehandling() && !utbetaling.erInnsending()

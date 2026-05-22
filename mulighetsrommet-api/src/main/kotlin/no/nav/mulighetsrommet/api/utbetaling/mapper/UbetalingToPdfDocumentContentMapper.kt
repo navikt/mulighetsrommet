@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
@@ -50,18 +49,8 @@ object UbetalingToPdfDocumentContentMapper {
         addUtbetalingSection(utbetaling)
         addBetalingsinformasjonSection(utbetaling.betalingsinformasjon)
 
-        when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT,
-            UtbetalingStatusType.TIL_BEHANDLING,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.AVBRUTT,
-            -> Unit
-
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            -> addUtbetalingsstatusSection(utbetaling.valuta, linjer)
+        if (utbetaling.erFerdigBehandlet()) {
+            addUtbetalingsstatusSection(utbetaling.valuta, linjer)
         }
     }
 

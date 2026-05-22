@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
@@ -118,6 +117,11 @@ class UtbetalingService(
         rediger: UpsertUtbetaling,
         agent: Agent,
     ): Validated<Utbetaling> = with(tx) {
+        val utbetaling = queries.utbetaling.getAndAquireLock(rediger.id)
+        if (!utbetaling.erTilBehandling()) {
+            return FieldError.of("Utbetalingen kan ikke redigeres").nel().left()
+        }
+
         return upsert(rediger).map {
             logEndring("Utbetaling redigert", it.id, agent)
         }
@@ -221,22 +225,12 @@ class UtbetalingService(
     context(tx: TransactionalQueryContext)
     fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
-        when (utbetaling.status) {
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.TIL_BEHANDLING,
-            -> Unit
-
-            UtbetalingStatusType.GENERERT,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.AVBRUTT,
-            -> return FieldError.of("Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}")
+        if (!utbetaling.erTilBehandling()) {
+            return FieldError.of("Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}")
                 .nel()
                 .left()
         }
-        if (UtbetalingType.from(utbetaling) != UtbetalingType.KORRIGERING) {
+        if (!utbetaling.erKorreksjon()) {
             return FieldError.of("Kan kun slette korreksjoner").nel().left()
         }
         queries.utbetalingLinje.getByUtbetalingId(id).forEach { linje ->
@@ -256,18 +250,8 @@ class UtbetalingService(
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
-        when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.AVBRUTT,
-            -> return FieldError.of("Utbetalingen kan ikke avbrytes").nel().left()
-
-            UtbetalingStatusType.TIL_BEHANDLING,
-            UtbetalingStatusType.RETURNERT,
-            -> Unit
+        if (!utbetaling.erTilBehandling()) {
+            return FieldError.of("Utbetalingen kan ikke avbrytes").nel().left()
         }
 
         queries.utbetaling.avbrytUtbetaling(utbetalingId, begrunnelse, Instant.now())
@@ -470,23 +454,11 @@ class UtbetalingService(
     private suspend fun TransactionalQueryContext.upsertKorreksjon(
         upsert: UpsertUtbetaling.Korreksjon,
     ): Either<NonEmptyList<FieldError>, UtbetalingDbo> {
-        val utbetaling = queries.utbetaling.get(upsert.korreksjonGjelderUtbetalingId)
-            ?: return FieldError.of("Utbetaling som skal korrigeres eksisterer ikke").nel().left()
-
-        when (utbetaling.status) {
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.TIL_BEHANDLING,
-            UtbetalingStatusType.GENERERT,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.AVBRUTT,
-            -> return FieldError.of("Utbetaling kan ikke korrigeres når den har status ${utbetaling.status}")
+        val utbetaling = queries.utbetaling.getAndAquireLock(upsert.korreksjonGjelderUtbetalingId)
+        if (!utbetaling.erFerdigBehandlet()) {
+            return FieldError.of("Utbetaling kan ikke korrigeres når den har status ${utbetaling.status}")
                 .nel()
                 .left()
-
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            -> Unit
         }
 
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(utbetaling.gjennomforing.id)
