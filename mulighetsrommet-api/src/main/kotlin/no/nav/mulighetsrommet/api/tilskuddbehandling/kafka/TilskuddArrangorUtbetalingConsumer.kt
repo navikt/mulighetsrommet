@@ -1,18 +1,14 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.kafka
 
-import arrow.core.flatMap
 import arrow.core.getOrElse
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.UpsertTilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
@@ -39,8 +35,7 @@ import java.util.UUID
 
 class TilskuddArrangorUtbetalingConsumer(
     private val db: ApiDatabase,
-    private val utbetalingService: UtbetalingService,
-    private val tilsagnService: TilsagnService,
+    private val okonomi: UtbetalingService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
     JsonElementDeserializer(),
@@ -102,38 +97,34 @@ class TilskuddArrangorUtbetalingConsumer(
         belop: ValutaBelop,
         prisbetingelser: String?,
     ): Tilsagn {
-        return tilsagnService.upsertInTx(
-            TilsagnRequest(
-                id = UUID.randomUUID(),
-                type = TilsagnType.TILSAGN,
-                gjennomforingId = gjennomforingId,
-                kostnadssted = kostnadssted,
-                beregning = TilsagnBeregningRequest(
-                    type = TilsagnBeregningType.FRI,
-                    valuta = belop.valuta,
-                    prisbetingelser = prisbetingelser,
-                    linjer = listOf(
-                        TilsagnInputLinjeRequest(
-                            id = UUID.randomUUID(),
-                            beskrivelse = "Automatisk tilsagn for opplæringstilskudd",
-                            pris = belop,
-                            antall = 1,
-                        ),
+        val beregning = TilsagnBeregningFri.beregn(
+            TilsagnBeregningFri.Input(
+                linjer = listOf(
+                    TilsagnBeregningFri.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "Automatisk tilsagn for opplæringstilskudd",
+                        pris = belop,
+                        antall = 1,
                     ),
                 ),
-                kommentar = null,
-                beskrivelse = null,
-                periodeStart = periode.start.toString(),
-                periodeSlutt = periode.getLastInclusiveDate().toString(),
-                deltakere = emptyList(),
+                prisbetingelser = prisbetingelser,
             ),
-            Tiltaksadministrasjon,
         )
-            .flatMap {
-                tilsagnService.godkjennTilsagnInTx(it.id, Tiltaksadministrasjon)
-            }
-            .getOrElse {
-                throw IllegalStateException("Feil under opprettelse av tilsagn for tilskudd. Errors: $it")
+        val upsert = UpsertTilsagn(
+            id = UUID.randomUUID(),
+            gjennomforingId = gjennomforingId,
+            type = TilsagnType.TILSAGN,
+            periode = periode,
+            kostnadssted = kostnadssted,
+            beregning = beregning,
+            kommentar = null,
+            beskrivelse = null,
+            deltakere = emptyList(),
+        )
+        return okonomi.upsertTilsagn(upsert, Tiltaksadministrasjon)
+            .let { tilsagn ->
+                okonomi.godkjennTilsagn(tilsagn.id, Tiltaksadministrasjon)
+                    .getOrElse { throw IllegalStateException("Feil under opprettelse av tilsagn for tilskudd. Errors: $it") }
             }
     }
 
@@ -143,7 +134,7 @@ class TilskuddArrangorUtbetalingConsumer(
         belop: ValutaBelop,
         kid: Kid?,
     ): Utbetaling {
-        return utbetalingService.opprettUtbetaling(
+        return okonomi.opprettUtbetaling(
             UpsertUtbetaling.Generering(
                 id = UUID.randomUUID(),
                 periode = periode,
@@ -156,7 +147,7 @@ class TilskuddArrangorUtbetalingConsumer(
             Tiltaksadministrasjon,
         )
             .map {
-                when (val result = utbetalingService.automatisertUtbetalingVedEttRelevantTilsagn(it.id)) {
+                when (val result = okonomi.automatisertUtbetalingVedEttRelevantTilsagn(it.id)) {
                     AutomatisertUtbetalingResult.GODKJENT -> Unit
                     else -> throw IllegalStateException("Feil ved automatisk utbetaling av tilskudd til arrangør. Errors: $result")
                 }

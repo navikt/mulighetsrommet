@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
@@ -32,8 +31,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
@@ -103,31 +100,18 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         forklaring = null,
     )
 
-    val gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))
-
     fun createConsumer(): TilskuddArrangorUtbetalingConsumer {
-        val tilsagnService = TilsagnService(
-            db = database.db,
-            config = TilsagnService.Config(
-                bestillingTopic = BESTILLING_TOPIC,
-                gyldigTilsagnPeriode = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode),
-            ),
-            navAnsattService = mockk(relaxed = true),
-            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
-        )
-        val utbetalingService = UtbetalingService(
+        val okonomi = UtbetalingService(
             config = UtbetalingService.Config(
                 bestillingTopic = BESTILLING_TOPIC,
                 tidligstTidspunktForUtbetaling = { _, _ -> null },
             ),
-            tilsagnService = tilsagnService,
             arrangorService = arrangorService,
             totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
         )
         return TilskuddArrangorUtbetalingConsumer(
             db = database.db,
-            utbetalingService = utbetalingService,
-            tilsagnService = tilsagnService,
+            okonomi = okonomi,
         )
     }
 

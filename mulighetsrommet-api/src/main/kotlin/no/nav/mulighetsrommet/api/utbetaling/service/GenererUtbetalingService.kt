@@ -100,7 +100,7 @@ class GenererUtbetalingService(
             val oppdatertBeregning = beregnUtbetaling(gjennomforing, utbetaling.periode)
 
             if (oppdatertBeregning == null) {
-                // TODO: sletting burde kanskje også gjøres via UtbetalingService
+                // TODO: sletting burde kanskje også gjøres via OkonomiService
                 log.info("Sletter utbetaling=${utbetaling.id} fordi den ikke lengre er relevant for arrangør")
                 db.session { queries.utbetaling.delete(utbetaling.id) }
                 return@mapNotNull null

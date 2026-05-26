@@ -42,6 +42,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
@@ -121,26 +122,35 @@ class TilsagnServiceTest : FunSpec({
 
     val gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))
 
-    fun createTilsagnService(
+    fun createAdminTilsagnService(
         navAnsattService: NavAnsattService = mockk(relaxed = true),
     ): TilsagnService {
+        val totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC)
+        val okonomiService = UtbetalingService(
+            config = UtbetalingService.Config(
+                bestillingTopic = BESTILLING_TOPIC,
+                tidligstTidspunktForUtbetaling = { _, _ -> null },
+            ),
+            arrangorService = mockk(relaxed = true),
+            totrinnskontroll = totrinnskontroll,
+        )
         return TilsagnService(
             db = database.db,
             config = TilsagnService.Config(
-                bestillingTopic = BESTILLING_TOPIC,
                 gyldigTilsagnPeriode = mapOf(
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
                     Tiltakskode.ARBEIDSRETTET_REHABILITERING to gyldigTilsagnPeriode,
                     Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode,
                 ),
             ),
+            okonomiService = okonomiService,
             navAnsattService = navAnsattService,
-            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
+            totrinnskontroll = totrinnskontroll,
         )
     }
 
     context("opprett tilsagn") {
-        val service = createTilsagnService()
+        val service = createAdminTilsagnService()
 
         test("oppretter tilsagn med riktig periode og totrinnskontroll") {
             service.upsert(request, ansatt1).shouldBeRight().should {
@@ -236,7 +246,7 @@ class TilsagnServiceTest : FunSpec({
 
     context("slett tilsagn") {
         val navAnsattService = mockk<NavAnsattService>(relaxed = true)
-        val service = createTilsagnService(navAnsattService)
+        val service = createAdminTilsagnService(navAnsattService)
 
         beforeEach {
             clearAllMocks()
@@ -346,7 +356,7 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("beslutt tilsagn") {
-        val service = createTilsagnService()
+        val service = createAdminTilsagnService()
 
         test("kan ikke beslutte når ansatt mangler beslutter-rolle") {
             database.run {
@@ -529,7 +539,7 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("annuller tilsagn") {
-        val service = createTilsagnService()
+        val service = createAdminTilsagnService()
 
         test("totrinnskontroll blir oppdatert ved annullering av tilsagn") {
             service.upsert(request, ansatt1)
@@ -707,7 +717,7 @@ class TilsagnServiceTest : FunSpec({
     }
 
     context("Gjør opp tilsagn") {
-        val service = createTilsagnService()
+        val service = createAdminTilsagnService()
 
         test("kan ikke gjøre opp egen") {
             service.upsert(request, ansatt1)

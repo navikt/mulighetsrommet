@@ -187,7 +187,6 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.tilskuddArrangorUtbetaling to TilskuddArrangorUtbetalingConsumer(
                 get(),
                 get(),
-                get(),
             ),
             config.clients.datavarehusGjennomforingerConsumer to DatavarehusTiltakV1KafkaProducer(
                 DatavarehusTiltakV1KafkaProducer.Config(config.topics.datavarehusTiltakTopic),
@@ -495,13 +494,12 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         UtbetalingService(
-            UtbetalingService.Config(
+            config = UtbetalingService.Config(
                 bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
                 tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
-            get(),
-            get(),
-            get(),
+            arrangorService = get(),
+            totrinnskontroll = get(),
         )
     }
     single { AdminUtbetalingService(get(), get(), get()) }
@@ -513,12 +511,12 @@ private fun services(appConfig: AppConfig) = module {
     single {
         TilsagnService(
             config = TilsagnService.Config(
-                bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
                 gyldigTilsagnPeriode = appConfig.okonomi.gyldigTilsagnPeriode,
             ),
             db = get(),
-            navAnsattService = get(),
+            okonomiService = get(),
             totrinnskontroll = get(),
+            navAnsattService = get(),
         )
     }
     single { TilskuddBehandlingService(get(), get()) }

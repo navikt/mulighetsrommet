@@ -1,7 +1,10 @@
 package no.nav.mulighetsrommet.api.tilsagn.model
 
+import arrow.core.Either
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnBeregningDto
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
@@ -9,6 +12,7 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.contracts.ExperimentalContracts
 
 @Serializable
 data class TilsagnRequest(
@@ -24,7 +28,30 @@ data class TilsagnRequest(
     val periodeStart: String? = null,
     val periodeSlutt: String? = null,
     val deltakere: List<TilsagnDeltakerRequest>? = null,
-)
+) {
+    @OptIn(ExperimentalContracts::class)
+    fun validate(): Either<List<FieldError>, TilsagnRequest> = validation {
+        requireValid(id != null) {
+            FieldError.of("Id er påkrevd", TilsagnRequest::id)
+        }
+        requireValid(!periodeStart.isNullOrBlank()) {
+            FieldError.of("Periodestart er påkrevd", TilsagnRequest::periodeStart)
+        }
+        requireValid(!periodeSlutt.isNullOrBlank()) {
+            FieldError.of("Periodeslutt er påkrevd", TilsagnRequest::periodeSlutt)
+        }
+        requireValid(kostnadssted != null) {
+            FieldError.of("Kostnadssted er påkrevd", TilsagnRequest::kostnadssted)
+        }
+        validate((kommentar?.length ?: 0) <= 500) {
+            FieldError.of("Kommentar kan ikke inneholde mer enn 500 tegn", TilsagnRequest::kommentar)
+        }
+        validate((beskrivelse?.length ?: 0) <= 250) {
+            FieldError.of("Beskrivelse kan ikke inneholde mer enn 250 tegn", TilsagnRequest::beskrivelse)
+        }
+        this@TilsagnRequest
+    }
+}
 
 @Serializable
 data class TilsagnDeltakerRequest(

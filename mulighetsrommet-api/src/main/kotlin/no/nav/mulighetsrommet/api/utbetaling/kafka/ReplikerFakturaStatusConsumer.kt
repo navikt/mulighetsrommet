@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory
 
 class ReplikerFakturaStatusConsumer(
     private val db: ApiDatabase,
-    private val utbetalingService: UtbetalingService,
+    private val okonomi: UtbetalingService,
 ) : KafkaTopicConsumer<String, JsonElement>(
     stringDeserializer(),
     JsonElementDeserializer(),
@@ -27,7 +27,7 @@ class ReplikerFakturaStatusConsumer(
             JsonIgnoreUnknownKeys.decodeFromJsonElement<FakturaStatus>(message)
 
         db.transaction {
-            utbetalingService.oppdaterFakturaStatus(fakturanummer, status, fakturaStatusSistOppdatert)
+            okonomi.oppdaterFakturaStatus(fakturanummer, status, fakturaStatusSistOppdatert)
         }
     }
 }

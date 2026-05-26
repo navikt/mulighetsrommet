@@ -32,7 +32,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
@@ -85,7 +84,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         )
     }
 
-    fun createUtbetalingService(
+    fun createService(
         gyldigTilsagnPeriode: Map<Tiltakskode, Periode> = Tiltakskode.entries.associateWith {
             Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
         },
@@ -94,15 +93,8 @@ class GenererUtbetalingServiceTest : FunSpec({
         val totrinnskontrollTopic = ""
         val bestillingTopic = ""
         val totrinnskontroll = TotrinnskontrollService(totrinnskontrollTopic)
-        val tilsagnService = TilsagnService(
-            config = TilsagnService.Config(bestillingTopic, gyldigTilsagnPeriode),
-            db = database.db,
-            navAnsattService = mockk(),
-            totrinnskontroll = totrinnskontroll,
-        )
         val utbetalingService = UtbetalingService(
             config = UtbetalingService.Config(bestillingTopic, tidligstTidspunktForUtbetaling),
-            tilsagnService = tilsagnService,
             arrangorService = arrangorService,
             totrinnskontroll = totrinnskontroll,
         )
@@ -142,7 +134,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         }
 
         test("genererer bare utbetaling når perioden er dekket av konfigurerte tilsagnsperioder") {
-            val service = createUtbetalingService(
+            val service = createService(
                 gyldigTilsagnPeriode = mapOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to februar),
             )
 
@@ -155,7 +147,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             var tidligstTidspunktForUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, periode ->
                 if (periode == januar) februar.start.atStartOfDay().toInstant(ZoneOffset.UTC) else null
             }
-            val service = createUtbetalingService(
+            val service = createService(
                 tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
             )
 
@@ -170,7 +162,7 @@ class GenererUtbetalingServiceTest : FunSpec({
     }
 
     context("generering av utbetalinger") {
-        val service = createUtbetalingService()
+        val service = createService()
 
         val organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer
 
@@ -501,7 +493,7 @@ class GenererUtbetalingServiceTest : FunSpec({
     }
 
     context("gjennomføringer og deltakere med feil i datagrunnlaget") {
-        val service = createUtbetalingService()
+        val service = createService()
 
         beforeEach {
             MulighetsrommetTestDomain(
@@ -623,7 +615,7 @@ class GenererUtbetalingServiceTest : FunSpec({
     }
 
     context("rekalkulering av utbetalinger") {
-        val service = createUtbetalingService()
+        val service = createService()
 
         val prismodell = PrismodellFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
@@ -723,7 +715,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
     context("utbetalinger for avtalt pris per hele ukesverk") {
         val gyldigTilsagnPeriode = Periode(LocalDate.of(2024, 12, 1), LocalDate.of(2027, 1, 1))
-        val service = createUtbetalingService(mapOf(Tiltakskode.OPPFOLGING to gyldigTilsagnPeriode))
+        val service = createService(mapOf(Tiltakskode.OPPFOLGING to gyldigTilsagnPeriode))
 
         val prismodell = PrismodellFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
@@ -818,7 +810,7 @@ class GenererUtbetalingServiceTest : FunSpec({
     }
 
     context("regenerering") {
-        val service = createUtbetalingService()
+        val service = createService()
 
         val prismodell = PrismodellFixtures.createPrismodellDbo(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
@@ -891,7 +883,7 @@ class GenererUtbetalingServiceTest : FunSpec({
     }
 
     context("generering av utbetalinger for avtalt sats per tiltaksplass per måned") {
-        val service = createUtbetalingService()
+        val service = createService()
 
         beforeEach {
             MulighetsrommetTestDomain(
@@ -963,7 +955,7 @@ class GenererUtbetalingServiceTest : FunSpec({
     }
 
     context("blokkeringer") {
-        val service = createUtbetalingService()
+        val service = createService()
 
         val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengderDbo(
             AFT1.id,

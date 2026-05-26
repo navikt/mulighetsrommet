@@ -16,13 +16,17 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.model.UpsertTilsagn
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
@@ -53,9 +57,14 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
+import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
+import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
+import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
 import org.apache.kafka.common.header.internals.RecordHeaders
 import java.time.Instant
@@ -64,7 +73,6 @@ import java.util.UUID
 
 class UtbetalingService(
     private val config: Config,
-    private val tilsagnService: TilsagnService,
     private val arrangorService: ArrangorService,
     private val totrinnskontroll: TotrinnskontrollService,
 ) {
@@ -611,14 +619,14 @@ class UtbetalingService(
 
     private fun TransactionalQueryContext.gjorOppTilsagnForUtbetalingLinje(utbetalingLinjeId: UUID, tilsagn: Tilsagn) {
         val opprettelse = getTotrinnskontroll(utbetalingLinjeId)
-        val tilsagnTilOppgjor = tilsagnService.setTilOppgjor(
+        val tilsagnTilOppgjor = setTilOppgjor(
             tilsagn,
             opprettelse.behandletAv,
             aarsaker = listOf(),
             forklaring = null,
             operation = "Sendt til oppgjør ved behandling av utbetaling",
         )
-        tilsagnService.gjorOppTilsagn(
+        gjorOppTilsagn(
             tilsagnTilOppgjor,
             requireNotNull(opprettelse.besluttetAv),
             operation = "Tilsagn oppgjort ved attestering av utbetaling",
@@ -663,6 +671,345 @@ class UtbetalingService(
         totrinnskontroll.avvist(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring).onLeft {
             throw UtbetalingException(it)
         }
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun upsertTilsagn(upsert: UpsertTilsagn, agent: Agent): Tilsagn = with(tx) {
+        val previous = queries.tilsagn.get(upsert.id)
+
+        val lopenummer = previous?.lopenummer
+            ?: queries.tilsagn.getNextLopenummeByGjennomforing(upsert.gjennomforingId)
+
+        val gjennomforingLopenummer = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(upsert.gjennomforingId).lopenummer
+
+        val bestillingsnummer = previous?.bestilling?.bestillingsnummer
+            ?: "A-${gjennomforingLopenummer.value}-$lopenummer"
+
+        val dbo = TilsagnDbo(
+            id = upsert.id,
+            gjennomforingId = upsert.gjennomforingId,
+            type = upsert.type,
+            periode = upsert.periode,
+            lopenummer = lopenummer,
+            kostnadssted = upsert.kostnadssted,
+            bestillingsnummer = bestillingsnummer,
+            bestillingStatus = null,
+            belopBrukt = 0.withValuta(upsert.beregning.output.pris.valuta),
+            beregning = upsert.beregning,
+            kommentar = upsert.kommentar,
+            beskrivelse = upsert.beskrivelse,
+            deltakere = upsert.deltakere?.map { TilsagnDbo.Deltaker(it.deltakerId, it.innholdAnnet) },
+        )
+
+        queries.tilsagn.upsert(dbo)
+        totrinnskontroll.opprett(upsert.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, agent)
+        val tilsagn = logEndringTilsagn("Sendt til godkjenning", dbo.id, agent)
+        updateFreeTextSearch(dbo)
+        tilsagn
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun godkjennTilsagn(id: UUID, agent: Agent): Either<List<FieldError>, Tilsagn> = with(tx) {
+        val tilsagn = queries.tilsagn.getAndAquireLock(id)
+        when (tilsagn.status) {
+            TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT ->
+                FieldError.of("Tilsagnet kan ikke godkjennes fordi det har status ${tilsagn.status.beskrivelse}").nel().left()
+
+            TilsagnStatus.TIL_GODKJENNING -> godkjennTilsagnInner(tilsagn, agent).onRight { publishOpprettBestilling(it) }
+            TilsagnStatus.TIL_ANNULLERING -> annullerTilsagn(tilsagn, agent).onRight { publishAnnullerBestilling(it) }
+            TilsagnStatus.TIL_OPPGJOR -> gjorOppTilsagn(tilsagn, agent, "Tilsagn oppgjort").onRight { publishGjorOppBestilling(it) }
+        }
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun returnerTilsagn(
+        tilsagn: Tilsagn,
+        besluttetAv: NavIdent,
+        aarsaker: List<TilsagnStatusAarsak>,
+        forklaring: String?,
+    ): Either<List<FieldError>, Tilsagn> = with(tx) {
+        if (tilsagn.status != TilsagnStatus.TIL_GODKJENNING) {
+            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_GODKJENNING} for å returneres")
+                .nel()
+                .left()
+        }
+
+        if (aarsaker.isEmpty()) {
+            return FieldError.of("Årsaker er påkrevd").nel().left()
+        }
+
+        val opprettelse = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
+        return totrinnskontroll.avvist(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
+            logEndringTilsagn("Tilsagn returnert", tilsagn.id, besluttetAv)
+        }
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun setTilAnnullering(
+        tilsagn: Tilsagn,
+        behandletAv: Agent,
+        aarsaker: List<String>,
+        forklaring: String?,
+    ): Tilsagn = with(tx) {
+        require(tilsagn.status == TilsagnStatus.GODKJENT) {
+            "Kan bare annullere godkjente tilsagn"
+        }
+
+        totrinnskontroll.opprett(
+            tilsagn.id,
+            TotrinnskontrollType.TILSAGN_ANNULLERING,
+            behandletAv,
+            aarsaker,
+            forklaring,
+        )
+        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_ANNULLERING)
+
+        return logEndringTilsagn("Sendt til annullering", tilsagn.id, behandletAv)
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun annullerTilsagn(
+        tilsagn: Tilsagn,
+        besluttetAv: Agent,
+    ): Either<List<FieldError>, Tilsagn> = with(tx) {
+        if (tilsagn.status != TilsagnStatus.TIL_ANNULLERING) {
+            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_ANNULLERING} for at annullering skal godkjennes")
+                .nel()
+                .left()
+        }
+        if (queries.utbetalingLinje.getNextLopenummerByTilsagn(tilsagn.id) > 1) {
+            return FieldError.of("Tilsagnet kan ikke annulleres fordi det har blitt brukt i utbetalinger")
+                .nel()
+                .left()
+        }
+
+        val annullering = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
+        return totrinnskontroll.godkjent(annullering, besluttetAv).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
+            logEndringTilsagn("Tilsagn annullert", tilsagn.id, besluttetAv)
+        }
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun avvisAnnullering(
+        tilsagn: Tilsagn,
+        besluttetAv: NavIdent,
+        aarsaker: List<TilsagnStatusAarsak>,
+        forklaring: String?,
+    ): Either<List<FieldError>, Tilsagn> = with(tx) {
+        if (tilsagn.status != TilsagnStatus.TIL_ANNULLERING) {
+            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_ANNULLERING} for at annullering skal avvises")
+                .nel()
+                .left()
+        }
+
+        val annullering = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
+        return totrinnskontroll.avvist(annullering, besluttetAv, aarsaker.map { it.name }, forklaring).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
+            logEndringTilsagn("Annullering avvist", tilsagn.id, besluttetAv)
+        }
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun setTilOppgjor(
+        tilsagn: Tilsagn,
+        agent: Agent,
+        aarsaker: List<String>,
+        forklaring: String?,
+        operation: String,
+    ): Tilsagn = with(tx) {
+        require(tilsagn.status == TilsagnStatus.GODKJENT) {
+            "Kan bare gjøre opp godkjente tilsagn"
+        }
+
+        totrinnskontroll.opprett(
+            tilsagn.id,
+            TotrinnskontrollType.TILSAGN_OPPGJOR,
+            agent,
+            aarsaker,
+            forklaring,
+        )
+        queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.TIL_OPPGJOR)
+
+        return logEndringTilsagn(operation, tilsagn.id, agent)
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun gjorOppTilsagn(
+        tilsagn: Tilsagn,
+        besluttetAv: Agent,
+        operation: String,
+    ): Either<List<FieldError>, Tilsagn> = with(tx) {
+        if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
+            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal godkjennes")
+                .nel()
+                .left()
+        }
+
+        val oppgjor = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
+        totrinnskontroll.godkjent(oppgjor, besluttetAv).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
+            logEndringTilsagn(operation, tilsagn.id, besluttetAv)
+        }
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun avvisOppgjor(
+        tilsagn: Tilsagn,
+        besluttetAv: NavIdent,
+        aarsaker: List<TilsagnStatusAarsak>,
+        forklaring: String?,
+    ): Either<List<FieldError>, Tilsagn> = with(tx) {
+        if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
+            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal avvises")
+                .nel()
+                .left()
+        }
+
+        val oppgjor = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
+        return totrinnskontroll.avvist(oppgjor, besluttetAv, aarsaker.map { it.name }, forklaring).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
+            logEndringTilsagn("Oppgjør avvist", tilsagn.id, besluttetAv)
+        }
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun republishOpprettBestilling(bestillingsnummer: String): Tilsagn = with(tx) {
+        val tilsagn = queries.tilsagn.getOrError(bestillingsnummer)
+        publishOpprettBestilling(tilsagn)
+        tilsagn
+    }
+
+    private fun TransactionalQueryContext.godkjennTilsagnInner(
+        tilsagn: Tilsagn,
+        besluttetAv: Agent,
+    ): Either<List<FieldError>, Tilsagn> {
+        if (tilsagn.status != TilsagnStatus.TIL_GODKJENNING) {
+            return FieldError.of("Tilsagnet m ha status ${TilsagnStatus.TIL_GODKJENNING} for å godkjennes")
+                .nel()
+                .left()
+        }
+
+        val opprettelse = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
+        return totrinnskontroll.godkjent(opprettelse, besluttetAv).map {
+            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
+            logEndringTilsagn("Tilsagn godkjent", tilsagn.id, besluttetAv)
+        }
+    }
+
+    private fun TransactionalQueryContext.publishOpprettBestilling(tilsagn: Tilsagn) {
+        val opprettelse = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
+        check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null) {
+            "Tilsagn id=${tilsagn.id} må være besluttet godkjent for å sendes til økonomi"
+        }
+
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(tilsagn.gjennomforing.id)
+
+        val avtale = when (gjennomforing) {
+            is GjennomforingAvtale -> queries.avtale.getOrError(gjennomforing.avtaleId)
+            is GjennomforingEnkeltplass -> null
+        }
+
+        val arrangorErUtenlandsk = queries.arrangor.getById(gjennomforing.arrangor.id).erUtenlandsk
+        val arrangor = if (arrangorErUtenlandsk) {
+            val utenlandskArrangor = requireNotNull(queries.arrangor.getUtenlandskArrangor(gjennomforing.arrangor.id)) {
+                "Mangler data om utenlandsk arrangør"
+            }
+            OpprettBestilling.Arrangor.Utenlandsk(
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                navn = gjennomforing.arrangor.navn,
+                by = utenlandskArrangor.by,
+                postNummer = utenlandskArrangor.postNummer,
+                landKode = utenlandskArrangor.landKode,
+                gateNavn = utenlandskArrangor.gateNavn,
+            )
+        } else {
+            OpprettBestilling.Arrangor.Norsk(
+                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+            )
+        }
+
+        val bestilling = OpprettBestilling(
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            tilskuddstype = when (tilsagn.type) {
+                TilsagnType.INVESTERING -> Tilskuddstype.TILTAK_INVESTERINGER
+                else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
+            },
+            tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+            arrangor = arrangor,
+            kostnadssted = tilsagn.kostnadssted.enhetsnummer,
+            avtalenummer = avtale?.sakarkivNummer?.value,
+            belop = tilsagn.beregning.output.pris.belop,
+            periode = tilsagn.periode,
+            behandletAv = opprettelse.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = opprettelse.behandletTidspunkt,
+            besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = opprettelse.besluttetTidspunkt,
+            valuta = tilsagn.beregning.output.pris.valuta,
+        )
+
+        storeOkonomiMelding(bestilling.bestillingsnummer, OkonomiBestillingMelding.Bestilling(bestilling), null)
+    }
+
+    private fun TransactionalQueryContext.publishAnnullerBestilling(tilsagn: Tilsagn) {
+        val annullering = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
+        check(annullering.besluttetAv != null && annullering.besluttetTidspunkt != null) {
+            "Tilsagn id=${tilsagn.id} må være besluttet annullert for å sendes som annullert til økonomi"
+        }
+
+        val annullerBestilling = AnnullerBestilling(
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            behandletAv = annullering.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = annullering.behandletTidspunkt,
+            besluttetAv = annullering.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = annullering.besluttetTidspunkt,
+        )
+
+        storeOkonomiMelding(
+            tilsagn.bestilling.bestillingsnummer,
+            OkonomiBestillingMelding.Annullering(annullerBestilling),
+            null,
+        )
+    }
+
+    private fun TransactionalQueryContext.publishGjorOppBestilling(tilsagn: Tilsagn) {
+        val oppgjor = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
+        check(oppgjor.besluttetAv != null && oppgjor.besluttetTidspunkt != null) {
+            "Tilsagn id=${tilsagn.id} må være besluttet oppgjort for å kunne sendes til økonomi"
+        }
+
+        val faktura = GjorOppBestilling(
+            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            behandletAv = oppgjor.behandletAv.toOkonomiPart(),
+            behandletTidspunkt = oppgjor.behandletTidspunkt,
+            besluttetAv = oppgjor.besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = oppgjor.besluttetTidspunkt,
+        )
+
+        storeOkonomiMelding(
+            tilsagn.bestilling.bestillingsnummer,
+            OkonomiBestillingMelding.GjorOppBestilling(faktura),
+            null,
+        )
+    }
+
+    private fun QueryContext.logEndringTilsagn(
+        operation: String,
+        tilsagnId: UUID,
+        endretAv: Agent,
+    ): Tilsagn {
+        val tilsagn = queries.tilsagn.getOrError(tilsagnId)
+        queries.endringshistorikk.logEndring(
+            EndringshistorikkType.TILSAGN,
+            operation,
+            endretAv,
+            tilsagnId,
+            LocalDateTime.now(),
+        ) {
+            Json.encodeToJsonElement(tilsagn)
+        }
+        return tilsagn
     }
 
     private fun TransactionalQueryContext.logEndring(
@@ -789,5 +1136,14 @@ class UtbetalingService(
             UtbetalingStatusType.AVBRUTT,
             -> emptyList()
         }
+    }
+
+    private fun QueryContext.updateFreeTextSearch(tilsagn: TilsagnDbo) {
+        val fts = listOf(tilsagn.bestillingsnummer) +
+            tilsagn.bestillingsnummer.replace("/", " ") +
+            tilsagn.periode.toFreeTextSearch() +
+            tilsagn.type.displayName()
+
+        queries.tilsagn.setFreeTextSearch(tilsagn.id, fts)
     }
 }

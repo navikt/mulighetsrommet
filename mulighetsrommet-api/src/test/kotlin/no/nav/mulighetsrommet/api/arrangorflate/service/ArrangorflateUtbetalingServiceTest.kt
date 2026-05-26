@@ -43,7 +43,6 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje1
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
@@ -88,31 +87,21 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
     var umiddelbarUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, _ -> null }
     val arrangorService: ArrangorService = mockk()
 
-    fun createTilsagnService(): TilsagnService = TilsagnService(
-        TilsagnService.Config(bestillingTopic = BESTILLING_TOPIC, gyldigTilsagnPeriode = mapOf()),
-        db = database.db,
-        navAnsattService = mockk(),
-        totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
-    )
-
     fun createUtbetalingService(
-        tilsagnService: TilsagnService = createTilsagnService(),
-        genererUtbetalingService: GenererUtbetalingService = mockk(),
-        journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
-        tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
-    ): ArrangorflateUtbetalingService {
-        val utbetalingService = UtbetalingService(
+        okonomiService: UtbetalingService = UtbetalingService(
             config = UtbetalingService.Config(
                 bestillingTopic = BESTILLING_TOPIC,
-                tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
+                tidligstTidspunktForUtbetaling = umiddelbarUtbetaling,
             ),
-            tilsagnService = tilsagnService,
             arrangorService = arrangorService,
             totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
-        )
+        ),
+        genererUtbetalingService: GenererUtbetalingService = mockk(),
+        journalforUtbetaling: JournalforUtbetaling = mockk(relaxed = true),
+    ): ArrangorflateUtbetalingService {
         return ArrangorflateUtbetalingService(
             db = database.db,
-            utbetalingService = utbetalingService,
+            utbetalingService = okonomiService,
             genererUtbetalingService = genererUtbetalingService,
             journalforUtbetaling = journalforUtbetaling,
         )
@@ -718,15 +707,24 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
             }.initialize(database.db)
 
-            val tilsagnService: TilsagnService = spyk(createTilsagnService())
+            val okonomiService = spyk(
+                UtbetalingService(
+                    config = UtbetalingService.Config(
+                        bestillingTopic = BESTILLING_TOPIC,
+                        tidligstTidspunktForUtbetaling = umiddelbarUtbetaling,
+                    ),
+                    arrangorService = arrangorService,
+                    totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
+                ),
+            )
             coEvery {
                 with(any<TransactionalQueryContext>()) {
-                    tilsagnService.gjorOppTilsagn(any(), any(), any())
+                    okonomiService.gjorOppTilsagn(any(), any(), any())
                 }
             } answers {
                 FieldError.of("Noe feil skjedde").nel().left()
             }
-            val service = createUtbetalingService(tilsagnService = tilsagnService)
+            val service = createUtbetalingService(okonomiService = okonomiService)
 
             service.godkjentAvArrangor(
                 utbetaling1.id,

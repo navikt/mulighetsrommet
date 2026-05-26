@@ -37,7 +37,6 @@ import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
@@ -87,15 +86,7 @@ class AdminUtbetalingServiceTest : FunSpec({
         kid = null,
     )
 
-    fun createTilsagnService(): TilsagnService = TilsagnService(
-        TilsagnService.Config(bestillingTopic = BESTILLING_TOPIC, gyldigTilsagnPeriode = mapOf()),
-        db = database.db,
-        navAnsattService = mockk(),
-        totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
-    )
-
     fun createUtbetalingService(
-        tilsagnService: TilsagnService = createTilsagnService(),
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
     ): AdminUtbetalingService {
         val utbetalingService = UtbetalingService(
@@ -103,7 +94,6 @@ class AdminUtbetalingServiceTest : FunSpec({
                 bestillingTopic = BESTILLING_TOPIC,
                 tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
             ),
-            tilsagnService = tilsagnService,
             arrangorService = arrangorService,
             totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
         )
