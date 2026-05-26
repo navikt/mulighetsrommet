@@ -59,6 +59,7 @@ export function defaultGjennomforingData(
       navAndreEnheter: navAndreEnheter.map((enhet) => enhet.enhetsnummer),
       beskrivelse: veilederinfo?.beskrivelse ?? avtale.beskrivelse,
       faneinnhold: veilederinfo?.faneinnhold ?? avtale.faneinnhold,
+      kontaktpersoner: veilederinfo?.kontaktpersoner ?? [],
     },
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
     tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
