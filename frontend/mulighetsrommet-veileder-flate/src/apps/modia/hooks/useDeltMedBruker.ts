@@ -9,7 +9,7 @@ export function useDeltMedBruker(norskIdent: string, gjennomforingId: string) {
       const result = await DelMedBrukerService.getDeltMedBruker<false>({
         body: { norskIdent, tiltakId: gjennomforingId },
       });
-      if (result.response.status === 204) {
+      if (result.response?.status === 204) {
         return { data: null };
       } else {
         return { data: result.data };
