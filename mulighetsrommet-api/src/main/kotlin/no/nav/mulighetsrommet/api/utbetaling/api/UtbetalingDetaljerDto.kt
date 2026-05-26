@@ -25,7 +25,7 @@ enum class UtbetalingHandling {
 }
 
 @Serializable
-data class UtbetalingLinje(
+data class UtbetalingLinjeDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tilsagn: TilsagnDto,

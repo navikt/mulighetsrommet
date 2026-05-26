@@ -9,7 +9,7 @@ import {
   UtbetalingBeregningDto,
   UtbetalingDto,
   UtbetalingKompaktDto,
-  UtbetalingLinje,
+  UtbetalingLinjeDto,
   UtbetalingLinjeHandling,
   UtbetalingStatusDtoType,
   UtbetalingTypeDto,
@@ -234,8 +234,7 @@ export const mockUtbetalingerKompakt: UtbetalingKompaktDto[] = [
   },
 ];
 
-// Mock data for UtbetalingLinje
-export const mockUtbetalingLinjer: UtbetalingLinje[] = [
+export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
   {
     id: "456e4567-e89b-12d3-a456-426614174000",
     deltakere: [],

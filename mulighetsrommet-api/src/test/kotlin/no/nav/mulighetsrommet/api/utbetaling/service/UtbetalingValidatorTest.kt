@@ -52,7 +52,6 @@ class UtbetalingValidatorTest : FunSpec({
                 beregning = UtbetalingBeregningFri.from(ValutaBelop(150, Valuta.NOK)),
                 kid = null,
                 tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                vedlegg = listOf(),
             )
         }
 

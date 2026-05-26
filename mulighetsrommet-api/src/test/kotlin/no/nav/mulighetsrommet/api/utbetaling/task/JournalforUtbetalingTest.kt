@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kontonummer
-import java.time.Instant
 import java.util.UUID
 
 class JournalforUtbetalingTest : FunSpec({
@@ -119,8 +118,8 @@ class JournalforUtbetalingTest : FunSpec({
         val task = createTask()
 
         val exception = shouldThrowExactly<Exception> {
-            database.db.transaction {
-                task.schedule(utbetaling.id, Instant.now(), session, emptyList())
+            database.run {
+                task.schedule(JournalforUtbetaling.TaskData(utbetaling.id, emptyList()), session)
                 throw Exception("Test")
             }
         }
@@ -132,8 +131,8 @@ class JournalforUtbetalingTest : FunSpec({
     test("task scheduleres hvis transaction går bra") {
         val task = createTask()
 
-        database.run { tx ->
-            task.schedule(utbetaling.id, Instant.now(), tx, emptyList())
+        database.run {
+            task.schedule(JournalforUtbetaling.TaskData(utbetaling.id, emptyList()), session)
         }
 
         database.assertTable("scheduled_tasks")

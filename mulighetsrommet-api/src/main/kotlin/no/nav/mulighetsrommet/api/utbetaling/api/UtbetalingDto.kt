@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Periode
@@ -72,16 +71,8 @@ data class UtbetalingDto(
 private fun getUtbetaltBelop(
     utbetaling: Utbetaling,
     linjer: List<UtbetalingLinje>,
-): ValutaBelop? = when (utbetaling.status) {
-    UtbetalingStatusType.GENERERT,
-    UtbetalingStatusType.TIL_BEHANDLING,
-    UtbetalingStatusType.TIL_ATTESTERING,
-    UtbetalingStatusType.RETURNERT,
-    UtbetalingStatusType.AVBRUTT,
-    -> null
-
-    UtbetalingStatusType.FERDIG_BEHANDLET,
-    UtbetalingStatusType.DELVIS_UTBETALT,
-    UtbetalingStatusType.UTBETALT,
-    -> linjer.fold(ValutaBelop(0, utbetaling.valuta)) { sum, linje -> sum + linje.pris }
+): ValutaBelop? = if (utbetaling.erFerdigBehandlet()) {
+    linjer.fold(ValutaBelop(0, utbetaling.valuta)) { sum, linje -> sum + linje.pris }
+} else {
+    null
 }

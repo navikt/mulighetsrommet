@@ -4,7 +4,7 @@ import {
   UtbetalingDetaljerDto,
   UtbetalingKompaktDto,
   UtbetalingHandling,
-  UtbetalingLinje,
+  UtbetalingLinjeDto,
 } from "@tiltaksadministrasjon/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import {
@@ -38,7 +38,7 @@ export const utbetalingHandlers = [
       });
     },
   ),
-  http.get<PathParams, PathParams, UtbetalingLinje[]>(
+  http.get<PathParams, PathParams, UtbetalingLinjeDto[]>(
     "*/api/tiltaksadministrasjon/utbetaling/:id/linjer",
     ({ params }) => {
       const { id } = params;
