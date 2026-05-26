@@ -1,10 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.models.Bransje
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -41,7 +37,6 @@ object AvtaleDboMapper {
             status = avtale.status.type,
             amoKategorisering = avtale.amoKategorisering,
             opsjonsmodell = avtale.opsjonsmodell,
-            utdanningslop = avtale.utdanningslop?.toDbo(),
             administratorer = avtale.administratorer.map { it.navIdent },
         ),
         personvernDbo = PersonvernDbo(
@@ -122,77 +117,9 @@ fun DetaljerRequest.toDbo(
     administratorer = administratorer,
     amoKategorisering = amoKategorisering,
     opsjonsmodell = opsjonsmodell,
-    utdanningslop = utdanningslop,
 )
 
 fun PersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(
     personvernBekreftet = personvernBekreftet,
     personopplysninger = personopplysninger,
 )
-
-fun AmoKategoriseringRequest.toDbo(
-    kurstyper: Set<Kurstype>,
-    bransjer: Set<Bransje>,
-    forerkort: Set<ForerkortKlasse>,
-): AmoKategorisering {
-    val kurstyperById = kurstyper.associateBy { it.id }
-    val bransjerById = bransjer.associateBy { it.id }
-    val forerkortById = forerkort.associateBy { it.id }
-    val kurstype = this.kurstypeId?.let(kurstyperById::get)
-    val bransje = this.bransjeId?.let(bransjerById::get)
-    val forerkort = (this.forerkort ?: emptySet()).let { forerkortListe ->
-        forerkortListe.mapNotNull(forerkortById::get)
-    }.toSet()
-    val sertifiseringer = this.sertifiseringer?.toSet() ?: emptySet()
-    val innholdsElementer = this.innholdElementer?.toSet() ?: emptySet()
-    val norskprove = this.norskprove ?: false
-
-    return when (kurstype?.kode) {
-        Kurstype.Kode.BRANSJE_OG_YRKESRETTET -> AmoKategorisering(
-            kurstype = kurstype,
-            bransje = requireNotNull(bransje),
-            sertifiseringer = sertifiseringer,
-            innholdElementer = innholdsElementer,
-            forerkort = forerkort,
-            norskprove = false,
-        )
-
-        Kurstype.Kode.NORSKOPPLAERING -> AmoKategorisering(
-            kurstype = kurstype,
-            norskprove = norskprove,
-            innholdElementer = innholdsElementer,
-            bransje = null,
-            forerkort = emptySet(),
-            sertifiseringer = emptySet(),
-        )
-
-        Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER -> AmoKategorisering(
-            kurstype = kurstype,
-            innholdElementer = innholdsElementer,
-            norskprove = false,
-            bransje = null,
-            forerkort = emptySet(),
-            sertifiseringer = emptySet(),
-        )
-
-        Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategorisering(
-            kurstype = kurstype,
-            innholdElementer = innholdsElementer,
-            norskprove = false,
-            bransje = null,
-            forerkort = emptySet(),
-            sertifiseringer = emptySet(),
-        )
-
-        Kurstype.Kode.STUDIESPESIALISERING -> AmoKategorisering(
-            kurstype = kurstype,
-            innholdElementer = emptySet(),
-            norskprove = false,
-            bransje = null,
-            forerkort = emptySet(),
-            sertifiseringer = emptySet(),
-        )
-
-        else -> throw IllegalArgumentException("Kurstype må være satt")
-    }
-}

@@ -94,7 +94,7 @@ class AvtaleQueries(private val session: Session) {
         upsertAdministratorer(avtale.id, avtale.detaljerDbo.administratorer)
         upsertArrangor(avtale.id, avtale.detaljerDbo.arrangor)
         upsertAmo(avtale.id, avtale.detaljerDbo.amoKategorisering)
-        upsertUtdanningslop(avtale.id, avtale.detaljerDbo.utdanningslop)
+        upsertUtdanningslop(avtale.id, avtale.detaljerDbo.amoKategorisering?.utdanningslop?.toDbo())
         updateVeilederinfo(avtale.id, avtale.veilederinformasjonDbo)
         updatePersonvern(avtale.id, avtale.personvernDbo)
         avtale.prismodeller.forEach { upsertPrismodell(avtale.id, it) }
@@ -108,7 +108,7 @@ class AvtaleQueries(private val session: Session) {
         upsertAdministratorer(avtaleId, detaljerDbo.administratorer)
         upsertArrangor(avtaleId, detaljerDbo.arrangor)
         upsertAmo(avtaleId, detaljerDbo.amoKategorisering)
-        upsertUtdanningslop(avtaleId, detaljerDbo.utdanningslop)
+        upsertUtdanningslop(avtaleId, detaljerDbo.amoKategorisering?.utdanningslop?.toDbo())
     }
 
     fun updatePersonvern(avtaleId: UUID, personvernDbo: PersonvernDbo) = withTransaction(session) {
@@ -542,11 +542,14 @@ private fun Row.toAvtale(): Avtale {
         opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
         customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
     )
-    val amoKategorisering = stringOrNull("amo_kategorisering_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
-
     val utdanningslop = stringOrNull("utdanningslop_json")
         ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
+
+    val amoKategoriseringRow = stringOrNull("amo_kategorisering_json")
+        ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
+
+    val amoKategorisering = amoKategoriseringRow?.copy(utdanningslop = utdanningslop)
+        ?: utdanningslop?.let { AmoKategorisering(utdanningslop = it)}
 
     val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
         val underenheter = stringOrNull("arrangor_underenheter_json")

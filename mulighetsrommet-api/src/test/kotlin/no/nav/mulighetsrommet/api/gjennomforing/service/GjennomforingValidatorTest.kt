@@ -8,7 +8,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringValiator
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
@@ -110,10 +110,11 @@ class GjennomforingValidatorTest : FunSpec({
         arrangorId = ArrangorFixtures.underenhet1.id,
         administratorer = setOf(NavAnsattFixture.DonaldDuck.navIdent),
     )
-    val kategorisering = GjennomforingValidator.Context.OpplaringKategorisering(
+    val kategorisering = OpplaringKategoriseringValiator.Context(
         kurstyper = KurstypeFixtures.all(),
         bransjer = BransjeFixtures.all(),
         forerkort = ForerkortFixtures.all(),
+        utdanningsprogram = emptyList(), // TODO
     )
 
     val ctx = GjennomforingValidator.Context(
@@ -257,68 +258,6 @@ class GjennomforingValidatorTest : FunSpec({
             ctx.copy(avtale = ctx.avtale.copy(avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG)),
         ).shouldBeLeft(
             listOf(FieldError("/sluttDato", "Du må legge inn sluttdato for gjennomføringen")),
-        )
-    }
-
-    test("amoKategorisering er påkrevd for avtale og gjennomføring når tiltakstype er Gruppe AMO") {
-        val avtaleUtenAmokategorisering = avtale.copy(
-            tiltakstype = Avtale.Tiltakstype(
-                tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
-                id = TiltakstypeFixtures.GruppeAmo.id,
-                navn = TiltakstypeFixtures.GruppeAmo.navn,
-            ),
-            amoKategorisering = null,
-        )
-
-        context(kategorisering) {
-            GjennomforingValidator.validateAmoKategorisering(
-                avtaleUtenAmokategorisering,
-                request.detaljer.amoKategorisering,
-            ).shouldBeLeft(
-                listOf(
-                    FieldError("/avtaleId", "Du må velge en kurstype for avtalen"),
-                    FieldError("/amoKategorisering/kurstypeId", "Du må velge en kurstype"),
-                ),
-            )
-        }
-    }
-
-    test("Kurselement må velges for gjennomføring når tiltakstype er Gruppe AMO") {
-        val avtaleUtenAmokategorisering = avtale.copy(
-            tiltakstype = Avtale.Tiltakstype(
-                tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
-                id = TiltakstypeFixtures.GruppeAmo.id,
-                navn = TiltakstypeFixtures.GruppeAmo.navn,
-            ),
-            amoKategorisering = AmoKategorisering(kurstype = KurstypeFixtures.studiespesialisering),
-        )
-
-        context(kategorisering) {
-            GjennomforingValidator.validateAmoKategorisering(
-                avtaleUtenAmokategorisering,
-                request.detaljer.amoKategorisering,
-            ).shouldBeLeft(
-                listOf(
-                    FieldError("/amoKategorisering/kurstypeId", "Du må velge en kurstype"),
-                ),
-            )
-        }
-    }
-
-    test("utdanningsprogram og lærefag er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
-        val avtaleGruFag = avtale.copy(
-            tiltakstype = Avtale.Tiltakstype(
-                tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
-                id = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
-                navn = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.navn,
-            ),
-        )
-
-        GjennomforingValidator.validateUtdanningslop(
-            avtaleGruFag,
-            request.detaljer.utdanningslop,
-        ).shouldBeLeft(
-            listOf(FieldError("/utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
         )
     }
 

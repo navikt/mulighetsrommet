@@ -21,7 +21,10 @@ interface Props<T> {
   tiltakskode: Tiltakskode;
   basePath: Path<T>;
 }
-export function OpplaringKategoriseringForm<T>({ tiltakskode, basePath }: Props<T>) {
+export function OpplaringKategoriseringForm<T extends FieldValues>({
+  tiltakskode,
+  basePath,
+}: Props<T>) {
   const { data: kodeverk } = useOpplaringKategorisering(tiltakskode);
   return kodeverk.alternativer.map((container, index) => (
     <ContainerVelger key={`container-${index}`} container={container} basePath={basePath} />
@@ -59,7 +62,7 @@ function GruppeVerdiVelger<T extends FieldValues>({
   gruppe: Gruppe;
   basePath: Path<T>;
 }) {
-  const { watch, resetField } = useFormContext<T>();
+  const { watch, getValues, resetField } = useFormContext<T>();
   const name = getPath<T>(basePath, gruppe.representerer);
   const valgtGruppe = watch(name);
   const undervalg: Container[] = useMemo(() => {
@@ -67,14 +70,18 @@ function GruppeVerdiVelger<T extends FieldValues>({
       gruppe.alternativer.find((c: Container) => c.id === valgtGruppe) ?? null;
     switch (valgtUndergruppe?.type) {
       case "Gruppe": {
-        valgtUndergruppe.alternativer.forEach((refName) =>
-          resetField(getPath<T>(basePath, refName.representerer)),
-        );
+        valgtUndergruppe.alternativer.forEach((alt) => {
+          const altName = getPath<T>(basePath, alt.representerer);
+          const altValues = getValues(altName);
+          resetField(altName, { defaultValue: Array.isArray(altValues) ? [] : "" });
+        });
         return valgtUndergruppe.alternativer;
       }
       case "Verdigruppe":
       case "VerdigruppeSok": {
-        resetField(getPath<T>(basePath, valgtUndergruppe.representerer));
+        resetField(getPath<T>(basePath, valgtUndergruppe.representerer), {
+          defaultValue: undefined,
+        });
         return [valgtUndergruppe];
       }
       case undefined:
@@ -82,10 +89,12 @@ function GruppeVerdiVelger<T extends FieldValues>({
     }
   }, [valgtGruppe]);
 
+  const rules = gruppe.required ? { required: true } : {};
+
   return (
     <>
-      <FormSelect<T> name={name} label={gruppe.visningsnavn} required={gruppe.required}>
-        <option value="">Velg en</option>
+      <FormSelect<T> name={name} label={gruppe.visningsnavn} rules={rules}>
+        <option value="">Velg {gruppe.visningsnavn.toLowerCase()}</option>
         {gruppe.alternativer.map((container) => (
           <option key={container.id} value={container.id?.toString()}>
             {container.visningsnavn}
@@ -128,12 +137,13 @@ function VerdiGruppeEnkeltvalg<T extends FieldValues>({
   ) : (
     verdigruppe.visningsnavn
   );
+  const rules = verdigruppe.required ? { required: true } : {};
   return (
     <HGrid gap="space-16" columns={1}>
       <FormSelect<T>
         name={`${basePath}.${verdigruppe.representerer}` as Path<T>}
         label={label}
-        required={verdigruppe.required}
+        rules={rules}
       >
         <option value="">Velg en</option>
         {verdigruppe.alternativer.map((verdi: Verdi) => (
@@ -153,12 +163,13 @@ function VerdiGruppeFlervalg<T extends FieldValues>({
   verdigruppe: Verdigruppe;
   basePath: Path<T>;
 }) {
+  const rules = verdigruppe.required ? { required: true } : {};
   return (
     <FormComboboxMulti<T>
       label={verdigruppe.visningsnavn}
       placeholder={"Velg opptil flere"}
       name={`${basePath}.${verdigruppe.representerer}` as Path<T>}
-      required={verdigruppe.required}
+      rules={rules}
       options={verdigruppe.alternativer.map((verdi: Verdi) => ({
         value: verdi.id,
         label: verdi.visningsnavn,

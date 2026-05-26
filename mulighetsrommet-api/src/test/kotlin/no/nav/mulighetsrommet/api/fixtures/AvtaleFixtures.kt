@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -44,7 +44,6 @@ object AvtaleFixtures {
         administratorer = listOf(NavIdent("DD1")),
         amoKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
-        utdanningslop = null,
     )
 
     fun personvernDbo(
@@ -177,7 +176,7 @@ object AvtaleFixtures {
         administratorer: List<NavIdent> = listOf(NavAnsattFixture.DonaldDuck.navIdent),
         prismodell: List<PrismodellDbo> = listOf(PrismodellFixtures.AnnenAvtaltPris),
         opsjonsmodell: Opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
-        amo: AmoKategoriseringRequest? = null,
+        amo: OpplaringKategoriseringRequest? = null,
     ): OpprettAvtaleRequest {
         return OpprettAvtaleRequest(
             id = UUID.randomUUID(),
@@ -192,7 +191,6 @@ object AvtaleFixtures {
                 avtaletype = avtaletype,
                 amoKategorisering = amo,
                 opsjonsmodell = opsjonsmodell,
-                utdanningslop = null,
             ),
             veilederinformasjon = VeilederinfoRequest(
                 navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),

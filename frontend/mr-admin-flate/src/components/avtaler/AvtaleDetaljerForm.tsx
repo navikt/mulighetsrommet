@@ -117,7 +117,6 @@ export function AvtaleDetaljerForm() {
               rules={{
                 onChange: () => {
                   setValue("detaljer.amoKategorisering", null);
-                  setValue("detaljer.utdanningslop", null);
                 },
               }}
             >

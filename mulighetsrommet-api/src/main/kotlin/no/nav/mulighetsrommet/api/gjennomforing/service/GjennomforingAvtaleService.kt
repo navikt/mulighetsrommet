@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringValiator
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
@@ -67,13 +68,14 @@ class GjennomforingAvtaleService(
             }
             val avtale = queries.avtale.getOrError(request.avtaleId)
             val arrangor = request.detaljer.arrangorId?.let { queries.arrangor.getById(it) }
-            val opplaringKategorisering = GjennomforingValidator.Context.OpplaringKategorisering(
+            val kategorisering = OpplaringKategoriseringValiator.Context(
                 kurstyper = queries.opplaringKategorisering.getKurstyper(),
                 bransjer = queries.opplaringKategorisering.getBransjer(),
                 forerkort = queries.opplaringKategorisering.getForerkortKlasser(),
+                utdanningsprogram = queries.utdanning.getUtdanningsprogrammer(),
             )
 
-            GjennomforingValidator.Context(today, avtale, arrangor, opplaringKategorisering)
+            GjennomforingValidator.Context(today, avtale, arrangor, kategorisering)
         }
         val result = GjennomforingValidator.validateCreateGjennomforing(ctx, request.id, request.detaljer).bind()
 
@@ -104,16 +106,17 @@ class GjennomforingAvtaleService(
             val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
             val antallDeltakere = queries.deltaker.getByGjennomforingId(id).size
 
-            val opplaringKategorisering = GjennomforingValidator.Context.OpplaringKategorisering(
+            val kategorisering = OpplaringKategoriseringValiator.Context(
                 kurstyper = queries.opplaringKategorisering.getKurstyper(),
                 bransjer = queries.opplaringKategorisering.getBransjer(),
                 forerkort = queries.opplaringKategorisering.getForerkortKlasser(),
+                utdanningsprogram = queries.utdanning.getUtdanningsprogrammer(),
             )
             GjennomforingValidator.Context(
                 today = today,
                 avtale = avtale,
                 arrangor = arrangor,
-                kategorisering = opplaringKategorisering,
+                kategorisering = kategorisering,
                 previous = GjennomforingValidator.Context.Gjennomforing(
                     arrangorId = previous.arrangor.id,
                     status = previous.status,

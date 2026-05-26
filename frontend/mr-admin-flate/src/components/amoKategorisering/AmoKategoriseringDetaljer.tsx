@@ -5,12 +5,16 @@ import {
   Definisjonsliste,
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import { UtdanningslopDetaljer } from "../utdanning/UtdanningslopDetaljer";
 
 interface Props {
   amoKategorisering: AmoKategoriseringDto;
 }
 
 export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
+  if (amoKategorisering.utdanningslop) {
+    return <UtdanningslopDetaljer utdanningslop={amoKategorisering.utdanningslop} />;
+  }
   return (
     <Definisjonsliste
       title="Kursdetaljer"

@@ -16,6 +16,7 @@ data class AmoKategoriseringDto(
     val sertifiseringer: Set<Sertifisering>? = null,
     val forerkort: Set<ForerkortKlasse>? = null,
     val norskprove: Boolean? = null,
+    val utdanningslop: UtdanningslopDto? = null,
 )
 
 fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
@@ -36,6 +37,10 @@ fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
             innholdElementer = this.innholdElementer,
             norskprove = this.norskprove,
         )
+
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.FAG_OG_YRKESOPPLAERING ->
+            AmoKategoriseringDto(utdanningslop = this.utdanningslop)
 
         else -> null
     }

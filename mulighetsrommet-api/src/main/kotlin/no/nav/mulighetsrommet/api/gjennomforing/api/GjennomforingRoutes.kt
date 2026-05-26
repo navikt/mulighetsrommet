@@ -31,7 +31,7 @@ import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
@@ -893,7 +893,7 @@ data class GjennomforingDetaljerRequest(
     val deltidsprosent: Double,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
-    val amoKategorisering: AmoKategoriseringRequest?,
+    val amoKategorisering: OpplaringKategoriseringRequest?,
     val utdanningslop: UtdanningslopDbo? = null,
     @Serializable(with = UUIDSerializer::class)
     val prismodellId: UUID?,

@@ -10,7 +10,8 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringValiator
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx.Tiltakstype
@@ -49,7 +50,6 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -63,7 +63,7 @@ class AvtaleValidatorTest : FunSpec({
     val gruppeAmo = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-        amo = AmoKategoriseringRequest(kurstypeId = KurstypeFixtures.studiespesialisering.id),
+        amo = OpplaringKategoriseringRequest(kurstypeId = KurstypeFixtures.studiespesialisering.id),
     )
     val forhaandsgodkjent = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -85,10 +85,11 @@ class AvtaleValidatorTest : FunSpec({
         prisbetingelser = "",
         tilsagnPerDeltaker = false,
     )
-    val kategorisering = Ctx.OpplaringKategorisering(
+    val kategorisering = OpplaringKategoriseringValiator.Context(
         kurstyper = KurstypeFixtures.all(),
         bransjer = BransjeFixtures.all(),
         forerkort = ForerkortFixtures.all(),
+        utdanningsprogram = emptyList(), // TODO
     )
     val ctx = Ctx(
         previous = null,
@@ -440,7 +441,7 @@ class AvtaleValidatorTest : FunSpec({
         val avtaleMedEndringer = avtaleRequest.copy(
             detaljer = avtaleRequest.detaljer.copy(
                 tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
-                utdanningslop = null,
+                amoKategorisering = OpplaringKategoriseringRequest(utdanningsprogramId = null),
             ),
         )
 
@@ -453,10 +454,7 @@ class AvtaleValidatorTest : FunSpec({
         val avtaleMedEndringer = avtaleRequest.copy(
             detaljer = avtaleRequest.detaljer.copy(
                 tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
-                utdanningslop = UtdanningslopDbo(
-                    utdanningsprogram = UUID.randomUUID(),
-                    utdanninger = setOf(),
-                ),
+                amoKategorisering = OpplaringKategoriseringRequest(utdanningsprogramId = UUID.randomUUID(), larefag = emptyList()),
             ),
         )
 
@@ -1069,7 +1067,7 @@ class AvtaleValidatorTest : FunSpec({
                 gruppeAmo.copy(
                     detaljer = gruppeAmo.detaljer.copy(
                         tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-                        amoKategorisering = AmoKategoriseringRequest(
+                        amoKategorisering = OpplaringKategoriseringRequest(
                             kurstypeId = KurstypeFixtures.bransjeOgYrkesrettet.id,
                         ),
                     ),
@@ -1100,7 +1098,7 @@ class AvtaleValidatorTest : FunSpec({
                 gruppeAmo.copy(
                     detaljer = gruppeAmo.detaljer.copy(
                         tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
-                        amoKategorisering = AmoKategoriseringRequest(
+                        amoKategorisering = OpplaringKategoriseringRequest(
                             kurstypeId = KurstypeFixtures.fov.id,
 
                         ),
@@ -1113,7 +1111,7 @@ class AvtaleValidatorTest : FunSpec({
                 gruppeAmo.copy(
                     detaljer = gruppeAmo.detaljer.copy(
                         tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
-                        amoKategorisering = AmoKategoriseringRequest(
+                        amoKategorisering = OpplaringKategoriseringRequest(
                             kurstypeId = KurstypeFixtures.grunnleggendeFerdigheter.id,
                             innholdElementer = setOf(
                                 AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
@@ -1132,7 +1130,7 @@ class AvtaleValidatorTest : FunSpec({
             validateCreateAvtale(
                 gruppeAmo.copy(
                     detaljer = gruppeAmo.detaljer.copy(
-                        amoKategorisering = AmoKategoriseringRequest(
+                        amoKategorisering = OpplaringKategoriseringRequest(
                             kurstypeId = KurstypeFixtures.bransjeOgYrkesrettet.id,
                             bransjeId = BransjeFixtures.kontorarbeid.id,
                             forerkort = listOf(

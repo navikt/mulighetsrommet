@@ -94,10 +94,10 @@ fun Route.kodeverkRoutes() {
                 val tiltakskode = call.queryParameters.get("tiltakskode")?.let { Tiltakskode.valueOf(it) }
                 if (tiltakskode == null) {
                     call.respond(BadRequest("Ukjent tiltakskode"))
-                    return@get
+                } else {
+                    val verk = opplaringKategorisering.from(tiltakskode)
+                    call.respond(verk)
                 }
-                val verk = opplaringKategorisering.from(tiltakskode)
-                call.respond(verk)
             }
 
             get("/kurstyper", {

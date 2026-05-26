@@ -1,12 +1,10 @@
 package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.Either
-import arrow.core.right
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.models.Bransje
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringValiator
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringValiator.validateOpplaringKategorisering
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
@@ -49,7 +47,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
@@ -62,7 +59,7 @@ object AvtaleValidator {
         val administratorer: List<NavAnsatt>,
         val tiltakstype: Tiltakstype,
         val navEnheter: List<NavEnhetDto>,
-        val kategorisering: OpplaringKategorisering,
+        val kategorisering: OpplaringKategoriseringValiator.Context,
         val systembestemtPrismodell: UUID?,
     ) {
         data class Avtale(
@@ -86,12 +83,6 @@ object AvtaleValidator {
         data class Tiltakstype(
             val navn: String,
             val id: UUID,
-        )
-
-        data class OpplaringKategorisering(
-            val kurstyper: Set<Kurstype>,
-            val bransjer: Set<Bransje>,
-            val forerkort: Set<ForerkortKlasse>,
         )
     }
 
@@ -195,19 +186,21 @@ object AvtaleValidator {
                 }
 
                 gjennomforing.utdanningslop?.also {
-                    validate(request.utdanningslop?.utdanningsprogram == it.utdanningsprogram.id) {
+                    validate(request.amoKategorisering?.utdanningsprogramId == it.utdanningsprogram.id) {
                         FieldError.of(
                             "Utdanningsprogram kan ikke endres fordi en gjennomføring allerede er opprettet for utdanningsprogrammet ${it.utdanningsprogram.navn}",
-                            DetaljerRequest::utdanningslop,
+                            DetaljerRequest::amoKategorisering,
+                            OpplaringKategoriseringRequest::utdanningsprogramId,
                         )
                     }
 
                     it.utdanninger.forEach { utdanning ->
-                        val utdanninger = request.utdanningslop?.utdanninger ?: listOf()
+                        val utdanninger = request.amoKategorisering?.larefag ?: listOf()
                         validate(utdanninger.contains(utdanning.id)) {
                             FieldError.of(
                                 "Lærefaget ${utdanning.navn} mangler i avtalen, men er i bruk på en av avtalens gjennomføringer",
-                                DetaljerRequest::utdanningslop,
+                                DetaljerRequest::amoKategorisering,
+                                OpplaringKategoriseringRequest::larefag,
                             )
                         }
                     }
@@ -436,8 +429,7 @@ object AvtaleValidator {
             }
         }
         val amoKategorisering =
-            context(ctx.kategorisering) { validateAmoKategorisering(request.tiltakskode, request.amoKategorisering) }
-        validateUtdanningslop(request.tiltakskode, request.utdanningslop)
+            context(ctx.kategorisering) { validateOpplaringKategorisering(request.tiltakskode, request.amoKategorisering) }
 
         validateSlettetNavAnsatte(ctx.administratorer)
         ctx.arrangor?.let { validateArrangor(it).bind() }
@@ -544,98 +536,4 @@ object AvtaleValidator {
             )
         }
     }
-
-    context(ctx: Ctx.OpplaringKategorisering)
-    private fun FieldValidator.validateAmoKategorisering(
-        tiltakskode: Tiltakskode,
-        request: AmoKategoriseringRequest?,
-    ): Either<List<FieldError>, AmoKategorisering?> = when (tiltakskode) {
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
-            requireValid(request?.kurstypeId != null && ctx.kurstyper.any { it.id == request.kurstypeId }) {
-                FieldError.of(
-                    "Du må velge en kurstype",
-                    DetaljerRequest::amoKategorisering,
-                    AmoKategoriseringRequest::kurstypeId,
-                )
-            }
-            val kurstype = ctx.kurstyper.find { it.id === request.kurstypeId }
-            if (kurstype?.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
-                requireValid(request.bransjeId != null && ctx.bransjer.any { it.id == request.bransjeId }) {
-                    FieldError.of(
-                        "Du må velge en bransje",
-                        DetaljerRequest::amoKategorisering,
-                        AmoKategoriseringRequest::bransjeId,
-                    )
-                }
-            }
-            request
-        }
-
-        Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
-            requireValid(request?.bransjeId != null && ctx.bransjer.any { it.id == request.bransjeId }) {
-                FieldError.of(
-                    "Du må velge en bransje",
-                    DetaljerRequest::amoKategorisering,
-                    AmoKategoriseringRequest::bransjeId,
-                )
-            }
-            val kurstype = ctx.kurstyper.find { it.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET }
-            request.copy(kurstypeId = kurstype?.id)
-        }
-
-        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
-            requireValid(request?.kurstypeId != null) {
-                FieldError.of(
-                    "Du må velge en kurstype",
-                    DetaljerRequest::amoKategorisering,
-                    AmoKategoriseringRequest::kurstypeId,
-                )
-            }
-            val norskGrunnFov = setOf(
-                Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-                Kurstype.Kode.NORSKOPPLAERING,
-                Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
-            )
-            val kurstyper = ctx.kurstyper.filter { kurstype -> kurstype.kode in norskGrunnFov }.map { it.id }.toSet()
-            validate(
-                request.kurstypeId in kurstyper,
-            ) {
-                FieldError.of(
-                    "Ugyldig kurstype",
-                    DetaljerRequest::amoKategorisering,
-                    AmoKategoriseringRequest::kurstypeId,
-                )
-            }
-            request
-        }
-
-        Tiltakskode.STUDIESPESIALISERING,
-        -> {
-            val studiespes = ctx.kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }
-            AmoKategoriseringRequest(kurstypeId = studiespes?.id)
-        }
-
-        else -> null
-    }?.toDbo(ctx.kurstyper, ctx.bransjer, ctx.forerkort).right()
-
-    private fun FieldValidator.validateUtdanningslop(
-        tiltakskode: Tiltakskode,
-        utdanningslop: UtdanningslopDbo?,
-    ): Either<List<FieldError>, Unit> = when (tiltakskode) {
-        Tiltakskode.FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        -> {
-            validateNotNull(utdanningslop) {
-                FieldError.of(
-                    "Du må velge et utdanningsprogram og minst ett lærefag",
-                    DetaljerRequest::utdanningslop,
-                )
-            }
-            validate(utdanningslop == null || utdanningslop.utdanninger.isNotEmpty()) {
-                FieldError.of("Du må velge minst ett lærefag", DetaljerRequest::utdanningslop)
-            }
-        }
-
-        else -> Unit
-    }.right()
 }

@@ -7,7 +7,7 @@ import {
 } from "@/pages/avtaler/form/validation";
 import {
   AmoKategoriseringDto,
-  AmoKategoriseringRequest,
+  OpplaringKategoriseringRequest,
   DetaljerRequest,
   KurstypeKode,
   OpprettAvtaleRequest,
@@ -53,7 +53,6 @@ export function toDetaljerRequest(data: AvtaleDetaljerOutputValues): DetaljerReq
       opsjonMaksVarighet: detaljer.opsjonsmodell.opsjonMaksVarighet || null,
       customOpsjonsmodellNavn: detaljer.opsjonsmodell.customOpsjonsmodellNavn || null,
     },
-    utdanningslop: detaljer.utdanningslop || null,
   };
 }
 
@@ -86,7 +85,7 @@ export function toVeilederinfoRequest(data: VeilederinfoOutputValues): Veilederi
 
 export function toAmoKategoriseringRequest(
   amoKategorisering: AmoKategoriseringDto | null,
-): AmoKategoriseringRequest | null {
+): OpplaringKategoriseringRequest | null {
   switch (amoKategorisering?.kurstype?.kode) {
     case KurstypeKode.BRANSJE_OG_YRKESRETTET:
       return {
@@ -96,6 +95,8 @@ export function toAmoKategoriseringRequest(
         forerkort: amoKategorisering.forerkort?.map((f) => f.id) ?? null,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
+        utdanningsprogramId: null,
+        larefag: null,
       };
     case KurstypeKode.NORSKOPPLAERING:
       return {
@@ -105,6 +106,8 @@ export function toAmoKategoriseringRequest(
         bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
+        utdanningsprogramId: null,
+        larefag: null,
       };
     case KurstypeKode.GRUNNLEGGENDE_FERDIGHETER:
       return {
@@ -114,6 +117,8 @@ export function toAmoKategoriseringRequest(
         bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
+        utdanningsprogramId: null,
+        larefag: null,
       };
     case KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
       return {
@@ -123,6 +128,8 @@ export function toAmoKategoriseringRequest(
         bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
+        utdanningsprogramId: null,
+        larefag: null,
       };
     case KurstypeKode.STUDIESPESIALISERING:
       return {
@@ -132,9 +139,24 @@ export function toAmoKategoriseringRequest(
         bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
+        utdanningsprogramId: null,
+        larefag: null,
       };
 
-    case undefined:
+    case undefined: {
+      if (amoKategorisering) {
+        return {
+          kurstypeId: null,
+          innholdElementer: null,
+          norskprove: null,
+          bransjeId: null,
+          forerkort: null,
+          sertifiseringer: null,
+          utdanningsprogramId: amoKategorisering.utdanningslop?.utdanningsprogram.id ?? null,
+          larefag: amoKategorisering.utdanningslop?.utdanninger.map((u) => u.id) ?? null,
+        };
+      }
       return null;
+    }
   }
 }
