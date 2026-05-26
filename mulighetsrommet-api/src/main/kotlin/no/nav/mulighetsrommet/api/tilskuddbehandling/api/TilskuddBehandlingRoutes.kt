@@ -114,15 +114,15 @@ fun Route.tilskuddBehandlingRoutes() {
         }
 
         authorize(Rolle.BESLUTTER_TILSAGN) {
-            post("/{id}/godkjenn", {
+            post("/{id}/attester", {
                 tags = setOf("TilskuddBehandling")
-                operationId = "godkjennTilskuddBehandling"
+                operationId = "attesterTilskuddBehandling"
                 request {
                     pathParameterUuid("id")
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Tilskuddsbehandling ble godkjent"
+                        description = "Tilskuddsbehandling ble attestert"
                     }
                     default {
                         description = "Problem details"
@@ -133,7 +133,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                val result = service.godkjenn(id, navIdent)
+                val result = service.attester(id, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 

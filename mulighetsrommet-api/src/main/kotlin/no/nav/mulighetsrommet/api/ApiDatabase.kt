@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.RedaksjoneltInnholdLenkeQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
@@ -25,7 +26,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
-import no.nav.mulighetsrommet.api.vedtak.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.veilederflate.db.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordQueries
