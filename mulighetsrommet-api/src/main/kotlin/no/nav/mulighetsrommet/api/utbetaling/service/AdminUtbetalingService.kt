@@ -179,15 +179,16 @@ class AdminUtbetalingService(
             }
 
             val totalBelopUtbetales = opprett.linjer.sumOf { it.pris.belop }.withValuta(utbetaling.valuta)
-            validate(totalBelopUtbetales <= utbetaling.beregning.output.pris) {
-                FieldError.of("Kan ikke utbetale mer enn innsendt beløp")
-            }
-            validate(totalBelopUtbetales >= utbetaling.beregning.output.pris || !opprett.begrunnelseMindreBetalt.isNullOrBlank()) {
-                FieldError.of("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp")
-            }
             validate(totalBelopUtbetales.belop > 0) {
                 FieldError.of("Totalt beløp må være større enn 0")
             }
+            validate(totalBelopUtbetales <= utbetaling.beregning.output.pris) {
+                FieldError.of("Kan ikke utbetale mer enn innsendt beløp")
+            }
+            if (totalBelopUtbetales < utbetaling.beregning.output.pris && opprett.begrunnelseMindreBetalt.isNullOrBlank()) {
+                error { FieldError.of("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp") }
+            }
+
             opprett.linjer.forEachIndexed { index, linje ->
                 val tilsagn = tilsagnByLinjeId.getValue(linje.id)
                 validate(linje.pris <= tilsagn.gjenstaendeBelop()) {
@@ -203,10 +204,9 @@ class AdminUtbetalingService(
                     )
                 }
             }
-            opprett.linjer
-        }.flatMap { linjer ->
+        }.flatMap {
             queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, opprett.begrunnelseMindreBetalt)
-            utbetalingService.sendTilAttestering(utbetaling.id, linjer, navIdent)
+            utbetalingService.sendTilAttestering(utbetaling.id, opprett.linjer, navIdent)
         }
     }
 
