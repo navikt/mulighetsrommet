@@ -80,10 +80,36 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         return OpplaringKategoriseringResponse(
             tiltakskode = tiltakskode,
             alternativer = listOf(
+                OpplaringKategoriseringResponse.Alternativ.UtdanningGruppe(
+                    visningsnavn = "Utdanningsprogram",
+                    representerer = OpplaringKategoriseringRequest::utdanningsprogramId.name,
+                    pakrevd = true,
+                    utdanninger = utdanningsprogrammer.map { (utdanningsprogram, utdanninger) ->
+                        OpplaringKategoriseringResponse.Alternativ.UtdanningGruppe.UtdanningValg(
+                            id = utdanningsprogram.id,
+                            visningsnavn = utdanningsprogram.navn,
+                            larefag =
+                            OpplaringKategoriseringResponse.Alternativ.Verdigruppe(
+                                id = null,
+                                tooltip = null,
+                                visningsnavn = "Lærefag",
+                                representerer = OpplaringKategoriseringRequest::larefag.name,
+                                pakrevd = true,
+                                seleksjonstype = OpplaringKategoriseringResponse.Seleksjonstype.FLERVALG,
+                                alternativer = utdanninger.map { utdanning ->
+                                    OpplaringKategoriseringResponse.Alternativ.Verdi(
+                                        id = utdanning.id,
+                                        visningsnavn = utdanning.navn,
+                                    )
+                                },
+                            ),
+                        )
+                    },
+                ),
                 OpplaringKategoriseringResponse.Alternativ.Gruppe(
                     id = null,
                     visningsnavn = "Utdanningsprogram",
-                    representerer = "utdanningsprogramId",
+                    representerer = "utdanningsprogram",
                     pakrevd = true,
                     alternativer = utdanningsprogrammer.map { (utdanningsprogram, utdanninger) ->
                         OpplaringKategoriseringResponse.Alternativ.Gruppe(

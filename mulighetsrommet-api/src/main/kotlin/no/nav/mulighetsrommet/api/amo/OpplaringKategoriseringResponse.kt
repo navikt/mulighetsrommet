@@ -115,6 +115,30 @@ data class OpplaringKategoriseringResponse(
         ) : Container
 
         /**
+         * Gruppering for utdanningsprogram og lærefag
+         *
+         * Muliggjør at valg av program, gir andre muligheter for lærefag
+         */
+        @Serializable
+        @SerialName("UtdanningGruppe")
+        data class UtdanningGruppe(
+            @Serializable(with = UUIDSerializer::class)
+            override val id: UUID? = null,
+            override val visningsnavn: String,
+            val representerer: String,
+            val pakrevd: Boolean,
+            val utdanninger: List<UtdanningValg>,
+        ) : Container {
+            @Serializable
+            data class UtdanningValg(
+                @Serializable(with = UUIDSerializer::class)
+                val id: UUID,
+                val visningsnavn: String,
+                val larefag: Verdigruppe,
+            )
+        }
+
+        /**
          * En valgbar gruppe — det innerste nivået i hierarkiet som inneholder
          * direkte valgbare [Verdi]-er.
          *

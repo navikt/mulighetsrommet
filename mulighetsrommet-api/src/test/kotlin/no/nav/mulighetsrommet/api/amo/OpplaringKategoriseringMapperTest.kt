@@ -37,7 +37,7 @@ class OpplaringKategoriseringMapperTest : FunSpec({
         jsonPrettyPrint.encodeToString(service.from(Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV)) shouldBeEqual NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON
     }
 
-    xtest("FAG_OG_YRKESOPPLAERING") {
+    test("FAG_OG_YRKESOPPLAERING") {
         val service = OpplaringKategoriseringMapper(dbListener.db)
         jsonPrettyPrint.encodeToString(service.from(Tiltakskode.FAG_OG_YRKESOPPLAERING)) shouldBeEqual FAG_OG_YRKESOPPLAERING_JSON
     }
@@ -89,6 +89,82 @@ const val NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON = """{
 const val FAG_OG_YRKESOPPLAERING_JSON = """{
   "tiltakskode": "FAG_OG_YRKESOPPLAERING",
   "alternativer": [
+    {
+      "type": "UtdanningGruppe",
+      "visningsnavn": "Utdanningsprogram",
+      "representerer": "utdanningsprogramId",
+      "pakrevd": true,
+      "utdanninger": [
+        {
+          "id": "1390a963-e9b2-4677-bb87-243f4638b7a1",
+          "visningsnavn": "Bygg- og anleggsteknikk",
+          "larefag": {
+            "id": null,
+            "visningsnavn": "Lærefag",
+            "tooltip": null,
+            "pakrevd": true,
+            "representerer": "larefag",
+            "seleksjonstype": "FLERVALG",
+            "alternativer": [
+              {
+                "id": "d02ffbea-7f0e-42ff-91a0-88d56277699d",
+                "visningsnavn": "Banemontørfaget"
+              },
+              {
+                "id": "32fff4d1-ef8f-4990-8184-7a7b34febe3b",
+                "visningsnavn": "Byggdrifterfaget"
+              },
+              {
+                "id": "c8ac69fa-6ba6-494f-95e1-6ec9be06086d",
+                "visningsnavn": "Fjell- og bergverksfaget"
+              },
+              {
+                "id": "43b8c872-5a7e-4fa2-8494-dd3258d60ad0",
+                "visningsnavn": "Glassfaget"
+              },
+              {
+                "id": "a2287ed9-6349-47ff-9cbe-5bdbb0b6cf2c",
+                "visningsnavn": "Vei- og anleggsfaget"
+              }
+            ]
+          }
+        },
+        {
+          "id": "1626096d-f1ac-4c34-aa93-741503bc5584",
+          "visningsnavn": "Håndverk, design og produktutvikling",
+          "larefag": {
+            "id": null,
+            "visningsnavn": "Lærefag",
+            "tooltip": null,
+            "pakrevd": true,
+            "representerer": "larefag",
+            "seleksjonstype": "FLERVALG",
+            "alternativer": [
+              {
+                "id": "649e9784-0422-4216-9cea-5af581a5c9c4",
+                "visningsnavn": "Bunadstilvirkerfaget"
+              },
+              {
+                "id": "74db0d0a-549f-4421-b30d-a11a34ede018",
+                "visningsnavn": "Gjørtlerfaget"
+              },
+              {
+                "id": "7a7a7c50-4800-4e97-be97-f4a87216c8f5",
+                "visningsnavn": "Glassblåserfaget"
+              },
+              {
+                "id": "c1092785-1fb1-4aee-ad96-1b8a8069bb1e",
+                "visningsnavn": "Herreskredderfaget"
+              },
+              {
+                "id": "7d9403b6-7883-4322-b340-c702e143c802",
+                "visningsnavn": "Kostymesyerfaget"
+              }
+            ]
+          }
+        }
+      ]
+    },
     {
       "type": "Gruppe",
       "id": null,

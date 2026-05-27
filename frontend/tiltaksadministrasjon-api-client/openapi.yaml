@@ -6009,12 +6009,14 @@ components:
     Container:
       anyOf:
       - $ref: "#/components/schemas/Gruppe"
+      - $ref: "#/components/schemas/UtdanningGruppe"
       - $ref: "#/components/schemas/Verdigruppe"
       - $ref: "#/components/schemas/VerdigruppeSok"
       discriminator:
         propertyName: type
         mapping:
           Gruppe: "#/components/schemas/Gruppe"
+          UtdanningGruppe: "#/components/schemas/UtdanningGruppe"
           Verdigruppe: "#/components/schemas/Verdigruppe"
           VerdigruppeSok: "#/components/schemas/VerdigruppeSok"
     Gruppe:
@@ -6031,7 +6033,7 @@ components:
           type:
           - "null"
           - string
-        required:
+        pakrevd:
           type: boolean
         alternativer:
           type: array
@@ -6040,8 +6042,46 @@ components:
       required:
       - alternativer
       - id
+      - pakrevd
       - representerer
-      - required
+      - visningsnavn
+    UtdanningGruppe:
+      type: object
+      properties:
+        id:
+          type:
+          - "null"
+          - string
+          format: uuid
+        visningsnavn:
+          type: string
+        representerer:
+          type: string
+        pakrevd:
+          type: boolean
+        utdanninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpplaringKategoriseringResponse.Alternativ.UtdanningGruppe.UtdanningValg"
+      required:
+      - id
+      - pakrevd
+      - representerer
+      - utdanninger
+      - visningsnavn
+    OpplaringKategoriseringResponse.Alternativ.UtdanningGruppe.UtdanningValg:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        visningsnavn:
+          type: string
+        larefag:
+          $ref: "#/components/schemas/Verdigruppe"
+      required:
+      - id
+      - larefag
       - visningsnavn
     Verdigruppe:
       type: object
@@ -6053,7 +6093,11 @@ components:
           format: uuid
         visningsnavn:
           type: string
-        required:
+        tooltip:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/OpplaringKategoriseringResponse.Tooltip"
+        pakrevd:
           type: boolean
         representerer:
           type: string
@@ -6066,10 +6110,41 @@ components:
       required:
       - alternativer
       - id
+      - pakrevd
       - representerer
-      - required
       - seleksjonstype
+      - tooltip
       - visningsnavn
+    OpplaringKategoriseringResponse.Tooltip:
+      anyOf:
+      - $ref: "#/components/schemas/FlereUtlistinger"
+      - $ref: "#/components/schemas/Utlisting"
+      discriminator:
+        propertyName: type
+        mapping:
+          FlereUtlistinger: "#/components/schemas/FlereUtlistinger"
+          Utlisting: "#/components/schemas/Utlisting"
+    FlereUtlistinger:
+      type: object
+      properties:
+        liste:
+          type: array
+          items:
+            $ref: "#/components/schemas/Utlisting"
+      required:
+      - liste
+    Utlisting:
+      type: object
+      properties:
+        tittel:
+          type: string
+        innhold:
+          type: array
+          items:
+            type: string
+      required:
+      - innhold
+      - tittel
     OpplaringKategoriseringResponse.Seleksjonstype:
       type: string
       enum:
@@ -6096,7 +6171,7 @@ components:
           format: uuid
         visningsnavn:
           type: string
-        required:
+        pakrevd:
           type: boolean
         representerer:
           type: string
@@ -6107,8 +6182,8 @@ components:
       required:
       - id
       - kilde
+      - pakrevd
       - representerer
-      - required
       - seleksjonstype
       - visningsnavn
     OpplaringKategoriseringResponse.Alternativ.VerdigruppeSok.Kilde:
