@@ -41,6 +41,25 @@ data class OpplaringKategoriseringResponse(
         FLERVALG,
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
+    @Serializable
+    @JsonClassDiscriminator("type")
+    sealed interface Tooltip {
+
+        @Serializable
+        @SerialName("Utlisting")
+        data class Utlisting(
+            val tittel: String,
+            val innhold: List<String>,
+        ) : Tooltip
+
+        @Serializable
+        @SerialName("FlereUtlistinger")
+        data class FlereUtlistinger(
+            val liste: List<Utlisting>,
+        ) : Tooltip
+    }
+
     /**
      * Et element i kodeverk-hierarkiet.
      *
@@ -91,7 +110,7 @@ data class OpplaringKategoriseringResponse(
             override val id: UUID?,
             override val visningsnavn: String,
             val representerer: String?,
-            val required: Boolean,
+            val pakrevd: Boolean,
             val alternativer: List<Container>,
         ) : Container
 
@@ -115,7 +134,8 @@ data class OpplaringKategoriseringResponse(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID?,
             override val visningsnavn: String,
-            val required: Boolean,
+            val tooltip: Tooltip?,
+            val pakrevd: Boolean,
             val representerer: String,
             val seleksjonstype: Seleksjonstype,
             val alternativer: List<Verdi>,
@@ -139,7 +159,7 @@ data class OpplaringKategoriseringResponse(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID?,
             override val visningsnavn: String,
-            val required: Boolean,
+            val pakrevd: Boolean,
             val representerer: String,
             val seleksjonstype: Seleksjonstype,
             val kilde: Kilde,
