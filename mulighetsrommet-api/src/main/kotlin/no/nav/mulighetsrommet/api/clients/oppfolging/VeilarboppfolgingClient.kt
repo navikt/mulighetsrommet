@@ -68,7 +68,7 @@ class VeilarboppfolgingClient(
         .recordStats()
         .build()
 
-    suspend fun hentOppfolgingsenhet(fnr: NorskIdent, obo: AccessType.OBO): Either<OppfolgingError, Oppfolgingsenhet> {
+    suspend fun hentOppfolgingsenhet(fnr: NorskIdent, obo: AccessType.OBO): Either<OppfolgingError, Oppfolgingsenhet?> {
         oppfolgingsenhetCache.getIfPresent(fnr)?.let { return@hentOppfolgingsenhet it.right() }
 
         val response = client.post("$baseUrl/v2/person/hent-oppfolgingsstatus") {
@@ -92,9 +92,11 @@ class VeilarboppfolgingClient(
                 log.warn("Klarte ikke hente oppfølgingsstatus for bruker. Status: ${response.status}")
                 OppfolgingError.Error.left()
             } else {
-                response.body<OppfolgingEnhetMedVeilederResponse>().oppfolgingsenhet.right()
+                val oppfolgingsenhet = response.body<OppfolgingEnhetMedVeilederResponse>().oppfolgingsenhet
+                oppfolgingsenhet?.also {
+                    oppfolgingsenhetCache.put(fnr, it)
+                }.right()
             }
-                .onRight { oppfolgingsenhetCache.put(fnr, it) }
         }
     }
 
@@ -196,7 +198,7 @@ data class ManuellStatusRequest(
 
 @Serializable
 data class OppfolgingEnhetMedVeilederResponse(
-    val oppfolgingsenhet: Oppfolgingsenhet,
+    val oppfolgingsenhet: Oppfolgingsenhet?,
 )
 
 @Serializable
