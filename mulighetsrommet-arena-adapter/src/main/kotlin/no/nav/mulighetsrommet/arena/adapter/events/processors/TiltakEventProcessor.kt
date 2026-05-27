@@ -19,7 +19,7 @@ class TiltakEventProcessor(
 ) : ArenaEventProcessor {
 
     override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
-        return event.arenaTable === ArenaTable.Tiltakstype
+        return event.arenaTable == ArenaTable.Tiltakstype
     }
 
     override suspend fun handleEvent(event: ArenaEvent) = either {

@@ -43,7 +43,7 @@ class TiltakgjennomforingEventProcessor(
 ) : ArenaEventProcessor {
 
     override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
-        return event.arenaTable === ArenaTable.Tiltaksgjennomforing
+        return event.arenaTable == ArenaTable.Tiltaksgjennomforing
     }
 
     data class Config(

@@ -70,7 +70,7 @@ data class Vedlegg(
 )
 
 @Serializable
-data class Content(val contentType: String, val content: ByteArray) {
+class Content(val contentType: String, val content: ByteArray) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

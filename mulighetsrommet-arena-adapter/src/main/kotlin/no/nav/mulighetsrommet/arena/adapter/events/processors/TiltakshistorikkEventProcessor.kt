@@ -27,7 +27,7 @@ class TiltakshistorikkEventProcessor(
 ) : ArenaEventProcessor {
 
     override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
-        return event.arenaTable === ArenaTable.Deltaker || event.arenaTable === ArenaTable.HistDeltaker
+        return event.arenaTable == ArenaTable.Deltaker || event.arenaTable == ArenaTable.HistDeltaker
     }
 
     override suspend fun handleEvent(event: ArenaEvent): Either<ProcessingError, ProcessingResult> = either {

@@ -325,7 +325,7 @@ object AvtaleValidator {
             FieldError.of("Ny sluttdato er forbi maks varighet av avtalen", OpprettOpsjonLoggRequest::nySluttDato)
         }
         val skalIkkeUtloseOpsjonerForAvtale = context.avtale.opsjonerRegistrert.any {
-            it.status === OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON
+            it.status == OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON
         }
         validate(!skalIkkeUtloseOpsjonerForAvtale) {
             FieldError.of("Kan ikke utløse flere opsjoner", OpprettOpsjonLoggRequest::type)
