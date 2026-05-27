@@ -478,10 +478,12 @@ class UtbetalingService(
         return dbo.right()
     }
 
-    private suspend fun getUtbetalingsinformasjon(arrangorId: UUID, kid: Kid?): Betalingsinformasjon {
-        return when (val betalingsinformasjon = arrangorService.getBetalingsinformasjon(arrangorId)) {
-            is Betalingsinformasjon.BBan -> Betalingsinformasjon.BBan(betalingsinformasjon.kontonummer, kid)
-            is Betalingsinformasjon.IBan -> betalingsinformasjon
+    private suspend fun getUtbetalingsinformasjon(arrangorId: UUID, kid: Kid?): Betalingsinformasjon? {
+        return arrangorService.getBetalingsinformasjon(arrangorId)?.let { betalingsinformasjon ->
+            when (betalingsinformasjon) {
+                is Betalingsinformasjon.BBan -> Betalingsinformasjon.BBan(betalingsinformasjon.kontonummer, kid)
+                is Betalingsinformasjon.IBan -> betalingsinformasjon
+            }
         }
     }
 

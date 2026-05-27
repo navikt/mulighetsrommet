@@ -76,6 +76,11 @@ class GenererUtbetalingServiceTest : FunSpec({
 
     val arrangorService = mockk<ArrangorService>()
 
+    coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
+        kontonummer = Kontonummer("12345678901"),
+        kid = null,
+    )
+
     fun createUtbetalingService(
         gyldigTilsagnPeriode: Map<Tiltakskode, Periode> = Tiltakskode.entries.associateWith {
             Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
@@ -110,11 +115,6 @@ class GenererUtbetalingServiceTest : FunSpec({
             ),
         )
     }
-
-    coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
-        kontonummer = Kontonummer("12345678901"),
-        kid = null,
-    )
 
     val januar = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
     val februar = Periode.forMonthOf(LocalDate.of(2025, 2, 1))
