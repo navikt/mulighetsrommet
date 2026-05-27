@@ -83,6 +83,11 @@ class AdminUtbetalingServiceTest : FunSpec({
     var umiddelbarUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, _ -> null }
     val arrangorService: ArrangorService = mockk()
 
+    coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
+        kontonummer = Kontonummer("12345678901"),
+        kid = null,
+    )
+
     fun createTilsagnService(): TilsagnService = TilsagnService(
         TilsagnService.Config(bestillingTopic = BESTILLING_TOPIC, gyldigTilsagnPeriode = mapOf()),
         db = database.db,
@@ -131,11 +136,6 @@ class AdminUtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.GENERERT)),
             ).initialize(database.db)
-
-            coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
-                kontonummer = Kontonummer("12345678901"),
-                kid = null,
-            )
         }
 
         test("utbetaling blir opprettet med fri-beregning") {
@@ -265,11 +265,6 @@ class AdminUtbetalingServiceTest : FunSpec({
                     utbetaling2.copy(status = UtbetalingStatusType.GENERERT),
                 ),
             ).initialize(database.db)
-
-            coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
-                kontonummer = Kontonummer("12345678901"),
-                kid = null,
-            )
         }
 
         test("korreksjon må gjelde for en eksisterende utbetaling") {
