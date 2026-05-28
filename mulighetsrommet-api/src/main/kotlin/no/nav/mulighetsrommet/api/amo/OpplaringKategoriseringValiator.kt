@@ -49,12 +49,12 @@ object OpplaringKategoriseringValiator {
 
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            -> {
+        -> {
             validateUtdanningslop(request?.utdanningsprogramId, request?.larefag.orEmpty())
         }
 
         Tiltakskode.STUDIESPESIALISERING,
-            -> {
+        -> {
             val studiespes = ctx.kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }
             OpplaringKategoriseringRequest(kurstypeId = studiespes?.id).toDbo().right()
         }
@@ -143,7 +143,7 @@ object OpplaringKategoriseringValiator {
                 DetaljerRequest::amoKategorisering,
                 OpplaringKategoriseringRequest::utdanningsprogramId,
 
-                )
+            )
         }
         validate(larefag.isNotEmpty() || (valgtProgram != null && valgtProgram.utdanninger.any { it.id == larefag })) {
             FieldError.of(
@@ -155,7 +155,6 @@ object OpplaringKategoriseringValiator {
 
         return AmoKategorisering(utdanningslop = null).right()
     }
-
 
     context(ctx: Context)
     fun validateGjennomforingKategorisering(

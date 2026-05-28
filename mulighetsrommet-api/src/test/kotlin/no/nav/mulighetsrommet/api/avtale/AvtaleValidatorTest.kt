@@ -446,7 +446,12 @@ class AvtaleValidatorTest : FunSpec({
         )
 
         validateCreateAvtale(avtaleMedEndringer, ctx) shouldBeLeft listOf(
-            FieldError("/detaljer/utdanningslop", "Du må velge et utdanningsprogram og minst ett lærefag"),
+            FieldError("/detaljer/amoKategorisering/larefag", "Du må velge et utdanningsprogram og minst ett lærefag"),
+            FieldError(
+                "/detaljer/amoKategorisering/utdanningsprogramId",
+                "Utdanningsprogramet er ugyldig, velg et fra listen",
+            ),
+            FieldError("/detaljer/amoKategorisering/larefag", "Du må velge minst ett lærefag"),
         )
     }
 
@@ -454,13 +459,20 @@ class AvtaleValidatorTest : FunSpec({
         val avtaleMedEndringer = avtaleRequest.copy(
             detaljer = avtaleRequest.detaljer.copy(
                 tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
-                amoKategorisering = OpplaringKategoriseringRequest(utdanningsprogramId = UUID.randomUUID(), larefag = emptyList()),
+                amoKategorisering = OpplaringKategoriseringRequest(
+                    utdanningsprogramId = UUID.randomUUID(),
+                    larefag = emptyList(),
+                ),
             ),
         )
 
         validateCreateAvtale(avtaleMedEndringer, ctx).shouldBeLeft(
             listOf(
-                FieldError("/detaljer/utdanningslop", "Du må velge minst ett lærefag"),
+                FieldError(
+                    "/detaljer/amoKategorisering/utdanningsprogramId",
+                    "Utdanningsprogramet er ugyldig, velg et fra listen",
+                ),
+                FieldError("/detaljer/amoKategorisering/larefag", "Du må velge minst ett lærefag"),
             ),
         )
     }

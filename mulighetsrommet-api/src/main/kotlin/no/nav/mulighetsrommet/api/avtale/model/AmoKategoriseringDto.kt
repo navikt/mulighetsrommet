@@ -39,7 +39,8 @@ fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
         )
 
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.FAG_OG_YRKESOPPLAERING ->
+        Tiltakskode.FAG_OG_YRKESOPPLAERING,
+        ->
             AmoKategoriseringDto(utdanningslop = this.utdanningslop)
 
         else -> null

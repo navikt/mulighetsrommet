@@ -549,7 +549,7 @@ private fun Row.toAvtale(): Avtale {
         ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
 
     val amoKategorisering = amoKategoriseringRow?.copy(utdanningslop = utdanningslop)
-        ?: utdanningslop?.let { AmoKategorisering(utdanningslop = it)}
+        ?: utdanningslop?.let { AmoKategorisering(utdanningslop = it) }
 
     val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
         val underenheter = stringOrNull("arrangor_underenheter_json")

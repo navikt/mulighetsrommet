@@ -3949,11 +3949,7 @@ components:
         amoKategorisering:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategoriseringRequest"
-        utdanningslop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDbo"
+          - $ref: "#/components/schemas/OpplaringKategoriseringRequest"
       required:
       - administratorer
       - amoKategorisering
@@ -3965,7 +3961,6 @@ components:
       - sluttDato
       - startDato
       - tiltakskode
-      - utdanningslop
     DetaljerRequest.Arrangor:
       type: object
       properties:
@@ -4018,7 +4013,7 @@ components:
       - INGEN_OPSJONSMULIGHET
       - VALGFRI_SLUTTDATO
       - ANNET
-    AmoKategoriseringRequest:
+    OpplaringKategoriseringRequest:
       type: object
       properties:
         kurstypeId:
@@ -4054,13 +4049,27 @@ components:
           type:
           - "null"
           - boolean
+        utdanningsprogramId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        larefag:
+          type:
+          - "null"
+          - array
+          items:
+            type: string
+            format: uuid
       required:
       - bransjeId
       - forerkort
       - innholdElementer
       - kurstypeId
+      - larefag
       - norskprove
       - sertifiseringer
+      - utdanningsprogramId
     Sertifisering:
       type: object
       properties:
@@ -4082,21 +4091,6 @@ components:
       - PRAKSIS
       - ARBEIDSMARKEDSKUNNSKAP
       - NORSKOPPLAERING
-    UtdanningslopDbo:
-      type: object
-      properties:
-        utdanningsprogram:
-          type: string
-          format: uuid
-        utdanninger:
-          type: array
-          items:
-            type: string
-            format: uuid
-          uniqueItems: true
-      required:
-      - utdanninger
-      - utdanningsprogram
     PrismodellRequest:
       type: object
       properties:
@@ -4531,6 +4525,10 @@ components:
           type:
           - "null"
           - boolean
+        utdanningslop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtdanningslopDto"
       required:
       - bransje
       - forerkort
@@ -4538,6 +4536,7 @@ components:
       - kurstype
       - norskprove
       - sertifiseringer
+      - utdanningslop
     Kurstype:
       type: object
       properties:
@@ -4555,6 +4554,14 @@ components:
       - id
       - kode
       - navn
+    Kurstype.Kode:
+      type: string
+      enum:
+      - NORSKOPPLAERING
+      - GRUNNLEGGENDE_FERDIGHETER
+      - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
+      - BRANSJE_OG_YRKESRETTET
+      - STUDIESPESIALISERING
     Bransje:
       type: object
       properties:
@@ -4569,6 +4576,19 @@ components:
       - id
       - kode
       - navn
+    Bransje.Kode:
+      type: string
+      enum:
+      - INGENIOR_OG_IKT_FAG
+      - HELSE_PLEIE_OG_OMSORG
+      - BARNE_OG_UNGDOMSARBEID
+      - KONTORARBEID
+      - BUTIKK_OG_SALGSARBEID
+      - BYGG_OG_ANLEGG
+      - INDUSTRIARBEID
+      - REISELIV_SERVERING_OG_TRANSPORT
+      - SERVICEYRKER_OG_ANNET_ARBEID
+      - ANDRE_BRANSJER
     ForerkortKlasse:
       type: object
       properties:
@@ -4583,36 +4603,27 @@ components:
       - id
       - kode
       - navn
-    Avtale.OpsjonLoggDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        createdAt:
-          type: string
-          format: date-time
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        forrigeSluttDato:
-          type: string
-          format: date
-        status:
-          $ref: "#/components/schemas/OpsjonLoggStatus"
-      required:
-      - createdAt
-      - forrigeSluttDato
-      - id
-      - sluttDato
-      - status
-    OpsjonLoggStatus:
+    ForerkortKlasse.Kode:
       type: string
       enum:
-      - OPSJON_UTLOST
-      - SKAL_IKKE_UTLOSE_OPSJON
+      - A
+      - A1
+      - A2
+      - AM
+      - AM_147
+      - B
+      - B_78
+      - BE
+      - C
+      - C1
+      - C1E
+      - CE
+      - D
+      - D1
+      - D1E
+      - DE
+      - S
+      - T
     UtdanningslopDto:
       type: object
       properties:
@@ -4647,6 +4658,36 @@ components:
       required:
       - id
       - navn
+    Avtale.OpsjonLoggDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        forrigeSluttDato:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/OpsjonLoggStatus"
+      required:
+      - createdAt
+      - forrigeSluttDato
+      - id
+      - sluttDato
+      - status
+    OpsjonLoggStatus:
+      type: string
+      enum:
+      - OPSJON_UTLOST
+      - SKAL_IKKE_UTLOSE_OPSJON
     PrismodellDto:
       type: object
       properties:
@@ -5076,7 +5117,7 @@ components:
         amoKategorisering:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategoriseringRequest"
+          - $ref: "#/components/schemas/OpplaringKategoriseringRequest"
         utdanningslop:
           oneOf:
           - type: "null"
@@ -5112,6 +5153,21 @@ components:
       - LOPENDE
       - FELLES
       - ENKELTPLASS
+    UtdanningslopDbo:
+      type: object
+      properties:
+        utdanningsprogram:
+          type: string
+          format: uuid
+        utdanninger:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+      required:
+      - utdanninger
+      - utdanningsprogram
     GjennomforingPameldingType:
       type: string
       enum:

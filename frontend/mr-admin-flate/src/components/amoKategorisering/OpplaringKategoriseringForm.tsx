@@ -5,13 +5,14 @@ import {
   OpplaringKategoriseringResponseSeleksjonstype,
   OpplaringKategoriseringResponseTooltip,
   Tiltakskode,
+  UtdanningGruppe,
   Utlisting,
   Verdi,
   Verdigruppe,
 } from "@tiltaksadministrasjon/api-client";
 import { FormSelect } from "../skjema/FormSelect";
 import { Box, Heading, HGrid, List } from "@navikt/ds-react";
-import { FieldValues, Path, useFormContext } from "react-hook-form";
+import { FieldValues, Path, PathValue, useFormContext } from "react-hook-form";
 import { FormComboboxMulti } from "../skjema/FormComboboxMulti";
 import { SertifiseringerSkjema } from "./SertifiseringerSelect";
 import { useMemo } from "react";
@@ -39,6 +40,8 @@ function ContainerVelger<T>({ container, basePath }: { container: Container; bas
   switch (container.type) {
     case "Gruppe":
       return <GruppeVelger gruppe={container} basePath={basePath} />;
+    case "UtdanningGruppe":
+      return <UtdanningGruppeVelger utdanningGruppe={container} basePath={basePath} />;
     case "Verdigruppe":
       return <VerdigruppeVelger verdigruppe={container} basePath={basePath} />;
     case "VerdigruppeSok":
@@ -73,10 +76,17 @@ function GruppeVerdiVelger<T extends FieldValues>({
         valgtUndergruppe.alternativer.forEach((alt) => {
           const altName = getPath<T>(basePath, alt.representerer);
           const altValues = getValues(altName);
-          resetField(altName, { defaultValue: Array.isArray(altValues) ? [] : "" });
+          const defaultValue = (Array.isArray(altValues) ? [] : "") as unknown as PathValue<
+            T,
+            Path<T>
+          >;
+          resetField(altName, {
+            defaultValue,
+          });
         });
         return valgtUndergruppe.alternativer;
       }
+      case "UtdanningGruppe":
       case "Verdigruppe":
       case "VerdigruppeSok": {
         resetField(getPath<T>(basePath, valgtUndergruppe.representerer), {
@@ -89,7 +99,7 @@ function GruppeVerdiVelger<T extends FieldValues>({
     }
   }, [valgtGruppe]);
 
-  const rules = gruppe.required ? { required: true } : {};
+  const rules = gruppe.pakrevd ? { required: true } : {};
 
   return (
     <>
@@ -104,6 +114,50 @@ function GruppeVerdiVelger<T extends FieldValues>({
       {undervalg.map((c, index) => (
         <ContainerVelger key={`container-${index}`} container={c} basePath={basePath} />
       ))}
+    </>
+  );
+}
+
+function UtdanningGruppeVelger<T extends FieldValues>({
+  utdanningGruppe,
+  basePath,
+}: {
+  utdanningGruppe: UtdanningGruppe;
+  basePath: Path<T>;
+}) {
+  const { watch, getValues, resetField } = useFormContext<T>();
+  const name = getPath(basePath, utdanningGruppe.representerer);
+  const valgtUtdanningId = watch(name);
+  const larefagVerdiGruppe = useMemo(() => {
+    const valgtUtdanning = utdanningGruppe.utdanninger.find((u) => u.id === valgtUtdanningId);
+    if (!valgtUtdanning) {
+      return;
+    }
+    const undervalgName = getPath(basePath, valgtUtdanning.larefag.representerer);
+    const undervalgVerdier = getValues(undervalgName);
+    const defaultValue = (Array.isArray(undervalgVerdier) ? [] : "") as unknown as PathValue<
+      T,
+      Path<T>
+    >;
+    resetField(undervalgName, {
+      defaultValue,
+    });
+    return valgtUtdanning.larefag;
+  }, [valgtUtdanningId]);
+  const rules = utdanningGruppe.pakrevd ? { required: true } : {};
+  return (
+    <>
+      <FormSelect<T> name={name} label={utdanningGruppe.visningsnavn} rules={rules}>
+        <option value="">Velg en</option>
+        {utdanningGruppe.utdanninger.map((utdanning) => (
+          <option key={utdanning.id} value={utdanning.id}>
+            {utdanning.visningsnavn}
+          </option>
+        ))}
+      </FormSelect>
+      {larefagVerdiGruppe && (
+        <VerdigruppeVelger verdigruppe={larefagVerdiGruppe} basePath={basePath} />
+      )}
     </>
   );
 }
@@ -137,11 +191,11 @@ function VerdiGruppeEnkeltvalg<T extends FieldValues>({
   ) : (
     verdigruppe.visningsnavn
   );
-  const rules = verdigruppe.required ? { required: true } : {};
+  const rules = verdigruppe.pakrevd ? { required: true } : {};
   return (
     <HGrid gap="space-16" columns={1}>
       <FormSelect<T>
-        name={`${basePath}.${verdigruppe.representerer}` as Path<T>}
+        name={getPath(basePath, verdigruppe.representerer)}
         label={label}
         rules={rules}
       >
@@ -163,12 +217,12 @@ function VerdiGruppeFlervalg<T extends FieldValues>({
   verdigruppe: Verdigruppe;
   basePath: Path<T>;
 }) {
-  const rules = verdigruppe.required ? { required: true } : {};
+  const rules = verdigruppe.pakrevd ? { required: true } : {};
   return (
     <FormComboboxMulti<T>
       label={verdigruppe.visningsnavn}
       placeholder={"Velg opptil flere"}
-      name={`${basePath}.${verdigruppe.representerer}` as Path<T>}
+      name={getPath(basePath, verdigruppe.representerer)}
       rules={rules}
       options={verdigruppe.alternativer.map((verdi: Verdi) => ({
         value: verdi.id,
@@ -208,11 +262,11 @@ function TooltipUtlisting({ utlisting }: TooltipUtlistingProps) {
   return (
     <div>
       <Heading as="h3" size="xsmall">
-        {utlisting.header}
+        {utlisting.tittel}
       </Heading>
       <Box marginBlock="space-12" asChild>
         <List data-aksel-migrated-v8 as="ul" size="small">
-          {utlisting.items.map((item) => (
+          {utlisting.innhold.map((item) => (
             <List.Item key={item}>{item}</List.Item>
           ))}
         </List>

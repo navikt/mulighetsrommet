@@ -1,7 +1,3 @@
-update opplaring_kategorisering_kurstype
-set kode = 'NORSKOPPLAERING'
-where kode = 'NORSKOPPLARING';
-
 --- forerkort
 create table avtale_amo_kategorisering_forerkort
 (
