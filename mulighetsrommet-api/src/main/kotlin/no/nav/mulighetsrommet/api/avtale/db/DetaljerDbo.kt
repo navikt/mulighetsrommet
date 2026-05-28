@@ -1,13 +1,12 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.SakarkivNummer
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.util.UUID
 
@@ -23,7 +22,6 @@ data class DetaljerDbo(
     val administratorer: List<NavIdent>,
     val amoKategorisering: AmoKategorisering?,
     val opsjonsmodell: Opsjonsmodell,
-    val utdanningslop: UtdanningslopDbo?,
 )
 
 data class ArrangorDbo(

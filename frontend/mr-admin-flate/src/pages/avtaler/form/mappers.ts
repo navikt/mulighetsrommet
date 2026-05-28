@@ -7,9 +7,9 @@ import {
 } from "@/pages/avtaler/form/validation";
 import {
   AmoKategoriseringDto,
-  AmoKategoriseringRequest,
-  AmoKurstype,
+  OpplaringKategoriseringRequest,
   DetaljerRequest,
+  KurstypeKode,
   OpprettAvtaleRequest,
   PersonvernRequest,
   PrismodellRequest,
@@ -53,7 +53,6 @@ export function toDetaljerRequest(data: AvtaleDetaljerOutputValues): DetaljerReq
       opsjonMaksVarighet: detaljer.opsjonsmodell.opsjonMaksVarighet || null,
       customOpsjonsmodellNavn: detaljer.opsjonsmodell.customOpsjonsmodellNavn || null,
     },
-    utdanningslop: detaljer.utdanningslop || null,
   };
 }
 
@@ -86,56 +85,78 @@ export function toVeilederinfoRequest(data: VeilederinfoOutputValues): Veilederi
 
 export function toAmoKategoriseringRequest(
   amoKategorisering: AmoKategoriseringDto | null,
-): AmoKategoriseringRequest | null {
-  switch (amoKategorisering?.kurstype) {
-    case AmoKurstype.BRANSJE_OG_YRKESRETTET:
+): OpplaringKategoriseringRequest | null {
+  switch (amoKategorisering?.kurstype?.kode) {
+    case KurstypeKode.BRANSJE_OG_YRKESRETTET:
       return {
-        kurstype: AmoKurstype.BRANSJE_OG_YRKESRETTET,
-        bransje: amoKategorisering.bransje,
+        kurstypeId: amoKategorisering.kurstype.id,
+        bransjeId: amoKategorisering.bransje?.id ?? null,
         sertifiseringer: amoKategorisering.sertifiseringer,
-        forerkort: amoKategorisering.forerkort,
+        forerkort: amoKategorisering.forerkort?.map((f) => f.id) ?? null,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
+        utdanningsprogramId: null,
+        larefag: null,
       };
-    case AmoKurstype.NORSKOPPLAERING:
+    case KurstypeKode.NORSKOPPLAERING:
       return {
-        kurstype: AmoKurstype.NORSKOPPLAERING,
+        kurstypeId: amoKategorisering.kurstype.id,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: amoKategorisering.norskprove,
-        bransje: null,
+        bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
+        utdanningsprogramId: null,
+        larefag: null,
       };
-    case AmoKurstype.GRUNNLEGGENDE_FERDIGHETER:
+    case KurstypeKode.GRUNNLEGGENDE_FERDIGHETER:
       return {
-        kurstype: AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+        kurstypeId: amoKategorisering.kurstype.id,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
-        bransje: null,
+        bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
+        utdanningsprogramId: null,
+        larefag: null,
       };
-    case AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
+    case KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
       return {
-        kurstype: AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+        kurstypeId: amoKategorisering.kurstype.id,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
-        bransje: null,
+        bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
+        utdanningsprogramId: null,
+        larefag: null,
       };
-    case AmoKurstype.STUDIESPESIALISERING:
+    case KurstypeKode.STUDIESPESIALISERING:
       return {
-        kurstype: AmoKurstype.STUDIESPESIALISERING,
+        kurstypeId: amoKategorisering.kurstype.id,
         innholdElementer: null,
         norskprove: null,
-        bransje: null,
+        bransjeId: null,
         sertifiseringer: null,
         forerkort: null,
+        utdanningsprogramId: null,
+        larefag: null,
       };
 
-    case null:
-    case undefined:
+    case undefined: {
+      if (amoKategorisering) {
+        return {
+          kurstypeId: null,
+          innholdElementer: null,
+          norskprove: null,
+          bransjeId: null,
+          forerkort: null,
+          sertifiseringer: null,
+          utdanningsprogramId: amoKategorisering.utdanningslop?.utdanningsprogram.id ?? null,
+          larefag: amoKategorisering.utdanningslop?.utdanninger.map((u) => u.id) ?? null,
+        };
+      }
       return null;
+    }
   }
 }

@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -14,13 +14,6 @@ import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKategorisering.BransjeOgYrkesrettet
-import no.nav.mulighetsrommet.model.AmoKategorisering.ForberedendeOpplaeringForVoksne
-import no.nav.mulighetsrommet.model.AmoKategorisering.GrunnleggendeFerdigheter
-import no.nav.mulighetsrommet.model.AmoKategorisering.Norskopplaering
-import no.nav.mulighetsrommet.model.AmoKategorisering.Studiespesialisering
-import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import java.util.UUID
 
@@ -44,7 +37,6 @@ object AvtaleDboMapper {
             status = avtale.status.type,
             amoKategorisering = avtale.amoKategorisering,
             opsjonsmodell = avtale.opsjonsmodell,
-            utdanningslop = avtale.utdanningslop?.toDbo(),
             administratorer = avtale.administratorer.map { it.navIdent },
         ),
         personvernDbo = PersonvernDbo(
@@ -125,38 +117,9 @@ fun DetaljerRequest.toDbo(
     administratorer = administratorer,
     amoKategorisering = amoKategorisering,
     opsjonsmodell = opsjonsmodell,
-    utdanningslop = utdanningslop,
 )
 
 fun PersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(
     personvernBekreftet = personvernBekreftet,
     personopplysninger = personopplysninger,
 )
-
-fun AmoKategoriseringRequest.toDbo(): AmoKategorisering {
-    return when (this.kurstype) {
-        AmoKurstype.BRANSJE_OG_YRKESRETTET -> BransjeOgYrkesrettet(
-            bransje = requireNotNull(this.bransje),
-            sertifiseringer = this.sertifiseringer ?: emptyList(),
-            innholdElementer = this.innholdElementer ?: emptyList(),
-            forerkort = this.forerkort ?: emptyList(),
-        )
-
-        AmoKurstype.NORSKOPPLAERING -> Norskopplaering(
-            norskprove = this.norskprove ?: false,
-            innholdElementer = this.innholdElementer ?: emptyList(),
-        )
-
-        AmoKurstype.GRUNNLEGGENDE_FERDIGHETER -> GrunnleggendeFerdigheter(
-            innholdElementer = this.innholdElementer ?: emptyList(),
-        )
-
-        AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> ForberedendeOpplaeringForVoksne(
-            innholdElementer = this.innholdElementer ?: emptyList(),
-        )
-
-        AmoKurstype.STUDIESPESIALISERING -> Studiespesialisering
-
-        else -> throw IllegalArgumentException("Kurstype må være satt")
-    }
-}

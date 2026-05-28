@@ -1,7 +1,7 @@
 import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
 import z from "zod";
 import {
-  AmoKategoriseringRequest,
+  OpplaringKategoriseringRequest,
   Avtaletype,
   OpsjonsmodellType,
   PersonopplysningType,
@@ -45,8 +45,7 @@ export const avtaleDetaljerSchema = z.object({
           message: "Saksnummer må være på formatet 'år/løpenummer'",
         },
       ),
-    amoKategorisering: z.custom<AmoKategoriseringRequest>().nullish(),
-    utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
+    amoKategorisering: z.custom<OpplaringKategoriseringRequest>().nullish(),
     arrangor: z
       .object({
         hovedenhet: z.string(),

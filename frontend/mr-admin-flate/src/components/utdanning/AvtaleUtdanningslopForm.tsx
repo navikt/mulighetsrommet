@@ -32,13 +32,13 @@ function SelectAvtaleUtdanning() {
   const { data: utdanninger } = useUtdanningsprogrammer();
   const { watch, setValue } = useFormContext<AvtaleFormValues>();
 
-  const utdanningsprogram = watch("detaljer.utdanningslop.utdanningsprogram");
+  const utdanningsprogramId = watch("detaljer.amoKategorisering.utdanningsprogramId");
   const utdanningsprogrammer = useMemo(
     () => utdanninger.map((utdanning) => utdanning.utdanningsprogram),
     [utdanninger],
   );
   const utdanningerForUtdanningsprogram = utdanninger
-    .filter((utdanning) => utdanning.utdanningsprogram.id === utdanningsprogram)
+    .filter((utdanning) => utdanning.utdanningsprogram.id === utdanningsprogramId)
     .map((utdanning) => utdanning.utdanninger)
     .flat();
 
@@ -49,14 +49,15 @@ function SelectAvtaleUtdanning() {
         name={"detaljer.utdanningslop.utdanningsprogram"}
         rules={{
           onChange(e) {
-            if (e.currentTarget.value !== utdanningsprogram) {
-              setValue("detaljer.utdanningslop.utdanninger", []);
+            if (e.currentTarget.value !== utdanningsprogramId) {
+              setValue("detaljer.amoKategorisering.larefag", []);
             }
 
             if (e.currentTarget.value !== "") {
-              setValue("detaljer.utdanningslop.utdanningsprogram", e.currentTarget.value);
+              setValue("detaljer.amoKategorisering.utdanningsprogramId", e.currentTarget.value);
             } else {
-              setValue("detaljer.utdanningslop", null);
+              setValue("detaljer.amoKategorisering.utdanningsprogramId", null);
+              setValue("detaljer.amoKategorisering.larefag", null);
             }
           },
         }}
@@ -68,11 +69,11 @@ function SelectAvtaleUtdanning() {
           </option>
         ))}
       </FormSelect>
-      {utdanningsprogram && (
+      {utdanningsprogramId && (
         <FormComboboxMulti<AvtaleFormValues>
           label={avtaletekster.utdanning.laerefag.label}
           placeholder={avtaletekster.utdanning.laerefag.velg}
-          name="detaljer.utdanningslop.utdanninger"
+          name="detaljer.amoKategorisering.larefag"
           options={utdanningerForUtdanningsprogram.map((utdanning) => ({
             value: utdanning.id,
             label: utdanning.navn,

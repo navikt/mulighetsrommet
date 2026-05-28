@@ -1,21 +1,20 @@
 import {
-  AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje,
-  AmoKategoriseringBransjeOgYrkesrettetForerkortKlasse as ForerkortKlasse,
   AmoKategoriseringInnholdElement as InnholdElement,
   AvtaleDto,
   Avtaletype,
+  Bransje,
   UtbetalingLinjeReturnertAarsak,
   TilsagnStatusAarsak,
   TilsagnType,
   ValidationError,
   AvbrytGjennomforingAarsak,
-  AmoKategoriseringDto,
-  AmoKurstype,
   Tiltakskode,
   TilskuddOpplaeringType,
   GjennomforingType,
   TilskuddBehandlingStatusAarsak,
+  KurstypeKode,
   TilskuddMottaker,
+  BransjeKode,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -111,64 +110,6 @@ export function formatertVentetid(verdi: number, enhet: string): string {
   }
 }
 
-export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
-  switch (klasse) {
-    case ForerkortKlasse.A:
-      return "A - Motorsykkel";
-    case ForerkortKlasse.A1:
-      return "A1 - Lett motorsykkel";
-    case ForerkortKlasse.A2:
-      return "A2 - Mellomtung motorsykkel";
-    case ForerkortKlasse.AM:
-      return "AM - Moped";
-    case ForerkortKlasse.AM_147:
-      return "AM 147 - Mopedbil";
-    case ForerkortKlasse.B:
-      return "B - Personbil";
-    case ForerkortKlasse.B_78:
-      return "B 78 - Personbil med automatgir";
-    case ForerkortKlasse.BE:
-      return "BE - Personbil med tilhenger";
-    case ForerkortKlasse.C:
-      return "C - Lastebil";
-    case ForerkortKlasse.C1:
-      return "C1 - Lett lastebil";
-    case ForerkortKlasse.C1E:
-      return "C1E - Lett lastebil med tilhenger";
-    case ForerkortKlasse.CE:
-      return "CE - Lastebil med tilhenger";
-    case ForerkortKlasse.D:
-      return "D - Buss";
-    case ForerkortKlasse.D1:
-      return "D1 - Minibuss";
-    case ForerkortKlasse.D1E:
-      return "D1E - Minibuss med tilhenger";
-    case ForerkortKlasse.DE:
-      return "DE - Buss med tilhenger";
-    case ForerkortKlasse.S:
-      return "S - Snøscooter";
-    case ForerkortKlasse.T:
-      return "T - Traktor";
-  }
-}
-
-export function kurstypeToString(kurstype: AmoKategoriseringDto["kurstype"]): string {
-  switch (kurstype) {
-    case AmoKurstype.BRANSJE_OG_YRKESRETTET:
-      return "Bransje";
-    case AmoKurstype.NORSKOPPLAERING:
-      return "Norskopplæring";
-    case AmoKurstype.STUDIESPESIALISERING:
-      return "Studiespesialisering";
-    case AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
-      return "FOV (Forberedende opplæring for voksne)";
-    case AmoKurstype.GRUNNLEGGENDE_FERDIGHETER:
-      return "Grunnleggende ferdigheter";
-    case null:
-      throw new Error("Kurstype is missing");
-  }
-}
-
 export function opplaeringTilskuddToString(tilskuddType: TilskuddOpplaeringType): string {
   switch (tilskuddType) {
     case TilskuddOpplaeringType.EKSAMENSAVGIFT:
@@ -194,26 +135,26 @@ export function tilskuddMottakerToString(mottaker: TilskuddMottaker): string {
 }
 
 export function bransjeToString(bransje: Bransje): string {
-  switch (bransje) {
-    case Bransje.INGENIOR_OG_IKT_FAG:
+  switch (bransje.kode) {
+    case BransjeKode.INGENIOR_OG_IKT_FAG:
       return "Ingeniør- og IKT-fag";
-    case Bransje.HELSE_PLEIE_OG_OMSORG:
+    case BransjeKode.HELSE_PLEIE_OG_OMSORG:
       return "Helse, pleie og omsorg";
-    case Bransje.BARNE_OG_UNGDOMSARBEID:
+    case BransjeKode.BARNE_OG_UNGDOMSARBEID:
       return "Barne- og ungdomsarbeid";
-    case Bransje.KONTORARBEID:
+    case BransjeKode.KONTORARBEID:
       return "Kontorarbeid";
-    case Bransje.BUTIKK_OG_SALGSARBEID:
+    case BransjeKode.BUTIKK_OG_SALGSARBEID:
       return "Butikk- og salgsarbeid";
-    case Bransje.BYGG_OG_ANLEGG:
+    case BransjeKode.BYGG_OG_ANLEGG:
       return "Bygg og anlegg";
-    case Bransje.INDUSTRIARBEID:
+    case BransjeKode.INDUSTRIARBEID:
       return "Industriarbeid";
-    case Bransje.REISELIV_SERVERING_OG_TRANSPORT:
+    case BransjeKode.REISELIV_SERVERING_OG_TRANSPORT:
       return "Reiseliv, servering og transport";
-    case Bransje.SERVICEYRKER_OG_ANNET_ARBEID:
+    case BransjeKode.SERVICEYRKER_OG_ANNET_ARBEID:
       return "Serviceyrker og annet arbeid";
-    case Bransje.ANDRE_BRANSJER:
+    case BransjeKode.ANDRE_BRANSJER:
       return "Andre bransjer";
   }
 }
@@ -349,11 +290,11 @@ export function extractValidationErrors(errors: FieldErrors): ValidationMessage[
 }
 
 export function kursOgTiltakErStudiespesialisering(
-  amo: AmoKurstype | null,
+  amo: KurstypeKode | undefined,
   tiltakskode: Tiltakskode,
 ) {
   return (
-    amo === AmoKurstype.STUDIESPESIALISERING && tiltakskode === Tiltakskode.STUDIESPESIALISERING
+    amo === KurstypeKode.STUDIESPESIALISERING && tiltakskode === Tiltakskode.STUDIESPESIALISERING
   );
 }
 

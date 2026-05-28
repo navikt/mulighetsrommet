@@ -1,5 +1,5 @@
 import {
-  AmoKategoriseringRequest,
+  OpplaringKategoriseringRequest,
   AvtaleDto,
   Faneinnhold,
   GjennomforingDetaljerRequest,
@@ -42,7 +42,7 @@ export function toGjennomforingDetaljerRequest(
     oppmoteSted: data.oppmoteSted || null,
     deltidsprosent: data.deltidsprosent,
     tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato || null,
-    amoKategorisering: data.amoKategorisering as AmoKategoriseringRequest | null,
+    amoKategorisering: data.amoKategorisering as OpplaringKategoriseringRequest | null,
     utdanningslop: data.utdanningslop as UtdanningslopDbo | null,
     prismodellId: data.prismodellId || null,
   };

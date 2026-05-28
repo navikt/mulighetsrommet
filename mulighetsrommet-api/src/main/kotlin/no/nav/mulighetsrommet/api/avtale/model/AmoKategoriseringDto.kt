@@ -1,88 +1,47 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse
-import no.nav.mulighetsrommet.model.AmoKategorisering.BransjeOgYrkesrettet.Sertifisering
-import no.nav.mulighetsrommet.model.AmoKurstype
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
+import no.nav.mulighetsrommet.api.amo.models.Bransje
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 @Serializable
 data class AmoKategoriseringDto(
-    val kurstype: AmoKurstype? = null,
-    val bransje: AmoKategorisering.BransjeOgYrkesrettet.Bransje? = null,
-    val innholdElementer: List<AmoKategorisering.InnholdElement>? = null,
-    val sertifiseringer: List<Sertifisering>? = null,
-    val forerkort: List<ForerkortKlasse>? = null,
+    val kurstype: Kurstype? = null,
+    val bransje: Bransje? = null,
+    val innholdElementer: Set<AmoKategorisering.InnholdElement>? = null,
+    val sertifiseringer: Set<Sertifisering>? = null,
+    val forerkort: Set<ForerkortKlasse>? = null,
     val norskprove: Boolean? = null,
+    val utdanningslop: UtdanningslopDto? = null,
 )
 
 fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
     return when (tiltakskode) {
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> when (this) {
-            is AmoKategorisering.BransjeOgYrkesrettet -> AmoKategoriseringDto(
-                kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
-                bransje = this.bransje,
-                sertifiseringer = this.sertifiseringer,
-                forerkort = this.forerkort,
-                innholdElementer = this.innholdElementer,
-            )
-
-            is AmoKategorisering.ForberedendeOpplaeringForVoksne -> AmoKategoriseringDto(
-                kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-                innholdElementer = this.innholdElementer,
-            )
-
-            is AmoKategorisering.GrunnleggendeFerdigheter -> AmoKategoriseringDto(
-                kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
-                innholdElementer = this.innholdElementer,
-            )
-
-            is AmoKategorisering.Norskopplaering -> AmoKategoriseringDto(
-                kurstype = AmoKurstype.NORSKOPPLAERING,
-                norskprove = this.norskprove,
-                innholdElementer = this.innholdElementer,
-            )
-
-            AmoKategorisering.Studiespesialisering -> AmoKategoriseringDto(
-                kurstype = AmoKurstype.STUDIESPESIALISERING,
-            )
-        }
-
-        Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
-            require(this is AmoKategorisering.BransjeOgYrkesrettet)
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        ->
             AmoKategoriseringDto(
-                kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
+                kurstype = this.kurstype,
                 bransje = this.bransje,
                 sertifiseringer = this.sertifiseringer,
                 forerkort = this.forerkort,
                 innholdElementer = this.innholdElementer,
             )
-        }
 
-        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> when (this) {
-            is AmoKategorisering.ForberedendeOpplaeringForVoksne -> AmoKategoriseringDto(
-                kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-                innholdElementer = this.innholdElementer,
-            )
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> AmoKategoriseringDto(
+            kurstype = this.kurstype,
+            innholdElementer = this.innholdElementer,
+            norskprove = this.norskprove,
+        )
 
-            is AmoKategorisering.GrunnleggendeFerdigheter -> AmoKategoriseringDto(
-                kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
-                innholdElementer = this.innholdElementer,
-            )
-
-            is AmoKategorisering.Norskopplaering -> AmoKategoriseringDto(
-                kurstype = AmoKurstype.NORSKOPPLAERING,
-                norskprove = this.norskprove,
-                innholdElementer = this.innholdElementer,
-            )
-
-            AmoKategorisering.Studiespesialisering,
-            is AmoKategorisering.BransjeOgYrkesrettet,
-            -> throw IllegalStateException("amoKategorisering har feil verdier")
-        }
-
-        Tiltakskode.STUDIESPESIALISERING -> AmoKategoriseringDto(kurstype = AmoKurstype.STUDIESPESIALISERING)
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.FAG_OG_YRKESOPPLAERING,
+        ->
+            AmoKategoriseringDto(utdanningslop = this.utdanningslop)
 
         else -> null
     }

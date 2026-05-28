@@ -117,7 +117,7 @@ export function GjennomforingAvtaleDetaljer(props: Props) {
           {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering &&
             !kursOgTiltakErStudiespesialisering(
-              amoKategorisering.kurstype,
+              amoKategorisering.kurstype?.kode,
               tiltakstype.tiltakskode,
             ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
           <GjennomforingDetaljerVarighet

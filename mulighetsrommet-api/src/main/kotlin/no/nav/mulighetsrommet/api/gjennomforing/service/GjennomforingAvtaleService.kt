@@ -14,7 +14,9 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringValiator
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
@@ -66,7 +68,14 @@ class GjennomforingAvtaleService(
             }
             val avtale = queries.avtale.getOrError(request.avtaleId)
             val arrangor = request.detaljer.arrangorId?.let { queries.arrangor.getById(it) }
-            GjennomforingValidator.Context(today, avtale, arrangor)
+            val kategorisering = OpplaringKategoriseringValiator.Context(
+                kurstyper = queries.opplaringKategorisering.getKurstyper(),
+                bransjer = queries.opplaringKategorisering.getBransjer(),
+                forerkort = queries.opplaringKategorisering.getForerkortKlasser(),
+                utdanningsprogram = queries.utdanning.getUtdanningsprogrammer(),
+            )
+
+            GjennomforingValidator.Context(today, avtale, arrangor, kategorisering)
         }
         val result = GjennomforingValidator.validateCreateGjennomforing(ctx, request.id, request.detaljer).bind()
 
@@ -96,10 +105,18 @@ class GjennomforingAvtaleService(
             val avtale = queries.avtale.getOrError(previous.avtaleId)
             val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
             val antallDeltakere = queries.deltaker.getByGjennomforingId(id).size
+
+            val kategorisering = OpplaringKategoriseringValiator.Context(
+                kurstyper = queries.opplaringKategorisering.getKurstyper(),
+                bransjer = queries.opplaringKategorisering.getBransjer(),
+                forerkort = queries.opplaringKategorisering.getForerkortKlasser(),
+                utdanningsprogram = queries.utdanning.getUtdanningsprogrammer(),
+            )
             GjennomforingValidator.Context(
                 today = today,
                 avtale = avtale,
                 arrangor = arrangor,
+                kategorisering = kategorisering,
                 previous = GjennomforingValidator.Context.Gjennomforing(
                     arrangorId = previous.arrangor.id,
                     status = previous.status,
@@ -364,7 +381,7 @@ class GjennomforingAvtaleService(
         return GjennomforingValidator.validateVeilederinfo(request, avtale, kontaktpersoner)
     }
 
-    private fun QueryContext.setDetaljer(
+    private fun TransactionalQueryContext.setDetaljer(
         id: UUID,
         result: GjennomforingValidator.DetaljerResult,
         navIdent: NavIdent,

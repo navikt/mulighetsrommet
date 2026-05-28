@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.amo
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.serializers.UUIDListSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID

@@ -3,6 +3,8 @@ import { FieldValues, Path } from "react-hook-form";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import {
   AmoKategoriseringInnholdElement as InnholdElement,
+  Kurstype,
+  KurstypeKode,
   Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 import { innholdElementToString } from "@/utils/Utils";
@@ -11,11 +13,31 @@ import { FormCheckboxGroup } from "@/components/skjema/FormCheckboxGroup";
 interface Props<T> {
   path: Path<T>;
   tiltakskode: Tiltakskode;
+  kurstype?: Kurstype;
 }
 
-export function InnholdElementerForm<T extends FieldValues>({ path, tiltakskode }: Props<T>) {
+const NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_KURS = [
+  KurstypeKode.NORSKOPPLAERING,
+  KurstypeKode.GRUNNLEGGENDE_FERDIGHETER,
+  KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+];
+export function InnholdElementerForm<T extends FieldValues>({
+  path,
+  tiltakskode,
+  kurstype,
+}: Props<T>) {
+  if (
+    kurstype?.kode === KurstypeKode.STUDIESPESIALISERING ||
+    tiltakskode === Tiltakskode.STUDIESPESIALISERING
+  ) {
+    return null;
+  }
+
   function elementer() {
-    if (tiltakskode === Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV) {
+    if (
+      tiltakskode === Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV ||
+      (kurstype?.kode && NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_KURS.includes(kurstype.kode))
+    ) {
       return [
         InnholdElement.BRANSJERETTET_OPPLARING,
         InnholdElement.JOBBSOKER_KOMPETANSE,
@@ -33,6 +55,7 @@ export function InnholdElementerForm<T extends FieldValues>({ path, tiltakskode 
       ];
     }
   }
+
   return (
     <FormCheckboxGroup<T>
       size="small"

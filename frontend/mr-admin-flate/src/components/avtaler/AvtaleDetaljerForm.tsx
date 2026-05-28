@@ -1,11 +1,9 @@
-import { AvtaleAmoKategoriseringForm } from "@/components/amoKategorisering/AvtaleAmoKategoriseringForm";
 import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { FormGroup } from "@/layouts/FormGroup";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { Box, HGrid, List } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { AvtaleUtdanningslopForm } from "../utdanning/AvtaleUtdanningslopForm";
 import { AvtaleArrangorForm } from "./AvtaleArrangorForm";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { AvtaleVarighet } from "./AvtaleVarighet";
@@ -28,6 +26,7 @@ import { SelectAvtaletype } from "@/components/avtaler/SelectAvtaletype";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
+import { AvtaleAmoKategoriseringForm } from "../amoKategorisering/AvtaleAmoKategoriseringForm";
 
 export function AvtaleDetaljerForm() {
   const { avtaleId } = useParams();
@@ -118,7 +117,6 @@ export function AvtaleDetaljerForm() {
               rules={{
                 onChange: () => {
                   setValue("detaljer.amoKategorisering", null);
-                  setValue("detaljer.utdanningslop", null);
                 },
               }}
             >
@@ -138,7 +136,6 @@ export function AvtaleDetaljerForm() {
             )}
           </HGrid>
           {tiltakskode && <AvtaleAmoKategoriseringForm tiltakskode={tiltakskode} />}
-          {tiltakskode && <AvtaleUtdanningslopForm tiltakskode={tiltakskode} />}
         </FormGroup>
         <FormGroup>
           <AvtaleVarighet opsjonUtlost={antallOpsjonerUtlost > 0} />

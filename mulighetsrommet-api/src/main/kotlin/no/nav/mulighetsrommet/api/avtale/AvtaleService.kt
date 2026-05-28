@@ -12,6 +12,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringValiator
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
@@ -454,6 +455,13 @@ class AvtaleService(
 
         val systembestemtPrismodell = queries.prismodell.getBySystemId(request.tiltakskode.name)
 
+        val opplaringKategorisering = OpplaringKategoriseringValiator.Context(
+            kurstyper = queries.opplaringKategorisering.getKurstyper(),
+            bransjer = queries.opplaringKategorisering.getBransjer(),
+            forerkort = queries.opplaringKategorisering.getForerkortKlasser(),
+            utdanningsprogram = queries.utdanning.getUtdanningsprogrammer(),
+        )
+
         AvtaleValidator.Ctx(
             previous = previous,
             arrangor = arrangor,
@@ -464,6 +472,7 @@ class AvtaleService(
             ),
             navEnheter = navEnheter,
             systembestemtPrismodell = systembestemtPrismodell?.id,
+            kategorisering = opplaringKategorisering,
         )
     }
 

@@ -2,7 +2,6 @@ import { AmoKategoriseringDetaljer } from "@/components/amoKategorisering/AmoKat
 import { RegistrerteOpsjoner } from "@/components/avtaler/opsjoner/RegistrerteOpsjoner";
 import { hentOpsjonsmodell } from "@/components/avtaler/opsjoner/opsjonsmodeller";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { UtdanningslopDetaljer } from "@/components/utdanning/UtdanningslopDetaljer";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { avtaletypeTilTekst, kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
@@ -39,7 +38,6 @@ export function AvtaleDetaljer() {
     sakarkivNummer,
     arrangor,
     amoKategorisering,
-    utdanningslop,
     opsjonsmodell,
   } = avtale;
 
@@ -145,10 +143,9 @@ export function AvtaleDetaljer() {
         <DetaljerLayout>
           <Definisjonsliste title="Avtaleinformasjon" definitions={avtaleMeta} />
           <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
-          {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
           {amoKategorisering &&
             !kursOgTiltakErStudiespesialisering(
-              amoKategorisering.kurstype,
+              amoKategorisering.kurstype?.kode,
               tiltakstype.tiltakskode,
             ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
           {avtale.opsjonerRegistrert.length > 0 && <RegistrerteOpsjoner readOnly />}
