@@ -4,7 +4,7 @@ import {
   ArrangforflateUtbetalingLinje,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
-} from "api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { Link as ReactRouterLink } from "react-router";
 import { Definisjonsliste, Definition } from "../common/Definisjonsliste";
 import { UtbetalingLinjeStatusTag } from "./UtbetalingLinjeStatusTag";

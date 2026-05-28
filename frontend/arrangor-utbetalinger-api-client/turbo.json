@@ -1,0 +1,9 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": ["openapi.yaml", "openapi-ts.config.ts"],
+      "outputs": ["build"]
+    }
+  }
+}

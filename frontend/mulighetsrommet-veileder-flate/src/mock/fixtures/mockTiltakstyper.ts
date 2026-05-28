@@ -3,7 +3,7 @@ import {
   Tiltakskode,
   TiltakstypeSystem,
   VeilederflateTiltakstype,
-} from "@api-client";
+} from "@arbeidsmarkedstiltak/api-client";
 
 export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
   VTA: {

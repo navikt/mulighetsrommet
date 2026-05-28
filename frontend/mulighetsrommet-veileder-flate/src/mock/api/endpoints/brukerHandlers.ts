@@ -10,7 +10,7 @@ import {
   GetDeltakelserForBrukerResponse,
   Innsatsgruppe,
   NavEnhetType,
-} from "@api-client";
+} from "@arbeidsmarkedstiltak/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { deltakelserHistoriske } from "../../fixtures/mockDeltakelserHistoriske";
 

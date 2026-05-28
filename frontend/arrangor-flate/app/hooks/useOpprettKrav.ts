@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { ArrangorflateService, FieldError, PeriodeType } from "api-client";
+import { ArrangorflateService, FieldError, PeriodeType } from "@arrangor-utbetalinger/api-client";
 import { queryClient } from "~/api/client";
 
 interface OpprettKravParams {

@@ -1,4 +1,4 @@
-import { Brukerdata, BrukerdataVarsel } from "@api-client";
+import { Brukerdata, BrukerdataVarsel } from "@arbeidsmarkedstiltak/api-client";
 import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 import { Melding } from "@/components/melding/Melding";

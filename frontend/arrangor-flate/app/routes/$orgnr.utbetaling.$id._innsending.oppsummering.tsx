@@ -10,7 +10,7 @@ import {
   TextField,
   VStack,
 } from "@navikt/ds-react";
-import { FieldError } from "api-client";
+import { FieldError } from "@arrangor-utbetalinger/api-client";
 import { useEffect, useRef, useState } from "react";
 import { Link as ReactRouterLink, MetaFunction, useNavigate, useLocation } from "react-router";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";

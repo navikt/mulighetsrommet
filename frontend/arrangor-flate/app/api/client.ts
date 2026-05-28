@@ -1,4 +1,8 @@
-import { createClient, createConfig, type ClientOptions } from "api-client/client";
+import {
+  createClient,
+  createConfig,
+  type ClientOptions,
+} from "@arrangor-utbetalinger/api-client/client";
 
 export const queryClient = createClient(
   createConfig<ClientOptions>({

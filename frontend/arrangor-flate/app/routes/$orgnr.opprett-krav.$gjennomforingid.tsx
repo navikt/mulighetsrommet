@@ -16,7 +16,7 @@ import {
   OpprettKravVeiviserSteg,
   OpprettKravVeiviserStegDto,
   PeriodeType,
-} from "api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link as ReactRouterLink, MetaFunction, useNavigate } from "react-router";
 import {

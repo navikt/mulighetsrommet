@@ -20,12 +20,9 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      // Fordi "muduleResolution" er satt til "bundler"
-      "@mr/api-client": ["../api-client"],
       // Fordi bl.a. sanity drar med seg vite@v4
       "vite": ["./node_modules/vite"],
       "@/*": ["./src/*"],
-      "@api-client": ["./api-client"],
     }
   },
   "include": ["src", "tests"],

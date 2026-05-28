@@ -5,7 +5,7 @@ import {
   ArrangorflateFilterDirection,
   ArrangorflateUtbetalingFilterOrderBy,
   ArrangorflateFilterType,
-} from "api-client";
+} from "@arrangor-utbetalinger/api-client";
 import type { MetaFunction } from "react-router";
 import { PageHeading } from "~/components/common/PageHeading";
 import { useTabState } from "~/hooks/useTabState";

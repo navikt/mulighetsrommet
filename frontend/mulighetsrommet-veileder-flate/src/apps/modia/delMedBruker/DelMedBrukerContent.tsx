@@ -1,5 +1,5 @@
 import { Alert, ErrorMessage, Textarea } from "@navikt/ds-react";
-import { DeltMedBrukerDto, VeilederflateTiltak } from "@api-client";
+import { DeltMedBrukerDto, VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 import React, { Dispatch, useEffect, useRef } from "react";
 import { erPreview, formaterDato } from "@/utils/Utils";
 import { Actions, State } from "./DelemodalActions";

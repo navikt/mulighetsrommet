@@ -2,7 +2,7 @@ import {
   OpprettKravDeltakere,
   OpprettKravDeltakereGuidePanelType,
   StengtPeriode,
-} from "@api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { BodyShort, GuidePanel, Heading, Link, InfoCard, VStack } from "@navikt/ds-react";
 import { LabeledDataElementList } from "../common/Definisjonsliste";
 import { DataDrivenTable } from "@mr/frontend-common";

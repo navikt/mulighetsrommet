@@ -3,7 +3,7 @@ import {
   TiltakstypeFeature,
   VeilederflateTiltak,
   VeilederflateTiltakstype,
-} from "@api-client";
+} from "@arbeidsmarkedstiltak/api-client";
 
 /**
  * Bestemmer om fanen for "oppskrifter" skal vises for tiltaket eller ikke.

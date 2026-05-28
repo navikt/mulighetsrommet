@@ -1,5 +1,5 @@
 import { BodyShort, List, InfoCard } from "@navikt/ds-react";
-import { ArrangorflateBeregning, DeltakerAdvarselDto } from "api-client";
+import { ArrangorflateBeregning, DeltakerAdvarselDto } from "@arrangor-utbetalinger/api-client";
 import { tekster } from "~/tekster";
 import { DataDrivenTable } from "@mr/frontend-common";
 

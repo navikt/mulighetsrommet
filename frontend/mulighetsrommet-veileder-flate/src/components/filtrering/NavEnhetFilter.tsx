@@ -1,4 +1,4 @@
-import { Kontorstruktur, KontorstrukturKontortype } from "@api-client";
+import { Kontorstruktur, KontorstrukturKontortype } from "@arbeidsmarkedstiltak/api-client";
 import { CheckboxGroup } from "@mr/frontend-common";
 import { useNavKontorstruktur } from "@/api/queries/useNavKontorstruktur";
 

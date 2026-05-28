@@ -1,5 +1,5 @@
 import { Tag } from "@navikt/ds-react";
-import { UtbetalingLinjeStatus } from "api-client";
+import { UtbetalingLinjeStatus } from "@arrangor-utbetalinger/api-client";
 import { ReactNode } from "react";
 
 interface Props {

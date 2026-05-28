@@ -7,7 +7,7 @@ import { useAtomValue } from "jotai";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
 import { VisningsnavnForTiltak } from "./VisningsnavnForTiltak";
-import { DeltMedBrukerDto, VeilederflateTiltak } from "@api-client";
+import { DeltMedBrukerDto, VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 import { isTiltakGruppe, isTiltakMedArrangor } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {

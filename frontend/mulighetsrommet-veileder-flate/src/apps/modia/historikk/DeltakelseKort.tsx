@@ -1,4 +1,8 @@
-import { Deltakelse, DeltakelseEierskap, DeltakelseTilstand } from "@api-client";
+import {
+  Deltakelse,
+  DeltakelseEierskap,
+  DeltakelseTilstand,
+} from "@arbeidsmarkedstiltak/api-client";
 import { BodyShort, Box, Button, Heading, HGrid, HStack, VStack, Link } from "@navikt/ds-react";
 import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";

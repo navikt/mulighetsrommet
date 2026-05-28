@@ -1,6 +1,6 @@
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { QueryKeys } from "../query-keys";
-import { VeilederTiltakService } from "@api-client";
+import { VeilederTiltakService } from "@arbeidsmarkedstiltak/api-client";
 
 export function useInnsatsgrupper() {
   return useApiSuspenseQuery({

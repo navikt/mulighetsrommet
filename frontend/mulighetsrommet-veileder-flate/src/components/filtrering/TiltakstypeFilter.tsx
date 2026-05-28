@@ -1,5 +1,5 @@
 import { useTiltakstyper } from "@/api/queries/useTiltakstyper";
-import { Tiltakskode, VeilederflateTiltakstype } from "@api-client";
+import { Tiltakskode, VeilederflateTiltakstype } from "@arbeidsmarkedstiltak/api-client";
 import { CheckboxGroup } from "@mr/frontend-common";
 import { useMemo } from "react";
 

@@ -3,7 +3,11 @@ import { useArbeidsmarkedstiltakFilterValue } from "@/hooks/useArbeidsmarkedstil
 import { BodyShort, Pagination, Select } from "@navikt/ds-react";
 import classnames from "classnames";
 import { useAtom } from "jotai";
-import { DeltMedBrukerDto, GjennomforingOppstartstype, VeilederflateTiltak } from "@api-client";
+import {
+  DeltMedBrukerDto,
+  GjennomforingOppstartstype,
+  VeilederflateTiltak,
+} from "@arbeidsmarkedstiltak/api-client";
 import { ReactNode, useEffect } from "react";
 import { Sorteringsmeny } from "../sorteringmeny/Sorteringsmeny";
 import { ArbeidsmarkedstiltakListItem } from "./ArbeidsmarkedstiltakListItem";

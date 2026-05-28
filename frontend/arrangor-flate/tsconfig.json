@@ -24,9 +24,6 @@
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "~/*": ["./app/*"],
-      "@api-client": ["./api-client"],
-      "api-client": ["./api-client"],
-      "api-client/*": ["./api-client/*"]
     },
 
     // Vite takes care of building everything, not tsc.

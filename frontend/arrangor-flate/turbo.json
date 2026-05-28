@@ -1,34 +1,19 @@
 {
   "extends": ["//"],
   "tasks": {
-    "api-client:build": {
-      "outputs": ["api-client"]
-    },
-    "backend": {
-      "dependsOn": ["api-client:build"],
-      "outputs": []
-    },
-    "dev": {
-      "dependsOn": ["api-client:build"],
-      "outputs": []
-    },
-    "lint:fix": {
-      "dependsOn": ["api-client:build"],
-      "outputs": []
-    },
     "typegen": {
       "outputs": [".react-router"]
     },
     "typecheck": {
-      "dependsOn": ["api-client:build", "typegen"],
+      "dependsOn": ["^build", "typegen"],
       "outputs": []
     },
     "build": {
-      "dependsOn": ["api-client:build", "typegen"],
+      "dependsOn": ["^build", "typegen"],
       "outputs": ["build"]
     },
     "build:demo": {
-      "dependsOn": ["api-client:build", "typegen"],
+      "dependsOn": ["^build", "typegen"],
       "outputs": ["build"]
     },
     "pack": {
@@ -42,7 +27,7 @@
       "outputs": ["dist"]
     },
     "playwright": {
-      "dependsOn": ["api-client:build"],
+      "dependsOn": ["^build"],
       "outputs": []
     }
   }

@@ -9,6 +9,7 @@ on:
       - pnpm-lock.yaml
       - turbo.json
       - frontend/frontend-common/**
+      - frontend/arrangor-utbetalinger-api-client/**
       - frontend/arrangor-flate/**
   workflow_dispatch:
     inputs:

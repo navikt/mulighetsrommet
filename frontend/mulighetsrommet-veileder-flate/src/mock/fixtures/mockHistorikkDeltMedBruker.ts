@@ -1,4 +1,4 @@
-import { TiltakDeltMedBrukerDto, Tiltakskode } from "@api-client";
+import { TiltakDeltMedBrukerDto, Tiltakskode } from "@arbeidsmarkedstiltak/api-client";
 import {
   tiltakAvklaring,
   tiltakJobbklubb,

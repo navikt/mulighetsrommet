@@ -3,7 +3,7 @@ import {
   DelMedBrukerService,
   DelTiltakMedBrukerRequest,
   DelTiltakMedBrukerResponse,
-} from "@api-client";
+} from "@arbeidsmarkedstiltak/api-client";
 import { QueryKeys } from "../query-keys";
 
 interface Props {

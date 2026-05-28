@@ -7,7 +7,7 @@ import {
   VeilederflateTiltakEnkeltplassAnskaffet,
   VeilederflateTiltakGruppe,
   VeilederTiltakService,
-} from "@api-client";
+} from "@arbeidsmarkedstiltak/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is VeilederflateTiltakGruppe {

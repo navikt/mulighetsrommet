@@ -1,6 +1,6 @@
 import { Tag } from "@navikt/ds-react";
 import { AkselColor } from "@navikt/ds-react/types/theme";
-import { ArrangorflateUtbetalingStatus } from "api-client";
+import { ArrangorflateUtbetalingStatus } from "@arrangor-utbetalinger/api-client";
 import { ReactNode } from "react";
 
 interface Props {

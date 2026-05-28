@@ -1,7 +1,7 @@
 import { Lenke as LenkeComponent } from "@mr/frontend-common/components/lenke/Lenke";
 import { Box, GuidePanel, Heading, List } from "@navikt/ds-react";
 import { DokumentIkon } from "@/ikoner/DokumentIkon";
-import { VeilederflateTiltak } from "@api-client";
+import { VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 
 interface Props {
   tiltak: VeilederflateTiltak;

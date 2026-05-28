@@ -1,4 +1,4 @@
-import { TiltakDeltMedBrukerDto } from "@api-client";
+import { TiltakDeltMedBrukerDto } from "@arbeidsmarkedstiltak/api-client";
 import {
   BodyShort,
   Box,

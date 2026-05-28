@@ -8,7 +8,7 @@ import {
   Valuta,
   Tiltakskode,
   OpprettKravInnsendingSteg,
-} from "@api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { formaterPeriode, subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import {
   arrangorMock,

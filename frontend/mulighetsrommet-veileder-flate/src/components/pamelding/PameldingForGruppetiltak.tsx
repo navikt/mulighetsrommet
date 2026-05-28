@@ -1,6 +1,6 @@
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
-import { DeltakerStatusType, VeilederflateTiltakGruppe } from "@api-client";
+import { DeltakerStatusType, VeilederflateTiltakGruppe } from "@arbeidsmarkedstiltak/api-client";
 import { Alert, BodyShort, Button, Heading, HStack, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";

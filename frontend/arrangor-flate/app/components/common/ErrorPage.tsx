@@ -1,4 +1,4 @@
-import { ProblemDetail } from "@api-client";
+import { ProblemDetail } from "@arrangor-utbetalinger/api-client";
 import { BodyShort, Box, Heading, Link, List, VStack } from "@navikt/ds-react";
 import { Link as ReactRouterLink, useLocation } from "react-router";
 

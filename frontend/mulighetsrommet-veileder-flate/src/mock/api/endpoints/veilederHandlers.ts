@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { NavVeilederDto } from "@api-client";
+import { NavVeilederDto } from "@arbeidsmarkedstiltak/api-client";
 
 export const veilederHandlers = [
   http.get<PathParams, NavVeilederDto>("*/api/veilederflate/me", () =>

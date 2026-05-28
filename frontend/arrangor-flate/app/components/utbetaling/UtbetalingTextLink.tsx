@@ -1,5 +1,5 @@
 import { Link } from "@navikt/ds-react";
-import { ArrangorflateUtbetalingStatus } from "api-client";
+import { ArrangorflateUtbetalingStatus } from "@arrangor-utbetalinger/api-client";
 import { Link as ReactRouterLink } from "react-router";
 import { pathTo } from "~/utils/navigation";
 

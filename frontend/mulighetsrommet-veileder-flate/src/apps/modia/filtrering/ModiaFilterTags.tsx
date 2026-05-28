@@ -1,4 +1,4 @@
-import { ApentForPamelding } from "@api-client";
+import { ApentForPamelding } from "@arbeidsmarkedstiltak/api-client";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { FilterTagsContainer } from "@mr/frontend-common/components/filter/filterTag/FilterTagsContainer";
 import { NavEnhetFilterTag } from "@/components/filtrering/NavEnhetFilterTag";

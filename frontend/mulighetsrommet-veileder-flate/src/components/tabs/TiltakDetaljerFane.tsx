@@ -1,4 +1,4 @@
-import { PortableTextTypedObject } from "@api-client";
+import { PortableTextTypedObject } from "@arbeidsmarkedstiltak/api-client";
 import { LokalInformasjonContainer, PortableText } from "@mr/frontend-common";
 import { Alert, Heading } from "@navikt/ds-react";
 import { TiltakDetaljerFaneContainer } from "./TiltakDetaljerFaneContainer";

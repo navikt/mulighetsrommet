@@ -5,7 +5,7 @@ import {
   Deltakelse,
   DeltakelserMelding,
   GetDeltakelserForBrukerResponse,
-} from "@api-client";
+} from "@arbeidsmarkedstiltak/api-client";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   ArrowForwardIcon,

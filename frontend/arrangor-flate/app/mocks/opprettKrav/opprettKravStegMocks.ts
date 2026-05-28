@@ -1,4 +1,7 @@
-import { OpprettKravVeiviserSteg, OpprettKravVeiviserStegDto } from "@api-client";
+import {
+  OpprettKravVeiviserSteg,
+  OpprettKravVeiviserStegDto,
+} from "@arrangor-utbetalinger/api-client";
 import {
   gjennomforingIdAFT,
   gjennomforingIdAvklaring,

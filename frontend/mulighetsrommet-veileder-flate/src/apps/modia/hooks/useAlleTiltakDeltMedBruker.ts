@@ -1,6 +1,6 @@
 import { QueryKeys } from "@/api/query-keys";
 import { useModiaContext } from "./useModiaContext";
-import { DelMedBrukerService } from "@api-client";
+import { DelMedBrukerService } from "@arbeidsmarkedstiltak/api-client";
 import { useApiQuery } from "@mr/frontend-common";
 
 export function useAlleTiltakDeltMedBruker() {

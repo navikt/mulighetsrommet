@@ -1,5 +1,5 @@
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
-import { VeilederflateTiltakstype } from "@api-client";
+import { VeilederflateTiltakstype } from "@arbeidsmarkedstiltak/api-client";
 import { Button } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { kanOppretteEnkeltplass } from "@/apps/modia/features";
