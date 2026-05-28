@@ -8,7 +8,7 @@ import {
   Tiltakskode,
   UtbetalingLinjeStatus,
   Valuta,
-} from "api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { utbetalingType } from "./utbetalingTypeMocks";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 import {

@@ -15,7 +15,7 @@ import { createReadableStreamFromReadable } from "@react-router/node";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { initializeMockServer } from "./mocks/node";
-import { client } from "api-client";
+import { client } from "@arrangor-utbetalinger/api-client";
 import logger from "../server/logger.js";
 import { isDemo } from "./services/environment";
 

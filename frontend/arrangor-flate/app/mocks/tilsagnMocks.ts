@@ -8,7 +8,7 @@ import {
   TilsagnType,
   Tiltakskode,
   Valuta,
-} from "api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 
 const beregningManedspris: DataDetails = {

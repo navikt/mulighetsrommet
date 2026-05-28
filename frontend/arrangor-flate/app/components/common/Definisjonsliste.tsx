@@ -1,6 +1,6 @@
 import { Heading, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
-import { LabeledDataElement } from "@api-client";
+import { LabeledDataElement } from "@arrangor-utbetalinger/api-client";
 import { getDataElement } from "@mr/frontend-common";
 import { MetadataHGrid } from "@mr/frontend-common/components/datadriven/Metadata";
 

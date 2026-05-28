@@ -5,7 +5,11 @@ import { PortenLink } from "@/components/PortenLink";
 import { StatusModal } from "@/components/modal/StatusModal";
 import { Separator } from "@/utils/Separator";
 import { erPreview } from "@/utils/Utils";
-import { Brukerdata, DeltMedBrukerDto, VeilederflateTiltak } from "@api-client";
+import {
+  Brukerdata,
+  DeltMedBrukerDto,
+  VeilederflateTiltak,
+} from "@arbeidsmarkedstiltak/api-client";
 import { BodyShort, Button, Checkbox, Heading, HelpText, HStack, Modal } from "@navikt/ds-react";
 import { DelMedBrukerContent, MAKS_ANTALL_TEGN_DEL_MED_BRUKER } from "./DelMedBrukerContent";
 import { Actions, State } from "./DelemodalActions";

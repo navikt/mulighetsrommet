@@ -1,4 +1,4 @@
-import { Brukerdata } from "@api-client";
+import { Brukerdata } from "@arbeidsmarkedstiltak/api-client";
 import { Melding } from "@/components/melding/Melding";
 
 interface Props {

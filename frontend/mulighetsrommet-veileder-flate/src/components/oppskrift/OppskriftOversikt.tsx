@@ -8,7 +8,7 @@ import {
   Spacer,
   VStack,
 } from "@navikt/ds-react";
-import { Tiltakskode } from "@api-client";
+import { Tiltakskode } from "@arbeidsmarkedstiltak/api-client";
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
 import { formaterDato } from "@/utils/Utils";
 import { Suspense } from "react";

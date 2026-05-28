@@ -1,4 +1,7 @@
-import { OpprettKravVedleggSteg, OpprettKravVedleggStegGuidePanelType } from "@api-client";
+import {
+  OpprettKravVedleggSteg,
+  OpprettKravVedleggStegGuidePanelType,
+} from "@arrangor-utbetalinger/api-client";
 import {
   gjennomforingIdAFT,
   gjennomforingIdAvklaring,

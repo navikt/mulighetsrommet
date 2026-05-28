@@ -3,7 +3,7 @@ import {
   ArrangorflateUtbetalingStatus,
   PaginatedResponseArrangorInnsendingRadDto,
   Valuta,
-} from "api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 import {
   arrUkesprisKlarTilGodkjenning,

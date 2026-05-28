@@ -24,7 +24,7 @@ import {
   NavVeilederDto,
   Tiltakskode,
   VeilederflateTiltakstype,
-} from "@api-client";
+} from "@arbeidsmarkedstiltak/api-client";
 import { Chat2Icon } from "@navikt/aksel-icons";
 import { Button } from "@navikt/ds-react";
 import { useAtomValue } from "jotai";

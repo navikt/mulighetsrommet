@@ -1,6 +1,6 @@
 import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { ApentForPamelding } from "@api-client";
+import { ApentForPamelding } from "@arbeidsmarkedstiltak/api-client";
 import { FilterAccordionHeader } from "@mr/frontend-common";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";

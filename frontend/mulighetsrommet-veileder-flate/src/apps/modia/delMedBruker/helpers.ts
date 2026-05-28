@@ -1,5 +1,5 @@
 import { ArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
-import { Brukerdata, VeilederflateTiltak } from "@api-client";
+import { Brukerdata, VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 
 export function brukersEnhetFilterHasChanged(
   filter: ArbeidsmarkedstiltakFilter,

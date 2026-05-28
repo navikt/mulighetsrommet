@@ -2,7 +2,11 @@ import { Alert, Button } from "@navikt/ds-react";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Delemodal } from "./Delemodal";
 import { useDelMedBruker } from "./DelemodalReducer";
-import { Brukerdata, DeltMedBrukerDto, VeilederflateTiltak } from "@api-client";
+import {
+  Brukerdata,
+  DeltMedBrukerDto,
+  VeilederflateTiltak,
+} from "@arbeidsmarkedstiltak/api-client";
 import { formaterDato } from "@/utils/Utils";
 import {
   erBrukerReservertMotDigitalKommunikasjon,

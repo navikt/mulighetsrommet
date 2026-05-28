@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import type { Innsatsgruppe } from "@api-client";
+import type { Innsatsgruppe } from "@arbeidsmarkedstiltak/api-client";
 import { Page, expect } from "@playwright/test";
 
 export async function waitForAppToBeReady(page: Page) {

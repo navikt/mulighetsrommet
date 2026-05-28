@@ -2,7 +2,7 @@ import {
   FieldError,
   OpprettKravVedleggSteg,
   OpprettKravVedleggStegGuidePanelType,
-} from "@api-client";
+} from "@arrangor-utbetalinger/api-client";
 import {
   BodyShort,
   FileObject,

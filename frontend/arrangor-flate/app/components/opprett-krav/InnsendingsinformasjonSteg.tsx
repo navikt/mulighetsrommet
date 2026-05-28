@@ -6,7 +6,7 @@ import {
   OpprettKravInnsendingSteg,
   Periode,
   PeriodeType,
-} from "@api-client";
+} from "@arrangor-utbetalinger/api-client";
 import {
   BodyShort,
   DatePicker,

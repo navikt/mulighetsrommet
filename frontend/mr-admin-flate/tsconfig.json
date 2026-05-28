@@ -20,8 +20,6 @@
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      // Fordi "muduleResolution" er satt til "bundler"
-      "@mr/api-client": ["../api-client"],
       "@/*": ["./src/*"],
     }
   },

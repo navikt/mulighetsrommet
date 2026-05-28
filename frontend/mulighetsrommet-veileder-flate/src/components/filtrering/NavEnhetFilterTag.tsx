@@ -1,5 +1,5 @@
 import { useNavKontorstruktur } from "@/api/queries/useNavKontorstruktur";
-import { Kontorstruktur } from "@api-client";
+import { Kontorstruktur } from "@arbeidsmarkedstiltak/api-client";
 import { Chips } from "@navikt/ds-react";
 
 interface Props {

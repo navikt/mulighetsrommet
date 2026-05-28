@@ -2,7 +2,7 @@ import { defineConfig } from "@hey-api/openapi-ts";
 
 export default defineConfig({
   input: "./openapi.yaml",
-  output: "api-client",
+  output: "./build",
   parser: {
     transforms: {
       enums: "root",

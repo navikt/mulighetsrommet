@@ -4,7 +4,7 @@ import {
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
   ArrangorInnsendingRadDto,
-} from "api-client";
+} from "@arrangor-utbetalinger/api-client";
 import {
   utbetalingTabellOversiktAktive,
   utbetalingTabellOversiktHistoriske,

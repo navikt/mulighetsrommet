@@ -4,7 +4,7 @@ import {
   LabeledDataElementType,
   OpprettKravDeltakere,
   OpprettKravDeltakereGuidePanelType,
-} from "@api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { dataElementText } from "../dataDrivenTableHelpers";
 import { gjennomforingIdOppfolging } from "./gjennomforingMocks";
 

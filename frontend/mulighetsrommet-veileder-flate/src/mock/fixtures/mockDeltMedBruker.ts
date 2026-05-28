@@ -1,4 +1,4 @@
-import { DeltMedBrukerDto } from "@api-client";
+import { DeltMedBrukerDto } from "@arbeidsmarkedstiltak/api-client";
 import { tiltakAmoGruppe, tiltakAvklaring } from "./mockGjennomforinger";
 
 export const mockDeltMedBruker: DeltMedBrukerDto[] = [

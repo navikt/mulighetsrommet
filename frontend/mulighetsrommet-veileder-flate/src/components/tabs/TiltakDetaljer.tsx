@@ -1,5 +1,5 @@
 import { Box, Tabs } from "@navikt/ds-react";
-import { VeilederflateTiltak } from "@api-client";
+import { VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 import { OppskriftOversikt } from "../oppskrift/OppskriftOversikt";
 import { TiltakDetaljerFane } from "./TiltakDetaljerFane";
 import { KontaktinfoFane } from "./kontaktinfofane/KontaktinfoFane";

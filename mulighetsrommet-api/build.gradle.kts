@@ -34,11 +34,11 @@ tasks.register<JavaExec>("generateOpenApi") {
         "tiltaksadministrasjon",
         "../frontend/tiltaksadministrasjon-api-client/openapi.yaml",
 
-        "veilederflate",
-        "../frontend/mulighetsrommet-veileder-flate/openapi.yaml",
+        "arbeidsmarkedstiltak",
+        "../frontend/arbeidsmarkedstiltak-api-client/openapi.yaml",
 
-        "arrangorflate",
-        "../frontend/arrangor-flate/openapi.yaml",
+        "arrangor-utbetalinger",
+        "../frontend/arrangor-utbetalinger-api-client/openapi.yaml",
     )
 }
 

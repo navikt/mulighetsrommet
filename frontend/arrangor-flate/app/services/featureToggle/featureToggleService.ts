@@ -1,4 +1,8 @@
-import { FeatureToggleService, Tiltakskode, FeatureToggle } from "@api-client";
+import {
+  FeatureToggleService,
+  Tiltakskode,
+  FeatureToggle,
+} from "@arrangor-utbetalinger/api-client";
 
 interface Props {
   orgnr: string;

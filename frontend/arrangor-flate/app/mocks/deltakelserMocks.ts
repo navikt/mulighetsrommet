@@ -4,7 +4,7 @@ import {
   DataElementTextFormat,
   TimelineDto,
   TimelineDtoRowPeriodVariant,
-} from "@api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { dataElementText } from "./dataDrivenTableHelpers";
 import { DataDrivenTableDtoRow } from "@mr/frontend-common/components/datadriven/types";
 

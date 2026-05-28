@@ -5,7 +5,7 @@ import {
   ArrangorflateUtbetalingFilterOrderBy,
   ArrangorflateFilterType,
   GetArrangorflateUtbetalingerData,
-} from "api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { useCallback, useState } from "react";
 import { queryClient } from "~/api/client";
 import { queryKeys } from "~/api/queryKeys";

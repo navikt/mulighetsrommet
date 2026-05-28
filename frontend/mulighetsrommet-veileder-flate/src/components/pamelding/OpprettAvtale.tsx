@@ -1,4 +1,4 @@
-import { TiltakstypeSystem, VeilederflateTiltakstype } from "@api-client";
+import { TiltakstypeSystem, VeilederflateTiltakstype } from "@arbeidsmarkedstiltak/api-client";
 import { Button } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";

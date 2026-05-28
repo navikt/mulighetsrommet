@@ -11,7 +11,7 @@ import {
   Box,
 } from "@navikt/ds-react";
 import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
-import { Personopplysning, VeilederflateTiltakGruppe } from "@api-client";
+import { Personopplysning, VeilederflateTiltakGruppe } from "@arbeidsmarkedstiltak/api-client";
 import { useState } from "react";
 import { PersonvernIkon } from "@/ikoner/PersonvernIkon";
 

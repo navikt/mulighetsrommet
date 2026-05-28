@@ -5,7 +5,7 @@ import {
   DeltakelseTilstand,
   DeltakerStatusType,
   Tiltakskode,
-} from "@api-client";
+} from "@arbeidsmarkedstiltak/api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockGjennomforinger";
 
 export const deltakelserHistoriske: Deltakelse[] = [

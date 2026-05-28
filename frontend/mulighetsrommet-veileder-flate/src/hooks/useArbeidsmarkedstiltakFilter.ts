@@ -1,4 +1,9 @@
-import { ApentForPamelding, Innsatsgruppe, LagretFilterType, Tiltakskode } from "@api-client";
+import {
+  ApentForPamelding,
+  Innsatsgruppe,
+  LagretFilterType,
+  Tiltakskode,
+} from "@arbeidsmarkedstiltak/api-client";
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";

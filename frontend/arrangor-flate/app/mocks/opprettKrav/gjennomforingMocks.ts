@@ -2,7 +2,7 @@ import {
   ArrangorflateArrangorDto,
   ArrangorInnsendingRadDto,
   PaginatedResponseArrangorInnsendingRadDto,
-} from "@api-client";
+} from "@arrangor-utbetalinger/api-client";
 
 export const gjennomforingIdAFT = "54d0d2af-f329-480d-a427-30de446fea10";
 export const gjennomforingIdAvklaring = "54d0d2af-f329-480d-a427-30de446fea11";

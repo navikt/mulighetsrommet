@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { sjekkUU, clickAndExpectInnsatsgruppe } from "./playwrightUtils";
-import type { Innsatsgruppe } from "@api-client";
+import type { Innsatsgruppe } from "@arbeidsmarkedstiltak/api-client";
 
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1920 });

@@ -1,4 +1,4 @@
-import { FieldError, LabeledDataElement, PeriodeType } from "@api-client";
+import { FieldError, LabeledDataElement, PeriodeType } from "@arrangor-utbetalinger/api-client";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import {
   Box,

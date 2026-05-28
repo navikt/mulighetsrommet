@@ -1,5 +1,5 @@
 import { QueryKeys } from "@/api/query-keys";
-import { DelMedBrukerService } from "@api-client";
+import { DelMedBrukerService } from "@arbeidsmarkedstiltak/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useDeltMedBruker(norskIdent: string, gjennomforingId: string) {

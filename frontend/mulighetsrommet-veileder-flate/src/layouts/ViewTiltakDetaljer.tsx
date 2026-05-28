@@ -1,7 +1,7 @@
 import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Box, HGrid, HStack, List, Page, Tabs, VStack } from "@navikt/ds-react";
-import { VeilederflateTiltak } from "@api-client";
+import { VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 import { ReactNode, Suspense, useState } from "react";
 import SidemenyInfo from "@/components/sidemeny/SidemenyInfo";
 import { TiltakDetaljer } from "@/components/tabs/TiltakDetaljer";

@@ -1,4 +1,4 @@
-import { LagretFilterType } from "@api-client";
+import { LagretFilterType } from "@arbeidsmarkedstiltak/api-client";
 
 export const QueryKeys = {
   Veilederdata: "veilederdata",
