@@ -6030,9 +6030,9 @@ components:
         visningsnavn:
           type: string
         representerer:
-          type:
-          - "null"
-          - string
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/OpplaringKategoriseringResponse.Representerer"
         pakrevd:
           type: boolean
         alternativer:
@@ -6045,6 +6045,17 @@ components:
       - pakrevd
       - representerer
       - visningsnavn
+    OpplaringKategoriseringResponse.Representerer:
+      type: string
+      enum:
+      - KURSTYPE_ID
+      - BRANSJE_ID
+      - SERTIFISERINGER
+      - FORERKORT
+      - INNHOLDSELEMENTER
+      - NORSKPROVE
+      - UTDANNINGSPROGRAM_ID
+      - LAREFAG
     UtdanningGruppe:
       type: object
       properties:
@@ -6056,7 +6067,7 @@ components:
         visningsnavn:
           type: string
         representerer:
-          type: string
+          $ref: "#/components/schemas/OpplaringKategoriseringResponse.Representerer"
         pakrevd:
           type: boolean
         utdanninger:
@@ -6100,7 +6111,7 @@ components:
         pakrevd:
           type: boolean
         representerer:
-          type: string
+          $ref: "#/components/schemas/OpplaringKategoriseringResponse.Representerer"
         seleksjonstype:
           $ref: "#/components/schemas/OpplaringKategoriseringResponse.Seleksjonstype"
         alternativer:
@@ -6174,7 +6185,7 @@ components:
         pakrevd:
           type: boolean
         representerer:
-          type: string
+          $ref: "#/components/schemas/OpplaringKategoriseringResponse.Representerer"
         seleksjonstype:
           $ref: "#/components/schemas/OpplaringKategoriseringResponse.Seleksjonstype"
         kilde:

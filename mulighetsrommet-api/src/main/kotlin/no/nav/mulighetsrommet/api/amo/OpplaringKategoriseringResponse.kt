@@ -41,6 +41,18 @@ data class OpplaringKategoriseringResponse(
         FLERVALG,
     }
 
+    @Serializable
+    enum class Representerer {
+        KURSTYPE_ID,
+        BRANSJE_ID,
+        SERTIFISERINGER,
+        FORERKORT,
+        INNHOLDSELEMENTER,
+        NORSKPROVE,
+        UTDANNINGSPROGRAM_ID,
+        LAREFAG,
+    }
+
     @OptIn(ExperimentalSerializationApi::class)
     @Serializable
     @JsonClassDiscriminator("type")
@@ -109,7 +121,7 @@ data class OpplaringKategoriseringResponse(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID?,
             override val visningsnavn: String,
-            val representerer: String?,
+            val representerer: Representerer?,
             val pakrevd: Boolean,
             val alternativer: List<Container>,
         ) : Container
@@ -125,7 +137,7 @@ data class OpplaringKategoriseringResponse(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID? = null,
             override val visningsnavn: String,
-            val representerer: String,
+            val representerer: Representerer,
             val pakrevd: Boolean,
             val utdanninger: List<UtdanningValg>,
         ) : Container {
@@ -160,7 +172,7 @@ data class OpplaringKategoriseringResponse(
             override val visningsnavn: String,
             val tooltip: Tooltip?,
             val pakrevd: Boolean,
-            val representerer: String,
+            val representerer: Representerer,
             val seleksjonstype: Seleksjonstype,
             val alternativer: List<Verdi>,
         ) : Container
@@ -184,7 +196,7 @@ data class OpplaringKategoriseringResponse(
             override val id: UUID?,
             override val visningsnavn: String,
             val pakrevd: Boolean,
-            val representerer: String,
+            val representerer: Representerer,
             val seleksjonstype: Seleksjonstype,
             val kilde: Kilde,
         ) : Container {
