@@ -43,9 +43,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeRequest
-import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -350,25 +349,12 @@ class AdminUtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            val linje = UtbetalingLinjeRequest(
-                id = UUID.randomUUID(),
-                tilsagnId = Tilsagn1.id,
-                gjorOppTilsagn = false,
-                pris = 100.NOK.toRequest(),
-            )
-            val opprettRequest = OpprettUtbetalingLinjerRequest(
-                utbetalingId = utbetaling1.id,
-                utbetalingLinjer = listOf(linje),
-                begrunnelseMindreBetalt = "begrunnelse",
-            )
-            service.opprettUtbetalingLinjer(
-                request = opprettRequest,
-                navIdent = navIdent,
-            ).shouldBeRight()
-            service.godkjennUtbetalingLinje(
-                id = linje.id,
-                navIdent = navIdent,
-            ) shouldBeLeft listOf(
+
+            val linje = createUtbetalingLinje(Tilsagn1.id)
+            val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
+            service.sendTilAttestering(opprett, navIdent).shouldBeRight()
+
+            service.godkjennUtbetalingLinje(linje.id, navIdent) shouldBeLeft listOf(
                 FieldError.of("Du kan ikke beslutte noe du selv har behandlet"),
             )
         }
@@ -389,21 +375,11 @@ class AdminUtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            val linje = UtbetalingLinjeRequest(
-                id = UUID.randomUUID(),
-                tilsagnId = Tilsagn1.id,
-                gjorOppTilsagn = false,
-                pris = 100.NOK.toRequest(),
-            )
-            val opprettRequest = OpprettUtbetalingLinjerRequest(
-                utbetalingId = utbetaling1.id,
-                utbetalingLinjer = listOf(linje),
-                begrunnelseMindreBetalt = "begrunnelse",
-            )
-            service.opprettUtbetalingLinjer(
-                request = opprettRequest,
-                navIdent = NavAnsattFixture.MikkeMus.navIdent,
-            ).shouldBeRight()
+
+            val linje = createUtbetalingLinje(Tilsagn1.id)
+            val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
+            service.sendTilAttestering(opprett, NavAnsattFixture.MikkeMus.navIdent).shouldBeRight()
+
             service.godkjennUtbetalingLinje(
                 id = linje.id,
                 navIdent = navIdent,
@@ -426,21 +402,11 @@ class AdminUtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            val linje = UtbetalingLinjeRequest(
-                id = UUID.randomUUID(),
-                tilsagnId = Tilsagn1.id,
-                gjorOppTilsagn = false,
-                pris = 100.NOK.toRequest(),
-            )
-            val opprettRequest = OpprettUtbetalingLinjerRequest(
-                utbetalingId = utbetaling1.id,
-                utbetalingLinjer = listOf(linje),
-                begrunnelseMindreBetalt = "begrunnelse",
-            )
-            service.opprettUtbetalingLinjer(
-                request = opprettRequest,
-                navIdent = domain.ansatte[1].navIdent,
-            ).shouldBeRight()
+
+            val linje = createUtbetalingLinje(Tilsagn1.id)
+            val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
+            service.sendTilAttestering(opprett, domain.ansatte[1].navIdent).shouldBeRight()
+
             service.returnerUtbetalingLinje(
                 id = linje.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.ANNET),
@@ -469,39 +435,27 @@ class AdminUtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            val linje = UtbetalingLinjeRequest(
-                id = UUID.randomUUID(),
-                tilsagnId = Tilsagn1.id,
-                gjorOppTilsagn = false,
-                pris = 100.NOK.toRequest(),
-            )
-            val opprettRequest = OpprettUtbetalingLinjerRequest(
-                utbetalingId = utbetaling1.id,
-                utbetalingLinjer = listOf(linje),
-                begrunnelseMindreBetalt = "begrunnelse",
-            )
-            service.opprettUtbetalingLinjer(
-                request = opprettRequest,
-                navIdent = domain.ansatte[0].navIdent,
-            ).shouldBeRight()
+
+            val linje1 = createUtbetalingLinje(Tilsagn1.id, 1000.NOK)
+            val opprett1 = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje1))
+            service.sendTilAttestering(opprett1, domain.ansatte[0].navIdent).shouldBeRight()
 
             service.returnerUtbetalingLinje(
-                id = linje.id,
+                id = linje1.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.ANNET),
                 forklaring = "Maksbeløp er 5",
                 navIdent = domain.ansatte[1].navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
-            service.opprettUtbetalingLinjer(
-                request = OpprettUtbetalingLinjerRequest(utbetaling1.id, emptyList(), "begrunnelse"),
-                navIdent = domain.ansatte[0].navIdent,
-            ) shouldBeLeft listOf(
-                FieldError.of("Utbetalingslinjer mangler"),
+            val linje2 = createUtbetalingLinje(Tilsagn1.id, 0.NOK)
+            val opprett2 = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje2))
+            service.sendTilAttestering(opprett2, domain.ansatte[0].navIdent) shouldBeLeft listOf(
                 FieldError.of("Totalt beløp må være større enn 0"),
+                FieldError.of("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp"),
             )
 
             database.run {
-                queries.utbetalingLinje.getOrError(linje.id).status shouldBe UtbetalingLinjeStatus.RETURNERT
+                queries.utbetalingLinje.getOrError(linje1.id).status shouldBe UtbetalingLinjeStatus.RETURNERT
             }
         }
 
@@ -543,28 +497,35 @@ class AdminUtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
-            service.opprettUtbetalingLinjer(
-                request = OpprettUtbetalingLinjerRequest(
-                    utbetalingId = utbetaling1.id,
-                    utbetalingLinjer = listOf(
-                        UtbetalingLinjeRequest(
-                            utbetalingLinje1.id,
-                            Tilsagn1.id,
-                            gjorOppTilsagn = false,
-                            pris = 100.NOK.toRequest(),
-                        ),
-                    ),
-                    begrunnelseMindreBetalt = "begrunnelse",
-                ),
-                navIdent = navIdent,
-            ).shouldBeRight()
+
+            val linje = createUtbetalingLinje(id = utbetalingLinje1.id, tilsagnId = Tilsagn1.id)
+            val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
+            service.sendTilAttestering(opprett, navIdent).shouldBeRight()
 
             database.run {
-                queries.utbetalingLinje.getOrError(utbetalingLinje1.id)
-                    .status shouldBe UtbetalingLinjeStatus.TIL_ATTESTERING
-                queries.utbetaling.getOrError(utbetalingLinje1.utbetalingId)
-                    .status shouldBe UtbetalingStatusType.TIL_ATTESTERING
+                queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_ATTESTERING
+                queries.utbetalingLinje.getOrError(utbetalingLinje1.id).status shouldBe UtbetalingLinjeStatus.TIL_ATTESTERING
             }
+        }
+
+        test("skal ikke kunne opprette utbetalingslinjer når utbetaling har status GENERERT") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.GENERERT)),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            val linje = createUtbetalingLinje(Tilsagn1.id)
+            val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
+            service.sendTilAttestering(opprett, navIdent) shouldBeLeft listOf(
+                FieldError.of("Utbetaling kan bare endres når den er til behandling"),
+            )
         }
 
         test("skal bare kunne opprette utbetalingslinje når utbetalingsperiode og tilsagnsperiode overlapper") {
@@ -585,28 +546,14 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val request = OpprettUtbetalingLinjerRequest(
-                utbetalingId = utbetaling1.id,
-                utbetalingLinjer = listOf(
-                    UtbetalingLinjeRequest(
-                        UUID.randomUUID(),
-                        Tilsagn1.id,
-                        gjorOppTilsagn = false,
-                        pris = 100.NOK.toRequest(),
-                    ),
-                ),
-                begrunnelseMindreBetalt = "begrunnelse",
-            )
-
             shouldThrow<IllegalArgumentException> {
-                service.opprettUtbetalingLinjer(
-                    request,
-                    navIdent,
-                )
+                val linje = createUtbetalingLinje(Tilsagn1.id)
+                val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
+                service.sendTilAttestering(opprett, navIdent)
             }.message shouldBe "Utbetalingsperiode og tilsagnsperiode overlapper ikke"
         }
 
-        test("ved ny innsending til godkjenning skal utbetalingLinjer som ikke er inkludert i forespørselen slettes fra databasen") {
+        test("ved ny innsending til godkjenning skal utbetalingslinjer som ikke er inkludert i forespørselen slettes fra databasen") {
             val tilsagn1 = Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             )
@@ -638,22 +585,10 @@ class AdminUtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
             val service = createUtbetalingService()
 
-            val utbetalingLinje1 = UtbetalingLinjeRequest(
-                UUID.randomUUID(),
-                tilsagn1.id,
-                gjorOppTilsagn = false,
-                pris = 5.NOK.toRequest(),
-            )
-            val utbetalingLinje2 = UtbetalingLinjeRequest(
-                UUID.randomUUID(),
-                tilsagn2.id,
-                gjorOppTilsagn = false,
-                pris = 5.NOK.toRequest(),
-            )
-            service.opprettUtbetalingLinjer(
-                OpprettUtbetalingLinjerRequest(utbetaling.id, listOf(utbetalingLinje1, utbetalingLinje2), null),
-                domain.ansatte[0].navIdent,
-            ).shouldBeRight()
+            val utbetalingLinje1 = createUtbetalingLinje(tilsagn1.id, 5.NOK)
+            val utbetalingLinje2 = createUtbetalingLinje(tilsagn2.id, 5.NOK)
+            val opprett1 = createOpprettUtbetalingLinjer(utbetaling.id, listOf(utbetalingLinje1, utbetalingLinje2))
+            service.sendTilAttestering(opprett1, domain.ansatte[0].navIdent).shouldBeRight()
 
             service.returnerUtbetalingLinje(
                 id = utbetalingLinje1.id,
@@ -662,10 +597,8 @@ class AdminUtbetalingServiceTest : FunSpec({
                 navIdent = domain.ansatte[1].navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
-            service.opprettUtbetalingLinjer(
-                OpprettUtbetalingLinjerRequest(utbetaling.id, listOf(utbetalingLinje1), "begrunnelse"),
-                domain.ansatte[0].navIdent,
-            ).shouldBeRight()
+            val opprett2 = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(utbetalingLinje1), "begrunnelse")
+            service.sendTilAttestering(opprett2, domain.ansatte[0].navIdent).shouldBeRight()
 
             val utbetalingLinjer = database.run { queries.utbetalingLinje.getByUtbetalingId(utbetaling.id) }
             utbetalingLinjer.size shouldBe 1
@@ -704,22 +637,10 @@ class AdminUtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
             val service = createUtbetalingService()
 
-            val utbetalingLinje1 = UtbetalingLinjeRequest(
-                UUID.randomUUID(),
-                tilsagn1.id,
-                gjorOppTilsagn = false,
-                pris = 5.NOK.toRequest(),
-            )
-            val utbetalingLinje2 = UtbetalingLinjeRequest(
-                UUID.randomUUID(),
-                tilsagn2.id,
-                gjorOppTilsagn = false,
-                pris = 5.NOK.toRequest(),
-            )
-            service.opprettUtbetalingLinjer(
-                OpprettUtbetalingLinjerRequest(utbetaling.id, listOf(utbetalingLinje1, utbetalingLinje2), null),
-                domain.ansatte[1].navIdent,
-            ).shouldBeRight()
+            val utbetalingLinje1 = createUtbetalingLinje(tilsagn1.id, 5.NOK)
+            val utbetalingLinje2 = createUtbetalingLinje(tilsagn2.id, 5.NOK)
+            val opprett = createOpprettUtbetalingLinjer(utbetaling.id, listOf(utbetalingLinje1, utbetalingLinje2))
+            service.sendTilAttestering(opprett, domain.ansatte[1].navIdent).shouldBeRight()
 
             service.godkjennUtbetalingLinje(
                 utbetalingLinje1.id,
@@ -793,62 +714,35 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.opprettUtbetalingLinjer(
-                OpprettUtbetalingLinjerRequest(
-                    utbetaling1.id,
-                    listOf(
-                        UtbetalingLinjeRequest(
-                            UUID.randomUUID(),
-                            tilsagn1.id,
-                            gjorOppTilsagn = false,
-                            pris = 50.NOK.toRequest(),
-                        ),
-                        UtbetalingLinjeRequest(
-                            UUID.randomUUID(),
-                            tilsagn2.id,
-                            gjorOppTilsagn = false,
-                            pris = 50.NOK.toRequest(),
-                        ),
-                    ),
-                    begrunnelseMindreBetalt = "begrunnelse",
-                ),
-                domain.ansatte[0].navIdent,
-            ).shouldBeRight()
+            val linje1 = createUtbetalingLinje(tilsagn1.id, 100.NOK)
+            val linje2 = createUtbetalingLinje(tilsagn2.id, 900.NOK)
+            val opprett1 = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje1, linje2))
+            service.sendTilAttestering(opprett1, domain.ansatte[0].navIdent).shouldBeRight()
 
-            service.opprettUtbetalingLinjer(
-                OpprettUtbetalingLinjerRequest(
-                    utbetaling2.id,
-                    listOf(
-                        UtbetalingLinjeRequest(
-                            UUID.randomUUID(),
-                            tilsagn1.id,
-                            gjorOppTilsagn = false,
-                            pris = 100.NOK.toRequest(),
-                        ),
-                    ),
-                    begrunnelseMindreBetalt = "begrunnelse",
-                ),
-                domain.ansatte[0].navIdent,
-            ).shouldBeRight()
+            val linje3 = createUtbetalingLinje(tilsagn1.id, 500.NOK)
+            val opprett2 = createOpprettUtbetalingLinjer(utbetaling2.id, listOf(linje3))
+            service.sendTilAttestering(opprett2, domain.ansatte[0].navIdent).shouldBeRight()
 
             database.run {
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling1.id).should { (first, second) ->
-                    first.pris shouldBe 50.NOK
-                    first.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15))
-                    first.lopenummer shouldBe 1
-                    first.faktura.fakturanummer shouldBe "A-2025/1-1-1"
-
-                    second.pris shouldBe 50.NOK
-                    second.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15))
-                    second.lopenummer shouldBe 1
-                    second.faktura.fakturanummer shouldBe "A-2025/1-2-1"
+                queries.utbetalingLinje.getOrError(linje1.id).should {
+                    it.pris shouldBe 100.NOK
+                    it.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15))
+                    it.lopenummer shouldBe 1
+                    it.faktura.fakturanummer shouldBe "A-2025/1-1-1"
                 }
 
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling2.id).should { (first) ->
-                    first.pris shouldBe 100.NOK
-                    first.lopenummer shouldBe 2
-                    first.faktura.fakturanummer shouldBe "A-2025/1-1-2"
-                    first.periode shouldBe Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 1))
+                queries.utbetalingLinje.getOrError(linje2.id).should {
+                    it.pris shouldBe 900.NOK
+                    it.periode shouldBe Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15))
+                    it.lopenummer shouldBe 1
+                    it.faktura.fakturanummer shouldBe "A-2025/1-2-1"
+                }
+
+                queries.utbetalingLinje.getOrError(linje3.id).should {
+                    it.pris shouldBe 500.NOK
+                    it.lopenummer shouldBe 2
+                    it.faktura.fakturanummer shouldBe "A-2025/1-1-2"
+                    it.periode shouldBe Periode(LocalDate.of(2025, 1, 15), LocalDate.of(2025, 2, 1))
                 }
             }
         }
@@ -870,66 +764,46 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val utbetalingLinje1 = UtbetalingLinjeRequest(
-                UUID.randomUUID(),
-                Tilsagn1.id,
-                gjorOppTilsagn = false,
-                pris = 5.NOK.toRequest(),
-            )
-            service.opprettUtbetalingLinjer(
-                OpprettUtbetalingLinjerRequest(utbetaling1.id, listOf(utbetalingLinje1), "begrunnelse"),
-                NavAnsattFixture.DonaldDuck.navIdent,
-            ).shouldBeRight()
+            val linje1 = createUtbetalingLinje(Tilsagn1.id)
+            val opprett1 = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje1))
+            service.sendTilAttestering(opprett1, navIdent).shouldBeRight()
 
             database.run {
-                queries.utbetalingLinje.getOrError(utbetalingLinje1.id).should {
-                    it.id shouldBe utbetalingLinje1.id
+                queries.utbetalingLinje.getOrError(linje1.id).should {
                     it.lopenummer shouldBe 1
                     it.faktura.fakturanummer shouldBe "A-2025/1-1-1"
                 }
             }
 
             service.returnerUtbetalingLinje(
-                id = utbetalingLinje1.id,
+                id = linje1.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.ANNET),
                 forklaring = "Maksbeløp er 5",
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
-            service.opprettUtbetalingLinjer(
-                OpprettUtbetalingLinjerRequest(utbetaling1.id, listOf(utbetalingLinje1), "begrunnelse"),
-                NavAnsattFixture.DonaldDuck.navIdent,
-            ).shouldBeRight()
+            service.sendTilAttestering(opprett1, navIdent).shouldBeRight()
 
             database.run {
-                queries.utbetalingLinje.getOrError(utbetalingLinje1.id).should {
-                    it.id shouldBe utbetalingLinje1.id
+                queries.utbetalingLinje.getOrError(linje1.id).should {
                     it.lopenummer shouldBe 1
                     it.faktura.fakturanummer shouldBe "A-2025/1-1-1"
                 }
             }
 
             service.returnerUtbetalingLinje(
-                id = utbetalingLinje1.id,
+                id = linje1.id,
                 aarsaker = listOf(UtbetalingLinjeReturnertAarsak.ANNET),
                 forklaring = "Maksbeløp er 5",
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.RETURNERT
 
-            val utbetalingLinje2 = UtbetalingLinjeRequest(
-                UUID.randomUUID(),
-                Tilsagn1.id,
-                gjorOppTilsagn = false,
-                pris = 5.NOK.toRequest(),
-            )
-            service.opprettUtbetalingLinjer(
-                OpprettUtbetalingLinjerRequest(utbetaling1.id, listOf(utbetalingLinje2), "begrunnelse"),
-                NavAnsattFixture.DonaldDuck.navIdent,
-            ).shouldBeRight()
+            val linje2 = createUtbetalingLinje(Tilsagn1.id)
+            val opprett2 = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje2))
+            service.sendTilAttestering(opprett2, navIdent).shouldBeRight()
 
             database.run {
-                queries.utbetalingLinje.getOrError(utbetalingLinje2.id).should {
-                    it.id shouldBe utbetalingLinje2.id
+                queries.utbetalingLinje.getOrError(linje2.id).should {
                     it.lopenummer shouldBe 1
                     it.faktura.fakturanummer shouldBe "A-2025/1-1-1"
                 }
@@ -1032,19 +906,12 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val linje = UtbetalingLinjeRequest(
-                UUID.randomUUID(),
-                tilsagn.id,
-                gjorOppTilsagn = false,
-                pris = 10.NOK.toRequest(),
-            )
-            service.opprettUtbetalingLinjer(
-                OpprettUtbetalingLinjerRequest(utbetaling.id, listOf(linje), begrunnelseMindreBetalt = null),
-                navIdent,
-            ).shouldBeRight()
+            val linje = createUtbetalingLinje(tilsagn.id, 10.NOK)
+            val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
+            service.sendTilAttestering(opprett, navIdent).shouldBeRight()
 
             service.godkjennUtbetalingLinje(
-                id = linje.id,
+                id = opprett.linjer[0].id,
                 navIdent = NavAnsattFixture.MikkeMus.navIdent,
             ).shouldBeRight().status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
 
@@ -1082,27 +949,14 @@ class AdminUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            val utbetalingLinje1 = UtbetalingLinjeRequest(
-                UUID.randomUUID(),
-                tilsagn1.id,
-                gjorOppTilsagn = false,
-                pris = 1.NOK.toRequest(),
-            )
-            val utbetalingLinje2 = UtbetalingLinjeRequest(
-                UUID.randomUUID(),
-                tilsagn2.id,
-                gjorOppTilsagn = false,
-                pris = 2.NOK.toRequest(),
-            )
-            val opprettRequest = OpprettUtbetalingLinjerRequest(
+            val utbetalingLinje1 = createUtbetalingLinje(tilsagn1.id, 1.NOK)
+            val utbetalingLinje2 = createUtbetalingLinje(tilsagn2.id, 2.NOK)
+            val opprett = createOpprettUtbetalingLinjer(
                 utbetalingId = utbetaling1.id,
-                utbetalingLinjer = listOf(utbetalingLinje1, utbetalingLinje2),
-                begrunnelseMindreBetalt = "begrunnelse",
+                linjer = listOf(utbetalingLinje1, utbetalingLinje2),
+                begrunnelse = "begrunnelse",
             )
-            service.opprettUtbetalingLinjer(
-                request = opprettRequest,
-                navIdent = navIdent,
-            ).shouldBeRight()
+            service.sendTilAttestering(opprett, navIdent).shouldBeRight()
 
             service.godkjennUtbetalingLinje(
                 id = utbetalingLinje1.id,
@@ -1234,6 +1088,105 @@ class AdminUtbetalingServiceTest : FunSpec({
         }
     }
 
+    context("validering av utbetalingslinjer") {
+        test("totalt beløp kan ikke overstige innsendt beløp") {
+            val tilsagnMedHoytBelop = Tilsagn1.copy(
+                beregning = (Tilsagn1.beregning as TilsagnBeregningFri).copy(
+                    output = TilsagnBeregningFri.Output(pris = 2000.NOK),
+                ),
+            )
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(tilsagnMedHoytBelop),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
+            ) {
+                setTilsagnStatus(tilsagnMedHoytBelop, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            val linje = createUtbetalingLinje(Tilsagn1.id, 1001.NOK)
+            val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
+            service.sendTilAttestering(opprett, navIdent) shouldBeLeft listOf(
+                FieldError.of("Kan ikke utbetale mer enn innsendt beløp"),
+            )
+        }
+
+        test("begrunnelse er påkrevd når totalt beløp er mindre enn innsendt beløp") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            val linje = createUtbetalingLinje(Tilsagn1.id, 50.NOK)
+            val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
+
+            service.sendTilAttestering(opprett, navIdent) shouldBeLeft listOf(
+                FieldError.of("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp"),
+            )
+        }
+
+        test("beløp kan ikke overstige gjenstående beløp på tilsagn") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            val linje = createUtbetalingLinje(Tilsagn1.id, 1001.NOK)
+            val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
+            service.sendTilAttestering(opprett, navIdent) shouldBeLeft listOf(
+                FieldError.of("Kan ikke utbetale mer enn innsendt beløp"),
+                FieldError(
+                    "/utbetalingLinjer/0/tilsagnId",
+                    "Beløp overstiger gjenstående beløp på tilsagn. For å utbetale hele beløpet må dere først opprette og godkjenne et ekstratilsagn",
+                ),
+            )
+        }
+
+        test("tilsagn som ikke status OPPGJORT kan ikke benyttes") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(Tilsagn1),
+                utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
+            ) {
+                setTilsagnStatus(Tilsagn1, TilsagnStatus.OPPGJORT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            val linje = createUtbetalingLinje(Tilsagn1.id)
+            val opprett = createOpprettUtbetalingLinjer(utbetaling1.id, listOf(linje))
+            service.sendTilAttestering(opprett, navIdent) shouldBeLeft listOf(
+                FieldError(
+                    "/utbetalingLinjer/0/tilsagnId",
+                    "Beløp overstiger gjenstående beløp på tilsagn. For å utbetale hele beløpet må dere først opprette og godkjenne et ekstratilsagn",
+                ),
+                FieldError(
+                    "/utbetalingLinjer/0/tilsagnId",
+                    "Tilsagnet har status Oppgjort og kan ikke benyttes, linjen må fjernes",
+                ),
+            )
+        }
+    }
+
     context("sletting og avbryting") {
         test("kan ikke slette ferdig behandlet") {
             MulighetsrommetTestDomain(
@@ -1244,6 +1197,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val service = createUtbetalingService()
+
             service.slettKorreksjon(utbetaling1.id) shouldBeLeft listOf(
                 FieldError.of("Kan ikke slette utbetaling fordi den har status: FERDIG_BEHANDLET"),
             )
@@ -1258,6 +1212,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val service = createUtbetalingService()
+
             service.slettKorreksjon(utbetaling1.id) shouldBeLeft listOf(
                 FieldError.of("Kan kun slette korreksjoner"),
             )
@@ -1279,6 +1234,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             ).initialize(database.db)
 
             val service = createUtbetalingService()
+
             service.slettKorreksjon(korreksjon.id).shouldBeRight()
 
             database.run {
@@ -1309,6 +1265,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
+
             service.slettKorreksjon(korreksjon.id).shouldBeRight()
 
             database.run {
@@ -1340,6 +1297,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             }.initialize(database.db)
 
             val service = createUtbetalingService()
+
             service.slettKorreksjon(korreksjon.id) shouldBeLeft listOf(
                 FieldError.of("UtbetalingLinje var i feil status"),
             )
@@ -1516,6 +1474,24 @@ class AdminUtbetalingServiceTest : FunSpec({
     }
 })
 
+private fun createOpprettUtbetalingLinjer(
+    utbetalingId: UUID,
+    linjer: List<OpprettUtbetalingLinje>,
+    begrunnelse: String? = null,
+): OpprettUtbetalingLinjer = OpprettUtbetalingLinjer(utbetalingId, linjer, begrunnelse)
+
+private fun createUtbetalingLinje(
+    tilsagnId: UUID,
+    pris: ValutaBelop = 1000.NOK,
+    gjorOppTilsagn: Boolean = false,
+    id: UUID = UUID.randomUUID(),
+) = OpprettUtbetalingLinje(
+    id = id,
+    tilsagnId = tilsagnId,
+    pris = pris,
+    gjorOppTilsagn = gjorOppTilsagn,
+)
+
 private fun QueryContext.setRoller(ansatt: NavAnsattDbo, roller: Set<NavAnsattRolle>) {
     queries.ansatt.setRoller(
         navIdent = ansatt.navIdent,
@@ -1536,9 +1512,4 @@ fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri(
         prisbetingelser = null,
     ),
     output = TilsagnBeregningFri.Output(pris),
-)
-
-fun ValutaBelop.toRequest() = ValutaBelopRequest(
-    belop = this.belop,
-    valuta = this.valuta,
 )

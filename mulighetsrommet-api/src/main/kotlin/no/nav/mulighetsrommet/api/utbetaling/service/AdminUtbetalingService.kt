@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.nel
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -14,7 +15,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingDetaljerDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
@@ -22,16 +22,19 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeStatusDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.validation.Validated
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.Instant
 import java.util.UUID
@@ -163,11 +166,48 @@ class AdminUtbetalingService(
         utbetalingService.redigerUtbetaling(rediger, agent)
     }
 
-    fun opprettUtbetalingLinjer(
-        request: OpprettUtbetalingLinjerRequest,
+    fun sendTilAttestering(
+        opprett: OpprettUtbetalingLinjer,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        utbetalingService.opprettUtbetalingLinjer(request, navIdent)
+        val utbetaling = queries.utbetaling.getAndAquireLock(opprett.utbetalingId)
+        val tilsagnByLinjeId = opprett.linjer.associate { it.id to queries.tilsagn.getAndAquireLock(it.tilsagnId) }
+
+        validation {
+            validate(utbetaling.erTilBehandling()) {
+                FieldError.of("Utbetaling kan bare endres når den er til behandling")
+            }
+
+            val totalBelopUtbetales = opprett.linjer.sumOf { it.pris.belop }.withValuta(utbetaling.valuta)
+            validate(totalBelopUtbetales <= utbetaling.beregning.output.pris) {
+                FieldError.of("Kan ikke utbetale mer enn innsendt beløp")
+            }
+            validate(totalBelopUtbetales >= utbetaling.beregning.output.pris || !opprett.begrunnelseMindreBetalt.isNullOrBlank()) {
+                FieldError.of("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp")
+            }
+            validate(totalBelopUtbetales.belop > 0) {
+                FieldError.of("Totalt beløp må være større enn 0")
+            }
+            opprett.linjer.forEachIndexed { index, linje ->
+                val tilsagn = tilsagnByLinjeId.getValue(linje.id)
+                validate(linje.pris <= tilsagn.gjenstaendeBelop()) {
+                    FieldError(
+                        "/utbetalingLinjer/$index/tilsagnId",
+                        "Beløp overstiger gjenstående beløp på tilsagn. For å utbetale hele beløpet må dere først opprette og godkjenne et ekstratilsagn",
+                    )
+                }
+                validate(tilsagn.status == TilsagnStatus.GODKJENT) {
+                    FieldError(
+                        "/utbetalingLinjer/$index/tilsagnId",
+                        "Tilsagnet har status ${tilsagn.status.beskrivelse} og kan ikke benyttes, linjen må fjernes",
+                    )
+                }
+            }
+            opprett.linjer
+        }.flatMap { linjer ->
+            queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, opprett.begrunnelseMindreBetalt)
+            utbetalingService.sendTilAttestering(utbetaling.id, linjer, navIdent)
+        }
     }
 
     fun godkjennUtbetalingLinje(

@@ -27,11 +27,11 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
@@ -140,59 +140,40 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun opprettUtbetalingLinjer(
-        request: OpprettUtbetalingLinjerRequest,
+    fun sendTilAttestering(
+        utbetalingId: UUID,
+        linjer: List<OpprettUtbetalingLinje>,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(request.utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
 
-        val utbetalingLinjeTilsagn = request.utbetalingLinjer.associate { req ->
-            req.id to queries.tilsagn.getOrError(req.tilsagnId)
+        val linjerSomSkalSlettes = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id).filter { linje ->
+            linje.id !in linjer.map { it.id }
         }
 
-        UtbetalingValidator
-            .validateOpprettUtbetalingLinjer(
-                UtbetalingValidator.OpprettUtbetalingLinjerCtx(
-                    utbetaling = utbetaling,
-                    linjer = request.utbetalingLinjer.map { req ->
-                        val tilsagn = utbetalingLinjeTilsagn.getValue(req.id)
-                        UtbetalingValidator.OpprettUtbetalingLinjerCtx.Linje(
-                            request = req,
-                            tilsagn = UtbetalingValidator.OpprettUtbetalingLinjerCtx.Tilsagn(
-                                status = tilsagn.status,
-                                gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
-                            ),
-                        )
-                    },
-                    begrunnelse = request.begrunnelseMindreBetalt,
-                ),
+        if (linjerSomSkalSlettes.any { it.status != UtbetalingLinjeStatus.RETURNERT }) {
+            return FieldError.of("Utbetaling kan ikke sendes til attestering fordi den allerede har andre utbetalingslinjer")
+                .nel()
+                .left()
+        }
+
+        linjerSomSkalSlettes.forEach { linje ->
+            queries.utbetalingLinje.delete(linje.id)
+        }
+
+        linjer.forEach { linje ->
+            upsertUtbetalingLinje(
+                id = linje.id,
+                utbetaling = utbetaling,
+                tilsagn = queries.tilsagn.getOrError(linje.tilsagnId),
+                pris = linje.pris,
+                gjorOppTilsagn = linje.gjorOppTilsagn,
+                behandletAv = navIdent,
             )
-            .map { linjer ->
-                // Slett de som ikke er med i requesten
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling.id)
-                    .filter { linje -> linje.id !in request.utbetalingLinjer.map { it.id } }
-                    .forEach { linje ->
-                        require(linje.status == UtbetalingLinjeStatus.RETURNERT) {
-                            "Fatal! UtbetalingLinje kan ikke slettes fordi den har status: ${linje.status}"
-                        }
-                        queries.utbetalingLinje.delete(linje.id)
-                    }
+        }
+        queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
 
-                linjer.forEach { linje ->
-                    upsertUtbetalingLinje(
-                        id = linje.id,
-                        utbetaling = utbetaling,
-                        tilsagn = utbetalingLinjeTilsagn.getValue(linje.id),
-                        pris = requireNotNull(linje.pris),
-                        gjorOppTilsagn = linje.gjorOppTilsagn,
-                        behandletAv = navIdent,
-                    )
-                }
-                queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
-                queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
-
-                logEndring("Utbetaling sendt til attestering", utbetaling.id, navIdent)
-            }
+        logEndring("Utbetaling sendt til attestering", utbetaling.id, navIdent).right()
     }
 
     context(tx: TransactionalQueryContext)

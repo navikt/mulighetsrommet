@@ -2,118 +2,21 @@ package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingRequest
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
-import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
 object UtbetalingValidator {
     const val MIN_ANTALL_VEDLEGG_OPPRETT_KRAV = 1
-
-    data class OpprettUtbetalingLinjerCtx(
-        val utbetaling: Utbetaling,
-        val linjer: List<Linje>,
-        val begrunnelse: String?,
-    ) {
-        data class Linje(
-            val request: UtbetalingLinjeRequest,
-            val tilsagn: Tilsagn,
-        )
-
-        data class Tilsagn(
-            val status: TilsagnStatus,
-            val gjenstaendeBelop: ValutaBelop,
-        )
-    }
-
-    data class ValidatedLinje(
-        val id: UUID,
-        val pris: ValutaBelop,
-        val gjorOppTilsagn: Boolean,
-    )
-
-    fun validateOpprettUtbetalingLinjer(
-        ctx: OpprettUtbetalingLinjerCtx,
-    ): Either<List<FieldError>, List<ValidatedLinje>> = validation {
-        validate(
-            when (ctx.utbetaling.status) {
-                UtbetalingStatusType.TIL_BEHANDLING,
-                UtbetalingStatusType.RETURNERT,
-                -> true
-
-                UtbetalingStatusType.GENERERT,
-                UtbetalingStatusType.TIL_ATTESTERING,
-                UtbetalingStatusType.FERDIG_BEHANDLET,
-                UtbetalingStatusType.DELVIS_UTBETALT,
-                UtbetalingStatusType.UTBETALT,
-                UtbetalingStatusType.AVBRUTT,
-                -> false
-            },
-        ) {
-            FieldError.of("Utbetaling kan ikke endres fordi den har status: ${ctx.utbetaling.status}")
-        }
-        val totalBelopUtbetales = ctx.linjer.sumOf { it.request.pris?.belop ?: 0 }.withValuta(ctx.utbetaling.valuta)
-        validate(totalBelopUtbetales <= ctx.utbetaling.beregning.output.pris) {
-            FieldError.of("Kan ikke utbetale mer enn innsendt beløp")
-        }
-        validate(totalBelopUtbetales >= ctx.utbetaling.beregning.output.pris || !ctx.begrunnelse.isNullOrBlank()) {
-            FieldError.of("Begrunnelse er påkrevd ved utbetaling av mindre enn innsendt beløp")
-        }
-        validate(ctx.linjer.isNotEmpty()) {
-            FieldError.of("Utbetalingslinjer mangler")
-        }
-
-        val filtrerteLinjer = ctx.linjer
-            // Filtrerer vekk 0 linjer så man slipper å trykke fjern
-            .filter { linje ->
-                linje.request.pris?.belop == null || linje.request.pris.belop > 0
-            }
-
-        validate(filtrerteLinjer.sumOf { it.request.pris?.belop ?: 0 } > 0) {
-            FieldError.of("Totalt beløp må være større enn 0")
-        }
-
-        filtrerteLinjer.mapIndexed { index, linje ->
-            requireValid(linje.request.pris?.belop != null && linje.request.pris.belop > 0 && linje.request.pris.valuta != null) {
-                FieldError(
-                    "/utbetalingLinjer/$index/pris/belop",
-                    "Beløp må være positivt eller linjen må fjernes",
-                )
-            }
-            val pris = ValutaBelop(linje.request.pris.belop, linje.request.pris.valuta)
-            validate(pris <= linje.tilsagn.gjenstaendeBelop) {
-                FieldError(
-                    "/utbetalingLinjer/$index/tilsagnId",
-                    "Beløp overstiger gjenstående beløp på tilsagn. For å utbetale hele beløpet må dere først opprette og godkjenne et ekstratilsagn",
-                )
-            }
-            validate(linje.tilsagn.status == TilsagnStatus.GODKJENT) {
-                FieldError(
-                    "/utbetalingLinjer/$index/tilsagnId",
-                    "Tilsagnet har status ${linje.tilsagn.status.beskrivelse} og kan ikke benyttes, linjen må fjernes",
-                )
-            }
-            ValidatedLinje(
-                id = linje.request.id,
-                pris = pris,
-                gjorOppTilsagn = linje.request.gjorOppTilsagn ?: false,
-            )
-        }
-    }
 
     fun validateUpsertUtbetaling(
         request: UtbetalingRequest,
