@@ -106,40 +106,6 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
                         )
                     },
                 ),
-                OpplaringKategoriseringResponse.Alternativ.Gruppe(
-                    id = null,
-                    visningsnavn = "Utdanningsprogram",
-                    representerer = OpplaringKategoriseringResponse.Representerer.UTDANNINGSPROGRAM_ID,
-                    pakrevd = true,
-                    alternativer = utdanningsprogrammer.map { (utdanningsprogram, utdanninger) ->
-                        OpplaringKategoriseringResponse.Alternativ.Gruppe(
-                            id = utdanningsprogram.id,
-                            representerer = null,
-                            pakrevd = false,
-                            visningsnavn = utdanningsprogram.navn,
-                            alternativer = if (utdanninger.isEmpty()) {
-                                emptyList()
-                            } else {
-                                listOf(
-                                    OpplaringKategoriseringResponse.Alternativ.Verdigruppe(
-                                        id = null,
-                                        tooltip = null,
-                                        visningsnavn = "Lærefag",
-                                        representerer = OpplaringKategoriseringResponse.Representerer.LAREFAG,
-                                        pakrevd = true,
-                                        seleksjonstype = OpplaringKategoriseringResponse.Seleksjonstype.FLERVALG,
-                                        alternativer = utdanninger.map { utdanning ->
-                                            OpplaringKategoriseringResponse.Alternativ.Verdi(
-                                                id = utdanning.id,
-                                                visningsnavn = utdanning.navn,
-                                            )
-                                        },
-                                    ),
-                                )
-                            },
-                        )
-                    },
-                ),
             ),
         )
     }
