@@ -59,7 +59,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
             alternativer = listOf(
                 OpplaringKategoriseringResponse.Alternativ.Verdigruppe(
                     id = null,
-                    representerer = OpplaringKategoriseringRequest::kurstypeId.name,
+                    representerer = OpplaringKategoriseringResponse.Representerer.KURSTYPE_ID,
                     visningsnavn = "Kurstype",
                     pakrevd = true,
                     tooltip = null,
@@ -82,7 +82,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
             alternativer = listOf(
                 OpplaringKategoriseringResponse.Alternativ.UtdanningGruppe(
                     visningsnavn = "Utdanningsprogram",
-                    representerer = OpplaringKategoriseringRequest::utdanningsprogramId.name,
+                    representerer = OpplaringKategoriseringResponse.Representerer.UTDANNINGSPROGRAM_ID,
                     pakrevd = true,
                     utdanninger = utdanningsprogrammer.map { (utdanningsprogram, utdanninger) ->
                         OpplaringKategoriseringResponse.Alternativ.UtdanningGruppe.UtdanningValg(
@@ -93,7 +93,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
                                 id = null,
                                 tooltip = null,
                                 visningsnavn = "Lærefag",
-                                representerer = OpplaringKategoriseringRequest::larefag.name,
+                                representerer = OpplaringKategoriseringResponse.Representerer.LAREFAG,
                                 pakrevd = true,
                                 seleksjonstype = OpplaringKategoriseringResponse.Seleksjonstype.FLERVALG,
                                 alternativer = utdanninger.map { utdanning ->
@@ -109,7 +109,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
                 OpplaringKategoriseringResponse.Alternativ.Gruppe(
                     id = null,
                     visningsnavn = "Utdanningsprogram",
-                    representerer = "utdanningsprogram",
+                    representerer = OpplaringKategoriseringResponse.Representerer.UTDANNINGSPROGRAM_ID,
                     pakrevd = true,
                     alternativer = utdanningsprogrammer.map { (utdanningsprogram, utdanninger) ->
                         OpplaringKategoriseringResponse.Alternativ.Gruppe(
@@ -125,7 +125,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
                                         id = null,
                                         tooltip = null,
                                         visningsnavn = "Lærefag",
-                                        representerer = "larefag",
+                                        representerer = OpplaringKategoriseringResponse.Representerer.LAREFAG,
                                         pakrevd = true,
                                         seleksjonstype = OpplaringKategoriseringResponse.Seleksjonstype.FLERVALG,
                                         alternativer = utdanninger.map { utdanning ->
@@ -162,7 +162,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
             alternativer = listOf(
                 OpplaringKategoriseringResponse.Alternativ.Gruppe(
                     id = null,
-                    representerer = OpplaringKategoriseringRequest::kurstypeId.name,
+                    representerer = OpplaringKategoriseringResponse.Representerer.KURSTYPE_ID,
                     pakrevd = true,
                     visningsnavn = "Kurstype",
                     alternativer = listOf(
@@ -209,7 +209,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         OpplaringKategoriseringResponse.Alternativ.Verdigruppe(
             id = null,
             tooltip = bransjeTooltip(),
-            representerer = OpplaringKategoriseringRequest::bransjeId.name,
+            representerer = OpplaringKategoriseringResponse.Representerer.BRANSJE_ID,
             pakrevd = true,
             visningsnavn = "Bransje",
             seleksjonstype = OpplaringKategoriseringResponse.Seleksjonstype.ENKELTVALG,
@@ -223,7 +223,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         OpplaringKategoriseringResponse.Alternativ.Verdigruppe(
             id = null,
             tooltip = null,
-            representerer = OpplaringKategoriseringRequest::forerkort.name,
+            representerer = OpplaringKategoriseringResponse.Representerer.FORERKORT,
             pakrevd = false,
             visningsnavn = "Førerkort",
             seleksjonstype = OpplaringKategoriseringResponse.Seleksjonstype.FLERVALG,
@@ -236,7 +236,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         ),
         OpplaringKategoriseringResponse.Alternativ.VerdigruppeSok(
             id = null,
-            representerer = OpplaringKategoriseringRequest::sertifiseringer.name,
+            representerer = OpplaringKategoriseringResponse.Representerer.SERTIFISERINGER,
             pakrevd = false,
             visningsnavn = "Sertifiseringer",
             seleksjonstype = OpplaringKategoriseringResponse.Seleksjonstype.FLERVALG,

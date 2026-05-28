@@ -32,6 +32,7 @@ class OpplaringKategoriseringMapperTest : FunSpec({
         val service = OpplaringKategoriseringMapper(dbListener.db)
         jsonPrettyPrint.encodeToString(service.from(Tiltakskode.STUDIESPESIALISERING)) shouldBeEqual STUDIESPESIALISERING_JSON
     }
+
     test("NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV") {
         val service = OpplaringKategoriseringMapper(dbListener.db)
         jsonPrettyPrint.encodeToString(service.from(Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV)) shouldBeEqual NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON
@@ -46,6 +47,7 @@ class OpplaringKategoriseringMapperTest : FunSpec({
         val service = OpplaringKategoriseringMapper(dbListener.db)
         jsonPrettyPrint.encodeToString(service.from(Tiltakskode.ARBEIDSMARKEDSOPPLAERING)) shouldBeEqual ARBEIDSMARKEDSOPPLAERING_JSON
     }
+
     test("GRUPPE_ARBEIDSMARKEDSOPPLAERING") {
         val service = OpplaringKategoriseringMapper(dbListener.db)
         jsonPrettyPrint.encodeToString(service.from(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING)) shouldBeEqual GRUPPE_ARBEIDSMARKEDSOPPLAERING_JSON
@@ -66,7 +68,7 @@ const val NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON = """{
       "visningsnavn": "Kurstype",
       "tooltip": null,
       "pakrevd": true,
-      "representerer": "kurstypeId",
+      "representerer": "KURSTYPE_ID",
       "seleksjonstype": "ENKELTVALG",
       "alternativer": [
         {
@@ -92,7 +94,7 @@ const val FAG_OG_YRKESOPPLAERING_JSON = """{
     {
       "type": "UtdanningGruppe",
       "visningsnavn": "Utdanningsprogram",
-      "representerer": "utdanningsprogramId",
+      "representerer": "UTDANNINGSPROGRAM_ID",
       "pakrevd": true,
       "utdanninger": [
         {
@@ -103,7 +105,7 @@ const val FAG_OG_YRKESOPPLAERING_JSON = """{
             "visningsnavn": "Lærefag",
             "tooltip": null,
             "pakrevd": true,
-            "representerer": "larefag",
+            "representerer": "LAREFAG",
             "seleksjonstype": "FLERVALG",
             "alternativer": [
               {
@@ -137,7 +139,7 @@ const val FAG_OG_YRKESOPPLAERING_JSON = """{
             "visningsnavn": "Lærefag",
             "tooltip": null,
             "pakrevd": true,
-            "representerer": "larefag",
+            "representerer": "LAREFAG",
             "seleksjonstype": "FLERVALG",
             "alternativer": [
               {
@@ -169,7 +171,7 @@ const val FAG_OG_YRKESOPPLAERING_JSON = """{
       "type": "Gruppe",
       "id": null,
       "visningsnavn": "Utdanningsprogram",
-      "representerer": "utdanningsprogram",
+      "representerer": "UTDANNINGSPROGRAM_ID",
       "pakrevd": true,
       "alternativer": [
         {
@@ -185,7 +187,7 @@ const val FAG_OG_YRKESOPPLAERING_JSON = """{
               "visningsnavn": "Lærefag",
               "tooltip": null,
               "pakrevd": true,
-              "representerer": "larefag",
+              "representerer": "LAREFAG",
               "seleksjonstype": "FLERVALG",
               "alternativer": [
                 {
@@ -225,7 +227,7 @@ const val FAG_OG_YRKESOPPLAERING_JSON = """{
               "visningsnavn": "Lærefag",
               "tooltip": null,
               "pakrevd": true,
-              "representerer": "larefag",
+              "representerer": "LAREFAG",
               "seleksjonstype": "FLERVALG",
               "alternativer": [
                 {
@@ -358,7 +360,7 @@ const val ARBEIDSMARKEDSOPPLAERING_JSON = """{
         ]
       },
       "pakrevd": true,
-      "representerer": "bransjeId",
+      "representerer": "BRANSJE_ID",
       "seleksjonstype": "ENKELTVALG",
       "alternativer": [
         {
@@ -409,7 +411,7 @@ const val ARBEIDSMARKEDSOPPLAERING_JSON = """{
       "visningsnavn": "Førerkort",
       "tooltip": null,
       "pakrevd": false,
-      "representerer": "forerkort",
+      "representerer": "FORERKORT",
       "seleksjonstype": "FLERVALG",
       "alternativer": [
         {
@@ -491,7 +493,7 @@ const val ARBEIDSMARKEDSOPPLAERING_JSON = """{
       "id": null,
       "visningsnavn": "Sertifiseringer",
       "pakrevd": false,
-      "representerer": "sertifiseringer",
+      "representerer": "SERTIFISERINGER",
       "seleksjonstype": "FLERVALG",
       "kilde": "JANZZ_SERTIFISERING"
     }
@@ -505,7 +507,7 @@ const val GRUPPE_ARBEIDSMARKEDSOPPLAERING_JSON = """{
       "type": "Gruppe",
       "id": null,
       "visningsnavn": "Kurstype",
-      "representerer": "kurstypeId",
+      "representerer": "KURSTYPE_ID",
       "pakrevd": true,
       "alternativer": [
         {
@@ -613,7 +615,7 @@ const val GRUPPE_ARBEIDSMARKEDSOPPLAERING_JSON = """{
                 ]
               },
               "pakrevd": true,
-              "representerer": "bransjeId",
+              "representerer": "BRANSJE_ID",
               "seleksjonstype": "ENKELTVALG",
               "alternativer": [
                 {
@@ -664,7 +666,7 @@ const val GRUPPE_ARBEIDSMARKEDSOPPLAERING_JSON = """{
               "visningsnavn": "Førerkort",
               "tooltip": null,
               "pakrevd": false,
-              "representerer": "forerkort",
+              "representerer": "FORERKORT",
               "seleksjonstype": "FLERVALG",
               "alternativer": [
                 {
@@ -746,7 +748,7 @@ const val GRUPPE_ARBEIDSMARKEDSOPPLAERING_JSON = """{
               "id": null,
               "visningsnavn": "Sertifiseringer",
               "pakrevd": false,
-              "representerer": "sertifiseringer",
+              "representerer": "SERTIFISERINGER",
               "seleksjonstype": "FLERVALG",
               "kilde": "JANZZ_SERTIFISERING"
             }
