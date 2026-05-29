@@ -15,7 +15,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
@@ -332,7 +331,7 @@ class AvtaleQueriesTest : FunSpec({
                 queries.avtale.getOrError(avtale.id).should {
                     it.personopplysninger.map { it.type } shouldContainExactly listOf(
                         Personopplysning.Type.KJONN,
-                        Personopplysning.Type.ADFERD
+                        Personopplysning.Type.ADFERD,
                     )
                 }
 
@@ -807,21 +806,21 @@ class AvtaleQueriesTest : FunSpec({
                     avtaletype = Avtaletype.AVTALE,
                 ),
 
-                )
+            )
             val avtale2 = avtale1.copy(
                 id = UUID.randomUUID(),
                 detaljerDbo = AvtaleFixtures.gruppeAmo.detaljerDbo.copy(
                     avtaletype = Avtaletype.RAMMEAVTALE,
                 ),
 
-                )
+            )
             val avtale3 = avtale1.copy(
                 id = UUID.randomUUID(),
                 detaljerDbo = AvtaleFixtures.gruppeAmo.detaljerDbo.copy(
                     avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
                 ),
 
-                )
+            )
 
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeAmo),
@@ -991,7 +990,7 @@ class AvtaleQueriesTest : FunSpec({
                         sluttDato = LocalDate.of(2009, 1, 1),
                     ),
 
-                    ),
+                ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     detaljerDbo = AvtaleFixtures.oppfolging.detaljerDbo.copy(
@@ -1000,7 +999,7 @@ class AvtaleQueriesTest : FunSpec({
                         sluttDato = LocalDate.of(2010, 1, 1),
                     ),
 
-                    ),
+                ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     detaljerDbo = AvtaleFixtures.oppfolging.detaljerDbo.copy(
@@ -1009,7 +1008,7 @@ class AvtaleQueriesTest : FunSpec({
                         sluttDato = LocalDate.of(2011, 1, 1),
                     ),
 
-                    ),
+                ),
                 AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
                     detaljerDbo = AvtaleFixtures.oppfolging.detaljerDbo.copy(

@@ -8,7 +8,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
@@ -16,7 +16,10 @@ import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
+import no.nav.mulighetsrommet.api.fixtures.ForerkortFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
@@ -108,10 +111,18 @@ class GjennomforingValidatorTest : FunSpec({
         administratorer = setOf(NavAnsattFixture.DonaldDuck.navIdent),
     )
 
+    val kategoriseringCtx = GjennomforingValidator.Context.Kategorisering(
+        kurstyper = KurstypeFixtures.all(),
+        bransjer = BransjeFixtures.all(),
+        forerkort = ForerkortFixtures.all(),
+        utdanninger = emptyList(),
+    )
+
     val ctx = GjennomforingValidator.Context(
         today = LocalDate.now(),
         avtale = avtale,
         arrangor = ArrangorFixtures.underenhet1,
+        kategorisering = kategoriseringCtx,
         previous = null,
     )
 
@@ -258,18 +269,19 @@ class GjennomforingValidatorTest : FunSpec({
                 id = TiltakstypeFixtures.GruppeAmo.id,
                 navn = TiltakstypeFixtures.GruppeAmo.navn,
             ),
-            amoKategorisering = null,
+            opplaringKategorisering = null,
         )
 
-        GjennomforingValidator.validateAmoKategorisering(
-            avtaleUtenAmokategorisering,
-            request.detaljer.amoKategorisering,
-        ).shouldBeLeft(
-            listOf(
-                FieldError("/avtaleId", "Du må velge en kurstype for avtalen"),
-                FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype"),
-            ),
-        )
+        context(avtaleUtenAmokategorisering, kategoriseringCtx) {
+            GjennomforingValidator.validateAmoKategorisering(
+                request.detaljer.amoKategorisering,
+            ).shouldBeLeft(
+                listOf(
+                    FieldError("/avtaleId", "Du må velge en kurstype for avtalen"),
+                    FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype"),
+                ),
+            )
+        }
     }
 
     test("Kurselement må velges for gjennomføring når tiltakstype er Gruppe AMO") {
@@ -279,17 +291,18 @@ class GjennomforingValidatorTest : FunSpec({
                 id = TiltakstypeFixtures.GruppeAmo.id,
                 navn = TiltakstypeFixtures.GruppeAmo.navn,
             ),
-            amoKategorisering = AmoKategorisering.Studiespesialisering,
+            opplaringKategorisering = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering),
         )
 
-        GjennomforingValidator.validateAmoKategorisering(
-            avtaleUtenAmokategorisering,
-            request.detaljer.amoKategorisering,
-        ).shouldBeLeft(
-            listOf(
-                FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype"),
-            ),
-        )
+        context(avtaleUtenAmokategorisering, kategoriseringCtx) {
+            GjennomforingValidator.validateAmoKategorisering(
+                request.detaljer.amoKategorisering,
+            ).shouldBeLeft(
+                listOf(
+                    FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype"),
+                ),
+            )
+        }
     }
 
     test("utdanningsprogram og lærefag er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {

@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.avtale
 
-import io.github.smiley4.ktoropenapi.config.descriptors.empty
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -11,7 +10,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
@@ -85,14 +83,14 @@ class AvtaleValidatorTest : FunSpec({
         id = UUID.randomUUID(),
         valuta = Valuta.NOK,
         prisbetingelser = "",
-        tilsagnPerDeltaker = false
+        tilsagnPerDeltaker = false,
     )
     val kategoriseringCtx = Ctx.Kategorisering(
         kurstyper = KurstypeFixtures.all(),
         bransjer = BransjeFixtures.all(),
         forerkort = ForerkortFixtures.all(),
         utdanninger = emptyList(),
-    );
+    )
     val ctx = Ctx(
         previous = null,
         arrangor = ArrangorFixtures.hovedenhet.copy(
@@ -249,7 +247,7 @@ class AvtaleValidatorTest : FunSpec({
                         OpsjonsmodellType.VALGFRI_SLUTTDATO,
                         null,
 
-                        ),
+                    ),
                 ),
             ),
             createForhandsgodkjentAvtaleContext,
@@ -852,7 +850,7 @@ class AvtaleValidatorTest : FunSpec({
                 FieldError("/detaljer/avtaletype", "Du kan ikke endre avtaletype når opsjoner er registrert"),
                 FieldError(
                     "/detaljer/opsjonsmodell/type",
-                    "Du kan ikke endre opsjonsmodell når opsjoner er registrert"
+                    "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
                 ),
             )
         }
@@ -1112,7 +1110,7 @@ class AvtaleValidatorTest : FunSpec({
                         amoKategorisering = AmoKategoriseringRequest(
                             kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
 
-                            ),
+                        ),
                     ),
                 ),
                 ctx,
