@@ -214,7 +214,7 @@ class AdminUtbetalingService(
         id: UUID,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        utbetalingService.godkjennUtbetalingLinje(id, navIdent)
+        utbetalingService.attesterUtbetalingLinje(id, navIdent)
     }
 
     fun returnerUtbetalingLinje(
@@ -291,16 +291,13 @@ class AdminUtbetalingService(
             kostnadssted: NavEnhetNummer,
             behandletAv: Agent,
         ): Boolean {
-            val erBeslutter = ansatt.hasKontorspesifikkRolle(
-                Rolle.ATTESTANT_UTBETALING,
-                setOf(kostnadssted),
-            )
+            val erBeslutter = ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted))
             val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
 
             return when (handling) {
-                UtbetalingLinjeHandling.ATTESTER -> erBeslutter && behandletAv != ansatt.navIdent
-                UtbetalingLinjeHandling.RETURNER -> erBeslutter
                 UtbetalingLinjeHandling.SEND_TIL_ATTESTERING -> erSaksbehandler
+                UtbetalingLinjeHandling.ATTESTER -> erBeslutter && behandletAv != ansatt.navIdent
+                UtbetalingLinjeHandling.RETURNER -> erBeslutter || erSaksbehandler
             }
         }
     }

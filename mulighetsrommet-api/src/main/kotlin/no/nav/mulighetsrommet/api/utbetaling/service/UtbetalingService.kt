@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.utbetaling.service
 
 import arrow.core.Either
 import arrow.core.NonEmptyList
-import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
@@ -17,7 +16,9 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
+import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -41,9 +42,9 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService.Config
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.api.validation.Validated
-import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
@@ -148,6 +149,25 @@ class UtbetalingService(
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
 
+        if (!utbetaling.erTilBehandling() && utbetaling.status != UtbetalingStatusType.GENERERT) {
+            return FieldError.of("Utbetalingen kan ikke sendes til attestering").nel().left()
+        }
+
+        when (agent) {
+            Tiltaksadministrasjon -> Unit
+
+            Arena,
+            Arrangor,
+            -> return FieldError.of("$agent kan ikke sende utbetaling til attestering").nel().left()
+
+            is NavIdent -> {
+                val ansatt = queries.ansatt.getByNavIdentOrError(agent)
+                if (!erSaksbehandler(ansatt)) {
+                    return FieldError.of("Du kan ikke sende utbetaling til attestering").nel().left()
+                }
+            }
+        }
+
         val linjerSomSkalSlettes = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id).filter { linje ->
             linje.id !in linjer.map { it.id }
         }
@@ -178,13 +198,36 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun godkjennUtbetalingLinje(
+    fun attesterUtbetalingLinje(
         id: UUID,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
-        validateAccessAndLockUtbetaling(id, agent).flatMap { (_, linje) ->
-            godkjennUtbetalingLinje(linje, agent)
+        val linje = queries.utbetalingLinje.getOrError(id)
+        val utbetaling = queries.utbetaling.getAndAquireLock(linje.utbetalingId)
+
+        if (utbetaling.status != UtbetalingStatusType.TIL_ATTESTERING || linje.status != UtbetalingLinjeStatus.TIL_ATTESTERING) {
+            return FieldError.of("Utbetalingen kan ikke attesteres").nel().left()
         }
+
+        when (agent) {
+            Tiltaksadministrasjon -> Unit
+
+            Arena,
+            Arrangor,
+            -> return FieldError.of("$agent kan ikke attestere utbetalinger").nel().left()
+
+            is NavIdent -> {
+                val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
+                val ansatt = queries.ansatt.getByNavIdentOrError(agent)
+                if (!erAttestant(ansatt, kostnadssted)) {
+                    return FieldError.of("Du kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
+                        .nel()
+                        .left()
+                }
+            }
+        }
+
+        attesterUtbetalingLinje(linje, agent)
     }
 
     context(tx: TransactionalQueryContext)
@@ -192,11 +235,32 @@ class UtbetalingService(
         id: UUID,
         aarsaker: List<UtbetalingLinjeReturnertAarsak>,
         forklaring: String?,
-        navIdent: NavIdent,
+        agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
-        validateAccessAndLockUtbetaling(id, navIdent).map { (_, linje) ->
-            returnerUtbetalingLinje(linje, aarsaker, forklaring, navIdent)
+        val linje = queries.utbetalingLinje.getOrError(id)
+        val utbetaling = queries.utbetaling.getAndAquireLock(linje.utbetalingId)
+
+        if (utbetaling.status != UtbetalingStatusType.TIL_ATTESTERING || linje.status != UtbetalingLinjeStatus.TIL_ATTESTERING) {
+            return FieldError.of("Utbetalingen kan ikke returneres").nel().left()
         }
+
+        when (agent) {
+            Tiltaksadministrasjon -> Unit
+
+            Arena,
+            Arrangor,
+            -> return FieldError.of("$agent kan ikke returnere utbetalinger").nel().left()
+
+            is NavIdent -> {
+                val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
+                val ansatt = queries.ansatt.getByNavIdentOrError(agent)
+                if (!(erSaksbehandler(ansatt) || erAttestant(ansatt, kostnadssted))) {
+                    return FieldError.of("Du kan ikke returnere utbetalingen fordi du mangler tilgang").nel().left()
+                }
+            }
+        }
+
+        returnerUtbetalingLinje(linje, aarsaker, forklaring, agent).right()
     }
 
     context(tx: TransactionalQueryContext)
@@ -316,35 +380,9 @@ class UtbetalingService(
             gjorOppTilsagn = tilsagn.periode.getLastInclusiveDate() in utbetaling.periode,
             behandletAv = Tiltaksadministrasjon,
         )
-        return godkjennUtbetalingLinje(linje, Tiltaksadministrasjon)
+        return attesterUtbetalingLinje(linje, Tiltaksadministrasjon)
             .map { AutomatisertUtbetalingResult.GODKJENT }
             .getOrElse { throw UtbetalingException(it) }
-    }
-
-    private fun QueryContext.validateAccessAndLockUtbetaling(utbetalingLinjeId: UUID, agent: Agent) = validation {
-        val linje = queries.utbetalingLinje.getOrError(utbetalingLinjeId)
-        val utbetaling = queries.utbetaling.getAndAquireLock(linje.utbetalingId)
-        validate(utbetaling.status == UtbetalingStatusType.TIL_ATTESTERING && linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING) {
-            FieldError.of("Utbetaling er ikke satt til attestering")
-        }
-
-        when (agent) {
-            Arena,
-            Arrangor,
-            -> error { FieldError.of("$agent kan ikke utføre handlinger på utbetalinger") }
-
-            is NavIdent -> {
-                val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
-                val ansatt = queries.ansatt.getByNavIdentOrError(agent)
-                validate(ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
-                    FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
-                }
-            }
-
-            Tiltaksadministrasjon -> Unit
-        }
-
-        Pair(utbetaling, linje)
     }
 
     private suspend fun TransactionalQueryContext.upsert(upsert: UpsertUtbetaling): Either<NonEmptyList<FieldError>, UtbetalingDbo> = when (upsert) {
@@ -560,7 +598,7 @@ class UtbetalingService(
         return queries.utbetalingLinje.getOrError(id)
     }
 
-    private fun TransactionalQueryContext.godkjennUtbetalingLinje(
+    private fun TransactionalQueryContext.attesterUtbetalingLinje(
         utbetalingLinje: UtbetalingLinje,
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
@@ -790,4 +828,10 @@ class UtbetalingService(
             -> emptyList()
         }
     }
+}
+
+private fun erSaksbehandler(ansatt: NavAnsatt): Boolean = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+
+private fun erAttestant(ansatt: NavAnsatt, kostnadssted: NavEnhetDbo): Boolean {
+    return ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))
 }
