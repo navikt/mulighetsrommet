@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
-import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptyListOf
@@ -41,12 +40,16 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.validation.validation
+import no.nav.mulighetsrommet.api.utbetaling.service.erBeslutter
+import no.nav.mulighetsrommet.api.utbetaling.service.erSaksbehandler
 import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
@@ -291,24 +294,41 @@ class TilsagnService(
         id: UUID,
         agent: Agent,
     ): Either<List<FieldError>, Tilsagn> = with(tx) {
-        validateAccessAndLockTilsagn(id, agent).flatMap { tilsagn ->
-            when (tilsagn.status) {
-                TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT,
-                -> FieldError.of("Tilsagnet kan ikke godkjennes fordi det har status ${tilsagn.status.beskrivelse}")
-                    .nel()
-                    .left()
+        val tilsagn = queries.tilsagn.getAndAquireLock(id)
 
-                TilsagnStatus.TIL_GODKJENNING -> godkjennTilsagn(tilsagn, agent).onRight {
-                    publishOpprettBestilling(it)
-                }
+        when (agent) {
+            Tiltaksadministrasjon -> Unit
 
-                TilsagnStatus.TIL_ANNULLERING -> annullerTilsagn(tilsagn, agent).onRight {
-                    publishAnnullerBestilling(it)
-                }
+            Arena,
+            Arrangor,
+            -> return FieldError.of("$agent kan ikke beslutte tilsagn").nel().left()
 
-                TilsagnStatus.TIL_OPPGJOR -> gjorOppTilsagn(tilsagn, agent, "Tilsagn oppgjort").onRight {
-                    publishGjorOppBestilling(it)
+            is NavIdent -> {
+                val ansatt = queries.ansatt.getByNavIdentOrError(agent)
+                if (!erBeslutter(ansatt, tilsagn.kostnadssted)) {
+                    return FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})")
+                        .nel()
+                        .left()
                 }
+            }
+        }
+
+        when (tilsagn.status) {
+            TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT,
+            -> FieldError.of("Tilsagnet kan ikke godkjennes fordi det har status ${tilsagn.status.beskrivelse}")
+                .nel()
+                .left()
+
+            TilsagnStatus.TIL_GODKJENNING -> godkjennTilsagn(tilsagn, agent).onRight {
+                publishOpprettBestilling(it)
+            }
+
+            TilsagnStatus.TIL_ANNULLERING -> annullerTilsagn(tilsagn, agent).onRight {
+                publishAnnullerBestilling(it)
+            }
+
+            TilsagnStatus.TIL_OPPGJOR -> gjorOppTilsagn(tilsagn, agent, "Tilsagn oppgjort").onRight {
+                publishGjorOppBestilling(it)
             }
         }
     }
@@ -319,33 +339,25 @@ class TilsagnService(
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
-        validateAccessAndLockTilsagn(id, navIdent).flatMap { tilsagn ->
-            when (tilsagn.status) {
-                TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT,
-                -> FieldError.of("Tilsagnet kan ikke returneres fordi det har status ${tilsagn.status.beskrivelse}")
-                    .nel()
-                    .left()
-
-                TilsagnStatus.TIL_GODKJENNING -> returnerTilsagn(tilsagn, navIdent, aarsaker, forklaring)
-
-                TilsagnStatus.TIL_ANNULLERING -> avvisAnnullering(tilsagn, navIdent, aarsaker, forklaring)
-
-                TilsagnStatus.TIL_OPPGJOR -> avvisOppgjor(tilsagn, navIdent, aarsaker, forklaring)
-            }
-        }
-    }
-
-    private fun QueryContext.validateAccessAndLockTilsagn(id: UUID, agent: Agent) = validation {
         val tilsagn = queries.tilsagn.getAndAquireLock(id)
 
-        if (agent is NavIdent) {
-            val ansatt = queries.ansatt.getByNavIdentOrError(agent)
-            validate(ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(tilsagn.kostnadssted.enhetsnummer))) {
-                FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})")
-            }
+        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
+        if (!(erSaksbehandler(ansatt) || erBeslutter(ansatt, tilsagn.kostnadssted))) {
+            return FieldError.of("Du kan ikke returnere tilsagnet fordi du mangler tilgang").nel().left()
         }
 
-        tilsagn
+        when (tilsagn.status) {
+            TilsagnStatus.OPPGJORT, TilsagnStatus.ANNULLERT, TilsagnStatus.GODKJENT, TilsagnStatus.RETURNERT,
+            -> FieldError.of("Tilsagnet kan ikke returneres fordi det har status ${tilsagn.status.beskrivelse}")
+                .nel()
+                .left()
+
+            TilsagnStatus.TIL_GODKJENNING -> returnerTilsagn(tilsagn, navIdent, aarsaker, forklaring)
+
+            TilsagnStatus.TIL_ANNULLERING -> avvisAnnullering(tilsagn, navIdent, aarsaker, forklaring)
+
+            TilsagnStatus.TIL_OPPGJOR -> avvisOppgjor(tilsagn, navIdent, aarsaker, forklaring)
+        }
     }
 
     fun republishOpprettBestilling(bestillingsnummer: String): Tilsagn = db.transaction {
@@ -772,32 +784,20 @@ class TilsagnService(
             annullering: Totrinnskontroll?,
             tilOppgjor: Totrinnskontroll?,
         ): Boolean {
-            val beslutter = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted))
-            val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+            val erBeslutter = ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted))
+            val erSaksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
 
             return when (handling) {
-                TilsagnHandling.REDIGER,
-                TilsagnHandling.SLETT,
-                TilsagnHandling.ANNULLER,
-                TilsagnHandling.GJOR_OPP,
-                -> saksbehandler
-
-                TilsagnHandling.RETURNER,
-                TilsagnHandling.AVSLA_ANNULLERING,
-                TilsagnHandling.AVSLA_OPPGJOR,
-                -> beslutter
-
-                TilsagnHandling.GODKJENN -> {
-                    beslutter && opprettelse.behandletAv != ansatt.navIdent
-                }
-
-                TilsagnHandling.GODKJENN_ANNULLERING -> {
-                    beslutter && annullering?.behandletAv != ansatt.navIdent
-                }
-
-                TilsagnHandling.GODKJENN_OPPGJOR -> {
-                    beslutter && tilOppgjor?.behandletAv != ansatt.navIdent
-                }
+                TilsagnHandling.REDIGER -> erSaksbehandler
+                TilsagnHandling.GODKJENN -> erBeslutter && opprettelse.behandletAv != ansatt.navIdent
+                TilsagnHandling.RETURNER -> erSaksbehandler || erBeslutter
+                TilsagnHandling.SLETT -> erSaksbehandler
+                TilsagnHandling.GJOR_OPP -> erSaksbehandler
+                TilsagnHandling.GODKJENN_OPPGJOR -> erBeslutter && tilOppgjor?.behandletAv != ansatt.navIdent
+                TilsagnHandling.AVSLA_OPPGJOR -> erBeslutter
+                TilsagnHandling.ANNULLER -> erSaksbehandler
+                TilsagnHandling.AVSLA_ANNULLERING -> erBeslutter
+                TilsagnHandling.GODKJENN_ANNULLERING -> erBeslutter && annullering?.behandletAv != ansatt.navIdent
             }
         }
     }

@@ -42,7 +42,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService.Config
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
@@ -830,8 +829,12 @@ class UtbetalingService(
     }
 }
 
-private fun erSaksbehandler(ansatt: NavAnsatt): Boolean = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+fun erSaksbehandler(ansatt: NavAnsatt): Boolean = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
 
-private fun erAttestant(ansatt: NavAnsatt, kostnadssted: NavEnhetDbo): Boolean {
+fun erAttestant(ansatt: NavAnsatt, kostnadssted: NavEnhetDbo): Boolean {
     return ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))
+}
+
+fun erBeslutter(ansatt: NavAnsatt, kostnadssted: NavEnhetDbo): Boolean {
+    return ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, setOf(kostnadssted.enhetsnummer))
 }
