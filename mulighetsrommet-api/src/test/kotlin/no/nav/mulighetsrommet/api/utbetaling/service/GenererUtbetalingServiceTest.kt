@@ -9,6 +9,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldMatch
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -61,6 +62,7 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.Tilskuddstype
+import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -76,10 +78,12 @@ class GenererUtbetalingServiceTest : FunSpec({
 
     val arrangorService = mockk<ArrangorService>()
 
-    coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
-        kontonummer = Kontonummer("12345678901"),
-        kid = null,
-    )
+    beforeEach {
+        coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
+            kontonummer = Kontonummer("12345678901"),
+            kid = null,
+        )
+    }
 
     fun createUtbetalingService(
         gyldigTilsagnPeriode: Map<Tiltakskode, Periode> = Tiltakskode.entries.associateWith {
@@ -886,7 +890,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         }
     }
 
-    context("generering av utbetalinger for TILPASSET_JOBBSTOTTE") {
+    context("generering av utbetalinger for avtalt sats per tiltaksplass per måned") {
         val service = createUtbetalingService()
 
         beforeEach {
@@ -928,14 +932,27 @@ class GenererUtbetalingServiceTest : FunSpec({
             service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
         }
 
-        test("genererer utbetaling med beløp utledet fra godkjent tilsagn") {
+        test("feiler med å generere utbetaling om kontonummer til arrangør mangler") {
+            MulighetsrommetTestDomain(tilsagn = listOf(tilsagn)) {
+                setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            coEvery { arrangorService.getBetalingsinformasjon(any()) } returns null
+
+            val exception = assertThrows<IllegalStateException> {
+                service.genererUtbetalingerForPeriode(januar)
+            }
+            exception.message shouldMatch "Betalingsinformasjon mangler for utbetaling.*".toRegex()
+        }
+
+        test("genererer og prosesserer utbetaling med beløp utledet fra godkjent tilsagn") {
             MulighetsrommetTestDomain(tilsagn = listOf(tilsagn)) {
                 setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
             }.initialize(database.db)
 
             val utbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
 
-            utbetaling.status shouldBe UtbetalingStatusType.GENERERT
+            utbetaling.status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
 
             utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed>().should {
                 it.output.pris shouldBe 7_321.NOK

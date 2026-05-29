@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
+import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.toNonEmptyListOrNull
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -22,20 +24,25 @@ import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
+import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -43,6 +50,7 @@ import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.contracts.ExperimentalContracts
 
 fun Route.utbetalingRoutes() {
     val db: ApiDatabase by inject()
@@ -355,7 +363,8 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<OpprettUtbetalingLinjerRequest>()
                 val navIdent = getNavIdent()
 
-                val result = utbetalingService.opprettUtbetalingLinjer(request, navIdent)
+                val result = request.validate()
+                    .flatMap { utbetalingService.sendTilAttestering(it, navIdent) }
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -458,7 +467,36 @@ data class OpprettUtbetalingLinjerRequest(
     val utbetalingId: UUID,
     val utbetalingLinjer: List<UtbetalingLinjeRequest>,
     val begrunnelseMindreBetalt: String?,
-)
+) {
+    @OptIn(ExperimentalContracts::class)
+    fun validate(): Either<List<FieldError>, OpprettUtbetalingLinjer> = validation {
+        val linjer = utbetalingLinjer.mapIndexedNotNull { index, req ->
+            val belop = req.pris?.belop ?: 0
+            if (belop == 0) {
+                return@mapIndexedNotNull null
+            }
+
+            requireValid(belop > 0 && req.pris?.valuta != null) {
+                FieldError("/utbetalingLinjer/$index/pris/belop", "Beløp må være positivt")
+            }
+
+            OpprettUtbetalingLinje(
+                id = req.id,
+                tilsagnId = req.tilsagnId,
+                pris = ValutaBelop(belop, requireNotNull(req.pris.valuta)),
+                gjorOppTilsagn = req.gjorOppTilsagn ?: false,
+            )
+        }
+
+        OpprettUtbetalingLinjer(
+            utbetalingId = utbetalingId,
+            linjer = requireNotNull(linjer.toNonEmptyListOrNull()) {
+                FieldError.of("Utbetalingslinjer mangler", OpprettUtbetalingLinjerRequest::utbetalingLinjer)
+            },
+            begrunnelseMindreBetalt = begrunnelseMindreBetalt?.takeIf { it.isNotBlank() },
+        )
+    }
+}
 
 @Serializable
 data class UtbetalingRequest(

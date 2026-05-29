@@ -6,17 +6,20 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.SystemgenerertPrismodell
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
@@ -225,10 +228,36 @@ class GenererUtbetalingService(
             blokkeringer = blokkeringer,
         )
         return db.transaction {
-            utbetalingService.opprettUtbetaling(opprett, Tiltaksadministrasjon).getOrElse {
+            utbetalingService.opprettUtbetaling(opprett, Tiltaksadministrasjon)
+                .map { tryAutomatisertUtbetaling(it) }
+                .getOrElse { throw UtbetalingException(it) }
+        }
+    }
+
+    private fun TransactionalQueryContext.tryAutomatisertUtbetaling(utbetaling: Utbetaling): Utbetaling {
+        val beregning = utbetaling.beregning as? UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
+            ?: return utbetaling
+
+        val linjer = beregning.output.tilsagnBidrag.map {
+            OpprettUtbetalingLinje(
+                id = UUID.randomUUID(),
+                tilsagnId = it.tilsagnId,
+                pris = it.bidrag,
+                gjorOppTilsagn = false,
+            )
+        }
+
+        utbetalingService.sendTilAttestering(utbetaling.id, linjer, Tiltaksadministrasjon).getOrElse {
+            throw UtbetalingException(it)
+        }
+
+        linjer.forEach { linje ->
+            utbetalingService.godkjennUtbetalingLinje(linje.id, Tiltaksadministrasjon).getOrElse {
                 throw UtbetalingException(it)
             }
         }
+
+        return queries.utbetaling.getOrError(utbetaling.id)
     }
 
     private fun blokkeringer(

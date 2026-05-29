@@ -27,11 +27,11 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.utbetaling.api.OpprettUtbetalingLinjerRequest
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
+import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
@@ -46,6 +46,7 @@ import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavIdent
@@ -140,68 +141,49 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun opprettUtbetalingLinjer(
-        request: OpprettUtbetalingLinjerRequest,
-        navIdent: NavIdent,
+    fun sendTilAttestering(
+        utbetalingId: UUID,
+        linjer: List<OpprettUtbetalingLinje>,
+        agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(request.utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
 
-        val utbetalingLinjeTilsagn = request.utbetalingLinjer.associate { req ->
-            req.id to queries.tilsagn.getOrError(req.tilsagnId)
+        val linjerSomSkalSlettes = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id).filter { linje ->
+            linje.id !in linjer.map { it.id }
         }
 
-        UtbetalingValidator
-            .validateOpprettUtbetalingLinjer(
-                UtbetalingValidator.OpprettUtbetalingLinjerCtx(
-                    utbetaling = utbetaling,
-                    linjer = request.utbetalingLinjer.map { req ->
-                        val tilsagn = utbetalingLinjeTilsagn.getValue(req.id)
-                        UtbetalingValidator.OpprettUtbetalingLinjerCtx.Linje(
-                            request = req,
-                            tilsagn = UtbetalingValidator.OpprettUtbetalingLinjerCtx.Tilsagn(
-                                status = tilsagn.status,
-                                gjenstaendeBelop = tilsagn.gjenstaendeBelop(),
-                            ),
-                        )
-                    },
-                    begrunnelse = request.begrunnelseMindreBetalt,
-                ),
+        if (linjerSomSkalSlettes.any { it.status != UtbetalingLinjeStatus.RETURNERT }) {
+            return FieldError.of("Utbetaling kan ikke sendes til attestering fordi den allerede har andre utbetalingslinjer")
+                .nel()
+                .left()
+        }
+
+        linjerSomSkalSlettes.forEach { linje ->
+            queries.utbetalingLinje.delete(linje.id)
+        }
+
+        linjer.forEach { linje ->
+            upsertUtbetalingLinje(
+                id = linje.id,
+                utbetaling = utbetaling,
+                tilsagn = queries.tilsagn.getOrError(linje.tilsagnId),
+                pris = linje.pris,
+                gjorOppTilsagn = linje.gjorOppTilsagn,
+                behandletAv = agent,
             )
-            .map { linjer ->
-                // Slett de som ikke er med i requesten
-                queries.utbetalingLinje.getByUtbetalingId(utbetaling.id)
-                    .filter { linje -> linje.id !in request.utbetalingLinjer.map { it.id } }
-                    .forEach { linje ->
-                        require(linje.status == UtbetalingLinjeStatus.RETURNERT) {
-                            "Fatal! UtbetalingLinje kan ikke slettes fordi den har status: ${linje.status}"
-                        }
-                        queries.utbetalingLinje.delete(linje.id)
-                    }
+        }
+        queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
 
-                linjer.forEach { linje ->
-                    upsertUtbetalingLinje(
-                        id = linje.id,
-                        utbetaling = utbetaling,
-                        tilsagn = utbetalingLinjeTilsagn.getValue(linje.id),
-                        pris = requireNotNull(linje.pris),
-                        gjorOppTilsagn = linje.gjorOppTilsagn,
-                        behandletAv = navIdent,
-                    )
-                }
-                queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.TIL_ATTESTERING)
-                queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, request.begrunnelseMindreBetalt)
-
-                logEndring("Utbetaling sendt til attestering", utbetaling.id, navIdent)
-            }
+        logEndring("Utbetaling sendt til attestering", utbetaling.id, agent).right()
     }
 
     context(tx: TransactionalQueryContext)
     fun godkjennUtbetalingLinje(
         id: UUID,
-        navIdent: NavIdent,
+        agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
-        validateAccessAndLockUtbetaling(id, navIdent).flatMap { (_, linje) ->
-            godkjennUtbetalingLinje(linje, navIdent)
+        validateAccessAndLockUtbetaling(id, agent).flatMap { (_, linje) ->
+            godkjennUtbetalingLinje(linje, agent)
         }
     }
 
@@ -339,17 +321,27 @@ class UtbetalingService(
             .getOrElse { throw UtbetalingException(it) }
     }
 
-    private fun QueryContext.validateAccessAndLockUtbetaling(id: UUID, navIdent: NavIdent) = validation {
-        val linje = queries.utbetalingLinje.getOrError(id)
+    private fun QueryContext.validateAccessAndLockUtbetaling(utbetalingLinjeId: UUID, agent: Agent) = validation {
+        val linje = queries.utbetalingLinje.getOrError(utbetalingLinjeId)
         val utbetaling = queries.utbetaling.getAndAquireLock(linje.utbetalingId)
         validate(utbetaling.status == UtbetalingStatusType.TIL_ATTESTERING && linje.status == UtbetalingLinjeStatus.TIL_ATTESTERING) {
             FieldError.of("Utbetaling er ikke satt til attestering")
         }
 
-        val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
-        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
-        validate(ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
-            FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
+        when (agent) {
+            Arena,
+            Arrangor,
+            -> error { FieldError.of("$agent kan ikke utføre handlinger på utbetalinger") }
+
+            is NavIdent -> {
+                val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
+                val ansatt = queries.ansatt.getByNavIdentOrError(agent)
+                validate(ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted.enhetsnummer))) {
+                    FieldError.of("Kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
+                }
+            }
+
+            Tiltaksadministrasjon -> Unit
         }
 
         Pair(utbetaling, linje)
@@ -643,7 +635,7 @@ class UtbetalingService(
     ): Utbetaling {
         setReturnertUtbetalingLinje(linje.id, aarsaker, forklaring, besluttetAv)
 
-        // Set også de resterende utbetalingslinjene som returnert
+        // Sett også de resterende utbetalingslinjene som returnert
         queries.utbetalingLinje.getByUtbetalingId(linje.utbetalingId)
             .filter { it.id != linje.id }
             .forEach {
@@ -708,25 +700,21 @@ class UtbetalingService(
         """.trimIndent()
 
         val betalingsinformasjon = when (utbetaling.betalingsinformasjon) {
-            is Betalingsinformasjon.BBan ->
-                OpprettFaktura.Betalingsinformasjon.BBan(
-                    kontonummer = utbetaling.betalingsinformasjon.kontonummer,
-                    kid = utbetaling.betalingsinformasjon.kid,
-                )
+            is Betalingsinformasjon.BBan -> OpprettFaktura.Betalingsinformasjon.BBan(
+                kontonummer = utbetaling.betalingsinformasjon.kontonummer,
+                kid = utbetaling.betalingsinformasjon.kid,
+            )
 
-            is Betalingsinformasjon.IBan ->
-                OpprettFaktura.Betalingsinformasjon.IBan(
-                    iban = utbetaling.betalingsinformasjon.iban,
-                    bic = utbetaling.betalingsinformasjon.bic,
-                    bankLandKode = utbetaling.betalingsinformasjon.bankLandKode,
-                    bankNavn = utbetaling.betalingsinformasjon.bankNavn,
-                )
+            is Betalingsinformasjon.IBan -> OpprettFaktura.Betalingsinformasjon.IBan(
+                iban = utbetaling.betalingsinformasjon.iban,
+                bic = utbetaling.betalingsinformasjon.bic,
+                bankLandKode = utbetaling.betalingsinformasjon.bankLandKode,
+                bankNavn = utbetaling.betalingsinformasjon.bankNavn,
+            )
 
-            null -> {
-                throw IllegalStateException(
-                    "Bankkonto informasjon mangler for utbetaling med id=${linje.utbetalingId}",
-                )
-            }
+            null -> throw IllegalStateException(
+                "Betalingsinformasjon mangler for utbetaling med id=${linje.utbetalingId}",
+            )
         }
 
         queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, Instant.now())
