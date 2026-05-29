@@ -45,7 +45,7 @@ import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import no.nav.tiltak.okonomi.plugins.configureAuthentication
 import no.nav.tiltak.okonomi.plugins.configureHTTP
 import no.nav.tiltak.okonomi.plugins.configureSerialization
-import no.nav.tiltak.okonomi.service.OkonomiService
+import no.nav.tiltak.okonomi.service.TiltaksokonomiService
 import kotlin.time.Duration.Companion.seconds
 
 fun main() {
@@ -100,8 +100,8 @@ fun Application.configure(config: AppConfig) {
 
     val okonomiDb = OkonomiDatabase(db)
 
-    val okonomi = OkonomiService(
-        config = OkonomiService.Config(
+    val okonomi = TiltaksokonomiService(
+        config = TiltaksokonomiService.Config(
             topics = config.kafka.topics,
         ),
         db = okonomiDb,
@@ -123,7 +123,7 @@ fun Application.configure(config: AppConfig) {
 private fun Application.configureKafka(
     config: KafkaConfig,
     db: Database,
-    okonomi: OkonomiService,
+    okonomi: TiltaksokonomiService,
 ): KafkaConsumerOrchestrator {
     val producerClient = KafkaProducerClientBuilder.builder<ByteArray, ByteArray?>()
         .withProperties(config.producerPropertiesPreset)

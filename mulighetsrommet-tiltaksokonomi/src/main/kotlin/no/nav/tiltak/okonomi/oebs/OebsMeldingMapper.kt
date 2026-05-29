@@ -3,7 +3,7 @@ package no.nav.tiltak.okonomi.oebs
 import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
-import no.nav.tiltak.okonomi.model.OebsKontering
+import no.nav.tiltak.okonomi.oebs.OebsKontering
 import java.time.ZoneId
 
 private val osloZone = ZoneId.of("Europe/Oslo")

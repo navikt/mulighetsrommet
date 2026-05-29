@@ -1,4 +1,4 @@
-package no.nav.tiltak.okonomi.model
+package no.nav.tiltak.okonomi.oebs
 
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode

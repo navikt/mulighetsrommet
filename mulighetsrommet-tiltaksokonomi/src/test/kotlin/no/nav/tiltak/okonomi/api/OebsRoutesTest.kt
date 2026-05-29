@@ -1,4 +1,4 @@
-package no.nav.tiltak.okonomi.oebs
+package no.nav.tiltak.okonomi.api
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -31,14 +31,13 @@ import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.Tilskuddstype
-import no.nav.tiltak.okonomi.api.API_BASE_PATH
-import no.nav.tiltak.okonomi.api.OebsBestillingKvittering
-import no.nav.tiltak.okonomi.api.OebsFakturaKvittering
 import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.oebs.OebsBestillingKvittering
+import no.nav.tiltak.okonomi.oebs.OebsFakturaKvittering
 import no.nav.tiltak.okonomi.plugins.AppRoles
 import no.nav.tiltak.okonomi.withTestApplication
 import org.intellij.lang.annotations.Language

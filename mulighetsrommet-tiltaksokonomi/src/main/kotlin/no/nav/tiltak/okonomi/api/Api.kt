@@ -6,13 +6,13 @@ import io.ktor.server.resources.Resources
 import io.ktor.server.routing.routing
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.tiltak.okonomi.service.OkonomiService
+import no.nav.tiltak.okonomi.service.TiltaksokonomiService
 
 const val API_BASE_PATH = "/api/v1/okonomi"
 
 fun Application.configureApi(
     kafka: KafkaConsumerOrchestrator,
-    okonomi: OkonomiService,
+    okonomi: TiltaksokonomiService,
     db: Database,
 ) = routing {
     install(Resources)

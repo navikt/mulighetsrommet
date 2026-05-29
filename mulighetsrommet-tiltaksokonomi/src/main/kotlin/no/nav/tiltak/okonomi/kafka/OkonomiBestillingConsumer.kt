@@ -7,14 +7,14 @@ import no.nav.common.kafka.consumer.feilhandtering.KafkaConsumerRepository
 import no.nav.mulighetsrommet.kafka.ScheduledMessageKafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementSerde
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
-import no.nav.tiltak.okonomi.service.OkonomiService
+import no.nav.tiltak.okonomi.service.TiltaksokonomiService
 import org.apache.kafka.common.serialization.Serdes
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 
 class OkonomiBestillingConsumer(
     kafkaConsumerRepository: KafkaConsumerRepository,
-    private val okonomi: OkonomiService,
+    private val okonomi: TiltaksokonomiService,
 ) : ScheduledMessageKafkaTopicConsumer<String, JsonElement>(
     kafkaConsumerRepository,
     Serdes.StringSerde(),
