@@ -34,13 +34,12 @@ import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class OpprettBestillingError(message: String, cause: Throwable? = null) : Exception(message, cause)
-
-class AnnullerBestillingError(message: String, cause: Throwable? = null) : Exception(message, cause)
-
-class OpprettFakturaError(message: String, cause: Throwable? = null) : Exception(message, cause)
-
-class GjorOppBestillingError(message: String, cause: Throwable? = null) : Exception(message, cause)
+sealed class TiltaksokonomiError(message: String, cause: Throwable?) : Exception(message, cause) {
+    class OpprettBestilling(message: String, cause: Throwable? = null) : TiltaksokonomiError(message, cause)
+    class AnnullerBestilling(message: String, cause: Throwable? = null) : TiltaksokonomiError(message, cause)
+    class OpprettFaktura(message: String, cause: Throwable? = null) : TiltaksokonomiError(message, cause)
+    class GjorOppBestilling(message: String, cause: Throwable? = null) : TiltaksokonomiError(message, cause)
+}
 
 class TiltaksokonomiService(
     private val config: Config,
@@ -56,7 +55,7 @@ class TiltaksokonomiService(
 
     suspend fun opprettBestilling(
         opprettBestilling: OpprettBestilling,
-    ): Either<OpprettBestillingError, Bestilling> = db.transaction {
+    ): Either<TiltaksokonomiError.OpprettBestilling, Bestilling> = db.transaction {
         val bestillingsnummer = opprettBestilling.bestillingsnummer
 
         queries.bestilling.getByBestillingsnummer(bestillingsnummer)?.let {
@@ -70,7 +69,7 @@ class TiltaksokonomiService(
                 tiltakskode = opprettBestilling.tiltakskode,
                 periode = opprettBestilling.periode,
             )
-            ?: return OpprettBestillingError("Kontering for bestilling $bestillingsnummer mangler").left()
+            ?: return TiltaksokonomiError.OpprettBestilling("Kontering for bestilling $bestillingsnummer mangler").left()
 
         return getSelger(opprettBestilling.arrangor)
             .flatMap { selger ->
@@ -82,7 +81,7 @@ class TiltaksokonomiService(
                 log.info("Sender bestilling $bestillingsnummer til oebs")
                 oebs.sendBestilling(melding)
                     .mapLeft {
-                        OpprettBestillingError("Klarte ikke sende bestilling $bestillingsnummer til oebs", it)
+                        TiltaksokonomiError.OpprettBestilling("Klarte ikke sende bestilling $bestillingsnummer til oebs", it)
                     }
                     .map { bestilling }
             }
@@ -96,63 +95,29 @@ class TiltaksokonomiService(
             }
     }
 
-    suspend fun getSelger(arrangor: OpprettBestilling.Arrangor): Either<OpprettBestillingError, OebsBestillingMelding.Selger> {
-        return when (arrangor) {
-            is OpprettBestilling.Arrangor.Norsk -> getSelgerFromBreg(arrangor.organisasjonsnummer)
-
-            is OpprettBestilling.Arrangor.Utenlandsk -> {
-                OebsBestillingMelding.Selger(
-                    organisasjonsNummer = arrangor.organisasjonsnummer.value,
-                    organisasjonsNavn = arrangor.navn,
-                    adresse = listOf(
-                        OebsBestillingMelding.Selger.Adresse(
-                            gateNavn = arrangor.gateNavn,
-                            by = arrangor.by,
-                            postNummer = arrangor.postNummer,
-                            landsKode = arrangor.landKode,
-                        ),
-                    ),
-                    bedriftsNummer = arrangor.organisasjonsnummer.value,
-                ).right()
-            }
-        }
-    }
-
-    suspend fun getSelgerFromBreg(organisasjonsnummer: Organisasjonsnummer): Either<OpprettBestillingError, OebsBestillingMelding.Selger> = getHovedenhet(organisasjonsnummer)
-        .flatMap { hovedenhet ->
-            getLeverandorAdresse(hovedenhet).map { adresse ->
-                OebsBestillingMelding.Selger(
-                    organisasjonsNummer = hovedenhet.organisasjonsnummer.value,
-                    organisasjonsNavn = hovedenhet.navn,
-                    adresse = adresse,
-                    bedriftsNummer = organisasjonsnummer.value,
-                )
-            }
-        }
-
     suspend fun annullerBestilling(
         annullerBestilling: AnnullerBestilling,
-    ): Either<AnnullerBestillingError, Bestilling> = db.transaction {
+    ): Either<TiltaksokonomiError.AnnullerBestilling, Bestilling> = db.transaction {
         val bestillingsnummer = annullerBestilling.bestillingsnummer
 
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
-            ?: return AnnullerBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
+            ?: return TiltaksokonomiError.AnnullerBestilling("Bestilling $bestillingsnummer finnes ikke").left()
         if (bestilling.status in listOf(BestillingStatusType.ANNULLERT, BestillingStatusType.ANNULLERING_SENDT)) {
             log.info("Bestilling $bestillingsnummer er allerede annullert")
             return publishBestilling(bestillingsnummer).right()
         } else if (bestilling.status != BestillingStatusType.AKTIV) {
-            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi den har status ${bestilling.status}").left()
+            return TiltaksokonomiError.AnnullerBestilling("Bestilling $bestillingsnummer kan ikke annulleres fordi den har status ${bestilling.status}").left()
         }
 
         val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
         if (fakturaer.isNotEmpty()) {
-            return AnnullerBestillingError("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
+            return TiltaksokonomiError.AnnullerBestilling("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
         }
 
         val melding = OebsMeldingMapper.toOebsAnnulleringMelding(bestilling, annullerBestilling)
         return oebs.sendAnnullering(melding)
             .mapLeft {
-                AnnullerBestillingError("Klarte ikke annullere bestilling $bestillingsnummer hos oebs", it)
+                TiltaksokonomiError.AnnullerBestilling("Klarte ikke annullere bestilling $bestillingsnummer hos oebs", it)
             }
             .map {
                 log.info("Lagrer bestilling ${bestilling.bestillingsnummer} som annullert")
@@ -172,7 +137,7 @@ class TiltaksokonomiService(
 
     suspend fun opprettFaktura(
         opprettFaktura: OpprettFaktura,
-    ): Either<OpprettFakturaError, Faktura> = db.transaction {
+    ): Either<TiltaksokonomiError.OpprettFaktura, Faktura> = db.transaction {
         val fakturanummer = opprettFaktura.fakturanummer
 
         queries.faktura.getByFakturanummer(fakturanummer)?.let {
@@ -183,14 +148,14 @@ class TiltaksokonomiService(
         val bestillingsnummer = opprettFaktura.bestillingsnummer
 
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
-            ?: return OpprettFakturaError("Bestilling $bestillingsnummer finnes ikke").left()
+            ?: return TiltaksokonomiError.OpprettFaktura("Bestilling $bestillingsnummer finnes ikke").left()
         if (bestilling.status != BestillingStatusType.AKTIV) {
-            return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi bestilling $bestillingsnummer har status ${bestilling.status}").left()
+            return TiltaksokonomiError.OpprettFaktura("Faktura $fakturanummer kan ikke opprettes fordi bestilling $bestillingsnummer har status ${bestilling.status}").left()
         }
 
         val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
         if (venterPaaKvittering(fakturaer)) {
-            return OpprettFakturaError("Faktura $fakturanummer kan ikke opprettes fordi vi venter på kvittering").left()
+            return TiltaksokonomiError.OpprettFaktura("Faktura $fakturanummer kan ikke opprettes fordi vi venter på kvittering").left()
         }
 
         val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
@@ -202,7 +167,7 @@ class TiltaksokonomiService(
         )
         return oebs.sendFaktura(melding)
             .mapLeft {
-                OpprettFakturaError("Klarte ikke sende faktura $fakturanummer til oebs", it)
+                TiltaksokonomiError.OpprettFaktura("Klarte ikke sende faktura $fakturanummer til oebs", it)
             }
             .map {
                 log.info("Lagrer faktura $fakturanummer")
@@ -221,13 +186,13 @@ class TiltaksokonomiService(
      */
     suspend fun gjorOppBestilling(
         gjorOppBestilling: GjorOppBestilling,
-    ): Either<GjorOppBestillingError, Faktura> = db.session {
+    ): Either<TiltaksokonomiError.GjorOppBestilling, Faktura> = db.session {
         val bestillingsnummer = gjorOppBestilling.bestillingsnummer
 
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
-            ?: return GjorOppBestillingError("Bestilling $bestillingsnummer finnes ikke").left()
+            ?: return TiltaksokonomiError.GjorOppBestilling("Bestilling $bestillingsnummer finnes ikke").left()
         if (bestilling.status != BestillingStatusType.AKTIV) {
-            return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi den har status ${bestilling.status}").left()
+            return TiltaksokonomiError.GjorOppBestilling("Bestilling $bestillingsnummer kan ikke gjøres opp fordi den har status ${bestilling.status}").left()
         }
 
         val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
@@ -236,14 +201,14 @@ class TiltaksokonomiService(
             return it.right()
         }
         if (venterPaaKvittering(fakturaer)) {
-            return GjorOppBestillingError("Bestilling $bestillingsnummer kan ikke gjøres opp fordi vi venter på kvittering").left()
+            return TiltaksokonomiError.GjorOppBestilling("Bestilling $bestillingsnummer kan ikke gjøres opp fordi vi venter på kvittering").left()
         }
 
         val faktura = Faktura.fromGjorOppBestilling(gjorOppBestilling, bestilling)
         val melding = OebsMeldingMapper.toOebsFakturaMelding(bestilling, faktura, erSisteFaktura = true)
         return oebs.sendFaktura(melding)
             .mapLeft {
-                GjorOppBestillingError("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
+                TiltaksokonomiError.GjorOppBestilling("Klarte ikke sende faktura ${faktura.fakturanummer} til oebs", it)
             }
             .map {
                 log.info("Lagrer oppgjort-faktura ${faktura.fakturanummer}")
@@ -324,17 +289,53 @@ class TiltaksokonomiService(
         queries.kvittering.insert(kvitteringJson)
     }
 
-    private suspend fun getHovedenhet(organisasjonsnummer: Organisasjonsnummer): Either<OpprettBestillingError, BrregHovedenhetDto> {
+    private suspend fun getSelger(arrangor: OpprettBestilling.Arrangor): Either<TiltaksokonomiError.OpprettBestilling, OebsBestillingMelding.Selger> {
+        return when (arrangor) {
+            is OpprettBestilling.Arrangor.Norsk -> getSelgerFromBrreg(arrangor.organisasjonsnummer)
+
+            is OpprettBestilling.Arrangor.Utenlandsk -> {
+                OebsBestillingMelding.Selger(
+                    organisasjonsNummer = arrangor.organisasjonsnummer.value,
+                    organisasjonsNavn = arrangor.navn,
+                    adresse = listOf(
+                        OebsBestillingMelding.Selger.Adresse(
+                            gateNavn = arrangor.gateNavn,
+                            by = arrangor.by,
+                            postNummer = arrangor.postNummer,
+                            landsKode = arrangor.landKode,
+                        ),
+                    ),
+                    bedriftsNummer = arrangor.organisasjonsnummer.value,
+                ).right()
+            }
+        }
+    }
+
+    private suspend fun getSelgerFromBrreg(organisasjonsnummer: Organisasjonsnummer): Either<TiltaksokonomiError.OpprettBestilling, OebsBestillingMelding.Selger> {
+        return getBrregHovedenhet(organisasjonsnummer)
+            .flatMap { hovedenhet ->
+                getLeverandorAdresse(hovedenhet).map { adresse ->
+                    OebsBestillingMelding.Selger(
+                        organisasjonsNummer = hovedenhet.organisasjonsnummer.value,
+                        organisasjonsNavn = hovedenhet.navn,
+                        adresse = adresse,
+                        bedriftsNummer = organisasjonsnummer.value,
+                    )
+                }
+            }
+    }
+
+    private suspend fun getBrregHovedenhet(organisasjonsnummer: Organisasjonsnummer): Either<TiltaksokonomiError.OpprettBestilling, BrregHovedenhetDto> {
         return brreg.getBrregEnhet(organisasjonsnummer)
             .mapLeft { error ->
-                OpprettBestillingError("Klarte ikke utlede hovedenhet for $organisasjonsnummer fra Brreg: $error")
+                TiltaksokonomiError.OpprettBestilling("Klarte ikke utlede hovedenhet for $organisasjonsnummer fra Brreg: $error")
             }
             .flatMap { enhet ->
                 when (enhet) {
-                    is BrregHovedenhetDto -> enhet.overordnetEnhet?.let { getHovedenhet(it) } ?: enhet.right()
-                    is BrregUnderenhetDto -> getHovedenhet(enhet.overordnetEnhet)
-                    is SlettetBrregHovedenhetDto -> OpprettBestillingError("Hovedenhet med orgnr ${organisasjonsnummer.value} er slettet").left()
-                    is SlettetBrregUnderenhetDto -> OpprettBestillingError("Underenhet med orgnr ${enhet.organisasjonsnummer.value} er slettet").left()
+                    is BrregHovedenhetDto -> enhet.overordnetEnhet?.let { getBrregHovedenhet(it) } ?: enhet.right()
+                    is BrregUnderenhetDto -> getBrregHovedenhet(enhet.overordnetEnhet)
+                    is SlettetBrregHovedenhetDto -> TiltaksokonomiError.OpprettBestilling("Hovedenhet med orgnr ${organisasjonsnummer.value} er slettet").left()
+                    is SlettetBrregUnderenhetDto -> TiltaksokonomiError.OpprettBestilling("Underenhet med orgnr ${enhet.organisasjonsnummer.value} er slettet").left()
                 }
             }
     }
@@ -391,13 +392,13 @@ class TiltaksokonomiService(
 
 fun gjorOppFakturanummer(bestillingsnummer: String): String = "$bestillingsnummer-X"
 
-private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): Either<OpprettBestillingError, List<OebsBestillingMelding.Selger.Adresse>> {
+private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): Either<TiltaksokonomiError.OpprettBestilling, List<OebsBestillingMelding.Selger.Adresse>> {
     val adresse = leverandor.forretningsadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }
 
     return if (adresse.isNotEmpty()) {
         adresse.right()
     } else {
-        OpprettBestillingError("Klarte ikke utlede adresse for leverandør ${leverandor.organisasjonsnummer.value}").left()
+        TiltaksokonomiError.OpprettBestilling("Klarte ikke utlede adresse for leverandør ${leverandor.organisasjonsnummer.value}").left()
     }
 }
 
