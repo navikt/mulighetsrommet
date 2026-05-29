@@ -32,17 +32,18 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         Tiltakskode.FIREARIG_LONNSTILSUDD,
         -> ingenValg(tiltakskode)
 
-        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.STUDIESPESIALISERING,
+        Tiltakskode.STUDIESPESIALISERING, // Vil bli mappet med kurstype Studiespesialisering
         -> ingenValg(tiltakskode)
 
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> db.session { arenaGruppeAmo() }
 
-        Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> db.session { arenaAmo() }
+        Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+        -> db.session { arbeidsmarkedsopplaring(tiltakskode) }
 
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> db.session { norskOpplaringGrunnleggendeFerdigheterFov() }
 
+        Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
         ->
@@ -155,7 +156,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         )
     }
 
-    private fun QueryContext.arenaAmo(): OpplaringKategoriseringResponse {
+    private fun QueryContext.arbeidsmarkedsopplaring(tiltakskode: Tiltakskode): OpplaringKategoriseringResponse {
         val bransjer = queries.opplaringKategorisering.getBransjer().toMutableList()
         bransjer.find { it.kode == Bransje.Kode.ANDRE_BRANSJER }?.let {
             bransjer.remove(it)
@@ -163,7 +164,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         }
         val forerkort = queries.opplaringKategorisering.getForerkortKlasser()
         return OpplaringKategoriseringResponse(
-            tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            tiltakskode = tiltakskode,
             alternativer = amoBransjeForerkortSertifisering(bransjer, forerkort),
         )
     }
