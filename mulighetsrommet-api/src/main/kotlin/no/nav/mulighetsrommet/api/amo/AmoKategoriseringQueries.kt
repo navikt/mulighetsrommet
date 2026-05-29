@@ -18,7 +18,7 @@ object AmoKategoriseringQueries {
         GJENNOMFORING,
     }
 
-    context(session: TransactionalSession)
+    context(session: Session)
     fun upsert(
         relation: Relation,
         id: UUID,
@@ -35,7 +35,7 @@ object AmoKategoriseringQueries {
         }
     }
 
-    context(session: TransactionalSession)
+    context(session: Session)
     private fun upsert(
         foreignName: String,
         foreignId: UUID,
@@ -58,10 +58,10 @@ object AmoKategoriseringQueries {
                 :norskprove::boolean,
                 :innhold_elementer,
                 :bransje_id,
-                :kurstype_id,
+                :kurstype_id
             from opplaring_kategorisering_kurstype ok_kurstype
             left join opplaring_kategorisering_bransje ok_bransje on ok_bransje.id = :bransje_id
-            where ok_kurstype.kode = :kurstype_id
+            where ok_kurstype.id = :kurstype_id
             on conflict (${foreignName}_id) do update set
                 kurstype = excluded.kurstype,
                 bransje = excluded.bransje,
@@ -85,7 +85,7 @@ object AmoKategoriseringQueries {
         updateForerkort(foreignId, foreignName, kategorisering.forerkort)
     }
 
-    context(session: TransactionalSession)
+    context(session: Session)
     private fun updateForerkort(
         foreignId: UUID,
         foreignName: String,

@@ -13,6 +13,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx.Tiltakstype
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
@@ -1133,8 +1134,8 @@ class AvtaleValidatorTest : FunSpec({
                 ctx,
             ).shouldBeRight().detaljerDbo.opplaringKategorisering.shouldNotBeNull {
                 this.kurstypeId shouldBe KurstypeFixtures.grunnleggendeFerdigheter.id
-                this.innholdElementer shouldContainExactly listOf(
-                    AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
+                this.innholdElementer shouldContainExactly setOf(
+                    OpplaringKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
                 )
             }
 

@@ -5,8 +5,8 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
@@ -339,8 +339,7 @@ class GjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toUtdanningslopDto() }
     }
 
-    context(session: TransactionalSession)
-    fun setAmoKategorisering(id: UUID, kategorisering: OpplaringKategoriseringDbo?) {
+    fun setAmoKategorisering(id: UUID, kategorisering: OpplaringKategoriseringDbo?) = with(session) {
         AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.GJENNOMFORING, id, kategorisering)
     }
 
@@ -834,8 +833,8 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
     val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
         ?.let { Json.decodeFromString<List<GjennomforingAvtaleDetaljer.ArrangorKontaktperson>>(it) }
         ?: emptyList()
-    val amoKategorisering = stringOrNull("amo_kategorisering_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
+    val opplaringKategorisering = stringOrNull("amo_kategorisering_json")
+        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategorisering>(it) }
     return GjennomforingAvtaleDetaljer(
         administratorer = toAdministratorer(),
         kontorstruktur = Kontorstruktur.fromNavEnheter(toNavEnheter()),
@@ -851,7 +850,7 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
             )
         },
         tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
-        amoKategorisering = amoKategorisering,
+        opplaringKategorisering = opplaringKategorisering,
         utdanningslop = toUtdanningslopDto(),
         arrangorKontaktpersoner = arrangorKontaktpersoner,
         avbrytelse = when (GjennomforingStatusType.valueOf(string("status"))) {

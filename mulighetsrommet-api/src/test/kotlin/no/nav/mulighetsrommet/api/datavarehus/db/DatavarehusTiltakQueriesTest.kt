@@ -6,6 +6,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -142,15 +143,11 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     GruppeAmo1.copy(id = UUID.randomUUID()),
                 ),
             ) { domain ->
-                session.transaction { transactionalSession ->
-                    with(transactionalSession) {
-                        queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[0].id, studiespesialisering)
-                        queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[1].id, fov)
-                        queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[2].id, grunnleggende)
-                        queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[3].id, norskopplaering)
-                        queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[4].id, bransje)
-                    }
-                }
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[0].id, studiespesialisering)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[1].id, fov)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[2].id, grunnleggende)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[3].id, norskopplaering)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[4].id, bransje)
             }
 
             database.runAndRollback { session ->
@@ -158,23 +155,23 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[0].id)
                     .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(studiespesialisering)
+                    .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.Studiespesialisering)
 
                 queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[1].id)
                     .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(fov)
+                    .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.ForberedendeOpplaeringForVoksne(innholdElementer = listOf(AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING)))
 
                 queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[2].id)
                     .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(grunnleggende)
+                    .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.GrunnleggendeFerdigheter(innholdElementer = listOf(AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER)))
 
                 queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[3].id)
                     .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(norskopplaering)
+                    .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.Norskopplaering(norskprove = false, innholdElementer = listOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING)))
 
                 queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[4].id)
                     .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(bransje)
+                    .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.BransjeOgYrkesrettet)
             }
         }
 
