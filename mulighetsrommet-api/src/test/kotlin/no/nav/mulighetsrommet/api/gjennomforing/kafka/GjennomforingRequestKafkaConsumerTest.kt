@@ -82,6 +82,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             prisinformasjon = "prisinformasjon",
             ansvarligEnhet = NavEnhetNummer("0400"),
             opprettetAv = NavIdent("B123456"),
+            kategorisering = null,
         )
 
         test("oppretter enkeltplass-gjennomføring når arrangør finnes i databasen") {
@@ -133,6 +134,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
                 prisinformasjon = "andre prisbetingelser",
                 ansvarligEnhet = NavEnhetNummer("0400"),
                 opprettetAv = NavIdent("B123456"),
+                kategorisering = null,
             )
             consumer.consume(
                 gjennomforingId,
