@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.okonomi.oebs.OebsBestillingKvittering
 import no.nav.tiltak.okonomi.oebs.OebsFakturaKvittering
 import no.nav.tiltak.okonomi.plugins.AuthProvider
-import no.nav.tiltak.okonomi.service.OkonomiService
+import no.nav.tiltak.okonomi.service.TiltaksokonomiService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -25,7 +25,7 @@ class Kvittering {
 }
 
 fun Routing.oebsRoutes(
-    okonomiService: OkonomiService,
+    okonomiService: TiltaksokonomiService,
 ) = authenticate(AuthProvider.AZURE_AD_OEBS_API.name) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 

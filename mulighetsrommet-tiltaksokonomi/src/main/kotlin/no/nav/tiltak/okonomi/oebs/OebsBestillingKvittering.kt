@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.tiltak.okonomi.api.serializers.OebsLocalDateTimeSerializer
 import java.time.LocalDateTime
 
-
 @Serializable
 data class OebsBestillingKvittering(
     val bestillingsNummer: String,

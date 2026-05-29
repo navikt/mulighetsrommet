@@ -42,7 +42,7 @@ class OpprettFakturaError(message: String, cause: Throwable? = null) : Exception
 
 class GjorOppBestillingError(message: String, cause: Throwable? = null) : Exception(message, cause)
 
-class OkonomiService(
+class TiltaksokonomiService(
     private val config: Config,
     private val db: OkonomiDatabase,
     private val oebs: OebsPoApClient,
