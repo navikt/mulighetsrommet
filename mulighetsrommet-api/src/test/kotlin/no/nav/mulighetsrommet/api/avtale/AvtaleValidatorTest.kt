@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale
 
+import io.github.smiley4.ktoropenapi.config.descriptors.empty
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
@@ -7,10 +8,13 @@ import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.AmoKurstype
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx.Tiltakstype
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
@@ -26,18 +30,20 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
+import no.nav.mulighetsrommet.api.fixtures.ForerkortFixtures
+import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.toNavAnsatt
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -75,12 +81,24 @@ class AvtaleValidatorTest : FunSpec({
         Tiltakskode.OPPFOLGING,
         avtaletype = Avtaletype.RAMMEAVTALE,
     )
-    val prismodell = Prismodell.AnnenAvtaltPris(id = UUID.randomUUID(), valuta = Valuta.NOK, prisbetingelser = "", tilsagnPerDeltaker = false)
+    val prismodell = Prismodell.AnnenAvtaltPris(
+        id = UUID.randomUUID(),
+        valuta = Valuta.NOK,
+        prisbetingelser = "",
+        tilsagnPerDeltaker = false
+    )
+    val kategoriseringCtx = Ctx.Kategorisering(
+        kurstyper = KurstypeFixtures.all(),
+        bransjer = BransjeFixtures.all(),
+        forerkort = ForerkortFixtures.all(),
+        utdanninger = emptyList(),
+    );
     val ctx = Ctx(
         previous = null,
         arrangor = ArrangorFixtures.hovedenhet.copy(
             underenheter = listOf(ArrangorFixtures.underenhet1),
         ),
+        kategorisering = kategoriseringCtx,
         administratorer = emptyList(),
         tiltakstype = Tiltakstype(
             navn = TiltakstypeFixtures.Oppfolging.navn,
@@ -95,6 +113,7 @@ class AvtaleValidatorTest : FunSpec({
         arrangor = ArrangorFixtures.hovedenhet.copy(
             underenheter = listOf(ArrangorFixtures.underenhet1),
         ),
+        kategorisering = kategoriseringCtx,
         administratorer = emptyList(),
         tiltakstype = Tiltakstype(
             navn = TiltakstypeFixtures.AFT.navn,
@@ -230,7 +249,7 @@ class AvtaleValidatorTest : FunSpec({
                         OpsjonsmodellType.VALGFRI_SLUTTDATO,
                         null,
 
-                    ),
+                        ),
                 ),
             ),
             createForhandsgodkjentAvtaleContext,
@@ -831,7 +850,10 @@ class AvtaleValidatorTest : FunSpec({
                 ),
             ) shouldBeLeft listOf(
                 FieldError("/detaljer/avtaletype", "Du kan ikke endre avtaletype når opsjoner er registrert"),
-                FieldError("/detaljer/opsjonsmodell/type", "Du kan ikke endre opsjonsmodell når opsjoner er registrert"),
+                FieldError(
+                    "/detaljer/opsjonsmodell/type",
+                    "Du kan ikke endre opsjonsmodell når opsjoner er registrert"
+                ),
             )
         }
 
@@ -1065,14 +1087,10 @@ class AvtaleValidatorTest : FunSpec({
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo,
                 ctx,
-            ).shouldBeRight().detaljerDbo.amoKategorisering
-                .shouldBeTypeOf<AmoKategorisering.Studiespesialisering>()
-
-            AvtaleValidator.validateCreateAvtale(
-                gruppeAmo,
-                ctx,
-            ).shouldBeRight().detaljerDbo.amoKategorisering
-                .shouldBeTypeOf<AmoKategorisering.Studiespesialisering>()
+            ).shouldBeRight().detaljerDbo.opplaringKategorisering
+                .shouldNotBeNull {
+                    kurstypeId shouldBe KurstypeFixtures.studiespesialisering.id
+                }
 
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo.copy(
@@ -1082,8 +1100,10 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 ctx,
-            ).shouldBeRight().detaljerDbo.amoKategorisering
-                .shouldBeTypeOf<AmoKategorisering.Studiespesialisering>()
+            ).shouldBeRight().detaljerDbo.opplaringKategorisering
+                .shouldNotBeNull {
+                    kurstypeId shouldBe KurstypeFixtures.studiespesialisering.id
+                }
 
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo.copy(
@@ -1092,12 +1112,13 @@ class AvtaleValidatorTest : FunSpec({
                         amoKategorisering = AmoKategoriseringRequest(
                             kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
 
-                        ),
+                            ),
                     ),
                 ),
                 ctx,
-            ).shouldBeRight().detaljerDbo.amoKategorisering
-                .shouldBeTypeOf<AmoKategorisering.ForberedendeOpplaeringForVoksne>()
+            ).shouldBeRight().detaljerDbo.opplaringKategorisering.shouldNotBeNull {
+                kurstypeId shouldBe KurstypeFixtures.fov.id
+            }
 
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo.copy(
@@ -1112,12 +1133,12 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 ctx,
-            ).shouldBeRight().detaljerDbo.amoKategorisering
-                .shouldBeTypeOf<AmoKategorisering.GrunnleggendeFerdigheter>().should {
-                    it.innholdElementer shouldContainExactly listOf(
-                        AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
-                    )
-                }
+            ).shouldBeRight().detaljerDbo.opplaringKategorisering.shouldNotBeNull {
+                this.kurstypeId shouldBe KurstypeFixtures.grunnleggendeFerdigheter.id
+                this.innholdElementer shouldContainExactly listOf(
+                    AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
+                )
+            }
 
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo.copy(
@@ -1130,7 +1151,7 @@ class AvtaleValidatorTest : FunSpec({
                                 AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.B,
                             ),
                             sertifiseringer = listOf(
-                                AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
+                                Sertifisering(
                                     konseptId = 123,
                                     label = "label",
                                 ),
@@ -1139,20 +1160,20 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 ctx,
-            ).shouldBeRight().detaljerDbo.amoKategorisering
-                .shouldBeTypeOf<AmoKategorisering.BransjeOgYrkesrettet>().should {
-                    it.bransje shouldBe AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID
-                    it.forerkort shouldContainExactlyInAnyOrder listOf(
-                        AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A,
-                        AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.B,
-                    )
-                    it.sertifiseringer shouldContainExactly listOf(
-                        AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
-                            konseptId = 123,
-                            label = "label",
-                        ),
-                    )
-                }
+            ).shouldBeRight().detaljerDbo.opplaringKategorisering.shouldNotBeNull {
+                kurstypeId shouldBe KurstypeFixtures.bransjeOgYrkesrettet.id
+                bransjeId shouldBe BransjeFixtures.kontorarbeid.id
+                forerkort shouldContainExactlyInAnyOrder listOf(
+                    ForerkortFixtures.A.id,
+                    ForerkortFixtures.B.id,
+                )
+                sertifiseringer shouldContainExactly listOf(
+                    Sertifisering(
+                        konseptId = 123,
+                        label = "label",
+                    ),
+                )
+            }
         }
     }
     context("rammedetaljer") {

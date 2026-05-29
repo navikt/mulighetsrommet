@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.amo
+package no.nav.mulighetsrommet.api.amo.db
 
 import kotliquery.Row
 import kotliquery.Session

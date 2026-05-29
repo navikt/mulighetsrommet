@@ -3,13 +3,14 @@ package no.nav.mulighetsrommet.api.datavarehus.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
+import no.nav.mulighetsrommet.api.amo.AmoKurstype
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.requireSingle
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -87,7 +88,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
         """.trimIndent()
 
         val sertifiseringer = session.list(queryOf(sertifiseringQuery, id)) {
-            AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(
+            Sertifisering(
                 konseptId = it.long("konsept_id"),
                 label = it.string("label"),
             )
@@ -109,7 +110,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
 }
 
 private fun Row.toAmoKategorisering(
-    sertifiseringer: List<AmoKategorisering.BransjeOgYrkesrettet.Sertifisering>,
+    sertifiseringer: List<Sertifisering>,
 ): AmoKategorisering {
     val kurstype = AmoKurstype.valueOf(string("kurstype"))
     return when (kurstype) {

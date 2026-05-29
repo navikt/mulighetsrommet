@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse
-import no.nav.mulighetsrommet.model.AmoKategorisering.BransjeOgYrkesrettet.Sertifisering
-import no.nav.mulighetsrommet.model.AmoKurstype
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.AmoKurstype
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 @Serializable

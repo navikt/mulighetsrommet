@@ -3,8 +3,11 @@ package no.nav.mulighetsrommet.api.gjennomforing.db
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
@@ -29,7 +32,6 @@ import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -337,8 +339,9 @@ class GjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toUtdanningslopDto() }
     }
 
-    fun setAmoKategorisering(id: UUID, amo: AmoKategorisering?): Unit = with(session) {
-        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.GJENNOMFORING, id, amo)
+    context(session: TransactionalSession)
+    fun setAmoKategorisering(id: UUID, kategorisering: OpplaringKategoriseringDbo?) {
+        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.GJENNOMFORING, id, kategorisering)
     }
 
     fun setArenaData(dbo: GjennomforingArenaDataDbo) {

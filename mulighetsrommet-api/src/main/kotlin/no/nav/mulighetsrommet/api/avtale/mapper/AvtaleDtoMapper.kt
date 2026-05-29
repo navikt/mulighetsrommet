@@ -4,7 +4,6 @@ import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
-import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.model.DataElement
 
 object AvtaleDtoMapper {
@@ -25,7 +24,7 @@ object AvtaleDtoMapper {
         faneinnhold = avtale.faneinnhold,
         personopplysninger = avtale.personopplysninger,
         personvernBekreftet = avtale.personvernBekreftet,
-        amoKategorisering = avtale.amoKategorisering?.toDto(avtale.tiltakstype.tiltakskode),
+        opplaringKategorisering = avtale.opplaringKategorisering,
         opsjonsmodell = avtale.opsjonsmodell,
         opsjonerRegistrert = avtale.opsjonerRegistrert,
         utdanningslop = avtale.utdanningslop,

@@ -12,6 +12,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -40,7 +42,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -411,22 +412,22 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("lagre amoKategoriserng") {
-            val amo = AmoKategorisering.Norskopplaering(
+            val kategorisering = OpplaringKategoriseringDbo(
                 norskprove = true,
-                innholdElementer = listOf(
-                    AmoKategorisering.InnholdElement.ARBEIDSMARKEDSKUNNSKAP,
-                    AmoKategorisering.InnholdElement.PRAKSIS,
+                innholdElementer = setOf(
+                    OpplaringKategorisering.InnholdElement.ARBEIDSMARKEDSKUNNSKAP,
+                    OpplaringKategorisering.InnholdElement.PRAKSIS,
                 ),
             )
 
             database.runAndRollback {
                 queries.gjennomforing.upsert(Oppfolging1)
-                queries.gjennomforing.setAmoKategorisering(Oppfolging1.id, amo)
+                context(this.session) { queries.gjennomforing.setAmoKategorisering(Oppfolging1.id, kategorisering) }
                 queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
-                    it.amoKategorisering shouldBe amo
+                    it.amoKategorisering shouldBe kategorisering
                 }
 
-                queries.gjennomforing.setAmoKategorisering(Oppfolging1.id, null)
+                context(this.session) { queries.gjennomforing.setAmoKategorisering(Oppfolging1.id, null) }
                 queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
                     it.amoKategorisering shouldBe null
                 }

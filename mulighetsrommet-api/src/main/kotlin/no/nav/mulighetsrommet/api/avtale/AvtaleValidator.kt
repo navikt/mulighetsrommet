@@ -3,6 +3,12 @@ package no.nav.mulighetsrommet.api.avtale
 import arrow.core.Either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.AmoKurstype
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
+import no.nav.mulighetsrommet.api.amo.models.Bransje
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
@@ -35,8 +41,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.validation.FieldValidator
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Avtaletyper
@@ -48,6 +52,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
+import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
@@ -58,6 +63,7 @@ object AvtaleValidator {
         val previous: Avtale?,
         val arrangor: ArrangorDto?,
         val administratorer: List<NavAnsatt>,
+        val kategorisering: Kategorisering,
         val tiltakstype: Tiltakstype,
         val navEnheter: List<NavEnhetDto>,
         val systembestemtPrismodell: UUID?,
@@ -78,6 +84,13 @@ object AvtaleValidator {
             val utdanningslop: UtdanningslopDto?,
             val status: GjennomforingStatusType,
             val prismodellId: UUID,
+        )
+
+        data class Kategorisering(
+            val kurstyper: Set<Kurstype>,
+            val bransjer: Set<Bransje>,
+            val forerkort: Set<ForerkortKlasse>,
+            val utdanninger: List<UtdanningsprogramMedUtdanninger>,
         )
 
         data class Tiltakstype(
@@ -210,7 +223,7 @@ object AvtaleValidator {
             ctx.tiltakstype.id,
             ctx.arrangor?.toDbo(request.arrangor?.kontaktpersoner),
             resolveStatus(request, previous, LocalDate.now()),
-            amoKategorisering = amoKategorisering,
+            kategorisering = amoKategorisering,
         )
     }
 
@@ -357,7 +370,7 @@ object AvtaleValidator {
     private fun FieldValidator.validateDetaljer(
         request: DetaljerRequest,
         ctx: Ctx,
-    ): Either<List<FieldError>, AmoKategorisering?> {
+    ): Either<List<FieldError>, OpplaringKategoriseringDbo?> {
         validateNotNull(request.startDato) {
             FieldError.of("Du må legge inn startdato for avtalen", DetaljerRequest::navn)
         }
@@ -426,7 +439,8 @@ object AvtaleValidator {
                 }
             }
         }
-        val amoKategorisering = validateAmoKategorisering(request.tiltakskode, request.amoKategorisering)
+        val amoKategorisering =
+            context(ctx.kategorisering) { validateAmoKategorisering(request.tiltakskode, request.amoKategorisering) }
         validateUtdanningslop(request.tiltakskode, request.utdanningslop)
 
         validateSlettetNavAnsatte(ctx.administratorer)
@@ -535,10 +549,11 @@ object AvtaleValidator {
         }
     }
 
+    context(ctx: Ctx.Kategorisering)
     private fun FieldValidator.validateAmoKategorisering(
         tiltakskode: Tiltakskode,
         amoKategorisering: AmoKategoriseringRequest?,
-    ): Either<List<FieldError>, AmoKategorisering?> = when (tiltakskode) {
+    ): Either<List<FieldError>, OpplaringKategoriseringDbo?> = when (tiltakskode) {
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
             requireValid(amoKategorisering?.kurstype != null) {
                 FieldError.of(
@@ -556,7 +571,7 @@ object AvtaleValidator {
                     )
                 }
             }
-            amoKategorisering
+            amoKategorisering.toOpplaringKategoriseringDbo()
         }
 
         Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
@@ -567,7 +582,7 @@ object AvtaleValidator {
                     AmoKategoriseringRequest::bransje,
                 )
             }
-            amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET)
+            amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET).toOpplaringKategoriseringDbo()
         }
 
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
@@ -591,14 +606,42 @@ object AvtaleValidator {
                     AmoKategoriseringRequest::kurstype,
                 )
             }
-            amoKategorisering
+            amoKategorisering.toOpplaringKategoriseringDbo()
         }
 
         Tiltakskode.STUDIESPESIALISERING,
-        -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING)
+        -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING).toOpplaringKategoriseringDbo()
 
         else -> null
-    }?.toDbo().right()
+    }.right()
+
+    context(ctx: Ctx.Kategorisering)
+    private fun AmoKategoriseringRequest.toOpplaringKategoriseringDbo(): OpplaringKategoriseringDbo {
+        val forerkortStrings = this.forerkort?.map { it.toString() }
+        val innholdElementerStrings = this.innholdElementer?.map { it.toString() }
+        val kategoriseringElementer = OpplaringKategorisering.InnholdElement.entries.toSet()
+        return OpplaringKategoriseringDbo(
+            kurstypeId = ctx.kurstyper.find { it.kode.toString() == this.kurstype.toString() }?.id,
+            bransjeId = ctx.bransjer.find { it.kode.toString() == this.bransje.toString() }?.id,
+            forerkort = ctx.forerkort.mapNotNull { forerkort ->
+                if (forerkortStrings?.contains(forerkort.kode.toString()) ?: false) {
+                    forerkort.id
+                } else {
+                    null
+                }
+            }.toSet(),
+            innholdElementer = kategoriseringElementer.mapNotNull { innholdElement ->
+                if (innholdElementerStrings?.contains(innholdElement.toString()) ?: false) {
+                    innholdElement
+                } else {
+                    null
+                }
+            }.toSet(),
+            norskprove = this.norskprove,
+            sertifiseringer = this.sertifiseringer?.toSet() ?: emptySet(),
+            utdanningslop = null, // TODO: Håndteres seperat per nå, så lenge AmoKategoriseringRequest består
+        )
+    }
 
     private fun FieldValidator.validateUtdanningslop(
         tiltakskode: Tiltakskode,

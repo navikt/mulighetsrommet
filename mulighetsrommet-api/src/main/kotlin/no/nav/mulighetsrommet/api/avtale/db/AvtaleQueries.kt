@@ -6,6 +6,8 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
@@ -23,7 +25,6 @@ import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.withTransaction
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Faneinnhold
@@ -93,7 +94,7 @@ class AvtaleQueries(private val session: Session) {
 
         upsertAdministratorer(avtale.id, avtale.detaljerDbo.administratorer)
         upsertArrangor(avtale.id, avtale.detaljerDbo.arrangor)
-        upsertAmo(avtale.id, avtale.detaljerDbo.amoKategorisering)
+        upsertOpplaringKategorisering(avtale.id, avtale.detaljerDbo.opplaringKategorisering)
         upsertUtdanningslop(avtale.id, avtale.detaljerDbo.utdanningslop)
         updateVeilederinfo(avtale.id, avtale.veilederinformasjonDbo)
         updatePersonvern(avtale.id, avtale.personvernDbo)
@@ -107,7 +108,7 @@ class AvtaleQueries(private val session: Session) {
         upsertDetaljer(avtaleId, detaljerDbo)
         upsertAdministratorer(avtaleId, detaljerDbo.administratorer)
         upsertArrangor(avtaleId, detaljerDbo.arrangor)
-        upsertAmo(avtaleId, detaljerDbo.amoKategorisering)
+        upsertOpplaringKategorisering(avtaleId, detaljerDbo.opplaringKategorisering)
         upsertUtdanningslop(avtaleId, detaljerDbo.utdanningslop)
     }
 
@@ -227,8 +228,8 @@ class AvtaleQueries(private val session: Session) {
     }
 
     context(session: TransactionalSession)
-    private fun upsertAmo(avtaleId: UUID, amo: AmoKategorisering?) {
-        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.AVTALE, avtaleId, amo)
+    private fun upsertOpplaringKategorisering(avtaleId: UUID, kategorisering: OpplaringKategoriseringDbo?) {
+        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.AVTALE, avtaleId, kategorisering)
     }
 
     private fun upsertUtdanningslop(avtaleId: UUID, utdanningslop: UtdanningslopDbo?) = withTransaction(session) {
@@ -542,11 +543,11 @@ private fun Row.toAvtale(): Avtale {
         opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
         customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
     )
-    val amoKategorisering = stringOrNull("amo_kategorisering_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
-
     val utdanningslop = stringOrNull("utdanningslop_json")
         ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
+
+    val opplaringKategorisering = stringOrNull("amo_kategorisering_json")
+        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategorisering>(it).copy(utdanningslop = utdanningslop) }
 
     val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
         val underenheter = stringOrNull("arrangor_underenheter_json")
@@ -614,7 +615,7 @@ private fun Row.toAvtale(): Avtale {
         personvernBekreftet = boolean("personvern_bekreftet"),
         opsjonsmodell = opsjonsmodell,
         opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.createdAt },
-        amoKategorisering = amoKategorisering,
+        opplaringKategorisering = opplaringKategorisering,
         utdanningslop = utdanningslop,
         prismodeller = prismodeller,
     )
