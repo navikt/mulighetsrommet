@@ -6,7 +6,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.Tilskuddstype
-import no.nav.tiltak.okonomi.model.OebsKontering
+import no.nav.tiltak.okonomi.oebs.OebsKontering
 import no.nav.tiltak.okonomi.test.Fixtures
 import java.time.LocalDate
 

@@ -22,13 +22,13 @@ import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.KafkaTopics
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
-import no.nav.tiltak.okonomi.api.OebsBestillingKvittering
-import no.nav.tiltak.okonomi.api.OebsFakturaKvittering
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.oebs.OebsBestillingKvittering
 import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
+import no.nav.tiltak.okonomi.oebs.OebsFakturaKvittering
 import no.nav.tiltak.okonomi.oebs.OebsMeldingMapper
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.slf4j.Logger
