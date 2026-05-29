@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettBestilling
-import no.nav.tiltak.okonomi.helpers.divideBelopByMonthsInPeriode
 import java.time.Instant
 
 data class Bestilling(

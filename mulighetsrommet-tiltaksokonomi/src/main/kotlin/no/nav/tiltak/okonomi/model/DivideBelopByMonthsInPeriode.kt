@@ -1,4 +1,4 @@
-package no.nav.tiltak.okonomi.helpers
+package no.nav.tiltak.okonomi.model
 
 import no.nav.mulighetsrommet.model.Periode
 import kotlin.math.floor
