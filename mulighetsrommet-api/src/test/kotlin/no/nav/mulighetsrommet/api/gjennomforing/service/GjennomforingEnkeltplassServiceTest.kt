@@ -11,7 +11,9 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
+import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -24,6 +26,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
@@ -31,11 +34,12 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBeslutt
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
+import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -91,28 +95,33 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
     context("opprettelse gjennomføring") {
         val service = createService()
 
-        test("oppretter totrinnskontroll når gjennomføringen opprettes av navident") {
-            val gjennomforing = createEnkeltplass()
-            service.create(gjennomforing, opprettetAv).shouldBeRight()
+        test("oppretter ikke totrinnskontroll når gjennomføringen opprettes") {
+            val upsert = createEnkeltplass()
+
+            service.create(upsert).shouldBeRight()
 
             database.run {
-                queries.totrinnskontroll.getOrError(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
-                    it.behandletAv shouldBe opprettetAv
-                    it.besluttelse.shouldBeNull()
+                queries.totrinnskontroll.get(upsert.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).shouldBeNull()
+            }
+        }
+
+        test("publiseres til kafka når gjennomføring opprettes") {
+            val upsert = createEnkeltplass()
+
+            service.create(upsert).shouldBeRight()
+
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).should { (first) ->
+                    first.topic shouldBe TEST_GJENNOMFORING_V2_TOPIC
+                    first.key shouldBe upsert.id.toString().toByteArray()
+                    first.value.decodeToString()
+                        .let { Json.decodeFromString<TiltaksgjennomforingV2Dto>(it) }
+                        .shouldBeTypeOf<TiltaksgjennomforingV2Dto.Enkeltplass>()
                 }
             }
         }
 
-        test("oppretter ikke totrinnskontroll når gjennomføringen opprettes av Arena") {
-            val gjennomforing = createEnkeltplass()
-            service.create(gjennomforing, Arena).shouldBeRight()
-
-            database.run {
-                queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).shouldBeNull()
-            }
-        }
-
-        context("opplaring kategorisering") {
+        context("opplæring") {
             val toKategoriseringRequest = { kategorisering: OpplaringKategorisering ->
                 OpplaringKategoriseringRequest(
                     kurstypeId = kategorisering.kurstype?.id,
@@ -144,7 +153,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     kategorisering = toKategoriseringRequest(kategorisering),
                 )
 
-                service.create(gjennomforing, opprettetAv).shouldBeRight()
+                service.create(gjennomforing).shouldBeRight()
                 database.run {
                     val lagretKategorisering = queries.opplaringKategorisering.getGjennomforingKategorisering(gjennomforing.id).shouldNotBeNull()
                     lagretKategorisering.shouldBe(kategorisering)
@@ -161,7 +170,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 kategorisering = request,
             )
 
-            service.create(gjennomforing, opprettetAv).shouldBeRight()
+            service.create(gjennomforing).shouldBeRight()
             database.run {
                 val utdanningslop = queries.gjennomforing.getUtdanningslop(gjennomforing.id).shouldNotBeNull()
                 utdanningslop.utdanningsprogram.id.shouldBe(request.utdanningsprogramId)
@@ -169,17 +178,45 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
         }
     }
-    context("godkjennOkonomi") {
+
+    context("behandling av økonomi for enkeltplasser") {
         val service = createService()
 
-        test("godkjenner økonomi og setter besluttelse til GODKJENT") {
-            val gjennomforing = createEnkeltplass()
-            service.create(gjennomforing, opprettetAv).shouldBeRight()
+        test("totrinnskontroll opprettes når økonomi blir sendt til godkjenning") {
+            val upsert = createEnkeltplass()
 
-            service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
+            service.create(upsert).shouldBeRight()
+
+            service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
 
             database.run {
-                queries.totrinnskontroll.getOrError(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
+                queries.totrinnskontroll.getOrError(upsert.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
+                    it.behandletAv shouldBe NavIdent("B123456")
+                    it.besluttetAv.shouldBeNull()
+                    it.besluttelse.shouldBeNull()
+                }
+            }
+        }
+
+        test("økonomi kan ikke sendes til godkjenning flere ganger") {
+            val upsert = createEnkeltplass()
+            service.create(upsert).shouldBeRight()
+
+            service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
+            service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")) shouldBeLeft listOf(
+                FieldError.of("Deltaker er allerede søkt inn"),
+            )
+        }
+
+        test("godkjenner økonomi og setter besluttelse til GODKJENT") {
+            val upsert = createEnkeltplass()
+            service.create(upsert).shouldBeRight()
+
+            service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
+            service.godkjennOkonomi(upsert.id, besluttetAv).shouldBeRight()
+
+            database.run {
+                queries.totrinnskontroll.getOrError(upsert.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
                     it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                     it.besluttetAv shouldBe besluttetAv
                 }
@@ -187,42 +224,45 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         }
 
         test("returnerer feil når behandletAv og besluttetAv er samme person") {
-            val gjennomforing = createEnkeltplass()
-            service.create(gjennomforing, opprettetAv).shouldBeRight()
+            val upsert = createEnkeltplass()
+            service.create(upsert).shouldBeRight()
 
-            service.godkjennOkonomi(gjennomforing.id, opprettetAv)
+            service.tilGodkjenningOkonomi(upsert.id, opprettetAv).shouldBeRight()
+            service.godkjennOkonomi(upsert.id, opprettetAv)
                 .shouldBeLeft()
                 .first().detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
         }
 
         test("kan godkjenne enkeltplass etter avvisning") {
-            val gjennomforing = createEnkeltplass()
-            service.create(gjennomforing, opprettetAv).shouldBeRight()
+            val upsert = createEnkeltplass()
+            service.create(upsert).shouldBeRight()
 
-            service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil prisbetingelser")
+            service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
+            service.settPaVentOkonomi(
+                upsert.id,
+                besluttetAv,
+                forklaring = "Feil prisbetingelser",
+            )
                 .shouldBeRight()
-            service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
+            service.godkjennOkonomi(upsert.id, besluttetAv).shouldBeRight()
 
             database.run {
-                queries.totrinnskontroll.getOrError(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
+                queries.totrinnskontroll.getOrError(upsert.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
                     it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                     it.forklaring shouldBe null
                 }
             }
         }
-    }
-
-    context("settPaVentOkonomi") {
-        val service = createService()
 
         test("setter økonomi på vent og setter besluttelse til AVVIST") {
-            val gjennomforing = createEnkeltplass()
-            service.create(gjennomforing, opprettetAv).shouldBeRight()
+            val upsert = createEnkeltplass()
+            service.create(upsert).shouldBeRight()
 
-            service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil").shouldBeRight()
+            service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
+            service.settPaVentOkonomi(upsert.id, besluttetAv, forklaring = "Feil").shouldBeRight()
 
             database.run {
-                queries.totrinnskontroll.getOrError(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
+                queries.totrinnskontroll.getOrError(upsert.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
                     it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
                     it.besluttetAv shouldBe besluttetAv
                     it.forklaring shouldBe "Feil"
@@ -231,16 +271,17 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         }
 
         test("returnerer feil når enkeltplass allerede er behandlet") {
-            val gjennomforing = createEnkeltplass()
-            service.create(gjennomforing, opprettetAv).shouldBeRight()
+            val upsert = createEnkeltplass()
+            service.create(upsert).shouldBeRight()
 
-            service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
+            service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
+            service.godkjennOkonomi(upsert.id, besluttetAv).shouldBeRight()
 
-            service.godkjennOkonomi(gjennomforing.id, besluttetAv)
+            service.godkjennOkonomi(upsert.id, besluttetAv)
                 .shouldBeLeft()
                 .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
 
-            service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Angret")
+            service.settPaVentOkonomi(upsert.id, besluttetAv, forklaring = "Angret")
                 .shouldBeLeft()
                 .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
         }

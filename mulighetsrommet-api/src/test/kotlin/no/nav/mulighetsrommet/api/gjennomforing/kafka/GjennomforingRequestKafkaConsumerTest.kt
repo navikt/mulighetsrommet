@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TO
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -75,7 +76,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
         val gjennomforingId = UUID.randomUUID()
 
-        val request = GjennomforingRequestPayload.OpprettEnkeltplass(
+        val request = GjennomforingRequest.OpprettEnkeltplassPayload(
             gjennomforingId = gjennomforingId,
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
@@ -92,13 +93,19 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             } returns ArrangorFixtures.underenhet1.right()
 
             val consumer = createConsumer(service, arrangorer)
-            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequestPayload>(request))
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
 
             service.get(gjennomforingId).shouldNotBeNull().should {
                 it.id shouldBe gjennomforingId
                 it.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 it.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
                 it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
+            }
+
+            database.run {
+                queries.totrinnskontroll.getOrError(gjennomforingId, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
+                    it.behandletAv shouldBe NavIdent("B123456")
+                }
             }
         }
 
@@ -111,7 +118,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             val consumer = createConsumer(service, arrangorer)
 
             shouldThrowExactly<IllegalStateException> {
-                consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequestPayload>(request))
+                consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
             }
 
             service.get(gjennomforingId).shouldBeNull()
@@ -125,20 +132,14 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
             val consumer = createConsumer(service, arrangorer)
 
-            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequestPayload>(request))
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
 
-            val requestMedAndrePrisbetingelser = GjennomforingRequestPayload.OpprettEnkeltplass(
-                gjennomforingId = gjennomforingId,
-                tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-                organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                prisinformasjon = "andre prisbetingelser",
-                ansvarligEnhet = NavEnhetNummer("0400"),
-                opprettetAv = NavIdent("B123456"),
-                kategorisering = null,
+            val requestMedAndrePrisbetingelser = request.copy(
+                prisinformasjon = "noko annat",
             )
             consumer.consume(
                 gjennomforingId,
-                Json.encodeToJsonElement<GjennomforingRequestPayload>(requestMedAndrePrisbetingelser),
+                Json.encodeToJsonElement<GjennomforingRequest>(requestMedAndrePrisbetingelser),
             )
 
             service.get(gjennomforingId).shouldNotBeNull().should {
@@ -151,7 +152,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             val consumer = createConsumer(service, tiltakstypeConfig = ikkeMigrertConfig)
 
             shouldThrowExactly<IllegalArgumentException> {
-                consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequestPayload>(request))
+                consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
             }
 
             service.get(gjennomforingId).shouldBeNull()

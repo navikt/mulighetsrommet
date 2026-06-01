@@ -32,8 +32,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.Arena
-import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -82,7 +80,6 @@ class GjennomforingEnkeltplassService(
 
     fun create(
         create: UpsertGjennomforingEnkeltplass,
-        agent: Agent,
     ): Validated<GjennomforingEnkeltplass> = db.transaction {
         val existing = queries.gjennomforing.getGjennomforing(create.id)
         if (existing != null && existing !is GjennomforingArena) {
@@ -90,47 +87,6 @@ class GjennomforingEnkeltplassService(
         }
 
         upsert(create)
-            .also {
-                when (agent) {
-                    is Arena -> Unit
-
-                    Tiltaksadministrasjon, Arrangor -> error("$agent er ikke tillatt å opprette enkeltplasser")
-
-                    is NavIdent -> {
-                        totrinnskontroll.opprett(it.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI, agent)
-                        logEndring("Deltaker søkt inn", it.id, agent)
-                    }
-                }
-            }.also {
-                val opplaringKategoriseringDbo = create.kategorisering?.kurstypeId?.let { kurstypeId ->
-                    OpplaringKategoriseringDbo(
-                        kurstypeId = kurstypeId,
-                        bransjeId = create.kategorisering.bransjeId,
-                        forerkort = create.kategorisering.forerkort?.toSet() ?: emptySet(),
-                        sertifiseringer = create.kategorisering.sertifiseringer ?: emptySet(),
-                        // Ikke i bruk
-                        norskprove = create.kategorisering.norskprove,
-                        innholdElementer = create.kategorisering.innholdElementer ?: emptySet(),
-                        // Dekkes under
-                        utdanningslop = null,
-                    )
-                }
-                val utdanningDbo = create.kategorisering?.utdanningsprogramId?.let { programId ->
-                    UtdanningslopDbo(
-                        utdanningsprogram = programId,
-                        utdanninger = create.kategorisering.larefag?.toSet() ?: emptySet(),
-                    )
-                }
-                with(session) {
-                    AmoKategoriseringQueries.upsert(
-                        AmoKategoriseringQueries.Relation.GJENNOMFORING,
-                        it.id,
-                        opplaringKategoriseringDbo,
-                    )
-                    // TODO: forene amo og utdanning som opplaringkategorisering
-                    queries.gjennomforing.setUtdanningslop(create.id, utdanningDbo)
-                }
-            }
             .also { updateFreeTextSearch(it, norskIdent = null) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
             .right()
@@ -211,6 +167,19 @@ class GjennomforingEnkeltplassService(
         }
     }
 
+    fun tilGodkjenningOkonomi(
+        id: UUID,
+        agent: NavIdent,
+    ): Validated<GjennomforingEnkeltplass> = db.transaction {
+        val okonomi = totrinnskontroll.get(id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+        if (okonomi != null) {
+            return FieldError.of("Deltaker er allerede søkt inn").nel().left()
+        }
+
+        totrinnskontroll.opprett(id, TotrinnskontrollType.ENKELTPLASS_OKONOMI, agent)
+        logEndring("Deltaker søkt inn", id, agent).right()
+    }
+
     fun godkjennOkonomi(
         id: UUID,
         navIdent: NavIdent,
@@ -277,6 +246,9 @@ class GjennomforingEnkeltplassService(
             avtaleId = null,
         )
         queries.gjennomforing.upsert(dbo)
+
+        upsertKategorisering(upsert.id, upsert.kategorisering)
+
         return queries.gjennomforing.getGjennomforingEnkeltplassOrError(dbo.id)
     }
 
@@ -336,6 +308,37 @@ class GjennomforingEnkeltplassService(
         }
 
         return prismodell.id
+    }
+
+    private fun QueryContext.upsertKategorisering(id: UUID, kategorisering: OpplaringKategoriseringRequest?) {
+        val opplaringKategoriseringDbo = kategorisering?.kurstypeId?.let { kurstypeId ->
+            OpplaringKategoriseringDbo(
+                kurstypeId = kurstypeId,
+                bransjeId = kategorisering.bransjeId,
+                forerkort = kategorisering.forerkort?.toSet() ?: emptySet(),
+                sertifiseringer = kategorisering.sertifiseringer ?: emptySet(),
+                // Ikke i bruk
+                norskprove = kategorisering.norskprove,
+                innholdElementer = kategorisering.innholdElementer ?: emptySet(),
+                // Dekkes under
+                utdanningslop = null,
+            )
+        }
+        with(session) {
+            AmoKategoriseringQueries.upsert(
+                AmoKategoriseringQueries.Relation.GJENNOMFORING,
+                id,
+                opplaringKategoriseringDbo,
+            )
+        }
+        // TODO: forene amo og utdanning som opplaringkategorisering
+        val utdanningDbo = kategorisering?.utdanningsprogramId?.let { programId ->
+            UtdanningslopDbo(
+                utdanningsprogram = programId,
+                utdanninger = kategorisering.larefag?.toSet() ?: emptySet(),
+            )
+        }
+        queries.gjennomforing.setUtdanningslop(id, utdanningDbo)
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingEnkeltplass) {

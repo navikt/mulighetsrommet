@@ -1,17 +1,22 @@
 package no.nav.mulighetsrommet.api.gjennomforing.kafka
 
+import arrow.core.flatMap
 import arrow.core.getOrElse
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.KategoriseringMapper
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
+import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.util.UUID
@@ -25,16 +30,12 @@ class GjennomforingRequestKafkaConsumer(
     JsonElementDeserializer(),
 ) {
     override suspend fun consume(key: UUID, message: JsonElement) {
-        when (val request = JsonIgnoreUnknownKeys.decodeFromJsonElement<GjennomforingRequestPayload>(message)) {
-            is GjennomforingRequestPayload.OpprettEnkeltplass -> opprettGjennomforingEnkeltplass(request)
+        when (val request = JsonIgnoreUnknownKeys.decodeFromJsonElement<GjennomforingRequest>(message)) {
+            is GjennomforingRequest.OpprettEnkeltplassPayload -> opprettGjennomforingEnkeltplass(request)
         }
     }
 
-    private suspend fun opprettGjennomforingEnkeltplass(request: GjennomforingRequestPayload.OpprettEnkeltplass) {
-        if (enkeltplasser.get(request.gjennomforingId) != null) {
-            return
-        }
-
+    private suspend fun opprettGjennomforingEnkeltplass(request: GjennomforingRequest.OpprettEnkeltplassPayload) {
         require(tiltakstyper.erMigrert(request.tiltakskode)) {
             "Enkeltplass kan bare opprettes når tiltakstypen er migrert"
         }
@@ -43,9 +44,11 @@ class GjennomforingRequestKafkaConsumer(
             "Enkeltplass kan bare opprettes for tiltakstyper med støtte for enkeltplasser"
         }
 
-        val arrangor = arrangorer
-            .getArrangorOrSyncFromBrreg(request.organisasjonsnummer)
-            .getOrElse { error("Klarte ikke hente arrangør fra brreg $it") }
+        if (enkeltplasser.get(request.gjennomforingId) != null) {
+            return
+        }
+
+        val arrangor = getArrangor(request.organisasjonsnummer)
 
         val opprett = UpsertGjennomforingEnkeltplass(
             id = request.gjennomforingId,
@@ -56,6 +59,16 @@ class GjennomforingRequestKafkaConsumer(
             ansvarligEnhet = request.ansvarligEnhet,
             kategorisering = request.kategorisering?.let(KategoriseringMapper::fromKafkaPayload),
         )
-        enkeltplasser.create(opprett, request.opprettetAv)
+        enkeltplasser.create(opprett)
+            .flatMap { enkeltplasser.tilGodkjenningOkonomi(opprett.id, request.opprettetAv) }
+            .throwOnErrors()
+    }
+
+    private suspend fun getArrangor(organisasjonsnummer: Organisasjonsnummer): ArrangorDto = arrangorer
+        .getArrangorOrSyncFromBrreg(organisasjonsnummer)
+        .getOrElse { error("Klarte ikke hente arrangør fra brreg $it") }
+
+    private fun Validated<GjennomforingEnkeltplass>.throwOnErrors() {
+        getOrElse { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
 }

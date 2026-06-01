@@ -11,37 +11,37 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
 @Serializable
-sealed interface GjennomforingRequestPayload {
-    val gjennomforingId: UUID
+sealed interface GjennomforingRequest {
 
+    // TODO: skal slettes
     @Serializable
     @SerialName("OpprettEnkeltplass")
-    data class OpprettEnkeltplass(
+    data class OpprettEnkeltplassPayload(
         @Serializable(with = UUIDSerializer::class)
-        override val gjennomforingId: UUID,
+        val gjennomforingId: UUID,
         val tiltakskode: Tiltakskode,
         val organisasjonsnummer: Organisasjonsnummer,
         val prisinformasjon: String,
         val ansvarligEnhet: NavEnhetNummer,
         val opprettetAv: NavIdent,
         val kategorisering: OpplaringKategorisering? = null,
-    ) : GjennomforingRequestPayload {
-        @Serializable
-        data class OpplaringKategorisering(
-            val verdier: Map<
-                OpplaringKategoriseringResponse.Representerer,
-                List<
-                    @Serializable(with = UUIDSerializer::class)
-                    UUID,
-                    >,
-                >,
-            val sertifiseringer: List<SertifiseringValg>,
-        ) {
-            @Serializable
-            data class SertifiseringValg(
-                val id: Long,
-                val navn: String,
-            )
-        }
-    }
+    ) : GjennomforingRequest
+}
+
+@Serializable
+data class OpplaringKategorisering(
+    val verdier: Map<
+        OpplaringKategoriseringResponse.Representerer,
+        List<
+            @Serializable(with = UUIDSerializer::class)
+            UUID,
+            >,
+        >,
+    val sertifiseringer: List<SertifiseringValg>,
+) {
+    @Serializable
+    data class SertifiseringValg(
+        val id: Long,
+        val navn: String,
+    )
 }

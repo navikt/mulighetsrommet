@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -88,7 +87,7 @@ class ArenaAdapterService(
             )
             val existing = db.session { queries.gjennomforing.getGjennomforing(arenaGjennomforing.id) }
             when {
-                existing == null || existing is GjennomforingArena -> gjennomforingEnkeltplassService.create(upsert, Arena)
+                existing == null || existing is GjennomforingArena -> gjennomforingEnkeltplassService.create(upsert)
                 else -> gjennomforingEnkeltplassService.update(upsert)
             }
         } else {
