@@ -130,7 +130,11 @@ export function GjennomforingAvtaleDetaljer(props: Props) {
           <GjennomforingDetaljerAdministratorer gjennomforing={gjennomforing} />
           <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
           {gjennomforing.stengt.length !== 0 && (
-            <StengtHosArrangorTable readOnly gjennomforing={gjennomforing} />
+            <StengtHosArrangorTable
+              readOnly
+              gjennomforingId={gjennomforing.id}
+              stengt={gjennomforing.stengt}
+            />
           )}
           {!harStartet(gjennomforing) && (
             <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />

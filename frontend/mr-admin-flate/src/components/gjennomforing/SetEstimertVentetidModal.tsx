@@ -6,13 +6,13 @@ import { NumberInput } from "@/components/skjema/NumberInput";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { BodyShort, Button, HStack, Modal } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { ValidationError } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingVeilederinfoDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   open: boolean;
   setOpen(open: boolean): void;
   gjennomforingId: string;
+  veilederinfo: GjennomforingVeilederinfoDto | null;
 }
 
 interface EstimertVentetidFormValues {
@@ -23,8 +23,7 @@ interface EstimertVentetidFormValues {
 
 const formId = "set-estimert-ventetid-form";
 
-export function SetEstimertVentetidModal({ open, setOpen, gjennomforingId }: Props) {
-  const { veilederinfo } = useGjennomforing(gjennomforingId);
+export function SetEstimertVentetidModal({ open, setOpen, gjennomforingId, veilederinfo }: Props) {
   const mutation = useSetEstimertVentetid(gjennomforingId);
 
   const form = useForm<EstimertVentetidFormValues>({

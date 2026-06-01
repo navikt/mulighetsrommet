@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -98,6 +99,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val dto = service.getGjennomforingDetaljerDto(
                 GjennomforingFixtures.Oppfolging1.id,
                 AccessType.OBO.AzureAd("X123456"),
+                NavIdent("Z123456"),
             ).shouldNotBeNull()
 
             val gjennomforing = dto.gjennomforing.shouldBeTypeOf<GjennomforingAvtaleDto>()
@@ -111,6 +113,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val dto = service.getGjennomforingDetaljerDto(
                 GjennomforingFixtures.EnkelAmo.id,
                 AccessType.OBO.AzureAd("X123456"),
+                NavIdent("Z123456"),
             ).shouldNotBeNull()
 
             dto.gjennomforing.shouldBeTypeOf<GjennomforingEnkeltplassDto>().id shouldBe GjennomforingFixtures.EnkelAmo.id
@@ -119,7 +122,11 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         test("returnerer null når gjennomføring ikke finnes") {
             val service = createService()
 
-            service.getGjennomforingDetaljerDto(UUID.randomUUID(), AccessType.OBO.AzureAd("X123456")).shouldBeNull()
+            service.getGjennomforingDetaljerDto(
+                UUID.randomUUID(),
+                AccessType.OBO.AzureAd("X123456"),
+                NavIdent("Z123456"),
+            ).shouldBeNull()
         }
     }
 

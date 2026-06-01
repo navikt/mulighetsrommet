@@ -8,21 +8,21 @@ import {
   FieldError,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { avbrytGjennomforingAarsakTilTekst } from "@/utils/Utils";
 
 interface AvbrytGjennomforingModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
   gjennomforingId: string;
+  gjennomforingNavn: string;
 }
 
 export function AvbrytGjennomforingModal({
   open,
   setOpen,
   gjennomforingId,
+  gjennomforingNavn,
 }: AvbrytGjennomforingModalProps) {
-  const { gjennomforing } = useGjennomforing(gjennomforingId);
   const avbrytMutation = useAvbrytGjennomforing();
   const { data: deltakerSummary } = useGjennomforingDeltakerSummary(gjennomforingId);
 
@@ -31,7 +31,7 @@ export function AvbrytGjennomforingModal({
   function avbryt(aarsaker: AvbrytGjennomforingAarsak[], forklaring: string | null) {
     avbrytMutation.mutate(
       {
-        id: gjennomforing.id,
+        id: gjennomforingId,
         aarsaker,
         forklaring,
       },
@@ -48,7 +48,7 @@ export function AvbrytGjennomforingModal({
 
   return (
     <AarsakerOgForklaringModal<AvbrytGjennomforingAarsak>
-      header={`Ønsker du å avbryte «${gjennomforing.navn}»?`}
+      header={`Ønsker du å avbryte «${gjennomforingNavn}»?`}
       open={open}
       buttonLabel="Ja, jeg vil avbryte gjennomføringen"
       ingress={
