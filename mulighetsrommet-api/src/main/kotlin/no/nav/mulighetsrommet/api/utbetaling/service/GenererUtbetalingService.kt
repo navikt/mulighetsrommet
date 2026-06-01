@@ -252,7 +252,7 @@ class GenererUtbetalingService(
         }
 
         linjer.forEach { linje ->
-            utbetalingService.godkjennUtbetalingLinje(linje.id, Tiltaksadministrasjon).getOrElse {
+            utbetalingService.attesterUtbetalingLinje(linje.id, Tiltaksadministrasjon).getOrElse {
                 throw UtbetalingException(it)
             }
         }

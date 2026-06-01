@@ -526,6 +526,66 @@ class TilsagnServiceTest : FunSpec({
                 forklaring = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
         }
+
+        test("kan ikke returnere tilsagn uten tilgang") {
+            database.run { queries.ansatt.setRoller(ansatt1, setOf()) }
+
+            service.upsert(
+                request = request,
+                agent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.returnerTilsagn(
+                id = requestId,
+                navIdent = ansatt1,
+                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                forklaring = null,
+            ) shouldBeLeft listOf(
+                FieldError.of("Du kan ikke returnere tilsagnet fordi du mangler tilgang"),
+            )
+        }
+
+        test("saksbehandler kan returnere tilsagn") {
+            database.run {
+                queries.ansatt.setRoller(
+                    ansatt1,
+                    setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                )
+            }
+
+            service.upsert(
+                request = request,
+                agent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.returnerTilsagn(
+                id = requestId,
+                navIdent = ansatt1,
+                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                forklaring = null,
+            ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
+        }
+
+        test("kan ikke returnere tilsagn med status godkjent") {
+            service.upsert(
+                request = request,
+                agent = ansatt1,
+            ).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.godkjennTilsagn(
+                id = requestId,
+                agent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            service.returnerTilsagn(
+                id = requestId,
+                navIdent = ansatt2,
+                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                forklaring = null,
+            ) shouldBeLeft listOf(
+                FieldError.of("Tilsagnet kan ikke returneres fordi det har status Godkjent"),
+            )
+        }
     }
 
     context("annuller tilsagn") {
@@ -704,6 +764,34 @@ class TilsagnServiceTest : FunSpec({
                 agent = ansatt2,
             ) shouldBeLeft listOf(FieldError.of("Tilsagnet kan ikke annulleres fordi det har blitt brukt i utbetalinger"))
         }
+
+        test("returnering av tilsagn til annullering avviser annulleringen og setter tilsagnet tilbake til godkjent") {
+            service.upsert(
+                request = request,
+                agent = ansatt1,
+            ).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.godkjennTilsagn(
+                id = requestId,
+                agent = ansatt2,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            service.tilAnnulleringRequest(
+                id = requestId,
+                navIdent = ansatt1,
+                request = AarsakerOgForklaringRequest(
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+            ).status shouldBe TilsagnStatus.TIL_ANNULLERING
+
+            service.returnerTilsagn(
+                id = requestId,
+                navIdent = ansatt2,
+                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                forklaring = null,
+            ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+        }
     }
 
     context("Gjør opp tilsagn") {
@@ -733,7 +821,7 @@ class TilsagnServiceTest : FunSpec({
             }
         }
 
-        test("kan avvise eget oppgjør") {
+        test("returnering av tilsagn til oppgjør avvister oppgjøre og setter tilsagnet tilbake til godkjent") {
             service.upsert(request, ansatt1).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
@@ -756,8 +844,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("oppgjort tilsagn trigger melding til økonomi") {
-            service.upsert(request, ansatt1)
-                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+            service.upsert(request, ansatt1).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
                 id = requestId,
