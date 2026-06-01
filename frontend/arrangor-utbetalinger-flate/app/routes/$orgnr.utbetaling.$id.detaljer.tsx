@@ -33,7 +33,7 @@ import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
 import { deltakerOversiktLenke, pathTo, useIdFromUrl } from "~/utils/navigation";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
-import { FeilmeldingMedVarselTrekant } from "../../../mr-admin-flate/src/components/skjema/FeilmeldingMedVarseltrekant";
+import { FeilmeldingMedVarselTrekant } from "../../../tiltaksadministrasjon-flate/src/components/skjema/FeilmeldingMedVarseltrekant";
 import { DataDetails } from "@mr/frontend-common";
 import { Laster } from "~/components/common/Laster";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";

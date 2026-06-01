@@ -1,15 +1,15 @@
-name: CI/CD (mr-veileder-flate)
+name: CI/CD (arbeidsmarkedstiltak-flate)
 
 on:
   push:
     paths:
-      - .github/workflows/mr-veileder-flate.yaml
+      - .github/workflows/arbeidsmarkedstiltak-flate.yaml
       - package.json
       - pnpm-lock.yaml
       - turbo.json
       - frontend/frontend-common/**
       - frontend/arbeidsmarkedstiltak-api-client/**
-      - frontend/mulighetsrommet-veileder-flate/**
+      - frontend/arbeidsmarkedstiltak-flate/**
   workflow_dispatch:
     inputs:
       environment:
@@ -36,7 +36,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: frontend/mulighetsrommet-veileder-flate
+        working-directory: frontend/arbeidsmarkedstiltak-flate
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
@@ -57,7 +57,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Test
-        run: npx turbo run lint typecheck test playwright --filter=mulighetsrommet-veileder-flate
+        run: npx turbo run lint typecheck test playwright --filter=@arbeidsmarkedstiltak/flate
 
   deploy-modia-dev:
     name: Deploy (modia-dev)
@@ -73,7 +73,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Build
-        run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate -- --base=https://cdn.nav.no/team-mulighetsrommet/dev/arbeidsmarkedstiltak-modia/dist
+        run: npx turbo run build:modia --filter=@arbeidsmarkedstiltak/flate -- --base=https://cdn.nav.no/team-mulighetsrommet/dev/arbeidsmarkedstiltak-modia/dist
         env:
           VITE_FARO_URL: https://telemetry.ekstern.dev.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401
@@ -81,7 +81,7 @@ jobs:
         uses: nais/deploy/actions/cdn-upload/v2@a7f8690f9b367fcbf5348a0a1e21d44f1aae50eb # v2
         with:
           team: team-mulighetsrommet
-          source: frontend/mulighetsrommet-veileder-flate/dist
+          source: frontend/arbeidsmarkedstiltak-flate/dist
           destination: dev/arbeidsmarkedstiltak-modia
       - name: Set special cache for asset-manifest.json
         shell: bash
@@ -102,7 +102,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Build
-        run: npx turbo run build:modia --filter=mulighetsrommet-veileder-flate -- --base=https://cdn.nav.no/team-mulighetsrommet/prod/arbeidsmarkedstiltak-modia/dist
+        run: npx turbo run build:modia --filter=@arbeidsmarkedstiltak/flate -- --base=https://cdn.nav.no/team-mulighetsrommet/prod/arbeidsmarkedstiltak-modia/dist
         env:
           VITE_FARO_URL: https://telemetry.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/1401
@@ -110,7 +110,7 @@ jobs:
         uses: nais/deploy/actions/cdn-upload/v2@a7f8690f9b367fcbf5348a0a1e21d44f1aae50eb # v2
         with:
           team: team-mulighetsrommet
-          source: frontend/mulighetsrommet-veileder-flate/dist
+          source: frontend/arbeidsmarkedstiltak-flate/dist
           destination: prod/arbeidsmarkedstiltak-modia
       - name: Set special cache for asset-manifest.json
         shell: bash
@@ -131,7 +131,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Build
-        run: npx turbo run build:nav --filter=mulighetsrommet-veileder-flate
+        run: npx turbo run build:nav --filter=@arbeidsmarkedstiltak/flate
         env:
           VITE_FARO_URL: https://telemetry.ekstern.dev.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/5406
@@ -143,7 +143,7 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
       - name: Upload files to GCS
-        run: gsutil -m rsync -r frontend/mulighetsrommet-veileder-flate/dist gs://arbeidsmarkedstiltak-nav-dev
+        run: gsutil -m rsync -r frontend/arbeidsmarkedstiltak-flate/dist gs://arbeidsmarkedstiltak-nav-dev
 
   deploy-nav-prod:
     name: Deploy (nav-prod)
@@ -159,7 +159,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Build
-        run: npx turbo run build:nav --filter=mulighetsrommet-veileder-flate
+        run: npx turbo run build:nav --filter=@arbeidsmarkedstiltak/flate
         env:
           VITE_FARO_URL: https://telemetry.nav.no/collect
           VITE_PORTEN_URL: https://jira.adeo.no/plugins/servlet/desk/portal/541/create/5406
@@ -171,4 +171,4 @@ jobs:
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3.0.1
       - name: Upload files to GCS
-        run: gsutil -m rsync -r frontend/mulighetsrommet-veileder-flate/dist gs://arbeidsmarkedstiltak-nav-prod
+        run: gsutil -m rsync -r frontend/arbeidsmarkedstiltak-flate/dist gs://arbeidsmarkedstiltak-nav-prod
