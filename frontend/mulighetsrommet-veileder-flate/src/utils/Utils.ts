@@ -1,4 +1,4 @@
-import { GjennomforingOppstartstype, VeilederflateTiltak } from "@api-client";
+import { GjennomforingOppstartstype, VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 import { isTiltakEnkeltplass } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 export function inneholderUrl(string: string) {

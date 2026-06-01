@@ -1,43 +1,16 @@
 {
   "extends": ["//"],
   "tasks": {
-    "build:api-client": {
-      "outputs": ["api-client"]
-    },
-    "dev": {
-      "dependsOn": ["build:api-client"],
-      "outputs": []
-    },
-    "backend": {
-      "dependsOn": ["build:api-client"],
-      "outputs": []
-    },
-    "lint": {
-      "dependsOn": ["build:api-client"],
-      "outputs": []
-    },
-    "typecheck": {
-      "dependsOn": ["build:api-client"],
-      "outputs": []
-    },
-    "playwright": {
-      "dependsOn": ["build:api-client"],
-      "outputs": []
-    },
-    "build": {
-      "dependsOn": ["build:api-client"],
-      "outputs": ["dist"]
-    },
     "build:lokal": {
-      "dependsOn": ["build:api-client", "^build"],
+      "dependsOn": ["^build"],
       "outputs": ["dist"]
     },
     "build:modia": {
-      "dependsOn": ["build:api-client", "^build"],
+      "dependsOn": ["^build"],
       "outputs": ["dist"]
     },
     "build:nav": {
-      "dependsOn": ["build:api-client", "^build"],
+      "dependsOn": ["^build"],
       "outputs": ["dist"]
     }
   }

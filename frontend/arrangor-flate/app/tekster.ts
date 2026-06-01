@@ -1,5 +1,5 @@
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { TilsagnType } from "@api-client";
+import { TilsagnType } from "@arrangor-utbetalinger/api-client";
 
 export const tekster = {
   bokmal: {

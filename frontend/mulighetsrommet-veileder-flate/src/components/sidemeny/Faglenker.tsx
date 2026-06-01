@@ -1,4 +1,4 @@
-import { RedaksjoneltInnholdLenke } from "@api-client";
+import { RedaksjoneltInnholdLenke } from "@arbeidsmarkedstiltak/api-client";
 import { Link, VStack } from "@navikt/ds-react";
 
 interface FaglenkerProps {

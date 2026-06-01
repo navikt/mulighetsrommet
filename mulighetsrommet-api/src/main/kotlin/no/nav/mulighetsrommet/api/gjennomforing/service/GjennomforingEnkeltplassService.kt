@@ -9,6 +9,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
@@ -54,6 +55,7 @@ data class UpsertGjennomforingEnkeltplass(
     val status: GjennomforingStatusType,
     val prisbetingelser: String?,
     val ansvarligEnhet: NavEnhetNummer,
+    val kategorisering: OpplaringKategoriseringRequest?,
     // TODO: fjerne fra modell når feltene ikke lengre trengs for å deles med arena
     val startDato: LocalDate? = null,
     val sluttDato: LocalDate? = null,
@@ -329,6 +331,7 @@ private fun toUpsertGjennomforingEnkeltplass(
     startDato = deltaker.startDato ?: gjennomforing.startDato,
     sluttDato = deltaker.sluttDato,
     status = toGjennomforingStatusType(deltaker),
+    kategorisering = null, // TODO: Mappe opp enkeltplassene med kategoriseringen
     // TODO: nullable i stedet for default 100
     deltidsprosent = deltaker.deltakelsesmengder.lastOrNull()?.deltakelsesprosent ?: 100.0,
 )
@@ -372,4 +375,5 @@ private fun harEnkeltplassEndringer(
     ansvarligEnhet = gjennomforing.ansvarligEnhet.enhetsnummer,
     arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
     arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
+    kategorisering = opprett.kategorisering,
 )

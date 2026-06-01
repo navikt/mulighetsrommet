@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { errorAt } from "~/utils/validering";
 import { KontonummerInput } from "../utbetaling/KontonummerInput";
 import { OpprettKravFormState } from "~/routes/$orgnr.opprett-krav.$gjennomforingid";
-import { FieldError, OpprettKravUtbetalingSteg } from "@api-client";
+import { FieldError, OpprettKravUtbetalingSteg } from "@arrangor-utbetalinger/api-client";
 
 interface UtbetalingStepProps {
   data: OpprettKravUtbetalingSteg;

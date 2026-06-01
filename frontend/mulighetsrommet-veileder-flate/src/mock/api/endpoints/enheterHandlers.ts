@@ -1,5 +1,5 @@
 import { http, HttpResponse, PathParams } from "msw";
-import { Kontorstruktur } from "@api-client";
+import { Kontorstruktur } from "@arbeidsmarkedstiltak/api-client";
 import { mockRegioner } from "@/mock/fixtures/mockRegioner";
 
 export const enhetHandlers = [

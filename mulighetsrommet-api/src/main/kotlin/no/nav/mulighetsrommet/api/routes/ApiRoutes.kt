@@ -55,8 +55,8 @@ fun Route.apiRoutes(config: AppConfig) {
             mapOf(
                 "Public" to "/api/openapi.yaml",
                 "Tiltaksadministrasjon" to "/api/tiltaksadministrasjon/openapi.yaml",
-                "Veilederflate" to "/api/veilederflate/openapi.yaml",
-                "Arrangørflate" to "/api/arrangorflate/openapi.yaml",
+                "Veilederflate" to "/api/arbeidsmarkedstiltak/openapi.yaml",
+                "Arrangørflate" to "/api/arrangor-utbetalinger/openapi.yaml",
             ),
         )
     }

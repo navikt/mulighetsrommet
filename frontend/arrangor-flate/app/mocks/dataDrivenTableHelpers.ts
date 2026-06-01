@@ -1,4 +1,9 @@
-import { DataElement, DataElementStatusVariant, DataElementTextFormat, Periode } from "@api-client";
+import {
+  DataElement,
+  DataElementStatusVariant,
+  DataElementTextFormat,
+  Periode,
+} from "@arrangor-utbetalinger/api-client";
 
 export function dataElementText(
   text: string,

@@ -4,7 +4,7 @@ import {
   GjennomforingOppstartstype,
   VeilederflateInnsatsgruppe,
   VeilederflateTiltak,
-} from "@api-client";
+} from "@arbeidsmarkedstiltak/api-client";
 import { formaterDato, utledLopenummerFraTiltaksnummer } from "@/utils/Utils";
 import { Faglenker } from "./Faglenker";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";

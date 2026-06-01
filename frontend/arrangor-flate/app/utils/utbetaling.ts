@@ -1,5 +1,5 @@
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { ArrangorflateUtbetalingDto } from "api-client";
+import { ArrangorflateUtbetalingDto } from "@arrangor-utbetalinger/api-client";
 import { Definition } from "~/components/common/Definisjonsliste";
 
 export function getUtbetalingsdato(utbetaling: ArrangorflateUtbetalingDto): Definition {

@@ -1,4 +1,4 @@
-import { Periode } from "@api-client";
+import { Periode } from "@arrangor-utbetalinger/api-client";
 import { describe, expect, test } from "vitest";
 import {
   innenforValgtPeriode,

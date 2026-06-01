@@ -1,4 +1,4 @@
-import { Periode } from "@api-client";
+import { Periode } from "@arrangor-utbetalinger/api-client";
 import { isLater, isLaterOrSameDay } from "@mr/frontend-common/utils/date";
 
 export function filtrerOverlappendePerioder<T extends { periode: Periode }>(

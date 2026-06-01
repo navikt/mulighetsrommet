@@ -1,4 +1,4 @@
-import { Kontorstruktur, KontorstrukturKontortype } from "@api-client";
+import { Kontorstruktur, KontorstrukturKontortype } from "@arbeidsmarkedstiltak/api-client";
 
 export const mockRegioner: Kontorstruktur[] = [
   {

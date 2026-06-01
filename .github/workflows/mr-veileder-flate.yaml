@@ -7,8 +7,9 @@ on:
       - package.json
       - pnpm-lock.yaml
       - turbo.json
-      - frontend/mulighetsrommet-veileder-flate/**
       - frontend/frontend-common/**
+      - frontend/arbeidsmarkedstiltak-api-client/**
+      - frontend/mulighetsrommet-veileder-flate/**
   workflow_dispatch:
     inputs:
       environment:

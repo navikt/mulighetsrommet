@@ -79,6 +79,10 @@ data class MulighetsrommetTestDomain(
             tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
             utbetalingLinjer.forEach { queries.utbetalingLinje.upsert(it) }
+
+            session.execute(KurstypeFixtures.query())
+            session.execute(BransjeFixtures.query())
+            session.execute(ForerkortFixtures.query())
         }
 
         additionalSetup?.invoke(context, this)

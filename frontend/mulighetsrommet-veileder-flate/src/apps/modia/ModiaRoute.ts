@@ -1,4 +1,4 @@
-import { Tiltakskode } from "@api-client";
+import { Tiltakskode } from "@arbeidsmarkedstiltak/api-client";
 import { SyntheticEvent } from "react";
 
 type UUID = string;

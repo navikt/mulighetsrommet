@@ -1,4 +1,4 @@
-package no.nav.tiltak.okonomi.helpers
+package no.nav.tiltak.okonomi.model
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe

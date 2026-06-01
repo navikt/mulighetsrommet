@@ -1,4 +1,4 @@
-import { Brukerdata, Innsatsgruppe } from "@api-client";
+import { Brukerdata, Innsatsgruppe } from "@arbeidsmarkedstiltak/api-client";
 import { Melding } from "@/components/melding/Melding";
 
 interface Props {

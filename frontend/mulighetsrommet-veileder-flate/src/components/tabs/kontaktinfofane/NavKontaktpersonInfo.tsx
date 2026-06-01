@@ -1,4 +1,7 @@
-import { VeilederflateKontaktinfo, VeilederflateKontaktinfoTiltaksansvarlig } from "@api-client";
+import {
+  VeilederflateKontaktinfo,
+  VeilederflateKontaktinfoTiltaksansvarlig,
+} from "@arbeidsmarkedstiltak/api-client";
 import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { RefObject, useRef } from "react";
 

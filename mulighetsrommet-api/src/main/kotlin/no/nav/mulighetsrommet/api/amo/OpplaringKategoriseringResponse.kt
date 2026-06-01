@@ -41,6 +41,37 @@ data class OpplaringKategoriseringResponse(
         FLERVALG,
     }
 
+    @Serializable
+    enum class Representerer {
+        KURSTYPE_ID,
+        BRANSJE_ID,
+        SERTIFISERINGER,
+        FORERKORT,
+        INNHOLDSELEMENTER,
+        NORSKPROVE,
+        UTDANNINGSPROGRAM_ID,
+        LAREFAG,
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Serializable
+    @JsonClassDiscriminator("type")
+    sealed interface Tooltip {
+
+        @Serializable
+        @SerialName("Utlisting")
+        data class Utlisting(
+            val tittel: String,
+            val innhold: List<String>,
+        ) : Tooltip
+
+        @Serializable
+        @SerialName("FlereUtlistinger")
+        data class FlereUtlistinger(
+            val liste: List<Utlisting>,
+        ) : Tooltip
+    }
+
     /**
      * Et element i kodeverk-hierarkiet.
      *
@@ -90,10 +121,34 @@ data class OpplaringKategoriseringResponse(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID?,
             override val visningsnavn: String,
-            val representerer: String?,
-            val required: Boolean,
+            val representerer: Representerer?,
+            val pakrevd: Boolean,
             val alternativer: List<Container>,
         ) : Container
+
+        /**
+         * Gruppering for utdanningsprogram og lærefag
+         *
+         * Muliggjør at valg av program, gir andre muligheter for lærefag
+         */
+        @Serializable
+        @SerialName("UtdanningGruppe")
+        data class UtdanningGruppe(
+            @Serializable(with = UUIDSerializer::class)
+            override val id: UUID? = null,
+            override val visningsnavn: String,
+            val representerer: Representerer,
+            val pakrevd: Boolean,
+            val utdanninger: List<UtdanningValg>,
+        ) : Container {
+            @Serializable
+            data class UtdanningValg(
+                @Serializable(with = UUIDSerializer::class)
+                val id: UUID,
+                val visningsnavn: String,
+                val larefag: Verdigruppe,
+            )
+        }
 
         /**
          * En valgbar gruppe — det innerste nivået i hierarkiet som inneholder
@@ -115,8 +170,9 @@ data class OpplaringKategoriseringResponse(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID?,
             override val visningsnavn: String,
-            val required: Boolean,
-            val representerer: String,
+            val tooltip: Tooltip?,
+            val pakrevd: Boolean,
+            val representerer: Representerer,
             val seleksjonstype: Seleksjonstype,
             val alternativer: List<Verdi>,
         ) : Container
@@ -139,8 +195,8 @@ data class OpplaringKategoriseringResponse(
             @Serializable(with = UUIDSerializer::class)
             override val id: UUID?,
             override val visningsnavn: String,
-            val required: Boolean,
-            val representerer: String,
+            val pakrevd: Boolean,
+            val representerer: Representerer,
             val seleksjonstype: Seleksjonstype,
             val kilde: Kilde,
         ) : Container {

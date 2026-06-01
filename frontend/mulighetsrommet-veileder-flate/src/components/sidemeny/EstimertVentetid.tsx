@@ -1,6 +1,6 @@
 import { TimerPauseFillIcon } from "@navikt/aksel-icons";
 import { BodyShort } from "@navikt/ds-react";
-import { EstimertVentetid as EstimertVentetidType } from "@api-client";
+import { EstimertVentetid as EstimertVentetidType } from "@arbeidsmarkedstiltak/api-client";
 
 interface Props {
   estimertVentetid: EstimertVentetidType;

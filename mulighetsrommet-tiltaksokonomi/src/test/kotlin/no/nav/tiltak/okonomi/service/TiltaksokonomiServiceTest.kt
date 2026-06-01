@@ -47,23 +47,22 @@ import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.Tilskuddstype
-import no.nav.tiltak.okonomi.api.OebsFakturaKvittering
-import no.nav.tiltak.okonomi.api.OebsFakturaKvittering.StatusBetalt
 import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
-import no.nav.tiltak.okonomi.model.OebsKontering
 import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
+import no.nav.tiltak.okonomi.oebs.OebsFakturaKvittering
 import no.nav.tiltak.okonomi.oebs.OebsFakturaMelding
+import no.nav.tiltak.okonomi.oebs.OebsKontering
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import org.intellij.lang.annotations.Language
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-class OkonomiServiceTest : FunSpec({
+class TiltaksokonomiServiceTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     lateinit var db: OkonomiDatabase
@@ -98,8 +97,8 @@ class OkonomiServiceTest : FunSpec({
 
     fun createOkonomiService(
         oebsTiltakApiClient: OebsPoApClient,
-    ) = OkonomiService(
-        config = OkonomiService.Config(
+    ) = TiltaksokonomiService(
+        config = TiltaksokonomiService.Config(
             topics = KafkaTopics("bestilling-status", "faktura-status"),
         ),
         db = db,
@@ -695,7 +694,7 @@ class OkonomiServiceTest : FunSpec({
                 kvittering = OebsFakturaKvittering(
                     fakturaNummer = faktura.fakturanummer,
                     opprettelsesTidspunkt = LocalDateTime.now(),
-                    statusBetalt = StatusBetalt.IkkeBetalt,
+                    statusBetalt = OebsFakturaKvittering.StatusBetalt.IkkeBetalt,
                 ),
             )
             db.session { queries.kafkaProducerRecord.getRecords(10) }

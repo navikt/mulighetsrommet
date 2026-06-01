@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { Melding } from "../melding/Melding";
 import { PortableText } from "@mr/frontend-common";
-import { Tiltakskode } from "@api-client";
+import { Tiltakskode } from "@arbeidsmarkedstiltak/api-client";
 import { XMarkIcon } from "@navikt/aksel-icons";
 
 interface Props {

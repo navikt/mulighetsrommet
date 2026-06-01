@@ -13,7 +13,7 @@ import {
   ArrangorflateFilterType,
   ArrangorflateTiltakFilterOrderBy,
   ArrangorInnsendingRadDto,
-} from "api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { Suspense, useEffect, useState } from "react";
 import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { tekster } from "~/tekster";

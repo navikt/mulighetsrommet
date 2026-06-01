@@ -6,6 +6,7 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
@@ -190,6 +191,91 @@ class UtbetalingRoutesTest : FunSpec({
 
                 response.status shouldBe HttpStatusCode.Forbidden
                 response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.ATTESTANT_UTBETALING)
+            }
+        }
+    }
+
+    context("opprett utbetalingslinjer") {
+        test("tom liste gir feil om manglende utbetalingslinjer") {
+            withTestApplication(appConfig()) {
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+
+                val response = client.put("/api/tiltaksadministrasjon/utbetalingslinjer") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        OpprettUtbetalingLinjerRequest(
+                            utbetalingId = UtbetalingFixtures.utbetaling1.id,
+                            utbetalingLinjer = emptyList(),
+                            begrunnelseMindreBetalt = null,
+                        ),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                response.body<ValidationError>().errors shouldContainExactlyInAnyOrder listOf(
+                    FieldError("/utbetalingLinjer", "Utbetalingslinjer mangler"),
+                )
+            }
+        }
+
+        test("liste med kun nullbeløp gir feil om manglende utbetalingslinjer") {
+            withTestApplication(appConfig()) {
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+
+                val response = client.put("/api/tiltaksadministrasjon/utbetalingslinjer") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        OpprettUtbetalingLinjerRequest(
+                            utbetalingId = UtbetalingFixtures.utbetaling1.id,
+                            utbetalingLinjer = listOf(
+                                UtbetalingLinjeRequest(
+                                    id = UUID.randomUUID(),
+                                    tilsagnId = TilsagnFixtures.Tilsagn1.id,
+                                    pris = ValutaBelopRequest(belop = 0, valuta = Valuta.NOK),
+                                    gjorOppTilsagn = false,
+                                ),
+                            ),
+                            begrunnelseMindreBetalt = null,
+                        ),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                response.body<ValidationError>().errors shouldContainExactlyInAnyOrder listOf(
+                    FieldError("/utbetalingLinjer", "Utbetalingslinjer mangler"),
+                )
+            }
+        }
+
+        test("negativt beløp gir valideringsfeil") {
+            withTestApplication(appConfig()) {
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+
+                val response = client.put("/api/tiltaksadministrasjon/utbetalingslinjer") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        OpprettUtbetalingLinjerRequest(
+                            utbetalingId = UtbetalingFixtures.utbetaling1.id,
+                            utbetalingLinjer = listOf(
+                                UtbetalingLinjeRequest(
+                                    id = UUID.randomUUID(),
+                                    tilsagnId = TilsagnFixtures.Tilsagn1.id,
+                                    pris = ValutaBelopRequest(belop = -100, valuta = Valuta.NOK),
+                                    gjorOppTilsagn = false,
+                                ),
+                            ),
+                            begrunnelseMindreBetalt = null,
+                        ),
+                    )
+                }
+
+                response.status shouldBe HttpStatusCode.BadRequest
+                response.body<ValidationError>().errors shouldContainExactlyInAnyOrder listOf(
+                    FieldError("/utbetalingLinjer/0/pris/belop", "Beløp må være positivt"),
+                )
             }
         }
     }

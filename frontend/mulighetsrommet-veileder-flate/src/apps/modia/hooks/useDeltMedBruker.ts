@@ -1,5 +1,5 @@
 import { QueryKeys } from "@/api/query-keys";
-import { DelMedBrukerService } from "@api-client";
+import { DelMedBrukerService } from "@arbeidsmarkedstiltak/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useDeltMedBruker(norskIdent: string, gjennomforingId: string) {
@@ -9,7 +9,7 @@ export function useDeltMedBruker(norskIdent: string, gjennomforingId: string) {
       const result = await DelMedBrukerService.getDeltMedBruker<false>({
         body: { norskIdent, tiltakId: gjennomforingId },
       });
-      if (result.response.status === 204) {
+      if (result.response?.status === 204) {
         return { data: null };
       } else {
         return { data: result.data };

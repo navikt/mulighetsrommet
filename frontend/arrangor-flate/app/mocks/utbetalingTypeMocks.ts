@@ -1,4 +1,4 @@
-import { UtbetalingTypeDto } from "@api-client";
+import { UtbetalingTypeDto } from "@arrangor-utbetalinger/api-client";
 
 export const utbetalingType: Record<
   "KORRIGERING" | "INVESTERING" | "INNSENDING",

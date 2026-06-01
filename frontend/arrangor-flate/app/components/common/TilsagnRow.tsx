@@ -1,7 +1,7 @@
 import { formaterPeriodeSlutt, formaterPeriodeStart } from "@mr/frontend-common/utils/date";
 import { BodyShort, Link, Table } from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
-import { ArrangorflateTilsagnRadDto } from "api-client/types.gen";
+import { ArrangorflateTilsagnRadDto } from "@arrangor-utbetalinger/api-client";
 import { pathTo } from "~/utils/navigation";
 import { TilsagnStatusTag } from "../tilsagn/TilsagnStatusTag";
 import { Kolonne } from "./Tabellvisning";

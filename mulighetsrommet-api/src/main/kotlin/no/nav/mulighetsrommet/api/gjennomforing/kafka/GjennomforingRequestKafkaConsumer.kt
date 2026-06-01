@@ -5,6 +5,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.KategoriseringMapper
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
@@ -53,6 +54,7 @@ class GjennomforingRequestKafkaConsumer(
             status = GjennomforingStatusType.GJENNOMFORES,
             prisbetingelser = request.prisinformasjon,
             ansvarligEnhet = request.ansvarligEnhet,
+            kategorisering = request.kategorisering?.let(KategoriseringMapper::fromKafkaPayload),
         )
         enkeltplasser.create(opprett, request.opprettetAv)
     }

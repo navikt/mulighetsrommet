@@ -1,6 +1,6 @@
 import { Tag } from "@navikt/ds-react";
 import { AkselColor } from "@navikt/ds-react/types/theme";
-import { TilsagnStatus } from "api-client";
+import { TilsagnStatus } from "@arrangor-utbetalinger/api-client";
 import { ReactNode } from "react";
 
 const statusConfig: Record<TilsagnStatus, { label: string; color: AkselColor } | null> = {

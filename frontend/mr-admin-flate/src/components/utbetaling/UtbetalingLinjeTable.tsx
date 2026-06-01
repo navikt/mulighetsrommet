@@ -1,4 +1,4 @@
-import { UtbetalingDto, UtbetalingLinje } from "@tiltaksadministrasjon/api-client";
+import { UtbetalingDto, UtbetalingLinjeDto } from "@tiltaksadministrasjon/api-client";
 import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { Box, CopyButton, HStack, Table } from "@navikt/ds-react";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
@@ -6,8 +6,8 @@ import React from "react";
 
 export interface Props {
   utbetaling: UtbetalingDto;
-  linjer: UtbetalingLinje[];
-  renderRow: (linje: UtbetalingLinje, index: number) => React.ReactNode;
+  linjer: UtbetalingLinjeDto[];
+  renderRow: (linje: UtbetalingLinjeDto, index: number) => React.ReactNode;
   utbetalesTotal?: number;
 }
 

@@ -1,7 +1,7 @@
 import { Box, Heading, BodyShort, HGrid } from "@navikt/ds-react";
 import { TilsagnDetaljer } from "../tilsagn/TilsagnDetaljer";
 import { UtbetalingManglendeTilsagnAlert } from "../utbetaling/UtbetalingManglendeTilsagnAlert";
-import { ArrangorflateTilsagnDto } from "api-client/types.gen";
+import { ArrangorflateTilsagnDto } from "@arrangor-utbetalinger/api-client";
 
 export function TilgjengeligeTilsagn({ tilsagn }: { tilsagn: ArrangorflateTilsagnDto[] }) {
   return (

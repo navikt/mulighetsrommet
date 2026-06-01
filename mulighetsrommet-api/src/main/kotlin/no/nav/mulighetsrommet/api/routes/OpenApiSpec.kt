@@ -7,8 +7,8 @@ enum class OpenApiSpec(
 ) {
     PUBLIC("/api/v\\d(?!/intern)".toRegex(), "public", 1),
     TILTAKSADMINISTRASJON("/api/tiltaksadministrasjon".toRegex(), "tiltaksadministrasjon", 18),
-    VEILEDERFLATE("/api/veilederflate".toRegex(), "veilederflate", 1),
-    ARRANGORFLATE("/api/arrangorflate".toRegex(), "arrangorflate", 1),
+    VEILEDERFLATE("/api/veilederflate".toRegex(), "arbeidsmarkedstiltak", 1),
+    ARRANGORFLATE("/api/arrangorflate".toRegex(), "arrangor-utbetalinger", 1),
     ;
 
     companion object {
@@ -21,7 +21,7 @@ enum class OpenApiSpec(
             PUBLIC.specName -> PUBLIC
             VEILEDERFLATE.specName -> VEILEDERFLATE
             ARRANGORFLATE.specName -> ARRANGORFLATE
-            else -> throw IllegalArgumentException("Ukjent spec")
+            else -> throw IllegalArgumentException("Ukjent spec: $name")
         }
     }
 }

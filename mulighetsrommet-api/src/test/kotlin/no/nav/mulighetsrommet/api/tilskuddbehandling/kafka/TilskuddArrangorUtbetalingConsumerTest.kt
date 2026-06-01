@@ -121,7 +121,6 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
                 tidligstTidspunktForUtbetaling = { _, _ -> null },
             ),
             tilsagnService = tilsagnService,
-            journalforUtbetaling = mockk(relaxed = true),
             arrangorService = arrangorService,
             totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
         )

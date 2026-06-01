@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw";
-import { Innsatsgruppe, VeilederflateTiltak } from "@api-client";
+import { Innsatsgruppe, VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 import { mockInnsatsgrupper } from "@/mock/fixtures/mockInnsatsgrupper";
 import { mockTiltakstyper } from "@/mock/fixtures/mockTiltakstyper";
 import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";

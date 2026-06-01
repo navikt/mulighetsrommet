@@ -4,7 +4,7 @@ import {
   OpprettKravData,
   ArrangorflateFilterType,
   PaginatedResponseArrangorInnsendingRadDto,
-} from "@api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { oversiktAktiveGjennomforinger } from "./gjennomforingMocks";
 import { innsendingsInformasjon } from "./innsendingsInformasjonMocks";

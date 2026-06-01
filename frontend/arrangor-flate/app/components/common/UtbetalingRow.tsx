@@ -4,7 +4,7 @@ import { BodyShort, Link, Table } from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "../utbetaling/UtbetalingStatusTag";
 import { UtbetalingTextLink } from "../utbetaling/UtbetalingTextLink";
-import { ArrangorInnsendingRadDto } from "api-client/types.gen";
+import { ArrangorInnsendingRadDto } from "@arrangor-utbetalinger/api-client";
 import { pathTo } from "~/utils/navigation";
 import { Kolonne } from "./Tabellvisning";
 

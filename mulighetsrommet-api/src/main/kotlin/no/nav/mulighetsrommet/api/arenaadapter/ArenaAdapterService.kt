@@ -84,6 +84,7 @@ class ArenaAdapterService(
                 ansvarligEnhet = NavEnhetNummer(arenaGjennomforing.arenaAnsvarligEnhet),
                 arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
+                kategorisering = null, // Arena har ikke amo kategorisering
             )
             val existing = db.session { queries.gjennomforing.getGjennomforing(arenaGjennomforing.id) }
             when {

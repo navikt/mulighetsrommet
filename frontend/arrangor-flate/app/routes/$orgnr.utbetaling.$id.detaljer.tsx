@@ -22,7 +22,7 @@ import {
   ArrangorflateUtbetalingStatus,
   FieldError,
   UtbetalingTypeDto,
-} from "api-client";
+} from "@arrangor-utbetalinger/api-client";
 import { Suspense, useState } from "react";
 import { MetaFunction } from "react-router";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";

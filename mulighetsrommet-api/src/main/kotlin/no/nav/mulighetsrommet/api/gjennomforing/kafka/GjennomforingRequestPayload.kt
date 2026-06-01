@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.kafka
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringResponse
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -23,5 +24,24 @@ sealed interface GjennomforingRequestPayload {
         val prisinformasjon: String,
         val ansvarligEnhet: NavEnhetNummer,
         val opprettetAv: NavIdent,
-    ) : GjennomforingRequestPayload
+        val kategorisering: OpplaringKategorisering? = null,
+    ) : GjennomforingRequestPayload {
+        @Serializable
+        data class OpplaringKategorisering(
+            val verdier: Map<
+                OpplaringKategoriseringResponse.Representerer,
+                List<
+                    @Serializable(with = UUIDSerializer::class)
+                    UUID,
+                    >,
+                >,
+            val sertifiseringer: List<SertifiseringValg>,
+        ) {
+            @Serializable
+            data class SertifiseringValg(
+                val id: Long,
+                val navn: String,
+            )
+        }
+    }
 }

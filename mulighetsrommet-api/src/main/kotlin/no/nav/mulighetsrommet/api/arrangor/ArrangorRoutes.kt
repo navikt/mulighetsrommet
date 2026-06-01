@@ -30,13 +30,13 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
-import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.NotFound
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.UUID
-import kotlin.String
 
 fun Route.arrangorRoutes() {
     val db: ApiDatabase by inject()
@@ -146,7 +146,11 @@ fun Route.arrangorRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-            call.respond(arrangorService.getBetalingsinformasjon(id))
+
+            val message: Betalingsinformasjon = arrangorService.getBetalingsinformasjon(id)
+                ?: return@get call.respondWithProblemDetail(NotFound("Arrangør mangler kontonummer"))
+
+            call.respond(message)
         }
 
         get("{id}/hovedenhet", {

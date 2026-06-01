@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.Tilskuddstype
-import no.nav.tiltak.okonomi.model.OebsKontering
+import no.nav.tiltak.okonomi.oebs.OebsKontering
 import org.intellij.lang.annotations.Language
 
 class TiltakKonteringQueries(private val session: Session) {

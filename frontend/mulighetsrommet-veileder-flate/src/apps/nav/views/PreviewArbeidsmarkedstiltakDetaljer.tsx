@@ -6,7 +6,7 @@ import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
 import { ViewTiltakDetaljer } from "@/layouts/ViewTiltakDetaljer";
 import { Alert } from "@navikt/ds-react";
-import { Innsatsgruppe, NavEnhetType } from "@api-client";
+import { Innsatsgruppe, NavEnhetType } from "@arbeidsmarkedstiltak/api-client";
 import { ArbeidsmarkedstiltakErrorBoundary } from "@/ErrorBoundary";
 import { PersonvernContainer } from "@/components/personvern/PersonvernContainer";
 import { SidemenyLenker } from "@/components/sidemeny/SidemenyLenker";

@@ -1,5 +1,5 @@
 import { Box, Heading } from "@navikt/ds-react";
-import { DataDetails, ValutaBelop } from "@api-client";
+import { DataDetails, ValutaBelop } from "@arrangor-utbetalinger/api-client";
 import { getDataElement } from "@mr/frontend-common";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { MetadataHGrid, Separator } from "@mr/frontend-common/components/datadriven/Metadata";

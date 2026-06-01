@@ -59,6 +59,39 @@ data class Utbetaling(
         }
     }
 
+    fun erTilBehandling(): Boolean = when (status) {
+        UtbetalingStatusType.TIL_BEHANDLING,
+        UtbetalingStatusType.RETURNERT,
+        -> true
+
+        UtbetalingStatusType.GENERERT,
+        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.FERDIG_BEHANDLET,
+        UtbetalingStatusType.DELVIS_UTBETALT,
+        UtbetalingStatusType.UTBETALT,
+        UtbetalingStatusType.AVBRUTT,
+        -> false
+    }
+
+    fun erFerdigBehandlet(): Boolean = when (status) {
+        UtbetalingStatusType.FERDIG_BEHANDLET,
+        UtbetalingStatusType.DELVIS_UTBETALT,
+        UtbetalingStatusType.UTBETALT,
+        -> true
+
+        UtbetalingStatusType.RETURNERT,
+        UtbetalingStatusType.TIL_BEHANDLING,
+        UtbetalingStatusType.GENERERT,
+        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.AVBRUTT,
+        -> false
+    }
+
+    // TODO: sealed class i stedet for nullable properties?
+    fun erInnsending(): Boolean = innsending != null
+
+    fun erKorreksjon(): Boolean = korreksjon != null
+
     @Serializable
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)

@@ -4,7 +4,7 @@ import {
   GetAlleDeltMedBrukerRequest,
   GetDelMedBrukerRequest,
   TiltakDeltMedBrukerDto,
-} from "@api-client";
+} from "@arbeidsmarkedstiltak/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { mockDeltMedBruker } from "@/mock/fixtures/mockDeltMedBruker";
 import { mockHistorikkDeltMedBruker } from "@/mock/fixtures/mockHistorikkDeltMedBruker";

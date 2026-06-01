@@ -86,10 +86,14 @@ export function Handlinger<T>({
                 {idx > 0 && <ActionMenu.Divider />}
                 {gruppe.label ? (
                   <ActionMenu.Group label={gruppe.label}>
-                    {gruppe.items.map((item, i) => renderItem(item, i, navIdent, setPendingAction))}
+                    {gruppe.items.map((item, i) =>
+                      renderItem(item, i, navIdent, (action) => setPendingAction(() => action)),
+                    )}
                   </ActionMenu.Group>
                 ) : (
-                  gruppe.items.map((item, i) => renderItem(item, i, navIdent, setPendingAction))
+                  gruppe.items.map((item, i) =>
+                    renderItem(item, i, navIdent, (action) => setPendingAction(() => action)),
+                  )
                 )}
               </Fragment>
             ))

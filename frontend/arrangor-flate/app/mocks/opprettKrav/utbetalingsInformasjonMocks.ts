@@ -1,4 +1,4 @@
-import { OpprettKravUtbetalingSteg, Valuta } from "@api-client";
+import { OpprettKravUtbetalingSteg, Valuta } from "@arrangor-utbetalinger/api-client";
 import {
   gjennomforingIdAFT,
   gjennomforingIdAvklaring,

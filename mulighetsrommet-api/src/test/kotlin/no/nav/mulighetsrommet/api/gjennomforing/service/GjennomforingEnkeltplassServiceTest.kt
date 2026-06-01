@@ -76,6 +76,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         status = GjennomforingStatusType.GJENNOMFORES,
         ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
         prisbetingelser = null,
+        kategorisering = null,
     )
 
     context("opprettelse gjennomføring") {

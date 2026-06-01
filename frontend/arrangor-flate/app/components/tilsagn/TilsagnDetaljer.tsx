@@ -1,4 +1,7 @@
-import { ArrangorflatePersonalia, ArrangorflateTilsagnDto } from "api-client";
+import {
+  ArrangorflatePersonalia,
+  ArrangorflateTilsagnDto,
+} from "@arrangor-utbetalinger/api-client";
 import { tekster } from "~/tekster";
 import { TilsagnStatusTag } from "./TilsagnStatusTag";
 import {

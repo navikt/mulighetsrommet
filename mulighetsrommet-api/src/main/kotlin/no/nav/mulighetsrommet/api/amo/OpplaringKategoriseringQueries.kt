@@ -3,11 +3,13 @@ package no.nav.mulighetsrommet.api.amo
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.amo.models.Bransje
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import org.intellij.lang.annotations.Language
-import java.util.UUID
 
 class OpplaringKategoriseringQueries(private val session: Session) {
-    fun getKurstyper(inkluderInaktive: Boolean = false): List<Kurstype> {
+    fun getKurstyper(inkluderInaktive: Boolean = false): Set<Kurstype> {
         @Language("PostgreSQL")
         val query = """
             select id, kode, navn, aktiv
@@ -18,10 +20,10 @@ class OpplaringKategoriseringQueries(private val session: Session) {
         val params = mapOf("alle" to inkluderInaktive)
 
         val kurstyper = session.list(queryOf(query, params)) { it.toKurstype() }
-        return kurstyper
+        return kurstyper.toSet()
     }
 
-    fun getForerkortKlasser(): List<ForerkortKlasse> {
+    fun getForerkortKlasser(): Set<ForerkortKlasse> {
         @Language("PostgreSQL")
         val query = """
             select id, kode, navn
@@ -30,10 +32,10 @@ class OpplaringKategoriseringQueries(private val session: Session) {
         """.trimIndent()
 
         val forerkortKlasser = session.list(queryOf(query)) { it.toForerkortKlasse() }
-        return forerkortKlasser
+        return forerkortKlasser.toSet()
     }
 
-    fun getBransjer(): List<Bransje> {
+    fun getBransjer(): Set<Bransje> {
         @Language("PostgreSQL")
         val query = """
             select id, kode, navn
@@ -42,17 +44,7 @@ class OpplaringKategoriseringQueries(private val session: Session) {
         """.trimIndent()
 
         val bransjer = session.list(queryOf(query)) { it.toBransje() }
-        return bransjer
-    }
-}
-
-data class Kurstype(val id: UUID, val kode: Kode, val navn: String, val aktiv: Boolean) {
-    enum class Kode {
-        NORSKOPPLARING,
-        GRUNNLEGGENDE_FERDIGHETER,
-        FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-        BRANSJE_OG_YRKESRETTET,
-        STUDIESPESIALISERING,
+        return bransjer.toSet()
     }
 }
 
@@ -63,49 +55,11 @@ fun Row.toKurstype() = Kurstype(
     aktiv = boolean("aktiv"),
 )
 
-data class ForerkortKlasse(val id: UUID, val kode: Kode, val navn: String) {
-    enum class Kode {
-        A,
-        A1,
-        A2,
-        AM,
-        AM_147,
-        B,
-        B_78,
-        BE,
-        C,
-        C1,
-        C1E,
-        CE,
-        D,
-        D1,
-        D1E,
-        DE,
-        S,
-        T,
-    }
-}
-
 fun Row.toForerkortKlasse() = ForerkortKlasse(
     id = uuid("id"),
     kode = string("kode").let { ForerkortKlasse.Kode.valueOf(it) },
     navn = string("navn"),
 )
-
-data class Bransje(val id: UUID, val kode: Kode, val navn: String) {
-    enum class Kode {
-        INGENIOR_OG_IKT_FAG,
-        HELSE_PLEIE_OG_OMSORG,
-        BARNE_OG_UNGDOMSARBEID,
-        KONTORARBEID,
-        BUTIKK_OG_SALGSARBEID,
-        BYGG_OG_ANLEGG,
-        INDUSTRIARBEID,
-        REISELIV_SERVERING_OG_TRANSPORT,
-        SERVICEYRKER_OG_ANNET_ARBEID,
-        ANDRE_BRANSJER,
-    }
-}
 
 fun Row.toBransje() = Bransje(
     id = uuid("id"),

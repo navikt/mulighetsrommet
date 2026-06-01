@@ -8,7 +8,6 @@ import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettFaktura
-import no.nav.tiltak.okonomi.helpers.divideBelopByMonthsInPeriode
 import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
 import no.nav.tiltak.okonomi.service.gjorOppFakturanummer
 import java.time.Instant

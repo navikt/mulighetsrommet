@@ -1,5 +1,5 @@
 import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
-import { Innsatsgruppe } from "@api-client";
+import { Innsatsgruppe } from "@arbeidsmarkedstiltak/api-client";
 import { ArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { Melding } from "@/components/melding/Melding";
 

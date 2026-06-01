@@ -18,7 +18,7 @@ class SakEventProcessor(
 ) : ArenaEventProcessor {
 
     override suspend fun shouldHandleEvent(event: ArenaEvent): Boolean {
-        return event.arenaTable === ArenaTable.Sak
+        return event.arenaTable == ArenaTable.Sak
     }
 
     override suspend fun handleEvent(event: ArenaEvent) = either {

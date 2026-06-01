@@ -3,7 +3,10 @@ import {
   utbetalingLinjeAarsakTilTekst,
   ValidationMessage,
 } from "@/utils/Utils";
-import { UtbetalingLinje, UtbetalingLinjeReturnertAarsak } from "@tiltaksadministrasjon/api-client";
+import {
+  UtbetalingLinjeDto,
+  UtbetalingLinjeReturnertAarsak,
+} from "@tiltaksadministrasjon/api-client";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { Alert, Heading, HStack, InfoCard, Link, List, Table, VStack } from "@navikt/ds-react";
 import React, { useState } from "react";
@@ -17,12 +20,12 @@ import { isAvvist, isBesluttet } from "@/utils/totrinnskontroll";
 
 interface Props {
   gjennomforingId: string;
-  linje: UtbetalingLinje;
+  linje: UtbetalingLinjeDto;
   belopInput?: React.ReactNode | null;
   checkboxInput?: React.ReactNode | null;
   knappeColumn?: React.ReactNode;
   errors?: ValidationMessage[];
-  onChange?: (linje: UtbetalingLinje) => void;
+  onChange?: (linje: UtbetalingLinjeDto) => void;
 }
 
 export function UtbetalingLinjeRow({

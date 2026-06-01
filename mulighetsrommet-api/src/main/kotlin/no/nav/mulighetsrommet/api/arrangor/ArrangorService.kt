@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.arrangor
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.Serializable
@@ -11,6 +10,7 @@ import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregEnhet
@@ -119,7 +119,7 @@ class ArrangorService(
             }
     }
 
-    suspend fun getBetalingsinformasjon(id: UUID): Betalingsinformasjon {
+    suspend fun getBetalingsinformasjon(id: UUID): Betalingsinformasjon? {
         val arrangor = db.session { queries.arrangor.getById(id) }
 
         if (arrangor.erUtenlandsk) {
@@ -137,14 +137,21 @@ class ArrangorService(
                 bankLandKode = arrangorUtenlandsk.landKode,
             )
         } else {
-            val kontonummer =
-                kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
+            return kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
+                .fold(
+                    {
+                        when (it) {
+                            KontonummerRegisterOrganisasjonError.FantIkkeKontonummer -> null
 
-            return kontonummer
-                .map { Betalingsinformasjon.BBan(Kontonummer(it.kontonr), null) }
-                .getOrElse {
-                    throw IllegalArgumentException("Klarte ikke hente kontonummer for arrangør")
-                }
+                            KontonummerRegisterOrganisasjonError.UgyldigInput,
+                            KontonummerRegisterOrganisasjonError.Error,
+                            -> throw IllegalStateException("Klarte ikke hente kontonummer for arrangør")
+                        }
+                    },
+                    {
+                        Betalingsinformasjon.BBan(Kontonummer(it.kontonr), null)
+                    },
+                )
         }
     }
 

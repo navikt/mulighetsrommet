@@ -1,4 +1,4 @@
-import { PortableTextTypedObject, VeilederflateArrangor } from "@api-client";
+import { PortableTextTypedObject, VeilederflateArrangor } from "@arbeidsmarkedstiltak/api-client";
 import { PortableText } from "@mr/frontend-common";
 import { BodyLong, BodyShort, Heading, Link } from "@navikt/ds-react";
 

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ArrangorflateService } from "api-client";
+import { ArrangorflateService } from "@arrangor-utbetalinger/api-client";
 import { queryClient as apiClient } from "~/api/client";
 import { queryKeys } from "~/api/queryKeys";
 
