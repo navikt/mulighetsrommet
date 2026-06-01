@@ -3165,7 +3165,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Sertifisering"
+                  $ref: "#/components/schemas/Sertifisering"
         default:
           description: Problem details
           headers: {}
@@ -4008,7 +4008,7 @@ components:
           - "null"
           - array
           items:
-            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Sertifisering"
+            $ref: "#/components/schemas/Sertifisering"
         forerkort:
           type:
           - "null"
@@ -4053,7 +4053,7 @@ components:
       - REISELIV_SERVERING_OG_TRANSPORT
       - SERVICEYRKER_OG_ANNET_ARBEID
       - ANDRE_BRANSJER
-    AmoKategorisering.BransjeOgYrkesrettet.Sertifisering:
+    Sertifisering:
       type: object
       properties:
         konseptId:
@@ -4533,7 +4533,7 @@ components:
           - "null"
           - array
           items:
-            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Sertifisering"
+            $ref: "#/components/schemas/Sertifisering"
         forerkort:
           type:
           - "null"
@@ -6213,17 +6213,6 @@ components:
       required:
       - alternativer
       - tiltakskode
-    Sertifisering:
-      type: object
-      properties:
-        konseptId:
-          type: integer
-          format: int64
-        label:
-          type: string
-      required:
-      - konseptId
-      - label
     RegionKostnadssteder:
       type: object
       properties:

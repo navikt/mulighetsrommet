@@ -3,7 +3,7 @@ import { FieldValues, Path, useController, useFormContext } from "react-hook-for
 import { useState } from "react";
 import { useSokSertifiseringer } from "@/api/janzz/useSokSertifiseringer";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
-import { AmoKategoriseringBransjeOgYrkesrettetSertifisering as Sertifisering } from "@tiltaksadministrasjon/api-client";
+import { Sertifisering } from "@tiltaksadministrasjon/api-client";
 
 export function SertifiseringerSkjema<T extends FieldValues>(props: {
   path: Path<T>;

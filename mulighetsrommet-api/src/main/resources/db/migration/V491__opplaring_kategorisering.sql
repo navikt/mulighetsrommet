@@ -88,3 +88,4 @@ create index if not exists idx_gjennomforing_amo_kategorisering_kurstype_id
 
 drop view if exists view_avtale;
 drop view if exists view_gjennomforing_avtale_detaljer;
+drop view if exists view_gjennomforing_opplaring_kategorisering;
