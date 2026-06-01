@@ -29,9 +29,6 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
-import no.nav.common.audit_log.cef.CefMessage
-import no.nav.common.audit_log.cef.CefMessageEvent
-import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
@@ -57,7 +54,6 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
@@ -67,13 +63,11 @@ import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
@@ -380,7 +374,10 @@ fun Route.gjennomforingRoutes() {
                         avtaleGjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
-                    .flatMap { gjennomforinger.getOrInternalServerError(it.id, accessType) }
+                    .flatMap {
+                        gjennomforinger.getGjennomforingDetaljerDto(id, accessType, navIdent)?.right()
+                            ?: InternalServerError("Klarte ikke hente detaljer om gjennomforing=$id").left()
+                    }
 
                 call.respondWithStatusResponse(result)
             }
@@ -568,9 +565,6 @@ fun Route.gjennomforingRoutes() {
             operationId = "getGjennomforing"
             request {
                 pathParameterUuid("id")
-                queryParameter<Boolean>("auditLog") {
-                    required = false
-                }
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -585,16 +579,9 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
             val accessType = call.getAccessType().requireAzureAd()
-            val auditLog = call.request.queryParameters["auditLog"]?.toBooleanStrictOrNull() ?: false
+            val navIdent = getNavIdent()
 
-            gjennomforinger.getGjennomforingDetaljerDto(id, accessType)
-                ?.also { dto ->
-                    val norskIdent = dto.enkeltplassDeltaker?.norskIdent
-                    if (auditLog && norskIdent != null) {
-                        val navIdent = getNavIdent()
-                        auditLogVisEnkeltplass(navIdent, norskIdent)
-                    }
-                }
+            gjennomforinger.getGjennomforingDetaljerDto(id, accessType, navIdent)
                 ?.let { call.respond(it) }
                 ?: call.respondUkjentGjennomforing(id)
         }
@@ -619,7 +606,7 @@ fun Route.gjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val accessType = call.getAccessType().requireAzureAd()
-            gjennomforinger.getGjennomforingDetaljerDto(id, accessType)
+            gjennomforinger.getGjennomforingDetaljerDto(id, accessType, getNavIdent())
                 ?.let { detaljer ->
                     val tiltaksnummer = when (detaljer.gjennomforing) {
                         is GjennomforingAvtaleDto -> detaljer.gjennomforing.tiltaksnummer
@@ -694,14 +681,6 @@ fun Route.gjennomforingRoutes() {
             call.respond(handlinger)
         }
     }
-}
-
-private suspend fun GjennomforingDetaljerService.getOrInternalServerError(
-    id: UUID,
-    accessType: AccessType.OBO.AzureAd,
-): Either<InternalServerError, GjennomforingDetaljerDto> {
-    return getGjennomforingDetaljerDto(id, accessType)?.right()
-        ?: InternalServerError("Klarte ikke hente detaljer om gjennomforing=$id").left()
 }
 
 private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {
@@ -939,19 +918,4 @@ enum class GjennomforingHandling {
     OPPRETT_UTBETALING,
     GODKJENN_ENKELTPLASS_OKONOMI,
     SETT_PA_VENT_ENKELTPLASS_OKONOMI,
-}
-
-private fun auditLogVisEnkeltplass(navIdent: NavIdent, norskIdent: NorskIdent) {
-    val message = CefMessage.builder()
-        .applicationName("Tiltaksadministrasjon")
-        .loggerName("mulighetsrommet-api")
-        .event(CefMessageEvent.ACCESS)
-        .name("Tiltaksadministrasjon - Se enkeltplassdeltaker")
-        .severity(CefMessageSeverity.INFO)
-        .sourceUserId(navIdent.value)
-        .destinationUserId(norskIdent.value)
-        .timeEnded(System.currentTimeMillis())
-        .extension("msg", "Nav-ansatt med ident: '$navIdent' har sett på enkeltplassdeltaker med ident: '$norskIdent'.")
-        .build()
-    auditLogger.log(message)
 }

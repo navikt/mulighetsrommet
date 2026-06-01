@@ -12,20 +12,10 @@ export function useEnkeltplassGjennomforingOrError(id: string) {
   return data;
 }
 
-export enum GetGjennomforingAuditLog {
-  YES = "YES",
-  NO = "NO",
-}
-
-export function useGjennomforing(id: string, auditLog?: GetGjennomforingAuditLog) {
-  // eslint-disable-next-line @tanstack/query/exhaustive-deps
+export function useGjennomforing(id: string) {
   const result = useApiSuspenseQuery({
     queryKey: QueryKeys.gjennomforing(id),
-    queryFn: () =>
-      GjennomforingService.getGjennomforing({
-        path: { id },
-        query: { auditLog: auditLog === GetGjennomforingAuditLog.YES },
-      }),
+    queryFn: () => GjennomforingService.getGjennomforing({ path: { id } }),
   });
   return result.data;
 }
