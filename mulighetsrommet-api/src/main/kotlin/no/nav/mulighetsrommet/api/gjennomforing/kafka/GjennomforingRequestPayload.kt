@@ -24,7 +24,7 @@ sealed interface GjennomforingRequestPayload {
         val prisinformasjon: String,
         val ansvarligEnhet: NavEnhetNummer,
         val opprettetAv: NavIdent,
-        val kategorisering: OpplaringKategorisering?,
+        val kategorisering: OpplaringKategorisering? = null,
     ) : GjennomforingRequestPayload {
         @Serializable
         data class OpplaringKategorisering(
