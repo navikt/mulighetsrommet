@@ -100,7 +100,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             tiltak.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(aar = 2020, lopenummer = 1234)
         }
 
-        test("henter Gruppe AMO med amo-kategorisering") {
+        context("henter Gruppe AMO med amo-kategorisering") {
             val studiespesialisering = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering)
             val fov = OpplaringKategorisering(
                 kurstype = KurstypeFixtures.fov,
@@ -132,46 +132,81 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                         Sertifisering(konseptId = 1, label = "Jobb"),
                     ),
                 )
+            val amoGjennomforing = GruppeAmo1.copy(id = UUID.randomUUID())
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeAmo),
                 avtaler = listOf(AvtaleFixtures.gruppeAmo),
                 gjennomforinger = listOf(
-                    GruppeAmo1.copy(id = UUID.randomUUID()),
-                    GruppeAmo1.copy(id = UUID.randomUUID()),
-                    GruppeAmo1.copy(id = UUID.randomUUID()),
-                    GruppeAmo1.copy(id = UUID.randomUUID()),
-                    GruppeAmo1.copy(id = UUID.randomUUID()),
+                    amoGjennomforing,
                 ),
-            ) { domain ->
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[0].id, studiespesialisering.toDbo())
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[1].id, fov.toDbo())
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[2].id, grunnleggende.toDbo())
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[3].id, norskopplaering.toDbo())
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[4].id, bransje.toDbo())
+            )
+
+            test("studiepserialisering") {
+                database.runAndRollback {
+                    domain.setup(it)
+                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, studiespesialisering.toDbo())
+                    queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
+                        .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                        .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.Studiespesialisering)
+                }
             }
+            test("fov") {
+                database.runAndRollback { session ->
+                    domain.setup(session)
+                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, fov.toDbo())
+                    queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
+                        .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                        .amoKategorisering.shouldNotBeNull().shouldBe(
+                            AmoKategorisering.ForberedendeOpplaeringForVoksne(
+                                innholdElementer = listOf(AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING),
+                            ),
+                        )
+                }
+            }
+            test("grunnleggende ferdigheter") {
+                database.runAndRollback { session ->
+                    domain.setup(session)
+                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, grunnleggende.toDbo())
+                    queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
+                        .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                        .amoKategorisering.shouldNotBeNull()
+                        .shouldBe(AmoKategorisering.GrunnleggendeFerdigheter(innholdElementer = listOf(AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER)))
+                }
+            }
+            test("norskopplaering") {
+                database.runAndRollback { session ->
+                    domain.setup(session)
+                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, norskopplaering.toDbo())
+                    queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
+                        .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                        .amoKategorisering.shouldNotBeNull().shouldBe(
+                            AmoKategorisering.Norskopplaering(
+                                norskprove = false,
+                                innholdElementer = listOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING),
+                            ),
+                        )
+                }
+            }
+            test("Bransje og yrke") {
+                database.runAndRollback { session ->
+                    domain.setup(session)
+                    val dbo = bransje.toDbo()
+                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, dbo)
+                    val bransjeOgYrkesrettet = queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
+                        .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                        .amoKategorisering.shouldNotBeNull()
 
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[0].id)
-                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.Studiespesialisering)
-
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[1].id)
-                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.ForberedendeOpplaeringForVoksne(innholdElementer = listOf(AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING)))
-
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[2].id)
-                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.GrunnleggendeFerdigheter(innholdElementer = listOf(AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER)))
-
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[3].id)
-                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.Norskopplaering(norskprove = false, innholdElementer = listOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING)))
-
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[4].id)
-                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.BransjeOgYrkesrettet)
+                    bransjeOgYrkesrettet.shouldBe(
+                        AmoKategorisering.BransjeOgYrkesrettet(
+                            bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID,
+                            innholdElementer = listOf(AmoKategorisering.InnholdElement.PRAKSIS),
+                            forerkort = listOf(AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A),
+                            sertifiseringer = listOf(
+                                Sertifisering(konseptId = 1, label = "Jobb"),
+                            ),
+                        ),
+                    )
+                }
             }
         }
 

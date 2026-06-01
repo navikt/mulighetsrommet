@@ -65,7 +65,6 @@ object AmoKategoriseringQueries {
                 kurstype = excluded.kurstype,
                 bransje = excluded.bransje,
                 norskprove = excluded.norskprove,
-                forerkort = excluded.forerkort,
                 innhold_elementer = excluded.innhold_elementer,
                 bransje_id = excluded.bransje_id,
                 kurstype_id = excluded.kurstype_id
@@ -74,7 +73,7 @@ object AmoKategoriseringQueries {
         val params = mutableMapOf("${foreignName}_id" to foreignId) + mapOf(
             "kurstype_id" to kategorisering.kurstypeId,
             "bransje_id" to kategorisering.bransjeId,
-            "innhold_elementer" to session.createArrayOfInnholdElement(kategorisering.innholdElementer.toList()),
+            "innhold_elementer" to session.createArrayOfInnholdElement(kategorisering.innholdElementer),
             "norskprove" to kategorisering.norskprove,
         )
 
@@ -174,5 +173,5 @@ object AmoKategoriseringQueries {
 }
 
 fun Session.createArrayOfInnholdElement(
-    items: List<OpplaringKategorisering.InnholdElement>,
+    items: Collection<OpplaringKategorisering.InnholdElement>,
 ): Array = createArrayOf("amo_innhold_element", items)
