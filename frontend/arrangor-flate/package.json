@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@arrangor-utbetalinger/api-client": "workspace:*",
-    "@grafana/faro-react": "2.6.3",
+    "@grafana/faro-react": "2.7.0",
     "@mjackson/form-data-parser": "0.9.1",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "8.10.5",
