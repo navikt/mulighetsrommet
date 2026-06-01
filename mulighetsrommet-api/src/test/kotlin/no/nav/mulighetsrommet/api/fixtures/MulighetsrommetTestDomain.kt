@@ -83,6 +83,8 @@ data class MulighetsrommetTestDomain(
             session.execute(KurstypeFixtures.query())
             session.execute(BransjeFixtures.query())
             session.execute(ForerkortFixtures.query())
+            session.execute(UtdanningFixtures.UtdanningsProgram.query())
+            session.execute(UtdanningFixtures.Utdanninger.query())
         }
 
         additionalSetup?.invoke(context, this)

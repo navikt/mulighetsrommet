@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.toAmoKategoriseringDto
 import no.nav.mulighetsrommet.api.avtale.model.toDto
@@ -68,6 +70,8 @@ object GjennomforingDtoMapper {
         gjennomforing: GjennomforingEnkeltplass,
         okonomi: Totrinnskontroll?,
         deltakerDto: DeltakerDto?,
+        kategorisering: OpplaringKategorisering?,
+        utdanningslop: UtdanningslopDto?,
     ) = GjennomforingDetaljerDto(
         tiltakstype = gjennomforing.tiltakstype,
         gjennomforing = GjennomforingEnkeltplassDto(
@@ -91,8 +95,8 @@ object GjennomforingDtoMapper {
         veilederinfo = null,
         prismodell = fromPrismodell(gjennomforing.prismodell),
         okonomi = okonomi?.toDto(),
-        amoKategorisering = null,
-        utdanningslop = null,
+        amoKategorisering = kategorisering?.toAmoKategoriseringDto(gjennomforing.tiltakstype.tiltakskode),
+        utdanningslop = utdanningslop,
         enkeltplassDeltaker = deltakerDto,
     )
 

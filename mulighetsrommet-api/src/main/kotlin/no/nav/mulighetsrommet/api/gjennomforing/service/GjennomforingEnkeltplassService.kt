@@ -9,7 +9,9 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
@@ -44,6 +46,7 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -97,6 +100,35 @@ class GjennomforingEnkeltplassService(
                         totrinnskontroll.opprett(it.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI, agent)
                         logEndring("Deltaker søkt inn", it.id, agent)
                     }
+                }
+            }.also {
+                val opplaringKategoriseringDbo = create.kategorisering?.kurstypeId?.let { kurstypeId ->
+                    OpplaringKategoriseringDbo(
+                        kurstypeId = kurstypeId,
+                        bransjeId = create.kategorisering.bransjeId,
+                        forerkort = create.kategorisering.forerkort?.toSet() ?: emptySet(),
+                        sertifiseringer = create.kategorisering.sertifiseringer ?: emptySet(),
+                        // Ikke i bruk
+                        norskprove = create.kategorisering.norskprove,
+                        innholdElementer = create.kategorisering.innholdElementer ?: emptySet(),
+                        // Dekkes under
+                        utdanningslop = null,
+                    )
+                }
+                val utdanningDbo = create.kategorisering?.utdanningsprogramId?.let { programId ->
+                    UtdanningslopDbo(
+                        utdanningsprogram = programId,
+                        utdanninger = create.kategorisering.larefag?.toSet() ?: emptySet(),
+                    )
+                }
+                with(session) {
+                    AmoKategoriseringQueries.upsert(
+                        AmoKategoriseringQueries.Relation.GJENNOMFORING,
+                        it.id,
+                        opplaringKategoriseringDbo,
+                    )
+                    // TODO: forene amo og utdanning som opplaringkategorisering
+                    queries.gjennomforing.setUtdanningslop(create.id, utdanningDbo)
                 }
             }
             .also { updateFreeTextSearch(it, norskIdent = null) }

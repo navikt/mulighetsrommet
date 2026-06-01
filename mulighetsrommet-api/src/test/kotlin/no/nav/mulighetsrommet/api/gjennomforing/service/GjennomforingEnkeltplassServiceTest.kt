@@ -5,16 +5,25 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
+import no.nav.mulighetsrommet.api.fixtures.ForerkortFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
@@ -102,6 +111,63 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).shouldBeNull()
             }
         }
+
+        context("opplaring kategorisering") {
+            val toKategoriseringRequest = { kategorisering: OpplaringKategorisering ->
+                OpplaringKategoriseringRequest(
+                    kurstypeId = kategorisering.kurstype?.id,
+                    bransjeId = kategorisering.bransje?.id,
+                    forerkort = kategorisering.forerkort.map { it.id },
+                    sertifiseringer = kategorisering.sertifiseringer,
+                    utdanningsprogramId = kategorisering.utdanningslop?.utdanningsprogram?.id,
+                    larefag = kategorisering.utdanningslop?.utdanninger?.map { it.id },
+                    // Egentlig ikke i bruk enda
+                    norskprove = kategorisering.norskprove,
+                    innholdElementer = kategorisering.innholdElementer,
+                )
+            }
+
+            test("klarer å lagre kategorisering amo") {
+                val kategorisering = OpplaringKategorisering(
+                    kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                    bransje = BransjeFixtures.byggOgAnlegg,
+                    forerkort = setOf(
+                        ForerkortFixtures.B,
+                        ForerkortFixtures.BE,
+                    ),
+                    sertifiseringer = setOf(
+                        Sertifisering(konseptId = 1234, label = "Truckførerkurs"),
+                    ),
+                    norskprove = false,
+                )
+                val gjennomforing = createEnkeltplass().copy(
+                    kategorisering = toKategoriseringRequest(kategorisering),
+                )
+
+                service.create(gjennomforing, opprettetAv).shouldBeRight()
+                database.run {
+                    val lagretKategorisering = queries.opplaringKategorisering.getGjennomforingKategorisering(gjennomforing.id).shouldNotBeNull()
+                    lagretKategorisering.shouldBe(kategorisering)
+                }
+            }
+        }
+
+        test("klarer å lagre kategorisering fag og yrke") {
+            val request = OpplaringKategoriseringRequest(
+                utdanningsprogramId = UtdanningFixtures.UtdanningsProgram.byggOgAnlegg.id,
+                larefag = listOf(UtdanningFixtures.Utdanninger.fjellOgBergverksfaget.id),
+            )
+            val gjennomforing = createEnkeltplass().copy(
+                kategorisering = request,
+            )
+
+            service.create(gjennomforing, opprettetAv).shouldBeRight()
+            database.run {
+                val utdanningslop = queries.gjennomforing.getUtdanningslop(gjennomforing.id).shouldNotBeNull()
+                utdanningslop.utdanningsprogram.id.shouldBe(request.utdanningsprogramId)
+                utdanningslop.utdanninger.map { it.id }.shouldContainExactly(request.larefag?.first())
+            }
+        }
     }
     context("godkjennOkonomi") {
         val service = createService()
@@ -133,7 +199,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val gjennomforing = createEnkeltplass()
             service.create(gjennomforing, opprettetAv).shouldBeRight()
 
-            service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil prisbetingelser").shouldBeRight()
+            service.settPaVentOkonomi(gjennomforing.id, besluttetAv, forklaring = "Feil prisbetingelser")
+                .shouldBeRight()
             service.godkjennOkonomi(gjennomforing.id, besluttetAv).shouldBeRight()
 
             database.run {

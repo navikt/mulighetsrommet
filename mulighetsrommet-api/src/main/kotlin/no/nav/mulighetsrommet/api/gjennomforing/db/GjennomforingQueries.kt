@@ -331,9 +331,19 @@ class GjennomforingQueries(private val session: Session) {
     fun getUtdanningslop(id: UUID): UtdanningslopDto? {
         @Language("PostgreSQL")
         val query = """
-            select utdanningslop_json
-            from view_gjennomforing_avtale_detaljer
-            where id = ?::uuid
+            select jsonb_build_object(
+                           'utdanningsprogram',
+                           json_build_object('id', up.id, 'navn', up.navn),
+                           'utdanninger',
+                           jsonb_agg(jsonb_build_object('id', u.id, 'navn', u.navn))
+                   ) utdanningslop_json
+            from gjennomforing t
+                     join gjennomforing_utdanningsprogram upt
+                          on t.id = upt.gjennomforing_id
+                     join utdanningsprogram up on upt.utdanningsprogram_id = up.id
+                     join utdanning u on upt.utdanning_id = u.id
+            where gjennomforing_id = ?
+            group by up.id
         """.trimIndent()
         return session.single(queryOf(query, id)) { it.toUtdanningslopDto() }
     }

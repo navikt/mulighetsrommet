@@ -12,10 +12,11 @@ object KategoriseringMapper {
             bransjeId = kategorisering.verdier[OpplaringKategoriseringResponse.Representerer.BRANSJE_ID]?.firstOrNull(),
             sertifiseringer = kategorisering.sertifiseringer.map { Sertifisering(it.id, it.navn) }.toSet(),
             forerkort = kategorisering.verdier[OpplaringKategoriseringResponse.Representerer.FORERKORT],
-            innholdElementer = null, // Ikke støttet
-            norskprove = null, // Ikke støttet
             utdanningsprogramId = kategorisering.verdier[OpplaringKategoriseringResponse.Representerer.UTDANNINGSPROGRAM_ID]?.firstOrNull(),
             larefag = kategorisering.verdier[OpplaringKategoriseringResponse.Representerer.LAREFAG],
+            // Ikke støttet
+            innholdElementer = null,
+            norskprove = null,
         )
     }
 }
