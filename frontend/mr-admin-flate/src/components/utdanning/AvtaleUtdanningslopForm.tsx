@@ -49,12 +49,13 @@ function SelectAvtaleUtdanning() {
         name={"detaljer.utdanningslop.utdanningsprogram"}
         rules={{
           onChange(e) {
-            if (e.currentTarget.value !== utdanningsprogram) {
+            const targetValue = e.target.value;
+            if (targetValue !== utdanningsprogram) {
               setValue("detaljer.utdanningslop.utdanninger", []);
             }
 
-            if (e.currentTarget.value !== "") {
-              setValue("detaljer.utdanningslop.utdanningsprogram", e.currentTarget.value);
+            if (targetValue !== "") {
+              setValue("detaljer.utdanningslop.utdanningsprogram", targetValue);
             } else {
               setValue("detaljer.utdanningslop", null);
             }
