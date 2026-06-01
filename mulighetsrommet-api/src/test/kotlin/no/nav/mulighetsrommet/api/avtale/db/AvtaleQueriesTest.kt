@@ -16,7 +16,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
+import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
@@ -426,9 +426,9 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback { session ->
                 domain.setup(session)
 
-                val kategorisering = OpplaringKategoriseringDbo(
-                    kurstypeId = KurstypeFixtures.bransjeOgYrkesrettet.id,
-                    bransjeId = BransjeFixtures.industriarbeid.id,
+                val kategorisering = OpplaringKategorisering(
+                    kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                    bransje = BransjeFixtures.industriarbeid,
                     forerkort = emptySet(),
                     innholdElementer = setOf(OpplaringKategorisering.InnholdElement.TEORETISK_OPPLAERING),
                     norskprove = null,
@@ -441,7 +441,7 @@ class AvtaleQueriesTest : FunSpec({
                     utdanningslop = null,
                 )
                 val avtale = AvtaleFixtures.oppfolging.copy(
-                    detaljerDbo = AvtaleFixtures.detaljerDbo().copy(opplaringKategorisering = kategorisering),
+                    detaljerDbo = AvtaleFixtures.detaljerDbo().copy(opplaringKategorisering = kategorisering.toDbo()),
                 )
                 queries.avtale.create(avtale)
                 queries.avtale.getOrError(avtale.id).should {
@@ -449,7 +449,7 @@ class AvtaleQueriesTest : FunSpec({
                 }
 
                 val amoEndring = kategorisering.copy(
-                    bransjeId = BransjeFixtures.helseOgPleier.id,
+                    bransje = BransjeFixtures.helseOgPleier,
                     sertifiseringer = setOf(
                         Sertifisering(
                             konseptId = 2,
@@ -459,7 +459,7 @@ class AvtaleQueriesTest : FunSpec({
                 )
                 queries.avtale.updateDetaljer(
                     avtale.id,
-                    AvtaleFixtures.detaljerDbo().copy(opplaringKategorisering = amoEndring),
+                    AvtaleFixtures.detaljerDbo().copy(opplaringKategorisering = amoEndring.toDbo()),
                 )
                 queries.avtale.getOrError(avtale.id).should {
                     it.opplaringKategorisering shouldBe amoEndring

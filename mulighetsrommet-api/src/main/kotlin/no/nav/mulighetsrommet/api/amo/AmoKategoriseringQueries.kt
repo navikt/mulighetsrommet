@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.amo
 
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.janzz.Sertifisering

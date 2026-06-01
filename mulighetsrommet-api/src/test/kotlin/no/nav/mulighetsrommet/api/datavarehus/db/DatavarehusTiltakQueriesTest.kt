@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
+import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
@@ -101,32 +101,32 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
 
         test("henter Gruppe AMO med amo-kategorisering") {
-            val studiespesialisering = OpplaringKategoriseringDbo(kurstypeId = KurstypeFixtures.studiespesialisering.id)
-            val fov = OpplaringKategoriseringDbo(
-                kurstypeId = KurstypeFixtures.fov.id,
+            val studiespesialisering = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering)
+            val fov = OpplaringKategorisering(
+                kurstype = KurstypeFixtures.fov,
                 innholdElementer = setOf(
                     OpplaringKategorisering.InnholdElement.BRANSJERETTET_OPPLARING,
                 ),
             )
             val grunnleggende =
-                OpplaringKategoriseringDbo(
-                    kurstypeId = KurstypeFixtures.grunnleggendeFerdigheter.id,
+                OpplaringKategorisering(
+                    kurstype = KurstypeFixtures.grunnleggendeFerdigheter,
                     innholdElementer = setOf(
                         OpplaringKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
                     ),
                 )
             val norskopplaering =
-                OpplaringKategoriseringDbo(
-                    kurstypeId = KurstypeFixtures.norskopplaering.id,
+                OpplaringKategorisering(
+                    kurstype = KurstypeFixtures.norskopplaering,
                     innholdElementer = setOf(
                         OpplaringKategorisering.InnholdElement.NORSKOPPLAERING,
                     ),
                 )
             val bransje =
-                OpplaringKategoriseringDbo(
-                    kurstypeId = KurstypeFixtures.bransjeOgYrkesrettet.id,
-                    bransjeId = BransjeFixtures.kontorarbeid.id,
-                    forerkort = setOf(ForerkortFixtures.A.id),
+                OpplaringKategorisering(
+                    kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                    bransje = BransjeFixtures.kontorarbeid,
+                    forerkort = setOf(ForerkortFixtures.A),
                     innholdElementer = setOf(OpplaringKategorisering.InnholdElement.PRAKSIS),
                     sertifiseringer = setOf(
                         Sertifisering(konseptId = 1, label = "Jobb"),
@@ -143,11 +143,11 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     GruppeAmo1.copy(id = UUID.randomUUID()),
                 ),
             ) { domain ->
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[0].id, studiespesialisering)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[1].id, fov)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[2].id, grunnleggende)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[3].id, norskopplaering)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[4].id, bransje)
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[0].id, studiespesialisering.toDbo())
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[1].id, fov.toDbo())
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[2].id, grunnleggende.toDbo())
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[3].id, norskopplaering.toDbo())
+                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[4].id, bransje.toDbo())
             }
 
             database.runAndRollback { session ->

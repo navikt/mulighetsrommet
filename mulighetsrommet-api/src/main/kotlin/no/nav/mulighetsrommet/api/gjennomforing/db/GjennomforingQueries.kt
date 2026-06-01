@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.gjennomforing.db
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering

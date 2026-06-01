@@ -1,10 +1,12 @@
 package no.nav.mulighetsrommet.api.datavarehus.db
 
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
-import no.nav.mulighetsrommet.api.amo.AmoKurstype
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
@@ -17,6 +19,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
@@ -79,72 +82,98 @@ class DatavarehusTiltakQueries(private val session: Session) {
 
     private fun getAmoKategorisering(id: UUID): AmoKategorisering? {
         @Language("PostgreSQL")
-        val sertifiseringQuery = """
-            select s.label,
-                   s.konsept_id
-            from gjennomforing_amo_kategorisering_sertifisering k
-                     join amo_sertifisering s on k.konsept_id = s.konsept_id
-            where k.gjennomforing_id = ?
-        """.trimIndent()
-
-        val sertifiseringer = session.list(queryOf(sertifiseringQuery, id)) {
-            Sertifisering(
-                konseptId = it.long("konsept_id"),
-                label = it.string("label"),
-            )
-        }
-
-        @Language("PostgreSQL")
         val amoKategoriseringQuery = """
-            select kurstype,
-                   bransje,
-                   forerkort,
-                   norskprove,
-                   innhold_elementer
-            from gjennomforing_amo_kategorisering
-            where gjennomforing_id = ?
+            select
+              coalesce(gak.norskprove, false) as norskprove,
+              coalesce(gak.innhold_elementer, '{}') as innhold_elementer,
+              'kurstype', (select jsonb_strip_nulls(
+                            jsonb_build_object(
+                               'id', okk.id,
+                               'navn', okk.navn,
+                               'kode', okk.kode,
+                               'aktiv', okk.aktiv
+                            )
+                        )
+                        from opplaring_kategorisering_kurstype okk
+                        where okk.id = gak.kurstype_id),
+               'bransje', (select jsonb_strip_nulls(
+                                      jsonb_build_object(
+                                              'id', okb.id,
+                                              'navn', okb.navn,
+                                              'kode', okb.kode
+                                      )
+                              )
+                       from opplaring_kategorisering_bransje okb
+                       where okb.id = gak.bransje_id),
+               'forerkort', coalesce(
+                   (select jsonb_strip_nulls(
+                                   jsonb_agg(
+                                           jsonb_build_object(
+                                                   'id', okf.id,
+                                                   'navn', okf.navn,
+                                                   'kode', okf.kode
+                                           )
+                                   )
+                           )
+                    from opplaring_kategorisering_forerkort okf
+                             join gjennomforing_amo_kategorisering_forerkort gokf on gokf.forerkort_id = okf.id
+                    where gokf.gjennomforing_id = gak.gjennomforing_id),
+                   '[]'::jsonb),
+                'sertifiseringer',
+                       coalesce((select jsonb_strip_nulls(
+                                                jsonb_agg(
+                                                        jsonb_build_object(
+                                                                'label', s.label,
+                                                                'konseptId', s.konsept_id
+                                                        )
+                                                ))
+                                 from amo_sertifisering s
+                                          join gjennomforing_amo_kategorisering_sertifisering gaks
+                                               on gaks.konsept_id = s.konsept_id
+                                 where gaks.gjennomforing_id = gak.gjennomforing_id),
+                                '[]'::jsonb)
+            from gjennomforing_amo_kategorisering gak
+            where gak.gjennomforing_id = ?;
         """.trimIndent()
 
-        return session.single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering(sertifiseringer) }
+        return session.single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering() }
     }
 }
 
-private fun Row.toAmoKategorisering(
-    sertifiseringer: List<Sertifisering>,
-): AmoKategorisering {
-    val kurstype = AmoKurstype.valueOf(string("kurstype"))
-    return when (kurstype) {
-        AmoKurstype.BRANSJE_OG_YRKESRETTET -> AmoKategorisering.BransjeOgYrkesrettet(
-            bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.valueOf(string("bransje")),
-            sertifiseringer = sertifiseringer,
-            forerkort = array<String>("forerkort")
+private fun Row.toAmoKategorisering(): AmoKategorisering {
+    val kurstype = string("kurstype").let { JsonIgnoreUnknownKeys.decodeFromString<Kurstype>(it) }
+    return when (kurstype.kode) {
+        Kurstype.Kode.BRANSJE_OG_YRKESRETTET -> AmoKategorisering.BransjeOgYrkesrettet(
+            bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.valueOf(kurstype.kode.toString()),
+            sertifiseringer = array<Sertifisering>("sertifisering").toList(),
+            forerkort = array<ForerkortKlasse>("forerkort")
                 .toList()
-                .map { AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.valueOf(it) },
+                .map { AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.valueOf(it.kode.toString()) },
             innholdElementer = array<String>("innhold_elementer")
                 .toList()
                 .map { AmoKategorisering.InnholdElement.valueOf(it) },
         )
 
-        AmoKurstype.NORSKOPPLAERING -> AmoKategorisering.Norskopplaering(
-            norskprove = boolean("norskprove"),
+        Kurstype.Kode.NORSKOPPLAERING -> AmoKategorisering.Norskopplaering(
+            norskprove = stringOrNull("norskprove").toBoolean(),
             innholdElementer = array<String>("innhold_elementer")
                 .toList()
                 .map { AmoKategorisering.InnholdElement.valueOf(it) },
         )
 
-        AmoKurstype.GRUNNLEGGENDE_FERDIGHETER -> AmoKategorisering.GrunnleggendeFerdigheter(
+        Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER -> AmoKategorisering.GrunnleggendeFerdigheter(
             innholdElementer = array<String>("innhold_elementer")
                 .toList()
                 .map { AmoKategorisering.InnholdElement.valueOf(it) },
         )
 
-        AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategorisering.ForberedendeOpplaeringForVoksne(
+        Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategorisering.ForberedendeOpplaeringForVoksne(
             innholdElementer = array<String>("innhold_elementer")
                 .toList()
                 .map { AmoKategorisering.InnholdElement.valueOf(it) },
         )
 
-        AmoKurstype.STUDIESPESIALISERING -> AmoKategorisering.Studiespesialisering
+        Kurstype.Kode.STUDIESPESIALISERING -> AmoKategorisering.Studiespesialisering
     }
 }
 
