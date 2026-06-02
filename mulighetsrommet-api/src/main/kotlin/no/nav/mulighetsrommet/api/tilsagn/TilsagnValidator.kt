@@ -1,9 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
-import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.avtale.model.findAvtaltSats
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
@@ -135,9 +133,7 @@ object TilsagnValidator {
         TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
         TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING,
         -> {
-            val satser = prismodell.satser()
-
-            val satsPeriodeStart = satser.findAvtaltSats(periode.start)
+            val satsPeriodeStart = prismodell.findAvtaltSats(periode.start)
             requireValid(satsPeriodeStart != null) {
                 FieldError.of(
                     "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
@@ -145,7 +141,7 @@ object TilsagnValidator {
                 )
             }
 
-            val satsPeriodeSlutt = satser.findAvtaltSats(periode.getLastInclusiveDate())
+            val satsPeriodeSlutt = prismodell.findAvtaltSats(periode.getLastInclusiveDate())
             validate(satsPeriodeSlutt != null) {
                 FieldError.of(
                     "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",

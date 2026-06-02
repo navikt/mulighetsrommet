@@ -55,7 +55,9 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         id = prismodell.id,
         type = prismodell.type,
         valuta = prismodell.valuta,
-        satser = satser,
+        satser = (satser ?: listOf()).windowed(size = 2, partialWindows = true).map { sats ->
+            AvtaltSatsDto.fromAvtaltSats(sats[0], sats.getOrNull(1))
+        },
         prisbetingelser = prisbetingelser,
         tilsagnPerDeltaker = tilsagnPerDeltaker,
     )

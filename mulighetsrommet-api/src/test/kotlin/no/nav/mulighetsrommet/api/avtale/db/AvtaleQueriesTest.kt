@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -486,7 +485,7 @@ class AvtaleQueriesTest : FunSpec({
                 id = prismodell1Dbo.id,
                 prisbetingelser = null,
                 satser = listOf(
-                    AvtaltSatsDto(LocalDate.of(2025, 7, 1), 1000.NOK),
+                    AvtaltSats(LocalDate.of(2025, 7, 1), 1000.NOK),
                 ),
                 valuta = Valuta.NOK,
             )
@@ -517,7 +516,7 @@ class AvtaleQueriesTest : FunSpec({
                         id = prismodell2Dbo.id,
                         prisbetingelser = null,
                         satser = listOf(
-                            AvtaltSatsDto(LocalDate.of(2025, 7, 1), 2000.NOK),
+                            AvtaltSats(LocalDate.of(2025, 7, 1), 2000.NOK),
                         ),
                         valuta = Valuta.NOK,
                     ),
@@ -534,7 +533,7 @@ class AvtaleQueriesTest : FunSpec({
                         id = prismodell2Dbo.id,
                         prisbetingelser = "$",
                         satser = listOf(
-                            AvtaltSatsDto(LocalDate.of(2025, 7, 1), 2000.NOK),
+                            AvtaltSats(LocalDate.of(2025, 7, 1), 2000.NOK),
                         ),
                         valuta = Valuta.NOK,
                     ),

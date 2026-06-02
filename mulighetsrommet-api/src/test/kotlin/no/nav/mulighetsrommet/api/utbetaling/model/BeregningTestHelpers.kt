@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
+import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.Instant
-import java.time.LocalDate
 import java.util.UUID
 
 object BeregningTestHelpers {
@@ -34,7 +33,7 @@ object BeregningTestHelpers {
     fun createGjennomforingForPrisPerManedsverk(
         id: UUID = UUID.randomUUID(),
         periode: Periode,
-        satser: List<AvtaltSatsDto>,
+        satser: List<AvtaltSats>,
         stengt: List<GjennomforingAvtale.StengtPeriode> = emptyList(),
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
@@ -43,7 +42,7 @@ object BeregningTestHelpers {
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
-            valuta = satser.first().pris.valuta,
+            valuta = satser.first().sats.valuta,
         ),
         stengt = stengt,
     )
@@ -51,7 +50,7 @@ object BeregningTestHelpers {
     fun createGjennomforingForPrisPerUkesverk(
         id: UUID = UUID.randomUUID(),
         periode: Periode,
-        satser: List<AvtaltSatsDto>,
+        satser: List<AvtaltSats>,
         stengt: List<GjennomforingAvtale.StengtPeriode> = emptyList(),
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
@@ -60,7 +59,7 @@ object BeregningTestHelpers {
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
-            valuta = satser.first().pris.valuta,
+            valuta = satser.first().sats.valuta,
         ),
         stengt = stengt,
     )
@@ -68,7 +67,7 @@ object BeregningTestHelpers {
     fun createGjennomforingForPrisPerHeleUkesverk(
         id: UUID = UUID.randomUUID(),
         periode: Periode,
-        satser: List<AvtaltSatsDto>,
+        satser: List<AvtaltSats>,
         stengt: List<GjennomforingAvtale.StengtPeriode> = emptyList(),
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
@@ -77,7 +76,7 @@ object BeregningTestHelpers {
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
-            valuta = satser.first().pris.valuta,
+            valuta = satser.first().sats.valuta,
         ),
         stengt = stengt,
     )
@@ -93,7 +92,7 @@ object BeregningTestHelpers {
         periode = periode,
         prismodell = Prismodell.ForhandsgodkjentPrisPerManedsverk(
             id = UUID.randomUUID(),
-            satser = listOf(AvtaltSatsDto(periode.start, sats)),
+            satser = listOf(AvtaltSats(periode.start, sats)),
             valuta = sats.valuta,
         ),
         tiltakskode = tiltakskode,
@@ -110,7 +109,7 @@ object BeregningTestHelpers {
         periode = periode,
         prismodell = Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass(
             id = UUID.randomUUID(),
-            satser = listOf(AvtaltSatsDto(periode.start, sats)),
+            satser = listOf(AvtaltSats(periode.start, sats)),
             valuta = sats.valuta,
         ),
         tiltakskode = tiltakskode,
@@ -241,9 +240,5 @@ object BeregningTestHelpers {
             slutt = periode.getLastInclusiveDate(),
             beskrivelse = beskrivelse,
         )
-    }
-
-    fun toAvtaltSats(gjelderFra: LocalDate, pris: ValutaBelop): AvtaltSatsDto {
-        return AvtaltSatsDto(gjelderFra = gjelderFra, pris = pris)
     }
 }

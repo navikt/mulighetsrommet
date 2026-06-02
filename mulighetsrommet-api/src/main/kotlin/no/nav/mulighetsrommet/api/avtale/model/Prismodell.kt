@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -30,7 +31,7 @@ sealed interface Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        val satser: List<AvtaltSatsDto>,
+        val satser: List<AvtaltSats>,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
@@ -41,7 +42,7 @@ sealed interface Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        val satser: List<AvtaltSatsDto>,
+        val satser: List<AvtaltSats>,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS
@@ -53,7 +54,7 @@ sealed interface Prismodell {
         override val id: UUID,
         override val valuta: Valuta,
         val prisbetingelser: String?,
-        val satser: List<AvtaltSatsDto>,
+        val satser: List<AvtaltSats>,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK
@@ -65,7 +66,7 @@ sealed interface Prismodell {
         override val id: UUID,
         override val valuta: Valuta,
         val prisbetingelser: String?,
-        val satser: List<AvtaltSatsDto>,
+        val satser: List<AvtaltSats>,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_UKESVERK
@@ -77,7 +78,7 @@ sealed interface Prismodell {
         override val id: UUID,
         override val valuta: Valuta,
         val prisbetingelser: String?,
-        val satser: List<AvtaltSatsDto>,
+        val satser: List<AvtaltSats>,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK
@@ -89,10 +90,16 @@ sealed interface Prismodell {
         override val id: UUID,
         override val valuta: Valuta,
         val prisbetingelser: String?,
-        val satser: List<AvtaltSatsDto>,
+        val satser: List<AvtaltSats>,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+    }
+
+    fun findAvtaltSats(dato: LocalDate): AvtaltSats? {
+        return satser()
+            .sortedBy { it.gjelderFra }
+            .lastOrNull { dato >= it.gjelderFra }
     }
 
     companion object {
@@ -104,10 +111,6 @@ sealed interface Prismodell {
             satser: List<AvtaltSats>?,
             tilsagnPerDeltaker: Boolean?,
         ): Prismodell {
-            val satser = (satser ?: listOf()).windowed(size = 2, partialWindows = true).map { sats ->
-                val nextSats = sats.getOrNull(1)
-                AvtaltSatsDto.fromAvtaltSats(sats[0], nextSats)
-            }
             return when (type) {
                 PrismodellType.ANNEN_AVTALT_PRIS -> AnnenAvtaltPris(
                     id = id,
@@ -119,47 +122,43 @@ sealed interface Prismodell {
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> ForhandsgodkjentPrisPerManedsverk(
                     id = id,
                     valuta = valuta,
-                    satser = satser,
+                    satser = requireNotNull(satser),
                 )
 
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS -> ForhandsgodkjentPrisPerAvtaltTiltaksplass(
                     id = id,
                     valuta = valuta,
-                    satser = satser,
+                    satser = requireNotNull(satser),
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> AvtaltPrisPerManedsverk(
                     id = id,
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
-                    satser = satser,
+                    satser = requireNotNull(satser),
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK -> AvtaltPrisPerUkesverk(
                     id = id,
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
-                    satser = satser,
+                    satser = requireNotNull(satser),
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> AvtaltPrisPerHeleUkesverk(
                     id = id,
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
-                    satser = satser,
+                    satser = requireNotNull(satser),
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> AvtaltPrisPerTimeOppfolgingPerDeltaker(
                     id = id,
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
-                    satser = satser,
+                    satser = requireNotNull(satser),
                 )
             }
         }
     }
 }
-
-fun List<AvtaltSats>.findAvtaltSats(dato: LocalDate): AvtaltSats? = this
-    .sortedBy { it.gjelderFra }
-    .lastOrNull { dato >= it.gjelderFra }
