@@ -5,7 +5,11 @@ import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { DataElementStatusTag, useSortableData } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { Alert, Table } from "@navikt/ds-react";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import {
+  formaterDato,
+  formaterPeriodeSlutt,
+  formaterPeriodeStart,
+} from "@mr/frontend-common/utils/date";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 
@@ -65,8 +69,8 @@ export function TilskuddBehandlingerPage() {
               <Table.Row key={b.id}>
                 <Table.DataCell>{formaterDato(b.soknadDato)}</Table.DataCell>
                 <Table.DataCell>{b.journalpostId}</Table.DataCell>
-                <Table.DataCell>{formaterDato(b.periode.start)}</Table.DataCell>
-                <Table.DataCell>{formaterDato(b.periode.slutt)}</Table.DataCell>
+                <Table.DataCell>{formaterPeriodeStart(b.periode)}</Table.DataCell>
+                <Table.DataCell>{formaterPeriodeSlutt(b.periode)}</Table.DataCell>
                 <Table.DataCell>
                   {b.tilskuddtyper.map((t) => opplaeringTilskuddToString(t)).join(", ")}
                 </Table.DataCell>

@@ -160,23 +160,31 @@ export function GjennomforingHandlinger({
           },
         ]}
       />
-      <RegistrerStengtHosArrangorModal
-        modalRef={registrerStengtModalRef}
-        gjennomforingId={gjennomforing.id}
-      />
-      <SetApentForPameldingModal
-        modalRef={apentForPameldingModalRef}
-        gjennomforingId={gjennomforing.id}
-      />
+      {isGruppetiltak(gjennomforing) && (
+        <RegistrerStengtHosArrangorModal
+          modalRef={registrerStengtModalRef}
+          gjennomforingId={gjennomforing.id}
+          stengt={gjennomforing.stengt}
+        />
+      )}
+      {isGruppetiltak(gjennomforing) && (
+        <SetApentForPameldingModal
+          modalRef={apentForPameldingModalRef}
+          gjennomforingId={gjennomforing.id}
+          apentForPamelding={gjennomforing.apentForPamelding}
+        />
+      )}
       <SetEstimertVentetidModal
         open={estimertVentetidModalOpen}
         setOpen={setEstimertVentetidModalOpen}
         gjennomforingId={gjennomforing.id}
+        veilederinfo={veilederinfo}
       />
       <AvbrytGjennomforingModal
         open={avbrytModalOpen}
         setOpen={setAvbrytModalOpen}
         gjennomforingId={gjennomforing.id}
+        gjennomforingNavn={gjennomforing.navn}
       />
     </KnapperadContainer>
   );

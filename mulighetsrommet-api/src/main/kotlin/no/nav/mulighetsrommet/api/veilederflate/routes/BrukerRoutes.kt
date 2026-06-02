@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.Brukerdata
 import no.nav.mulighetsrommet.api.veilederflate.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
-import no.nav.mulighetsrommet.auditlog.AuditLog
+import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -102,13 +102,7 @@ fun Route.brukerRoutes() {
             )
 
             if (response.deltakelser.isNotEmpty()) {
-                val message = createAuditMessage(
-                    msg = "Nav-ansatt med ident: '$navIdent' har sett på $type tiltaksdeltakelser for bruker med ident: '$norskIdent'.",
-                    topic = "Vis tiltakshistorikk",
-                    navIdent = navIdent,
-                    norskIdent = norskIdent,
-                )
-                AuditLog.auditLogger.log(message)
+                auditLogVisTiltakshistorikk(navIdent, norskIdent, type.name)
             }
 
             call.respond(response)
@@ -184,16 +178,17 @@ data class GetAktivDeltakelseForBrukerRequest(
     val tiltakId: UUID,
 )
 
-private fun createAuditMessage(msg: String, topic: String, navIdent: NavIdent, norskIdent: NorskIdent): CefMessage {
-    return CefMessage.builder()
+private fun auditLogVisTiltakshistorikk(navIdent: NavIdent, norskIdent: NorskIdent, type: String) {
+    val msg = CefMessage.builder()
         .applicationName("modia")
         .loggerName("mulighetsrommet-api")
         .event(CefMessageEvent.ACCESS)
-        .name("Arbeidsmarkedstiltak - $topic")
+        .name("Arbeidsmarkedstiltak - Vis tiltakshistorikk")
         .severity(CefMessageSeverity.INFO)
         .sourceUserId(navIdent.value)
         .destinationUserId(norskIdent.value)
         .timeEnded(System.currentTimeMillis())
-        .extension("msg", msg)
+        .extension("msg", "Nav-ansatt med ident: '$navIdent' har sett på $type tiltaksdeltakelser for bruker med ident: '$norskIdent'.")
         .build()
+    auditLogger.log(msg)
 }

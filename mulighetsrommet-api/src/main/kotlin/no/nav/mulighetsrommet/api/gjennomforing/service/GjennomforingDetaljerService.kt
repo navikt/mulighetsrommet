@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
+import no.nav.common.audit_log.cef.CefMessage
+import no.nav.common.audit_log.cef.CefMessageEvent
+import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
@@ -32,10 +35,12 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
@@ -65,7 +70,7 @@ class GjennomforingDetaljerService(
         }
     }
 
-    suspend fun getGjennomforingDetaljerDto(id: UUID, accessType: AccessType.OBO.AzureAd): GjennomforingDetaljerDto? {
+    suspend fun getGjennomforingDetaljerDto(id: UUID, accessType: AccessType.OBO.AzureAd, navIdent: NavIdent): GjennomforingDetaljerDto? {
         val gjennomforing = getGjennomforingTiltaksadministrasjon(id) ?: return null
         return when (gjennomforing) {
             is GjennomforingAvtale -> db.session {
@@ -76,7 +81,12 @@ class GjennomforingDetaljerService(
             is GjennomforingEnkeltplass -> db.session {
                 val okonomi = queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
                 val deltakerDto = getDeltaker(gjennomforing.id)?.let {
-                    DeltakerDto.from(it, personaliaService.getPersonalia(it.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType)))
+                    val personalia = personaliaService.getPersonalia(it.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
+                    val norskIdent = personalia.norskIdent()
+                    if (personalia.harTilgang() && norskIdent != null) {
+                        auditLogVisEnkeltplass(navIdent, norskIdent)
+                    }
+                    DeltakerDto.from(it, personalia)
                 }
                 val opplaringKategorisering = queries.opplaringKategorisering.getGjennomforingKategorisering(gjennomforing.id)
                 val utdanningslop = queries.gjennomforing.getUtdanningslop(gjennomforing.id)
@@ -309,4 +319,19 @@ private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
             )
         }
     }
+}
+
+private fun auditLogVisEnkeltplass(navIdent: NavIdent, norskIdent: NorskIdent) {
+    val message = CefMessage.builder()
+        .applicationName("Tiltaksadministrasjon")
+        .loggerName("mulighetsrommet-api")
+        .event(CefMessageEvent.ACCESS)
+        .name("Tiltaksadministrasjon - Se enkeltplassdeltaker")
+        .severity(CefMessageSeverity.INFO)
+        .sourceUserId(navIdent.value)
+        .destinationUserId(norskIdent.value)
+        .timeEnded(System.currentTimeMillis())
+        .extension("msg", "Nav-ansatt med ident: '$navIdent' har sett på enkeltplassdeltaker med ident: '$norskIdent'.")
+        .build()
+    auditLogger.log(message)
 }

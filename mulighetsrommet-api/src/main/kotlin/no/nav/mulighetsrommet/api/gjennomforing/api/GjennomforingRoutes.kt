@@ -68,7 +68,6 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.koin.ktor.ext.inject
@@ -375,7 +374,10 @@ fun Route.gjennomforingRoutes() {
                         avtaleGjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
-                    .flatMap { gjennomforinger.getOrInternalServerError(it.id, accessType) }
+                    .flatMap {
+                        gjennomforinger.getGjennomforingDetaljerDto(id, accessType, navIdent)?.right()
+                            ?: InternalServerError("Klarte ikke hente detaljer om gjennomforing=$id").left()
+                    }
 
                 call.respondWithStatusResponse(result)
             }
@@ -577,8 +579,9 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
             val accessType = call.getAccessType().requireAzureAd()
+            val navIdent = getNavIdent()
 
-            gjennomforinger.getGjennomforingDetaljerDto(id, accessType)
+            gjennomforinger.getGjennomforingDetaljerDto(id, accessType, navIdent)
                 ?.let { call.respond(it) }
                 ?: call.respondUkjentGjennomforing(id)
         }
@@ -603,7 +606,7 @@ fun Route.gjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val accessType = call.getAccessType().requireAzureAd()
-            gjennomforinger.getGjennomforingDetaljerDto(id, accessType)
+            gjennomforinger.getGjennomforingDetaljerDto(id, accessType, getNavIdent())
                 ?.let { detaljer ->
                     val tiltaksnummer = when (detaljer.gjennomforing) {
                         is GjennomforingAvtaleDto -> detaljer.gjennomforing.tiltaksnummer
@@ -678,14 +681,6 @@ fun Route.gjennomforingRoutes() {
             call.respond(handlinger)
         }
     }
-}
-
-private suspend fun GjennomforingDetaljerService.getOrInternalServerError(
-    id: UUID,
-    accessType: AccessType.OBO.AzureAd,
-): Either<InternalServerError, GjennomforingDetaljerDto> {
-    return getGjennomforingDetaljerDto(id, accessType)?.right()
-        ?: InternalServerError("Klarte ikke hente detaljer om gjennomforing=$id").left()
 }
 
 private suspend fun RoutingCall.respondUkjentGjennomforing(id: UUID) {

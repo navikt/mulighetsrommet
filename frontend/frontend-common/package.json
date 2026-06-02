@@ -12,16 +12,16 @@
   },
   "homepage": "https://github.com/navikt/mulighetsrommet#readme",
   "dependencies": {
-    "@date-fns/tz": "1.4.1",
+    "@date-fns/tz": "1.5.0",
     "@date-fns/utc": "2.1.1",
-    "@hookform/resolvers": "5.2.2",
+    "@hookform/resolvers": "5.4.0",
     "@portabletext/react": "6.2.0",
-    "@tanstack/react-query": "5.100.10",
+    "@tanstack/react-query": "5.100.14",
     "classnames": "2.5.1",
-    "date-fns": "4.1.0",
+    "date-fns": "4.3.0",
     "date-fns-tz": "^3.2.0",
-    "react-error-boundary": "6.1.1",
-    "react-hook-form": "7.76.0",
+    "react-error-boundary": "6.1.2",
+    "react-hook-form": "7.76.1",
     "zod": "4.4.3"
   },
   "peerDependencies": {
@@ -41,11 +41,11 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.2",
     "eslint": "10.4.0",
-    "postcss": "8.5.14",
+    "postcss": "8.5.15",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-router": "7.15.1",
-    "vitest": "4.1.6"
+    "vitest": "4.1.7"
   },
   "repository": {
     "type": "git",

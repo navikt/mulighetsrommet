@@ -1,21 +1,15 @@
 import { useSetApentForPamelding } from "@/api/gjennomforing/useSetApentForPamelding";
 import { BodyShort, Button, List, Modal, Switch } from "@navikt/ds-react";
 import { RefObject } from "react";
-import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { isGruppetiltak } from "@/api/gjennomforing/utils";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
   gjennomforingId: string;
+  apentForPamelding: boolean;
 }
 
-export function SetApentForPameldingModal({ modalRef, gjennomforingId }: Props) {
+export function SetApentForPameldingModal({ modalRef, gjennomforingId, apentForPamelding }: Props) {
   const setApentForPamelding = useSetApentForPamelding(gjennomforingId);
-  const { gjennomforing } = useGjennomforing(gjennomforingId);
-
-  if (!isGruppetiltak(gjennomforing)) {
-    return null;
-  }
 
   return (
     <Modal ref={modalRef} header={{ heading: "Åpent for påmelding" }} width={1000}>
@@ -35,7 +29,7 @@ export function SetApentForPameldingModal({ modalRef, gjennomforingId }: Props) 
           </List>
 
           <Switch
-            checked={gjennomforing.apentForPamelding}
+            checked={apentForPamelding}
             onChange={(e) => setApentForPamelding.mutate(e.target.checked)}
           >
             Åpent for påmelding
