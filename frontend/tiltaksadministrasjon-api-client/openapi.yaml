@@ -4636,7 +4636,9 @@ components:
           - "null"
           - string
         tilsagnPerDeltaker:
-          type: boolean
+          type:
+          - "null"
+          - boolean
         navn:
           type: string
         beskrivelse:

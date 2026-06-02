@@ -489,7 +489,6 @@ class AvtaleQueriesTest : FunSpec({
                     AvtaltSatsDto(LocalDate.of(2025, 7, 1), 1000.NOK),
                 ),
                 valuta = Valuta.NOK,
-                tilsagnPerDeltaker = false,
             )
             val prismodell2Dbo = PrismodellFixtures.createPrismodellDbo(
                 type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
@@ -521,7 +520,6 @@ class AvtaleQueriesTest : FunSpec({
                             AvtaltSatsDto(LocalDate.of(2025, 7, 1), 2000.NOK),
                         ),
                         valuta = Valuta.NOK,
-                        tilsagnPerDeltaker = false,
                     ),
                 )
 
@@ -539,7 +537,6 @@ class AvtaleQueriesTest : FunSpec({
                             AvtaltSatsDto(LocalDate.of(2025, 7, 1), 2000.NOK),
                         ),
                         valuta = Valuta.NOK,
-                        tilsagnPerDeltaker = false,
                     ),
                 )
             }

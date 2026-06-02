@@ -56,9 +56,7 @@ class PrismodellQueries(private val session: Session) {
             set prisbetingelser = :prisbetingelser
             where id = :id::uuid
         """.trimIndent()
-
         val params = mapOf("id" to id, "prisbetingelser" to prisbetingelser)
-
         session.execute(queryOf(query, params))
     }
 

@@ -273,14 +273,20 @@ object TilsagnValidator {
         }
     }
 
-    private fun FieldValidator.validateDeltakere(deltakere: List<TilsagnDeltakerRequest>?, prismodell: Prismodell) = when (prismodell.tilsagnPerDeltaker) {
-        false -> Unit
-
-        true -> {
-            validate(!deltakere.isNullOrEmpty()) {
-                FieldError.of("Du må velge en deltaker", TilsagnRequest::deltakere)
+    private fun FieldValidator.validateDeltakere(deltakere: List<TilsagnDeltakerRequest>?, prismodell: Prismodell) = when (prismodell) {
+        is Prismodell.AnnenAvtaltPris -> {
+            if (prismodell.tilsagnPerDeltaker) {
+                validate(!deltakere.isNullOrEmpty()) {
+                    FieldError.of("Du må velge en deltaker", TilsagnRequest::deltakere)
+                }
+            } else {
+                validate(deltakere.isNullOrEmpty()) {
+                    FieldError.of("Deltakere kan ikke velges", TilsagnRequest::deltakere)
+                }
             }
         }
+
+        else -> Unit
     }
 
     fun validateBeregningFriInput(

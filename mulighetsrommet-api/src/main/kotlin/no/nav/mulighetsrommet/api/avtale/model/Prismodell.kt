@@ -8,20 +8,19 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
-sealed class Prismodell {
-    abstract val id: UUID
-    abstract val type: PrismodellType
-    abstract val valuta: Valuta
-    abstract val tilsagnPerDeltaker: Boolean
+sealed interface Prismodell {
+    val id: UUID
+    val type: PrismodellType
+    val valuta: Valuta
 
     @Serializable
     data class AnnenAvtaltPris(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val tilsagnPerDeltaker: Boolean,
+        val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
-    ) : Prismodell() {
+    ) : Prismodell {
         @Transient
         override val type = PrismodellType.ANNEN_AVTALT_PRIS
     }
@@ -31,9 +30,8 @@ sealed class Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val tilsagnPerDeltaker: Boolean,
         val satser: List<AvtaltSatsDto>,
-    ) : Prismodell() {
+    ) : Prismodell {
         @Transient
         override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
     }
@@ -43,9 +41,8 @@ sealed class Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val tilsagnPerDeltaker: Boolean,
         val satser: List<AvtaltSatsDto>,
-    ) : Prismodell() {
+    ) : Prismodell {
         @Transient
         override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS
     }
@@ -55,10 +52,9 @@ sealed class Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
-    ) : Prismodell() {
+    ) : Prismodell {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK
     }
@@ -68,10 +64,9 @@ sealed class Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
-    ) : Prismodell() {
+    ) : Prismodell {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_UKESVERK
     }
@@ -81,10 +76,9 @@ sealed class Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
-    ) : Prismodell() {
+    ) : Prismodell {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK
     }
@@ -94,10 +88,9 @@ sealed class Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        override val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
         val satser: List<AvtaltSatsDto>,
-    ) : Prismodell() {
+    ) : Prismodell {
         @Transient
         override val type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
     }
@@ -109,7 +102,7 @@ sealed class Prismodell {
             valuta: Valuta,
             prisbetingelser: String?,
             satser: List<AvtaltSats>?,
-            tilsagnPerDeltaker: Boolean,
+            tilsagnPerDeltaker: Boolean?,
         ): Prismodell {
             val satser = (satser ?: listOf()).windowed(size = 2, partialWindows = true).map { sats ->
                 val nextSats = sats.getOrNull(1)
@@ -120,21 +113,19 @@ sealed class Prismodell {
                     id = id,
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
-                    tilsagnPerDeltaker = tilsagnPerDeltaker,
+                    tilsagnPerDeltaker = requireNotNull(tilsagnPerDeltaker),
                 )
 
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> ForhandsgodkjentPrisPerManedsverk(
                     id = id,
                     valuta = valuta,
                     satser = satser,
-                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
 
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS -> ForhandsgodkjentPrisPerAvtaltTiltaksplass(
                     id = id,
                     valuta = valuta,
                     satser = satser,
-                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> AvtaltPrisPerManedsverk(
@@ -142,7 +133,6 @@ sealed class Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     satser = satser,
-                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_UKESVERK -> AvtaltPrisPerUkesverk(
@@ -150,7 +140,6 @@ sealed class Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     satser = satser,
-                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> AvtaltPrisPerHeleUkesverk(
@@ -158,7 +147,6 @@ sealed class Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     satser = satser,
-                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> AvtaltPrisPerTimeOppfolgingPerDeltaker(
@@ -166,7 +154,6 @@ sealed class Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     satser = satser,
-                    tilsagnPerDeltaker = tilsagnPerDeltaker,
                 )
             }
         }

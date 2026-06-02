@@ -13,7 +13,7 @@ data class PrismodellDto(
     val satser: List<AvtaltSatsDto>?,
     val valuta: Valuta,
     val prisbetingelser: String?,
-    val tilsagnPerDeltaker: Boolean,
+    val tilsagnPerDeltaker: Boolean?,
 ) {
     val navn: String = type.navn
     val beskrivelse: List<String> = type.beskrivelse
@@ -39,12 +39,24 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.prisbetingelser
     }
 
+    val tilsagnPerDeltaker = when (prismodell) {
+        is Prismodell.AnnenAvtaltPris -> prismodell.tilsagnPerDeltaker
+
+        is Prismodell.AvtaltPrisPerHeleUkesverk,
+        is Prismodell.AvtaltPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
+        is Prismodell.AvtaltPrisPerUkesverk,
+        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+        -> null
+    }
+
     return PrismodellDto(
         id = prismodell.id,
         type = prismodell.type,
         valuta = prismodell.valuta,
         satser = satser,
         prisbetingelser = prisbetingelser,
-        tilsagnPerDeltaker = prismodell.tilsagnPerDeltaker,
+        tilsagnPerDeltaker = tilsagnPerDeltaker,
     )
 }

@@ -12,10 +12,11 @@ import java.util.UUID
 object PrismodellFixtures {
     fun createPrismodellDbo(
         id: UUID = UUID.randomUUID(),
-        type: PrismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
+        type: PrismodellType,
         valuta: Valuta = Valuta.NOK,
         prisbetingelser: String? = null,
         satser: List<AvtaltSats> = emptyList(),
+        tilsagnPerDeltaker: Boolean? = false,
     ): PrismodellDbo = PrismodellDbo(
         id = id,
         systemId = null,
@@ -23,7 +24,7 @@ object PrismodellFixtures {
         type = type,
         prisbetingelser = prisbetingelser,
         satser = satser,
-        tilsagnPerDeltaker = false,
+        tilsagnPerDeltaker = tilsagnPerDeltaker,
     )
 
     val ForhandsgodkjentAft = PrismodellDbo(
@@ -36,7 +37,7 @@ object PrismodellFixtures {
             AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.NOK),
             AvtaltSats(LocalDate.of(2026, 1, 1), 21_730.NOK),
         ),
-        tilsagnPerDeltaker = false,
+        tilsagnPerDeltaker = null,
     )
 
     val ForhandsgodkjentVta = PrismodellDbo(
@@ -49,7 +50,7 @@ object PrismodellFixtures {
             AvtaltSats(LocalDate.of(2025, 1, 1), 16_848.NOK),
             AvtaltSats(LocalDate.of(2026, 1, 1), 17_455.NOK),
         ),
-        tilsagnPerDeltaker = false,
+        tilsagnPerDeltaker = null,
     )
 
     val ForhandsgodkjentTilpassetJobbstotte = PrismodellDbo(
@@ -61,7 +62,7 @@ object PrismodellFixtures {
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 7_321.NOK),
         ),
-        tilsagnPerDeltaker = false,
+        tilsagnPerDeltaker = null,
     )
 
     val AvtaltPrisPerTimeOppfolging = createPrismodellDbo(
@@ -78,5 +79,8 @@ object PrismodellFixtures {
         ),
     )
 
-    val AnnenAvtaltPris = createPrismodellDbo()
+    val AnnenAvtaltPris = createPrismodellDbo(
+        type = PrismodellType.ANNEN_AVTALT_PRIS,
+        tilsagnPerDeltaker = false,
+    )
 }

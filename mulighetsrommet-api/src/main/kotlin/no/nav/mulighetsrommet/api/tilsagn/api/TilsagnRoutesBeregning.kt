@@ -151,7 +151,7 @@ fun Route.tilsagnRoutesBeregning() {
         val gjennomforing = gjennomforinger.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
             ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig gjennomforingId=${request.gjennomforingId}")
 
-        val tilsagnPerDeltaker = gjennomforing.prismodell.tilsagnPerDeltaker
+        val tilsagnPerDeltaker = (gjennomforing.prismodell as? Prismodell.AnnenAvtaltPris)?.tilsagnPerDeltaker ?: false
 
         val deltakere = if (tilsagnPerDeltaker) {
             val deltakelser = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
