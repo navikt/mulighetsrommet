@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
-import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
@@ -27,7 +26,6 @@ import java.util.UUID
 
 fun Route.tilsagnRoutesBehandling() {
     val service: TilsagnService by inject()
-    val personaliaService: PersonaliaService by inject()
 
     authorize(Rolle.SAKSBEHANDLER_OKONOMI) {
         put({
@@ -170,7 +168,9 @@ fun Route.tilsagnRoutesBehandling() {
 
             call.respondWithStatusResponse(result)
         }
+    }
 
+    authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.BESLUTTER_TILSAGN)) {
         post("/{id}/returner", {
             tags = setOf("Tilsagn")
             operationId = "returnerTilsagn"
