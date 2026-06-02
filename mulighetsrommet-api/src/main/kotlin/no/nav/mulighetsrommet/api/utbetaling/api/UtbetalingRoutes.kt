@@ -398,7 +398,9 @@ fun Route.utbetalingRoutes() {
 
                 call.respondWithStatusResponse(result)
             }
+        }
 
+        authorize(anyOf = setOf(Rolle.SAKSBEHANDLER_OKONOMI, Rolle.BESLUTTER_TILSAGN)) {
             post("/{id}/returner", {
                 tags = setOf("Utbetaling")
                 operationId = "returnerUtbetalingLinje"

@@ -179,7 +179,25 @@ class UtbetalingRoutesTest : FunSpec({
     }
 
     context("returner utbetaling") {
-        test("403 Forbidden uten attestant-tilgang") {
+        test("403 forbidden uten saksbehandler- eller beslutter-tilgang") {
+            withTestApplication(appConfig()) {
+                val id = UtbetalingFixtures.utbetalingLinje1.id
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
+
+                val response = client.post("/api/tiltaksadministrasjon/utbetalingslinjer/$id/returner") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    setBody(AarsakerOgForklaringRequest(listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP), null))
+                }
+
+                response.status shouldBe HttpStatusCode.Forbidden
+                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(
+                    Rolle.SAKSBEHANDLER_OKONOMI,
+                    Rolle.BESLUTTER_TILSAGN,
+                )
+            }
+        }
+
+        test("400 bad request når utbetalingen kan ikke er til attestering") {
             withTestApplication(appConfig()) {
                 val id = UtbetalingFixtures.utbetalingLinje1.id
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
@@ -189,8 +207,10 @@ class UtbetalingRoutesTest : FunSpec({
                     setBody(AarsakerOgForklaringRequest(listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP), null))
                 }
 
-                response.status shouldBe HttpStatusCode.Forbidden
-                response.body<NavAnsattManglerTilgang>().missingRoles shouldBe setOf(Rolle.ATTESTANT_UTBETALING)
+                response.status shouldBe HttpStatusCode.BadRequest
+                response.body<ValidationError>().errors shouldBe listOf(
+                    FieldError.of("Utbetalingen kan ikke returneres"),
+                )
             }
         }
     }
