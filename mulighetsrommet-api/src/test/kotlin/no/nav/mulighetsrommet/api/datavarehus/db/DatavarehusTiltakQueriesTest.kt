@@ -6,6 +6,9 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
@@ -13,15 +16,18 @@ import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
+import no.nav.mulighetsrommet.api.fixtures.ForerkortFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeAmo1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeFagYrke1
+import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -94,70 +100,113 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             tiltak.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(aar = 2020, lopenummer = 1234)
         }
 
-        test("henter Gruppe AMO med amo-kategorisering") {
-            val studiespesialisering = AmoKategorisering.Studiespesialisering
-            val fov = AmoKategorisering.ForberedendeOpplaeringForVoksne(
-                innholdElementer = listOf(
-                    AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING,
+        context("henter Gruppe AMO med amo-kategorisering") {
+            val studiespesialisering = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering)
+            val fov = OpplaringKategorisering(
+                kurstype = KurstypeFixtures.fov,
+                innholdElementer = setOf(
+                    OpplaringKategorisering.InnholdElement.BRANSJERETTET_OPPLARING,
                 ),
             )
-            val grunnleggende = AmoKategorisering.GrunnleggendeFerdigheter(
-                innholdElementer = listOf(
-                    AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
-                ),
-            )
-            val norskopplaering = AmoKategorisering.Norskopplaering(
-                norskprove = true,
-                innholdElementer = listOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING),
-            )
-            val bransje = AmoKategorisering.BransjeOgYrkesrettet(
-                bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID,
-                innholdElementer = listOf(AmoKategorisering.InnholdElement.PRAKSIS),
-                forerkort = listOf(AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A),
-                sertifiseringer = listOf(
-                    AmoKategorisering.BransjeOgYrkesrettet.Sertifisering(konseptId = 1, label = "Jobb"),
-                ),
-            )
+            val grunnleggende =
+                OpplaringKategorisering(
+                    kurstype = KurstypeFixtures.grunnleggendeFerdigheter,
+                    innholdElementer = setOf(
+                        OpplaringKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
+                    ),
+                )
+            val norskopplaering =
+                OpplaringKategorisering(
+                    kurstype = KurstypeFixtures.norskopplaering,
+                    innholdElementer = setOf(
+                        OpplaringKategorisering.InnholdElement.NORSKOPPLAERING,
+                    ),
+                )
+            val bransje =
+                OpplaringKategorisering(
+                    kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                    bransje = BransjeFixtures.kontorarbeid,
+                    forerkort = setOf(ForerkortFixtures.A),
+                    innholdElementer = setOf(OpplaringKategorisering.InnholdElement.PRAKSIS),
+                    sertifiseringer = setOf(
+                        Sertifisering(konseptId = 1, label = "Jobb"),
+                    ),
+                )
+            val amoGjennomforing = GruppeAmo1.copy(id = UUID.randomUUID())
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeAmo),
                 avtaler = listOf(AvtaleFixtures.gruppeAmo),
                 gjennomforinger = listOf(
-                    GruppeAmo1.copy(id = UUID.randomUUID()),
-                    GruppeAmo1.copy(id = UUID.randomUUID()),
-                    GruppeAmo1.copy(id = UUID.randomUUID()),
-                    GruppeAmo1.copy(id = UUID.randomUUID()),
-                    GruppeAmo1.copy(id = UUID.randomUUID()),
+                    amoGjennomforing,
                 ),
-            ) { domain ->
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[0].id, studiespesialisering)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[1].id, fov)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[2].id, grunnleggende)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[3].id, norskopplaering)
-                queries.gjennomforing.setAmoKategorisering(domain.gjennomforinger[4].id, bransje)
+            )
+
+            test("studiepserialisering") {
+                database.runAndRollback {
+                    domain.setup(it)
+                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, studiespesialisering.toDbo())
+                    queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
+                        .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                        .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.Studiespesialisering)
+                }
             }
+            test("fov") {
+                database.runAndRollback { session ->
+                    domain.setup(session)
+                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, fov.toDbo())
+                    queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
+                        .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                        .amoKategorisering.shouldNotBeNull().shouldBe(
+                            AmoKategorisering.ForberedendeOpplaeringForVoksne(
+                                innholdElementer = listOf(AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING),
+                            ),
+                        )
+                }
+            }
+            test("grunnleggende ferdigheter") {
+                database.runAndRollback { session ->
+                    domain.setup(session)
+                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, grunnleggende.toDbo())
+                    queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
+                        .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                        .amoKategorisering.shouldNotBeNull()
+                        .shouldBe(AmoKategorisering.GrunnleggendeFerdigheter(innholdElementer = listOf(AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER)))
+                }
+            }
+            test("norskopplaering") {
+                database.runAndRollback { session ->
+                    domain.setup(session)
+                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, norskopplaering.toDbo())
+                    queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
+                        .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                        .amoKategorisering.shouldNotBeNull().shouldBe(
+                            AmoKategorisering.Norskopplaering(
+                                norskprove = false,
+                                innholdElementer = listOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING),
+                            ),
+                        )
+                }
+            }
+            test("Bransje og yrke") {
+                database.runAndRollback { session ->
+                    domain.setup(session)
+                    val dbo = bransje.toDbo()
+                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, dbo)
+                    val bransjeOgYrkesrettet = queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
+                        .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
+                        .amoKategorisering.shouldNotBeNull()
 
-            database.runAndRollback { session ->
-                domain.setup(session)
-
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[0].id)
-                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(studiespesialisering)
-
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[1].id)
-                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(fov)
-
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[2].id)
-                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(grunnleggende)
-
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[3].id)
-                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(norskopplaering)
-
-                queries.dvh.getDatavarehusTiltak(domain.gjennomforinger[4].id)
-                    .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                    .amoKategorisering.shouldNotBeNull().shouldBe(bransje)
+                    bransjeOgYrkesrettet.shouldBe(
+                        AmoKategorisering.BransjeOgYrkesrettet(
+                            bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID,
+                            innholdElementer = listOf(AmoKategorisering.InnholdElement.PRAKSIS),
+                            forerkort = listOf(AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A),
+                            sertifiseringer = listOf(
+                                Sertifisering(konseptId = 1, label = "Jobb"),
+                            ),
+                        ),
+                    )
+                }
             }
         }
 

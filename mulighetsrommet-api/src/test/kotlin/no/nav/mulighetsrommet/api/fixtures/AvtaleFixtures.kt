@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -15,7 +16,6 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -42,7 +42,7 @@ object AvtaleFixtures {
         status = AvtaleStatusType.AKTIV,
         avtaletype = Avtaletype.RAMMEAVTALE,
         administratorer = listOf(NavIdent("DD1")),
-        amoKategorisering = null,
+        opplaringKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         utdanningslop = null,
     )
@@ -79,7 +79,7 @@ object AvtaleFixtures {
             tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
             navn = "Gruppe Amo",
             avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-            amoKategorisering = AmoKategorisering.Studiespesialisering,
+            opplaringKategorisering = OpplaringKategoriseringDbo(kurstypeId = KurstypeFixtures.studiespesialisering.id),
         ),
         personvernDbo = personvernDbo(),
         veilederinformasjonDbo = veilederinformasjonDbo(),

@@ -58,18 +58,18 @@ from avtale
                                      join prismodell on prismodell_id = prismodell.id
                             where avtale_id = avtale.id) on true
          left join lateral (
-             select jsonb_agg(
-                 jsonb_build_object(
-                     'type', ap.personopplysning,
-                     'title', p.title,
-                     'helpText', p.help_text,
-                     'sortKey', p.sort_key
-                 ) order by p.sort_key
-             ) as personopplysninger_json
-             from avtale_personopplysning ap
+    select jsonb_agg(
+                   jsonb_build_object(
+                           'type', ap.personopplysning,
+                           'title', p.title,
+                           'helpText', p.help_text,
+                           'sortKey', p.sort_key
+                   ) order by p.sort_key
+           ) as personopplysninger_json
+    from avtale_personopplysning ap
              join personopplysning p on p.value = ap.personopplysning
-             where ap.avtale_id = avtale.id
-         ) on true
+    where ap.avtale_id = avtale.id
+    ) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'navIdent', avtale_administrator.nav_ident,
@@ -103,6 +103,39 @@ from avtale
                                            'kurstype', avtale_amo_kategorisering.kurstype,
                                            'bransje', avtale_amo_kategorisering.bransje,
                                            'forerkort', avtale_amo_kategorisering.forerkort,
+                                           'kurstype', (select jsonb_strip_nulls(
+                                                                       jsonb_build_object(
+                                                                               'id', okk.id,
+                                                                               'navn', okk.navn,
+                                                                               'kode', okk.kode,
+                                                                               'aktiv', okk.aktiv
+                                                                       )
+                                                               )
+                                                        from opplaring_kategorisering_kurstype okk
+                                                        where okk.id = avtale_amo_kategorisering.kurstype_id),
+                                           'bransje', (select jsonb_strip_nulls(
+                                                                      jsonb_build_object(
+                                                                              'id', okb.id,
+                                                                              'navn', okb.navn,
+                                                                              'kode', okb.kode
+                                                                      )
+                                                              )
+                                                       from opplaring_kategorisering_bransje okb
+                                                       where okb.id = avtale_amo_kategorisering.bransje_id),
+                                           'forerkort', coalesce(
+                                                   (select jsonb_strip_nulls(
+                                                                   jsonb_agg(
+                                                                           jsonb_build_object(
+                                                                                   'id', okf.id,
+                                                                                   'navn', okf.navn,
+                                                                                   'kode', okf.kode
+                                                                           )
+                                                                   )
+                                                           )
+                                                    from opplaring_kategorisering_forerkort okf
+                                                             join avtale_amo_kategorisering_forerkort aokf on aokf.forerkort_id = okf.id
+                                                    where aokf.avtale_id = avtale_amo_kategorisering.avtale_id),
+                                                   '[]'::jsonb),
                                            'norskprove', avtale_amo_kategorisering.norskprove,
                                            'sertifiseringer',
                                            coalesce((select jsonb_strip_nulls(
@@ -117,7 +150,8 @@ from avtale
                                                                    on aks.konsept_id = s.konsept_id
                                                      where aks.avtale_id = avtale_amo_kategorisering.avtale_id),
                                                     '[]'::jsonb),
-                                           'innholdElementer', coalesce(avtale_amo_kategorisering.innhold_elementer, '{}')
+                                           'innholdElementer',
+                                           coalesce(avtale_amo_kategorisering.innhold_elementer, '{}')
                                    ) as amo_kategorisering_json
                             from avtale_amo_kategorisering
                             where avtale_id = avtale.id) on true

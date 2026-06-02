@@ -1,12 +1,16 @@
-package no.nav.mulighetsrommet.api.amo
+package no.nav.mulighetsrommet.api.amo.db
 
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.models.Bransje
 import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
+import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
+import java.util.UUID
 
 class OpplaringKategoriseringQueries(private val session: Session) {
     fun getKurstyper(inkluderInaktive: Boolean = false): Set<Kurstype> {
@@ -46,6 +50,17 @@ class OpplaringKategoriseringQueries(private val session: Session) {
         val bransjer = session.list(queryOf(query)) { it.toBransje() }
         return bransjer.toSet()
     }
+
+    fun getGjennomforingKategorisering(id: UUID): OpplaringKategorisering? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_gjennomforing_opplaring_kategorisering
+            where gjennomforing_id = ?
+        """.trimIndent()
+
+        return session.single(queryOf(query, id)) { it.toOpplaringKategorisering() }
+    }
 }
 
 fun Row.toKurstype() = Kurstype(
@@ -66,3 +81,18 @@ fun Row.toBransje() = Bransje(
     kode = string("kode").let { Bransje.Kode.valueOf(it) },
     navn = string("navn"),
 )
+
+fun Row.toOpplaringKategorisering(): OpplaringKategorisering {
+    val kurstype = stringOrNull("kurstype")?.let { JsonIgnoreUnknownKeys.decodeFromString<Kurstype>(it) }
+    val bransje = stringOrNull("bransje")?.let { JsonIgnoreUnknownKeys.decodeFromString<Bransje>(it) }
+    return OpplaringKategorisering(
+        kurstype = kurstype,
+        bransje = bransje,
+        forerkort = string("forerkort").let { JsonIgnoreUnknownKeys.decodeFromString<List<ForerkortKlasse>>(it) }.toSet(),
+        sertifiseringer = string("sertifiseringer").let { JsonIgnoreUnknownKeys.decodeFromString<List<Sertifisering>>(it) }.toSet(),
+        innholdElementer = string("innhold_elementer").let { JsonIgnoreUnknownKeys.decodeFromString<List<OpplaringKategorisering.InnholdElement>>(it) }.toSet(),
+        norskprove = boolean("norskprove"),
+        // Håndteres andre steder
+        utdanningslop = null,
+    )
+}

@@ -39,6 +39,8 @@ export function GjennomforingDetaljer() {
         prismodell={prismodell}
         enkeltplassDeltaker={enkeltplassDeltaker}
         okonomi={okonomi}
+        amoKategorisering={amoKategorisering}
+        utdanningslop={utdanningslop}
       />
     );
   }

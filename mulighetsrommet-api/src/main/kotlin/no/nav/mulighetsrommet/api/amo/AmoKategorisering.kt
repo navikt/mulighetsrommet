@@ -1,9 +1,10 @@
-package no.nav.mulighetsrommet.model
+package no.nav.mulighetsrommet.api.amo
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.api.janzz.Sertifisering
 
 enum class AmoKurstype {
     BRANSJE_OG_YRKESRETTET,
@@ -37,9 +38,6 @@ sealed class AmoKategorisering {
             SERVICEYRKER_OG_ANNET_ARBEID,
             ANDRE_BRANSJER,
         }
-
-        @Serializable
-        data class Sertifisering(val konseptId: Long, val label: String)
 
         enum class ForerkortKlasse {
             A,

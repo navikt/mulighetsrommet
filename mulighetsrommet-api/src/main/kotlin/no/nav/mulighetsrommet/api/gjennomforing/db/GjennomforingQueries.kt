@@ -5,6 +5,8 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
@@ -29,7 +31,6 @@ import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
-import no.nav.mulighetsrommet.model.AmoKategorisering
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -330,15 +331,25 @@ class GjennomforingQueries(private val session: Session) {
     fun getUtdanningslop(id: UUID): UtdanningslopDto? {
         @Language("PostgreSQL")
         val query = """
-            select utdanningslop_json
-            from view_gjennomforing_avtale_detaljer
-            where id = ?::uuid
+            select jsonb_build_object(
+                           'utdanningsprogram',
+                           json_build_object('id', up.id, 'navn', up.navn),
+                           'utdanninger',
+                           jsonb_agg(jsonb_build_object('id', u.id, 'navn', u.navn))
+                   ) utdanningslop_json
+            from gjennomforing t
+                     join gjennomforing_utdanningsprogram upt
+                          on t.id = upt.gjennomforing_id
+                     join utdanningsprogram up on upt.utdanningsprogram_id = up.id
+                     join utdanning u on upt.utdanning_id = u.id
+            where gjennomforing_id = ?
+            group by up.id
         """.trimIndent()
         return session.single(queryOf(query, id)) { it.toUtdanningslopDto() }
     }
 
-    fun setAmoKategorisering(id: UUID, amo: AmoKategorisering?): Unit = with(session) {
-        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.GJENNOMFORING, id, amo)
+    fun setAmoKategorisering(id: UUID, kategorisering: OpplaringKategoriseringDbo?) = with(session) {
+        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.GJENNOMFORING, id, kategorisering)
     }
 
     fun setArenaData(dbo: GjennomforingArenaDataDbo) {
@@ -831,8 +842,8 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
     val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
         ?.let { Json.decodeFromString<List<GjennomforingAvtaleDetaljer.ArrangorKontaktperson>>(it) }
         ?: emptyList()
-    val amoKategorisering = stringOrNull("amo_kategorisering_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<AmoKategorisering>(it) }
+    val opplaringKategorisering = stringOrNull("amo_kategorisering_json")
+        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategorisering>(it) }
     return GjennomforingAvtaleDetaljer(
         administratorer = toAdministratorer(),
         kontorstruktur = Kontorstruktur.fromNavEnheter(toNavEnheter()),
@@ -848,7 +859,7 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
             )
         },
         tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
-        amoKategorisering = amoKategorisering,
+        opplaringKategorisering = opplaringKategorisering,
         utdanningslop = toUtdanningslopDto(),
         arrangorKontaktpersoner = arrangorKontaktpersoner,
         avbrytelse = when (GjennomforingStatusType.valueOf(string("status"))) {

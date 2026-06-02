@@ -27,6 +27,7 @@ import {
 import { GjennomforingDetaljerVarighet } from "@/pages/gjennomforing/GjennomforingDetaljerVarighet";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import {
+  AmoKategoriseringDto,
   DeltakerDto,
   GjennomforingEnkeltplassDto,
   GjennomforingHandling,
@@ -34,12 +35,16 @@ import {
   PrismodellDto,
   TiltakstypeDto,
   TotrinnskontrollDto,
+  UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
 import { isAvvist, isGodkjent, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
 import { ReactNode, useState } from "react";
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
+import { UtdanningslopDetaljer } from "../utdanning/UtdanningslopDetaljer";
+import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
+import { AmoKategoriseringDetaljer } from "../amoKategorisering/AmoKategoriseringDetaljer";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -48,11 +53,21 @@ interface Props {
   prismodell: PrismodellDto;
   okonomi: null | TotrinnskontrollDto;
   enkeltplassDeltaker: null | DeltakerDto;
+  amoKategorisering: null | AmoKategoriseringDto;
+  utdanningslop: null | UtdanningslopDto;
 }
 
 export function GjennomforingEnkeltplassDetaljer(props: Props) {
-  const { tiltakstype, gjennomforing, veilederinfo, prismodell, enkeltplassDeltaker, okonomi } =
-    props;
+  const {
+    tiltakstype,
+    gjennomforing,
+    veilederinfo,
+    prismodell,
+    enkeltplassDeltaker,
+    okonomi,
+    amoKategorisering,
+    utdanningslop,
+  } = props;
   const handlinger = useGjennomforingHandlinger(gjennomforing.id);
 
   const gjennomforingMeta: Definition[] = [
@@ -122,6 +137,12 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
             gjennomforing={gjennomforing}
             veilederinfo={veilederinfo}
           />
+          {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
+          {amoKategorisering &&
+            !kursOgTiltakErStudiespesialisering(
+              amoKategorisering.kurstype,
+              tiltakstype.tiltakskode,
+            ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
         </DetaljerLayout>
         <DetaljerLayout>
           <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />

@@ -1,6 +1,15 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering.BransjeOgYrkesrettet
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering.ForberedendeOpplaeringForVoksne
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering.GrunnleggendeFerdigheter
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering.Norskopplaering
+import no.nav.mulighetsrommet.api.amo.AmoKategorisering.Studiespesialisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.AmoKurstype
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
+import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -14,13 +23,6 @@ import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.model.AmoKategorisering
-import no.nav.mulighetsrommet.model.AmoKategorisering.BransjeOgYrkesrettet
-import no.nav.mulighetsrommet.model.AmoKategorisering.ForberedendeOpplaeringForVoksne
-import no.nav.mulighetsrommet.model.AmoKategorisering.GrunnleggendeFerdigheter
-import no.nav.mulighetsrommet.model.AmoKategorisering.Norskopplaering
-import no.nav.mulighetsrommet.model.AmoKategorisering.Studiespesialisering
-import no.nav.mulighetsrommet.model.AmoKurstype
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import java.util.UUID
 
@@ -42,7 +44,7 @@ object AvtaleDboMapper {
             startDato = avtale.startDato,
             sluttDato = avtale.sluttDato,
             status = avtale.status.type,
-            amoKategorisering = avtale.amoKategorisering,
+            opplaringKategorisering = avtale.opplaringKategorisering?.toDbo(),
             opsjonsmodell = avtale.opsjonsmodell,
             utdanningslop = avtale.utdanningslop?.toDbo(),
             administratorer = avtale.administratorer.map { it.navIdent },
@@ -112,7 +114,7 @@ fun DetaljerRequest.toDbo(
     tiltakstypeId: UUID,
     arrangorDbo: ArrangorDbo?,
     status: AvtaleStatusType,
-    amoKategorisering: AmoKategorisering?,
+    kategorisering: OpplaringKategoriseringDbo?,
 ): DetaljerDbo = DetaljerDbo(
     navn = navn,
     status = status,
@@ -123,7 +125,7 @@ fun DetaljerRequest.toDbo(
     sluttDato = sluttDato,
     avtaletype = avtaletype,
     administratorer = administratorer,
-    amoKategorisering = amoKategorisering,
+    opplaringKategorisering = kategorisering,
     opsjonsmodell = opsjonsmodell,
     utdanningslop = utdanningslop,
 )
