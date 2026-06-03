@@ -13,19 +13,19 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
-import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.TiltaksgjennomforingV2Mapper
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -43,7 +43,6 @@ import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -54,7 +53,7 @@ data class UpsertGjennomforingEnkeltplass(
     val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
     val status: GjennomforingStatusType,
-    val prisbetingelser: String?,
+    val prismodell: Prismodell,
     val ansvarligEnhet: NavEnhetNummer,
     val kategorisering: OpplaringKategoriseringRequest?,
     // TODO: fjerne fra modell når feltene ikke lengre trengs for å deles med arena
@@ -78,31 +77,20 @@ class GjennomforingEnkeltplassService(
         val gjennomforingV2Topic: String,
     )
 
-    fun create(
-        create: UpsertGjennomforingEnkeltplass,
+    fun upsert(
+        upsert: UpsertGjennomforingEnkeltplass,
     ): Validated<GjennomforingEnkeltplass> = db.transaction {
-        val existing = queries.gjennomforing.getGjennomforing(create.id)
-        if (existing != null && existing !is GjennomforingArena) {
-            return FieldError.of("Gjennomføringen er allerede opprettet").nel().left()
-        }
+        return when (val gjennomforing = queries.gjennomforing.getGjennomforing(upsert.id)) {
+            is GjennomforingAvtale -> FieldError.of("Gjennomføring er ikke av typen enkeltplass").nel().left()
 
-        upsert(create)
-            .also { updateFreeTextSearch(it, norskIdent = null) }
-            .also { publishTiltaksgjennomforingV2ToKafka(it) }
-            .right()
-    }
+            is GjennomforingEnkeltplass if (!harEnkeltplassEndringer(upsert, gjennomforing)) -> gjennomforing.right()
 
-    fun update(
-        update: UpsertGjennomforingEnkeltplass,
-    ): Validated<GjennomforingEnkeltplass> = db.transaction {
-        return when (val gjennomforing = queries.gjennomforing.getGjennomforing(update.id)) {
-            null -> FieldError.of("Gjennomføring finnes ikke").nel().left()
+            null -> upsert(upsert)
+                .also { updateFreeTextSearch(it, norskIdent = null) }
+                .also { publishTiltaksgjennomforingV2ToKafka(it) }
+                .right()
 
-            !is GjennomforingEnkeltplass -> FieldError.of("Gjennomføring er ikke av typen enkeltplass").nel().left()
-
-            else if (!harEnkeltplassEndringer(update, gjennomforing)) -> gjennomforing.right()
-
-            else -> upsert(update)
+            else -> upsert(upsert)
                 .also { publishTiltaksgjennomforingV2ToKafka(it) }
                 .right()
         }
@@ -159,11 +147,22 @@ class GjennomforingEnkeltplassService(
             .let { logEndring("Oppdatert fra deltaker", it.id, Tiltaksadministrasjon) }
     }
 
-    fun get(id: UUID): GjennomforingEnkeltplass? = db.session {
+    data class Enkeltplass(
+        val gjennomforing: GjennomforingEnkeltplass,
+        // TODO: gjøre totrinnskontroll del av GjennomforingEnkeltplass
+        val okonomi: Totrinnskontroll?,
+    )
+
+    fun get(id: UUID): Enkeltplass? = db.session {
         when (val gjennomforing = queries.gjennomforing.getGjennomforing(id)) {
             null -> null
+
             !is GjennomforingEnkeltplass -> error("Gjennomføring med id=$id er ikke en enkeltplass")
-            else -> gjennomforing
+
+            else -> {
+                val okonomi = totrinnskontroll.get(id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                Enkeltplass(gjennomforing, okonomi)
+            }
         }
     }
 
@@ -225,7 +224,7 @@ class GjennomforingEnkeltplassService(
     private fun QueryContext.upsert(upsert: UpsertGjennomforingEnkeltplass): GjennomforingEnkeltplass {
         val tiltakstype = tiltakstyper.getByTiltakskode(upsert.tiltakskode)
 
-        val prismodellId = upsertPrismodell(upsert.id, upsert.prisbetingelser)
+        val prismodellId = upsertPrismodell(upsert.prismodell)
         val dbo = GjennomforingDbo(
             type = GjennomforingType.ENKELTPLASS,
             id = upsert.id,
@@ -285,29 +284,43 @@ class GjennomforingEnkeltplassService(
         return gjennomforing
     }
 
-    private fun QueryContext.upsertPrismodell(gjennomforingId: UUID, prisbetingelser: String?): UUID {
-        val prismodell = queries.gjennomforing.getPrismodell(gjennomforingId) ?: run {
-            val prismodellDbo = PrismodellDbo(
-                id = UUID.randomUUID(),
-                type = PrismodellType.ANNEN_AVTALT_PRIS,
-                valuta = Valuta.NOK,
-                prisbetingelser = prisbetingelser,
+    private fun QueryContext.upsertPrismodell(prismodell: Prismodell): UUID {
+        val dbo = when (prismodell) {
+            is Prismodell.AnnenAvtaltPris -> PrismodellDbo(
+                id = prismodell.id,
+                type = prismodell.type,
+                valuta = prismodell.valuta,
+                prisbetingelser = prismodell.prisbetingelser,
                 tilsagnPerDeltaker = true,
-                satser = null,
-                systemId = null,
-                totalbelop = null,
-                tilskudd = null,
-                aarsak = null,
+                totalbelop = prismodell.totalbelop,
             )
-            queries.prismodell.upsert(prismodellDbo)
-            queries.prismodell.getOrError(prismodellDbo.id)
-        }
 
-        if (prismodell.prisbetingelser() != prisbetingelser) {
-            queries.prismodell.setPrisbetingelser(prismodell.id, prisbetingelser)
-        }
+            is Prismodell.TilskuddTilOpplaering -> PrismodellDbo(
+                id = prismodell.id,
+                type = prismodell.type,
+                valuta = prismodell.valuta,
+                prisbetingelser = prismodell.tilleggsopplysninger,
+                tilskudd = prismodell.tilskudd,
+            )
 
-        return prismodell.id
+            is Prismodell.IngenKostnader -> PrismodellDbo(
+                id = prismodell.id,
+                type = prismodell.type,
+                valuta = prismodell.valuta,
+                prisbetingelser = prismodell.tilleggsopplysninger,
+                aarsak = prismodell.aarsak.name,
+            )
+
+            is Prismodell.AvtaltPrisPerHeleUkesverk,
+            is Prismodell.AvtaltPrisPerManedsverk,
+            is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
+            is Prismodell.AvtaltPrisPerUkesverk,
+            is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
+            is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+            -> error("${prismodell.type} er ikke støttet for enkeltplasser")
+        }
+        queries.prismodell.upsert(dbo)
+        return dbo.id
     }
 
     private fun QueryContext.upsertKategorisering(id: UUID, kategorisering: OpplaringKategoriseringRequest?) {
@@ -361,7 +374,7 @@ private fun toUpsertGjennomforingEnkeltplass(
     tiltakskode = gjennomforing.tiltakstype.tiltakskode,
     arrangorId = gjennomforing.arrangor.id,
     navn = gjennomforing.navn,
-    prisbetingelser = gjennomforing.prismodell.prisbetingelser(),
+    prismodell = gjennomforing.prismodell,
     ansvarligEnhet = gjennomforing.ansvarligEnhet.enhetsnummer,
     arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
     arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
@@ -407,7 +420,7 @@ private fun harEnkeltplassEndringer(
     startDato = gjennomforing.startDato,
     sluttDato = gjennomforing.sluttDato,
     status = gjennomforing.status,
-    prisbetingelser = gjennomforing.prismodell.prisbetingelser(),
+    prismodell = gjennomforing.prismodell,
     deltidsprosent = gjennomforing.deltidsprosent,
     antallPlasser = gjennomforing.antallPlasser,
     ansvarligEnhet = gjennomforing.ansvarligEnhet.enhetsnummer,

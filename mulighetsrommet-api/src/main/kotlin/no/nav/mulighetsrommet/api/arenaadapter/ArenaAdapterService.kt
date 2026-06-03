@@ -4,6 +4,7 @@ import arrow.core.getOrElse
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
@@ -27,6 +28,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.model.Valuta
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -69,6 +71,7 @@ class ArenaAdapterService(
 
         val sluttDato = arenaGjennomforing.sluttDato
         if (sluttDato == null || sluttDato >= ArenaMigrering.EnkeltplassSluttDatoCutoffDate) {
+            val existing = db.session { queries.gjennomforing.getGjennomforing(arenaGjennomforing.id) }
             val upsert = UpsertGjennomforingEnkeltplass(
                 id = arenaGjennomforing.id,
                 tiltakskode = checkNotNull(tiltakstype.tiltakskode),
@@ -76,7 +79,13 @@ class ArenaAdapterService(
                 navn = arenaGjennomforing.navn,
                 startDato = arenaGjennomforing.startDato,
                 sluttDato = arenaGjennomforing.sluttDato,
-                prisbetingelser = null,
+                prismodell = (existing as? GjennomforingEnkeltplass)?.prismodell ?: Prismodell.AnnenAvtaltPris(
+                    id = UUID.randomUUID(),
+                    valuta = Valuta.NOK,
+                    tilsagnPerDeltaker = true,
+                    prisbetingelser = null,
+                    totalbelop = null,
+                ),
                 status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
                 deltidsprosent = arenaGjennomforing.deltidsprosent,
                 antallPlasser = arenaGjennomforing.antallPlasser,
@@ -85,11 +94,7 @@ class ArenaAdapterService(
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
                 kategorisering = null, // Arena har ikke amo kategorisering
             )
-            val existing = db.session { queries.gjennomforing.getGjennomforing(arenaGjennomforing.id) }
-            when {
-                existing == null || existing is GjennomforingArena -> gjennomforingEnkeltplassService.create(upsert)
-                else -> gjennomforingEnkeltplassService.update(upsert)
-            }
+            gjennomforingEnkeltplassService.upsert(upsert)
         } else {
             val upsert = OpprettGjennomforingArena(
                 id = arenaGjennomforing.id,

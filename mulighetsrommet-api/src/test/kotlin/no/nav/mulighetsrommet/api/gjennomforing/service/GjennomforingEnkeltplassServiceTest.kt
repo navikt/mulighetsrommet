@@ -16,6 +16,7 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -41,6 +42,7 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -88,7 +90,13 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         sluttDato = LocalDate.of(2025, 6, 1),
         status = GjennomforingStatusType.GJENNOMFORES,
         ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
-        prisbetingelser = null,
+        prismodell = Prismodell.AnnenAvtaltPris(
+            id = UUID.randomUUID(),
+            valuta = Valuta.NOK,
+            tilsagnPerDeltaker = true,
+            prisbetingelser = null,
+            totalbelop = null,
+        ),
         kategorisering = null,
     )
 
@@ -98,7 +106,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         test("oppretter ikke totrinnskontroll når gjennomføringen opprettes") {
             val upsert = createEnkeltplass()
 
-            service.create(upsert).shouldBeRight()
+            service.upsert(upsert).shouldBeRight()
 
             database.run {
                 queries.totrinnskontroll.get(upsert.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).shouldBeNull()
@@ -108,7 +116,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         test("publiseres til kafka når gjennomføring opprettes") {
             val upsert = createEnkeltplass()
 
-            service.create(upsert).shouldBeRight()
+            service.upsert(upsert).shouldBeRight()
 
             database.run {
                 queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).should { (first) ->
@@ -153,10 +161,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     kategorisering = toKategoriseringRequest(kategorisering),
                 )
 
-                service.create(gjennomforing).shouldBeRight()
+                service.upsert(gjennomforing).shouldBeRight()
+
                 database.run {
-                    val lagretKategorisering = queries.opplaringKategorisering.getGjennomforingKategorisering(gjennomforing.id).shouldNotBeNull()
-                    lagretKategorisering.shouldBe(kategorisering)
+                    queries.opplaringKategorisering.getGjennomforingKategorisering(gjennomforing.id)
+                        .shouldBe(kategorisering)
                 }
             }
         }
@@ -170,7 +179,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 kategorisering = request,
             )
 
-            service.create(gjennomforing).shouldBeRight()
+            service.upsert(gjennomforing).shouldBeRight()
+
             database.run {
                 val utdanningslop = queries.gjennomforing.getUtdanningslop(gjennomforing.id).shouldNotBeNull()
                 utdanningslop.utdanningsprogram.id.shouldBe(request.utdanningsprogramId)
@@ -185,7 +195,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         test("totrinnskontroll opprettes når økonomi blir sendt til godkjenning") {
             val upsert = createEnkeltplass()
 
-            service.create(upsert).shouldBeRight()
+            service.upsert(upsert).shouldBeRight()
 
             service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
 
@@ -200,7 +210,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("økonomi kan ikke sendes til godkjenning flere ganger") {
             val upsert = createEnkeltplass()
-            service.create(upsert).shouldBeRight()
+            service.upsert(upsert).shouldBeRight()
 
             service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
             service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")) shouldBeLeft listOf(
@@ -210,7 +220,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("godkjenner økonomi og setter besluttelse til GODKJENT") {
             val upsert = createEnkeltplass()
-            service.create(upsert).shouldBeRight()
+            service.upsert(upsert).shouldBeRight()
 
             service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
             service.godkjennOkonomi(upsert.id, besluttetAv).shouldBeRight()
@@ -225,7 +235,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("returnerer feil når behandletAv og besluttetAv er samme person") {
             val upsert = createEnkeltplass()
-            service.create(upsert).shouldBeRight()
+            service.upsert(upsert).shouldBeRight()
 
             service.tilGodkjenningOkonomi(upsert.id, opprettetAv).shouldBeRight()
             service.godkjennOkonomi(upsert.id, opprettetAv)
@@ -235,7 +245,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("kan godkjenne enkeltplass etter avvisning") {
             val upsert = createEnkeltplass()
-            service.create(upsert).shouldBeRight()
+            service.upsert(upsert).shouldBeRight()
 
             service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
             service.settPaVentOkonomi(
@@ -256,7 +266,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("setter økonomi på vent og setter besluttelse til AVVIST") {
             val upsert = createEnkeltplass()
-            service.create(upsert).shouldBeRight()
+            service.upsert(upsert).shouldBeRight()
 
             service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
             service.settPaVentOkonomi(upsert.id, besluttetAv, forklaring = "Feil").shouldBeRight()
@@ -272,7 +282,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("returnerer feil når enkeltplass allerede er behandlet") {
             val upsert = createEnkeltplass()
-            service.create(upsert).shouldBeRight()
+            service.upsert(upsert).shouldBeRight()
 
             service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
             service.godkjennOkonomi(upsert.id, besluttetAv).shouldBeRight()

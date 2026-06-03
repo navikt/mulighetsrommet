@@ -22,7 +22,7 @@ sealed interface Prismodell {
         override val valuta: Valuta,
         val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
-        val totalbelop: UInt?,
+        val totalbelop: Int?,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.ANNEN_AVTALT_PRIS
@@ -103,7 +103,7 @@ sealed interface Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        val tilskudd: Map<Tilskuddstype, UInt>,
+        val tilskudd: Map<Tilskuddstype, Int>,
         val tilleggsopplysninger: String?,
     ) : Prismodell {
         @Transient
@@ -141,8 +141,8 @@ sealed interface Prismodell {
             prisbetingelser: String?,
             satser: List<AvtaltSats>?,
             tilsagnPerDeltaker: Boolean?,
-            totalbelop: UInt? = null,
-            tilskudd: Map<Tilskuddstype, UInt>? = null,
+            totalbelop: Int? = null,
+            tilskudd: Map<Tilskuddstype, Int>? = null,
             aarsak: String? = null,
         ): Prismodell {
             return when (type) {
