@@ -1,3 +1,7 @@
+drop view if exists view_avtale;
+drop view if exists view_gjennomforing;
+drop view if exists view_arrangorflate_tiltak;
+
 alter table prismodell
     alter tilsagn_per_deltaker drop default;
 
