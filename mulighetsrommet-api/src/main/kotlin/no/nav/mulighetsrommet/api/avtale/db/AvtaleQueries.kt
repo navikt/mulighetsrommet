@@ -14,7 +14,6 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -95,7 +94,6 @@ class AvtaleQueries(private val session: Session) {
         upsertAdministratorer(avtale.id, avtale.detaljerDbo.administratorer)
         upsertArrangor(avtale.id, avtale.detaljerDbo.arrangor)
         upsertOpplaringKategorisering(avtale.id, avtale.detaljerDbo.opplaringKategorisering)
-        upsertUtdanningslop(avtale.id, avtale.detaljerDbo.utdanningslop)
         updateVeilederinfo(avtale.id, avtale.veilederinformasjonDbo)
         updatePersonvern(avtale.id, avtale.personvernDbo)
         avtale.prismodeller.forEach { upsertPrismodell(avtale.id, it) }
@@ -109,7 +107,6 @@ class AvtaleQueries(private val session: Session) {
         upsertAdministratorer(avtaleId, detaljerDbo.administratorer)
         upsertArrangor(avtaleId, detaljerDbo.arrangor)
         upsertOpplaringKategorisering(avtaleId, detaljerDbo.opplaringKategorisering)
-        upsertUtdanningslop(avtaleId, detaljerDbo.utdanningslop)
     }
 
     fun updatePersonvern(avtaleId: UUID, personvernDbo: PersonvernDbo) = withTransaction(session) {
@@ -229,7 +226,6 @@ class AvtaleQueries(private val session: Session) {
 
     context(session: TransactionalSession)
     private fun upsertOpplaringKategorisering(avtaleId: UUID, kategorisering: OpplaringKategoriseringDbo?) = with(session) {
-        // TODO upsert kategorisering id
         AmoKategoriseringQueries.upsert(avtaleId, kategorisering)
     }
 
@@ -544,11 +540,8 @@ private fun Row.toAvtale(): Avtale {
         opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
         customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
     )
-    val utdanningslop = stringOrNull("utdanningslop_json")
-        ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
-
-    val opplaringKategorisering = stringOrNull("amo_kategorisering_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategorisering>(it).copy(utdanningslop = utdanningslop) }
+    val opplaringKategorisering = stringOrNull("opplaring_kategorisering_json")
+        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategorisering>(it) }
 
     val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
         val underenheter = stringOrNull("arrangor_underenheter_json")
@@ -620,7 +613,6 @@ private fun Row.toAvtale(): Avtale {
         opsjonsmodell = opsjonsmodell,
         opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.createdAt },
         opplaringKategorisering = opplaringKategorisering,
-        utdanningslop = utdanningslop,
         prismodeller = prismodeller,
     )
 }

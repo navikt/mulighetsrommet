@@ -14,11 +14,11 @@ object AmoKategoriseringQueries {
 
     context(session: Session)
     fun upsert(
-        id: UUID,
+        kategoriseringId: UUID,
         kategorisering: OpplaringKategoriseringDbo?,
     ) {
-        if (kategorisering == null) { // Platform declaration clash
-            delete(id)
+        if (kategorisering == null) {
+            delete(kategoriseringId)
             return
         }
 
@@ -30,13 +30,13 @@ object AmoKategoriseringQueries {
                 bransje_id,
                 utdanningsprogram_id,
                 norskprove
-            ) select
+            ) values (
                 :id::uuid,
                 :kurstype_id::uuid,
                 :bransje_id::uuid,
                 :utdanningsprogram_id::uuid,
                 :norskprove::boolean
-            from opplaring_kategorisering
+            )
             on conflict (id) do update set
                 kurstype_id = excluded.kurstype_id,
                 bransje_id = excluded.bransje_id,
@@ -45,7 +45,7 @@ object AmoKategoriseringQueries {
         """.trimIndent()
 
         val params = mapOf(
-            "id" to id,
+            "id" to kategoriseringId,
             "kurstype_id" to kategorisering.kurstypeId,
             "bransje_id" to kategorisering.bransjeId,
             "norskprove" to kategorisering.norskprove,
@@ -54,10 +54,10 @@ object AmoKategoriseringQueries {
 
         session.execute(queryOf(query, params))
 
-        updateSertifiseringer(id, kategorisering.sertifiseringer)
-        updateForerkort(id, kategorisering.forerkort)
-        upsertUtdanning(id, kategorisering.utdanningslop)
-        upsertInnholdsElementer(id, kategorisering.innholdElementer)
+        updateSertifiseringer(kategoriseringId, kategorisering.sertifiseringer)
+        updateForerkort(kategoriseringId, kategorisering.forerkort)
+        upsertUtdanning(kategoriseringId, kategorisering.utdanningslop)
+        upsertInnholdsElementer(kategoriseringId, kategorisering.innholdElementer)
     }
 
     context(session: Session)
@@ -78,16 +78,16 @@ object AmoKategoriseringQueries {
         @Language("PostgreSQL")
         val deleteJoins = """
             delete from opplaring_kategorisering_innhold_element
-            where opplaring_kategorisering_id = ? and not (innhold_element_id = any (?))
+            where opplaring_kategorisering_id = ?
         """.trimIndent()
+
+        session.execute(
+            queryOf(deleteJoins, kategoriseringId),
+        )
 
         session.batchPreparedStatement(
             upsertJoinTable,
             innholdElementer.map { elementId -> listOf(kategoriseringId, elementId) },
-        )
-
-        session.execute(
-            queryOf(deleteJoins, kategoriseringId, session.createUuidArray(innholdElementer)),
         )
     }
 

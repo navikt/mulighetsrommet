@@ -66,7 +66,9 @@ object InnholdElementFixtures {
         val query = """
         insert into public.opplaring_innhold_element (id, kode, navn)
             values $inserts
-       on conflict (id) do nothing;
+       on conflict (kode) do update
+       set id = excluded.id,
+           navn = excluded.navn;
         """
         return queryOf(query)
     }

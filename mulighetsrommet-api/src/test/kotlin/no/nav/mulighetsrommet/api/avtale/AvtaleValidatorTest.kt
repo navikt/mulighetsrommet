@@ -1138,7 +1138,7 @@ class AvtaleValidatorTest : FunSpec({
             ).shouldBeRight().detaljerDbo.opplaringKategorisering.shouldNotBeNull {
                 this.kurstypeId shouldBe KurstypeFixtures.grunnleggendeFerdigheter.id
                 this.innholdElementer shouldContainExactly setOf(
-                    InnholdElement.Kode.GRUNNLEGGENDE_FERDIGHETER,
+                    InnholdElementFixtures.grunnleggendeFerdigheter.id,
                 )
             }
 

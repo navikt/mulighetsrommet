@@ -54,7 +54,13 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
     private fun ingenValg(tiltakskode: Tiltakskode): OpplaringKategoriseringResponse = OpplaringKategoriseringResponse(tiltakskode = tiltakskode, alternativer = emptyList())
 
     private fun QueryContext.norskOpplaringGrunnleggendeFerdigheterFov(): OpplaringKategoriseringResponse {
-        val kurstyper = queries.opplaringKategorisering.getKurstyper()
+        val kurstyper = queries.opplaringKategorisering.getKurstyper(
+            setOf(
+                Kurstype.Kode.NORSKOPPLAERING,
+                Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
+                Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+            ),
+        )
         return OpplaringKategoriseringResponse(
             tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
             alternativer = listOf(
@@ -112,7 +118,7 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
     }
 
     private fun QueryContext.arenaGruppeAmo(): OpplaringKategoriseringResponse {
-        val kurstyper = queries.opplaringKategorisering.getKurstyper(true).toMutableList()
+        val kurstyper = queries.opplaringKategorisering.getKurstyper().toMutableList()
         val yrkesrettetKurs = kurstyper.first {
             it.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET
         }.also { kurstyper.remove(it) }

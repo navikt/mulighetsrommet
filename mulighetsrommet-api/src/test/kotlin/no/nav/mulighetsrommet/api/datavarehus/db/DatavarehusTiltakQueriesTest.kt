@@ -142,6 +142,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 ),
             )
 
+            beforeSpec { database.truncateAll() }
+
             test("studiepserialisering") {
                 database.runAndRollback {
                     domain.setup(it)

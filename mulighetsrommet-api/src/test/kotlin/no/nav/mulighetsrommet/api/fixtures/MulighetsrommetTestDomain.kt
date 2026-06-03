@@ -38,6 +38,7 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.DigitalOppfolging,
         TiltakstypeFixtures.ArbeidsrettetRehabilitering,
         TiltakstypeFixtures.NorskGrunnFOV,
+        TiltakstypeFixtures.EnkelFagOgYrke,
     ),
     val regelverklenke: List<RedaksjoneltInnholdLenke> = listOf(),
     val prismodeller: List<PrismodellDbo> = listOf(
@@ -62,6 +63,13 @@ data class MulighetsrommetTestDomain(
         val context = QueryContext(session)
 
         with(context) {
+            session.execute(KurstypeFixtures.query())
+            session.execute(BransjeFixtures.query())
+            session.execute(InnholdElementFixtures.query())
+            session.execute(ForerkortFixtures.query())
+            session.execute(UtdanningFixtures.UtdanningsProgram.query())
+            session.execute(UtdanningFixtures.Utdanninger.query())
+
             navEnheter.forEach { queries.enhet.upsert(it) }
             ansatte.forEach { queries.ansatt.upsert(it) }
             arrangorer.forEach { queries.arrangor.upsert(it) }
@@ -80,12 +88,6 @@ data class MulighetsrommetTestDomain(
             tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
             utbetalingLinjer.forEach { queries.utbetalingLinje.upsert(it) }
-
-            session.execute(KurstypeFixtures.query())
-            session.execute(BransjeFixtures.query())
-            session.execute(ForerkortFixtures.query())
-            session.execute(UtdanningFixtures.UtdanningsProgram.query())
-            session.execute(UtdanningFixtures.Utdanninger.query())
         }
 
         additionalSetup?.invoke(context, this)

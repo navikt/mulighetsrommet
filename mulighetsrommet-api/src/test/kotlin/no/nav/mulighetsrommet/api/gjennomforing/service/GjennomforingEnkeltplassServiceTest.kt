@@ -139,7 +139,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.opprettUtkast(gjennomforing).shouldBeRight()
 
             database.run {
-                queries.opplaringKategorisering.getGjennomforingKategorisering(gjennomforing.id).shouldBe(
+                queries.opplaringKategorisering.get(gjennomforing.id).shouldBe(
                     OpplaringKategorisering(
                         kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
                         bransje = BransjeFixtures.byggOgAnlegg,
@@ -163,7 +163,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             ).shouldBeRight()
 
             database.run {
-                queries.opplaringKategorisering.getGjennomforingKategorisering(gjennomforing.id).shouldBe(
+                queries.opplaringKategorisering.get(gjennomforing.id).shouldBe(
                     OpplaringKategorisering(kurstype = KurstypeFixtures.fov, norskprove = false),
                 )
             }
@@ -174,12 +174,12 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 utdanningsprogramId = UtdanningFixtures.UtdanningsProgram.byggOgAnlegg.id,
                 larefag = listOf(UtdanningFixtures.Utdanninger.fjellOgBergverksfaget.id),
             )
-            val gjennomforing = createEnkeltplass(request)
+            val gjennomforing = createEnkeltplass(request).copy(tiltakskode = Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING)
 
             service.opprettUtkast(gjennomforing).shouldBeRight()
 
             database.run {
-                val utdanningslop = queries.gjennomforing.getUtdanningslop(gjennomforing.id).shouldNotBeNull()
+                val utdanningslop = queries.opplaringKategorisering.get(gjennomforing.id)?.utdanningslop.shouldNotBeNull()
                 utdanningslop.utdanningsprogram.id.shouldBe(request.utdanningsprogramId)
                 utdanningslop.utdanninger.map { it.id }.shouldContainExactly(request.larefag?.first())
             }

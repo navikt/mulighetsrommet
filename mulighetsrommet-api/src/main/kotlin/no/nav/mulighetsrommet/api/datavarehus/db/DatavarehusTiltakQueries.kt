@@ -6,6 +6,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.models.Bransje
 import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.InnholdElement
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
@@ -84,8 +85,8 @@ class DatavarehusTiltakQueries(private val session: Session) {
         @Language("PostgreSQL")
         val amoKategoriseringQuery = """
             select *
-            from view_gjennomforing_opplaring_kategorisering
-            where gjennomforing_id = ?;
+            from view_opplaring_kategorisering
+            where id = ?;
         """.trimIndent()
 
         return session.single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering(id) }
@@ -96,8 +97,8 @@ private fun Row.toAmoKategorisering(id: UUID): AmoKategorisering {
     val kurstype = string("kurstype").let { JsonIgnoreUnknownKeys.decodeFromString<Kurstype>(it) }
     val bransje = stringOrNull("bransje")?.let { JsonIgnoreUnknownKeys.decodeFromString<Bransje>(it) }
     val getInnholdsElementer = {
-        string("innhold_elementer").let {
-            JsonIgnoreUnknownKeys.decodeFromString<List<AmoKategorisering.InnholdElement>>(it)
+        string("innhold_elementer").let { json ->
+            JsonIgnoreUnknownKeys.decodeFromString<List<InnholdElement>>(json).map { AmoKategorisering.InnholdElement.valueOf(it.kode.name) }
         }
     }
     return when (kurstype.kode) {

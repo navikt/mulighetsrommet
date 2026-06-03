@@ -90,7 +90,6 @@ class GjennomforingValidatorTest : FunSpec({
         personvernBekreftet = false,
         opplaringKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
-        utdanningslop = null,
         prismodeller = listOf(
             Prismodell.AnnenAvtaltPris(
                 id = UUID.randomUUID(),

@@ -142,7 +142,7 @@ class AvtaleService(
                     AvtaleValidator.Ctx.Gjennomforing(
                         arrangor = it.arrangor,
                         startDato = it.startDato,
-                        utdanningslop = queries.gjennomforing.getUtdanningslop(it.id),
+                        utdanningslop = queries.opplaringKategorisering.get(it.id)?.utdanningslop,
                         status = it.status,
                         prismodellId = it.prismodell.id,
                     )
@@ -455,7 +455,7 @@ class AvtaleService(
         val systembestemtPrismodell = queries.prismodell.getBySystemId(request.tiltakskode.name)
 
         val kategorisering = AvtaleValidator.Ctx.Kategorisering(
-            kurstyper = queries.opplaringKategorisering.getKurstyper(true),
+            kurstyper = queries.opplaringKategorisering.getKurstyper(),
             bransjer = queries.opplaringKategorisering.getBransjer(),
             forerkort = queries.opplaringKategorisering.getForerkortKlasser(),
             innholdElementer = queries.opplaringKategorisering.getInnholdElementer(),

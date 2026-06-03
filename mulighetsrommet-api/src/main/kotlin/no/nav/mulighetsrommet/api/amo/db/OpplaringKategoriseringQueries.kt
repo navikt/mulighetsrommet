@@ -10,20 +10,24 @@ import no.nav.mulighetsrommet.api.amo.models.InnholdElement
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
+import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import java.util.UUID
+import kotlin.collections.ifEmpty
 
 class OpplaringKategoriseringQueries(private val session: Session) {
-    fun getKurstyper(inkluderInaktive: Boolean = false): Set<Kurstype> {
+    fun getKurstyper(filter: Set<Kurstype.Kode> = emptySet()): Set<Kurstype> {
         @Language("PostgreSQL")
         val query = """
             select id, kode, navn, aktiv
             from opplaring_kategorisering_kurstype
-            where (:alle::bool = true or aktiv = true)
+            where (:filter::text[] is null or kode = any(:filter))
             order by navn
         """.trimIndent()
-        val params = mapOf("alle" to inkluderInaktive)
+        val params = mapOf(
+            "filter" to filter.ifEmpty { null }?.let { koder -> session.createArrayOfValue(koder) { it.name } },
+        )
 
         val kurstyper = session.list(queryOf(query, params)) { it.toKurstype() }
         return kurstyper.toSet()
@@ -64,7 +68,7 @@ class OpplaringKategoriseringQueries(private val session: Session) {
         return innholdElementer.toSet()
     }
 
-    fun getOpplaringKategorisering(kategoriseringId: UUID): OpplaringKategorisering? {
+    fun get(kategoriseringId: UUID): OpplaringKategorisering? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -80,7 +84,6 @@ fun Row.toKurstype() = Kurstype(
     id = uuid("id"),
     kode = string("kode").let { Kurstype.Kode.valueOf(it) },
     navn = string("navn"),
-    aktiv = boolean("aktiv"),
 )
 
 fun Row.toForerkortKlasse() = ForerkortKlasse(
@@ -101,16 +104,18 @@ fun Row.toInnholdElement() = InnholdElement(
     navn = string("navn"),
 )
 
-fun Row.toOpplaringKategorisering(): OpplaringKategorisering {
-    val kurstype = stringOrNull("kurstype")?.let { JsonIgnoreUnknownKeys.decodeFromString<Kurstype>(it) }
-    val bransje = stringOrNull("bransje")?.let { JsonIgnoreUnknownKeys.decodeFromString<Bransje>(it) }
-    return OpplaringKategorisering(
-        kurstype = kurstype,
-        bransje = bransje,
-        forerkort = string("forerkort").let { JsonIgnoreUnknownKeys.decodeFromString<List<ForerkortKlasse>>(it) }.toSet(),
-        sertifiseringer = string("sertifiseringer").let { JsonIgnoreUnknownKeys.decodeFromString<List<Sertifisering>>(it) }.toSet(),
-        innholdElementer = string("innhold_elementer").let { JsonIgnoreUnknownKeys.decodeFromString<List<InnholdElement>>(it) }.toSet(),
-        norskprove = boolean("norskprove"),
-        utdanningslop = stringOrNull("utdanningslop")?.let { JsonIgnoreUnknownKeys.decodeFromString<UtdanningslopDto>(it) },
-    )
-}
+fun Row.toOpplaringKategorisering(): OpplaringKategorisering = OpplaringKategorisering(
+    kurstype = stringOrNull("kurstype")?.let { JsonIgnoreUnknownKeys.decodeFromString<Kurstype>(it) },
+    bransje = stringOrNull("bransje")?.let { JsonIgnoreUnknownKeys.decodeFromString<Bransje>(it) },
+    forerkort = string("forerkort").let { JsonIgnoreUnknownKeys.decodeFromString<List<ForerkortKlasse>>(it) }
+        .toSet(),
+    sertifiseringer = string("sertifiseringer").let { JsonIgnoreUnknownKeys.decodeFromString<List<Sertifisering>>(it) }
+        .toSet(),
+    innholdElementer = string("innhold_elementer").let {
+        JsonIgnoreUnknownKeys.decodeFromString<List<InnholdElement>>(
+            it,
+        )
+    }.toSet(),
+    norskprove = boolean("norskprove"),
+    utdanningslop = stringOrNull("utdanningslop")?.let { JsonIgnoreUnknownKeys.decodeFromString<UtdanningslopDto>(it) },
+)

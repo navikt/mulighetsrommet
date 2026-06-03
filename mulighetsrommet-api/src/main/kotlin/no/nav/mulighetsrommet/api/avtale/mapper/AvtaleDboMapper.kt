@@ -45,7 +45,6 @@ object AvtaleDboMapper {
             status = avtale.status.type,
             opplaringKategorisering = avtale.opplaringKategorisering?.toDbo(),
             opsjonsmodell = avtale.opsjonsmodell,
-            utdanningslop = avtale.utdanningslop?.toDbo(),
             administratorer = avtale.administratorer.map { it.navIdent },
         ),
         personvernDbo = PersonvernDbo(
@@ -126,7 +125,6 @@ fun DetaljerRequest.toDbo(
     administratorer = administratorer,
     opplaringKategorisering = kategorisering,
     opsjonsmodell = opsjonsmodell,
-    utdanningslop = utdanningslop,
 )
 
 fun PersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(

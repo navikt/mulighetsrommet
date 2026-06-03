@@ -385,11 +385,12 @@ class GjennomforingEnkeltplassService(
     }
 
     private fun QueryContext.upsertKategorisering(
-        id: UUID,
+        gjennomforingId: UUID,
         tiltakskode: Tiltakskode,
         kategorisering: OpplaringKategoriseringRequest?,
     ) {
-        val kurstyper = queries.opplaringKategorisering.getKurstyper(true)
+        val kurstyper = queries.opplaringKategorisering.getKurstyper()
+
         val opplaringKategoriseringDbo = when (tiltakskode) {
             Tiltakskode.ARBEIDSRETTET_REHABILITERING,
             Tiltakskode.AVKLARING,
@@ -399,9 +400,6 @@ class GjennomforingEnkeltplassService(
             Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
             Tiltakskode.TILPASSET_JOBBSTOTTE,
-            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING, // Ikke i bruk hos komet
-            Tiltakskode.HOYERE_UTDANNING,
-            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
             Tiltakskode.INDIVIDUELL_JOBBSTOTTE,
             Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG,
             Tiltakskode.ARBEID_MED_STOTTE,
@@ -413,6 +411,10 @@ class GjennomforingEnkeltplassService(
             Tiltakskode.SOMMERJOBB,
             Tiltakskode.VTAO,
             Tiltakskode.FIREARIG_LONNSTILSUDD,
+            // Ikke i bruk
+            Tiltakskode.HOYERE_UTDANNING,
+            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
             -> null
 
             Tiltakskode.STUDIESPESIALISERING -> OpplaringKategoriseringDbo(kurstypeId = kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }?.id)
@@ -439,23 +441,21 @@ class GjennomforingEnkeltplassService(
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
             ->
-                null // Håndteres via utdanning
+                OpplaringKategoriseringDbo(
+                    utdanningslop = kategorisering?.utdanningsprogramId?.let { programId ->
+                        UtdanningslopDbo(
+                            utdanningsprogram = programId,
+                            utdanninger = kategorisering.larefag?.toSet() ?: emptySet(),
+                        )
+                    },
+                )
         }
         with(session) {
             AmoKategoriseringQueries.upsert(
-                AmoKategoriseringQueries.Relation.GJENNOMFORING,
-                id,
+                gjennomforingId,
                 opplaringKategoriseringDbo,
             )
         }
-        // TODO: forene amo og utdanning som opplaringkategorisering
-        val utdanningDbo = kategorisering?.utdanningsprogramId?.let { programId ->
-            UtdanningslopDbo(
-                utdanningsprogram = programId,
-                utdanninger = kategorisering.larefag?.toSet() ?: emptySet(),
-            )
-        }
-        queries.gjennomforing.setUtdanningslop(id, utdanningDbo)
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingEnkeltplass) {

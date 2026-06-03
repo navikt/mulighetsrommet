@@ -103,6 +103,13 @@ object TiltakstypeFixtures {
         arenaKode = "ENKELAMO",
     )
 
+    val EnkelFagOgYrke = TiltakstypeDbo(
+        id = UUID.randomUUID(),
+        navn = "Fag- og yrkesopplæring eller fagskole (enkeltplass uten rammeavtale)",
+        tiltakskode = Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+        arenaKode = "ENKFAGYRKE",
+    )
+
     val IPS = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "IPS",

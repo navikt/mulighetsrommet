@@ -88,9 +88,8 @@ class GjennomforingDetaljerService(
                     }
                     DeltakerDto.from(it, personalia)
                 }
-                val opplaringKategorisering = queries.opplaringKategorisering.getOpplaringKategorisering(gjennomforing.id)
-                val utdanningslop = queries.gjennomforing.getUtdanningslop(gjennomforing.id)
-                GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerDto, opplaringKategorisering, utdanningslop)
+                val opplaringKategorisering = queries.opplaringKategorisering.get(gjennomforing.id)
+                GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerDto, opplaringKategorisering)
             }
         }
     }

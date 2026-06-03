@@ -626,10 +626,10 @@ object AvtaleValidator {
         val forerkortStrings = this.forerkort?.map { it.toString() }
         val innholdElementerStrings = this.innholdElementer?.map { it.toString() }
         return OpplaringKategoriseringDbo(
-            kurstypeId = ctx.kurstyper.find { it.kode.toString() == this.kurstype.toString() }?.id,
-            bransjeId = ctx.bransjer.find { it.kode.toString() == this.bransje.toString() }?.id,
+            kurstypeId = ctx.kurstyper.find { it.kode.name == this.kurstype.toString() }?.id,
+            bransjeId = ctx.bransjer.find { it.kode.name == this.bransje.toString() }?.id,
             forerkort = ctx.forerkort.mapNotNull { forerkort ->
-                if (forerkortStrings?.contains(forerkort.kode.toString()) ?: false) {
+                if (forerkortStrings?.contains(forerkort.kode.name) ?: false) {
                     forerkort.id
                 } else {
                     null

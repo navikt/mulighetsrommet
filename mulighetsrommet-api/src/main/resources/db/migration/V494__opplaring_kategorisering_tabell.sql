@@ -75,9 +75,3 @@ create table opplaring_kategorisering_utdanning
     utdanning_id                uuid not null references utdanning (id),
     primary key (opplaring_kategorisering_id, utdanning_id)
 );
-
-alter table gjennomforing
-    add column opplaring_kategorisering_id uuid references opplaring_kategorisering (id) on delete set null;
-
-alter table avtale
-    add column opplaring_kategorisering_id uuid references opplaring_kategorisering (id) on delete set null;

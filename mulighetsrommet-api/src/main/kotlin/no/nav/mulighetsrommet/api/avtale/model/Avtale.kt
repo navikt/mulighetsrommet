@@ -41,7 +41,6 @@ data class Avtale(
     val opplaringKategorisering: OpplaringKategorisering?,
     val opsjonsmodell: Opsjonsmodell,
     val opsjonerRegistrert: List<OpsjonLoggDto>,
-    val utdanningslop: UtdanningslopDto?,
     val prismodeller: List<Prismodell>,
 ) {
 

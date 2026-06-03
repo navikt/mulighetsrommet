@@ -414,13 +414,13 @@ object GjennomforingValidator {
                 GjennomforingDetaljerRequest::utdanningslop,
             )
         }
-        validate(utdanningslop.utdanningsprogram == avtale.utdanningslop?.utdanningsprogram?.id) {
+        validate(utdanningslop.utdanningsprogram == avtale.opplaringKategorisering?.utdanningslop?.utdanningsprogram?.id) {
             FieldError.of(
-                "Utdanningsprogrammet må være det samme som for avtalen: ${avtale.utdanningslop?.utdanningsprogram?.navn}",
+                "Utdanningsprogrammet må være det samme som for avtalen: ${avtale.opplaringKategorisering?.utdanningslop?.utdanningsprogram?.navn}",
                 GjennomforingDetaljerRequest::utdanningslop,
             )
         }
-        val avtalensUtdanninger = avtale.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
+        val avtalensUtdanninger = avtale.opplaringKategorisering?.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
         validate(avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
             FieldError.of(
                 "Lærefag må være valgt fra avtalens lærefag, minst ett av lærefagene mangler i avtalen.",

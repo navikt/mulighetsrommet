@@ -10,7 +10,6 @@ data class Kurstype(
     val id: UUID,
     val kode: Kode,
     val navn: String,
-    val aktiv: Boolean,
 ) {
     enum class Kode {
         NORSKOPPLAERING,
