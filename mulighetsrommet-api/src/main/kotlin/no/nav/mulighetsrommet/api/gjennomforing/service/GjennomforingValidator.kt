@@ -3,10 +3,10 @@ package no.nav.mulighetsrommet.api.gjennomforing.service
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.models.Bransje
 import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.InnholdElement
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
@@ -62,6 +62,7 @@ object GjennomforingValidator {
             val kurstyper: Set<Kurstype>,
             val bransjer: Set<Bransje>,
             val forerkort: Set<ForerkortKlasse>,
+            val innholdElementer: Set<InnholdElement>,
             val utdanninger: List<UtdanningsprogramMedUtdanninger>,
         )
 
@@ -538,7 +539,6 @@ object GjennomforingValidator {
     private fun AmoKategoriseringRequest.toOpplaringKategoriseringDbo(): OpplaringKategoriseringDbo {
         val forerkortStrings = this.forerkort?.map { it.toString() }
         val innholdElementerStrings = this.innholdElementer?.map { it.toString() }
-        val kategoriseringElementer = OpplaringKategorisering.InnholdElement.entries.toSet()
         return OpplaringKategoriseringDbo(
             kurstypeId = ctx.kurstyper.find { it.kode.toString() == this.kurstype.toString() }?.id,
             bransjeId = ctx.bransjer.find { it.kode.toString() == this.bransje.toString() }?.id,
@@ -549,9 +549,9 @@ object GjennomforingValidator {
                     null
                 }
             }.toSet(),
-            innholdElementer = kategoriseringElementer.mapNotNull { innholdElement ->
-                if (innholdElementerStrings?.contains(innholdElement.toString()) ?: false) {
-                    innholdElement
+            innholdElementer = ctx.innholdElementer.mapNotNull { innholdElement ->
+                if (innholdElementerStrings?.contains(innholdElement.kode.name) ?: false) {
+                    innholdElement.id
                 } else {
                     null
                 }

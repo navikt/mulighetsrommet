@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.amo.models.InnholdElement
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx.Tiltakstype
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
 import no.nav.mulighetsrommet.api.fixtures.ForerkortFixtures
+import no.nav.mulighetsrommet.api.fixtures.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
@@ -91,6 +92,7 @@ class AvtaleValidatorTest : FunSpec({
         kurstyper = KurstypeFixtures.all(),
         bransjer = BransjeFixtures.all(),
         forerkort = ForerkortFixtures.all(),
+        innholdElementer = InnholdElementFixtures.all(),
         utdanninger = emptyList(),
     )
     val ctx = Ctx(
@@ -1136,7 +1138,7 @@ class AvtaleValidatorTest : FunSpec({
             ).shouldBeRight().detaljerDbo.opplaringKategorisering.shouldNotBeNull {
                 this.kurstypeId shouldBe KurstypeFixtures.grunnleggendeFerdigheter.id
                 this.innholdElementer shouldContainExactly setOf(
-                    OpplaringKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
+                    InnholdElement.Kode.GRUNNLEGGENDE_FERDIGHETER,
                 )
             }
 

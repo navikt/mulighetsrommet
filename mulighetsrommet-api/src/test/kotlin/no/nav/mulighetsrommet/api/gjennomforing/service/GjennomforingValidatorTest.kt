@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
 import no.nav.mulighetsrommet.api.fixtures.ForerkortFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
@@ -116,6 +117,7 @@ class GjennomforingValidatorTest : FunSpec({
         kurstyper = KurstypeFixtures.all(),
         bransjer = BransjeFixtures.all(),
         forerkort = ForerkortFixtures.all(),
+        innholdElementer = InnholdElementFixtures.all(),
         utdanninger = emptyList(),
     )
 

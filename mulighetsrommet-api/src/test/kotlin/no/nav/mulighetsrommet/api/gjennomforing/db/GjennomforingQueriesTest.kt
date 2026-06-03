@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.ArenaEnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
+import no.nav.mulighetsrommet.api.fixtures.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -417,8 +418,8 @@ class GjennomforingQueriesTest : FunSpec({
                 kurstype = KurstypeFixtures.norskopplaering,
                 norskprove = true,
                 innholdElementer = setOf(
-                    OpplaringKategorisering.InnholdElement.ARBEIDSMARKEDSKUNNSKAP,
-                    OpplaringKategorisering.InnholdElement.PRAKSIS,
+                    InnholdElementFixtures.arbeidsmarkedskunnskap,
+                    InnholdElementFixtures.praksis,
                 ),
             )
 

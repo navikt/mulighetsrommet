@@ -15,7 +15,8 @@ data class OpplaringKategoriseringRequest(
     val sertifiseringer: Set<Sertifisering>? = null,
     @Serializable(with = UUIDListSerializer::class)
     val forerkort: List<UUID>? = null,
-    val innholdElementer: Set<OpplaringKategorisering.InnholdElement>? = null,
+    @Serializable(with = UUIDListSerializer::class)
+    val innholdElementer: List<UUID>? = null,
     val norskprove: Boolean? = null,
     @Serializable(with = UUIDSerializer::class)
     val utdanningsprogramId: UUID? = null,

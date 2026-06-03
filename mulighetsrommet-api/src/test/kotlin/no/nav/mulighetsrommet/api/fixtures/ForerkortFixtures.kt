@@ -125,7 +125,7 @@ object ForerkortFixtures {
 
         @Language("PostgreSQL")
         val query = """
-        insert into public.opplaring_kategorisering_forerkort (id, kode, navn)
+        insert into public.opplaring_forerkort (id, kode, navn)
             values $inserts
        on conflict (id) do nothing;
         """

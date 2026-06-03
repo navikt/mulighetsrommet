@@ -17,18 +17,11 @@ object AmoKategoriseringQueries {
         id: UUID,
         kategorisering: OpplaringKategoriseringDbo?,
     ) {
-        if (kategorisering == null) {
+        if (kategorisering == null) { // Platform declaration clash
             delete(id)
-        } else {
-            upsert(id, kategorisering)
+            return
         }
-    }
 
-    context(session: Session)
-    private fun upsert(
-        kategoriseringId: UUID,
-        kategorisering: OpplaringKategoriseringDbo,
-    ) {
         @Language("PostgreSQL")
         val query = """
             insert into opplaring_kategorisering (
@@ -52,7 +45,7 @@ object AmoKategoriseringQueries {
         """.trimIndent()
 
         val params = mapOf(
-            "id" to kategoriseringId,
+            "id" to id,
             "kurstype_id" to kategorisering.kurstypeId,
             "bransje_id" to kategorisering.bransjeId,
             "norskprove" to kategorisering.norskprove,
@@ -61,10 +54,10 @@ object AmoKategoriseringQueries {
 
         session.execute(queryOf(query, params))
 
-        updateSertifiseringer(kategoriseringId, kategorisering.sertifiseringer)
-        updateForerkort(kategoriseringId, kategorisering.forerkort)
-        upsertUtdanning(kategoriseringId, kategorisering.utdanningslop)
-        upsertInnholdsElementer(kategoriseringId, kategorisering.innholdElementer)
+        updateSertifiseringer(id, kategorisering.sertifiseringer)
+        updateForerkort(id, kategorisering.forerkort)
+        upsertUtdanning(id, kategorisering.utdanningslop)
+        upsertInnholdsElementer(id, kategorisering.innholdElementer)
     }
 
     context(session: Session)

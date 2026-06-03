@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeAmo1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeFagYrke1
+import no.nav.mulighetsrommet.api.fixtures.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -105,21 +106,21 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             val fov = OpplaringKategorisering(
                 kurstype = KurstypeFixtures.fov,
                 innholdElementer = setOf(
-                    OpplaringKategorisering.InnholdElement.BRANSJERETTET_OPPLARING,
+                    InnholdElementFixtures.bransjerettetOpplaring,
                 ),
             )
             val grunnleggende =
                 OpplaringKategorisering(
                     kurstype = KurstypeFixtures.grunnleggendeFerdigheter,
                     innholdElementer = setOf(
-                        OpplaringKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
+                        InnholdElementFixtures.grunnleggendeFerdigheter,
                     ),
                 )
             val norskopplaering =
                 OpplaringKategorisering(
                     kurstype = KurstypeFixtures.norskopplaering,
                     innholdElementer = setOf(
-                        OpplaringKategorisering.InnholdElement.NORSKOPPLAERING,
+                        InnholdElementFixtures.norskopplaring,
                     ),
                 )
             val bransje =
@@ -127,7 +128,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
                     bransje = BransjeFixtures.kontorarbeid,
                     forerkort = setOf(ForerkortFixtures.A),
-                    innholdElementer = setOf(OpplaringKategorisering.InnholdElement.PRAKSIS),
+                    innholdElementer = setOf(InnholdElementFixtures.praksis),
                     sertifiseringer = setOf(
                         Sertifisering(konseptId = 1, label = "Jobb"),
                     ),

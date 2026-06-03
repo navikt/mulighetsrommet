@@ -458,6 +458,7 @@ class AvtaleService(
             kurstyper = queries.opplaringKategorisering.getKurstyper(true),
             bransjer = queries.opplaringKategorisering.getBransjer(),
             forerkort = queries.opplaringKategorisering.getForerkortKlasser(),
+            innholdElementer = queries.opplaringKategorisering.getInnholdElementer(),
             utdanninger = queries.utdanning.getUtdanningsprogrammer(),
         )
 

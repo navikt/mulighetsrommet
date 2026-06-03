@@ -4,10 +4,10 @@ import arrow.core.Either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.models.Bransje
 import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.InnholdElement
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
@@ -90,6 +90,7 @@ object AvtaleValidator {
             val kurstyper: Set<Kurstype>,
             val bransjer: Set<Bransje>,
             val forerkort: Set<ForerkortKlasse>,
+            val innholdElementer: Set<InnholdElement>,
             val utdanninger: List<UtdanningsprogramMedUtdanninger>,
         )
 
@@ -624,7 +625,6 @@ object AvtaleValidator {
     private fun AmoKategoriseringRequest.toOpplaringKategoriseringDbo(): OpplaringKategoriseringDbo {
         val forerkortStrings = this.forerkort?.map { it.toString() }
         val innholdElementerStrings = this.innholdElementer?.map { it.toString() }
-        val kategoriseringElementer = OpplaringKategorisering.InnholdElement.entries.toSet()
         return OpplaringKategoriseringDbo(
             kurstypeId = ctx.kurstyper.find { it.kode.toString() == this.kurstype.toString() }?.id,
             bransjeId = ctx.bransjer.find { it.kode.toString() == this.bransje.toString() }?.id,
@@ -635,9 +635,9 @@ object AvtaleValidator {
                     null
                 }
             }.toSet(),
-            innholdElementer = kategoriseringElementer.mapNotNull { innholdElement ->
-                if (innholdElementerStrings?.contains(innholdElement.toString()) ?: false) {
-                    innholdElement
+            innholdElementer = ctx.innholdElementer.mapNotNull { innholdElement ->
+                if (innholdElementerStrings?.contains(innholdElement.kode.name) ?: false) {
+                    innholdElement.id
                 } else {
                     null
                 }
