@@ -1,16 +1,16 @@
-name: CI/CD (arrangor-flate)
+name: CI/CD (arrangor-utbetalinger-flate)
 
 on:
   push:
     paths:
-      - .github/workflows/cicd-arrangor-flate.yaml
+      - .github/workflows/cicd-arrangor-utbetalinger-flate.yaml
       - .github/workflows/actions/*
       - package.json
       - pnpm-lock.yaml
       - turbo.json
       - frontend/frontend-common/**
       - frontend/arrangor-utbetalinger-api-client/**
-      - frontend/arrangor-flate/**
+      - frontend/arrangor-utbetalinger-flate/**
   workflow_dispatch:
     inputs:
       environment:
@@ -42,7 +42,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: frontend/arrangor-flate
+        working-directory: frontend/arrangor-utbetalinger-flate
     outputs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
@@ -63,9 +63,9 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Generate React Router types
-        run: npx turbo run typegen --filter=@mr/arrangor-flate
+        run: npx turbo run typegen --filter=@arrangor-utbetalinger/flate
       - name: Test
-        run: npx turbo run lint typecheck test playwright --filter=@mr/arrangor-flate
+        run: npx turbo run lint typecheck test playwright --filter=@arrangor-utbetalinger/flate
 
   deploy-til-demo:
     name: Deploy demo
@@ -79,18 +79,18 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Bygg applikasjon
-        run: npx turbo run pack:demo --filter=@mr/arrangor-flate
+        run: npx turbo run pack:demo --filter=@arrangor-utbetalinger/flate
       - name: Push docker image to GAR
         uses: nais/docker-build-push@751a312f0803eb96a05a41fadf51be19b7be362c # v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
-          docker_context: ./frontend/arrangor-flate
+          docker_context: ./frontend/arrangor-utbetalinger-flate
           image_suffix: arrangor-flate-demo
       - uses: nais/deploy/actions/deploy@a7f8690f9b367fcbf5348a0a1e21d44f1aae50eb # v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: frontend/arrangor-flate/.nais/nais-demo.yaml
+          RESOURCE: frontend/arrangor-utbetalinger-flate/.nais/nais-demo.yaml
           VAR: image=${{ steps.docker-build-push.outputs.image }}
 
   deploy-til-dev:
@@ -105,18 +105,18 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Bygg applikasjon
-        run: npx turbo run pack --filter=@mr/arrangor-flate
+        run: npx turbo run pack --filter=@arrangor-utbetalinger/flate
       - name: Push docker image to GAR
         uses: nais/docker-build-push@751a312f0803eb96a05a41fadf51be19b7be362c # v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
-          docker_context: ./frontend/arrangor-flate
+          docker_context: ./frontend/arrangor-utbetalinger-flate
           image_suffix: arrangor-flate
       - uses: nais/deploy/actions/deploy@a7f8690f9b367fcbf5348a0a1e21d44f1aae50eb # v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: frontend/arrangor-flate/.nais/nais-dev.yaml
+          RESOURCE: frontend/arrangor-utbetalinger-flate/.nais/nais-dev.yaml
           VAR: image=${{ steps.docker-build-push.outputs.image }}
 
   deploy-til-prod:
@@ -131,16 +131,16 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
       - name: Bygg applikasjon
-        run: npx turbo run pack --filter=@mr/arrangor-flate
+        run: npx turbo run pack --filter=@arrangor-utbetalinger/flate
       - name: Push docker image to GAR
         uses: nais/docker-build-push@751a312f0803eb96a05a41fadf51be19b7be362c # v0
         id: docker-build-push
         with:
           team: team-mulighetsrommet
-          docker_context: ./frontend/arrangor-flate
+          docker_context: ./frontend/arrangor-utbetalinger-flate
           image_suffix: arrangor-flate
       - uses: nais/deploy/actions/deploy@a7f8690f9b367fcbf5348a0a1e21d44f1aae50eb # v2
         env:
           CLUSTER: prod-gcp
-          RESOURCE: frontend/arrangor-flate/.nais/nais-prod.yaml
+          RESOURCE: frontend/arrangor-utbetalinger-flate/.nais/nais-prod.yaml
           VAR: image=${{ steps.docker-build-push.outputs.image }}

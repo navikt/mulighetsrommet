@@ -9,8 +9,8 @@ import {
   Heading,
   HelpText,
   HStack,
-  InlineMessage,
   InfoCard,
+  InlineMessage,
   Modal,
   Spacer,
   Textarea,
@@ -33,7 +33,7 @@ import { getEnvironment } from "~/services/environment";
 import { tekster } from "~/tekster";
 import { deltakerOversiktLenke, pathTo, useIdFromUrl } from "~/utils/navigation";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
-import { FeilmeldingMedVarselTrekant } from "../../../mr-admin-flate/src/components/skjema/FeilmeldingMedVarseltrekant";
+import { FeilmeldingMedVarselTrekant } from "@mr/frontend-common/components/varsel/FeilmeldingMedVarseltrekant";
 import { DataDetails } from "@mr/frontend-common";
 import { Laster } from "~/components/common/Laster";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";

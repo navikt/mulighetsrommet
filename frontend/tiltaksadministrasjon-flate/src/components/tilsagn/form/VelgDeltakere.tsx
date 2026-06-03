@@ -6,7 +6,7 @@ import { useState } from "react";
 import { VelgDeltakereModal } from "./VelgDeltakereModal";
 import { PlusIcon } from "@navikt/aksel-icons";
 import { TilsagnDeltakereTable } from "./TilsagnDeltakereTable";
-import { FeilmeldingMedVarselTrekant } from "@/components/skjema/FeilmeldingMedVarseltrekant";
+import { FeilmeldingMedVarselTrekant } from "@mr/frontend-common/components/varsel/FeilmeldingMedVarseltrekant";
 
 interface Props {
   gjennomforingId: string;

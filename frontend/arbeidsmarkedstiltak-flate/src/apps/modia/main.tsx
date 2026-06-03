@@ -10,7 +10,7 @@ if (import.meta.env.VITE_FARO_URL) {
     url: import.meta.env.VITE_FARO_URL,
     instrumentations: [...getWebInstrumentations({ captureConsole: true })],
     app: {
-      name: "mulighetsrommet-veileder-flate",
+      name: "arbeidsmarkedstiltak-flate",
     },
     isolate: true,
   });

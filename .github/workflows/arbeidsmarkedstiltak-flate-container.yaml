@@ -1,10 +1,10 @@
-name: POAO-frontend (mr-veileder-flate)
+name: POAO-frontend (arbeidsmarkedstiltak-flate)
 
 on:
   push:
     paths:
-      - .github/workflows/mr-veileder-flate-container.yaml
-      - frontend/mulighetsrommet-veileder-flate/.nais/**
+      - .github/workflows/arbeidsmarkedstiltak-flate-container.yaml
+      - frontend/arbeidsmarkedstiltak-flate/.nais/**
   workflow_dispatch:
     inputs:
       environment:
@@ -30,7 +30,7 @@ jobs:
       - name: Lint
         uses: ./.github/actions/lint-yaml
         with:
-          path: frontend/mulighetsrommet-veileder-flate/.nais
+          path: frontend/arbeidsmarkedstiltak-flate/.nais
 
   deploy-nav-dev:
     runs-on: ubuntu-latest
@@ -44,7 +44,7 @@ jobs:
         uses: nais/deploy/actions/deploy@a7f8690f9b367fcbf5348a0a1e21d44f1aae50eb # v2
         env:
           CLUSTER: dev-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais-dev.yaml
+          RESOURCE: frontend/arbeidsmarkedstiltak-flate/.nais/nais-dev.yaml
 
   deploy-nav-prod:
     runs-on: ubuntu-latest
@@ -58,4 +58,4 @@ jobs:
         uses: nais/deploy/actions/deploy@a7f8690f9b367fcbf5348a0a1e21d44f1aae50eb # v2
         env:
           CLUSTER: prod-gcp
-          RESOURCE: frontend/mulighetsrommet-veileder-flate/.nais/nais-prod.yaml
+          RESOURCE: frontend/arbeidsmarkedstiltak-flate/.nais/nais-prod.yaml
