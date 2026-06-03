@@ -42,6 +42,7 @@ object ArrangorflateUtbetalingValidator {
             PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+            PrismodellType.TILSKUDD_TIL_OPPLAERING,
             -> invalidGjennomforingOpprettKrav(prismodell)
         }
     }

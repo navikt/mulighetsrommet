@@ -28,7 +28,9 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.AvtaltPrisPerUkesverk -> prismodell.satser
         is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.satser
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.satser
+        is Prismodell.TilskuddTilOpplaering -> null
     }
+
     val prisbetingelser = when (prismodell) {
         is Prismodell.AnnenAvtaltPris -> prismodell.prisbetingelser
         is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
@@ -37,6 +39,7 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
         is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.prisbetingelser
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.prisbetingelser
+        is Prismodell.TilskuddTilOpplaering -> prismodell.tilleggsopplysninger
     }
 
     val tilsagnPerDeltaker = when (prismodell) {
@@ -48,6 +51,7 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.AvtaltPrisPerUkesverk,
         is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
         is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+        is Prismodell.TilskuddTilOpplaering,
         -> null
     }
 

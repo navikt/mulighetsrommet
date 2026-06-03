@@ -87,6 +87,7 @@ fun Prismodell.prisbetingelser(): String? = when (this) {
     is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
     is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
     is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> null
+    is Prismodell.TilskuddTilOpplaering -> tilleggsopplysninger
 }
 
 fun Prismodell.satser(): List<AvtaltSats> = when (this) {
@@ -97,6 +98,7 @@ fun Prismodell.satser(): List<AvtaltSats> = when (this) {
     is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> satser
     is Prismodell.ForhandsgodkjentPrisPerManedsverk -> satser
     is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> satser
+    is Prismodell.TilskuddTilOpplaering -> listOf()
 }
 
 fun ArrangorDto.toDbo(kontaktpersoner: List<UUID>?): ArrangorDbo = ArrangorDbo(

@@ -47,6 +47,13 @@ export function PrismodellDetaljer({ prismodeller }: Props) {
             <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
           </VStack>
         );
+      case PrismodellType.TILSKUDD_TIL_OPPLAERING:
+        return (
+          <VStack key={prismodell.navn} gap="space-16">
+            <PrismodellTypenavn type={prismodell.navn} />
+            <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
+          </VStack>
+        );
     }
   });
   return (

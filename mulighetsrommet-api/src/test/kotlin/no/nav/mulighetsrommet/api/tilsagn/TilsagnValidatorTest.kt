@@ -26,6 +26,7 @@ class TilsagnValidatorTest : FunSpec({
             valuta = Valuta.NOK,
             prisbetingelser = null,
             tilsagnPerDeltaker = false,
+            totalbelop = null,
         )
 
         val forhandsgodkjent = Prismodell.from(
@@ -250,6 +251,7 @@ class TilsagnValidatorTest : FunSpec({
                     valuta = Valuta.NOK,
                     prisbetingelser = null,
                     tilsagnPerDeltaker = true,
+                    totalbelop = null,
                 ),
             ) shouldBeLeft listOf(
                 FieldError(

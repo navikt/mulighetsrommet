@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
 
@@ -17,6 +18,8 @@ object PrismodellFixtures {
         prisbetingelser: String? = null,
         satser: List<AvtaltSats> = emptyList(),
         tilsagnPerDeltaker: Boolean? = false,
+        totalbelop: UInt? = null,
+        tilskudd: Map<Tilskuddstype, UInt>? = null,
     ): PrismodellDbo = PrismodellDbo(
         id = id,
         systemId = null,
@@ -25,6 +28,8 @@ object PrismodellFixtures {
         prisbetingelser = prisbetingelser,
         satser = satser,
         tilsagnPerDeltaker = tilsagnPerDeltaker,
+        totalbelop = totalbelop,
+        tilskudd = tilskudd,
     )
 
     val ForhandsgodkjentAft = PrismodellDbo(

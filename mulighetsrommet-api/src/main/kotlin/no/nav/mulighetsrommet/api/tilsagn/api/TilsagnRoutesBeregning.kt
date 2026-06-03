@@ -284,6 +284,8 @@ fun resolveTilsagnDefaults(
         is Prismodell.AvtaltPrisPerHeleUkesverk,
         is Prismodell.AvtaltPrisPerManedsverk,
         -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
+
+        is Prismodell.TilskuddTilOpplaering -> error("Tilskudd til opplæring støtter ikke tilsagn")
     }
 
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
@@ -406,6 +408,7 @@ private fun resolveBeregningTypeAndPrisbetingelser(
     is Prismodell.AvtaltPrisPerHeleUkesverk -> TilsagnBeregningType.PRIS_PER_HELE_UKESVERK to prismodell.prisbetingelser
     is Prismodell.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
     is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
+    is Prismodell.TilskuddTilOpplaering -> error("Tilskudd til opplæring støtter ikke tilsagn")
 }
 
 @Serializable

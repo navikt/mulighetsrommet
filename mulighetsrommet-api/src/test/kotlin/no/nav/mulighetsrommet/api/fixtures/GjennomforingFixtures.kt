@@ -233,6 +233,7 @@ object GjennomforingFixtures {
             valuta = Valuta.NOK,
             tilsagnPerDeltaker = false,
             prisbetingelser = null,
+            totalbelop = null,
         ),
         opprettetTidspunkt: Instant = Instant.now(),
     ): GjennomforingAvtale {

@@ -3,3 +3,9 @@ alter table prismodell
 
 alter table prismodell
     alter tilsagn_per_deltaker drop not null;
+
+alter type prismodell_type add value if not exists 'TILSKUDD_TIL_OPPLAERING';
+
+alter table prismodell
+    add column totalbelop integer,
+    add column tilskudd   jsonb;

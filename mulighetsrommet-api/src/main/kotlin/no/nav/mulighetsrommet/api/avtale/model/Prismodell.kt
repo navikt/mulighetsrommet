@@ -5,6 +5,7 @@ import kotlinx.serialization.Transient
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
 
@@ -21,6 +22,7 @@ sealed interface Prismodell {
         override val valuta: Valuta,
         val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
+        val totalbelop: UInt?,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.ANNEN_AVTALT_PRIS
@@ -96,6 +98,18 @@ sealed interface Prismodell {
         override val type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
     }
 
+    @Serializable
+    data class TilskuddTilOpplaering(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        override val valuta: Valuta,
+        val tilskudd: Map<Tilskuddstype, UInt>,
+        val tilleggsopplysninger: String?,
+    ) : Prismodell {
+        @Transient
+        override val type = PrismodellType.TILSKUDD_TIL_OPPLAERING
+    }
+
     fun findAvtaltSats(dato: LocalDate): AvtaltSats? {
         return satser()
             .sortedBy { it.gjelderFra }
@@ -110,6 +124,8 @@ sealed interface Prismodell {
             prisbetingelser: String?,
             satser: List<AvtaltSats>?,
             tilsagnPerDeltaker: Boolean?,
+            totalbelop: UInt? = null,
+            tilskudd: Map<Tilskuddstype, UInt>? = null,
         ): Prismodell {
             return when (type) {
                 PrismodellType.ANNEN_AVTALT_PRIS -> AnnenAvtaltPris(
@@ -117,6 +133,7 @@ sealed interface Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     tilsagnPerDeltaker = requireNotNull(tilsagnPerDeltaker),
+                    totalbelop = totalbelop,
                 )
 
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> ForhandsgodkjentPrisPerManedsverk(
@@ -157,6 +174,13 @@ sealed interface Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     satser = requireNotNull(satser),
+                )
+
+                PrismodellType.TILSKUDD_TIL_OPPLAERING -> TilskuddTilOpplaering(
+                    id = id,
+                    valuta = valuta,
+                    tilleggsopplysninger = prisbetingelser,
+                    tilskudd = requireNotNull(tilskudd),
                 )
             }
         }

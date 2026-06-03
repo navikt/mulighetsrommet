@@ -48,6 +48,10 @@ enum class PrismodellType(val navn: String, val beskrivelse: List<String>) {
                 "Nav gjør ingen forhåndsberegning av beløp. Arrangør ser registrerte deltakere i perioden fra Deltakeroversikten som en del av innsendingen.",
         ),
     ),
+    TILSKUDD_TIL_OPPLAERING(
+        "Tilskudd til opplæring",
+        listOf(),
+    ),
 }
 
 object Prismodeller {
