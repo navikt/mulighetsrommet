@@ -1,13 +1,13 @@
 [versions]
 common-java-modules = "3.2026.04.08_08.37-229807cc181a"
-flyway = "12.4.0"
+flyway = "12.6.2"
 koin-bom = "4.2.1"
 kotest = "6.1.11"
 kotlin = "2.3.21"
-ktor = "3.4.3"
-netty = "4.2.13.Final"
+ktor = "3.5.0"
+netty = "4.2.14.Final"
 logback = "1.5.32"
-metrics = "4.2.38"
+metrics = "4.2.39"
 arrow = "2.2.2.1"
 micrometer = "1.16.5"
 testcontainers = "2.0.5"
@@ -59,15 +59,15 @@ schema-kenerator-swagger = "io.github.smiley4:schema-kenerator-swagger:2.7.2"
 
 assertj-db = "org.assertj:assertj-db:3.0.2"
 
-caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.3"
+caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.4"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:16.7.1"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:16.11.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
-google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.28.3"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.67.0"
+google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.28.4"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.68.0"
 
 hikaricp = "com.zaxxer:HikariCP:7.0.2"
 
@@ -82,7 +82,7 @@ kotest-extensions-testcontainers = { module = "io.kotest:kotest-extensions-testc
 kotest-junit = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 
 kotlinx-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0"
-kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2"
+kotlinx-coroutines-core = "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0"
 
 kotliquery = "com.github.seratch:kotliquery:1.9.1"
 
@@ -142,7 +142,7 @@ netty-transport-native-kqueue = { module = "io.netty:netty-transport-native-kque
 netty-transport-native-unix-common = { module = "io.netty:netty-transport-native-unix-common", version.ref = "netty" }
 netty-transport = { module = "io.netty:netty-transport", version.ref = "netty" }
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.61.0"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.62.0"
 
 postgresql = "org.postgresql:postgresql:42.7.11"
 
@@ -150,9 +150,9 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:7.7.0"
 
-slack-client = "com.slack.api:slack-api-client:1.48.1"
+slack-client = "com.slack.api:slack-api-client:1.49.0"
 
-slf4j = "org.slf4j:slf4j-api:2.0.17"
+slf4j = "org.slf4j:slf4j-api:2.0.18"
 
 apache-poi = "org.apache.poi:poi:5.5.1"
 apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.5.1"
@@ -160,4 +160,4 @@ apache-poi-ooxml = "org.apache.poi:poi-ooxml:5.5.1"
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainers-kafka = { module = "org.testcontainers:testcontainers-kafka", version.ref = "testcontainers" }
 
-unleash = "io.getunleash:unleash-client-java:12.2.1"
+unleash = "io.getunleash:unleash-client-java:12.2.2"
