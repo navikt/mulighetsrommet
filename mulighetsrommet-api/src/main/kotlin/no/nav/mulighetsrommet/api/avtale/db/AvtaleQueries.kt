@@ -229,7 +229,8 @@ class AvtaleQueries(private val session: Session) {
 
     context(session: TransactionalSession)
     private fun upsertOpplaringKategorisering(avtaleId: UUID, kategorisering: OpplaringKategoriseringDbo?) = with(session) {
-        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.AVTALE, avtaleId, kategorisering)
+        // TODO upsert kategorisering id
+        AmoKategoriseringQueries.upsert(avtaleId, kategorisering)
     }
 
     private fun upsertUtdanningslop(avtaleId: UUID, utdanningslop: UtdanningslopDbo?) = withTransaction(session) {

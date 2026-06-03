@@ -349,7 +349,8 @@ class GjennomforingQueries(private val session: Session) {
     }
 
     fun setAmoKategorisering(id: UUID, kategorisering: OpplaringKategoriseringDbo?) = with(session) {
-        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.GJENNOMFORING, id, kategorisering)
+        // TODO: Oppgi ny id eller hent fra gjennomforing, evt bruk samme?
+        AmoKategoriseringQueries.upsert(id, kategorisering)
     }
 
     fun setArenaData(dbo: GjennomforingArenaDataDbo) {
