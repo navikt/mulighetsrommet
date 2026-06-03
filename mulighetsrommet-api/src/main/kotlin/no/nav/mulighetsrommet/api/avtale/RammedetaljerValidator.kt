@@ -62,6 +62,7 @@ object RammedetaljerValidator {
         PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
         PrismodellType.TILSKUDD_TIL_OPPLAERING,
+        PrismodellType.INGEN_KOSTNADER,
         -> false
 
         PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,

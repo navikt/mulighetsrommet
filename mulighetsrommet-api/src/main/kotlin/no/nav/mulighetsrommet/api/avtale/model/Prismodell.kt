@@ -110,6 +110,23 @@ sealed interface Prismodell {
         override val type = PrismodellType.TILSKUDD_TIL_OPPLAERING
     }
 
+    @Serializable
+    data class IngenKostnader(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        override val valuta: Valuta,
+        val aarsak: Aarsak,
+        val tilleggsopplysninger: String?,
+    ) : Prismodell {
+        @Transient
+        override val type = PrismodellType.INGEN_KOSTNADER
+
+        enum class Aarsak {
+            OPPLAERINGEN_ER_KOSTNADSFRI,
+            OPPLAERINGEN_ER_EGENFINANSIERT,
+        }
+    }
+
     fun findAvtaltSats(dato: LocalDate): AvtaltSats? {
         return satser()
             .sortedBy { it.gjelderFra }
@@ -126,6 +143,7 @@ sealed interface Prismodell {
             tilsagnPerDeltaker: Boolean?,
             totalbelop: UInt? = null,
             tilskudd: Map<Tilskuddstype, UInt>? = null,
+            aarsak: String? = null,
         ): Prismodell {
             return when (type) {
                 PrismodellType.ANNEN_AVTALT_PRIS -> AnnenAvtaltPris(
@@ -167,6 +185,13 @@ sealed interface Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     satser = requireNotNull(satser),
+                )
+
+                PrismodellType.INGEN_KOSTNADER -> IngenKostnader(
+                    id = id,
+                    valuta = valuta,
+                    tilleggsopplysninger = prisbetingelser,
+                    aarsak = IngenKostnader.Aarsak.valueOf(requireNotNull(aarsak)),
                 )
 
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> AvtaltPrisPerTimeOppfolgingPerDeltaker(

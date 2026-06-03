@@ -25,7 +25,8 @@ class PrismodellQueries(private val session: Session) {
                                    valuta,
                                    tilsagn_per_deltaker,
                                    totalbelop,
-                                   tilskudd)
+                                   tilskudd,
+                                   aarsak)
             values (:id::uuid,
                     :system_id,
                     :prisbetingelser,
@@ -34,7 +35,8 @@ class PrismodellQueries(private val session: Session) {
                     :valuta::currency,
                     :tilsagn_per_deltaker,
                     :totalbelop,
-                    :tilskudd::jsonb)
+                    :tilskudd::jsonb,
+                    :aarsak)
             on conflict (id) do update set system_id            = excluded.system_id,
                                            prisbetingelser      = excluded.prisbetingelser,
                                            prismodell_type      = excluded.prismodell_type,
@@ -42,7 +44,8 @@ class PrismodellQueries(private val session: Session) {
                                            valuta               = excluded.valuta,
                                            tilsagn_per_deltaker = excluded.tilsagn_per_deltaker,
                                            totalbelop           = excluded.totalbelop,
-                                           tilskudd             = excluded.tilskudd
+                                           tilskudd             = excluded.tilskudd,
+                                           aarsak               = excluded.aarsak
         """.trimIndent()
         val params = mapOf(
             "id" to dbo.id,
@@ -54,6 +57,7 @@ class PrismodellQueries(private val session: Session) {
             "tilsagn_per_deltaker" to dbo.tilsagnPerDeltaker,
             "totalbelop" to dbo.totalbelop?.toInt(),
             "tilskudd" to dbo.tilskudd?.let { Json.encodeToString(it) },
+            "aarsak" to dbo.aarsak,
         )
         session.execute(queryOf(query, params))
     }
@@ -79,7 +83,8 @@ class PrismodellQueries(private val session: Session) {
                    satser as prismodell_satser,
                    tilsagn_per_deltaker as prismodell_tilsagn_per_deltaker,
                    totalbelop as prismodell_totalbelop,
-                   tilskudd as prismodell_tilskudd
+                   tilskudd as prismodell_tilskudd,
+                   aarsak as prismodell_aarsak
             from prismodell
             where id = ?::uuid
         """.trimIndent()
@@ -96,7 +101,8 @@ class PrismodellQueries(private val session: Session) {
                    satser as prismodell_satser,
                    tilsagn_per_deltaker as prismodell_tilsagn_per_deltaker,
                    totalbelop as prismodell_totalbelop,
-                   tilskudd as prismodell_tilskudd
+                   tilskudd as prismodell_tilskudd,
+                   aarsak as prismodell_aarsak
             from prismodell
             where system_id = ?
         """.trimIndent()
@@ -122,5 +128,6 @@ fun Row.toPrismodell(): Prismodell {
     val tilsagnPerDeltaker = anyOrNull("prismodell_tilsagn_per_deltaker") as Boolean?
     val totalbelop = intOrNull("prismodell_totalbelop")?.toUInt()
     val tilskudd = stringOrNull("prismodell_tilskudd")?.let { Json.decodeFromString<Map<Tilskuddstype, UInt>>(it) }
-    return Prismodell.from(type, id, valuta, prisbetingelser, satser, tilsagnPerDeltaker, totalbelop, tilskudd)
+    val aarsak = stringOrNull("prismodell_aarsak")
+    return Prismodell.from(type, id, valuta, prisbetingelser, satser, tilsagnPerDeltaker, totalbelop, tilskudd, aarsak)
 }

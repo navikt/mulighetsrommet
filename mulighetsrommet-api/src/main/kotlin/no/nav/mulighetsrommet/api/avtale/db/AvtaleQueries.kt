@@ -575,6 +575,7 @@ private fun Row.toAvtale(): Avtale {
             prismodell.tilsagnPerDeltaker,
             prismodell.totalbelop,
             prismodell.tilskudd,
+            prismodell.aarsak,
         )
     }
 

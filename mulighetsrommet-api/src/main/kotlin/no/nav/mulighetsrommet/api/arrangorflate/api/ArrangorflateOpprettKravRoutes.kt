@@ -552,6 +552,7 @@ data class OpprettKravDeltakere(
             val guidePanel = when (tiltak.prismodell.type) {
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
                 PrismodellType.TILSKUDD_TIL_OPPLAERING,
+                PrismodellType.INGEN_KOSTNADER,
                 -> return BadRequest("Kan ikke opprette krav for dette tiltaket").left()
 
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,

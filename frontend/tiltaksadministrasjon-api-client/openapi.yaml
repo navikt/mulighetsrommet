@@ -4132,27 +4132,11 @@ components:
           type:
           - "null"
           - boolean
-        totalbelop:
-          type:
-          - "null"
-          - integer
-          maximum: 4294967295
-          minimum: 0
-        tilskudd:
-          type:
-          - "null"
-          - object
-          additionalProperties:
-            type: integer
-            maximum: 4294967295
-            minimum: 0
       required:
       - id
       - prisbetingelser
       - satser
       - tilsagnPerDeltaker
-      - tilskudd
-      - totalbelop
       - type
       - valuta
     PrismodellType:
@@ -4166,6 +4150,7 @@ components:
       - AVTALT_PRIS_PER_HELE_UKESVERK
       - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
       - TILSKUDD_TIL_OPPLAERING
+      - INGEN_KOSTNADER
     Valuta:
       type: string
       enum:

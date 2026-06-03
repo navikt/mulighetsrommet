@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
 
@@ -17,8 +16,6 @@ data class PrismodellRequest(
     val prisbetingelser: String?,
     val satser: List<AvtaltSatsRequest>,
     val tilsagnPerDeltaker: Boolean?,
-    val totalbelop: UInt? = null,
-    val tilskudd: Map<Tilskuddstype, UInt>? = null,
 )
 
 @Serializable

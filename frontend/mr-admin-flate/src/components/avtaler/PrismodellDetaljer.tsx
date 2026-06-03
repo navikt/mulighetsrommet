@@ -52,6 +52,15 @@ export function PrismodellDetaljer({ prismodeller }: Props) {
           <VStack key={prismodell.navn} gap="space-16">
             <PrismodellTypenavn type={prismodell.navn} />
             <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
+            TODO: Vise tilskuddsbeløp
+          </VStack>
+        );
+      case PrismodellType.INGEN_KOSTNADER:
+        return (
+          <VStack key={prismodell.navn} gap="space-16">
+            <PrismodellTypenavn type={prismodell.navn} />
+            <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
+            TODO: Vise årsak etc.
           </VStack>
         );
     }

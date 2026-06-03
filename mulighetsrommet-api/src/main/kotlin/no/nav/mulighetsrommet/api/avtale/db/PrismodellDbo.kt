@@ -18,6 +18,7 @@ data class PrismodellDbo(
     val satser: List<AvtaltSats>?,
     val systemId: String?,
     val tilsagnPerDeltaker: Boolean?,
-    val totalbelop: UInt? = null,
-    val tilskudd: Map<Tilskuddstype, UInt>? = null,
+    val totalbelop: UInt?,
+    val tilskudd: Map<Tilskuddstype, UInt>?,
+    val aarsak: String?,
 )

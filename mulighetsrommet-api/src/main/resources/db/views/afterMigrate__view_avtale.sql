@@ -52,7 +52,8 @@ from avtale
                                                    'satser', satser,
                                                    'tilsagnPerDeltaker', tilsagn_per_deltaker,
                                                    'totalbelop', totalbelop,
-                                                   'tilskudd', tilskudd
+                                                   'tilskudd', tilskudd,
+                                                   'aarsak', aarsak
                                            )
                                            order by id
                                    ) as prismodeller_json

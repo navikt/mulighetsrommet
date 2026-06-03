@@ -19,21 +19,21 @@ class PrismodellQueriesTest : FunSpec({
     context("AnnenAvtaltPris med totalbelop") {
         test("lagrer og henter totalbelop") {
             database.runAndRollback {
-                val prismodell = PrismodellFixtures.createPrismodellDbo(
+                val dbo = PrismodellFixtures.createPrismodellDbo(
                     type = PrismodellType.ANNEN_AVTALT_PRIS,
                     tilsagnPerDeltaker = false,
                     totalbelop = 100_000u,
                 )
 
-                queries.prismodell.upsert(prismodell)
+                queries.prismodell.upsert(dbo)
 
-                queries.prismodell.getOrError(prismodell.id).shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
+                queries.prismodell.getOrError(dbo.id).shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
                     it.totalbelop shouldBe 100_000u
                 }
 
-                queries.prismodell.upsert(prismodell.copy(totalbelop = null))
+                queries.prismodell.upsert(dbo.copy(totalbelop = null))
 
-                queries.prismodell.getOrError(prismodell.id).shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
+                queries.prismodell.getOrError(dbo.id).shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
                     it.totalbelop.shouldBeNull()
                 }
             }
@@ -43,7 +43,7 @@ class PrismodellQueriesTest : FunSpec({
     context("TilskuddTilOpplaering") {
         test("lagrer og henter tilskudd") {
             database.runAndRollback {
-                val prismodell = PrismodellFixtures.createPrismodellDbo(
+                val dbo = PrismodellFixtures.createPrismodellDbo(
                     type = PrismodellType.TILSKUDD_TIL_OPPLAERING,
                     tilskudd = mapOf(
                         Tilskuddstype.TILTAK_DRIFTSTILSKUDD to 50_000u,
@@ -51,9 +51,9 @@ class PrismodellQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.prismodell.upsert(prismodell)
+                queries.prismodell.upsert(dbo)
 
-                queries.prismodell.getOrError(prismodell.id).shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
+                queries.prismodell.getOrError(dbo.id).shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
                     it.tilskudd shouldBe mapOf(
                         Tilskuddstype.TILTAK_DRIFTSTILSKUDD to 50_000u,
                         Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD to 30_000u,
@@ -72,6 +72,51 @@ class PrismodellQueriesTest : FunSpec({
 
                 queries.prismodell.getOrError(dbo.id).shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
                     it.tilskudd.shouldBeEmpty()
+                }
+            }
+        }
+    }
+
+    context("IngenKostnader") {
+        test("lagrer og henter aarsak") {
+            database.runAndRollback {
+                val dbo = PrismodellFixtures.createPrismodellDbo(
+                    type = PrismodellType.INGEN_KOSTNADER,
+                    aarsak = Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI.name,
+                )
+
+                queries.prismodell.upsert(dbo)
+
+                queries.prismodell.getOrError(dbo.id).shouldBeTypeOf<Prismodell.IngenKostnader>().should {
+                    it.aarsak shouldBe Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI
+                }
+
+                queries.prismodell.upsert(dbo.copy(aarsak = Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT.name))
+
+                queries.prismodell.getOrError(dbo.id).shouldBeTypeOf<Prismodell.IngenKostnader>().should {
+                    it.aarsak shouldBe Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT
+                }
+            }
+        }
+
+        test("lagrer og henter tilleggsopplysninger") {
+            database.runAndRollback {
+                val dbo = PrismodellFixtures.createPrismodellDbo(
+                    type = PrismodellType.INGEN_KOSTNADER,
+                    aarsak = Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT.name,
+                    prisbetingelser = "Finansiert av arbeidsgiver",
+                )
+
+                queries.prismodell.upsert(dbo)
+
+                queries.prismodell.getOrError(dbo.id).shouldBeTypeOf<Prismodell.IngenKostnader>().should {
+                    it.tilleggsopplysninger shouldBe "Finansiert av arbeidsgiver"
+                }
+
+                queries.prismodell.upsert(dbo.copy(prisbetingelser = null))
+
+                queries.prismodell.getOrError(dbo.id).shouldBeTypeOf<Prismodell.IngenKostnader>().should {
+                    it.tilleggsopplysninger.shouldBeNull()
                 }
             }
         }
