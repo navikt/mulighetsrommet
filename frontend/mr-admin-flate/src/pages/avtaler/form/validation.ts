@@ -123,7 +123,7 @@ export const PrismodellSchema = z.object({
         prisbetingelser: z.string().nullable(),
         type: z.enum(PrismodellType, { error: "Du må velge en prismodell" }),
         valuta: z.enum(Valuta, { error: "Du må velge en valuta" }),
-        tilsagnPerDeltaker: z.boolean(),
+        tilsagnPerDeltaker: z.boolean().nullable(),
         satser: z
           .array(
             z.object({

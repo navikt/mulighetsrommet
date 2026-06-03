@@ -6,62 +6,59 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
 
 object PrismodellFixtures {
     fun createPrismodellDbo(
         id: UUID = UUID.randomUUID(),
-        type: PrismodellType = PrismodellType.ANNEN_AVTALT_PRIS,
+        systemId: String? = null,
+        type: PrismodellType,
         valuta: Valuta = Valuta.NOK,
         prisbetingelser: String? = null,
         satser: List<AvtaltSats> = emptyList(),
+        tilsagnPerDeltaker: Boolean? = false,
+        totalbelop: UInt? = null,
+        tilskudd: Map<Tilskuddstype, UInt>? = null,
+        aarsak: String? = null,
     ): PrismodellDbo = PrismodellDbo(
         id = id,
-        systemId = null,
+        systemId = systemId,
         valuta = valuta,
         type = type,
         prisbetingelser = prisbetingelser,
         satser = satser,
-        tilsagnPerDeltaker = false,
+        tilsagnPerDeltaker = tilsagnPerDeltaker,
+        totalbelop = totalbelop,
+        tilskudd = tilskudd,
+        aarsak = aarsak,
     )
 
-    val ForhandsgodkjentAft = PrismodellDbo(
-        id = UUID.randomUUID(),
+    val ForhandsgodkjentAft = createPrismodellDbo(
         systemId = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING.name,
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-        valuta = Valuta.NOK,
-        prisbetingelser = null,
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.NOK),
             AvtaltSats(LocalDate.of(2026, 1, 1), 21_730.NOK),
         ),
-        tilsagnPerDeltaker = false,
     )
 
-    val ForhandsgodkjentVta = PrismodellDbo(
-        id = UUID.randomUUID(),
+    val ForhandsgodkjentVta = createPrismodellDbo(
         systemId = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name,
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-        valuta = Valuta.NOK,
-        prisbetingelser = null,
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 16_848.NOK),
             AvtaltSats(LocalDate.of(2026, 1, 1), 17_455.NOK),
         ),
-        tilsagnPerDeltaker = false,
     )
 
-    val ForhandsgodkjentTilpassetJobbstotte = PrismodellDbo(
-        id = UUID.randomUUID(),
+    val ForhandsgodkjentTilpassetJobbstotte = createPrismodellDbo(
         systemId = Tiltakskode.TILPASSET_JOBBSTOTTE.name,
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
-        valuta = Valuta.NOK,
-        prisbetingelser = null,
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 7_321.NOK),
         ),
-        tilsagnPerDeltaker = false,
     )
 
     val AvtaltPrisPerTimeOppfolging = createPrismodellDbo(
@@ -78,5 +75,8 @@ object PrismodellFixtures {
         ),
     )
 
-    val AnnenAvtaltPris = createPrismodellDbo()
+    val AnnenAvtaltPris = createPrismodellDbo(
+        type = PrismodellType.ANNEN_AVTALT_PRIS,
+        tilsagnPerDeltaker = false,
+    )
 }

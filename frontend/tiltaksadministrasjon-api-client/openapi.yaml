@@ -4149,6 +4149,8 @@ components:
       - AVTALT_PRIS_PER_UKESVERK
       - AVTALT_PRIS_PER_HELE_UKESVERK
       - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+      - TILSKUDD_TIL_OPPLAERING
+      - INGEN_KOSTNADER
     Valuta:
       type: string
       enum:
@@ -4636,7 +4638,9 @@ components:
           - "null"
           - string
         tilsagnPerDeltaker:
-          type: boolean
+          type:
+          - "null"
+          - boolean
         navn:
           type: string
         beskrivelse:

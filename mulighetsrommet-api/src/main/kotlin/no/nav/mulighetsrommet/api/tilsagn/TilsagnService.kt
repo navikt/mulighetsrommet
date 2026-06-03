@@ -12,8 +12,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.avtale.mapper.satser
-import no.nav.mulighetsrommet.api.avtale.model.findAvtaltSats
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
@@ -269,7 +267,7 @@ class TilsagnService(
         }
 
         val prismodell = queries.gjennomforing.getPrismodellOrError(request.gjennomforingId)
-        val avtaltSats = prismodell.satser().findAvtaltSats(request.periodeStart)
+        val avtaltSats = prismodell.findAvtaltSats(request.periodeStart)
 
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0

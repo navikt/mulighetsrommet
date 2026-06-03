@@ -323,6 +323,9 @@ class GjennomforingEnkeltplassService(
                 tilsagnPerDeltaker = true,
                 satser = null,
                 systemId = null,
+                totalbelop = null,
+                tilskudd = null,
+                aarsak = null,
             )
             queries.prismodell.upsert(prismodellDbo)
             queries.prismodell.getOrError(prismodellDbo.id)

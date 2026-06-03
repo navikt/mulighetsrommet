@@ -288,6 +288,8 @@ object AvtaleValidator {
 
             val satser = when (prismodell.type) {
                 PrismodellType.ANNEN_AVTALT_PRIS,
+                PrismodellType.TILSKUDD_TIL_OPPLAERING,
+                PrismodellType.INGEN_KOSTNADER,
                 -> null
 
                 PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
@@ -305,7 +307,10 @@ object AvtaleValidator {
                 prisbetingelser = prismodell.prisbetingelser,
                 satser = satser,
                 valuta = prismodell.valuta,
-                tilsagnPerDeltaker = prismodell.tilsagnPerDeltaker ?: false,
+                tilsagnPerDeltaker = prismodell.tilsagnPerDeltaker,
+                totalbelop = null,
+                tilskudd = null,
+                aarsak = null,
             )
         }
     }

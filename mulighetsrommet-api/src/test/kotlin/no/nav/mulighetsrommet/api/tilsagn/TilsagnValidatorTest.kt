@@ -26,6 +26,7 @@ class TilsagnValidatorTest : FunSpec({
             valuta = Valuta.NOK,
             prisbetingelser = null,
             tilsagnPerDeltaker = false,
+            totalbelop = null,
         )
 
         val forhandsgodkjent = Prismodell.from(
@@ -237,7 +238,7 @@ class TilsagnValidatorTest : FunSpec({
             )
         }
 
-        test("krever deltakere") {
+        test("krever deltakere når tilsagnPerDeltaker er satt") {
             TilsagnValidator.validate(
                 TilsagnFixtures.TilsagnRequest1.copy(deltakere = emptyList()),
                 previous = null,
@@ -245,13 +246,12 @@ class TilsagnValidatorTest : FunSpec({
                 gjennomforingSluttDato = LocalDate.of(2025, 10, 1),
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
-                prismodell = Prismodell.from(
-                    type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                prismodell = Prismodell.AnnenAvtaltPris(
                     id = UUID.randomUUID(),
                     valuta = Valuta.NOK,
                     prisbetingelser = null,
-                    satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.NOK)),
                     tilsagnPerDeltaker = true,
+                    totalbelop = null,
                 ),
             ) shouldBeLeft listOf(
                 FieldError(
