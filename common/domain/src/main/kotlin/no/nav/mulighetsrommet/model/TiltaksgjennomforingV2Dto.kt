@@ -35,7 +35,7 @@ sealed class TiltaksgjennomforingV2Dto {
     data class Gruppe(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
-        override val lopenummer: Tiltaksnummer? = null,
+        override val lopenummer: Tiltaksnummer,
         @Serializable(with = InstantSerializer::class)
         override val opprettetTidspunkt: Instant,
         @Serializable(with = InstantSerializer::class)

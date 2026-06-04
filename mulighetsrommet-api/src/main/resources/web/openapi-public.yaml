@@ -241,9 +241,7 @@ components:
           type: string
           format: uuid
         lopenummer:
-          type:
-          - "null"
-          - string
+          type: string
         opprettetTidspunkt:
           type: string
           format: date-time
