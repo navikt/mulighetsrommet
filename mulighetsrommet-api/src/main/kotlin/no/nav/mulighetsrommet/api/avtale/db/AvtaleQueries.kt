@@ -573,6 +573,9 @@ private fun Row.toAvtale(): Avtale {
             prismodell.prisbetingelser,
             prismodell.satser,
             prismodell.tilsagnPerDeltaker,
+            prismodell.totalbelop,
+            prismodell.tilskudd,
+            prismodell.aarsak,
         )
     }
 

@@ -139,14 +139,14 @@ updates:
       interval: daily
 
   - package-ecosystem: docker
-    directory: "/frontend/mr-admin-flate/.nais/"
+    directory: "/frontend/tiltaksadministrasjon-flate/.nais/"
     registries:
       - google-artifact-registry
     schedule:
       interval: daily
 
   - package-ecosystem: docker
-    directory: "/frontend/mulighetsrommet-veileder-flate/.nais/"
+    directory: "/frontend/arbeidsmarkedstiltak-flate/.nais/"
     registries:
       - google-artifact-registry
     schedule:

@@ -50,7 +50,10 @@ from avtale
                                                    'valuta', valuta,
                                                    'prisbetingelser', prisbetingelser,
                                                    'satser', satser,
-                                                   'tilsagnPerDeltaker', tilsagn_per_deltaker
+                                                   'tilsagnPerDeltaker', tilsagn_per_deltaker,
+                                                   'totalbelop', totalbelop,
+                                                   'tilskudd', tilskudd,
+                                                   'aarsak', aarsak
                                            )
                                            order by id
                                    ) as prismodeller_json

@@ -13,7 +13,7 @@ data class PrismodellDto(
     val satser: List<AvtaltSatsDto>?,
     val valuta: Valuta,
     val prisbetingelser: String?,
-    val tilsagnPerDeltaker: Boolean,
+    val tilsagnPerDeltaker: Boolean?,
 ) {
     val navn: String = type.navn
     val beskrivelse: List<String> = type.beskrivelse
@@ -28,7 +28,10 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.AvtaltPrisPerUkesverk -> prismodell.satser
         is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.satser
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.satser
+        is Prismodell.TilskuddTilOpplaering -> null
+        is Prismodell.IngenKostnader -> null
     }
+
     val prisbetingelser = when (prismodell) {
         is Prismodell.AnnenAvtaltPris -> prismodell.prisbetingelser
         is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
@@ -37,14 +40,32 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
         is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.prisbetingelser
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.prisbetingelser
+        is Prismodell.TilskuddTilOpplaering -> prismodell.tilleggsopplysninger
+        is Prismodell.IngenKostnader -> prismodell.tilleggsopplysninger
+    }
+
+    val tilsagnPerDeltaker = when (prismodell) {
+        is Prismodell.AnnenAvtaltPris -> prismodell.tilsagnPerDeltaker
+
+        is Prismodell.AvtaltPrisPerHeleUkesverk,
+        is Prismodell.AvtaltPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
+        is Prismodell.AvtaltPrisPerUkesverk,
+        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+        is Prismodell.TilskuddTilOpplaering,
+        is Prismodell.IngenKostnader,
+        -> null
     }
 
     return PrismodellDto(
         id = prismodell.id,
         type = prismodell.type,
         valuta = prismodell.valuta,
-        satser = satser,
+        satser = (satser ?: listOf()).windowed(size = 2, partialWindows = true).map { sats ->
+            AvtaltSatsDto.fromAvtaltSats(sats[0], sats.getOrNull(1))
+        },
         prisbetingelser = prisbetingelser,
-        tilsagnPerDeltaker = prismodell.tilsagnPerDeltaker,
+        tilsagnPerDeltaker = tilsagnPerDeltaker,
     )
 }

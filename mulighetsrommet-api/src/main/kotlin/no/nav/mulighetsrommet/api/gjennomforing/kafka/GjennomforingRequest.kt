@@ -1,0 +1,112 @@
+package no.nav.mulighetsrommet.api.gjennomforing.kafka
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringResponse
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.tiltak.okonomi.Tilskuddstype
+import java.util.UUID
+
+@Serializable
+sealed interface GjennomforingRequest {
+
+    @Serializable
+    @SerialName("EnkeltplassUtkast")
+    data class EnkeltplassUtkast(
+        val payload: OpprettEnkeltplass,
+    ) : GjennomforingRequest
+
+    @Serializable
+    @SerialName("EnkeltplassSoktInn")
+    data class EnkeltplassSoktInn(
+        val payload: OpprettEnkeltplass,
+    ) : GjennomforingRequest
+
+    @Serializable
+    @SerialName("EnkeltplassEndrePrisinformasjon")
+    data class EnkeltplassEndrePrisinformasjon(
+        val payload: EnkeltplassPrisinformasjon,
+    ) : GjennomforingRequest
+
+    @Serializable
+    @SerialName("EnkeltplassEndreInnhold")
+    data class EnkeltplassEndreInnhold(
+        val payload: OpplaringKategorisering?,
+    ) : GjennomforingRequest
+
+    // TODO: skal slettes
+    @Serializable
+    @SerialName("OpprettEnkeltplass")
+    data class OpprettEnkeltplassPayload(
+        @Serializable(with = UUIDSerializer::class)
+        val gjennomforingId: UUID,
+        val tiltakskode: Tiltakskode,
+        val organisasjonsnummer: Organisasjonsnummer,
+        val prisinformasjon: String,
+        val ansvarligEnhet: NavEnhetNummer,
+        val opprettetAv: NavIdent,
+        val kategorisering: OpplaringKategorisering? = null,
+    ) : GjennomforingRequest
+}
+
+@Serializable
+data class OpprettEnkeltplass(
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID,
+    val tiltakskode: Tiltakskode,
+    val organisasjonsnummer: Organisasjonsnummer,
+    val ansvarligEnhet: NavEnhetNummer,
+    val opprettetAv: NavIdent,
+    val prisinformasjon: EnkeltplassPrisinformasjon,
+    val kategorisering: OpplaringKategorisering?,
+)
+
+@Serializable
+sealed interface EnkeltplassPrisinformasjon {
+    @Serializable
+    @SerialName("EnkeltplassPrisinformasjonAnskaffelse")
+    data class Anskaffelse(
+        val pris: Int,
+    ) : EnkeltplassPrisinformasjon
+
+    @Serializable
+    @SerialName("EnkeltplassPrisinformasjonTilskudd")
+    data class Tilskudd(
+        val tilskudd: Map<Tilskuddstype, Int>,
+        val tilleggsopplysninger: String?,
+    ) : EnkeltplassPrisinformasjon
+
+    @Serializable
+    @SerialName("EnkeltplassPrisinformasjonIngenKostnader")
+    data class IngenKostnader(
+        val aarsak: Aarsak,
+        val tilleggsopplysninger: String?,
+    ) : EnkeltplassPrisinformasjon {
+        enum class Aarsak {
+            OPPLAERINGEN_ER_KOSTNADSFRI,
+            OPPLAERINGEN_ER_EGENFINANSIERT,
+        }
+    }
+}
+
+@Serializable
+data class OpplaringKategorisering(
+    val verdier: Map<
+        OpplaringKategoriseringResponse.Representerer,
+        List<
+            @Serializable(with = UUIDSerializer::class)
+            UUID,
+            >,
+        >,
+    val sertifiseringer: List<SertifiseringValg>,
+) {
+    @Serializable
+    data class SertifiseringValg(
+        val id: Long,
+        val navn: String,
+    )
+}

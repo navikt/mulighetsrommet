@@ -151,7 +151,7 @@ fun Route.tilsagnRoutesBeregning() {
         val gjennomforing = gjennomforinger.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
             ?: return@post call.respond(HttpStatusCode.BadRequest, "Ugyldig gjennomforingId=${request.gjennomforingId}")
 
-        val tilsagnPerDeltaker = gjennomforing.prismodell.tilsagnPerDeltaker
+        val tilsagnPerDeltaker = (gjennomforing.prismodell as? Prismodell.AnnenAvtaltPris)?.tilsagnPerDeltaker ?: false
 
         val deltakere = if (tilsagnPerDeltaker) {
             val deltakelser = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
@@ -284,6 +284,10 @@ fun resolveTilsagnDefaults(
         is Prismodell.AvtaltPrisPerHeleUkesverk,
         is Prismodell.AvtaltPrisPerManedsverk,
         -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
+
+        is Prismodell.TilskuddTilOpplaering,
+        is Prismodell.IngenKostnader,
+        -> stotterIkkeTilsagnError(gjennomforing.prismodell)
     }
 
     val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
@@ -406,6 +410,11 @@ private fun resolveBeregningTypeAndPrisbetingelser(
     is Prismodell.AvtaltPrisPerHeleUkesverk -> TilsagnBeregningType.PRIS_PER_HELE_UKESVERK to prismodell.prisbetingelser
     is Prismodell.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
     is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
+    is Prismodell.TilskuddTilOpplaering, is Prismodell.IngenKostnader -> stotterIkkeTilsagnError(prismodell)
+}
+
+private fun stotterIkkeTilsagnError(prismodell: Prismodell): Nothing {
+    error("${prismodell.type.beskrivelse} støtter ikke tilsagn")
 }
 
 @Serializable

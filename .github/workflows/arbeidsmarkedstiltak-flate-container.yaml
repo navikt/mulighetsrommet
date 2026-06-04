@@ -1,0 +1,61 @@
+name: POAO-frontend (arbeidsmarkedstiltak-flate)
+
+on:
+  push:
+    paths:
+      - .github/workflows/arbeidsmarkedstiltak-flate-container.yaml
+      - frontend/arbeidsmarkedstiltak-flate/.nais/**
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        default: dev
+        options:
+          - dev
+          - dev_and_prod
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Lint
+        uses: ./.github/actions/lint-yaml
+        with:
+          path: frontend/arbeidsmarkedstiltak-flate/.nais
+
+  deploy-nav-dev:
+    runs-on: ubuntu-latest
+    needs: [ci]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Deploy (dev)
+        uses: nais/deploy/actions/deploy@a7f8690f9b367fcbf5348a0a1e21d44f1aae50eb # v2
+        env:
+          CLUSTER: dev-gcp
+          RESOURCE: frontend/arbeidsmarkedstiltak-flate/.nais/nais-dev.yaml
+
+  deploy-nav-prod:
+    runs-on: ubuntu-latest
+    needs: [deploy-nav-dev]
+    if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev_and_prod'
+    permissions:
+      id-token: write # Needed for `nais/deploy/actions/deploy`
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Deploy (prod)
+        uses: nais/deploy/actions/deploy@a7f8690f9b367fcbf5348a0a1e21d44f1aae50eb # v2
+        env:
+          CLUSTER: prod-gcp
+          RESOURCE: frontend/arbeidsmarkedstiltak-flate/.nais/nais-prod.yaml

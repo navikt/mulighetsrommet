@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
@@ -22,20 +23,29 @@ class PrismodellQueries(private val session: Session) {
                                    prismodell_type,
                                    satser,
                                    valuta,
-                                   tilsagn_per_deltaker)
+                                   tilsagn_per_deltaker,
+                                   totalbelop,
+                                   tilskudd,
+                                   aarsak)
             values (:id::uuid,
                     :system_id,
                     :prisbetingelser,
                     :prismodell::prismodell_type,
                     :satser::jsonb,
                     :valuta::currency,
-                    :tilsagn_per_deltaker)
+                    :tilsagn_per_deltaker,
+                    :totalbelop,
+                    :tilskudd::jsonb,
+                    :aarsak)
             on conflict (id) do update set system_id            = excluded.system_id,
                                            prisbetingelser      = excluded.prisbetingelser,
                                            prismodell_type      = excluded.prismodell_type,
                                            satser               = excluded.satser,
                                            valuta               = excluded.valuta,
-                                           tilsagn_per_deltaker = excluded.tilsagn_per_deltaker
+                                           tilsagn_per_deltaker = excluded.tilsagn_per_deltaker,
+                                           totalbelop           = excluded.totalbelop,
+                                           tilskudd             = excluded.tilskudd,
+                                           aarsak               = excluded.aarsak
         """.trimIndent()
         val params = mapOf(
             "id" to dbo.id,
@@ -45,6 +55,9 @@ class PrismodellQueries(private val session: Session) {
             "satser" to Json.encodeToString(dbo.satser),
             "valuta" to dbo.valuta.name,
             "tilsagn_per_deltaker" to dbo.tilsagnPerDeltaker,
+            "totalbelop" to dbo.totalbelop?.toInt(),
+            "tilskudd" to dbo.tilskudd?.let { Json.encodeToString(it) },
+            "aarsak" to dbo.aarsak,
         )
         session.execute(queryOf(query, params))
     }
@@ -56,9 +69,7 @@ class PrismodellQueries(private val session: Session) {
             set prisbetingelser = :prisbetingelser
             where id = :id::uuid
         """.trimIndent()
-
         val params = mapOf("id" to id, "prisbetingelser" to prisbetingelser)
-
         session.execute(queryOf(query, params))
     }
 
@@ -70,7 +81,10 @@ class PrismodellQueries(private val session: Session) {
                    prismodell_type,
                    prisbetingelser as prismodell_prisbetingelser,
                    satser as prismodell_satser,
-                   tilsagn_per_deltaker as prismodell_tilsagn_per_deltaker
+                   tilsagn_per_deltaker as prismodell_tilsagn_per_deltaker,
+                   totalbelop as prismodell_totalbelop,
+                   tilskudd as prismodell_tilskudd,
+                   aarsak as prismodell_aarsak
             from prismodell
             where id = ?::uuid
         """.trimIndent()
@@ -85,7 +99,10 @@ class PrismodellQueries(private val session: Session) {
                    prismodell_type,
                    prisbetingelser as prismodell_prisbetingelser,
                    satser as prismodell_satser,
-                   tilsagn_per_deltaker as prismodell_tilsagn_per_deltaker
+                   tilsagn_per_deltaker as prismodell_tilsagn_per_deltaker,
+                   totalbelop as prismodell_totalbelop,
+                   tilskudd as prismodell_tilskudd,
+                   aarsak as prismodell_aarsak
             from prismodell
             where system_id = ?
         """.trimIndent()
@@ -108,6 +125,9 @@ fun Row.toPrismodell(): Prismodell {
     val valuta = Valuta.valueOf(string("prismodell_valuta"))
     val prisbetingelser = stringOrNull("prismodell_prisbetingelser")
     val satser = stringOrNull("prismodell_satser")?.let { Json.decodeFromString<List<AvtaltSats>?>(it) }
-    val tilsagnPerDeltaker = boolean("prismodell_tilsagn_per_deltaker")
-    return Prismodell.from(type, id, valuta, prisbetingelser, satser, tilsagnPerDeltaker)
+    val tilsagnPerDeltaker = anyOrNull("prismodell_tilsagn_per_deltaker") as Boolean?
+    val totalbelop = intOrNull("prismodell_totalbelop")
+    val tilskudd = stringOrNull("prismodell_tilskudd")?.let { Json.decodeFromString<Map<Tilskuddstype, Int>>(it) }
+    val aarsak = stringOrNull("prismodell_aarsak")
+    return Prismodell.from(type, id, valuta, prisbetingelser, satser, tilsagnPerDeltaker, totalbelop, tilskudd, aarsak)
 }

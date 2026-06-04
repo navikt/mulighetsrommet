@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.tiltak.okonomi.Tilskuddstype
 import java.util.UUID
 
 @Serializable
@@ -13,8 +14,11 @@ data class PrismodellDbo(
     val id: UUID,
     val type: PrismodellType,
     val valuta: Valuta,
-    val prisbetingelser: String?,
-    val satser: List<AvtaltSats>?,
-    val systemId: String?,
-    val tilsagnPerDeltaker: Boolean,
+    val prisbetingelser: String? = null,
+    val satser: List<AvtaltSats>? = null,
+    val systemId: String? = null,
+    val tilsagnPerDeltaker: Boolean? = null,
+    val totalbelop: Int? = null,
+    val tilskudd: Map<Tilskuddstype, Int>? = null,
+    val aarsak: String? = null,
 )
