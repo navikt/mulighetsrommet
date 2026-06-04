@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.fixtures.TilskuddFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Periode
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -70,8 +71,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
         result.id shouldBe utbetaling.id
         result.sakId shouldBe utbetaling.sakId
         result.behandlingId shouldBe utbetaling.behandlingId
-        result.periodeFom shouldBe utbetaling.periode.fom
-        result.periodeTom shouldBe utbetaling.periode.tom
+        result.periode shouldBe Periode.fromInclusiveDates(utbetaling.periode.fom, utbetaling.periode.tom)
         result.belop shouldBe utbetaling.belop
         result.tilskuddstype shouldBe utbetaling.tilskuddstype
         result.tiltakskode shouldBe utbetaling.tiltakskode
