@@ -355,6 +355,25 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     service.updateFromDeltaker(nyDeltaker, norskIdent)
                 }.message shouldBe "Enkeltplass med id=${GjennomforingFixtures.EnkelAmo.id} har allerede en annen deltaker"
             }
+
+            test("ignorerer annen deltaker som er FEILREGISTRERT uten å kaste exception") {
+                val eksisterendeDeltaker = DeltakerFixtures.createDeltakerDbo(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                )
+                MulighetsrommetTestDomain(
+                    deltakere = listOf(eksisterendeDeltaker),
+                ).initialize(database.db)
+
+                val feilregistrertDeltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.FEILREGISTRERT,
+                )
+
+                val gjennomforing = service.updateFromDeltaker(feilregistrertDeltaker, norskIdent)
+
+                gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
+                gjennomforing.sluttDato shouldBe GjennomforingFixtures.EnkelAmo.sluttDato
+            }
         }
 
         context("når tiltakstype ikke er migrert") {

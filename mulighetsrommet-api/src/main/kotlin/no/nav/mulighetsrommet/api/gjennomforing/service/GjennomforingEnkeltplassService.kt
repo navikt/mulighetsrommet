@@ -125,17 +125,15 @@ class GjennomforingEnkeltplassService(
     ): GjennomforingEnkeltplass = db.transaction {
         val gjennomforing = getAndAquireLock(deltaker.gjennomforingId)
 
-        getDeltaker(deltaker.gjennomforingId)?.let {
-            check(it.id == deltaker.id) {
-                "Enkeltplass med id=${deltaker.gjennomforingId} har allerede en annen deltaker"
-            }
-
-            if (deltaker.endretTidspunkt < it.endretTidspunkt) {
-                return gjennomforing
+        getDeltaker(deltaker.gjennomforingId)?.let { eksisterende ->
+            when {
+                deltaker.id != eksisterende.id && deltaker.erFeilregistrert() -> return gjennomforing
+                deltaker.id != eksisterende.id -> error("Enkeltplass med id=${deltaker.gjennomforingId} har allerede en annen deltaker")
+                deltaker.endretTidspunkt < eksisterende.endretTidspunkt -> return gjennomforing
             }
         }
 
-        val norskIdent = norskIdent.takeIf { deltaker.status.type != DeltakerStatusType.FEILREGISTRERT }
+        val norskIdent = norskIdent.takeIf { !deltaker.erFeilregistrert() }
         updateFreeTextSearch(gjennomforing, norskIdent)
 
         if (!tiltakstyper.erMigrert(gjennomforing.tiltakstype.tiltakskode)) {
