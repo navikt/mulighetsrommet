@@ -2,19 +2,21 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.kafka
 
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
+import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
@@ -25,47 +27,52 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBeslutt
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
-private const val BESTILLING_TOPIC = "bestilling-topic"
-private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
-
-class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
+class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
-    val arrangorService = mockk<ArrangorService>()
+    val personaliaService = mockk<PersonaliaService>()
+    val brukerUtbetalingService = mockk<BrukerUtbetalingService>(relaxed = true)
+
+    val behandlingId = UUID.randomUUID()
+    val tilskuddId = UUID.randomUUID()
+    val deltakerId = UUID.randomUUID()
 
     beforeEach {
+        clearMocks(brukerUtbetalingService)
+
         MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            deltakere = listOf(DeltakerFixtures.createDeltakerDbo(GjennomforingFixtures.EnkelAmo.id).copy(id = deltakerId)),
         ).initialize(database.db)
 
-        coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
-            Kontonummer("12345678901"),
-            null,
+        coEvery { personaliaService.getPersonalia(deltakerId, any()) } returns Personalia(
+            deltakerId = deltakerId,
+            norskIdent = NorskIdent("12345678901"),
+            navn = "Test Testesen",
+            oppfolgingEnhet = null,
+            geografiskEnhet = null,
+            region = null,
+            gradering = Gradering.UGRADERT,
+            avvistGrunn = null,
         )
     }
 
     afterEach {
         database.truncateAll()
     }
-
-    val behandlingId = UUID.randomUUID()
-    val tilskuddId = UUID.randomUUID()
 
     val request = TilskuddBehandlingRequest(
         id = behandlingId,
@@ -80,12 +87,12 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             TilskuddBehandlingRequest.TilskuddRequest(
                 id = tilskuddId,
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
-                soknadBelop = ValutaBelopRequest(belop = 100, valuta = Valuta.NOK),
+                soknadBelop = ValutaBelopRequest(belop = 5000, valuta = Valuta.NOK),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,
-                utbetalingMottaker = TilskuddMottaker.ARRANGOR,
-                kidNummer = "116",
-                belop = 100,
+                utbetalingMottaker = TilskuddMottaker.BRUKER,
+                kidNummer = null,
+                belop = 5000,
             ),
         ),
     )
@@ -103,48 +110,28 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         forklaring = null,
     )
 
-    val gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))
+    fun createConsumer() = TilskuddBrukerUtbetalingConsumer(
+        db = database.db,
+        personaliaService = personaliaService,
+        brukerUtbetalingService = brukerUtbetalingService,
+    )
 
-    fun createConsumer(): TilskuddArrangorUtbetalingConsumer {
-        val tilsagnService = TilsagnService(
-            db = database.db,
-            config = TilsagnService.Config(
-                bestillingTopic = BESTILLING_TOPIC,
-                gyldigTilsagnPeriode = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode),
-            ),
-            navAnsattService = mockk(relaxed = true),
-            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
-        )
-        val utbetalingService = UtbetalingService(
-            config = UtbetalingService.Config(
-                bestillingTopic = BESTILLING_TOPIC,
-                tidligstTidspunktForUtbetaling = { _, _ -> null },
-            ),
-            tilsagnService = tilsagnService,
-            arrangorService = arrangorService,
-            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
-        )
-        return TilskuddArrangorUtbetalingConsumer(
-            db = database.db,
-            utbetalingService = utbetalingService,
-            tilsagnService = tilsagnService,
-        )
-    }
-
-    test("oppretter utbetaling for innvilget tilskudd til arrangør") {
+    test("oppretter hel ved utbetaling for innvilget tilskudd til bruker") {
         val service = TilskuddBehandlingService(database.db, TotrinnskontrollService(""))
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
-        val consumer = createConsumer()
-        consumer.consume(behandlingId, Json.encodeToJsonElement(godkjentHendelse))
+        createConsumer().consume(behandlingId, Json.encodeToJsonElement(godkjentHendelse))
 
-        database.run {
-            val utbetaling = queries.utbetaling.getByGjennomforing(request.gjennomforingId).shouldHaveSize(1)[0]
-            utbetaling.status shouldBe UtbetalingStatusType.FERDIG_BEHANDLET
-            utbetaling.tilskuddstype shouldBe Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD
-            val linje = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id).shouldHaveSize(1)[0]
-            linje.status shouldBe UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING
-        }
+        val result = database.db.session { queries.helvedUtbetaling.getByTilskudd(tilskuddId) }
+
+        result.shouldNotBeNull()
+        result.belop shouldBe 5000
+        result.tilskuddstype shouldBe HelVedUtbetaling.Tilskuddstype.SKOLEPENGER
+        result.tiltakskode shouldBe HelVedUtbetaling.Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+        result.saksbehandler shouldBe NavAnsattFixture.DonaldDuck.navIdent
+        result.beslutter shouldBe NavAnsattFixture.MikkeMus.navIdent
+
+        verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
     }
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
@@ -156,8 +143,6 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         consumer.consume(behandlingId, hendelse)
         consumer.consume(behandlingId, hendelse)
 
-        database.run {
-            queries.utbetaling.getByGjennomforing(request.gjennomforingId).shouldHaveSize(1)
-        }
+        verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
     }
 })

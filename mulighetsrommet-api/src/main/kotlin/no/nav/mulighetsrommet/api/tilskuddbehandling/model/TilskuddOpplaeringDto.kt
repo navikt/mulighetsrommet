@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.ValutaBelop
@@ -12,7 +13,7 @@ import java.util.UUID
 data class TilskuddOpplaeringDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tilskuddOpplaeringType: TilskuddOpplaeringType,
+    val tilskuddOpplaeringType: Opplaeringtilskudd.Kode,
     val soknadBelop: ValutaBelop,
     val vedtakResultat: VedtakResultatDto,
     val kommentarVedtaksbrev: String?,

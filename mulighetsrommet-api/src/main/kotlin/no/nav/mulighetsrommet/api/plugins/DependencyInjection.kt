@@ -27,9 +27,9 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingS
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
+import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
-import no.nav.mulighetsrommet.api.clients.helved.HelVedService
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
@@ -212,7 +212,7 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.replicateBestillingStatus to ReplikerBestillingStatusConsumer(get()),
             config.clients.replicateFakturaStatus to ReplikerFakturaStatusConsumer(get(), get()),
             config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(get()),
-            config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get(), get()),
+            config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get()),
         )
         KafkaConsumerOrchestrator(
             db = get(),
@@ -505,7 +505,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { AdminUtbetalingService(get(), get(), get()) }
-    single { HelVedService(HelVedService.Config(appConfig.kafka.topics.helvedUtbetalingTopic), get(), get()) }
+    single { BrukerUtbetalingService(BrukerUtbetalingService.Config(appConfig.kafka.topics.helvedUtbetalingTopic), get(), get()) }
     single { PersonaliaService(get(), get(), get(), get(), get()) }
     single<FeatureToggleService> { UnleashFeatureToggleService(appConfig.unleash) }
     single { LagretFilterService(get()) }

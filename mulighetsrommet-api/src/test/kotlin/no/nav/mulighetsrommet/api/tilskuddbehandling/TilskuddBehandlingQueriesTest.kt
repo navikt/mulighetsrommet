@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -41,7 +41,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
         tilskudd = listOf(
             TilskuddDbo(
                 id = UUID.randomUUID(),
-                tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
+                tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                 soknadBelop = ValutaBelop(
                     belop = 100,
                     valuta = Valuta.SEK,
@@ -57,7 +57,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             ),
             TilskuddDbo(
                 id = UUID.randomUUID(),
-                tilskuddOpplaeringType = TilskuddOpplaeringType.EKSAMENSAVGIFT,
+                tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSAVGIFT,
                 soknadBelop = ValutaBelop(
                     belop = 1000,
                     valuta = Valuta.NOK,
@@ -73,7 +73,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             ),
             TilskuddDbo(
                 id = UUID.randomUUID(),
-                tilskuddOpplaeringType = TilskuddOpplaeringType.INTEGRERT_BOTILBUD,
+                tilskuddOpplaeringType = Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD,
                 soknadBelop = ValutaBelop(
                     belop = 1000,
                     valuta = Valuta.NOK,
@@ -109,7 +109,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     it.tilskudd.size shouldBe 3
                     it.tilskudd[0] should { v ->
                         v.id shouldBe behandling.tilskudd[0].id
-                        v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.SKOLEPENGER
+                        v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.SKOLEPENGER
                         v.soknadBelop.belop shouldBe 100
                         v.soknadBelop.valuta shouldBe Valuta.SEK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
@@ -121,7 +121,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     }
                     it.tilskudd[1] should { v ->
                         v.id shouldBe behandling.tilskudd[1].id
-                        v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.EKSAMENSAVGIFT
+                        v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.EKSAMENSAVGIFT
                         v.soknadBelop.belop shouldBe 1000
                         v.soknadBelop.valuta shouldBe Valuta.NOK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE
@@ -133,7 +133,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     }
                     it.tilskudd[2] should { v ->
                         v.id shouldBe behandling.tilskudd[2].id
-                        v.tilskuddOpplaeringType shouldBe TilskuddOpplaeringType.INTEGRERT_BOTILBUD
+                        v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD
                         v.utbetalingBelop shouldBe null
                         v.vedtakResultat.type shouldBe VedtakResultat.AVSLAG
                     }

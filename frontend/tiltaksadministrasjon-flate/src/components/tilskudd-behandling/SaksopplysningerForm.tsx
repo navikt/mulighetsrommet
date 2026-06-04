@@ -6,10 +6,10 @@ import { FormSelect } from "@/components/skjema/FormSelect";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormGroup } from "@/layouts/FormGroup";
 import {
+  OpplaeringtilskuddKode,
   TilskuddBehandlingRequest,
   TilskuddBehandlingRequestTilskuddRequest,
   TilskuddMottaker,
-  TilskuddOpplaeringType,
   Valuta,
   ValutaBelop,
 } from "@tiltaksadministrasjon/api-client";
@@ -74,7 +74,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                     required
                   >
                     <option value="">-- Velg tilskuddstype --</option>
-                    {(Object.keys(TilskuddOpplaeringType) as TilskuddOpplaeringType[]).map(
+                    {(Object.keys(OpplaeringtilskuddKode) as OpplaeringtilskuddKode[]).map(
                       (tilskudd) => (
                         <option key={tilskudd} value={tilskudd}>
                           {opplaeringTilskuddToString(tilskudd)}
