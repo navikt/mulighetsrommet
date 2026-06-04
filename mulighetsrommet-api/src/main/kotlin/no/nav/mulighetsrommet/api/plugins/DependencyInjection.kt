@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
-import no.nav.mulighetsrommet.api.clients.helved.HelVedService
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
@@ -55,6 +54,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomfo
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
+import no.nav.mulighetsrommet.api.helved.HelVedService
 import no.nav.mulighetsrommet.api.janzz.PamOntologiService
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
 import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
@@ -212,7 +212,7 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.replicateBestillingStatus to ReplikerBestillingStatusConsumer(get()),
             config.clients.replicateFakturaStatus to ReplikerFakturaStatusConsumer(get(), get()),
             config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(get()),
-            config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get(), get()),
+            config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get()),
         )
         KafkaConsumerOrchestrator(
             db = get(),

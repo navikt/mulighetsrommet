@@ -1,11 +1,10 @@
-package no.nav.mulighetsrommet.api.clients.helved
+package no.nav.mulighetsrommet.api.helved
 
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Periode
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Tilskuddstype
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Tiltakskode
+import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
+import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -23,8 +22,24 @@ class HelVedService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     data class Config(
-        val tilskuddUtbetalingTopic: String,
+        val helvedUtbetalingTopic: String,
     )
+
+    fun handleHelvedStatus(id: UUID, statusMelding: HelVedStatus) {
+        logger.info("Melding fra hel ved: {}", Json.encodeToString(statusMelding))
+        db.session { queries.helvedUtbetaling.setHelVedStatus(id, statusMelding) }
+    }
+
+    fun produceTilskuddUtbetaling(utbetaling: HelVedUtbetaling) {
+        val record = ProducerRecord(
+            config.helvedUtbetalingTopic,
+            utbetaling.id.toString().toByteArray(),
+            Json.encodeToString(HelVedUtbetaling.serializer(), utbetaling).toByteArray(),
+        )
+        logger.info("Produserer utbetaling id=${utbetaling.id} mot Hel Ved på ${config.helvedUtbetalingTopic}")
+
+        kafkaProducerClient.send(record)
+    }
 
     fun produceTilskuddUtbetalingTest(): UUID? {
         if (NaisEnv.current().isProdGCP()) {
@@ -36,28 +51,17 @@ class HelVedService(
             sakId = "2026/test",
             behandlingId = "1",
             personIdent = NorskIdent("21528416400"), // Gjørme, Proaktiv
-            periode = Periode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30)),
+            periode = HelVedUtbetaling.Periode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30)),
             belop = 1234,
-            tilskuddstype = Tilskuddstype.EKSAMENSGEBYR,
+            tilskuddstype = HelVedUtbetaling.Tilskuddstype.EKSAMENSGEBYR,
             saksbehandler = NavIdent("Z990279"), // Test NavIdent
             beslutter = NavIdent("Z993433"), // Test NavIdent
             besluttetTidspunkt = Instant.now(),
-            tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+            tiltakskode = HelVedUtbetaling.Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
             dryrun = false,
         )
-        val record = ProducerRecord(
-            config.tilskuddUtbetalingTopic,
-            utbetaling.id.toString().toByteArray(),
-            Json.encodeToString(HelVedUtbetaling.serializer(), utbetaling).toByteArray(),
-        )
-        logger.info("Produserer test-utbetaling id=${utbetaling.id} mot Hel Ved på ${config.tilskuddUtbetalingTopic}")
-
-        kafkaProducerClient.send(record)
+        produceTilskuddUtbetaling(utbetaling)
 
         return utbetaling.id
-    }
-
-    fun handleHelvedStatus(statusMelding: HelVedStatus) {
-        logger.info("Melding fra hel ved: {}", Json.encodeToString(statusMelding))
     }
 }

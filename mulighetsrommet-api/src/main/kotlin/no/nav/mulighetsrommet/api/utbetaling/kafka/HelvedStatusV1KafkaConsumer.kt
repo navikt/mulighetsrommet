@@ -4,9 +4,8 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.ConsumeStatus
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
-import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.clients.helved.HelVedService
 import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
+import no.nav.mulighetsrommet.api.helved.HelVedService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
@@ -14,7 +13,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
-class HelvedStatusV1KafkaConsumer(private val db: ApiDatabase, val helVedService: HelVedService) : KafkaTopicConsumer<UUID, JsonElement>(
+class HelvedStatusV1KafkaConsumer(
+    val helVedService: HelVedService,
+) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {
@@ -25,7 +26,8 @@ class HelvedStatusV1KafkaConsumer(private val db: ApiDatabase, val helVedService
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Statusmeldingene på helved.status.v1 inneholder en Kafka-header med nøkkelen fagsystem. Denne brukes for å filtrere ut relevante statuser for det aktuelle fagsystemet.
+     * Statusmeldingene på helved.status.v1 inneholder en Kafka-header med nøkkelen fagsystem. Denne brukes
+     * for å filtrere ut relevante statuser for det aktuelle fagsystemet.
      */
     override fun consume(record: ConsumerRecord<UUID, JsonElement>): ConsumeStatus {
         val fagsystem = record.headers().lastHeader(FAGSYSTEM_HEADER_NAME).value().let { String(it) }
@@ -37,8 +39,8 @@ class HelvedStatusV1KafkaConsumer(private val db: ApiDatabase, val helVedService
     }
 
     override suspend fun consume(key: UUID, message: JsonElement) {
-        logger.info("Konsumerer utbetaling status-melding med id=$key")
+        logger.info("Konsumerer hel ved utbetaling status-melding med id=$key")
         val helvedStatus = JsonIgnoreUnknownKeys.decodeFromJsonElement<HelVedStatus>(message)
-        helVedService.handleHelvedStatus(helvedStatus)
+        helVedService.handleHelvedStatus(key, helvedStatus)
     }
 }

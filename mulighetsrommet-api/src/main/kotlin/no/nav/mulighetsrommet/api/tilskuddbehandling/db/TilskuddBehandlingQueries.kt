@@ -143,6 +143,17 @@ class TilskuddBehandlingQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to tilskuddId, "utbetaling_id" to utbetalingId)))
     }
 
+    fun setHelVedUtbetaling(tilskuddId: UUID, helVedUtbetalingId: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilskudd
+            set hel_ved_utbetaling_id = :hel_ved_utbetaling_id::uuid
+            where id = :id::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, mapOf("id" to tilskuddId, "hel_ved_utbetaling_id" to helVedUtbetalingId)))
+    }
+
     fun get(id: UUID): TilskuddBehandlingDto? {
         @Language("PostgreSQL")
         val query = """

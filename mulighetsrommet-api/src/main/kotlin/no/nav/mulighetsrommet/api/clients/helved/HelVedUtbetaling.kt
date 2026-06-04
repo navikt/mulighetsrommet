@@ -1,6 +1,9 @@
 package no.nav.mulighetsrommet.api.clients.helved
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Periode
+import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Tilskuddstype
+import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Tiltakskode
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.InstantSerializer
@@ -50,8 +53,8 @@ data class HelVedUtbetaling(
     val dryrun: Boolean,
 ) {
     init {
-        require(1 <= sakId.length && sakId.length <= 25) { "På grunn av begrensninger i OS/UR kan ikke sakId være lengre enn 25 tegn" }
-        require(1 <= behandlingId.length && behandlingId.length <= 30) { "På grunn av begrensninger i OS/UR kan ikke denne være lengre enn 30 tegn" }
+        require(sakId.length in 1..25) { "På grunn av begrensninger i OS/UR kan ikke sakId være lengre enn 25 tegn" }
+        require(behandlingId.length in 1..30) { "På grunn av begrensninger i OS/UR kan ikke denne være lengre enn 30 tegn" }
         require(belop > 0) { "Beløp kan ikke være negativt eller 0" }
         require(periode.fom.year == periode.tom.year) { "Utbetalingsperioden må være innen samme år" }
         require(periode.fom <= periode.tom) { "Fom-dato på en periode må være før eller lik tom-dato" }
