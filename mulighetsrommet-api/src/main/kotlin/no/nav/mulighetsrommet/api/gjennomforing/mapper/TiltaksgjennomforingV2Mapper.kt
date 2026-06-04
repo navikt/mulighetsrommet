@@ -18,6 +18,7 @@ object TiltaksgjennomforingV2Mapper {
     ): TiltaksgjennomforingV2Dto {
         return Gruppe(
             id = gjennomforing.id,
+            lopenummer = gjennomforing.lopenummer,
             opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
             oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
@@ -41,6 +42,7 @@ object TiltaksgjennomforingV2Mapper {
     fun fromGjennomforingEnkeltplass(gjennomforing: GjennomforingEnkeltplass): TiltaksgjennomforingV2Dto {
         return Enkeltplass(
             id = gjennomforing.id,
+            lopenummer = gjennomforing.lopenummer,
             opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
             oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
@@ -58,6 +60,7 @@ object TiltaksgjennomforingV2Mapper {
         return when (gjennomforing.oppstart) {
             GjennomforingOppstartstype.LOPENDE, GjennomforingOppstartstype.FELLES -> Gruppe(
                 id = gjennomforing.id,
+                lopenummer = gjennomforing.lopenummer,
                 opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
                 oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
                 tiltakskode = gjennomforing.tiltakstype.tiltakskode,
@@ -79,6 +82,7 @@ object TiltaksgjennomforingV2Mapper {
 
             GjennomforingOppstartstype.ENKELTPLASS -> Enkeltplass(
                 id = gjennomforing.id,
+                lopenummer = gjennomforing.lopenummer,
                 opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
                 oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
                 tiltakskode = gjennomforing.tiltakstype.tiltakskode,

@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.tiltak.historikk.db.queries.TiltakstypeDbo
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
 import java.time.Instant
@@ -92,6 +93,7 @@ object TestFixtures {
     object Gjennomforing {
         val gruppeAmo: TiltaksgjennomforingV2Dto.Gruppe = TiltaksgjennomforingV2Dto.Gruppe(
             id = UUID.randomUUID(),
+            lopenummer = Tiltaksnummer("2025/1"),
             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
             arrangor = TiltaksgjennomforingV2Dto.Arrangor(
                 organisasjonsnummer = Organisasjonsnummer("987654321"),
@@ -113,6 +115,7 @@ object TestFixtures {
 
         val enkelAmo: TiltaksgjennomforingV2Dto.Enkeltplass = TiltaksgjennomforingV2Dto.Enkeltplass(
             id = UUID.randomUUID(),
+            lopenummer = Tiltaksnummer("2025/2"),
             tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
             arrangor = TiltaksgjennomforingV2Dto.Arrangor(
                 organisasjonsnummer = Organisasjonsnummer("987654321"),
