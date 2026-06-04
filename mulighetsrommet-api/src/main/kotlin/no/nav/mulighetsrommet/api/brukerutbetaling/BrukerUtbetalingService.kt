@@ -38,7 +38,7 @@ class BrukerUtbetalingService(
         )
         logger.info("Produserer utbetaling id=${utbetaling.id} mot Hel Ved på ${config.helvedUtbetalingTopic}")
 
-        kafkaProducerClient.send(record)
+        kafkaProducerClient.sendSync(record)
     }
 
     fun produceTilskuddUtbetalingTest(): UUID? {
