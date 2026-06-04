@@ -193,6 +193,7 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.tilskuddBrukerUtbetaling to TilskuddBrukerUtbetalingConsumer(
                 get(),
                 get(),
+                get(),
             ),
 
             config.clients.datavarehusGjennomforingerConsumer to DatavarehusTiltakV1KafkaProducer(
