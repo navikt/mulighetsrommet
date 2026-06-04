@@ -126,8 +126,8 @@ fun Row.toPrismodell(): Prismodell {
     val prisbetingelser = stringOrNull("prismodell_prisbetingelser")
     val satser = stringOrNull("prismodell_satser")?.let { Json.decodeFromString<List<AvtaltSats>?>(it) }
     val tilsagnPerDeltaker = anyOrNull("prismodell_tilsagn_per_deltaker") as Boolean?
-    val totalbelop = intOrNull("prismodell_totalbelop")?.toUInt()
-    val tilskudd = stringOrNull("prismodell_tilskudd")?.let { Json.decodeFromString<Map<Tilskuddstype, UInt>>(it) }
+    val totalbelop = intOrNull("prismodell_totalbelop")
+    val tilskudd = stringOrNull("prismodell_tilskudd")?.let { Json.decodeFromString<Map<Tilskuddstype, Int>>(it) }
     val aarsak = stringOrNull("prismodell_aarsak")
     return Prismodell.from(type, id, valuta, prisbetingelser, satser, tilsagnPerDeltaker, totalbelop, tilskudd, aarsak)
 }

@@ -22,13 +22,13 @@ class PrismodellQueriesTest : FunSpec({
                 val dbo = PrismodellFixtures.createPrismodellDbo(
                     type = PrismodellType.ANNEN_AVTALT_PRIS,
                     tilsagnPerDeltaker = false,
-                    totalbelop = 100_000u,
+                    totalbelop = 100_000,
                 )
 
                 queries.prismodell.upsert(dbo)
 
                 queries.prismodell.getOrError(dbo.id).shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
-                    it.totalbelop shouldBe 100_000u
+                    it.totalbelop shouldBe 100_000
                 }
 
                 queries.prismodell.upsert(dbo.copy(totalbelop = null))
@@ -46,8 +46,8 @@ class PrismodellQueriesTest : FunSpec({
                 val dbo = PrismodellFixtures.createPrismodellDbo(
                     type = PrismodellType.TILSKUDD_TIL_OPPLAERING,
                     tilskudd = mapOf(
-                        Tilskuddstype.TILTAK_DRIFTSTILSKUDD to 50_000u,
-                        Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD to 30_000u,
+                        Tilskuddstype.TILTAK_DRIFTSTILSKUDD to 50_000,
+                        Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD to 30_000,
                     ),
                 )
 
@@ -55,8 +55,8 @@ class PrismodellQueriesTest : FunSpec({
 
                 queries.prismodell.getOrError(dbo.id).shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
                     it.tilskudd shouldBe mapOf(
-                        Tilskuddstype.TILTAK_DRIFTSTILSKUDD to 50_000u,
-                        Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD to 30_000u,
+                        Tilskuddstype.TILTAK_DRIFTSTILSKUDD to 50_000,
+                        Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD to 30_000,
                     )
                 }
             }

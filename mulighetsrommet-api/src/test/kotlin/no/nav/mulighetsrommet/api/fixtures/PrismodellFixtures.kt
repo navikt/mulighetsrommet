@@ -19,8 +19,8 @@ object PrismodellFixtures {
         prisbetingelser: String? = null,
         satser: List<AvtaltSats> = emptyList(),
         tilsagnPerDeltaker: Boolean? = false,
-        totalbelop: UInt? = null,
-        tilskudd: Map<Tilskuddstype, UInt>? = null,
+        totalbelop: Int? = null,
+        tilskudd: Map<Tilskuddstype, Int>? = null,
         aarsak: String? = null,
     ): PrismodellDbo = PrismodellDbo(
         id = id,
