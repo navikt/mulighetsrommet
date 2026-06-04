@@ -32,7 +32,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -108,9 +107,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.upsert(upsert).shouldBeRight()
 
-            database.run {
-                queries.totrinnskontroll.get(upsert.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).shouldBeNull()
-            }
+            service.get(upsert.id).shouldNotBeNull().okonomi.shouldBeNull()
         }
 
         test("publiseres til kafka når gjennomføring opprettes") {
@@ -199,12 +196,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
 
-            database.run {
-                queries.totrinnskontroll.getOrError(upsert.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
-                    it.behandletAv shouldBe NavIdent("B123456")
-                    it.besluttetAv.shouldBeNull()
-                    it.besluttelse.shouldBeNull()
-                }
+            service.get(upsert.id).shouldNotBeNull().okonomi.shouldNotBeNull().should {
+                it.behandletAv shouldBe NavIdent("B123456")
+                it.besluttetAv.shouldBeNull()
+                it.besluttelse.shouldBeNull()
             }
         }
 
@@ -225,11 +220,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
             service.godkjennOkonomi(upsert.id, besluttetAv).shouldBeRight()
 
-            database.run {
-                queries.totrinnskontroll.getOrError(upsert.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
-                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
-                    it.besluttetAv shouldBe besluttetAv
-                }
+            service.get(upsert.id).shouldNotBeNull().okonomi.shouldNotBeNull().should {
+                it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                it.besluttetAv shouldBe besluttetAv
             }
         }
 
@@ -256,11 +249,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 .shouldBeRight()
             service.godkjennOkonomi(upsert.id, besluttetAv).shouldBeRight()
 
-            database.run {
-                queries.totrinnskontroll.getOrError(upsert.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
-                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
-                    it.forklaring shouldBe null
-                }
+            service.get(upsert.id).shouldNotBeNull().okonomi.shouldNotBeNull().should {
+                it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                it.forklaring shouldBe null
             }
         }
 
@@ -271,12 +262,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.tilGodkjenningOkonomi(upsert.id, NavIdent("B123456")).shouldBeRight()
             service.settPaVentOkonomi(upsert.id, besluttetAv, forklaring = "Feil").shouldBeRight()
 
-            database.run {
-                queries.totrinnskontroll.getOrError(upsert.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI).should {
-                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
-                    it.besluttetAv shouldBe besluttetAv
-                    it.forklaring shouldBe "Feil"
-                }
+            service.get(upsert.id).shouldNotBeNull().okonomi.shouldNotBeNull().should {
+                it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                it.besluttetAv shouldBe besluttetAv
+                it.forklaring shouldBe "Feil"
             }
         }
 
