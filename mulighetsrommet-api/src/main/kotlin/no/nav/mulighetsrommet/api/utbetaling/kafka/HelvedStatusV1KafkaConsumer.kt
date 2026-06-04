@@ -4,8 +4,8 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.ConsumeStatus
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
+import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
-import no.nav.mulighetsrommet.api.helved.HelVedService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class HelvedStatusV1KafkaConsumer(
-    val helVedService: HelVedService,
+    val brukerUtbetalingService: BrukerUtbetalingService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
     JsonElementDeserializer(),
@@ -41,6 +41,6 @@ class HelvedStatusV1KafkaConsumer(
     override suspend fun consume(key: UUID, message: JsonElement) {
         logger.info("Konsumerer hel ved utbetaling status-melding med id=$key")
         val helvedStatus = JsonIgnoreUnknownKeys.decodeFromJsonElement<HelVedStatus>(message)
-        helVedService.handleHelvedStatus(key, helvedStatus)
+        brukerUtbetalingService.handleHelvedStatus(key, helvedStatus)
     }
 }

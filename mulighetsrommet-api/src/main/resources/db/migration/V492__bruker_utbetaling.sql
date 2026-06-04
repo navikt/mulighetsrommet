@@ -1,4 +1,4 @@
-CREATE TABLE hel_ved_utbetaling (
+CREATE TABLE bruker_utbetaling (
     id                    UUID        NOT NULL PRIMARY KEY,
     sak_id                TEXT        NOT NULL,
     behandling_id         TEXT        NOT NULL,
@@ -16,4 +16,4 @@ CREATE TABLE hel_ved_utbetaling (
 );
 
 alter table tilskudd
-    add column hel_ved_utbetaling_id uuid references hel_ved_utbetaling (id);
+    add column bruker_utbetaling_id uuid references bruker_utbetaling (id);

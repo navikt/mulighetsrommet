@@ -10,17 +10,16 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
-import no.nav.mulighetsrommet.api.helved.HelVedService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
@@ -31,6 +30,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -43,14 +43,14 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val personaliaService = mockk<PersonaliaService>()
-    val helVedService = mockk<HelVedService>(relaxed = true)
+    val brukerUtbetalingService = mockk<BrukerUtbetalingService>(relaxed = true)
 
     val behandlingId = UUID.randomUUID()
     val tilskuddId = UUID.randomUUID()
     val deltakerId = UUID.randomUUID()
 
     beforeEach {
-        clearMocks(helVedService)
+        clearMocks(brukerUtbetalingService)
 
         MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
@@ -86,7 +86,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         tilskudd = listOf(
             TilskuddBehandlingRequest.TilskuddRequest(
                 id = tilskuddId,
-                tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
+                tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                 soknadBelop = ValutaBelopRequest(belop = 5000, valuta = Valuta.NOK),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,
@@ -113,7 +113,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     fun createConsumer() = TilskuddBrukerUtbetalingConsumer(
         db = database.db,
         personaliaService = personaliaService,
-        helVedService = helVedService,
+        brukerUtbetalingService = brukerUtbetalingService,
     )
 
     test("oppretter hel ved utbetaling for innvilget tilskudd til bruker") {
@@ -131,7 +131,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         result.saksbehandler shouldBe NavAnsattFixture.DonaldDuck.navIdent
         result.beslutter shouldBe NavAnsattFixture.MikkeMus.navIdent
 
-        verify(exactly = 1) { helVedService.produceTilskuddUtbetaling(any()) }
+        verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
     }
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
@@ -143,6 +143,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         consumer.consume(behandlingId, hendelse)
         consumer.consume(behandlingId, hendelse)
 
-        verify(exactly = 1) { helVedService.produceTilskuddUtbetaling(any()) }
+        verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
     }
 })

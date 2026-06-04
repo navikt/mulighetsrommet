@@ -10,10 +10,10 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellQueries
 import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerQueries
+import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
-import no.nav.mulighetsrommet.api.helved.db.HelVedUtbetalingQueries
 import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
@@ -96,7 +96,7 @@ open class QueryContext(open val session: Session) {
         val opplaeringtilskudd = OpplaeringtilskuddQueries(session)
         val opplaringKategorisering = OpplaringKategoriseringQueries(session)
         val tilskuddBehandling = TilskuddBehandlingQueries(session)
-        val helvedUtbetaling = HelVedUtbetalingQueries(session)
+        val helvedUtbetaling = BrukerUtbetalingQueries(session)
     }
 }
 

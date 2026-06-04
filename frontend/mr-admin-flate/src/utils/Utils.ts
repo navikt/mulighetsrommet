@@ -12,10 +12,10 @@ import {
   AmoKategoriseringDto,
   AmoKurstype,
   Tiltakskode,
-  TilskuddOpplaeringType,
   GjennomforingType,
   TilskuddBehandlingStatusAarsak,
   TilskuddMottaker,
+  OpplaeringtilskuddKode,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -169,17 +169,17 @@ export function kurstypeToString(kurstype: AmoKategoriseringDto["kurstype"]): st
   }
 }
 
-export function opplaeringTilskuddToString(tilskuddType: TilskuddOpplaeringType): string {
+export function opplaeringTilskuddToString(tilskuddType: OpplaeringtilskuddKode): string {
   switch (tilskuddType) {
-    case TilskuddOpplaeringType.EKSAMENSAVGIFT:
+    case OpplaeringtilskuddKode.EKSAMENSAVGIFT:
       return "Eksamensavgift";
-    case TilskuddOpplaeringType.INTEGRERT_BOTILBUD:
+    case OpplaeringtilskuddKode.INTEGRERT_BOTILBUD:
       return "Integrert botilbud";
-    case TilskuddOpplaeringType.SEMESTERAVGIFT:
+    case OpplaeringtilskuddKode.SEMESTERAVGIFT:
       return "Semesteravgift";
-    case TilskuddOpplaeringType.SKOLEPENGER:
+    case OpplaeringtilskuddKode.SKOLEPENGER:
       return "Skolepenger";
-    case TilskuddOpplaeringType.STUDIEREISE:
+    case OpplaeringtilskuddKode.STUDIEREISE:
       return "Studiereise";
   }
 }

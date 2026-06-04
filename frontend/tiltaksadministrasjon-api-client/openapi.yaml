@@ -8134,7 +8134,7 @@ components:
           type: string
           format: uuid
         tilskuddOpplaeringType:
-          $ref: "#/components/schemas/TilskuddOpplaeringType"
+          $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
         soknadBelop:
           $ref: "#/components/schemas/ValutaBelop"
         vedtakResultat:
@@ -8162,14 +8162,6 @@ components:
       - utbetalingBelop
       - utbetalingMottaker
       - vedtakResultat
-    TilskuddOpplaeringType:
-      type: string
-      enum:
-      - SKOLEPENGER
-      - STUDIEREISE
-      - EKSAMENSAVGIFT
-      - SEMESTERAVGIFT
-      - INTEGRERT_BOTILBUD
     VedtakResultatDto:
       type: object
       properties:
@@ -8242,7 +8234,7 @@ components:
         tilskuddtyper:
           type: array
           items:
-            $ref: "#/components/schemas/TilskuddOpplaeringType"
+            $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
           uniqueItems: true
         periode:
           $ref: "#/components/schemas/Periode"
@@ -8267,7 +8259,7 @@ components:
         tilskuddOpplaeringType:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/TilskuddOpplaeringType"
+          - $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
         soknadBelop:
           oneOf:
           - type: "null"

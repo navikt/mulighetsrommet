@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.helved.db
+package no.nav.mulighetsrommet.api.brukerutbetaling.db
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -12,7 +12,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
-data class HelVedUtbetalingDbo(
+data class BrukerUtbetalingDbo(
     val id: UUID,
     val sakId: String,
     val behandlingId: String,
@@ -28,11 +28,11 @@ data class HelVedUtbetalingDbo(
     val helVedStatusError: HelVedStatus.StatusError?,
 )
 
-class HelVedUtbetalingQueries(private val session: Session) {
+class BrukerUtbetalingQueries(private val session: Session) {
     fun insert(utbetaling: HelVedUtbetaling) {
         @Language("PostgreSQL")
         val query = """
-            insert into hel_ved_utbetaling (
+            insert into bruker_utbetaling (
                 id,
                 sak_id,
                 behandling_id,
@@ -76,11 +76,11 @@ class HelVedUtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun getByTilskudd(tilskuddId: UUID): HelVedUtbetalingDbo? {
+    fun getByTilskudd(tilskuddId: UUID): BrukerUtbetalingDbo? {
         @Language("PostgreSQL")
         val query = """
-            select hel_ved_utbetaling.* from hel_ved_utbetaling
-            inner join tilskudd on tilskudd.hel_ved_utbetaling_id = hel_ved_utbetaling.id
+            select bruker_utbetaling.* from bruker_utbetaling
+            inner join tilskudd on tilskudd.bruker_utbetaling_id = bruker_utbetaling.id
             where tilskudd.id = :id::uuid
         """.trimIndent()
 
@@ -90,7 +90,7 @@ class HelVedUtbetalingQueries(private val session: Session) {
     fun setHelVedStatus(id: UUID, status: HelVedStatus) {
         @Language("PostgreSQL")
         val query = """
-            update hel_ved_utbetaling set
+            update bruker_utbetaling set
                 hel_ved_status = :status,
                 hel_ved_status_error = :status_error::jsonb
             where id = :id::uuid
@@ -109,7 +109,7 @@ class HelVedUtbetalingQueries(private val session: Session) {
     }
 }
 
-private fun Row.toHelVedUtbetalingDbo() = HelVedUtbetalingDbo(
+private fun Row.toHelVedUtbetalingDbo() = BrukerUtbetalingDbo(
     id = uuid("id"),
     sakId = string("sak_id"),
     behandlingId = string("behandling_id"),

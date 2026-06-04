@@ -5,9 +5,9 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Periode
-import no.nav.mulighetsrommet.api.helved.HelVedService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
@@ -29,7 +29,7 @@ import java.util.UUID
 class TilskuddBrukerUtbetalingConsumer(
     private val db: ApiDatabase,
     private val personaliaService: PersonaliaService,
-    private val helVedService: HelVedService,
+    private val brukerUtbetalingService: BrukerUtbetalingService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
     JsonElementDeserializer(),
@@ -96,9 +96,9 @@ class TilskuddBrukerUtbetalingConsumer(
                     )
                     queries.helvedUtbetaling.insert(utbetaling)
 
-                    queries.tilskuddBehandling.setHelVedUtbetaling(t.id, utbetaling.id)
+                    queries.tilskuddBehandling.setBrukerUtbetaling(t.id, utbetaling.id)
 
-                    helVedService.produceTilskuddUtbetaling(utbetaling)
+                    brukerUtbetalingService.produceTilskuddUtbetaling(utbetaling)
                 }
             }
     }

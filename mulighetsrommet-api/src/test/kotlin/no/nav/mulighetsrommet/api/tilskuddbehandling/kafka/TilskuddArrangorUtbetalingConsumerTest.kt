@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
@@ -29,6 +28,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -79,7 +79,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         tilskudd = listOf(
             TilskuddBehandlingRequest.TilskuddRequest(
                 id = tilskuddId,
-                tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
+                tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                 soknadBelop = ValutaBelopRequest(belop = 100, valuta = Valuta.NOK),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,

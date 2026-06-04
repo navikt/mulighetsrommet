@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingS
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
+import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
@@ -54,7 +55,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomfo
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
-import no.nav.mulighetsrommet.api.helved.HelVedService
 import no.nav.mulighetsrommet.api.janzz.PamOntologiService
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
 import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
@@ -505,7 +505,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { AdminUtbetalingService(get(), get(), get()) }
-    single { HelVedService(HelVedService.Config(appConfig.kafka.topics.helvedUtbetalingTopic), get(), get()) }
+    single { BrukerUtbetalingService(BrukerUtbetalingService.Config(appConfig.kafka.topics.helvedUtbetalingTopic), get(), get()) }
     single { PersonaliaService(get(), get(), get(), get(), get()) }
     single<FeatureToggleService> { UnleashFeatureToggleService(appConfig.unleash) }
     single { LagretFilterService(get()) }

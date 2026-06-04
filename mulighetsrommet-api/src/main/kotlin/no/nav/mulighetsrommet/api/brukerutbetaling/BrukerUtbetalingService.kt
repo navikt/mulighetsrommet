@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.helved
+package no.nav.mulighetsrommet.api.brukerutbetaling
 
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
@@ -14,7 +14,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
-class HelVedService(
+class BrukerUtbetalingService(
     val config: Config,
     val db: ApiDatabase,
     val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,

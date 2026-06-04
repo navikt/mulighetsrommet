@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.helved.db
+package no.nav.mulighetsrommet.api.brukerutbetaling.db
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
@@ -19,7 +19,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
-class HelVedUtbetalingQueriesTest : FunSpec({
+class BrukerUtbetalingQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
     val domain = MulighetsrommetTestDomain(
@@ -61,7 +61,7 @@ class HelVedUtbetalingQueriesTest : FunSpec({
         database.db.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
             queries.helvedUtbetaling.insert(utbetaling)
-            queries.tilskuddBehandling.setHelVedUtbetaling(tilskudd.id, utbetaling.id)
+            queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id)
         }
 
         val result = database.db.session { queries.helvedUtbetaling.getByTilskudd(tilskudd.id) }
@@ -112,7 +112,7 @@ class HelVedUtbetalingQueriesTest : FunSpec({
         val tilskudd = TilskuddFixtures.Tilskudd
         database.db.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
-            queries.tilskuddBehandling.setHelVedUtbetaling(tilskudd.id, utbetaling.id)
+            queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id)
         }
 
         val result = database.db.session { queries.helvedUtbetaling.getByTilskudd(tilskudd.id) }

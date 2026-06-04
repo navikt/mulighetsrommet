@@ -16,12 +16,12 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Valuta
@@ -58,7 +58,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
         tilskudd = listOf(
             TilskuddBehandlingRequest.TilskuddRequest(
                 id = UUID.randomUUID(),
-                tilskuddOpplaeringType = TilskuddOpplaeringType.SKOLEPENGER,
+                tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                 soknadBelop = ValutaBelopRequest(
                     belop = 12,
                     valuta = Valuta.SEK,
