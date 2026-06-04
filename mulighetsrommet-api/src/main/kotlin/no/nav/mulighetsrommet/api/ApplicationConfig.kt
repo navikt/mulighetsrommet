@@ -137,6 +137,11 @@ class KafkaClients(
         topic = "team-mulighetsrommet.totrinnskontroll-v1",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.tilskudd-arrangor-utbetaling.v1"),
     )
+    var tilskuddBrukerUtbetaling: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "tilskudd-bruker-utbetaling",
+        topic = "team-mulighetsrommet.totrinnskontroll-v1",
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.tilskudd-bruker-utbetaling.v1"),
+    )
     var replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "replicate-bestilling-status",
         topic = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",

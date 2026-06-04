@@ -75,6 +75,7 @@ import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddArrangorUtbetalingConsumer
+import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddBrukerUtbetalingConsumer
 import no.nav.mulighetsrommet.api.tiltakstype.service.RedaksjoneltInnholdLenkeService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
@@ -189,6 +190,11 @@ private fun kafka(appConfig: AppConfig) = module {
                 get(),
                 get(),
             ),
+            config.clients.tilskuddBrukerUtbetaling to TilskuddBrukerUtbetalingConsumer(
+                get(),
+                get(),
+            ),
+
             config.clients.datavarehusGjennomforingerConsumer to DatavarehusTiltakV1KafkaProducer(
                 DatavarehusTiltakV1KafkaProducer.Config(config.topics.datavarehusTiltakTopic),
                 get(),
