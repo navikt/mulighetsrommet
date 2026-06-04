@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.DeltakerStatus
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -17,7 +18,9 @@ data class Deltaker(
     val status: DeltakerStatus,
     val deltakelsesmengder: List<Deltakelsesmengde>,
     val innholdAnnet: String?,
-)
+) {
+    fun erFeilregistrert(): Boolean = status.type == DeltakerStatusType.FEILREGISTRERT
+}
 
 @Serializable
 data class Deltakelsesmengde(
