@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto.Gruppe
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.time.Instant
 import java.time.LocalDate
@@ -48,6 +49,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
 
         val gruppetiltak = Gruppe(
             id = GjennomforingFixtures.Oppfolging1.id,
+            lopenummer = Tiltaksnummer("2025/1"),
             opprettetTidspunkt = Instant.now(),
             oppdatertTidspunkt = Instant.now(),
             tiltakskode = Tiltakskode.OPPFOLGING,
@@ -66,6 +68,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
         )
         val enkeltplass = TiltaksgjennomforingV2Dto.Enkeltplass(
             id = GjennomforingFixtures.EnkelAmo.id,
+            lopenummer = Tiltaksnummer("2025/2"),
             opprettetTidspunkt = Instant.now(),
             oppdatertTidspunkt = Instant.now(),
             tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,

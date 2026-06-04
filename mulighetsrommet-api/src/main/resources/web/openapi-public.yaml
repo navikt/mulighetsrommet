@@ -142,6 +142,8 @@ components:
         id:
           type: string
           format: uuid
+        lopenummer:
+          type: string
         opprettetTidspunkt:
           type: string
           format: date-time
@@ -165,6 +167,7 @@ components:
       required:
       - arrangor
       - id
+      - lopenummer
       - oppdatertTidspunkt
       - opprettetTidspunkt
       - oppstart
@@ -235,6 +238,8 @@ components:
         id:
           type: string
           format: uuid
+        lopenummer:
+          type: string
         opprettetTidspunkt:
           type: string
           format: date-time
@@ -284,6 +289,7 @@ components:
       - arrangor
       - deltidsprosent
       - id
+      - lopenummer
       - navn
       - oppdatertTidspunkt
       - oppmoteSted

@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -65,6 +66,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
 
         var gjennomforing: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Dto.Gruppe(
             id = AFT1.id,
+            lopenummer = Tiltaksnummer("2025/1"),
             navn = AFT1.navn,
             tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
             arrangor = TiltaksgjennomforingV2Dto.Arrangor(
