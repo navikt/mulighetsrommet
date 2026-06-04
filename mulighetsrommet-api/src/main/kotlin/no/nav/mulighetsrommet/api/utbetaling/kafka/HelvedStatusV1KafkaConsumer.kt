@@ -21,7 +21,7 @@ class HelvedStatusV1KafkaConsumer(
 ) {
     companion object {
         private const val FAGSYSTEM_HEADER_NAME = "fagsystem"
-        private const val EXPECTED_FAGSYSTEM = "TILTAKSADMINISTRASJON"
+        private const val EXPECTED_FAGSYSTEM = "VALP"
     }
     private val logger = LoggerFactory.getLogger(javaClass)
 
