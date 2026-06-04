@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.kafka
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.ConsumeStatus
-import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
+import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -15,8 +15,8 @@ import java.util.UUID
 
 class HelvedStatusV1KafkaConsumer(
     val brukerUtbetalingService: BrukerUtbetalingService,
-) : KafkaTopicConsumer<UUID, JsonElement>(
-    uuidDeserializer(),
+) : KafkaTopicConsumer<String, JsonElement>(
+    stringDeserializer(),
     JsonElementDeserializer(),
 ) {
     companion object {
@@ -29,7 +29,7 @@ class HelvedStatusV1KafkaConsumer(
      * Statusmeldingene på helved.status.v1 inneholder en Kafka-header med nøkkelen fagsystem. Denne brukes
      * for å filtrere ut relevante statuser for det aktuelle fagsystemet.
      */
-    override fun consume(record: ConsumerRecord<UUID, JsonElement>): ConsumeStatus {
+    override fun consume(record: ConsumerRecord<String, JsonElement>): ConsumeStatus {
         val fagsystem = record.headers().lastHeader(FAGSYSTEM_HEADER_NAME).value().let { String(it) }
         if (fagsystem == EXPECTED_FAGSYSTEM) {
             return super.consume(record)
@@ -38,9 +38,10 @@ class HelvedStatusV1KafkaConsumer(
         return ConsumeStatus.OK
     }
 
-    override suspend fun consume(key: UUID, message: JsonElement) {
+    override suspend fun consume(key: String, message: JsonElement) {
         logger.info("Konsumerer hel ved utbetaling status-melding med id=$key")
+        val id = UUID.fromString(key)
         val helvedStatus = JsonIgnoreUnknownKeys.decodeFromJsonElement<HelVedStatus>(message)
-        brukerUtbetalingService.handleHelvedStatus(key, helvedStatus)
+        brukerUtbetalingService.handleHelvedStatus(id, helvedStatus)
     }
 }
