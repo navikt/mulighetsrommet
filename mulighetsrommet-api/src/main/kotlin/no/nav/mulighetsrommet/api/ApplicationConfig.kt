@@ -180,7 +180,7 @@ class KafkaClients(
     var helvedUtbetalingStatusV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "helved-utbetaling-status",
         topic = "helved.status.v1",
-        consumerProperties = getConsumerProperties("helved.status.v1"),
+        consumerProperties = getConsumerProperties("helved.status.v1-2"),
     )
 
     init {
