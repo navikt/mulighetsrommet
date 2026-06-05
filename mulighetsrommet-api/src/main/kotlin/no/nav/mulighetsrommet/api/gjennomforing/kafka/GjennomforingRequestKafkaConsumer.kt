@@ -36,47 +36,11 @@ class GjennomforingRequestKafkaConsumer(
 
     override suspend fun consume(key: UUID, message: JsonElement) {
         when (val request = JsonIgnoreUnknownKeys.decodeFromJsonElement<GjennomforingRequest>(message)) {
-            is GjennomforingRequest.OpprettEnkeltplassPayload -> opprettGjennomforingEnkeltplass(request)
             is GjennomforingRequest.EnkeltplassUtkast -> handterEnkeltplassUtkast(request)
             is GjennomforingRequest.EnkeltplassSoktInn -> handterEnkeltplassSoktInn(request)
             is GjennomforingRequest.EnkeltplassEndreInnhold -> TODO("Ikke støttet enda")
             is GjennomforingRequest.EnkeltplassEndrePrisinformasjon -> TODO("Ikke støttet enda")
         }
-    }
-
-    private suspend fun opprettGjennomforingEnkeltplass(request: GjennomforingRequest.OpprettEnkeltplassPayload) {
-        require(tiltakstyper.erMigrert(request.tiltakskode)) {
-            "Enkeltplass kan bare opprettes når tiltakstypen er migrert"
-        }
-
-        require(request.tiltakskode.harEgenskap(TiltakstypeEgenskap.STOTTER_ENKELTPLASSER)) {
-            "Enkeltplass kan bare opprettes for tiltakstyper med støtte for enkeltplasser"
-        }
-
-        if (enkeltplasser.get(request.gjennomforingId) != null) {
-            return
-        }
-
-        val arrangor = getArrangor(request.organisasjonsnummer)
-
-        val opprett = UpsertGjennomforingEnkeltplass(
-            id = request.gjennomforingId,
-            tiltakskode = request.tiltakskode,
-            arrangorId = arrangor.id,
-            status = GjennomforingStatusType.GJENNOMFORES,
-            prismodell = Prismodell.AnnenAvtaltPris(
-                id = UUID.randomUUID(),
-                valuta = Valuta.NOK,
-                tilsagnPerDeltaker = true,
-                prisbetingelser = request.prisinformasjon,
-                totalbelop = null,
-            ),
-            ansvarligEnhet = request.ansvarligEnhet,
-            kategorisering = request.kategorisering?.let(KategoriseringMapper::fromKafkaPayload),
-        )
-        enkeltplasser.upsert(opprett)
-            .flatMap { enkeltplasser.tilGodkjenningOkonomi(opprett.id, request.opprettetAv) }
-            .throwOnErrors()
     }
 
     private suspend fun handterEnkeltplassUtkast(request: GjennomforingRequest.EnkeltplassUtkast) {

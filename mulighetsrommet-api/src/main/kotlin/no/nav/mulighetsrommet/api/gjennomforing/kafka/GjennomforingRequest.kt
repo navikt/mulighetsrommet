@@ -46,20 +46,6 @@ sealed interface GjennomforingRequest {
         override val gjennomforingId: UUID,
         val payload: OpplaringKategorisering?,
     ) : GjennomforingRequest
-
-    // TODO: skal slettes
-    @Serializable
-    @SerialName("OpprettEnkeltplass")
-    data class OpprettEnkeltplassPayload(
-        @Serializable(with = UUIDSerializer::class)
-        override val gjennomforingId: UUID,
-        val tiltakskode: Tiltakskode,
-        val organisasjonsnummer: Organisasjonsnummer,
-        val prisinformasjon: String,
-        val ansvarligEnhet: NavEnhetNummer,
-        val opprettetAv: NavIdent,
-        val kategorisering: OpplaringKategorisering? = null,
-    ) : GjennomforingRequest
 }
 
 @Serializable

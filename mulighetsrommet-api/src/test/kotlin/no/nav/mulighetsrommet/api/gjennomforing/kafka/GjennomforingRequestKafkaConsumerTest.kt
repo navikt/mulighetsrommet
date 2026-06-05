@@ -14,7 +14,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.arrangor.ArrangorError
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -63,96 +62,6 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             tiltakstyper = TiltakstypeService(tiltakstypeConfig, database.db),
             enkeltplasser = enkeltplasser,
         )
-    }
-
-    context("OpprettGjennomforing") {
-        val service = GjennomforingEnkeltplassService(
-            GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
-            database.db,
-            mockk(),
-            TiltakstypeService(TiltakstypeService.Config(), database.db),
-            TotrinnskontrollService(""),
-        )
-
-        val gjennomforingId = UUID.randomUUID()
-
-        val request = GjennomforingRequest.OpprettEnkeltplassPayload(
-            gjennomforingId = gjennomforingId,
-            tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-            prisinformasjon = "prisinformasjon",
-            ansvarligEnhet = NavEnhetNummer("0400"),
-            opprettetAv = NavIdent("B123456"),
-            kategorisering = null,
-        )
-
-        test("oppretter enkeltplass-gjennomføring når arrangør finnes i databasen") {
-            val arrangorer = mockk<ArrangorService>()
-            coEvery {
-                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
-            } returns ArrangorFixtures.underenhet1.right()
-
-            val consumer = createConsumer(service, arrangorer)
-            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
-
-            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, okonomi) ->
-                gjennomforing.id shouldBe gjennomforingId
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
-                gjennomforing.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
-                gjennomforing.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
-
-                okonomi.shouldNotBeNull().behandletAv shouldBe NavIdent("B123456")
-            }
-        }
-
-        test("kaster feil dersom arrangør ikke kan hentes fra brreg") {
-            val arrangorer = mockk<ArrangorService>()
-            coEvery {
-                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
-            } returns ArrangorError.BrregError(BrregError.NotFound).left()
-
-            val consumer = createConsumer(service, arrangorer)
-
-            shouldThrowExactly<IllegalStateException> {
-                consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
-            }
-
-            service.get(gjennomforingId).shouldBeNull()
-        }
-
-        test("oppretter ikke duplikat dersom gjennomføringen allerede eksisterer") {
-            val arrangorer = mockk<ArrangorService>()
-            coEvery {
-                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
-            } returns ArrangorFixtures.underenhet1.right()
-
-            val consumer = createConsumer(service, arrangorer)
-
-            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
-
-            val requestMedAndrePrisbetingelser = request.copy(
-                prisinformasjon = "noko annat",
-            )
-            consumer.consume(
-                gjennomforingId,
-                Json.encodeToJsonElement<GjennomforingRequest>(requestMedAndrePrisbetingelser),
-            )
-
-            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing) ->
-                gjennomforing.prismodell.prisbetingelser() shouldBe request.prisinformasjon
-            }
-        }
-
-        test("kaster feil dersom tiltakskoden ikke er migrert") {
-            val ikkeMigrertConfig = TiltakstypeService.Config(features = emptyMap())
-            val consumer = createConsumer(service, tiltakstypeConfig = ikkeMigrertConfig)
-
-            shouldThrowExactly<IllegalArgumentException> {
-                consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
-            }
-
-            service.get(gjennomforingId).shouldBeNull()
-        }
     }
 
     context("EnkeltplassUtkast") {
