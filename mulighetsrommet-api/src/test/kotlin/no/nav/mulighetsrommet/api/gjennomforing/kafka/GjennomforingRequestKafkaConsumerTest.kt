@@ -165,8 +165,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         )
 
         val gjennomforingId = UUID.randomUUID()
-        val payload = OpprettEnkeltplass(
-            gjennomforingId = gjennomforingId,
+        val payload = UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
@@ -174,7 +173,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
         )
-        val request = GjennomforingRequest.EnkeltplassUtkast(payload)
+        val request = GjennomforingRequest.EnkeltplassUtkast(gjennomforingId, payload)
 
         test("oppretter gjennomforing uten å sende økonomi til godkjenning") {
             val arrangorer = mockk<ArrangorService>()
@@ -219,6 +218,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
 
             val requestMedNyPris = GjennomforingRequest.EnkeltplassUtkast(
+                gjennomforingId,
                 payload.copy(prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 99999)),
             )
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(requestMedNyPris))
@@ -250,8 +250,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         )
 
         val gjennomforingId = UUID.randomUUID()
-        val payload = OpprettEnkeltplass(
-            gjennomforingId = gjennomforingId,
+        val payload = UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
@@ -259,7 +258,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
         )
-        val request = GjennomforingRequest.EnkeltplassSoktInn(payload)
+        val request = GjennomforingRequest.EnkeltplassSoktInn(gjennomforingId, payload)
 
         test("oppretter gjennomforing og sender økonomi til godkjenning") {
             val arrangorer = mockk<ArrangorService>()
@@ -304,7 +303,9 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
             consumer.consume(
                 gjennomforingId,
-                Json.encodeToJsonElement<GjennomforingRequest>(GjennomforingRequest.EnkeltplassUtkast(payload)),
+                Json.encodeToJsonElement<GjennomforingRequest>(
+                    GjennomforingRequest.EnkeltplassUtkast(gjennomforingId, payload),
+                ),
             )
             service.get(gjennomforingId).shouldNotBeNull().should { (_, okonomi) ->
                 okonomi.shouldBeNull()

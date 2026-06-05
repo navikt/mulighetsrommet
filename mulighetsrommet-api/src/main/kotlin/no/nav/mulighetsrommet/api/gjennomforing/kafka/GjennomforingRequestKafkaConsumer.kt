@@ -80,7 +80,8 @@ class GjennomforingRequestKafkaConsumer(
     }
 
     private suspend fun handterEnkeltplassUtkast(request: GjennomforingRequest.EnkeltplassUtkast) {
-        val (payload) = request
+        val (gjennomforingId, payload) = request
+
         require(tiltakstyper.erMigrert(payload.tiltakskode)) {
             "Enkeltplass kan bare opprettes når tiltakstypen er migrert"
         }
@@ -89,7 +90,7 @@ class GjennomforingRequestKafkaConsumer(
             "Enkeltplass kan bare opprettes for tiltakstyper med støtte for enkeltplasser"
         }
 
-        if (enkeltplasser.get(payload.gjennomforingId) != null) {
+        if (enkeltplasser.get(gjennomforingId) != null) {
             log.info("Enkeltplass er allerede opprettet")
             return
         }
@@ -97,7 +98,7 @@ class GjennomforingRequestKafkaConsumer(
         val arrangor = getArrangor(payload.organisasjonsnummer)
         val prismodell = toPrismodell(UUID.randomUUID(), payload.prisinformasjon)
         val opprett = UpsertGjennomforingEnkeltplass(
-            id = payload.gjennomforingId,
+            id = gjennomforingId,
             tiltakskode = payload.tiltakskode,
             arrangorId = arrangor.id,
             status = GjennomforingStatusType.GJENNOMFORES,
@@ -109,7 +110,8 @@ class GjennomforingRequestKafkaConsumer(
     }
 
     private suspend fun handterEnkeltplassSoktInn(request: GjennomforingRequest.EnkeltplassSoktInn) {
-        val (payload) = request
+        val (gjennomforingId, payload) = request
+
         require(tiltakstyper.erMigrert(payload.tiltakskode)) {
             "Enkeltplass kan bare opprettes når tiltakstypen er migrert"
         }
@@ -118,7 +120,7 @@ class GjennomforingRequestKafkaConsumer(
             "Enkeltplass kan bare opprettes for tiltakstyper med støtte for enkeltplasser"
         }
 
-        val enkeltplass = enkeltplasser.get(payload.gjennomforingId)
+        val enkeltplass = enkeltplasser.get(gjennomforingId)
         if (enkeltplass?.okonomi != null) {
             log.info("Enkeltplass er allerede søkt inn")
             return
@@ -130,7 +132,7 @@ class GjennomforingRequestKafkaConsumer(
             payload.prisinformasjon,
         )
         val upsert = UpsertGjennomforingEnkeltplass(
-            id = payload.gjennomforingId,
+            id = gjennomforingId,
             tiltakskode = payload.tiltakskode,
             arrangorId = arrangor.id,
             status = GjennomforingStatusType.GJENNOMFORES,
