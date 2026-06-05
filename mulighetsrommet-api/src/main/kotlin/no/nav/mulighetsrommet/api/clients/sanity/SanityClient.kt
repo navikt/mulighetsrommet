@@ -4,7 +4,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -26,12 +25,9 @@ import no.nav.mulighetsrommet.api.sanity.Mutation
 import no.nav.mulighetsrommet.api.sanity.Mutations
 import no.nav.mulighetsrommet.api.sanity.SanityResponse
 import no.nav.mulighetsrommet.ktor.clients.ClientResponseMetricPlugin
-import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     data class Config(
         val projectId: String,
         val dataset: String,
@@ -65,17 +61,6 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         }
 
         install(ClientResponseMetricPlugin)
-
-        install(HttpRequestRetry) {
-            retryOnException(maxRetries = 3, retryOnTimeout = true)
-            exponentialDelay()
-            modifyRequest {
-                response?.let {
-                    logger.warn("Request failed with response status=${it.status}")
-                }
-                logger.info("Retrying request method=${request.method.value}, url=${request.url.buildString()}")
-            }
-        }
 
         install(HttpTimeout) {
             requestTimeoutMillis = 30000
