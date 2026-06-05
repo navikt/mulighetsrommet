@@ -16,8 +16,9 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -116,13 +117,15 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         return response.body()
     }
 
+    data class MutateResponse(val status: HttpStatusCode, val body: String)
+
     internal suspend inline fun <reified T> mutate(
         mutations: List<Mutation<T>>,
         returnIds: Boolean = false,
         returnDocuments: Boolean = false,
         dryRun: Boolean = false,
         visibility: MutationVisibility = MutationVisibility.Sync,
-    ): HttpResponse {
+    ): MutateResponse {
         val response = client.post(config.mutationUrl()) {
             setBody(Mutations(mutations = mutations))
             url.parameters.apply {
@@ -133,7 +136,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
             }
         }
 
-        return response
+        return MutateResponse(response.status, response.bodyAsText())
     }
 }
 

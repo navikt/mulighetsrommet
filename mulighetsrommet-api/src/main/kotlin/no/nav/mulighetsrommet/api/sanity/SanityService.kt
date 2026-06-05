@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.api.sanity
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.NotFoundException
 import kotlinx.serialization.json.JsonObject
@@ -341,7 +339,7 @@ class SanityService(
 
     suspend fun createSanityEnheter(
         sanityEnheter: List<SanityEnhet>,
-    ): HttpResponse {
+    ): SanityClient.MutateResponse {
         val mutations = sanityEnheter.map { Mutation.createOrReplace(it) }
         return sanityClient.mutate(mutations)
     }
@@ -403,7 +401,7 @@ class SanityService(
         val response = sanityClient.mutate(redaktorer.map { Mutation.createOrReplace(it) })
 
         if (response.status != HttpStatusCode.OK) {
-            throw Exception("Klarte ikke upserte redaktorer: Error: ${response.bodyAsText()} - Status: ${response.status}")
+            throw Exception("Klarte ikke upserte redaktorer: Error: ${response.body} - Status: ${response.status}")
         }
     }
 
@@ -411,7 +409,7 @@ class SanityService(
         val response = sanityClient.mutate(kontaktperson.map { Mutation.createOrReplace(it) })
 
         if (response.status != HttpStatusCode.OK) {
-            throw Exception("Klarte ikke upserte nav kontaktpersoner: Error: ${response.bodyAsText()} - Status: ${response.status}")
+            throw Exception("Klarte ikke upserte nav kontaktpersoner: Error: ${response.body} - Status: ${response.status}")
         }
     }
 
@@ -440,7 +438,7 @@ class SanityService(
 
         val response = sanityClient.mutate(mutations)
         if (response.status != HttpStatusCode.OK) {
-            throw Exception("Klarte ikke upserte nav kontaktpersoner: Error: ${response.bodyAsText()} - Status: ${response.status}")
+            throw Exception("Klarte ikke upserte nav kontaktpersoner: Error: ${response.body} - Status: ${response.status}")
         }
     }
 
@@ -463,7 +461,7 @@ class SanityService(
 
         val result = sanityClient.mutate(mutations = ids.map { Mutation.delete(it) })
         if (result.status != HttpStatusCode.OK) {
-            throw Exception("Klarte ikke slette navIdent from Sanity: ${result.bodyAsText()}")
+            throw Exception("Klarte ikke slette navIdent from Sanity: ${result.body}")
         }
     }
 }
