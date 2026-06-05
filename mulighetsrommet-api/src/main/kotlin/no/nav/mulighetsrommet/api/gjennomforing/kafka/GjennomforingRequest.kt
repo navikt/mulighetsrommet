@@ -13,28 +13,37 @@ import java.util.UUID
 
 @Serializable
 sealed interface GjennomforingRequest {
+    val gjennomforingId: UUID
 
     @Serializable
     @SerialName("EnkeltplassUtkast")
     data class EnkeltplassUtkast(
+        @Serializable(with = UUIDSerializer::class)
+        override val gjennomforingId: UUID,
         val payload: OpprettEnkeltplass,
     ) : GjennomforingRequest
 
     @Serializable
     @SerialName("EnkeltplassSoktInn")
     data class EnkeltplassSoktInn(
+        @Serializable(with = UUIDSerializer::class)
+        override val gjennomforingId: UUID,
         val payload: OpprettEnkeltplass,
     ) : GjennomforingRequest
 
     @Serializable
     @SerialName("EnkeltplassEndrePrisinformasjon")
     data class EnkeltplassEndrePrisinformasjon(
+        @Serializable(with = UUIDSerializer::class)
+        override val gjennomforingId: UUID,
         val payload: EnkeltplassPrisinformasjon,
     ) : GjennomforingRequest
 
     @Serializable
     @SerialName("EnkeltplassEndreInnhold")
     data class EnkeltplassEndreInnhold(
+        @Serializable(with = UUIDSerializer::class)
+        override val gjennomforingId: UUID,
         val payload: OpplaringKategorisering?,
     ) : GjennomforingRequest
 
@@ -43,7 +52,7 @@ sealed interface GjennomforingRequest {
     @SerialName("OpprettEnkeltplass")
     data class OpprettEnkeltplassPayload(
         @Serializable(with = UUIDSerializer::class)
-        val gjennomforingId: UUID,
+        override val gjennomforingId: UUID,
         val tiltakskode: Tiltakskode,
         val organisasjonsnummer: Organisasjonsnummer,
         val prisinformasjon: String,
@@ -55,8 +64,6 @@ sealed interface GjennomforingRequest {
 
 @Serializable
 data class OpprettEnkeltplass(
-    @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
     val tiltakskode: Tiltakskode,
     val organisasjonsnummer: Organisasjonsnummer,
     val ansvarligEnhet: NavEnhetNummer,
