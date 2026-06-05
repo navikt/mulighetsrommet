@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.clients.helved
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
@@ -48,6 +49,7 @@ data class HelVedStatus(
             /** >= 1 */
             val vedtakssats: Int?,
             /** >= 1 */
+            @SerialName("beløp")
             val belop: Int,
             val klassekode: String,
         )
