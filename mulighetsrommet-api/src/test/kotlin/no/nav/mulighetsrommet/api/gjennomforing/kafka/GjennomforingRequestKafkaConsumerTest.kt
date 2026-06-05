@@ -165,7 +165,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         )
 
         val gjennomforingId = UUID.randomUUID()
-        val payload = OpprettEnkeltplass(
+        val payload = UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
@@ -250,7 +250,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         )
 
         val gjennomforingId = UUID.randomUUID()
-        val payload = OpprettEnkeltplass(
+        val payload = UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),

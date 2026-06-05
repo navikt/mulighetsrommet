@@ -20,7 +20,7 @@ sealed interface GjennomforingRequest {
     data class EnkeltplassUtkast(
         @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
-        val payload: OpprettEnkeltplass,
+        val payload: UpsertEnkeltplass,
     ) : GjennomforingRequest
 
     @Serializable
@@ -28,7 +28,7 @@ sealed interface GjennomforingRequest {
     data class EnkeltplassSoktInn(
         @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
-        val payload: OpprettEnkeltplass,
+        val payload: UpsertEnkeltplass,
     ) : GjennomforingRequest
 
     @Serializable
@@ -63,7 +63,7 @@ sealed interface GjennomforingRequest {
 }
 
 @Serializable
-data class OpprettEnkeltplass(
+data class UpsertEnkeltplass(
     val tiltakskode: Tiltakskode,
     val organisasjonsnummer: Organisasjonsnummer,
     val ansvarligEnhet: NavEnhetNummer,
