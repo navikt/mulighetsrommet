@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -37,6 +38,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
+import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingDto1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje1
@@ -44,6 +46,7 @@ import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
@@ -51,6 +54,7 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
@@ -738,6 +742,71 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 queries.utbetalingLinje.getByUtbetalingId(utbetaling1.id).shouldBeEmpty()
                 queries.tilsagn.getOrError(Tilsagn1.id).status shouldBe TilsagnStatus.GODKJENT
             }
+        }
+
+        test("automatiserer utbetaling med FastSatsPerAvtaltTiltaksplassPerManed når arrangør godkjenner") {
+            val januar = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
+
+            val tilsagnForAvtaltSats = Tilsagn1.copy(
+                id = UUID.randomUUID(),
+                gjennomforingId = GjennomforingFixtures.TilpassetJobbstotte.id,
+                periode = januar,
+                belopBrukt = 0.NOK,
+                beregning = TilsagnBeregningFastSatsPerTiltaksplassPerManed(
+                    input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                        periode = januar,
+                        sats = 7_321.NOK,
+                        antallPlasser = 1,
+                    ),
+                    output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(pris = 7_321.NOK),
+                ),
+            )
+
+            val utbetalingForAvtaltSats = utbetaling1.copy(
+                gjennomforingId = GjennomforingFixtures.TilpassetJobbstotte.id,
+                periode = januar,
+                beregning = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed(
+                    input = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.Input(
+                        tilsagn = listOf(
+                            UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.TilsagnInput(
+                                tilsagnId = tilsagnForAvtaltSats.id,
+                                periode = januar,
+                                beregnetBelop = 7_321.NOK,
+                                gjenstaendeBelop = 7_321.NOK,
+                            ),
+                        ),
+                    ),
+                    output = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.Output(
+                        pris = 7_321.NOK,
+                        tilsagnBidrag = listOf(
+                            UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.TilsagnBidrag(
+                                tilsagnId = tilsagnForAvtaltSats.id,
+                                periode = januar,
+                                bidrag = 7_321.NOK,
+                            ),
+                        ),
+                    ),
+                ),
+                betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), null),
+            )
+
+            MulighetsrommetTestDomain(
+                tiltakstyper = listOf(TiltakstypeFixtures.TilpassetJobbstotte),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.TilpassetJobbstotte),
+                gjennomforinger = listOf(GjennomforingFixtures.TilpassetJobbstotte),
+                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTilpassetJobbstotte),
+                tilsagn = listOf(tilsagnForAvtaltSats),
+                utbetalinger = listOf(utbetalingForAvtaltSats),
+            ) {
+                setTilsagnStatus(tilsagnForAvtaltSats, TilsagnStatus.GODKJENT)
+            }.initialize(database.db)
+
+            val service = createUtbetalingService()
+
+            service.godkjentAvArrangor(utbetalingForAvtaltSats.id, kid = null).shouldBeRight(
+                AutomatisertUtbetalingResult.GODKJENT,
+            )
         }
     }
 
