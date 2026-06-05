@@ -46,7 +46,7 @@ data class HelVedStatus(
             @Serializable(with = LocalDateSerializer::class)
             val tom: LocalDate,
             /** >= 1 */
-            val vedtakssats: Int,
+            val vedtakssats: Int?,
             /** >= 1 */
             val belop: Int,
             val klassekode: String,
