@@ -42,6 +42,7 @@ import {
   opplaeringTilskuddToString,
   tilskuddMottakerToString,
 } from "@/utils/Utils";
+import { PencilFillIcon } from "@navikt/aksel-icons";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -109,9 +110,10 @@ export function TilskuddBehandlingDetaljerPage() {
                 {
                   items: [
                     {
-                      label: "Rediger",
+                      label: "Rediger tilskuddsbehandling",
                       href: "rediger",
                       handling: TilskuddBehandlingHandling.REDIGER,
+                      icon: <PencilFillIcon />,
                     },
                   ],
                 },
