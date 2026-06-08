@@ -94,7 +94,7 @@ class ArenaAdapterService(
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
                 kategorisering = null, // Arena har ikke amo kategorisering
             )
-            gjennomforingEnkeltplassService.upsert(upsert)
+            gjennomforingEnkeltplassService.synkroniserFraArena(upsert)
         } else {
             val upsert = OpprettGjennomforingArena(
                 id = arenaGjennomforing.id,

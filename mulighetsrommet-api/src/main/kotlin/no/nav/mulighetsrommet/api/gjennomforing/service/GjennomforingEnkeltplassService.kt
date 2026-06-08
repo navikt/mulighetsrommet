@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
+import arrow.core.Either
+import arrow.core.NonEmptyList
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
@@ -26,6 +28,7 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -83,7 +86,45 @@ class GjennomforingEnkeltplassService(
         val gjennomforingV2Topic: String,
     )
 
-    fun upsert(
+    fun opprettUtkast(upsert: UpsertGjennomforingEnkeltplass): Validated<Enkeltplass> = db.transaction {
+        val existing = getEnkeltplass(upsert.id)
+        if (existing != null) {
+            return existing.right()
+        }
+
+        upsert(upsert)
+            .also { updateFreeTextSearch(it, norskIdent = null) }
+            .also { publishTiltaksgjennomforingV2ToKafka(it) }
+            .let { Enkeltplass(it, okonomi = null) }
+            .right()
+    }
+
+    fun soktInn(upsert: UpsertGjennomforingEnkeltplass, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
+        val existing = getEnkeltplass(upsert.id)
+
+        if (existing?.okonomi?.besluttelse == TotrinnskontrollBesluttelse.GODKJENT) {
+            return existing.right()
+        }
+
+        when (existing) {
+            null -> upsert(upsert)
+                .also { updateFreeTextSearch(it, norskIdent = null) }
+                .also { publishTiltaksgjennomforingV2ToKafka(it) }
+
+            else -> upsert(upsert)
+                .also { publishTiltaksgjennomforingV2ToKafka(it) }
+        }
+
+        val enkeltplass = settOkonomiTilGodkjenning(upsert.id, opprettetAv)
+        when (enkeltplass.gjennomforing.prismodell) {
+            is Prismodell.IngenKostnader if enkeltplass.okonomi != null ->
+                settOkonomiGodkjent(upsert.id, enkeltplass.okonomi, Tiltaksadministrasjon)
+
+            else -> enkeltplass.right()
+        }
+    }
+
+    fun synkroniserFraArena(
         upsert: UpsertGjennomforingEnkeltplass,
     ): Validated<GjennomforingEnkeltplass> = db.transaction {
         return when (val gjennomforing = queries.gjennomforing.getGjennomforing(upsert.id)) {
@@ -160,26 +201,6 @@ class GjennomforingEnkeltplassService(
         getEnkeltplass(id)
     }
 
-    fun settOkonomiTilGodkjenning(
-        id: UUID,
-        agent: NavIdent,
-    ): Validated<Enkeltplass> = db.transaction {
-        val (_, okonomi) = getAndAquireLock(id)
-        if (okonomi != null) {
-            return FieldError.of("Deltaker er allerede søkt inn").nel().left()
-        }
-
-        totrinnskontroll.opprett(id, TotrinnskontrollType.ENKELTPLASS_OKONOMI, agent)
-        val enkeltplass = logEndring("Deltaker søkt inn", id, agent)
-
-        when (enkeltplass.gjennomforing.prismodell) {
-            is Prismodell.IngenKostnader if enkeltplass.okonomi != null ->
-                settOkonomiGodkjent(id, enkeltplass.okonomi, Tiltaksadministrasjon)
-
-            else -> enkeltplass.right()
-        }
-    }
-
     fun settOkonomiGodkjent(
         id: UUID,
         agent: Agent,
@@ -192,16 +213,6 @@ class GjennomforingEnkeltplassService(
         return settOkonomiGodkjent(id, okonomi, agent)
     }
 
-    private fun TransactionalQueryContext.settOkonomiGodkjent(
-        id: UUID,
-        okonomi: Totrinnskontroll,
-        agent: Agent,
-    ): Validated<Enkeltplass> {
-        return totrinnskontroll.godkjent(okonomi.copy(forklaring = null), agent).map {
-            logEndring("Enkeltplass ble godkjent", id, agent)
-        }
-    }
-
     fun settOkonomiPaVent(
         id: UUID,
         navIdent: NavIdent,
@@ -212,9 +223,7 @@ class GjennomforingEnkeltplassService(
             return FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel().left()
         }
 
-        totrinnskontroll.avvist(okonomi, navIdent, forklaring = forklaring).map {
-            logEndring("Godkjenning ble satt på vent", id, navIdent)
-        }
+        settOkonomiPaVent(id, okonomi, navIdent, forklaring)
     }
 
     private suspend fun QueryContext.getDeltakerPersonalia(
@@ -264,7 +273,10 @@ class GjennomforingEnkeltplassService(
         return queries.gjennomforing.getGjennomforingEnkeltplassOrError(dbo.id)
     }
 
-    private fun QueryContext.updateFreeTextSearch(gjennomforing: GjennomforingEnkeltplass, norskIdent: NorskIdent?) {
+    private fun QueryContext.updateFreeTextSearch(
+        gjennomforing: GjennomforingEnkeltplass,
+        norskIdent: NorskIdent?,
+    ) {
         val fts = listOf(gjennomforing.arrangor.navn) +
             gjennomforing.lopenummer.toFreeTextSearch() +
             gjennomforing.arena?.tiltaksnummer?.toFreeTextSearch().orEmpty() +
@@ -389,6 +401,35 @@ class GjennomforingEnkeltplassService(
             null,
         )
         queries.kafkaProducerRecord.storeRecord(record)
+    }
+
+    private fun TransactionalQueryContext.settOkonomiTilGodkjenning(
+        id: UUID,
+        agent: Agent,
+    ): Enkeltplass {
+        totrinnskontroll.opprett(id, TotrinnskontrollType.ENKELTPLASS_OKONOMI, agent)
+        return logEndring("Deltaker søkt inn", id, agent)
+    }
+
+    private fun TransactionalQueryContext.settOkonomiGodkjent(
+        id: UUID,
+        okonomi: Totrinnskontroll,
+        agent: Agent,
+    ): Validated<Enkeltplass> {
+        return totrinnskontroll.godkjent(okonomi.copy(forklaring = null), agent).map {
+            logEndring("Enkeltplass ble godkjent", id, agent)
+        }
+    }
+
+    private fun TransactionalQueryContext.settOkonomiPaVent(
+        id: UUID,
+        okonomi: Totrinnskontroll,
+        agent: Agent,
+        forklaring: String?,
+    ): Either<NonEmptyList<FieldError>, Enkeltplass> {
+        return totrinnskontroll.avvist(okonomi, agent, forklaring = forklaring).map {
+            logEndring("Godkjenning ble satt på vent", id, agent)
+        }
     }
 }
 

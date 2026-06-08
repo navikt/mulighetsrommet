@@ -27,12 +27,12 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -82,7 +82,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
     val opprettetAv = NavAnsattFixture.DonaldDuck.navIdent
     val besluttetAv = NavAnsattFixture.MikkeMus.navIdent
 
-    fun createEnkeltplass() = UpsertGjennomforingEnkeltplass(
+    fun createEnkeltplass(
+        kategorisering: OpplaringKategoriseringRequest? = null,
+    ) = UpsertGjennomforingEnkeltplass(
         id = UUID.randomUUID(),
         tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         arrangorId = GjennomforingFixtures.EnkelAmo.arrangorId,
@@ -97,24 +99,86 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             prisbetingelser = null,
             totalbelop = null,
         ),
-        kategorisering = null,
+        kategorisering = kategorisering,
     )
 
-    context("opprettelse gjennomføring") {
+    context("opprettUtkast") {
         val service = createService()
 
-        test("oppretter ikke totrinnskontroll når gjennomføringen opprettes") {
+        test("oppretter enkeltplass uten å sende økonomi til godkjenning") {
             val upsert = createEnkeltplass()
 
-            service.upsert(upsert).shouldBeRight()
+            service.opprettUtkast(upsert).shouldBeRight()
 
-            service.get(upsert.id).shouldNotBeNull().okonomi.shouldBeNull()
+            service.get(upsert.id).shouldNotBeNull().should { (gjennomforing, okonomi) ->
+                gjennomforing.id shouldBe upsert.id
+                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                okonomi.shouldBeNull()
+            }
+        }
+
+        test("oppdaterer ikke eksisterende enkeltplass") {
+            val upsert = createEnkeltplass()
+            service.opprettUtkast(upsert).shouldBeRight()
+
+            val oppdatertPris = Prismodell.AnnenAvtaltPris(
+                id = UUID.randomUUID(),
+                valuta = Valuta.NOK,
+                tilsagnPerDeltaker = true,
+                prisbetingelser = null,
+                totalbelop = 99999,
+            )
+            service.opprettUtkast(upsert.copy(prismodell = oppdatertPris)).shouldBeRight()
+
+            service.get(upsert.id).shouldNotBeNull().should { (gjennomforing) ->
+                (gjennomforing.prismodell as Prismodell.AnnenAvtaltPris).totalbelop shouldBe null
+            }
+        }
+
+        test("lagrer kategorisering amo") {
+            val kategorisering = OpplaringKategoriseringRequest(
+                kurstypeId = KurstypeFixtures.bransjeOgYrkesrettet.id,
+                bransjeId = BransjeFixtures.byggOgAnlegg.id,
+                forerkort = setOf(ForerkortFixtures.B, ForerkortFixtures.BE).map { it.id },
+                sertifiseringer = setOf(Sertifisering(konseptId = 1234, label = "Truckførerkurs")),
+            )
+            val gjennomforing = createEnkeltplass(kategorisering)
+
+            service.opprettUtkast(gjennomforing).shouldBeRight()
+
+            database.run {
+                queries.opplaringKategorisering.getGjennomforingKategorisering(gjennomforing.id).shouldBe(
+                    OpplaringKategorisering(
+                        kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                        bransje = BransjeFixtures.byggOgAnlegg,
+                        forerkort = setOf(ForerkortFixtures.B, ForerkortFixtures.BE),
+                        sertifiseringer = setOf(Sertifisering(konseptId = 1234, label = "Truckførerkurs")),
+                        norskprove = false,
+                    ),
+                )
+            }
+        }
+
+        test("lagrer kategorisering fag og yrke") {
+            val request = OpplaringKategoriseringRequest(
+                utdanningsprogramId = UtdanningFixtures.UtdanningsProgram.byggOgAnlegg.id,
+                larefag = listOf(UtdanningFixtures.Utdanninger.fjellOgBergverksfaget.id),
+            )
+            val gjennomforing = createEnkeltplass(request)
+
+            service.opprettUtkast(gjennomforing).shouldBeRight()
+
+            database.run {
+                val utdanningslop = queries.gjennomforing.getUtdanningslop(gjennomforing.id).shouldNotBeNull()
+                utdanningslop.utdanningsprogram.id.shouldBe(request.utdanningsprogramId)
+                utdanningslop.utdanninger.map { it.id }.shouldContainExactly(request.larefag?.first())
+            }
         }
 
         test("publiseres til kafka når gjennomføring opprettes") {
             val upsert = createEnkeltplass()
 
-            service.upsert(upsert).shouldBeRight()
+            service.opprettUtkast(upsert).shouldBeRight()
 
             database.run {
                 queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).should { (first) ->
@@ -127,62 +191,149 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
         }
 
-        context("opplæring") {
-            val toKategoriseringRequest = { kategorisering: OpplaringKategorisering ->
-                OpplaringKategoriseringRequest(
-                    kurstypeId = kategorisering.kurstype?.id,
-                    bransjeId = kategorisering.bransje?.id,
-                    forerkort = kategorisering.forerkort.map { it.id },
-                    sertifiseringer = kategorisering.sertifiseringer,
-                    utdanningsprogramId = kategorisering.utdanningslop?.utdanningsprogram?.id,
-                    larefag = kategorisering.utdanningslop?.utdanninger?.map { it.id },
-                    // Egentlig ikke i bruk enda
-                    norskprove = kategorisering.norskprove,
-                    innholdElementer = kategorisering.innholdElementer,
-                )
+        test("publiserer ikke til kafka når gjennomføring allerede eksisterer") {
+            val upsert = createEnkeltplass()
+            service.opprettUtkast(upsert).shouldBeRight()
+
+            service.opprettUtkast(upsert.copy(status = GjennomforingStatusType.AVSLUTTET)).shouldBeRight()
+
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1)
             }
+        }
+    }
 
-            test("klarer å lagre kategorisering amo") {
-                val kategorisering = OpplaringKategorisering(
-                    kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
-                    bransje = BransjeFixtures.byggOgAnlegg,
-                    forerkort = setOf(
-                        ForerkortFixtures.B,
-                        ForerkortFixtures.BE,
-                    ),
-                    sertifiseringer = setOf(
-                        Sertifisering(konseptId = 1234, label = "Truckførerkurs"),
-                    ),
-                    norskprove = false,
-                )
-                val gjennomforing = createEnkeltplass().copy(
-                    kategorisering = toKategoriseringRequest(kategorisering),
-                )
+    context("soktInn") {
+        val service = createService()
 
-                service.upsert(gjennomforing).shouldBeRight()
+        test("oppretter enkeltplass og sender økonomi til godkjenning") {
+            val upsert = createEnkeltplass()
 
-                database.run {
-                    queries.opplaringKategorisering.getGjennomforingKategorisering(gjennomforing.id)
-                        .shouldBe(kategorisering)
+            val (_, okonomi) = service.soktInn(upsert, opprettetAv).shouldBeRight()
+
+            okonomi.shouldNotBeNull().should {
+                it.behandletAv shouldBe opprettetAv
+                it.besluttetAv.shouldBeNull()
+                it.besluttelse.shouldBeNull()
+            }
+        }
+
+        test("sender økonomi til godkjenning på nytt etter at økonomi er satt på vent") {
+            val upsert = createEnkeltplass()
+            service.soktInn(upsert, opprettetAv).shouldBeRight()
+            service.settOkonomiPaVent(upsert.id, besluttetAv, forklaring = "Feil prisbetingelser").shouldBeRight()
+
+            val prismodell = Prismodell.TilskuddTilOpplaering(
+                id = UUID.randomUUID(),
+                tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
+                valuta = Valuta.NOK,
+                tilleggsopplysninger = null,
+            )
+            val (gjennomforing, okonomi) = service
+                .soktInn(upsert.copy(prismodell = prismodell), opprettetAv)
+                .shouldBeRight()
+
+            gjennomforing.prismodell shouldBe prismodell
+
+            okonomi.shouldNotBeNull().should {
+                it.besluttetAv.shouldBeNull()
+                it.besluttelse.shouldBeNull()
+            }
+        }
+
+        test("gjør ingenting dersom økonomi allerede er GODKJENT") {
+            val upsert = createEnkeltplass()
+            service.soktInn(upsert, opprettetAv).shouldBeRight()
+            service.settOkonomiGodkjent(upsert.id, besluttetAv).shouldBeRight()
+
+            val prismodell = Prismodell.TilskuddTilOpplaering(
+                id = UUID.randomUUID(),
+                tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
+                valuta = Valuta.NOK,
+                tilleggsopplysninger = null,
+            )
+            val (gjennomforing, okonomi) = service
+                .soktInn(upsert.copy(prismodell = prismodell), opprettetAv)
+                .shouldBeRight()
+
+            gjennomforing.prismodell shouldBe upsert.prismodell
+
+            okonomi.shouldNotBeNull().should {
+                it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                it.besluttetAv shouldBe besluttetAv
+            }
+        }
+
+        test("økonomi godkjennes automatisk av Tiltaksadministrasjon ved IngenKostnader") {
+            val prismodell = Prismodell.IngenKostnader(
+                id = UUID.randomUUID(),
+                valuta = Valuta.NOK,
+                aarsak = Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI,
+                tilleggsopplysninger = null,
+            )
+            val upsert = createEnkeltplass().copy(prismodell = prismodell)
+
+            val (_, okonomi) = service.soktInn(upsert, opprettetAv).shouldBeRight()
+
+            okonomi.shouldNotBeNull().should {
+                it.behandletAv shouldBe opprettetAv
+                it.besluttetAv shouldBe Tiltaksadministrasjon
+                it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+            }
+        }
+
+        test("publiseres til kafka når gjennomføring opprettes") {
+            val upsert = createEnkeltplass()
+
+            service.soktInn(upsert, opprettetAv).shouldBeRight()
+
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
+                    .should { (first) ->
+                        first.key shouldBe upsert.id.toString().toByteArray()
+                        first.value.decodeToString()
+                            .let { Json.decodeFromString<TiltaksgjennomforingV2Dto>(it) }
+                            .shouldBeTypeOf<TiltaksgjennomforingV2Dto.Enkeltplass>()
+                    }
+            }
+        }
+    }
+
+    context("synkroniserFraArena") {
+        val service = createService()
+
+        test("oppretter enkeltplass uten å sende økonomi til godkjenning") {
+            val upsert = createEnkeltplass()
+
+            service.synkroniserFraArena(upsert).shouldBeRight()
+
+            service.get(upsert.id).shouldNotBeNull().okonomi.shouldBeNull()
+        }
+
+        test("publiseres til kafka når gjennomføring opprettes") {
+            val upsert = createEnkeltplass()
+
+            service.synkroniserFraArena(upsert).shouldBeRight()
+
+            database.run {
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).should { (first) ->
+                    first.topic shouldBe TEST_GJENNOMFORING_V2_TOPIC
+                    first.key shouldBe upsert.id.toString().toByteArray()
+                    first.value.decodeToString()
+                        .let { Json.decodeFromString<TiltaksgjennomforingV2Dto>(it) }
+                        .shouldBeTypeOf<TiltaksgjennomforingV2Dto.Enkeltplass>()
                 }
             }
         }
 
-        test("klarer å lagre kategorisering fag og yrke") {
-            val request = OpplaringKategoriseringRequest(
-                utdanningsprogramId = UtdanningFixtures.UtdanningsProgram.byggOgAnlegg.id,
-                larefag = listOf(UtdanningFixtures.Utdanninger.fjellOgBergverksfaget.id),
-            )
-            val gjennomforing = createEnkeltplass().copy(
-                kategorisering = request,
-            )
+        test("publiserer ikke til kafka når ingenting er endret") {
+            val upsert = createEnkeltplass().copy(navn = "Enkeltplass AMO")
+            service.synkroniserFraArena(upsert).shouldBeRight()
 
-            service.upsert(gjennomforing).shouldBeRight()
+            service.synkroniserFraArena(upsert).shouldBeRight()
 
             database.run {
-                val utdanningslop = queries.gjennomforing.getUtdanningslop(gjennomforing.id).shouldNotBeNull()
-                utdanningslop.utdanningsprogram.id.shouldBe(request.utdanningsprogramId)
-                utdanningslop.utdanninger.map { it.id }.shouldContainExactly(request.larefag?.first())
+                queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1)
             }
         }
     }
@@ -190,55 +341,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
     context("behandling av økonomi for enkeltplasser") {
         val service = createService()
 
-        test("totrinnskontroll opprettes når økonomi blir sendt til godkjenning") {
-            val upsert = createEnkeltplass()
-
-            service.upsert(upsert).shouldBeRight()
-
-            val (_, okonomi) = service.settOkonomiTilGodkjenning(upsert.id, NavIdent("B123456")).shouldBeRight()
-
-            okonomi.shouldNotBeNull().should {
-                it.behandletAv shouldBe NavIdent("B123456")
-                it.besluttetAv.shouldBeNull()
-                it.besluttelse.shouldBeNull()
-            }
-        }
-
-        test("økonomi blir godkjent av Tiltaksadministrasjon når prismodell er IngenKostnader") {
-            val upsert = createEnkeltplass().copy(
-                prismodell = Prismodell.IngenKostnader(
-                    id = UUID.randomUUID(),
-                    valuta = Valuta.NOK,
-                    aarsak = Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI,
-                    tilleggsopplysninger = null,
-                ),
-            )
-            service.upsert(upsert).shouldBeRight()
-
-            val (_, okonomi) = service.settOkonomiTilGodkjenning(upsert.id, NavIdent("B123456")).shouldBeRight()
-
-            okonomi.shouldNotBeNull().should {
-                it.behandletAv shouldBe NavIdent("B123456")
-                it.besluttetAv shouldBe Tiltaksadministrasjon
-                it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
-            }
-        }
-
-        test("økonomi kan ikke sendes til godkjenning flere ganger") {
-            val upsert = createEnkeltplass()
-            service.upsert(upsert).shouldBeRight()
-
-            service.settOkonomiTilGodkjenning(upsert.id, NavIdent("B123456")).shouldBeRight()
-            service.settOkonomiTilGodkjenning(upsert.id, NavIdent("B123456")) shouldBeLeft listOf(
-                FieldError.of("Deltaker er allerede søkt inn"),
-            )
-        }
-
         test("godkjenner økonomi og setter besluttelse til GODKJENT") {
             val upsert = createEnkeltplass()
-            service.upsert(upsert).shouldBeRight()
 
-            service.settOkonomiTilGodkjenning(upsert.id, NavIdent("B123456")).shouldBeRight()
+            service.soktInn(upsert, NavIdent("B123456")).shouldBeRight()
 
             val (_, okonomi) = service.settOkonomiGodkjent(upsert.id, besluttetAv).shouldBeRight()
 
@@ -250,9 +356,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("returnerer feil når behandletAv og besluttetAv er samme person") {
             val upsert = createEnkeltplass()
-            service.upsert(upsert).shouldBeRight()
+            service.soktInn(upsert, opprettetAv).shouldBeRight()
 
-            service.settOkonomiTilGodkjenning(upsert.id, opprettetAv).shouldBeRight()
             service.settOkonomiGodkjent(upsert.id, opprettetAv)
                 .shouldBeLeft()
                 .first().detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
@@ -260,9 +365,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("kan godkjenne enkeltplass etter avvisning") {
             val upsert = createEnkeltplass()
-            service.upsert(upsert).shouldBeRight()
+            service.soktInn(upsert, opprettetAv).shouldBeRight()
 
-            service.settOkonomiTilGodkjenning(upsert.id, NavIdent("B123456")).shouldBeRight()
             service.settOkonomiPaVent(
                 upsert.id,
                 besluttetAv,
@@ -279,9 +383,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("setter økonomi på vent og setter besluttelse til AVVIST") {
             val upsert = createEnkeltplass()
-            service.upsert(upsert).shouldBeRight()
-
-            service.settOkonomiTilGodkjenning(upsert.id, NavIdent("B123456")).shouldBeRight()
+            service.soktInn(upsert, opprettetAv).shouldBeRight()
 
             val (_, okonomi) = service.settOkonomiPaVent(upsert.id, besluttetAv, forklaring = "Feil").shouldBeRight()
 
@@ -294,9 +396,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("returnerer feil når enkeltplass allerede er behandlet") {
             val upsert = createEnkeltplass()
-            service.upsert(upsert).shouldBeRight()
+            service.soktInn(upsert, opprettetAv).shouldBeRight()
 
-            service.settOkonomiTilGodkjenning(upsert.id, NavIdent("B123456")).shouldBeRight()
             service.settOkonomiGodkjent(upsert.id, besluttetAv).shouldBeRight()
 
             service.settOkonomiGodkjent(upsert.id, besluttetAv)
