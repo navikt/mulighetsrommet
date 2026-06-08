@@ -3,10 +3,10 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
 
@@ -20,7 +20,7 @@ object PrismodellFixtures {
         satser: List<AvtaltSats> = emptyList(),
         tilsagnPerDeltaker: Boolean? = false,
         totalbelop: Int? = null,
-        tilskudd: Map<Tilskuddstype, Int>? = null,
+        tilskudd: Map<Opplaeringtilskudd.Kode, Int>? = null,
         aarsak: String? = null,
     ): PrismodellDbo = PrismodellDbo(
         id = id,

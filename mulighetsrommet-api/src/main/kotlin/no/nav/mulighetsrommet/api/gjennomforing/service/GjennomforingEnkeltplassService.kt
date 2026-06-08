@@ -140,7 +140,12 @@ class GjennomforingEnkeltplassService(
             return gjennomforing
         }
 
-        upsert(toUpsertGjennomforingEnkeltplass(gjennomforing, deltaker))
+        val upsert = toUpsertGjennomforingEnkeltplass(gjennomforing, deltaker)
+        if (!harEnkeltplassEndringer(upsert, gjennomforing)) {
+            return gjennomforing
+        }
+
+        upsert(upsert)
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
             .let { logEndring("Oppdatert fra deltaker", it.id, Tiltaksadministrasjon) }
     }
