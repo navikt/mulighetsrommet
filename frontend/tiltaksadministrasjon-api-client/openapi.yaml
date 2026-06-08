@@ -2915,6 +2915,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Betalingsinformasjon"
+        "204":
+          description: Arrangør har ingen betalingsinformasjon registrert
+          headers: {}
         default:
           description: Problem details
           headers: {}
