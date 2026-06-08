@@ -1,12 +1,12 @@
 [versions]
 common-java-modules = "3.2026.04.08_08.37-229807cc181a"
-flyway = "12.6.2"
+flyway = "12.7.0"
 koin-bom = "4.2.1"
 kotest = "6.1.11"
 kotlin = "2.3.21"
 ktor = "3.5.0"
 netty = "4.2.14.Final"
-logback = "1.5.32"
+logback = "1.5.33"
 metrics = "4.2.39"
 arrow = "2.2.2.1"
 micrometer = "1.16.5"
@@ -61,7 +61,7 @@ assertj-db = "org.assertj:assertj-db:3.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.4"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:16.11.0"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:16.12.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
@@ -124,7 +124,7 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 micrometer-core = { module = "io.micrometer:micrometer-core", version.ref = "micrometer" }
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }
 
-mockk = "io.mockk:mockk:1.14.9"
+mockk = "io.mockk:mockk:1.14.11"
 
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
