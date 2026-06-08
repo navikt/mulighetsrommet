@@ -9,11 +9,9 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.KategoriseringMapper
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
-import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -70,7 +68,8 @@ class GjennomforingRequestKafkaConsumer(
             kategorisering = payload.kategorisering?.let(KategoriseringMapper::fromKafkaPayload),
             prismodell = prismodell,
         )
-        enkeltplasser.upsert(opprett).throwOnErrors()
+        enkeltplasser.upsert(opprett)
+            .getOrElse { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
 
     private suspend fun handterEnkeltplassSoktInn(request: GjennomforingRequest.EnkeltplassSoktInn) {
@@ -106,8 +105,8 @@ class GjennomforingRequestKafkaConsumer(
         )
 
         enkeltplasser.upsert(upsert)
-            .flatMap { enkeltplasser.tilGodkjenningOkonomi(it.id, payload.opprettetAv) }
-            .throwOnErrors()
+            .flatMap { enkeltplasser.settOkonomiTilGodkjenning(it.id, payload.opprettetAv) }
+            .getOrElse { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
 
     private suspend fun getArrangor(organisasjonsnummer: Organisasjonsnummer): ArrangorDto = arrangorer
@@ -145,8 +144,4 @@ private fun toPrismodell(
             tilleggsopplysninger = prisinformasjon.tilleggsopplysninger,
         )
     }
-}
-
-private fun Validated<GjennomforingEnkeltplass>.throwOnErrors() {
-    getOrElse { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
 }

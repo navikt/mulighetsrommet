@@ -459,7 +459,7 @@ fun Route.gjennomforingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                val result = enkeltplasser.godkjennOkonomi(id, navIdent)
+                val result = enkeltplasser.settOkonomiGodkjent(id, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -487,7 +487,7 @@ fun Route.gjennomforingRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<SettPaVentOkonomiRequest>()
 
-                val result = enkeltplasser.settPaVentOkonomi(id, navIdent, request.forklaring)
+                val result = enkeltplasser.settOkonomiPaVent(id, navIdent, request.forklaring)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
