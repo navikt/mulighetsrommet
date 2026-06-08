@@ -1,4 +1,4 @@
-import { Heading, Link, TextField, VStack } from "@navikt/ds-react";
+import { Heading, Link, LocalAlert, TextField, VStack } from "@navikt/ds-react";
 import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FieldValues, Path } from "react-hook-form";
@@ -11,6 +11,20 @@ export function BetalingsinformasjonFields<T extends FieldValues>({
   kidNummerName: Path<T>;
 }) {
   const { data: betalingsinformasjon } = useArrangorBetalingsinformasjon(arrangorId);
+
+  if (!betalingsinformasjon) {
+    return (
+      <LocalAlert status="warning">
+        <LocalAlert.Header>
+          <LocalAlert.Title as="h3">Mangler betalingsinformasjon</LocalAlert.Title>
+        </LocalAlert.Header>
+        <LocalAlert.Content>
+          Arrangøren har ingen betalingsinformasjon registrert i Altinn. Arrangøren må registrere
+          kontonummer i Altinn før utbetaling kan behandles. Les mer om <EndreKontonummerLink />.
+        </LocalAlert.Content>
+      </LocalAlert>
+    );
+  }
 
   switch (betalingsinformasjon.type) {
     case "BBan":

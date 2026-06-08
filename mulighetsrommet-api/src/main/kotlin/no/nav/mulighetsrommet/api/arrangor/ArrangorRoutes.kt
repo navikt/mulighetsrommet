@@ -30,8 +30,6 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
-import no.nav.mulighetsrommet.ktor.exception.NotFound
-import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -139,6 +137,9 @@ fun Route.arrangorRoutes() {
                     description = "Betalingsinformasjon til arrangør"
                     body<Betalingsinformasjon>()
                 }
+                code(HttpStatusCode.NoContent) {
+                    description = "Arrangør har ingen betalingsinformasjon registrert"
+                }
                 default {
                     description = "Problem details"
                     body<ProblemDetail>()
@@ -147,10 +148,10 @@ fun Route.arrangorRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            val message: Betalingsinformasjon = arrangorService.getBetalingsinformasjon(id)
-                ?: return@get call.respondWithProblemDetail(NotFound("Arrangør mangler kontonummer"))
+            val betalingsinformasjon = arrangorService.getBetalingsinformasjon(id)
+                ?: return@get call.respond(HttpStatusCode.NoContent)
 
-            call.respond(message)
+            call.respond(HttpStatusCode.OK, betalingsinformasjon)
         }
 
         get("{id}/hovedenhet", {
