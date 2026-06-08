@@ -10,8 +10,8 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.tiltak.okonomi.Tilskuddstype
 
 class PrismodellQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
@@ -46,8 +46,8 @@ class PrismodellQueriesTest : FunSpec({
                 val dbo = PrismodellFixtures.createPrismodellDbo(
                     type = PrismodellType.TILSKUDD_TIL_OPPLAERING,
                     tilskudd = mapOf(
-                        Tilskuddstype.TILTAK_DRIFTSTILSKUDD to 50_000,
-                        Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD to 30_000,
+                        Opplaeringtilskudd.Kode.SKOLEPENGER to 50_000,
+                        Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD to 30_000,
                     ),
                 )
 
@@ -55,8 +55,8 @@ class PrismodellQueriesTest : FunSpec({
 
                 queries.prismodell.getOrError(dbo.id).shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
                     it.tilskudd shouldBe mapOf(
-                        Tilskuddstype.TILTAK_DRIFTSTILSKUDD to 50_000,
-                        Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD to 30_000,
+                        Opplaeringtilskudd.Kode.SKOLEPENGER to 50_000,
+                        Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD to 30_000,
                     )
                 }
             }

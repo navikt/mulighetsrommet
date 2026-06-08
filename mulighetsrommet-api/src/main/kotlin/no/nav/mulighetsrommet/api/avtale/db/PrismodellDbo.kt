@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.api.avtale.db
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.util.UUID
 
 @Serializable
@@ -19,6 +19,6 @@ data class PrismodellDbo(
     val systemId: String? = null,
     val tilsagnPerDeltaker: Boolean? = null,
     val totalbelop: Int? = null,
-    val tilskudd: Map<Tilskuddstype, Int>? = null,
+    val tilskudd: Map<Opplaeringtilskudd.Kode, Int>? = null,
     val aarsak: String? = null,
 )

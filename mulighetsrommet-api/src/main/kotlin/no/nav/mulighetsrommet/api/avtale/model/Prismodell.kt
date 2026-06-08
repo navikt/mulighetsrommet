@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.api.avtale.model
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import no.nav.mulighetsrommet.api.avtale.mapper.satser
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
 
@@ -103,7 +103,7 @@ sealed interface Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        val tilskudd: Map<Tilskuddstype, Int>,
+        val tilskudd: Map<Opplaeringtilskudd.Kode, Int>,
         val tilleggsopplysninger: String?,
     ) : Prismodell {
         @Transient
@@ -142,7 +142,7 @@ sealed interface Prismodell {
             satser: List<AvtaltSats>?,
             tilsagnPerDeltaker: Boolean?,
             totalbelop: Int? = null,
-            tilskudd: Map<Tilskuddstype, Int>? = null,
+            tilskudd: Map<Opplaeringtilskudd.Kode, Int>? = null,
             aarsak: String? = null,
         ): Prismodell {
             return when (type) {

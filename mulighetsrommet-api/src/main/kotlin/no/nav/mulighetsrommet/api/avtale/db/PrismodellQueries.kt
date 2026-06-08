@@ -7,9 +7,9 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
@@ -55,7 +55,7 @@ class PrismodellQueries(private val session: Session) {
             "satser" to Json.encodeToString(dbo.satser),
             "valuta" to dbo.valuta.name,
             "tilsagn_per_deltaker" to dbo.tilsagnPerDeltaker,
-            "totalbelop" to dbo.totalbelop?.toInt(),
+            "totalbelop" to dbo.totalbelop,
             "tilskudd" to dbo.tilskudd?.let { Json.encodeToString(it) },
             "aarsak" to dbo.aarsak,
         )
@@ -127,7 +127,9 @@ fun Row.toPrismodell(): Prismodell {
     val satser = stringOrNull("prismodell_satser")?.let { Json.decodeFromString<List<AvtaltSats>?>(it) }
     val tilsagnPerDeltaker = anyOrNull("prismodell_tilsagn_per_deltaker") as Boolean?
     val totalbelop = intOrNull("prismodell_totalbelop")
-    val tilskudd = stringOrNull("prismodell_tilskudd")?.let { Json.decodeFromString<Map<Tilskuddstype, Int>>(it) }
+    val tilskudd = stringOrNull("prismodell_tilskudd")?.let {
+        Json.decodeFromString<Map<Opplaeringtilskudd.Kode, Int>>(it)
+    }
     val aarsak = stringOrNull("prismodell_aarsak")
     return Prismodell.from(type, id, valuta, prisbetingelser, satser, tilsagnPerDeltaker, totalbelop, tilskudd, aarsak)
 }

@@ -3,12 +3,12 @@ package no.nav.mulighetsrommet.api.gjennomforing.kafka
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringResponse
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
-import no.nav.tiltak.okonomi.Tilskuddstype
 import java.util.UUID
 
 @Serializable
@@ -83,7 +83,7 @@ sealed interface EnkeltplassPrisinformasjon {
     @Serializable
     @SerialName("EnkeltplassPrisinformasjonTilskudd")
     data class Tilskudd(
-        val tilskudd: Map<Tilskuddstype, Int>,
+        val tilskudd: Map<Opplaeringtilskudd.Kode, Int>,
         val tilleggsopplysninger: String?,
     ) : EnkeltplassPrisinformasjon
 
