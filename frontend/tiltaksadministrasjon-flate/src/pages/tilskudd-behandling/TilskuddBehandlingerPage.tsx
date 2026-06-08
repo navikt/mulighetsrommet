@@ -16,9 +16,13 @@ import { TableColumnHeader } from "@navikt/ds-react/Table";
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const { data: behandlinger } = useTilskuddBehandlinger(gjennomforingId);
-  const { sortedData, sort, toggleSort } = useSortableData(behandlinger, undefined, (item, key) =>
-    key.split(".").reduce((obj: any, k) => obj?.[k], item),
-  );
+  const { sortedData, sort, toggleSort } = useSortableData(behandlinger, undefined, (item, key) => {
+    if (key === "tilskuddtyper") {
+      return item[key].sort().at(0);
+    } else {
+      return key.split(".").reduce((obj: any, k) => obj?.[k], item);
+    }
+  });
 
   return (
     <>
@@ -49,7 +53,7 @@ export function TilskuddBehandlingerPage() {
                 Innsendt
               </TableColumnHeader>
               <TableColumnHeader sortKey="journalpostId" sortable>
-                JournalpostId
+                Journalpost-ID
               </TableColumnHeader>
               <TableColumnHeader sortKey="periode.start" sortable>
                 Periodestart
@@ -57,7 +61,9 @@ export function TilskuddBehandlingerPage() {
               <TableColumnHeader sortKey="periode.slutt" sortable>
                 Periodeslutt
               </TableColumnHeader>
-              <TableColumnHeader>Tilskuddstype</TableColumnHeader>
+              <TableColumnHeader sortKey="tilskuddtyper" sortable>
+                Tilskuddstype
+              </TableColumnHeader>
               <TableColumnHeader sortKey="status.type" sortable>
                 Behandlingsstatus
               </TableColumnHeader>

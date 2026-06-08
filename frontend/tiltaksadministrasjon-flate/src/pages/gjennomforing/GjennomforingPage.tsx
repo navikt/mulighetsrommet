@@ -13,10 +13,11 @@ import { FeatureToggle, GjennomforingDto } from "@tiltaksadministrasjon/api-clie
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
+import { DeltakerHeader } from "@/components/gjennomforing/DeltakerHeader";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { gjennomforing } = useGjennomforing(gjennomforingId);
+  const { gjennomforing, enkeltplassDeltaker } = useGjennomforing(gjennomforingId);
 
   const { data: enableTilskuddsbehandling } = useFeatureToggle(
     FeatureToggle.TILTAKSADMINISTRASJON_VIS_TILSKUDDSBEHANDLING,
@@ -50,6 +51,9 @@ export function GjennomforingPage() {
         </Heading>
         <DataElementStatusTag {...gjennomforing.status.status} />
       </Header>
+      {enkeltplassDeltaker && (
+        <DeltakerHeader deltaker={enkeltplassDeltaker} arrangorNavn={gjennomforing.arrangor.navn} />
+      )}
       <Tabs value={currentTab}>
         <Box background="default">
           <Tabs.List>

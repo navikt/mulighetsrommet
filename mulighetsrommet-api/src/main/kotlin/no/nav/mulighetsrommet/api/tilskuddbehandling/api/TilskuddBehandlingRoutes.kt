@@ -139,7 +139,9 @@ fun Route.tilskuddBehandlingRoutes() {
 
                 call.respondWithStatusResponse(result)
             }
+        }
 
+        authorize(anyOf = setOf(Rolle.BESLUTTER_TILSAGN, Rolle.SAKSBEHANDLER_OKONOMI)) {
             post("/{id}/returner", {
                 tags = setOf("TilskuddBehandling")
                 operationId = "returnerTilskuddBehandling"

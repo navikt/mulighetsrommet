@@ -42,9 +42,10 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
   const { data: kostnadssteder } = useKostnadssteder();
 
   function totaltBelop(): ValutaBelop {
+    const tilskudd = watch("tilskudd");
     return {
-      belop: fields.reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0),
-      valuta: fields.at(0)?.soknadBelop?.valuta ?? Valuta.NOK,
+      belop: tilskudd.reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0),
+      valuta: tilskudd.at(0)?.soknadBelop?.valuta ?? Valuta.NOK,
     };
   }
 
@@ -54,7 +55,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
         Informasjon fra søknad
       </Heading>
       <VStack gap="space-20" align="start">
-        <FormTextField label="JournalpostID" name="soknadJournalpostId" required />
+        <FormTextField label="Journalpost-ID" name="soknadJournalpostId" required />
         <FormDateInput name="soknadDato" label="Søknadsdato" required />
         <HStack gap="space-8">
           <FormDateInput name="periodeStart" label="Periodestart" required />
