@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
-import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.SystemgenerertPrismodell
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -235,27 +234,16 @@ class GenererUtbetalingService(
     }
 
     private fun TransactionalQueryContext.tryAutomatisertUtbetaling(utbetaling: Utbetaling): Utbetaling {
-        val beregning = utbetaling.beregning as? UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-            ?: return utbetaling
-
-        val linjer = beregning.output.tilsagnBidrag.map {
-            OpprettUtbetalingLinje(
-                id = UUID.randomUUID(),
-                tilsagnId = it.tilsagnId,
-                pris = it.bidrag,
-                gjorOppTilsagn = false,
-            )
+        if (utbetaling.beregning !is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed) {
+            return utbetaling
         }
 
-        utbetalingService.sendTilAttestering(utbetaling.id, linjer, Tiltaksadministrasjon).getOrElse {
-            throw UtbetalingException(it)
+        if (utbetaling.betalingsinformasjon == null) {
+            log.info("Genererer ikke automatisert utbetaling for utbetaling=${utbetaling.id} fordi betalingsinformasjon mangler")
+            return utbetaling
         }
 
-        linjer.forEach { linje ->
-            utbetalingService.attesterUtbetalingLinje(linje.id, Tiltaksadministrasjon).getOrElse {
-                throw UtbetalingException(it)
-            }
-        }
+        utbetalingService.automatisertUtbetalingFastSatsPerAvtaltTiltaksplassPerManed(utbetaling)
 
         return queries.utbetaling.getOrError(utbetaling.id)
     }

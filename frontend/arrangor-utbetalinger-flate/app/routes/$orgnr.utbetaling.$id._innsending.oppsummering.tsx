@@ -11,8 +11,8 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import { FieldError } from "@arrangor-utbetalinger/api-client";
-import { useEffect, useRef, useState } from "react";
-import { Link as ReactRouterLink, MetaFunction, useNavigate, useLocation } from "react-router";
+import { SubmitEvent, useEffect, useRef, useState } from "react";
+import { MetaFunction, useLocation, useNavigate } from "react-router";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
@@ -26,6 +26,7 @@ import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTi
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useSyncKontonummer } from "~/hooks/useSyncKontonummer";
 import { useGodkjennUtbetaling } from "~/hooks/useGodkjennUtbetaling";
+import { useUtbetalingWizard } from "~/hooks/useUtbetalingWizard";
 
 export const meta: MetaFunction = () => {
   return [
@@ -48,6 +49,8 @@ export default function BekreftUtbetaling() {
   const syncKontonummer = useSyncKontonummer(id);
   const godkjennUtbetaling = useGodkjennUtbetaling();
 
+  const wizard = useUtbetalingWizard(utbetaling);
+
   const [kid, setKid] = useState(utbetaling.betalingsinformasjon?.kid ?? "");
   const [bekreftelse, setBekreftelse] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -59,7 +62,7 @@ export default function BekreftUtbetaling() {
     syncKontonummer.mutate();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
 
     const newErrors: FieldError[] = [];
@@ -195,12 +198,7 @@ export default function BekreftUtbetaling() {
           )}
         </Box>
         <HStack gap="space-16">
-          <Button
-            as={ReactRouterLink}
-            type="button"
-            variant="tertiary"
-            to={pathTo.beregning(orgnr, utbetaling.id)}
-          >
+          <Button type="button" variant="tertiary" onClick={wizard.goToPrevious}>
             Tilbake
           </Button>
           {harTilsagn && (

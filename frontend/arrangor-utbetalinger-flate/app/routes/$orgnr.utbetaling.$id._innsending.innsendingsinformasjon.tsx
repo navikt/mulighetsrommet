@@ -1,7 +1,7 @@
-import { Link as ReactRouterLink, MetaFunction } from "react-router";
-import { Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { MetaFunction } from "react-router";
+import { Heading, VStack } from "@navikt/ds-react";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
-import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
+import { useIdFromUrl } from "~/utils/navigation";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
@@ -19,12 +19,9 @@ export const meta: MetaFunction = () => {
 
 export default function TilsagnDetaljerPage() {
   const id = useIdFromUrl();
-  const orgnr = useOrgnrFromUrl();
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
   const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id);
-
-  const harTilsagn = tilsagn.length > 0;
 
   return (
     <>
@@ -51,20 +48,6 @@ export default function TilsagnDetaljerPage() {
           ]}
         />
         <TilgjengeligeTilsagn tilsagn={tilsagn} />
-        {harTilsagn && (
-          <HStack gap="space-16">
-            <Button as={ReactRouterLink} type="button" variant="tertiary" to={pathTo.utbetalinger}>
-              Avbryt
-            </Button>
-            <Button
-              as={ReactRouterLink}
-              aria-label="Neste"
-              to={pathTo.beregning(orgnr, utbetaling.id)}
-            >
-              Neste
-            </Button>
-          </HStack>
-        )}
       </VStack>
     </>
   );

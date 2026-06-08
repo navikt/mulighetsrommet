@@ -1,17 +1,8 @@
-import {
-  BodyShort,
-  Button,
-  GuidePanel,
-  Heading,
-  HStack,
-  Link,
-  InfoCard,
-  VStack,
-} from "@navikt/ds-react";
+import { BodyShort, GuidePanel, Heading, Link, InfoCard, VStack } from "@navikt/ds-react";
 import type { MetaFunction } from "react-router";
 import { Link as ReactRouterLink } from "react-router";
 import { getEnvironment } from "~/services/environment";
-import { deltakerOversiktLenke, pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
+import { deltakerOversiktLenke, useIdFromUrl } from "~/utils/navigation";
 import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import { tekster } from "~/tekster";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
@@ -30,7 +21,6 @@ export const meta: MetaFunction = () => {
 
 export default function UtbetalingBeregning() {
   const id = useIdFromUrl();
-  const orgnr = useOrgnrFromUrl();
   const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
@@ -80,25 +70,6 @@ export default function UtbetalingBeregning() {
           satsDetaljer={utbetaling.beregning.satsDetaljer}
           pris={utbetaling.beregning.pris}
         />
-        <HStack gap="space-16">
-          <Button
-            as={ReactRouterLink}
-            type="button"
-            variant="tertiary"
-            to={pathTo.innsendingsinformasjon(orgnr, utbetaling.id)}
-          >
-            Tilbake
-          </Button>
-          <Button
-            as={ReactRouterLink}
-            className="justify-self-end"
-            to={pathTo.oppsummering(orgnr, utbetaling.id)}
-            // Brukt i beregningssjekk ved innsending
-            state={{ updatedAt: utbetaling.updatedAt }}
-          >
-            Neste
-          </Button>
-        </HStack>
       </VStack>
     </VStack>
   );

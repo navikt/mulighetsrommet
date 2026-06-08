@@ -204,8 +204,11 @@ class ArrangorflateUtbetalingService(
                 is UtbetalingBeregningPrisPerUkesverk,
                 is UtbetalingBeregningPrisPerHeleUkesverk,
                 is UtbetalingBeregningPrisPerTimeOppfolging,
-                is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
                 -> AutomatisertUtbetalingResult.FEIL_PRISMODELL
+
+                is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed -> db.transaction {
+                    utbetalingService.automatisertUtbetalingFastSatsPerAvtaltTiltaksplassPerManed(utbetaling)
+                }
 
                 is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> db.transaction {
                     utbetalingService.automatisertUtbetalingVedEttRelevantTilsagn(utbetaling.id)

@@ -37,6 +37,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
@@ -382,6 +383,30 @@ class UtbetalingService(
         return attesterUtbetalingLinje(linje, Tiltaksadministrasjon)
             .map { AutomatisertUtbetalingResult.GODKJENT }
             .getOrElse { throw UtbetalingException(it) }
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun automatisertUtbetalingFastSatsPerAvtaltTiltaksplassPerManed(
+        utbetaling: Utbetaling,
+    ): AutomatisertUtbetalingResult = with(tx) {
+        val beregning = utbetaling.beregning as? UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
+            ?: return AutomatisertUtbetalingResult.FEIL_PRISMODELL
+
+        val linjer = beregning.output.tilsagnBidrag.map {
+            OpprettUtbetalingLinje(
+                id = UUID.randomUUID(),
+                tilsagnId = it.tilsagnId,
+                pris = it.bidrag,
+                gjorOppTilsagn = false,
+            )
+        }
+        sendTilAttestering(utbetaling.id, linjer, Tiltaksadministrasjon).getOrElse { throw UtbetalingException(it) }
+
+        linjer.forEach { linje ->
+            attesterUtbetalingLinje(linje.id, Tiltaksadministrasjon).getOrElse { throw UtbetalingException(it) }
+        }
+
+        AutomatisertUtbetalingResult.GODKJENT
     }
 
     private suspend fun TransactionalQueryContext.upsert(upsert: UpsertUtbetaling): Either<NonEmptyList<FieldError>, UtbetalingDbo> = when (upsert) {

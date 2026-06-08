@@ -9,7 +9,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.string.shouldMatch
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -62,7 +61,6 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.Tilskuddstype
-import org.junit.jupiter.api.assertThrows
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -932,17 +930,15 @@ class GenererUtbetalingServiceTest : FunSpec({
             service.genererUtbetalingerForPeriode(januar).shouldBeEmpty()
         }
 
-        test("feiler med å generere utbetaling om kontonummer til arrangør mangler") {
+        test("genererer utbetaling i status GENERERT når kontonummer til arrangør mangler") {
             MulighetsrommetTestDomain(tilsagn = listOf(tilsagn)) {
                 setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
             }.initialize(database.db)
 
             coEvery { arrangorService.getBetalingsinformasjon(any()) } returns null
 
-            val exception = assertThrows<IllegalStateException> {
-                service.genererUtbetalingerForPeriode(januar)
-            }
-            exception.message shouldMatch "Betalingsinformasjon mangler for utbetaling.*".toRegex()
+            val utbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
+            utbetaling.status shouldBe UtbetalingStatusType.GENERERT
         }
 
         test("genererer og prosesserer utbetaling med beløp utledet fra godkjent tilsagn") {
