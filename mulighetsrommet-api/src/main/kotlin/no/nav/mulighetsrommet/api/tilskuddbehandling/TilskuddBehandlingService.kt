@@ -79,7 +79,7 @@ class TilskuddBehandlingService(
         }
     }
 
-    suspend fun godkjenn(
+    fun godkjenn(
         id: UUID,
         navIdent: NavIdent,
     ): Either<List<FieldError>, TilskuddBehandlingDto> = try {
@@ -164,7 +164,7 @@ class TilskuddBehandlingService(
             -> saksbehandler
 
             TilskuddBehandlingHandling.RETURNER,
-            -> attestant
+            -> saksbehandler || attestant
 
             TilskuddBehandlingHandling.ATTESTER -> {
                 attestant && opprettelse.behandletAv != ansatt.navIdent
