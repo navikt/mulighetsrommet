@@ -42,9 +42,10 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
   const { data: kostnadssteder } = useKostnadssteder();
 
   function totaltBelop(): ValutaBelop {
+    const tilskudd = watch("tilskudd");
     return {
-      belop: fields.reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0),
-      valuta: fields.at(0)?.soknadBelop?.valuta ?? Valuta.NOK,
+      belop: tilskudd.reduce((sum, v) => sum + (v.soknadBelop?.belop ?? 0), 0),
+      valuta: tilskudd.at(0)?.soknadBelop?.valuta ?? Valuta.NOK,
     };
   }
 
