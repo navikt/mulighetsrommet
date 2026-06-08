@@ -64,14 +64,14 @@
     "@vitejs/plugin-react": "6.0.2",
     "cross-env": "10.1.0",
     "dotenv": "17.4.2",
-    "eslint": "10.4.0",
+    "eslint": "10.4.1",
     "msw": "2.14.6",
     "playwright": "1.60.0",
     "postcss-import": "16.1.1",
     "rollup-plugin-visualizer": "7.0.1",
     "sass-embedded": "1.100.0",
     "typescript": "6.0.3",
-    "vite": "8.0.14"
+    "vite": "8.0.15"
   },
   "msw": {
     "workerDirectory": [
