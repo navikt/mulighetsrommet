@@ -492,7 +492,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 gjennomforing.deltidsprosent shouldBe 100.0
             }
 
-            test("persisterer oppdatert gjennomføring i databasen") {
+            test("persisterer oppdatert gjennomføring i databasen og publiserer til kafka") {
                 val startDato = LocalDate.of(2025, 3, 1)
                 val sluttDato = LocalDate.of(2025, 6, 1)
 
@@ -508,20 +508,34 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 gjennomforing.startDato shouldBe startDato
                 gjennomforing.sluttDato shouldBe sluttDato
                 gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
-            }
-
-            test("publiserer gjennomføring til kafka") {
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.DELTAR,
-                )
-
-                createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 database.run {
                     queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC))
                         .shouldHaveSize(1).first().key.decodeToString()
                         .shouldBe(GjennomforingFixtures.EnkelAmo.id.toString())
+                }
+            }
+
+            test("publiserer ikke gjennomføring til kafka hvis deltaker er uendret") {
+                val deltaker = DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
+                    status = DeltakerStatusType.DELTAR,
+                )
+
+                val service = createService(migrert)
+
+                service.updateFromDeltaker(deltaker, norskIdent)
+
+                database.run {
+                    queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC))
+                        .shouldHaveSize(1).first().key.decodeToString()
+                        .shouldBe(GjennomforingFixtures.EnkelAmo.id.toString())
+                }
+
+                service.updateFromDeltaker(deltaker, norskIdent)
+
+                database.run {
+                    queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
                 }
             }
         }
