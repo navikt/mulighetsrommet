@@ -40,8 +40,8 @@ export function VedtakForm() {
           </Heading>
           <Definisjonsliste
             definitions={[
-              { key: "Periodestart", value: watch("periodeStart") },
-              { key: "Periodeslutt", value: watch("periodeSlutt") },
+              { key: "Periodestart", value: formaterDato(watch("periodeStart")) },
+              { key: "Periodeslutt", value: formaterDato(watch("periodeSlutt")) },
               { key: "Kostnadssted", value: watch("kostnadssted") },
             ]}
           />
