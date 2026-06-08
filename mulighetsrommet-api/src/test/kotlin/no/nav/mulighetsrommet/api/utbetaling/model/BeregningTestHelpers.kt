@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.DeltakerStatus
@@ -38,7 +38,7 @@ object BeregningTestHelpers {
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
         periode = periode,
-        prismodell = Prismodell.AvtaltPrisPerManedsverk(
+        prismodell = Prismodell.AvtaltPrisPerBenyttetPlassPerManed(
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
@@ -55,7 +55,7 @@ object BeregningTestHelpers {
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
         periode = periode,
-        prismodell = Prismodell.AvtaltPrisPerUkesverk(
+        prismodell = Prismodell.AvtaltPrisPerBenyttetPlassPerUke(
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
@@ -72,7 +72,7 @@ object BeregningTestHelpers {
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
         periode = periode,
-        prismodell = Prismodell.AvtaltPrisPerHeleUkesverk(
+        prismodell = Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke(
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
@@ -90,7 +90,7 @@ object BeregningTestHelpers {
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
         periode = periode,
-        prismodell = Prismodell.ForhandsgodkjentPrisPerManedsverk(
+        prismodell = Prismodell.FastSatsPerBenyttetPlassPerManed(
             id = UUID.randomUUID(),
             satser = listOf(AvtaltSats(periode.start, sats)),
             valuta = sats.valuta,
@@ -107,7 +107,7 @@ object BeregningTestHelpers {
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
         periode = periode,
-        prismodell = Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass(
+        prismodell = Prismodell.FastSatsPerAvtaltPlassPerManed(
             id = UUID.randomUUID(),
             satser = listOf(AvtaltSats(periode.start, sats)),
             valuta = sats.valuta,
@@ -131,10 +131,10 @@ object BeregningTestHelpers {
             status = NavEnhetStatus.AKTIV,
             type = Norg2Type.FYLKE,
         ),
-        beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(
+        beregning = TilsagnBeregningAnnenAvtaltPris(
+            input = TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "",
                         pris = belop,
@@ -143,7 +143,7 @@ object BeregningTestHelpers {
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(pris = belop),
+            output = TilsagnBeregningAnnenAvtaltPris.Output(pris = belop),
         ),
         lopenummer = 1,
         bestilling = Tilsagn.Bestilling(

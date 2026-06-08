@@ -86,7 +86,7 @@ val ApplicationConfigDev = AppConfig(
                 Periode(LocalDate.of(2025, 1, 1), slutt)
             },
             opprettKravPrismodeller = listOf(
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                 PrismodellType.ANNEN_AVTALT_PRIS,
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             ),

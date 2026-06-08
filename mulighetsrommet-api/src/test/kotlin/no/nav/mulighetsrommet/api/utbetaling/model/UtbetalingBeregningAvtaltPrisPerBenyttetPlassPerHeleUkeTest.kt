@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
-class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
+class UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUkeTest : FunSpec({
 
     test("justerer utbetalingsperiode til å gjelde for nærmeste hele uker") {
         val januar = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
@@ -118,12 +118,12 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
 
             val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.input shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Input(
+            result.input shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Input(
                 satser = setOf(SatsPeriode(periode, 50.NOK)),
                 stengt = emptySet(),
                 deltakelser = setOf(DeltakelsePeriode(deltakere[0].id, periode)),
             )
-            result.output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Output(
                 pris = 250.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -154,7 +154,7 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
 
             val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Output(
                 pris = 210.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(
@@ -226,12 +226,12 @@ class UtbetalingBeregningPrisPerHeleUkesverkTest : FunSpec({
 
             val result = PrisPerHeleUkeBeregning.beregn(gjennomforing, periode, deltakere)
 
-            result.input shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Input(
+            result.input shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Input(
                 satser = setOf(SatsPeriode(periode, 10.NOK)),
                 stengt = setOf(StengtPeriode(Periode(mandag, fredag), "Stengt")),
                 deltakelser = setOf(DeltakelsePeriode(deltakere[0].id, periode)),
             )
-            result.output shouldBe UtbetalingBeregningPrisPerHeleUkesverk.Output(
+            result.output shouldBe UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Output(
                 pris = 10.NOK,
                 deltakelser = setOf(
                     UtbetalingBeregningOutputDeltakelse(

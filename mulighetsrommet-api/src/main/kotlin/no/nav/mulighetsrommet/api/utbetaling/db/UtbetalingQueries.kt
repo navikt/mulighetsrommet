@@ -18,14 +18,14 @@ import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningType
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -165,14 +165,14 @@ class UtbetalingQueries(private val session: Session) {
                 upsertUtbetalingTilsagnBidrag(id, beregning)
             }
 
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
+            is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed -> {
                 upsertUtbetalingBeregningInputSats(id, beregning.input.satser)
                 upsertUtbetalingBeregningInputStengt(id, beregning.input.stengt)
                 upsertUtbetalingBeregningInputDeltakelsesprosentPerioder(id, beregning.input.deltakelser)
                 upsertUtbetalingBeregningOutputDeltakelseFaktor(id, beregning.output.deltakelser)
             }
 
-            is UtbetalingBeregningPrisPerManedsverk -> upsertBeregning(
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed -> upsertBeregning(
                 id,
                 beregning.input.satser,
                 beregning.input.stengt,
@@ -180,7 +180,7 @@ class UtbetalingQueries(private val session: Session) {
                 beregning.output.deltakelser,
             )
 
-            is UtbetalingBeregningPrisPerUkesverk -> upsertBeregning(
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke -> upsertBeregning(
                 id,
                 beregning.input.satser,
                 beregning.input.stengt,
@@ -188,7 +188,7 @@ class UtbetalingQueries(private val session: Session) {
                 beregning.output.deltakelser,
             )
 
-            is UtbetalingBeregningPrisPerHeleUkesverk -> upsertBeregning(
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> upsertBeregning(
                 id,
                 beregning.input.satser,
                 beregning.input.stengt,
@@ -196,7 +196,7 @@ class UtbetalingQueries(private val session: Session) {
                 beregning.output.deltakelser,
             )
 
-            is UtbetalingBeregningPrisPerTimeOppfolging -> {
+            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging -> {
                 upsertUtbetalingBeregningInputSats(id, beregning.input.satser)
                 upsertUtbetalingBeregningInputStengt(id, beregning.input.stengt)
                 upsertUtbetalingBeregningInputDeltakelsePerioder(id, beregning.input.deltakelser)
@@ -951,13 +951,13 @@ class UtbetalingQueries(private val session: Session) {
         """.trimIndent()
 
         return session.requireSingle(queryOf(query, id)) { row ->
-            UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-                input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+            UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(
+                input = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Input(
                     satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_input_json")),
                 ),
-                output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                output = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Output(
                     deltakelser = Json.decodeFromString(row.string("deltakelser_output_json")),
                     pris = row.int("belop_beregnet").withValuta(valuta),
                 ),
@@ -967,13 +967,13 @@ class UtbetalingQueries(private val session: Session) {
 
     private fun getBeregningPrisPerManedsverk(id: UUID, valuta: Valuta): UtbetalingBeregning {
         return getBeregningDeltakelsesfaktor(id) { row ->
-            UtbetalingBeregningPrisPerManedsverk(
-                input = UtbetalingBeregningPrisPerManedsverk.Input(
+            UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed(
+                input = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(
                     satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_input_json")),
                 ),
-                output = UtbetalingBeregningPrisPerManedsverk.Output(
+                output = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                     deltakelser = Json.decodeFromString(row.string("deltakelser_output_json")),
                     pris = row.int("belop_beregnet").withValuta(valuta),
                 ),
@@ -981,15 +981,15 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    private fun getBeregningPrisPerUkesverk(id: UUID, valuta: Valuta): UtbetalingBeregningPrisPerUkesverk {
+    private fun getBeregningPrisPerUkesverk(id: UUID, valuta: Valuta): UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke {
         return getBeregningDeltakelsesfaktor(id) { row ->
-            UtbetalingBeregningPrisPerUkesverk(
-                input = UtbetalingBeregningPrisPerUkesverk.Input(
+            UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke(
+                input = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
                     satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_input_json")),
                 ),
-                output = UtbetalingBeregningPrisPerUkesverk.Output(
+                output = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Output(
                     deltakelser = Json.decodeFromString(row.string("deltakelser_output_json")),
                     pris = row.int("belop_beregnet").withValuta(valuta),
                 ),
@@ -997,15 +997,15 @@ class UtbetalingQueries(private val session: Session) {
         }
     }
 
-    private fun getBeregningPrisPerHeleUkesverk(id: UUID, valuta: Valuta): UtbetalingBeregningPrisPerHeleUkesverk {
+    private fun getBeregningPrisPerHeleUkesverk(id: UUID, valuta: Valuta): UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke {
         return getBeregningDeltakelsesfaktor(id) { row ->
-            UtbetalingBeregningPrisPerHeleUkesverk(
-                input = UtbetalingBeregningPrisPerHeleUkesverk.Input(
+            UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke(
+                input = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Input(
                     satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_input_json")),
                 ),
-                output = UtbetalingBeregningPrisPerHeleUkesverk.Output(
+                output = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Output(
                     deltakelser = Json.decodeFromString(row.string("deltakelser_output_json")),
                     pris = row.int("belop_beregnet").withValuta(valuta),
                 ),
@@ -1034,7 +1034,7 @@ class UtbetalingQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, id)) { row -> mapper.invoke(row) }
     }
 
-    private fun getBeregningPrisPerTimeOppfolging(id: UUID, valuta: Valuta): UtbetalingBeregningPrisPerTimeOppfolging {
+    private fun getBeregningPrisPerTimeOppfolging(id: UUID, valuta: Valuta): UtbetalingBeregningAvtaltPrisPerTimeOppfolging {
         @Language("PostgreSQL")
         val query = """
             select utbetaling.belop_beregnet,
@@ -1048,14 +1048,14 @@ class UtbetalingQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
         return session.requireSingle(queryOf(query, id)) { row ->
-            UtbetalingBeregningPrisPerTimeOppfolging(
-                input = UtbetalingBeregningPrisPerTimeOppfolging.Input(
+            UtbetalingBeregningAvtaltPrisPerTimeOppfolging(
+                input = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Input(
                     satser = Json.decodeFromString(row.string("sats_perioder_json")),
                     stengt = Json.decodeFromString(row.string("stengt_perioder_json")),
                     deltakelser = Json.decodeFromString(row.string("deltakelser_input_json")),
                     pris = row.int("belop_beregnet").withValuta(valuta),
                 ),
-                output = UtbetalingBeregningPrisPerTimeOppfolging.Output(
+                output = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Output(
                     pris = row.int("belop_beregnet").withValuta(valuta),
                 ),
             )
@@ -1067,12 +1067,12 @@ private fun getBeregningParams(id: UUID, beregning: UtbetalingBeregning) = mapOf
     "id" to id,
     "beregning_type" to when (beregning) {
         is UtbetalingBeregningFri -> UtbetalingBeregningType.FRI
-        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
+        is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed -> UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
         is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed -> UtbetalingBeregningType.FAST_SATS_PER_AVTALT_TILTAKSPLASS_PER_MANED
-        is UtbetalingBeregningPrisPerManedsverk -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
-        is UtbetalingBeregningPrisPerUkesverk -> UtbetalingBeregningType.PRIS_PER_UKESVERK
-        is UtbetalingBeregningPrisPerHeleUkesverk -> UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK
-        is UtbetalingBeregningPrisPerTimeOppfolging -> UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke -> UtbetalingBeregningType.PRIS_PER_UKESVERK
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK
+        is UtbetalingBeregningAvtaltPrisPerTimeOppfolging -> UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING
     }.name,
     "belop_beregnet" to beregning.output.pris.belop,
     "valuta" to beregning.output.pris.valuta.name,

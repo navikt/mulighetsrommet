@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.tiltak.okonomi.Tilskuddstype
 
 @Serializable
-data class UtbetalingBeregningPrisPerManedsverk(
+data class UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke(
     override val input: Input,
     override val output: Output,
 ) : UtbetalingBeregning() {
@@ -31,32 +31,33 @@ data class UtbetalingBeregningPrisPerManedsverk(
     }
 }
 
-object PrisPerManedBeregning : SystemgenerertPrismodell.FraDeltakelser<UtbetalingBeregningPrisPerManedsverk> {
-    override val type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK
+object PrisPerUkeBeregning : SystemgenerertPrismodell.FraDeltakelser<UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke> {
+
+    override val type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE
     override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
     override fun beregn(
         gjennomforing: GjennomforingAvtale,
         periode: Periode,
         deltakere: List<Deltaker>,
-    ): UtbetalingBeregningPrisPerManedsverk {
+    ): UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
-        val input = UtbetalingBeregningPrisPerManedsverk.Input(satser, stengt, deltakelser)
+        val input = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(satser, stengt, deltakelser)
 
-        val manedsverk = deltakelser
+        val ukesverk = deltakelser
             .map { deltakelse ->
-                UtbetalingBeregningHelpers.calculateDeltakelseManedsverk(
+                UtbetalingBeregningHelpers.calculateDeltakelseUkesverk(
                     deltakelse,
                     satser,
                     stengt.map { it.periode },
                 )
             }
             .toSet()
-        val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(gjennomforing.prismodell.valuta, manedsverk)
-        val output = UtbetalingBeregningPrisPerManedsverk.Output(belop, manedsverk)
+        val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(gjennomforing.prismodell.valuta, ukesverk)
+        val output = UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke.Output(belop, ukesverk)
 
-        return UtbetalingBeregningPrisPerManedsverk(input, output)
+        return UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke(input, output)
     }
 }

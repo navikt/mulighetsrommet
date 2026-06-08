@@ -23,7 +23,7 @@ export default function AvtalePrismodellStep() {
         <Select
           label={avtaletekster.prismodell.label}
           readOnly
-          value={PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK}
+          value={PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED}
         >
           <option>Forhåndsgodkjent pris per månedsverk</option>
         </Select>

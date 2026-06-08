@@ -30,7 +30,7 @@ class PrismodellQueries(private val session: Session) {
             values (:id::uuid,
                     :system_id,
                     :prisbetingelser,
-                    :prismodell::prismodell_type,
+                    :prismodell,
                     :satser::jsonb,
                     :valuta::currency,
                     :tilsagn_per_deltaker,

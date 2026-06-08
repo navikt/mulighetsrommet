@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
@@ -65,7 +66,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and arrangor_organisasjonsnummer = any(:arrangor_orgnrs)
               and status = any(:statuser)
-              and prismodell_type = any(:prismodeller::prismodell_type[])
+              and prismodell_type = any(:prismodeller::text[])
             order by $order
             limit :limit
             offset :offset
@@ -77,7 +78,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
             "slutt_dato_cutoff" to filter.sluttDatoGreaterThanOrEqualTo,
             "arrangor_orgnrs" to createArrayOfValue(organisasjonsnummer) { it.value },
             "statuser" to createArrayOf("gjennomforing_status", filter.type.toGjennomforingStatuses()),
-            "prismodeller" to createArrayOf("prismodell_type", prismodeller),
+            "prismodeller" to createTextArray(prismodeller),
         )
 
         return queryOf(query, params + filter.pagination.parameters)

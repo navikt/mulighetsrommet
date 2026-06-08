@@ -37,7 +37,9 @@ object PrismodellFixtures {
 
     val ForhandsgodkjentAft = createPrismodellDbo(
         systemId = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING.name,
-        type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        type = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
+        valuta = Valuta.NOK,
+        prisbetingelser = null,
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.NOK),
             AvtaltSats(LocalDate.of(2026, 1, 1), 21_730.NOK),
@@ -46,7 +48,9 @@ object PrismodellFixtures {
 
     val ForhandsgodkjentVta = createPrismodellDbo(
         systemId = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name,
-        type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+        type = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
+        valuta = Valuta.NOK,
+        prisbetingelser = null,
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 16_848.NOK),
             AvtaltSats(LocalDate.of(2026, 1, 1), 17_455.NOK),
@@ -55,7 +59,7 @@ object PrismodellFixtures {
 
     val ForhandsgodkjentTilpassetJobbstotte = createPrismodellDbo(
         systemId = Tiltakskode.TILPASSET_JOBBSTOTTE.name,
-        type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
+        type = PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED,
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 7_321.NOK),
         ),
@@ -68,8 +72,8 @@ object PrismodellFixtures {
         ),
     )
 
-    val AvtaltPrisPerManedsverk = createPrismodellDbo(
-        type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+    val AvtaltPrisPerBenyttetPlassPerManed = createPrismodellDbo(
+        type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
         satser = listOf(
             AvtaltSats(LocalDate.of(2023, 1, 1), 1234.NOK),
         ),

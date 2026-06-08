@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
@@ -107,10 +107,10 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         kommentar = null,
         beskrivelse = null,
         journalpost = null,
-        beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(
+        beregning = TilsagnBeregningAnnenAvtaltPris(
+            input = TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "1234",
                         pris = 1234.NOK,
@@ -119,7 +119,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(
+            output = TilsagnBeregningAnnenAvtaltPris.Output(
                 pris = 1234.NOK,
             ),
         ),

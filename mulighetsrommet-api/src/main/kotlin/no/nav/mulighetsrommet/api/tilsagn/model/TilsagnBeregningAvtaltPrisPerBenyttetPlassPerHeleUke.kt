@@ -10,7 +10,7 @@ import java.math.RoundingMode
 
 @Serializable
 @SerialName("PRIS_PER_HELE_UKESVERK")
-data class TilsagnBeregningPrisPerHeleUkesverk(
+data class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke(
     override val input: Input,
     override val output: Output,
 ) : TilsagnBeregning() {
@@ -31,7 +31,7 @@ data class TilsagnBeregningPrisPerHeleUkesverk(
     ) : TilsagnBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): TilsagnBeregningPrisPerHeleUkesverk {
+        fun beregn(input: Input): TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke {
             val (periode, sats, antallPlasser) = input
 
             val belop = UtbetalingBeregningHelpers.calculateWholeWeeksInPeriode(periode)
@@ -41,7 +41,7 @@ data class TilsagnBeregningPrisPerHeleUkesverk(
                 .intValueExact()
                 .withValuta(sats.valuta)
 
-            return TilsagnBeregningPrisPerHeleUkesverk(input, Output(belop))
+            return TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke(input, Output(belop))
         }
     }
 }

@@ -582,10 +582,10 @@ class AvtaleService(
                 }
             },
             AvtaleHandling.OPPDATER_PRIS.takeIf {
-                avtale.prismodeller.any { it.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK }
+                avtale.prismodeller.any { it.type != PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED }
             },
             AvtaleHandling.OPPDATER_RAMMEDETALJER.takeIf {
-                avtale.prismodeller.any { it.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK }
+                avtale.prismodeller.any { it.type != PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED }
             },
             AvtaleHandling.REGISTRER_OPSJON.takeIf {
                 avtale.opsjonsmodell.opsjonMaksVarighet != null

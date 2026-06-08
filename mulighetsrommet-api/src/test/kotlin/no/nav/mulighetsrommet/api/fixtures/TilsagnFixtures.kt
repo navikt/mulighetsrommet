@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
@@ -28,10 +28,10 @@ object TilsagnFixtures {
         bestillingsnummer = "A-2025/1-1",
         bestillingStatus = null,
         belopBrukt = 0.NOK,
-        beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(
+        beregning = TilsagnBeregningAnnenAvtaltPris(
+            input = TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "1000",
                         pris = 1000.NOK,
@@ -40,7 +40,7 @@ object TilsagnFixtures {
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(
+            output = TilsagnBeregningAnnenAvtaltPris.Output(
                 pris = 1000.NOK,
             ),
         ),
@@ -59,10 +59,10 @@ object TilsagnFixtures {
         bestillingsnummer = "A-2025/1-2",
         bestillingStatus = null,
         belopBrukt = 0.NOK,
-        beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(
+        beregning = TilsagnBeregningAnnenAvtaltPris(
+            input = TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "1500",
                         pris = 1500.NOK,
@@ -71,7 +71,7 @@ object TilsagnFixtures {
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(
+            output = TilsagnBeregningAnnenAvtaltPris.Output(
                 pris = 1500.NOK,
             ),
         ),
@@ -90,10 +90,10 @@ object TilsagnFixtures {
         bestillingsnummer = "A-2025/1-3",
         bestillingStatus = null,
         belopBrukt = 0.NOK,
-        beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(
+        beregning = TilsagnBeregningAnnenAvtaltPris(
+            input = TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "1250",
                         pris = 1250.NOK,
@@ -102,7 +102,7 @@ object TilsagnFixtures {
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(
+            output = TilsagnBeregningAnnenAvtaltPris.Output(
                 pris = 2500.NOK,
             ),
         ),
@@ -121,10 +121,10 @@ object TilsagnFixtures {
         bestillingsnummer = "A-2025/1-4",
         bestillingStatus = null,
         belopBrukt = 0.NOK,
-        beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(
+        beregning = TilsagnBeregningAnnenAvtaltPris(
+            input = TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "Beskrivelse",
                         pris = 1250.NOK,
@@ -133,7 +133,7 @@ object TilsagnFixtures {
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(
+            output = TilsagnBeregningAnnenAvtaltPris.Output(
                 pris = 2500.NOK,
             ),
         ),

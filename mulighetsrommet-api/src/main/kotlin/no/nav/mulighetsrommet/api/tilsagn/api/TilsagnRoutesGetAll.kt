@@ -8,12 +8,12 @@ import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
@@ -84,12 +84,12 @@ private fun toTilsagnDataTable(tilsagn: List<Tilsagn>): DataDrivenTableDto {
                     "type" to DataElement.text(tilsagn.type.displayName()),
                     "kostnadssted" to DataElement.text(tilsagn.kostnadssted.navn),
                     "antallPlasser" to when (tilsagn.beregning) {
-                        is TilsagnBeregningFri -> null
-                        is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> DataElement.number(tilsagn.beregning.input.antallPlasser)
-                        is TilsagnBeregningPrisPerManedsverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
-                        is TilsagnBeregningPrisPerUkesverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
-                        is TilsagnBeregningPrisPerHeleUkesverk -> DataElement.number(tilsagn.beregning.input.antallPlasser)
-                        is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> DataElement.number(tilsagn.beregning.input.antallPlasser)
+                        is TilsagnBeregningAnnenAvtaltPris -> null
+                        is TilsagnBeregningFastSatsPerBenyttetPlassPerManed -> DataElement.number(tilsagn.beregning.input.antallPlasser)
+                        is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed -> DataElement.number(tilsagn.beregning.input.antallPlasser)
+                        is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke -> DataElement.number(tilsagn.beregning.input.antallPlasser)
+                        is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> DataElement.number(tilsagn.beregning.input.antallPlasser)
+                        is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> DataElement.number(tilsagn.beregning.input.antallPlasser)
                     },
                     "belop" to DataElement.money(tilsagn.beregning.output.pris),
                     "status" to toTilsagnStatusTag(tilsagn.status),

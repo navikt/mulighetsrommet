@@ -32,7 +32,7 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
         test("investering - gyldig investeringsperiode") {
             val ctx = createContext(
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
             )
 
             val request = OpprettKravUtbetalingRequest(
@@ -87,9 +87,9 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
         context("maks sluttdato for opprett krav utbetalings periode") {
             test("skal tryne for prismodeller som ikke er støttet") {
                 forAll(
-                    row(PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
-                    row(PrismodellType.AVTALT_PRIS_PER_UKESVERK),
-                    row(PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK),
+                    row(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED),
+                    row(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE),
+                    row(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE),
                 ) { prismodell ->
                     shouldThrow<IllegalArgumentException> {
                         ArrangorflateUtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
@@ -102,7 +102,7 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
             }
 
             context("investering") {
-                val prismodell = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+                val prismodell = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED
 
                 test("skal gi dagens dato som maks, hvis innenfor opprett krav periode") {
                     val dato = LocalDate.of(2025, 11, 30)

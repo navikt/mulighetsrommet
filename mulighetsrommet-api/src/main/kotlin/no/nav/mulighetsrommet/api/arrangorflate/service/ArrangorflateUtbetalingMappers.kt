@@ -22,15 +22,15 @@ import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
@@ -271,7 +271,7 @@ private fun deltakelsePrisPerTimeOppfolgingTable(
 )
 
 fun beregningDisplayName(beregning: UtbetalingBeregning) = when (beregning) {
-    is UtbetalingBeregningFastSatsPerTiltaksplassPerManed ->
+    is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed ->
         "Fast sats per tiltaksplass per måned"
 
     is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed ->
@@ -280,31 +280,31 @@ fun beregningDisplayName(beregning: UtbetalingBeregning) = when (beregning) {
     is UtbetalingBeregningFri ->
         "Annen avtalt pris"
 
-    is UtbetalingBeregningPrisPerManedsverk ->
+    is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed ->
         "Avtalt månedspris per tiltaksplass"
 
-    is UtbetalingBeregningPrisPerTimeOppfolging ->
+    is UtbetalingBeregningAvtaltPrisPerTimeOppfolging ->
         "Avtalt pris per time oppfølging per deltaker"
 
-    is UtbetalingBeregningPrisPerUkesverk,
-    is UtbetalingBeregningPrisPerHeleUkesverk,
+    is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
+    is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
     -> "Avtalt ukespris per tiltaksplass"
 }
 
 fun beregningStengt(beregning: UtbetalingBeregning) = when (beregning) {
-    is UtbetalingBeregningFastSatsPerTiltaksplassPerManed ->
+    is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed ->
         beregning.input.stengt.sortedBy { it.periode.start }
 
-    is UtbetalingBeregningPrisPerManedsverk ->
+    is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed ->
         beregning.input.stengt.sortedBy { it.periode.start }
 
-    is UtbetalingBeregningPrisPerTimeOppfolging ->
+    is UtbetalingBeregningAvtaltPrisPerTimeOppfolging ->
         beregning.input.stengt.sortedBy { it.periode.start }
 
-    is UtbetalingBeregningPrisPerUkesverk ->
+    is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke ->
         beregning.input.stengt.sortedBy { it.periode.start }
 
-    is UtbetalingBeregningPrisPerHeleUkesverk ->
+    is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke ->
         beregning.input.stengt.sortedBy { it.periode.start }
 
     is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
@@ -314,7 +314,7 @@ fun beregningStengt(beregning: UtbetalingBeregning) = when (beregning) {
 
 fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
     return when (beregning) {
-        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
+        is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
         -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             beregningSatsPeriodeDetaljerMedFaktor(
@@ -325,7 +325,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
             )
         }
 
-        is UtbetalingBeregningPrisPerManedsverk -> {
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             beregningSatsPeriodeDetaljerMedFaktor(
                 satser,
@@ -335,7 +335,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
             )
         }
 
-        is UtbetalingBeregningPrisPerUkesverk -> {
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             beregningSatsPeriodeDetaljerMedFaktor(
                 satser,
@@ -345,7 +345,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
             )
         }
 
-        is UtbetalingBeregningPrisPerHeleUkesverk -> {
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             beregningSatsPeriodeDetaljerMedFaktor(
                 satser,
@@ -355,7 +355,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
             )
         }
 
-        is UtbetalingBeregningPrisPerTimeOppfolging -> {
+        is UtbetalingBeregningAvtaltPrisPerTimeOppfolging -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
             beregningSatsPeriodeDetaljerUtenFaktor(satser, "Avtalt pris per time oppfølging")
         }
@@ -417,7 +417,7 @@ private fun beregningDeltakerTable(
     personaliaById: Map<UUID, Personalia?>,
 ): DataDrivenTableDto? {
     return when (val beregning = utbetaling.beregning) {
-        is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
+        is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed -> {
             val deltakelser = getArrangorflateBeregningDeltakelse(
                 utbetaling.beregning.output.deltakelser(),
                 deltakereById,
@@ -432,7 +432,7 @@ private fun beregningDeltakerTable(
             )
         }
 
-        is UtbetalingBeregningPrisPerManedsverk -> {
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed -> {
             val deltakelser = getArrangorflateBeregningDeltakelse(
                 utbetaling.beregning.output.deltakelser(),
                 deltakereById,
@@ -442,7 +442,7 @@ private fun beregningDeltakerTable(
             deltakelsePrisPerManedsverkTable(utbetaling.periode, deltakelser, stengt)
         }
 
-        is UtbetalingBeregningPrisPerUkesverk -> {
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke -> {
             val deltakelser = getArrangorflateBeregningDeltakelse(
                 utbetaling.beregning.output.deltakelser(),
                 deltakereById,
@@ -452,7 +452,7 @@ private fun beregningDeltakerTable(
             deltakelsePrisPerUkesverkTable(utbetaling.periode, deltakelser, stengt)
         }
 
-        is UtbetalingBeregningPrisPerHeleUkesverk -> {
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> {
             val deltakelser = getArrangorflateBeregningDeltakelse(
                 utbetaling.beregning.output.deltakelser(),
                 deltakereById,
@@ -462,7 +462,7 @@ private fun beregningDeltakerTable(
             deltakelsePrisPerUkesverkTable(utbetaling.periode, deltakelser, stengt)
         }
 
-        is UtbetalingBeregningPrisPerTimeOppfolging -> {
+        is UtbetalingBeregningAvtaltPrisPerTimeOppfolging -> {
             val deltakelsePerioder = utbetaling.beregning.deltakelsePerioder()
             deltakelsePrisPerTimeOppfolgingTable(deltakelsePerioder, deltakereById, personaliaById)
         }

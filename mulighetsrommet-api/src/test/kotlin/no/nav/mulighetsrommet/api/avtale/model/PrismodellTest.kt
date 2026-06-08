@@ -13,7 +13,7 @@ class PrismodellTest : FunSpec({
             val sats2024 = AvtaltSats(LocalDate.of(2024, 1, 1), 1.NOK)
             val sats2025 = AvtaltSats(LocalDate.of(2025, 1, 1), 2.NOK)
 
-            val prismodell = Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass(
+            val prismodell = Prismodell.FastSatsPerAvtaltPlassPerManed(
                 id = UUID.randomUUID(),
                 valuta = Valuta.NOK,
                 satser = listOf(sats2024, sats2025),

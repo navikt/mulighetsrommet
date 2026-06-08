@@ -26,7 +26,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
@@ -182,7 +182,7 @@ class TilsagnServiceTest : FunSpec({
                 ansatt1,
             ).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
-                it.beregning.input.shouldBeTypeOf<TilsagnBeregningFri.Input>().prisbetingelser shouldBe nyePrisbetingelser
+                it.beregning.input.shouldBeTypeOf<TilsagnBeregningAnnenAvtaltPris.Input>().prisbetingelser shouldBe nyePrisbetingelser
             }
         }
 

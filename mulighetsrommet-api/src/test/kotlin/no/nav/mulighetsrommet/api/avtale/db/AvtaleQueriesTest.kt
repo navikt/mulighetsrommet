@@ -490,7 +490,7 @@ class AvtaleQueriesTest : FunSpec({
                 valuta = Valuta.NOK,
             )
             val prismodell2Dbo = PrismodellFixtures.createPrismodellDbo(
-                type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
                 satser = listOf(
                     AvtaltSats(LocalDate.of(2025, 7, 1), 2000.NOK),
                 ),
@@ -512,7 +512,7 @@ class AvtaleQueriesTest : FunSpec({
 
                 queries.avtale.getOrError(avtale.id).prismodeller shouldContainExactlyInAnyOrder listOf(
                     prismodell1,
-                    Prismodell.AvtaltPrisPerManedsverk(
+                    Prismodell.AvtaltPrisPerBenyttetPlassPerManed(
                         id = prismodell2Dbo.id,
                         prisbetingelser = null,
                         satser = listOf(
@@ -523,13 +523,13 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 queries.prismodell.upsert(
-                    prismodell2Dbo.copy(type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK, prisbetingelser = "$"),
+                    prismodell2Dbo.copy(type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE, prisbetingelser = "$"),
                 )
 
                 queries.avtale.deletePrismodell(avtale.id, prismodell1Dbo.id)
 
                 queries.avtale.getOrError(avtale.id).prismodeller shouldContainExactlyInAnyOrder listOf(
-                    Prismodell.AvtaltPrisPerHeleUkesverk(
+                    Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke(
                         id = prismodell2Dbo.id,
                         prisbetingelser = "$",
                         satser = listOf(

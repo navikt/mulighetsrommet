@@ -9,15 +9,15 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentP
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningType
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -60,7 +60,7 @@ data class UtbetalingBeregningDto(
 
                 is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed -> UtbetalingBeregningDto(
                     type = UtbetalingBeregningType.FAST_SATS_PER_AVTALT_TILTAKSPLASS_PER_MANED,
-                    heading = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS.navn,
+                    heading = PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED.navn,
                     deltakerRegioner = regioner,
                     deltakere = emptyList(),
                     pris = beregning.output.pris,
@@ -68,7 +68,7 @@ data class UtbetalingBeregningDto(
                     advarsler = advarsler,
                 )
 
-                is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> {
+                is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed -> {
                     val deltakere = getUtbetalingBeregningDeltaker(beregning.output.deltakelser(), personaliaById)
                     val pris =
                         UtbetalingBeregningHelpers.calculateBelopForDeltakelser(
@@ -78,7 +78,7 @@ data class UtbetalingBeregningDto(
                     val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         type = UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED,
-                        heading = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.navn,
+                        heading = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED.navn,
                         deltakerRegioner = regioner,
                         deltakere = deltakelseFastSatsPerTiltaksplassPerManedTable(
                             beregning.output.pris.valuta,
@@ -98,7 +98,7 @@ data class UtbetalingBeregningDto(
                     )
                 }
 
-                is UtbetalingBeregningPrisPerManedsverk -> {
+                is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed -> {
                     val deltakere = getUtbetalingBeregningDeltaker(beregning.output.deltakelser(), personaliaById)
                     val valuta = beregning.output.pris.valuta
                     val pris =
@@ -109,7 +109,7 @@ data class UtbetalingBeregningDto(
                     val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         type = UtbetalingBeregningType.PRIS_PER_MANEDSVERK,
-                        heading = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.navn,
+                        heading = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED.navn,
                         deltakerRegioner = regioner,
                         deltakere = deltakelsePrisPerManedsverkTable(
                             valuta,
@@ -128,7 +128,7 @@ data class UtbetalingBeregningDto(
                     )
                 }
 
-                is UtbetalingBeregningPrisPerUkesverk -> {
+                is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke -> {
                     val deltakere = getUtbetalingBeregningDeltaker(beregning.output.deltakelser(), personaliaById)
                     val valuta = beregning.output.pris.valuta
                     val pris =
@@ -139,7 +139,7 @@ data class UtbetalingBeregningDto(
                     val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         type = UtbetalingBeregningType.PRIS_PER_UKESVERK,
-                        heading = PrismodellType.AVTALT_PRIS_PER_UKESVERK.navn,
+                        heading = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE.navn,
                         deltakerRegioner = regioner,
                         deltakere = deltakelsePrisPerUkesverkTable(
                             valuta = valuta,
@@ -158,7 +158,7 @@ data class UtbetalingBeregningDto(
                     )
                 }
 
-                is UtbetalingBeregningPrisPerHeleUkesverk -> {
+                is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> {
                     val deltakere = getUtbetalingBeregningDeltaker(beregning.output.deltakelser(), personaliaById)
                     val valuta = beregning.output.pris.valuta
                     val pris =
@@ -169,7 +169,7 @@ data class UtbetalingBeregningDto(
                     val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         type = UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK,
-                        heading = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.navn,
+                        heading = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE.navn,
                         deltakerRegioner = regioner,
                         deltakere = deltakelsePrisPerUkesverkTable(
                             valuta,
@@ -188,7 +188,7 @@ data class UtbetalingBeregningDto(
                     )
                 }
 
-                is UtbetalingBeregningPrisPerTimeOppfolging -> {
+                is UtbetalingBeregningAvtaltPrisPerTimeOppfolging -> {
                     val pris = beregning.input.pris
                     val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
