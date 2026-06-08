@@ -8,6 +8,7 @@ import { GavelSoundBlockFillIcon } from "@navikt/aksel-icons";
 import { Heading } from "@navikt/ds-react";
 import { DataElementStatus } from "@tiltaksadministrasjon/api-client";
 import React from "react";
+import { DeltakerHeader } from "../gjennomforing/DeltakerHeader";
 
 export type TilskuddBehandlingTab = "saksopplysninger" | "vedtak";
 
@@ -18,7 +19,8 @@ interface Props {
 }
 
 export function TilskuddBehandlingLayout({ gjennomforingId, status, children }: Props) {
-  const { gjennomforing } = useEnkeltplassGjennomforingOrError(gjennomforingId);
+  const { gjennomforing, enkeltplassDeltaker } =
+    useEnkeltplassGjennomforingOrError(gjennomforingId);
 
   return (
     <>
@@ -46,6 +48,9 @@ export function TilskuddBehandlingLayout({ gjennomforingId, status, children }: 
         </Heading>
         {status && <DataElementStatusTag {...status} />}
       </Header>
+      {enkeltplassDeltaker && (
+        <DeltakerHeader deltaker={enkeltplassDeltaker} arrangorNavn={gjennomforing.arrangor.navn} />
+      )}
       <WhitePaddedBox>
         <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
         {children}
