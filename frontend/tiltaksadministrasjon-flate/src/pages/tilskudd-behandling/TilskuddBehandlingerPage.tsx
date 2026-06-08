@@ -49,7 +49,7 @@ export function TilskuddBehandlingerPage() {
                 Innsendt
               </TableColumnHeader>
               <TableColumnHeader sortKey="journalpostId" sortable>
-                JournalpostId
+                Journalpost-ID
               </TableColumnHeader>
               <TableColumnHeader sortKey="periode.start" sortable>
                 Periodestart

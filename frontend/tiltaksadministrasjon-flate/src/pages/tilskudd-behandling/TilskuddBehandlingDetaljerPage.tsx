@@ -126,7 +126,7 @@ export function TilskuddBehandlingDetaljerPage() {
               <VStack gap="space-16">
                 <Definisjonsliste
                   definitions={[
-                    { key: "JournalpostID", value: behandling.soknadJournalpostId },
+                    { key: "Journalpost-ID", value: behandling.soknadJournalpostId },
                     { key: "Søknadsdato", value: formaterDato(behandling.soknadDato) },
                     { key: "Periode", value: formaterPeriode(behandling.periode) },
                     {
