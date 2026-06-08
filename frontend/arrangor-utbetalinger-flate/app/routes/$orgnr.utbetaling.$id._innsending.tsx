@@ -1,33 +1,69 @@
-import { Outlet, useLocation } from "react-router";
-import { Suspense, useEffect, useState } from "react";
-import { InnsendingLayout } from "~/components/common/InnsendingLayout";
+import { Link as ReactRouterLink, Outlet } from "react-router";
+import { Suspense } from "react";
+import { Box, Button, Hide, HStack, Link, Stepper, VStack } from "@navikt/ds-react";
 import { Laster } from "~/components/common/Laster";
+import { useUtbetalingWizard } from "~/hooks/useUtbetalingWizard";
+import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
+import { pathTo, useIdFromUrl } from "~/utils/navigation";
+import { ChevronLeftIcon } from "@navikt/aksel-icons";
+import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 
-const steps = [
-  { name: "Innsendingsinformasjon", path: "innsendingsinformasjon", order: 1 },
-  { name: "Beregning", path: "beregning", order: 2 },
-  { name: "Oppsummering", path: "oppsummering", order: 3 },
-];
+export default function InnsendingLayout() {
+  const id = useIdFromUrl();
+  const { data: utbetaling } = useArrangorflateUtbetaling(id);
+  const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id);
 
-function useStep(path: string): number {
-  const stepPath = path.split("/").pop();
-  return steps.find(({ path }) => path === stepPath)?.order || 1;
-}
+  const wizard = useUtbetalingWizard(utbetaling);
 
-export default function UtbetalingLayout() {
-  const location = useLocation();
-  const step = useStep(location.pathname);
-  const [activeStep, setActiveStep] = useState(step);
-
-  useEffect(() => {
-    setActiveStep(step);
-  }, [step]);
+  const harTilsagn = tilsagn.length > 0;
 
   return (
-    <InnsendingLayout steps={steps} activeStep={activeStep}>
-      <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
-        <Outlet />
-      </Suspense>
-    </InnsendingLayout>
+    <VStack gap="space-16" justify="center">
+      <Link as={ReactRouterLink} to={pathTo.utbetalinger}>
+        <ChevronLeftIcon /> Tilbake til oversikt
+      </Link>
+
+      {wizard.steps.length > 0 && (
+        <Hide below="sm">
+          <Stepper aria-label="Steg" activeStep={wizard.activeStep} orientation="horizontal">
+            {wizard.steps.map(({ name }, index) => (
+              <Stepper.Step
+                key={name}
+                interactive={false}
+                completed={wizard.activeStep > index + 1}
+              >
+                {name}
+              </Stepper.Step>
+            ))}
+          </Stepper>
+        </Hide>
+      )}
+
+      <Box background="default" borderRadius="8" padding="space-32">
+        <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
+          <Outlet />
+        </Suspense>
+
+        {harTilsagn && !wizard.isLastStep && (
+          <HStack gap="space-16" marginBlock="space-16 space-0">
+            {wizard.isFirstStep ? (
+              <Button
+                as={ReactRouterLink}
+                type="button"
+                variant="tertiary"
+                to={pathTo.utbetalinger}
+              >
+                Avbryt
+              </Button>
+            ) : (
+              <Button type="button" variant="tertiary" onClick={wizard.goToPrevious}>
+                Tilbake
+              </Button>
+            )}
+            <Button onClick={wizard.goToNext}>Neste</Button>
+          </HStack>
+        )}
+      </Box>
+    </VStack>
   );
 }
