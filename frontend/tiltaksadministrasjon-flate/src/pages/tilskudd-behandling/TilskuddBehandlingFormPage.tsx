@@ -20,10 +20,10 @@ import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date"
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
 import { ToTrinnsOpprettelsesForklaring } from "../gjennomforing/tilsagn/ToTrinnsOpprettelseForklaring";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { CalculatorIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
+import { Betalingsbetingelser } from "@/components/tilskudd-behandling/Betalingsbetingelser";
 
 interface Tab {
   key: TilskuddBehandlingTab;
@@ -42,8 +42,7 @@ const tabs: Tab[] = [
 
 export function TilskuddBehandlingFormPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { gjennomforing, enkeltplassDeltaker, prismodell } =
-    useEnkeltplassGjennomforingOrError(gjennomforingId);
+  const { gjennomforing, prismodell } = useEnkeltplassGjennomforingOrError(gjennomforingId);
   const { behandlingId } = useParams();
   const { data } = usePotentialTilskuddBehandling(behandlingId ?? null);
   const behandling = data?.behandling;
@@ -176,10 +175,7 @@ export function TilskuddBehandlingFormPage() {
                       <VedtakForm />
                     </Tabs.Panel>
                   </Box>
-                  <DeltakerinformasjonOgBetalingsbetingelser
-                    deltaker={enkeltplassDeltaker}
-                    prisbetingelser={prismodell.prisbetingelser}
-                  />
+                  <Betalingsbetingelser prisbetingelser={prismodell.prisbetingelser} />
                 </TwoColumnGrid>
               </Box>
             </Tabs>

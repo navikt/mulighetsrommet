@@ -5670,6 +5670,16 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/AvvistGrunn"
+        startDato:
+          type:
+          - "null"
+          - string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
       required:
       - avvistGrunn
       - id
@@ -5677,6 +5687,8 @@ components:
       - navn
       - norskIdent
       - oppfolgingEnhet
+      - sluttDato
+      - startDato
       - status
     NavEnhetDto:
       type: object

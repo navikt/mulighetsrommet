@@ -39,12 +39,12 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { isAvvist, isGodkjent, isTilBeslutning } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
 import { ReactNode, useState } from "react";
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
 import { UtdanningslopDetaljer } from "../utdanning/UtdanningslopDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 import { AmoKategoriseringDetaljer } from "../amoKategorisering/AmoKategoriseringDetaljer";
+import { Betalingsbetingelser } from "../tilskudd-behandling/Betalingsbetingelser";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -154,10 +154,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
             />
           )}
           {enkeltplassDeltaker && (
-            <DeltakerinformasjonOgBetalingsbetingelser
-              deltaker={enkeltplassDeltaker}
-              prisbetingelser={prismodell.prisbetingelser}
-            />
+            <Betalingsbetingelser prisbetingelser={prismodell.prisbetingelser} />
           )}
         </DetaljerLayout>
       </TwoColumnGrid>

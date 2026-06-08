@@ -21,7 +21,6 @@ import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/Tilsk
 import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 import { ToTrinnsOpprettelsesForklaring } from "../gjennomforing/tilsagn/ToTrinnsOpprettelseForklaring";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { DeltakerinformasjonOgBetalingsbetingelser } from "@/components/tilskudd-behandling/DeltakerinformasjonOgBetalingsbetingelser";
 import {
   MetadataFritekstfelt,
   Separator,
@@ -43,10 +42,11 @@ import {
   tilskuddMottakerToString,
 } from "@/utils/Utils";
 import { PencilFillIcon } from "@navikt/aksel-icons";
+import { Betalingsbetingelser } from "@/components/tilskudd-behandling/Betalingsbetingelser";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
-  const { prismodell, enkeltplassDeltaker } = useEnkeltplassGjennomforingOrError(gjennomforingId);
+  const { prismodell } = useEnkeltplassGjennomforingOrError(gjennomforingId);
 
   const {
     data: { behandling, handlinger, opprettelse },
@@ -208,10 +208,7 @@ export function TilskuddBehandlingDetaljerPage() {
                 />
               </VStack>
             </>
-            <DeltakerinformasjonOgBetalingsbetingelser
-              deltaker={enkeltplassDeltaker}
-              prisbetingelser={prismodell.prisbetingelser}
-            />
+            <Betalingsbetingelser prisbetingelser={prismodell.prisbetingelser} />
           </TwoColumnGrid>
         </Box>
         <Separator />

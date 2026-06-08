@@ -182,6 +182,10 @@ data class DeltakerDto(
     val status: DataElement.Status,
     val innholdAnnet: String?,
     val avvistGrunn: AvvistGrunn?,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
 ) {
     companion object {
         fun from(deltaker: Deltaker, personalia: Personalia) = DeltakerDto(
@@ -192,6 +196,8 @@ data class DeltakerDto(
             norskIdent = personalia.norskIdent(),
             oppfolgingEnhet = personalia.oppfolgingEnhet(),
             avvistGrunn = personalia.avvistGrunn,
+            startDato = deltaker.startDato,
+            sluttDato = deltaker.sluttDato,
         )
     }
 }
