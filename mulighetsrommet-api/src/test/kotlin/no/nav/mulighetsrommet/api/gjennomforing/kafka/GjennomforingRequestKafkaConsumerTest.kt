@@ -38,8 +38,6 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
     val domain = MulighetsrommetTestDomain(
         arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         tiltakstyper = listOf(TiltakstypeFixtures.Amo),
-        avtaler = emptyList(),
-        gjennomforinger = emptyList(),
     )
 
     beforeEach {
