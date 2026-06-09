@@ -226,23 +226,27 @@ export function TilsagnDetaljer() {
               </Heading>
               <TilsagnRegnestykke regnestykke={beregning.regnestykke} />
             </Box>
-            {[TilsagnStatus.ANNULLERT, TilsagnStatus.OPPGJORT].includes(status.type) && (
+            {status.type === TilsagnStatus.ANNULLERT && (
               <>
                 <Separator />
-                <Heading level="4" spacing size="small">
-                  {status.type === TilsagnStatus.ANNULLERT
-                    ? "Begrunnelse for annullering"
-                    : "Begrunnelse for oppgjør"}
-                </Heading>
-                <MetadataVStack
-                  label={"Årsaker"}
-                  value={(tilOppgjor?.aarsaker || annullering?.aarsaker)
-                    ?.map((arsak) => aarsakTilTekst(arsak as TilsagnStatusAarsak))
-                    .join(", ")}
+                <Begrunnelse
+                  title="Begrunnelse for annullering"
+                  aarsaker={annullering?.aarsaker?.map((arsak) =>
+                    aarsakTilTekst(arsak as TilsagnStatusAarsak),
+                  )}
+                  forklaring={annullering?.forklaring}
                 />
-                <MetadataFritekstfelt
-                  label={"Forklaring"}
-                  value={tilOppgjor?.forklaring ?? annullering?.forklaring}
+              </>
+            )}
+            {status.type === TilsagnStatus.OPPGJORT && (
+              <>
+                <Separator />
+                <Begrunnelse
+                  title="Begrunnelse for oppgjør"
+                  aarsaker={tilOppgjor?.aarsaker?.map((arsak) =>
+                    aarsakTilTekst(arsak as TilsagnStatusAarsak),
+                  )}
+                  forklaring={tilOppgjor?.forklaring}
                 />
               </>
             )}
@@ -356,6 +360,28 @@ export function TilsagnDetaljer() {
           onConfirm={returnerTilsagn}
         />
       </VStack>
+    </>
+  );
+}
+
+interface BegrunnelseProps {
+  title: string;
+  aarsaker?: string[] | null;
+  forklaring?: string | null;
+}
+
+function Begrunnelse({ title, aarsaker, forklaring }: BegrunnelseProps) {
+  if (!aarsaker && !forklaring) {
+    return null;
+  }
+
+  return (
+    <>
+      <Heading level="4" spacing size="small">
+        {title}
+      </Heading>
+      <MetadataVStack label="Årsaker" value={aarsaker?.join(", ")} />
+      <MetadataFritekstfelt label="Forklaring" value={forklaring} />
     </>
   );
 }
