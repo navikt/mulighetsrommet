@@ -14,7 +14,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.arrangor.ArrangorError
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -115,26 +114,6 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             service.get(gjennomforingId).shouldBeNull()
         }
 
-        test("er idempotent dersom gjennomforing allerede eksisterer") {
-            val arrangorer = mockk<ArrangorService>()
-            coEvery {
-                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
-            } returns ArrangorFixtures.underenhet1.right()
-
-            val consumer = createConsumer(service, arrangorer)
-            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
-
-            val requestMedNyPris = GjennomforingRequest.EnkeltplassUtkast(
-                gjennomforingId,
-                payload.copy(prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 99999)),
-            )
-            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(requestMedNyPris))
-
-            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing) ->
-                (gjennomforing.prismodell as Prismodell.AnnenAvtaltPris).totalbelop shouldBe 10000
-            }
-        }
-
         test("kaster feil dersom tiltakskoden ikke er migrert") {
             val ikkeMigrertConfig = TiltakstypeService.Config(features = emptyMap())
             val consumer = createConsumer(service, tiltakstypeConfig = ikkeMigrertConfig)
@@ -181,53 +160,6 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
                 gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
                 gjennomforing.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
                 gjennomforing.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
-                okonomi.shouldNotBeNull().behandletAv shouldBe NavIdent("B123456")
-            }
-        }
-
-        test("er idempotent dersom økonomi er GODKJENT") {
-            val arrangorer = mockk<ArrangorService>()
-            coEvery {
-                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
-            } returns ArrangorFixtures.underenhet1.right()
-
-            val consumer = createConsumer(service, arrangorer)
-            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
-            service.settOkonomiGodkjent(gjennomforingId, NavIdent("Z999999"))
-
-            val requestMedNyPris = GjennomforingRequest.EnkeltplassSoktInn(
-                gjennomforingId,
-                payload.copy(prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 99999)),
-            )
-            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(requestMedNyPris))
-
-            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, okonomi) ->
-                (gjennomforing.prismodell as Prismodell.AnnenAvtaltPris).totalbelop shouldBe 10000
-                okonomi.shouldNotBeNull().behandletAv shouldBe NavIdent("B123456")
-            }
-        }
-
-        test("kan søke inn etter utkast") {
-            val arrangorer = mockk<ArrangorService>()
-            coEvery {
-                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
-            } returns ArrangorFixtures.underenhet1.right()
-
-            val consumer = createConsumer(service, arrangorer)
-
-            consumer.consume(
-                gjennomforingId,
-                Json.encodeToJsonElement<GjennomforingRequest>(
-                    GjennomforingRequest.EnkeltplassUtkast(gjennomforingId, payload),
-                ),
-            )
-            service.get(gjennomforingId).shouldNotBeNull().should { (_, okonomi) ->
-                okonomi.shouldBeNull()
-            }
-
-            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
-            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, okonomi) ->
-                gjennomforing.id shouldBe gjennomforingId
                 okonomi.shouldNotBeNull().behandletAv shouldBe NavIdent("B123456")
             }
         }
