@@ -34,7 +34,7 @@ export default function UtbetalingBeregningView({ beregning, utbetalingId }: Pro
       )}
       <Accordion>
         <Accordion.Item>
-          <Accordion.Header>Beregning - {beregning.heading}</Accordion.Header>
+          <Accordion.Header>{beregning.heading}</Accordion.Header>
           <Accordion.Content>
             <VStack gap="space-8">
               <UtbetalingBeregning beregning={beregning} />

@@ -231,7 +231,7 @@ export function TilsagnDetaljer() {
                 <Separator />
                 <Begrunnelse
                   title="Begrunnelse for annullering"
-                  aarsaker={annullering?.aarsaker?.map((arsak) =>
+                  aarsaker={annullering?.aarsaker.map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
                   )}
                   forklaring={annullering?.forklaring}
@@ -243,7 +243,7 @@ export function TilsagnDetaljer() {
                 <Separator />
                 <Begrunnelse
                   title="Begrunnelse for oppgjør"
-                  aarsaker={tilOppgjor?.aarsaker?.map((arsak) =>
+                  aarsaker={tilOppgjor?.aarsaker.map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
                   )}
                   forklaring={tilOppgjor?.forklaring}
