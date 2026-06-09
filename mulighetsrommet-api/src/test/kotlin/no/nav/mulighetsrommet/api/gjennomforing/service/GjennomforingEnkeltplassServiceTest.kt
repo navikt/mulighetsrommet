@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
+import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
@@ -42,7 +43,6 @@ import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -52,6 +52,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.copy(totalbelop = 1000)),
         gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
     )
 
@@ -92,12 +93,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         sluttDato = LocalDate.of(2025, 6, 1),
         status = GjennomforingStatusType.GJENNOMFORES,
         ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
-        prismodell = Prismodell.AnnenAvtaltPris(
-            id = UUID.randomUUID(),
-            valuta = Valuta.NOK,
-            tilsagnPerDeltaker = true,
-            prisbetingelser = null,
-            totalbelop = null,
+        prismodell = UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(
+            totalbelop = 1000,
         ),
         kategorisering = kategorisering,
     )
@@ -121,17 +118,13 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val upsert = createEnkeltplass()
             service.opprettUtkast(upsert).shouldBeRight()
 
-            val oppdatertPris = Prismodell.AnnenAvtaltPris(
-                id = UUID.randomUUID(),
-                valuta = Valuta.NOK,
-                tilsagnPerDeltaker = true,
-                prisbetingelser = null,
-                totalbelop = 99999,
+            val oppdatertPris = UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(
+                totalbelop = 999,
             )
-            service.opprettUtkast(upsert.copy(prismodell = oppdatertPris)).shouldBeRight()
+            val (gjennomforing) = service.opprettUtkast(upsert.copy(prismodell = oppdatertPris)).shouldBeRight()
 
-            service.get(upsert.id).shouldNotBeNull().should { (gjennomforing) ->
-                (gjennomforing.prismodell as Prismodell.AnnenAvtaltPris).totalbelop shouldBe null
+            gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
+                it.totalbelop shouldBe 1000
             }
         }
 
@@ -218,22 +211,42 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
         }
 
+        test("beholder referanse til samme prismodell ved oppdatering av økonomi") {
+            val upsert = createEnkeltplass()
+
+            val enkeltplass1 = service.soktInn(upsert, opprettetAv).shouldBeRight()
+
+            enkeltplass1.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>()
+
+            val prismodell = UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering(
+                tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
+                tilleggsopplysninger = null,
+            )
+            val enkeltplass2 = service
+                .soktInn(upsert.copy(prismodell = prismodell), opprettetAv)
+                .shouldBeRight()
+
+            enkeltplass2.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
+                it.id shouldBe enkeltplass1.gjennomforing.prismodell.id
+            }
+        }
+
         test("sender økonomi til godkjenning på nytt etter at økonomi er satt på vent") {
             val upsert = createEnkeltplass()
             service.soktInn(upsert, opprettetAv).shouldBeRight()
             service.settOkonomiPaVent(upsert.id, besluttetAv, forklaring = "Feil prisbetingelser").shouldBeRight()
 
-            val prismodell = Prismodell.TilskuddTilOpplaering(
-                id = UUID.randomUUID(),
+            val prismodell = UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
-                valuta = Valuta.NOK,
                 tilleggsopplysninger = null,
             )
             val (gjennomforing, okonomi) = service
                 .soktInn(upsert.copy(prismodell = prismodell), opprettetAv)
                 .shouldBeRight()
 
-            gjennomforing.prismodell shouldBe prismodell
+            gjennomforing.prismodell.shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
+                it.tilskudd shouldBe prismodell.tilskudd
+            }
 
             okonomi.shouldNotBeNull().should {
                 it.besluttetAv.shouldBeNull()
@@ -246,17 +259,17 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.soktInn(upsert, opprettetAv).shouldBeRight()
             service.settOkonomiGodkjent(upsert.id, besluttetAv).shouldBeRight()
 
-            val prismodell = Prismodell.TilskuddTilOpplaering(
-                id = UUID.randomUUID(),
+            val prismodell = UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
-                valuta = Valuta.NOK,
                 tilleggsopplysninger = null,
             )
             val (gjennomforing, okonomi) = service
                 .soktInn(upsert.copy(prismodell = prismodell), opprettetAv)
                 .shouldBeRight()
 
-            gjennomforing.prismodell shouldBe upsert.prismodell
+            gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
+                it.totalbelop shouldBe 1000
+            }
 
             okonomi.shouldNotBeNull().should {
                 it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
@@ -265,9 +278,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         }
 
         test("økonomi godkjennes automatisk av Tiltaksadministrasjon ved IngenKostnader") {
-            val prismodell = Prismodell.IngenKostnader(
-                id = UUID.randomUUID(),
-                valuta = Valuta.NOK,
+            val prismodell = UpsertGjennomforingEnkeltplass.Prismodell.IngenKostnader(
                 aarsak = Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI,
                 tilleggsopplysninger = null,
             )
