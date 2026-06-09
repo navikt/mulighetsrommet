@@ -187,7 +187,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             }
         }
 
-        test("er idempotent dersom økonomi allerede er satt") {
+        test("er idempotent dersom økonomi er GODKJENT") {
             val arrangorer = mockk<ArrangorService>()
             coEvery {
                 arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
@@ -195,9 +195,16 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
             val consumer = createConsumer(service, arrangorer)
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
-            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+            service.settOkonomiGodkjent(gjennomforingId, NavIdent("Z999999"))
 
-            service.get(gjennomforingId).shouldNotBeNull().should { (_, okonomi) ->
+            val requestMedNyPris = GjennomforingRequest.EnkeltplassSoktInn(
+                gjennomforingId,
+                payload.copy(prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 99999)),
+            )
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(requestMedNyPris))
+
+            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, okonomi) ->
+                (gjennomforing.prismodell as Prismodell.AnnenAvtaltPris).totalbelop shouldBe 10000
                 okonomi.shouldNotBeNull().behandletAv shouldBe NavIdent("B123456")
             }
         }
