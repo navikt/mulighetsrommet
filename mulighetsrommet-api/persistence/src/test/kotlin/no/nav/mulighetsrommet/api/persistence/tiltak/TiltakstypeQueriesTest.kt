@@ -1,26 +1,26 @@
-package no.nav.mulighetsrommet.api.tiltakstype.db
+package no.nav.mulighetsrommet.api.persistence.tiltak
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
-import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.api.persistence.SqlApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
 class TiltakstypeQueriesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener())
+    val database = extension(SqlApiDatabaseTestListener())
 
     context("CRUD") {
         test("upsert and get") {
             database.runAndRollback {
-                queries.tiltakstype.upsert(TiltakstypeFixtures.Arbeidstrening)
-                queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
-                queries.tiltakstype.upsert(TiltakstypeFixtures.VTAO)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.Arbeidstrening)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.VTAO)
 
                 queries.tiltakstype.getAll().size shouldBe 3
             }
@@ -30,10 +30,10 @@ class TiltakstypeQueriesTest : FunSpec({
     context("filtrering") {
         test("filtrering på tiltakskode") {
             database.runAndRollback {
-                queries.tiltakstype.upsert(TiltakstypeFixtures.AFT)
-                queries.tiltakstype.upsert(TiltakstypeFixtures.Jobbklubb)
-                queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
-                queries.tiltakstype.upsert(TiltakstypeFixtures.EnkelAmo)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.AFT)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.Jobbklubb)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.EnkelAmo)
 
                 queries.tiltakstype.getAll(
                     tiltakskoder = setOf(
@@ -53,7 +53,7 @@ class TiltakstypeQueriesTest : FunSpec({
     context("Strukturert innhold for deltakerregistrering") {
         test("Skal hente ut korrekt strukturert innhold for tiltakstype som har strukturert innhold") {
             database.runAndRollback {
-                queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
                 queries.tiltakstype.upsertDeltakerRegistreringInnhold(
                     TiltakstypeFixtures.Oppfolging.id,
                     "Oppfølging er et bra tiltak",
@@ -73,7 +73,7 @@ class TiltakstypeQueriesTest : FunSpec({
 
         test("Skal støtte å hente tiltaktype som bare har ledetekst, men ingen innholdselementer") {
             database.runAndRollback {
-                queries.tiltakstype.upsert(TiltakstypeFixtures.VTA)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.VTA)
                 queries.tiltakstype.upsertDeltakerRegistreringInnhold(
                     TiltakstypeFixtures.VTA.id,
                     "VTA er kjempebra",
@@ -90,7 +90,7 @@ class TiltakstypeQueriesTest : FunSpec({
 
         test("Skal kunne hente tiltakstype uten strukturert innhold for deltakerregistrering") {
             database.runAndRollback {
-                queries.tiltakstype.upsert(TiltakstypeFixtures.AFT)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.AFT)
 
                 queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.AFT.id).shouldNotBeNull().should {
                     it.deltakerRegistreringInnhold shouldBe null

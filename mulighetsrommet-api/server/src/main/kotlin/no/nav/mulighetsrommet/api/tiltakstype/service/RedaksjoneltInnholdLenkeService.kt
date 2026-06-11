@@ -4,8 +4,8 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.application.tiltak.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import java.util.UUID
 
 class RedaksjoneltInnholdLenkeService(

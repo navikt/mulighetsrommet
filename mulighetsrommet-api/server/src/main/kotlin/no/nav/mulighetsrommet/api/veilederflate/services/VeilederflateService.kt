@@ -5,11 +5,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
@@ -119,7 +119,7 @@ class VeilederflateService(
     private suspend fun getAllTiltakstyper(): List<VeilederflateTiltakstype> {
         return cachedAllTiltakstyper.getOrCompute {
             db.session {
-                queries.tiltakstype.getAll().map { tiltakstype ->
+                repository.tiltakstype.getAll(emptySet()).map { tiltakstype ->
                     val veilederinfo = queries.tiltakstype.getVeilederinfo(tiltakstype.id)
                     VeilederflateTiltakstype(
                         sanityId = tiltakstype.sanityId?.toString(),

@@ -28,12 +28,8 @@ class InitialLoadTiltakstyperTest : FunSpec({
             TiltakstypeFixtures.Arbeidstrening,
         ),
     ) {
-        queries.tiltakstype.setSanityId(TiltakstypeFixtures.Oppfolging.id, sanityIdOppfolging)
-        queries.tiltakstype.setInnsatsgrupper(
-            TiltakstypeFixtures.Oppfolging.id,
-            setOf(Innsatsgruppe.TRENGER_VEILEDNING),
-        )
-        queries.tiltakstype.setSanityId(TiltakstypeFixtures.IPS.id, sanityIdArbeidsmedStotte)
+        repository.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging.copy(sanityId = sanityIdOppfolging, innsatsgrupper = setOf(Innsatsgruppe.TRENGER_VEILEDNING)))
+        repository.tiltakstype.upsert(TiltakstypeFixtures.IPS.copy(sanityId = sanityIdArbeidsmedStotte))
     }
 
     beforeSpec {

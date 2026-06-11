@@ -12,6 +12,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -24,7 +25,6 @@ import no.nav.mulighetsrommet.api.sanity.SanityArrangorKontaktperson
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
@@ -112,14 +112,11 @@ class VeilederflateServiceTest : FunSpec({
             Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
         )
 
-        queries.tiltakstype.setSanityId(TiltakstypeFixtures.EnkelAmo.id, tiltakstypeEnkelAmo._id.toUUID())
-        queries.tiltakstype.setInnsatsgrupper(TiltakstypeFixtures.EnkelAmo.id, innsatsgrupper)
+        repository.tiltakstype.upsert(TiltakstypeFixtures.EnkelAmo.copy(sanityId = tiltakstypeEnkelAmo._id.toUUID(), innsatsgrupper = innsatsgrupper))
 
-        queries.tiltakstype.setSanityId(TiltakstypeFixtures.Arbeidstrening.id, tiltakstypeArbeidstrening._id.toUUID())
-        queries.tiltakstype.setInnsatsgrupper(TiltakstypeFixtures.Arbeidstrening.id, innsatsgrupper)
+        repository.tiltakstype.upsert(TiltakstypeFixtures.Arbeidstrening.copy(sanityId = tiltakstypeArbeidstrening._id.toUUID(), innsatsgrupper = innsatsgrupper))
 
-        queries.tiltakstype.setSanityId(TiltakstypeFixtures.Oppfolging.id, tiltakstypeOppfolging._id.toUUID())
-        queries.tiltakstype.setInnsatsgrupper(TiltakstypeFixtures.Oppfolging.id, innsatsgrupper)
+        repository.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging.copy(sanityId = tiltakstypeOppfolging._id.toUUID(), innsatsgrupper = innsatsgrupper))
         queries.gjennomforing.setPublisert(GjennomforingFixtures.Oppfolging1.id, true)
         queries.gjennomforing.setNavEnheter(
             GjennomforingFixtures.Oppfolging1.id,

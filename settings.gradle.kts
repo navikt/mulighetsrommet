@@ -19,6 +19,7 @@ include(
     "common:tiltaksokonomi-client",
     "common:amt-deltaker",
     "mulighetsrommet-api",
+    "mulighetsrommet-api:admin",
     "mulighetsrommet-api:server",
     "mulighetsrommet-api:domain",
     "mulighetsrommet-api:persistence",

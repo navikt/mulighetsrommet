@@ -45,7 +45,7 @@ class InitialLoadTiltakstyper(
     }
 
     suspend fun initialLoadTiltakstyper() = db.transaction {
-        queries.tiltakstype.getAll().forEach { tiltakstype ->
+        repository.tiltakstype.getAll().forEach { tiltakstype ->
             if (tiltakstype.tiltakskode.system == TiltakstypeSystem.TILTAKSADMINISTRASJON) {
                 val eksternDto = requireNotNull(queries.tiltakstype.getEksternTiltakstype(tiltakstype.id)) {
                     "Klarte ikke hente ekstern tiltakstype for tiltakskode ${tiltakstype.tiltakskode}"
@@ -55,10 +55,10 @@ class InitialLoadTiltakstyper(
                 publishToKafka(eksternDto)
             }
 
-            if (tiltakstype.sanityId != null) {
+            tiltakstype.sanityId?.let { sanityId ->
                 logger.info("Oppdaterer tiltakstype i Sanity id=${tiltakstype.id}")
                 sanityService.patchSanityTiltakstype(
-                    tiltakstype.sanityId,
+                    sanityId,
                     tiltakstype.navn,
                 )
             }

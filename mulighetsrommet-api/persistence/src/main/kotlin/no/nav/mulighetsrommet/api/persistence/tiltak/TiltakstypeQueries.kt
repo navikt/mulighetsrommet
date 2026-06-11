@@ -1,15 +1,17 @@
-package no.nav.mulighetsrommet.api.tiltakstype.db
+package no.nav.mulighetsrommet.api.persistence.tiltak
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.tiltakstype.api.SortDirection
-import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeSortField
-import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
-import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKombinasjon
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
+import no.nav.mulighetsrommet.api.application.tiltak.RedaksjoneltInnholdLenke
+import no.nav.mulighetsrommet.api.application.tiltak.SortDirection
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeKombinasjon
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeQueryHandler
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeSortField
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeVeilderinfo
+import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.model.Faneinnhold
@@ -20,65 +22,48 @@ import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
-class TiltakstypeQueries(private val session: Session) {
+class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, TiltakstypeQueryHandler {
 
-    fun upsert(tiltakstype: TiltakstypeDbo) = with(session) {
+    override fun upsert(tiltakstype: Tiltakstype): Tiltakstype = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into tiltakstype (
                 id,
                 navn,
                 tiltakskode,
-                arena_kode
+                arena_kode,
+                sanity_id,
+                innsatsgrupper
             )
             values (
                 :id::uuid,
                 :navn,
                 :tiltakskode,
-                :arena_kode
+                :arena_kode,
+                :sanity_id::uuid,
+                :innsatsgrupper::innsatsgruppe[]
             )
             on conflict (id)
-                do update set navn        = excluded.navn,
-                              tiltakskode = excluded.tiltakskode,
-                              arena_kode = excluded.arena_kode
-        """.trimIndent()
-
-        execute(queryOf(query, tiltakstype.toSqlParameters()))
-    }
-
-    fun setSanityId(id: UUID, sanityId: UUID?) {
-        @Language("PostgreSQL")
-        val query = """
-            update tiltakstype
-            set sanity_id = :sanity_id::uuid
-            where id = :id::uuid;
+                do update set navn           = excluded.navn,
+                              tiltakskode    = excluded.tiltakskode,
+                              arena_kode     = excluded.arena_kode,
+                              sanity_id      = excluded.sanity_id,
+                              innsatsgrupper = excluded.innsatsgrupper
         """.trimIndent()
 
         val params = mapOf(
-            "id" to id,
-            "sanity_id" to sanityId,
+            "id" to tiltakstype.id,
+            "navn" to tiltakstype.navn,
+            "tiltakskode" to tiltakstype.tiltakskode.name,
+            "arena_kode" to tiltakstype.arenakode,
+            "sanity_id" to tiltakstype.sanityId,
+            "innsatsgrupper" to createArrayOf("innsatsgruppe", tiltakstype.innsatsgrupper),
         )
-
-        session.execute(queryOf(query, params))
+        execute(queryOf(query, params))
+        return tiltakstype
     }
 
-    fun setInnsatsgrupper(id: UUID, innsatsgrupper: Set<Innsatsgruppe>) {
-        @Language("PostgreSQL")
-        val query = """
-            update tiltakstype
-            set innsatsgrupper = :innsatsgrupper::innsatsgruppe[]
-            where id = :id::uuid;
-        """.trimIndent()
-
-        val params = mapOf(
-            "id" to id,
-            "innsatsgrupper" to session.createArrayOf("innsatsgruppe", innsatsgrupper),
-        )
-
-        session.execute(queryOf(query, params))
-    }
-
-    fun get(id: UUID): Tiltakstype? = with(session) {
+    override fun get(id: UUID): Tiltakstype? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -89,20 +74,23 @@ class TiltakstypeQueries(private val session: Session) {
         return single(queryOf(query, id)) { it.toTiltakstype() }
     }
 
-    fun getEksternTiltakstype(id: UUID): TiltakstypeV3Dto? = with(session) {
+    override fun getAll(tiltakskoder: Set<Tiltakskode>): List<Tiltakstype> = with(session) {
+        val parameters = mapOf(
+            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { createTextArray(it) },
+        )
+
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, arena_kode, innsatsgrupper, created_at, updated_at
-            from tiltakstype
-            where id = ?::uuid
+            select id, navn, tiltakskode, arena_kode, sanity_id, innsatsgrupper
+            from view_tiltakstype
+            where (:tiltakskoder::text[] is null or tiltakskode = any(:tiltakskoder))
+            order by navn asc
         """.trimIndent()
 
-        val deltakerRegistreringInnhold = getDeltakerregistreringInnhold(id)
-
-        return single(queryOf(query, id)) { it.tiltakstypeEksternDto(deltakerRegistreringInnhold) }
+        return list(queryOf(query, parameters)) { it.toTiltakstype() }
     }
 
-    fun getByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype = with(session) {
+    override fun getByKode(kode: Tiltakskode): Tiltakstype? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -110,17 +98,24 @@ class TiltakstypeQueries(private val session: Session) {
             where tiltakskode = ?
         """.trimIndent()
 
-        val tiltakstype = single(queryOf(query, tiltakskode.name)) { it.toTiltakstype() }
-
-        return requireNotNull(tiltakstype) {
-            "Det finnes ingen tiltakstype for tiltakskode $tiltakskode"
-        }
+        return single(queryOf(query, kode.name)) { it.toTiltakstype() }
     }
 
-    fun getAll(
-        tiltakskoder: Set<Tiltakskode> = setOf(),
-        sortField: TiltakstypeSortField = TiltakstypeSortField.NAVN,
-        sortDirection: SortDirection = SortDirection.ASC,
+    override fun delete(id: UUID): Unit = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            delete
+            from tiltakstype
+            where id = ?::uuid
+        """.trimIndent()
+
+        update(queryOf(query, id))
+    }
+
+    override fun getAll(
+        tiltakskoder: Set<Tiltakskode>,
+        sortField: TiltakstypeSortField,
+        sortDirection: SortDirection,
     ): List<Tiltakstype> = with(session) {
         val parameters = mapOf(
             "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { createTextArray(it) },
@@ -143,7 +138,26 @@ class TiltakstypeQueries(private val session: Session) {
         return list(queryOf(query, parameters)) { it.toTiltakstype() }
     }
 
-    fun getVeilederinfo(id: UUID): TiltakstypeVeilderinfo? = with(session) {
+    override fun getByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype = with(session) {
+        return requireNotNull(getByKode(tiltakskode)) {
+            "Det finnes ingen tiltakstype for tiltakskode $tiltakskode"
+        }
+    }
+
+    override fun getEksternTiltakstype(id: UUID): TiltakstypeV3Dto? = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            select id, navn, tiltakskode, arena_kode, innsatsgrupper, created_at, updated_at
+            from tiltakstype
+            where id = ?::uuid
+        """.trimIndent()
+
+        val deltakerRegistreringInnhold = getDeltakerregistreringInnhold(id)
+
+        return single(queryOf(query, id)) { it.tiltakstypeEksternDto(deltakerRegistreringInnhold) }
+    }
+
+    override fun getVeilederinfo(id: UUID): TiltakstypeVeilderinfo? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select beskrivelse, faneinnhold, faglenker, kan_kombineres_med
@@ -154,7 +168,7 @@ class TiltakstypeQueries(private val session: Session) {
         return single(queryOf(query, id)) { it.toVeilederinfo() }
     }
 
-    fun getAllInnholdselementer(): List<Innholdselement> = with(session) {
+    override fun getAllInnholdselementer(): List<Innholdselement> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select innholdskode, tekst
@@ -167,7 +181,7 @@ class TiltakstypeQueries(private val session: Session) {
         }
     }
 
-    fun upsertDeltakerRegistreringInnhold(id: UUID, ledetekst: String?, innholdskoder: List<String>) = with(session) {
+    override fun upsertDeltakerRegistreringInnhold(id: UUID, ledetekst: String?, innholdskoder: List<String>) = with(session) {
         @Language("PostgreSQL")
         val updateLedetekstQuery = """
             update tiltakstype
@@ -199,7 +213,7 @@ class TiltakstypeQueries(private val session: Session) {
         }
     }
 
-    fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? = with(session) {
+    override fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
            select tiltakstype.deltaker_registrering_ledetekst, element.innholdskode, element.tekst
@@ -230,7 +244,7 @@ class TiltakstypeQueries(private val session: Session) {
         )
     }
 
-    fun upsertRedaksjoneltInnhold(
+    override fun upsertRedaksjoneltInnhold(
         id: UUID,
         beskrivelse: String?,
         faneinnhold: Faneinnhold?,
@@ -251,7 +265,7 @@ class TiltakstypeQueries(private val session: Session) {
         session.execute(queryOf(updateQuery, params))
     }
 
-    fun setFaglenker(id: UUID, lenker: List<UUID>) {
+    override fun setFaglenker(id: UUID, lenker: List<UUID>) {
         @Language("PostgreSQL")
         val deleteLinksQuery = """
             delete
@@ -279,7 +293,7 @@ class TiltakstypeQueries(private val session: Session) {
         }
     }
 
-    fun setKanKombineresMed(id: UUID, kombineresmedIds: List<UUID>) = with(session) {
+    override fun setKanKombineresMed(id: UUID, kombineresmedIds: List<UUID>) = with(session) {
         @Language("PostgreSQL")
         val deleteQuery = """
             delete from tiltakstype_kombinasjon where tiltakstype_id = ?::uuid
@@ -308,24 +322,6 @@ class TiltakstypeQueries(private val session: Session) {
             }
         }
     }
-
-    fun delete(id: UUID): Int = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            delete
-            from tiltakstype
-            where id = ?::uuid
-        """.trimIndent()
-
-        return update(queryOf(query, id))
-    }
-
-    private fun TiltakstypeDbo.toSqlParameters() = mapOf(
-        "id" to id,
-        "navn" to navn,
-        "tiltakskode" to tiltakskode.name,
-        "arena_kode" to arenaKode,
-    )
 
     private fun Row.toTiltakstype(): Tiltakstype {
         val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")

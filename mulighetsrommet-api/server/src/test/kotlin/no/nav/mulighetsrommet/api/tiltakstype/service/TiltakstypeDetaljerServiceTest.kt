@@ -8,14 +8,14 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
+import no.nav.mulighetsrommet.api.application.tiltak.RedaksjoneltInnholdLenke
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeVeilderinfo
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeDeltakerinfoRequest
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeVeilederinfoRequest
-import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavIdent
@@ -42,7 +42,7 @@ class TiltakstypeDetaljerServiceTest : FunSpec({
         ),
         tiltakstyper = listOf(TiltakstypeFixtures.AFT, TiltakstypeFixtures.IPS),
     ) {
-        queries.tiltakstype.setSanityId(TiltakstypeFixtures.AFT.id, sanityId)
+        repository.tiltakstype.upsert(TiltakstypeFixtures.AFT.copy(sanityId = sanityId))
     }
 
     val navIdent = NavIdent("Z999999")

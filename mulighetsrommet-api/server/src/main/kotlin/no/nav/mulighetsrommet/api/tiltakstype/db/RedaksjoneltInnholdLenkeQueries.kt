@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.tiltakstype.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
+import no.nav.mulighetsrommet.api.application.tiltak.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.database.requireSingle
 import org.intellij.lang.annotations.Language
 import java.util.UUID

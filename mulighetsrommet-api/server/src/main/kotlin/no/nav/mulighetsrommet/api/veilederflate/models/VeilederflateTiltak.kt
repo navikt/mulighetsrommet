@@ -3,11 +3,11 @@ package no.nav.mulighetsrommet.api.veilederflate.models
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.api.application.tiltak.RedaksjoneltInnholdLenke
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeKombinasjon
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale.StengtPeriode
-import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKombinasjon
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType

@@ -2,16 +2,16 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.application.tiltak.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
+import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
-import no.nav.mulighetsrommet.api.tiltakstype.model.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
@@ -25,7 +25,7 @@ data class MulighetsrommetTestDomain(
         ArrangorFixtures.underenhet2,
     ),
     val arrangorKontaktpersoner: List<ArrangorKontaktperson> = listOf(),
-    val tiltakstyper: List<TiltakstypeDbo> = listOf(
+    val tiltakstyper: List<Tiltakstype> = listOf(
         TiltakstypeFixtures.Oppfolging,
         TiltakstypeFixtures.Arbeidstrening,
         TiltakstypeFixtures.VTA,
@@ -72,7 +72,7 @@ data class MulighetsrommetTestDomain(
             ansatte.forEach { queries.ansatt.upsert(it) }
             arrangorer.forEach { queries.arrangor.upsert(it) }
             arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
-            tiltakstyper.forEach { queries.tiltakstype.upsert(it) }
+            tiltakstyper.forEach { repository.tiltakstype.upsert(it) }
             prismodeller.forEach { queries.prismodell.upsert(it) }
             regelverklenke.forEach { queries.regelverklenke.upsert(it) }
             avtaler.forEach { queries.avtale.create(it) }

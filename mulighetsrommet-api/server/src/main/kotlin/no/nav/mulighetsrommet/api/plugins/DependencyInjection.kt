@@ -66,6 +66,8 @@ import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.NavEnheterSyncService
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
+import no.nav.mulighetsrommet.api.persistence.OutboxTopics
+import no.nav.mulighetsrommet.api.persistence.SqlApiDatabase
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -133,6 +135,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import org.koin.ktor.plugin.KoinIsolated
 import org.koin.logger.SLF4JLogger
+import no.nav.mulighetsrommet.api.application.ApiDatabase as AdminApiDatabase
 
 fun Application.configureDependencyInjection(appConfig: AppConfig) {
     install(KoinIsolated) {
@@ -165,6 +168,10 @@ private fun db(config: AppConfig) = module {
         database
     }
     single<ApiDatabase> { ApiDatabase(database, config.kafka.topics) }
+    single<AdminApiDatabase> {
+        val topics = OutboxTopics(config.kafka.topics.sisteTiltakstyperTopic)
+        SqlApiDatabase(database, topics)
+    }
 }
 
 private fun kafka(appConfig: AppConfig) = module {

@@ -9,6 +9,8 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
+import no.nav.mulighetsrommet.api.application.tiltak.SortDirection
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeSortField
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getNavIdent

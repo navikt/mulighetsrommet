@@ -38,12 +38,15 @@ tasks.register<JavaExec>("generateOpenApi") {
 }
 
 dependencies {
-    runtimeOnly(projects.mulighetsrommetApi.persistence)
+    implementation(projects.mulighetsrommetApi.admin)
+    implementation(projects.mulighetsrommetApi.domain)
+    implementation(projects.mulighetsrommetApi.persistence)
 
     implementation(projects.common.nais)
     implementation(projects.common.database)
     implementation(projects.common.databaseHelpers)
     testImplementation(testFixtures(projects.common.database))
+    testImplementation(testFixtures(projects.mulighetsrommetApi.domain))
     implementation(projects.common.domain)
     implementation(projects.common.brreg)
     testImplementation(testFixtures(projects.common.brreg))

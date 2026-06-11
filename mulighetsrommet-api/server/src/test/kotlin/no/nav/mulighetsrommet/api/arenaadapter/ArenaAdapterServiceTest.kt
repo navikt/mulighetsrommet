@@ -11,6 +11,7 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -21,7 +22,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaServic
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
@@ -72,7 +72,7 @@ class ArenaAdapterServiceTest : FunSpec({
             id = UUID.randomUUID(),
             sanityId = null,
             navn = "IPS",
-            arenaKode = TiltakstypeFixtures.IPS.arenaKode!!,
+            arenaKode = TiltakstypeFixtures.IPS.arenakode!!,
             tiltaksnummer = "2020#12345",
             arrangorOrganisasjonsnummer = "976663934",
             startDato = LocalDate.now(),
@@ -167,7 +167,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = UUID.randomUUID(),
                 navn = "Oppfølging",
                 sanityId = null,
-                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode!!,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenakode!!,
                 tiltaksnummer = "2020#12345",
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
@@ -213,7 +213,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = gjennomforing1.id,
                 sanityId = null,
                 navn = "Endet navn",
-                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode!!,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenakode!!,
                 tiltaksnummer = "2024#2024",
                 arrangorOrganisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer.value,
                 startDato = LocalDate.of(2024, 1, 1),
@@ -268,7 +268,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 id = gjennomforing1.id,
                 navn = "Oppfølging",
                 sanityId = null,
-                arenaKode = TiltakstypeFixtures.Oppfolging.arenaKode!!,
+                arenaKode = TiltakstypeFixtures.Oppfolging.arenakode!!,
                 tiltaksnummer = "2021#12345",
                 arrangorOrganisasjonsnummer = "976663934",
                 startDato = LocalDate.now(),
@@ -317,7 +317,7 @@ class ArenaAdapterServiceTest : FunSpec({
             id = UUID.randomUUID(),
             navn = "En enkeltplass",
             sanityId = null,
-            arenaKode = TiltakstypeFixtures.EnkelAmo.arenaKode!!,
+            arenaKode = TiltakstypeFixtures.EnkelAmo.arenakode!!,
             tiltaksnummer = "2025#1",
             arrangorOrganisasjonsnummer = "976663934",
             startDato = LocalDate.now(),

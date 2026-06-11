@@ -4,18 +4,18 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeVeilderinfo
+import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeDeltakerinfoRequest
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeFilter
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeVeilederinfoRequest
-import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeHandling
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKompaktDto
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltakstypeSystem
@@ -32,7 +32,7 @@ class TiltakstypeDetaljerService(
         request: TiltakstypeVeilederinfoRequest,
         navIdent: NavIdent,
     ): TiltakstypeDto? = db.transaction {
-        queries.tiltakstype.get(id) ?: return null
+        repository.tiltakstype.get(id) ?: return null
 
         queries.tiltakstype.upsertRedaksjoneltInnhold(id, request.beskrivelse, request.faneinnhold)
         queries.tiltakstype.setKanKombineresMed(id, request.kanKombineresMed)
@@ -46,7 +46,7 @@ class TiltakstypeDetaljerService(
         request: TiltakstypeDeltakerinfoRequest,
         navIdent: NavIdent,
     ): TiltakstypeDto? = db.transaction {
-        queries.tiltakstype.get(id) ?: return null
+        repository.tiltakstype.get(id) ?: return null
 
         queries.tiltakstype.upsertDeltakerRegistreringInnhold(id, request.ledetekst, request.innholdskoder)
         publishToKafka(id)
@@ -108,7 +108,7 @@ class TiltakstypeDetaljerService(
     }
 
     private fun QueryContext.getTiltakstypeDto(id: UUID): TiltakstypeDto? {
-        val tiltakstype = queries.tiltakstype.get(id) ?: return null
+        val tiltakstype = repository.tiltakstype.get(id) ?: return null
         val features = tiltakstypeService.getFeatures(tiltakstype.tiltakskode)
         val veilederinfo = queries.tiltakstype.getVeilederinfo(id) ?: TiltakstypeVeilderinfo(
             beskrivelse = null,

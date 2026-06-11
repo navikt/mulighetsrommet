@@ -13,9 +13,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
-import no.nav.mulighetsrommet.api.amo.models.InnholdElement
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
-import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx.Tiltakstype
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
@@ -27,6 +25,7 @@ import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
@@ -42,7 +41,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeDbo
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -102,7 +100,7 @@ class AvtaleValidatorTest : FunSpec({
         ),
         kategorisering = kategoriseringCtx,
         administratorer = emptyList(),
-        tiltakstype = Tiltakstype(
+        tiltakstype = AvtaleValidator.Ctx.Tiltakstype(
             navn = TiltakstypeFixtures.Oppfolging.navn,
             id = TiltakstypeFixtures.Oppfolging.id,
         ),
@@ -117,7 +115,7 @@ class AvtaleValidatorTest : FunSpec({
         ),
         kategorisering = kategoriseringCtx,
         administratorer = emptyList(),
-        tiltakstype = Tiltakstype(
+        tiltakstype = AvtaleValidator.Ctx.Tiltakstype(
             navn = TiltakstypeFixtures.AFT.navn,
             id = TiltakstypeFixtures.AFT.id,
         ),
@@ -492,7 +490,7 @@ class AvtaleValidatorTest : FunSpec({
 
     context("prismodell") {
         fun getContext(
-            tiltakstype: TiltakstypeDbo = TiltakstypeFixtures.Oppfolging,
+            tiltakstype: Tiltakstype = TiltakstypeFixtures.Oppfolging,
             avtaletype: Avtaletype = Avtaletype.AVTALE,
             gyldigTilsagnPeriode: Map<Tiltakskode, Periode> = mapOf(),
             avtaleStartDato: LocalDate = LocalDate.of(2025, 1, 1),

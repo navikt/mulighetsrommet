@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.tiltakstype.service
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.UUID
@@ -56,7 +56,7 @@ class TiltakstypeService(
     fun getIdsByFeatures(features: Set<TiltakstypeFeature>): List<UUID> {
         val tiltakskoder = getTiltakskodeByFeatures(features)
         return db.session {
-            queries.tiltakstype.getAll(tiltakskoder = tiltakskoder).map { it.id }
+            repository.tiltakstype.getAll(tiltakskoder).map { it.id }
         }
     }
 
@@ -72,7 +72,7 @@ class TiltakstypeService(
         }
 
         return db.session {
-            queries.tiltakstype.getAll(tiltakskoder = tiltakskoder.toSet()).map { it.id }
+            repository.tiltakstype.getAll(tiltakskoder.toSet()).map { it.id }
         }
     }
 

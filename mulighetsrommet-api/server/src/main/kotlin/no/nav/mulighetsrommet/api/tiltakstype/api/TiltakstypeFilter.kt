@@ -1,17 +1,9 @@
 package no.nav.mulighetsrommet.api.tiltakstype.api
 
 import io.ktor.server.routing.RoutingContext
+import no.nav.mulighetsrommet.api.application.tiltak.SortDirection
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeSortField
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
-
-enum class TiltakstypeSortField {
-    NAVN,
-    TILTAKSKODE,
-}
-
-enum class SortDirection {
-    ASC,
-    DESC,
-}
 
 data class TiltakstypeFilter(
     val sortField: TiltakstypeSortField = TiltakstypeSortField.NAVN,

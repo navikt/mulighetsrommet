@@ -11,16 +11,17 @@ import no.nav.mulighetsrommet.api.avtale.db.PrismodellQueries
 import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerQueries
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
 import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetQueries
+import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingQueries
 import no.nav.mulighetsrommet.api.tiltakstype.db.RedaksjoneltInnholdLenkeQueries
-import no.nav.mulighetsrommet.api.tiltakstype.db.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
@@ -99,6 +100,12 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
         val opplaeringtilskudd = OpplaeringtilskuddQueries(session)
         val tilskuddBehandling = TilskuddBehandlingQueries(session)
         val brukerUtbetaling = BrukerUtbetalingQueries(session)
+    }
+
+    val repository by lazy { Repositories() }
+
+    inner class Repositories {
+        val tiltakstype: TiltakstypeRepository = queries.tiltakstype
     }
 }
 

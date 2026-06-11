@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.tiltakstype.model
+package no.nav.mulighetsrommet.api.domain.tiltak
 
 enum class TiltakstypeFeature {
     /**
