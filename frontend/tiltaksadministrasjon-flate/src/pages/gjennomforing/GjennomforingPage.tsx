@@ -114,6 +114,8 @@ const ENKELTPLASS_TILSKUDD_TABS: TabConfig[] = [
   { key: "tilskudd-utbetalinger", label: "Utbetalinger" },
 ];
 
+const ENKELTPLASS_INGEN_KOSTNADER_TABS: TabConfig[] = [{ key: "detaljer", label: "Detaljer" }];
+
 const TAB_KEYS = [
   "tilskudd-behandling",
   "tilsagn",
@@ -136,6 +138,23 @@ function getCurrentTab(pathname: string): string {
   return tabKey || "detaljer";
 }
 
+function enkeltplassTabs(prismodell: PrismodellType): TabConfig[] {
+  switch (prismodell) {
+    case PrismodellType.TILSKUDD_TIL_OPPLAERING:
+      return ENKELTPLASS_TILSKUDD_TABS;
+    case PrismodellType.INGEN_KOSTNADER:
+      return ENKELTPLASS_INGEN_KOSTNADER_TABS;
+    case PrismodellType.ANNEN_AVTALT_PRIS:
+    case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+    case PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS:
+    case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
+    case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
+    case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
+    case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
+      return ENKELTPLASS_ANSKAFFET_TABS;
+  }
+}
+
 function useTabs(
   gjennomforing: GjennomforingDto,
   prismodell: PrismodellDto,
@@ -147,9 +166,7 @@ function useTabs(
 
   const tabConfigs = isGruppetiltak(gjennomforing)
     ? GRUPPETILTAK_TABS
-    : prismodell.type === PrismodellType.ANNEN_AVTALT_PRIS
-      ? ENKELTPLASS_ANSKAFFET_TABS
-      : ENKELTPLASS_TILSKUDD_TABS;
+    : enkeltplassTabs(prismodell.type);
 
   const filteredTabConfigs = enableTilskuddsbehandling
     ? tabConfigs
