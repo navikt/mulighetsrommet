@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
@@ -294,7 +295,7 @@ class GjennomforingEnkeltplassService(
         )
         queries.gjennomforing.upsert(dbo)
 
-        upsertKategorisering(upsert.id, upsert.kategorisering)
+        upsertKategorisering(upsert.id, upsert.tiltakskode, upsert.kategorisering)
 
         return queries.gjennomforing.getGjennomforingEnkeltplassOrError(dbo.id)
     }
@@ -383,19 +384,62 @@ class GjennomforingEnkeltplassService(
         return dbo.id
     }
 
-    private fun QueryContext.upsertKategorisering(id: UUID, kategorisering: OpplaringKategoriseringRequest?) {
-        val opplaringKategoriseringDbo = kategorisering?.kurstypeId?.let { kurstypeId ->
-            OpplaringKategoriseringDbo(
-                kurstypeId = kurstypeId,
-                bransjeId = kategorisering.bransjeId,
-                forerkort = kategorisering.forerkort?.toSet() ?: emptySet(),
-                sertifiseringer = kategorisering.sertifiseringer ?: emptySet(),
-                // Ikke i bruk
-                norskprove = kategorisering.norskprove,
-                innholdElementer = kategorisering.innholdElementer ?: emptySet(),
-                // Dekkes under
-                utdanningslop = null,
-            )
+    private fun QueryContext.upsertKategorisering(
+        id: UUID,
+        tiltakskode: Tiltakskode,
+        kategorisering: OpplaringKategoriseringRequest?,
+    ) {
+        val kurstyper = queries.opplaringKategorisering.getKurstyper(true)
+        val opplaringKategoriseringDbo = when (tiltakskode) {
+            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+            Tiltakskode.AVKLARING,
+            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
+            Tiltakskode.JOBBKLUBB,
+            Tiltakskode.OPPFOLGING,
+            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+            Tiltakskode.TILPASSET_JOBBSTOTTE,
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING, // Ikke i bruk hos komet
+            Tiltakskode.HOYERE_UTDANNING,
+            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
+            Tiltakskode.INDIVIDUELL_JOBBSTOTTE,
+            Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG,
+            Tiltakskode.ARBEID_MED_STOTTE,
+            Tiltakskode.ARBEIDSTRENING,
+            Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD,
+            Tiltakskode.VARIG_LONNSTILSKUD,
+            Tiltakskode.MENTOR,
+            Tiltakskode.INKLUDERINGSTILSKUD,
+            Tiltakskode.SOMMERJOBB,
+            Tiltakskode.VTAO,
+            Tiltakskode.FIREARIG_LONNSTILSUDD,
+            -> null
+
+            Tiltakskode.STUDIESPESIALISERING -> OpplaringKategoriseringDbo(kurstypeId = kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }?.id)
+
+            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            ->
+                OpplaringKategoriseringDbo(
+                    kurstypeId = kurstyper.find { it.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET }?.id,
+                    bransjeId = kategorisering?.bransjeId,
+                    forerkort = kategorisering?.forerkort?.toSet() ?: emptySet(),
+                    sertifiseringer = kategorisering?.sertifiseringer ?: emptySet(),
+                )
+
+            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV ->
+                kategorisering?.kurstypeId?.let { kurstypeId ->
+                    OpplaringKategoriseringDbo(
+                        kurstypeId = kurstypeId,
+                        // Norskprøve og innholdselementer støttes ikke av komet
+                    )
+                }
+
+            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.FAG_OG_YRKESOPPLAERING,
+            ->
+                null // Håndteres via utdanning
         }
         with(session) {
             AmoKategoriseringQueries.upsert(

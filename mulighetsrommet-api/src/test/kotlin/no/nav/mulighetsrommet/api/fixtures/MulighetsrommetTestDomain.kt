@@ -37,6 +37,7 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.GruppeAmo,
         TiltakstypeFixtures.DigitalOppfolging,
         TiltakstypeFixtures.ArbeidsrettetRehabilitering,
+        TiltakstypeFixtures.NorskGrunnFOV,
     ),
     val regelverklenke: List<RedaksjoneltInnholdLenke> = listOf(),
     val prismodeller: List<PrismodellDbo> = listOf(
