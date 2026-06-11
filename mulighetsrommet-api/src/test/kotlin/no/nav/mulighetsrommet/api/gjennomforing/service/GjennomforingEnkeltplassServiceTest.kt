@@ -130,7 +130,6 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("lagrer kategorisering amo") {
             val kategorisering = OpplaringKategoriseringRequest(
-                kurstypeId = KurstypeFixtures.bransjeOgYrkesrettet.id,
                 bransjeId = BransjeFixtures.byggOgAnlegg.id,
                 forerkort = setOf(ForerkortFixtures.B, ForerkortFixtures.BE).map { it.id },
                 sertifiseringer = setOf(Sertifisering(konseptId = 1234, label = "Truckførerkurs")),
@@ -148,6 +147,24 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                         sertifiseringer = setOf(Sertifisering(konseptId = 1234, label = "Truckførerkurs")),
                         norskprove = false,
                     ),
+                )
+            }
+        }
+
+        test("lagrer kategorisering norskopplaering, grunnleggende ferdigheter og FOV") {
+            val request = OpplaringKategoriseringRequest(
+                kurstypeId = KurstypeFixtures.fov.id,
+            )
+            val gjennomforing =
+                createEnkeltplass(request).copy(tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV)
+
+            service.opprettUtkast(
+                gjennomforing,
+            ).shouldBeRight()
+
+            database.run {
+                queries.opplaringKategorisering.getGjennomforingKategorisering(gjennomforing.id).shouldBe(
+                    OpplaringKategorisering(kurstype = KurstypeFixtures.fov, norskprove = false),
                 )
             }
         }

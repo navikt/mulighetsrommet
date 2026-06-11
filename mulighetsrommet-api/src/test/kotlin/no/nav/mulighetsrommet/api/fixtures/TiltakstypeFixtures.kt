@@ -89,6 +89,13 @@ object TiltakstypeFixtures {
         arenaKode = "GRUPPEAMO",
     )
 
+    val NorskGrunnFOV = TiltakstypeDbo(
+        id = UUID.randomUUID(),
+        navn = "Norskopplæring, grunnleggende ferdigheter og FOV",
+        tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+        arenaKode = "GRUPPEAMO",
+    )
+
     val EnkelAmo = TiltakstypeDbo(
         id = UUID.randomUUID(),
         navn = "Enkel AMO",
