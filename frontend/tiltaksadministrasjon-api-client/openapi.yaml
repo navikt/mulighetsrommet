@@ -2516,6 +2516,40 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-utbetaling:
+    get:
+      tags:
+      - Utbetaling
+      - Tilskudd
+      description: Hent alle utbetalinger for gitt gjennomføring
+      operationId: getTilskuddUtbetalinger
+      parameters:
+      - name: gjennomforingId
+        in: query
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Alle utbetalinger for gitt gjennomføring
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TilskuddUtbetalingKompaktDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/oppgaver:
     post:
       tags:
@@ -7518,6 +7552,88 @@ components:
       required:
       - aarsaker
       - forklaring
+    TilskuddUtbetalingKompaktDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tilskuddBehandlingId:
+          type: string
+          format: uuid
+        status:
+          $ref: "#/components/schemas/TilskuddUtbetalingStatusDto"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        type:
+          $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
+        kostnadssted:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/KostnadsstedDto"
+        belopUtbetalt:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
+        vedtakResultat:
+          $ref: "#/components/schemas/VedtakResultatDto"
+        mottaker:
+          $ref: "#/components/schemas/TilskuddMottaker"
+      required:
+      - belopUtbetalt
+      - id
+      - kostnadssted
+      - mottaker
+      - periode
+      - status
+      - tilskuddBehandlingId
+      - type
+      - vedtakResultat
+    TilskuddUtbetalingStatusDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/TilskuddUtbetalingStatusDto.Type"
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+      required:
+      - status
+      - type
+    TilskuddUtbetalingStatusDto.Type:
+      type: string
+      enum:
+      - FEILET
+      - OVERFORT_TIL_UTBETALING
+      - DELVIS_UTBETALT
+      - UTBETALT
+    Opplaeringtilskudd.Kode:
+      type: string
+      enum:
+      - SKOLEPENGER
+      - STUDIEREISE
+      - EKSAMENSAVGIFT
+      - SEMESTERAVGIFT
+      - INTEGRERT_BOTILBUD
+    VedtakResultatDto:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/VedtakResultat"
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+      required:
+      - status
+      - type
+    VedtakResultat:
+      type: string
+      enum:
+      - INNVILGELSE
+      - AVSLAG
+    TilskuddMottaker:
+      type: string
+      enum:
+      - BRUKER
+      - ARRANGOR
     OppgaveType:
       type: string
       enum:
@@ -8100,14 +8216,6 @@ components:
       - id
       - kode
       - navn
-    Opplaeringtilskudd.Kode:
-      type: string
-      enum:
-      - SKOLEPENGER
-      - STUDIEREISE
-      - EKSAMENSAVGIFT
-      - SEMESTERAVGIFT
-      - INTEGRERT_BOTILBUD
     TilskuddBehandlingDto:
       type: object
       properties:
@@ -8181,26 +8289,6 @@ components:
       - utbetalingBelop
       - utbetalingMottaker
       - vedtakResultat
-    VedtakResultatDto:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/VedtakResultat"
-        status:
-          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
-      required:
-      - status
-      - type
-    VedtakResultat:
-      type: string
-      enum:
-      - INNVILGELSE
-      - AVSLAG
-    TilskuddMottaker:
-      type: string
-      enum:
-      - BRUKER
-      - ARRANGOR
     TilskuddBehandlingStatusDto:
       type: object
       properties:
