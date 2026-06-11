@@ -216,6 +216,35 @@ class GjennomforingAvtaleService(
             }
     }
 
+    fun gjenapneGjennomforing(
+        id: UUID,
+        nySluttDato: LocalDate,
+        navIdent: NavIdent,
+        today: LocalDate = LocalDate.now(),
+    ): Either<List<FieldError>, GjennomforingAvtale> = db.transaction {
+        val gjennomforing = getOrError(id)
+
+        if (gjennomforing.status != GjennomforingStatusType.AVSLUTTET) {
+            return FieldError.of("Gjennomføringen må være avsluttet for å kunne gjenåpnes").nel().left()
+        }
+
+        if (nySluttDato.isBefore(today)) {
+            return FieldError.of("Ny sluttdato må være i dag eller i fremtiden").nel().left()
+        }
+
+        queries.gjennomforing.setStatus(
+            id = id,
+            status = GjennomforingStatusType.GJENNOMFORES,
+            sluttDato = nySluttDato,
+            aarsaker = null,
+            forklaring = null,
+        )
+
+        logEndring("Gjennomføringen ble gjenåpnet", id, navIdent)
+            .also { publishToKafka(it) }
+            .right()
+    }
+
     fun avsluttGjennomforing(
         id: UUID,
         avsluttetTidspunkt: LocalDateTime,

@@ -4,7 +4,7 @@ import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentFo
 import { SetEstimertVentetidModal } from "@/components/gjennomforing/SetEstimertVentetidModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { ExternalLinkIcon, LayersPlusIcon } from "@navikt/aksel-icons";
+import { ArrowUndoIcon, ExternalLinkIcon, LayersPlusIcon } from "@navikt/aksel-icons";
 import { Switch } from "@navikt/ds-react";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
@@ -19,6 +19,7 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 import { AvbrytGjennomforingModal } from "@/components/gjennomforing/AvbrytGjennomforingModal";
+import { GjenapneGjennomforingModal } from "@/components/gjennomforing/GjenapneGjennomforingModal";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { previewArbeidsmarkedstiltakUrl } from "@/constants";
 import { Handlinger } from "@/components/handlinger/Handlinger";
@@ -39,6 +40,7 @@ export function GjennomforingHandlinger({
 }: Props) {
   const navigate = useNavigate();
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
+  const [gjenapneModalOpen, setGjenapneModalOpen] = useState<boolean>(false);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const [estimertVentetidModalOpen, setEstimertVentetidModalOpen] = useState(false);
@@ -116,6 +118,13 @@ export function GjennomforingHandlinger({
                 administratorer,
               },
               {
+                label: "Gjenåpne",
+                onClick: () => setGjenapneModalOpen(true),
+                icon: <ArrowUndoIcon aria-hidden />,
+                handling: GjennomforingHandling.GJENAPNE,
+                administratorer,
+              },
+              {
                 label: "Dupliser",
                 onClick: () => dupliserGjennomforing(),
                 icon: <LayersPlusIcon aria-hidden />,
@@ -185,6 +194,11 @@ export function GjennomforingHandlinger({
         setOpen={setAvbrytModalOpen}
         gjennomforingId={gjennomforing.id}
         gjennomforingNavn={gjennomforing.navn}
+      />
+      <GjenapneGjennomforingModal
+        open={gjenapneModalOpen}
+        setOpen={setGjenapneModalOpen}
+        gjennomforingId={gjennomforing.id}
       />
     </KnapperadContainer>
   );
