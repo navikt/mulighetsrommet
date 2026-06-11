@@ -50,7 +50,7 @@ function SatsPerioderOgBelop({
         </>
       )}
       <MetadataHStack
-        label="Innsendt beløp"
+        label="Beløp"
         value={
           <CopyButton
             size="small"

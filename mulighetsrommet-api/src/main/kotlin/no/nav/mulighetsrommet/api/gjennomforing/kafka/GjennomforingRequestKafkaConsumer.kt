@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
-import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.util.UUID
 
@@ -43,7 +42,7 @@ class GjennomforingRequestKafkaConsumer(
         validateTiltakskode(payload.tiltakskode)
 
         val arrangor = getArrangor(payload.organisasjonsnummer)
-        val upsert = toUpsert(gjennomforingId, arrangor.id, UUID.randomUUID(), payload)
+        val upsert = toUpsert(gjennomforingId, arrangor.id, payload)
         enkeltplasser.opprettUtkast(upsert)
             .getOrElse { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
@@ -53,8 +52,7 @@ class GjennomforingRequestKafkaConsumer(
         validateTiltakskode(payload.tiltakskode)
 
         val arrangor = getArrangor(payload.organisasjonsnummer)
-        val prismodellId = enkeltplasser.get(gjennomforingId)?.gjennomforing?.prismodell?.id ?: UUID.randomUUID()
-        val upsert = toUpsert(gjennomforingId, arrangor.id, prismodellId, payload)
+        val upsert = toUpsert(gjennomforingId, arrangor.id, payload)
         enkeltplasser.soktInn(upsert, payload.opprettetAv)
             .getOrElse { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
@@ -76,7 +74,6 @@ class GjennomforingRequestKafkaConsumer(
 private fun toUpsert(
     gjennomforingId: UUID,
     arrangorId: UUID,
-    prismodellId: UUID,
     payload: UpsertEnkeltplass,
 ) = UpsertGjennomforingEnkeltplass(
     id = gjennomforingId,
@@ -85,32 +82,23 @@ private fun toUpsert(
     status = GjennomforingStatusType.GJENNOMFORES,
     ansvarligEnhet = payload.ansvarligEnhet,
     kategorisering = payload.kategorisering?.let(KategoriseringMapper::fromKafkaPayload),
-    prismodell = toPrismodell(prismodellId, payload.prisinformasjon),
+    prismodell = toPrismodell(payload.prisinformasjon),
 )
 
 private fun toPrismodell(
-    id: UUID,
     prisinformasjon: EnkeltplassPrisinformasjon,
-): Prismodell {
+): UpsertGjennomforingEnkeltplass.Prismodell {
     return when (prisinformasjon) {
-        is EnkeltplassPrisinformasjon.Tilskudd -> Prismodell.TilskuddTilOpplaering(
-            id = id,
-            valuta = Valuta.NOK,
+        is EnkeltplassPrisinformasjon.Tilskudd -> UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering(
             tilskudd = prisinformasjon.tilskudd,
             tilleggsopplysninger = prisinformasjon.tilleggsopplysninger,
         )
 
-        is EnkeltplassPrisinformasjon.Anskaffelse -> Prismodell.AnnenAvtaltPris(
-            id = id,
-            valuta = Valuta.NOK,
-            tilsagnPerDeltaker = true,
-            prisbetingelser = null,
+        is EnkeltplassPrisinformasjon.Anskaffelse -> UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(
             totalbelop = prisinformasjon.pris,
         )
 
-        is EnkeltplassPrisinformasjon.IngenKostnader -> Prismodell.IngenKostnader(
-            id = id,
-            valuta = Valuta.NOK,
+        is EnkeltplassPrisinformasjon.IngenKostnader -> UpsertGjennomforingEnkeltplass.Prismodell.IngenKostnader(
             aarsak = when (prisinformasjon.aarsak) {
                 EnkeltplassPrisinformasjon.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT -> Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT
                 EnkeltplassPrisinformasjon.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI -> Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI
