@@ -61,6 +61,7 @@ import { TilskuddBehandlingDetaljerPage } from "./pages/tilskudd-behandling/Tils
 import { TilskuddBehandlingFormPage } from "./pages/tilskudd-behandling/TilskuddBehandlingFormPage";
 import { TilskuddBehandlingerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingerPage";
 import { isProduction } from "./environment";
+import { TilskuddUtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/TilskuddUtbetalingerForGjennomforingContainer";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -143,6 +144,7 @@ const GJENNOMFORING_ROUTES: RouteObject[] = [
   { path: "tilskudd-behandling", element: <TilskuddBehandlingerPage /> },
   { path: "tilsagn", element: <TilsagnForGjennomforingPage /> },
   { path: "utbetalinger", element: <UtbetalingerForGjennomforingContainer /> },
+  { path: "tilskudd-utbetalinger", element: <TilskuddUtbetalingerForGjennomforingContainer /> },
 ];
 
 const TILSAGN_ROUTES: RouteObject[] = [

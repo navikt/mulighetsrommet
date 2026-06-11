@@ -9,7 +9,12 @@ import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { FeatureToggle, GjennomforingDto } from "@tiltaksadministrasjon/api-client";
+import {
+  FeatureToggle,
+  GjennomforingDto,
+  PrismodellDto,
+  PrismodellType,
+} from "@tiltaksadministrasjon/api-client";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
@@ -17,12 +22,12 @@ import { DeltakerHeader } from "@/components/gjennomforing/DeltakerHeader";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { gjennomforing, enkeltplassDeltaker } = useGjennomforing(gjennomforingId);
+  const { gjennomforing, enkeltplassDeltaker, prismodell } = useGjennomforing(gjennomforingId);
 
   const { data: enableTilskuddsbehandling } = useFeatureToggle(
     FeatureToggle.TILTAKSADMINISTRASJON_VIS_TILSKUDDSBEHANDLING,
   );
-  const [currentTab, tabs] = useTabs(gjennomforing, !!enableTilskuddsbehandling);
+  const [currentTab, tabs] = useTabs(gjennomforing, prismodell, !!enableTilskuddsbehandling);
 
   const brodsmuler: (Brodsmule | undefined)[] = [
     {
@@ -34,6 +39,7 @@ export function GjennomforingPage() {
       lenke: currentTab === "detaljer" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
     },
     currentTab === "tilskudd-behandling" ? { tittel: "Tilskuddsbehandlinger" } : undefined,
+    currentTab === "tilskudd-utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
     currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
     currentTab === "redaksjonelt-innhold" ? { tittel: "Informasjon for veilederene" } : undefined,
     currentTab === "utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
@@ -93,14 +99,19 @@ const GRUPPETILTAK_TABS: TabConfig[] = [
   { key: "deltakerliste", label: "Deltakerliste" },
 ];
 
-const STANDARD_TABS: TabConfig[] = [
+const ENKELTPLASS_ANSKAFFET_TABS: TabConfig[] = [
+  { key: "detaljer", label: "Detaljer" },
+  { key: "tilsagn", label: "Tilsagn" },
+  { key: "utbetalinger", label: "Utbetalinger" },
+];
+
+const ENKELTPLASS_TILSKUDD_TABS: TabConfig[] = [
   { key: "detaljer", label: "Detaljer" },
   {
     key: "tilskudd-behandling",
     label: "Tilskuddsbehandlinger",
   },
-  { key: "tilsagn", label: "Tilsagn" },
-  { key: "utbetalinger", label: "Utbetalinger" },
+  { key: "tilskudd-utbetalinger", label: "Utbetalinger" },
 ];
 
 const TAB_KEYS = [
@@ -109,6 +120,7 @@ const TAB_KEYS = [
   "redaksjonelt-innhold",
   "deltakerliste",
   "utbetalinger",
+  "tilskudd-utbetalinger",
 ] as const;
 
 function createTabUrl(gjennomforingId: string, tabKey: string): string {
@@ -118,19 +130,27 @@ function createTabUrl(gjennomforingId: string, tabKey: string): string {
 }
 
 function getCurrentTab(pathname: string): string {
-  const tabKey = TAB_KEYS.find((key) => pathname.includes(key));
+  const tabKey = [...TAB_KEYS]
+    .sort((a, b) => b.length - a.length)
+    .find((key) => pathname.includes(key));
   return tabKey || "detaljer";
 }
 
 function useTabs(
   gjennomforing: GjennomforingDto,
+  prismodell: PrismodellDto,
   enableTilskuddsbehandling: boolean,
 ): [string, Tab[]] {
   const { pathname } = useLocation();
   const currentTab = getCurrentTab(pathname);
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
 
-  const tabConfigs = isGruppetiltak(gjennomforing) ? GRUPPETILTAK_TABS : STANDARD_TABS;
+  const tabConfigs = isGruppetiltak(gjennomforing)
+    ? GRUPPETILTAK_TABS
+    : prismodell.type === PrismodellType.ANNEN_AVTALT_PRIS
+      ? ENKELTPLASS_ANSKAFFET_TABS
+      : ENKELTPLASS_TILSKUDD_TABS;
+
   const filteredTabConfigs = enableTilskuddsbehandling
     ? tabConfigs
     : tabConfigs.filter((tab) => tab.key !== "tilskudd-behandling");
