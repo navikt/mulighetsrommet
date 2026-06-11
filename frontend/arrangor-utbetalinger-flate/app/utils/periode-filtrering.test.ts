@@ -1,70 +1,75 @@
 import { Periode } from "@arrangor-utbetalinger/api-client";
 import { describe, expect, test } from "vitest";
-import {
-  innenforValgtPeriode,
-  overlapperSluttAvPeriode,
-  overlapperStartAvPeriode,
-} from "./periode-filtrering";
+import { filtrerOverlappendePerioder, overlapperPeriode } from "./periode-filtrering";
+
+const valgtPeriode: Periode = { start: "2026-05-01", slutt: "2026-06-01" };
 
 describe("periode filtrering", () => {
-  describe("overlapperStartAvPeriode", () => {
-    test("inkluderende startdato", () => {
-      const periodeA: Periode = { start: "2025-09-01", slutt: "2025-10-01" };
-      const periodeB: Periode = { start: "2025-09-01", slutt: "2025-09-30" };
-
-      const outcome = overlapperStartAvPeriode(periodeA, periodeB);
-      expect(outcome).toBeTruthy();
+  describe("overlapperPeriode", () => {
+    test("periode helt innenfor overlapper", () => {
+      expect(overlapperPeriode(valgtPeriode, { start: "2026-05-04", slutt: "2026-05-10" })).toBe(
+        true,
+      );
     });
-    test("ekskluderende sluttdato", () => {
-      const periodeA: Periode = { start: "2025-09-01", slutt: "2025-10-01" };
-      const periodeB: Periode = { start: "2025-08-01", slutt: "2025-09-01" };
 
-      const outcome = overlapperStartAvPeriode(periodeA, periodeB);
-      expect(outcome).toBeFalsy();
+    test("periode som omslutter valgtPeriode overlapper", () => {
+      expect(overlapperPeriode(valgtPeriode, { start: "2026-04-01", slutt: "2026-07-01" })).toBe(
+        true,
+      );
+    });
+
+    test("periode som starter på valgtPeriode.start overlapper", () => {
+      expect(overlapperPeriode(valgtPeriode, { start: "2026-05-01", slutt: "2026-05-15" })).toBe(
+        true,
+      );
+    });
+
+    test("periode som slutter på valgtPeriode.slutt overlapper", () => {
+      expect(overlapperPeriode(valgtPeriode, { start: "2026-05-10", slutt: "2026-06-01" })).toBe(
+        true,
+      );
+    });
+
+    test("periode som starter på valgtPeriode.slutt overlapper ikke", () => {
+      expect(overlapperPeriode(valgtPeriode, { start: "2026-06-01", slutt: "2026-06-30" })).toBe(
+        false,
+      );
+    });
+
+    test("periode som slutter på valgtPeriode.start overlapper ikke", () => {
+      expect(overlapperPeriode(valgtPeriode, { start: "2026-04-01", slutt: "2026-05-01" })).toBe(
+        false,
+      );
+    });
+
+    test("periode helt utenfor etter valgtPeriode overlapper ikke", () => {
+      expect(overlapperPeriode(valgtPeriode, { start: "2026-07-01", slutt: "2026-08-01" })).toBe(
+        false,
+      );
+    });
+
+    test("periode helt utenfor før valgtPeriode overlapper ikke", () => {
+      expect(overlapperPeriode(valgtPeriode, { start: "2026-03-01", slutt: "2026-04-01" })).toBe(
+        false,
+      );
     });
   });
 
-  describe("overlapperSluttAvPeriode", () => {
-    test("sluttdato i intervallet", () => {
-      const periodeA: Periode = { start: "2025-08-01", slutt: "2025-09-15" };
-      const periodeB: Periode = { start: "2025-09-01", slutt: "2025-10-01" };
+  describe("filtrerOverlappendePerioder", () => {
+    test("returnerer alle elementer som overlapper valgt periode", () => {
+      const liste = [
+        { id: "innenfor", periode: { start: "2026-05-04", slutt: "2026-05-05" } },
+        { id: "grense slutt", periode: { start: "2026-05-04", slutt: "2026-06-01" } },
+        { id: "omslutter", periode: { start: "2026-04-01", slutt: "2026-07-01" } },
+        { id: "utenfor 1", periode: { start: "2026-06-01", slutt: "2026-06-30" } },
+        { id: "utenfor 2", periode: { start: "2026-04-01", slutt: "2026-05-01" } },
+        { id: "utenfor 3", periode: { start: "2026-07-02", slutt: "2026-08-01" } },
+      ];
 
-      const outcome = overlapperSluttAvPeriode(periodeA, periodeB);
-      expect(outcome).toBeTruthy();
-    });
+      const outcome = filtrerOverlappendePerioder(valgtPeriode, liste);
 
-    test("sluttdato på et av datoene", () => {
-      const periodeA: Periode = { start: "2025-08-01", slutt: "2025-09-01" };
-      const periodeB: Periode = { start: "2025-09-01", slutt: "2025-10-01" };
-
-      const outcome = overlapperSluttAvPeriode(periodeA, periodeB);
-      expect(outcome).toBeFalsy();
-    });
-  });
-
-  describe("periode innenfor valgt periode", () => {
-    test("periode innenfor valgt periode", () => {
-      const periodeA: Periode = { start: "2025-08-01", slutt: "2025-10-01" };
-      const periodeB: Periode = { start: "2025-08-02", slutt: "2025-09-30" };
-
-      const outcome = innenforValgtPeriode(periodeA, periodeB);
-      expect(outcome).toBeTruthy();
-    });
-
-    test("start er ikke innenfor valgt periode", () => {
-      const periodeA: Periode = { start: "2025-07-01", slutt: "2025-10-01" };
-      const periodeB: Periode = { start: "2025-07-01", slutt: "2025-09-30" };
-
-      const outcome = innenforValgtPeriode(periodeA, periodeB);
-      expect(outcome).toBeFalsy();
-    });
-
-    test("slutt er ikke innenfor valgt periode", () => {
-      const periodeA: Periode = { start: "2025-07-01", slutt: "2025-10-01" };
-      const periodeB: Periode = { start: "2025-07-02", slutt: "2025-10-15" };
-
-      const outcome = innenforValgtPeriode(periodeA, periodeB);
-      expect(outcome).toBeFalsy();
+      expect(outcome).toHaveLength(3);
+      expect(outcome.map((it) => it.id)).toEqual(["innenfor", "grense slutt", "omslutter"]);
     });
   });
 });
