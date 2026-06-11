@@ -3,7 +3,7 @@ LABEL org.opencontainers.image.source="https://github.com/navikt/mulighetsrommet
 
 WORKDIR /app
 
-COPY build/install/*/lib /lib
+COPY server/build/install/*/lib /lib
 
 USER nonroot
 
