@@ -4,7 +4,7 @@ import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentFo
 import { SetEstimertVentetidModal } from "@/components/gjennomforing/SetEstimertVentetidModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
-import { ExternalLinkIcon, LayersPlusIcon } from "@navikt/aksel-icons";
+import { ArrowUndoIcon, ExternalLinkIcon, LayersPlusIcon } from "@navikt/aksel-icons";
 import { Switch } from "@navikt/ds-react";
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router";
@@ -118,8 +118,9 @@ export function GjennomforingHandlinger({
                 administratorer,
               },
               {
-                label: "Gjenåpne gjennomføring",
+                label: "Gjenåpne",
                 onClick: () => setGjenapneModalOpen(true),
+                icon: <ArrowUndoIcon aria-hidden />,
                 handling: GjennomforingHandling.GJENAPNE,
                 administratorer,
               },
