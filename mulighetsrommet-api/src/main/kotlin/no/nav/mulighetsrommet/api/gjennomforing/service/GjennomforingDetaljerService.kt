@@ -182,6 +182,7 @@ class GjennomforingDetaljerService(
             GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
             GjennomforingHandling.FORHANDSVIS_I_MODIA.takeIf { statusGjennomfores },
             GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
+            GjennomforingHandling.GJENAPNE.takeIf { gjennomforing.status == GjennomforingStatusType.AVSLUTTET },
             GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
             GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
             GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
@@ -242,6 +243,7 @@ class GjennomforingDetaljerService(
 
                 GjennomforingHandling.PUBLISER,
                 GjennomforingHandling.AVBRYT,
+                GjennomforingHandling.GJENAPNE,
                 GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR,
                 GjennomforingHandling.DUPLISER,
                 GjennomforingHandling.REDIGER,

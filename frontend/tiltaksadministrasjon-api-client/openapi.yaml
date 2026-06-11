@@ -1136,6 +1136,45 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/gjennomforinger/{id}/gjenapne:
+    put:
+      tags:
+      - Gjennomforing
+      operationId: gjenapneGjennomforing
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GjenapneGjennomforingRequest"
+        required: false
+      responses:
+        "200":
+          description: Gjennomføring ble gjenåpnet
+          headers: {}
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/gjennomforinger/{id}/tilgjengelig-for-veileder:
     put:
       tags:
@@ -5217,6 +5256,14 @@ components:
       required:
       - aarsaker
       - forklaring
+    GjenapneGjennomforingRequest:
+      type: object
+      properties:
+        nySluttDato:
+          type: string
+          format: date
+      required:
+      - nySluttDato
     PublisertRequest:
       type: object
       properties:
@@ -6022,6 +6069,7 @@ components:
       - PUBLISER
       - REDIGER
       - AVBRYT
+      - GJENAPNE
       - DUPLISER
       - FORHANDSVIS_I_MODIA
       - ENDRE_APEN_FOR_PAMELDING

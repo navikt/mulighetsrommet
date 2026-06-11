@@ -19,6 +19,7 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 import { AvbrytGjennomforingModal } from "@/components/gjennomforing/AvbrytGjennomforingModal";
+import { GjenapneGjennomforingModal } from "@/components/gjennomforing/GjenapneGjennomforingModal";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { previewArbeidsmarkedstiltakUrl } from "@/constants";
 import { Handlinger } from "@/components/handlinger/Handlinger";
@@ -39,6 +40,7 @@ export function GjennomforingHandlinger({
 }: Props) {
   const navigate = useNavigate();
   const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
+  const [gjenapneModalOpen, setGjenapneModalOpen] = useState<boolean>(false);
   const registrerStengtModalRef = useRef<HTMLDialogElement>(null);
   const apentForPameldingModalRef = useRef<HTMLDialogElement>(null);
   const [estimertVentetidModalOpen, setEstimertVentetidModalOpen] = useState(false);
@@ -116,6 +118,12 @@ export function GjennomforingHandlinger({
                 administratorer,
               },
               {
+                label: "Gjenåpne gjennomføring",
+                onClick: () => setGjenapneModalOpen(true),
+                handling: GjennomforingHandling.GJENAPNE,
+                administratorer,
+              },
+              {
                 label: "Dupliser",
                 onClick: () => dupliserGjennomforing(),
                 icon: <LayersPlusIcon aria-hidden />,
@@ -185,6 +193,11 @@ export function GjennomforingHandlinger({
         setOpen={setAvbrytModalOpen}
         gjennomforingId={gjennomforing.id}
         gjennomforingNavn={gjennomforing.navn}
+      />
+      <GjenapneGjennomforingModal
+        open={gjenapneModalOpen}
+        setOpen={setGjenapneModalOpen}
+        gjennomforingId={gjennomforing.id}
       />
     </KnapperadContainer>
   );
