@@ -5,6 +5,7 @@ import { ValideringsfeilOppsummering } from "@/components/skjema/Valideringsfeil
 import { BodyShort, Button, InfoCard, Modal, VStack } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { ValidationError } from "@tiltaksadministrasjon/api-client";
+import { addDuration } from "@mr/frontend-common/utils/date";
 
 interface Props {
   open: boolean;
@@ -70,6 +71,7 @@ export function GjenapneGjennomforingModal({ open, setOpen, gjennomforingId }: P
                 name="nySluttDato"
                 label="Ny sluttdato"
                 fromDate={new Date()}
+                toDate={addDuration(new Date(), { years: 6 })}
                 invalidDatoForTidlig="Ny sluttdato må være i dag eller i fremtiden"
                 rules={{
                   required: "Ny sluttdato er påkrevd",
