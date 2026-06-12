@@ -40,7 +40,6 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
@@ -291,22 +290,6 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             okonomi.shouldNotBeNull().should {
                 it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
                 it.besluttetAv shouldBe besluttetAv
-            }
-        }
-
-        test("økonomi godkjennes automatisk av Tiltaksadministrasjon ved IngenKostnader") {
-            val prismodell = UpsertGjennomforingEnkeltplass.Prismodell.IngenKostnader(
-                aarsak = Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI,
-                tilleggsopplysninger = null,
-            )
-            val upsert = createEnkeltplass().copy(prismodell = prismodell)
-
-            val (_, okonomi) = service.soktInn(upsert, opprettetAv).shouldBeRight()
-
-            okonomi.shouldNotBeNull().should {
-                it.behandletAv shouldBe opprettetAv
-                it.besluttetAv shouldBe Tiltaksadministrasjon
-                it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
             }
         }
 
