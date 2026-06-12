@@ -135,20 +135,7 @@ class GjennomforingEnkeltplassService(
                 .also { publishTiltaksgjennomforingV2ToKafka(it) }
         }
 
-        val enkeltplass = settOkonomiTilGodkjenning(upsert.id, opprettetAv)
-
-        when (upsert.prismodell) {
-            is UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse,
-            is UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering,
-            -> enkeltplass.right()
-
-            is UpsertGjennomforingEnkeltplass.Prismodell.IngenKostnader,
-            -> settOkonomiGodkjent(
-                upsert.id,
-                requireNotNull(enkeltplass.okonomi) { "Forventet at økonomi var satt til godkjenning" },
-                Tiltaksadministrasjon,
-            )
-        }
+        settOkonomiTilGodkjenning(upsert.id, opprettetAv).right()
     }
 
     fun synkroniserFraArena(
