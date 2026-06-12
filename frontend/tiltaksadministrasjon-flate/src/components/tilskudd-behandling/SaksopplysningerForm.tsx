@@ -55,7 +55,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
         Informasjon fra søknad
       </Heading>
       <VStack gap="space-20" align="start">
-        <FormTextField label="Journalpost-ID" name="soknadJournalpostId" required />
+        <FormTextField label="Journalpost-ID i Gosys" name="soknadJournalpostId" required />
         <FormDateInput name="soknadDato" label="Søknadsdato" required />
         <HStack gap="space-8">
           <FormDateInput name="periodeStart" label="Periodestart" required />

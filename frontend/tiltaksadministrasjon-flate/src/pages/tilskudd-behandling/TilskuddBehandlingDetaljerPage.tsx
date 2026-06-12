@@ -128,7 +128,7 @@ export function TilskuddBehandlingDetaljerPage() {
               <VStack gap="space-16">
                 <Definisjonsliste
                   definitions={[
-                    { key: "Journalpost-ID", value: behandling.soknadJournalpostId },
+                    { key: "Journalpost-ID i Gosys", value: behandling.soknadJournalpostId },
                     { key: "Søknadsdato", value: formaterDato(behandling.soknadDato) },
                     { key: "Periode", value: formaterPeriode(behandling.periode) },
                     {
