@@ -57,9 +57,7 @@ export function GjennomforingPage() {
         </Heading>
         <DataElementStatusTag {...gjennomforing.status.status} />
       </Header>
-      {enkeltplassDeltaker && (
-        <DeltakerHeader deltaker={enkeltplassDeltaker} arrangorNavn={gjennomforing.arrangor.navn} />
-      )}
+      {enkeltplassDeltaker && <DeltakerHeader deltaker={enkeltplassDeltaker} compact />}
       <Tabs value={currentTab}>
         <Box background="default">
           <Tabs.List>

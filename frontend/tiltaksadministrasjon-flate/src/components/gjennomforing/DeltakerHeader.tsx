@@ -5,14 +5,15 @@ import { DeltakerDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   deltaker: DeltakerDto;
-  arrangorNavn: string;
+  arrangorNavn?: string;
+  compact?: boolean;
 }
 
-export function DeltakerHeader({ deltaker, arrangorNavn }: Props) {
+export function DeltakerHeader({ deltaker, arrangorNavn, compact = false }: Props) {
   return (
     <VStack className="px-4 bg-ax-bg-default">
       <Separator />
-      <HStack justify="space-between">
+      <HStack className="grid grid-flow-col auto-cols-[minmax(0,400px)] justify-start gap-4">
         <HStack>
           <PersonIcon fontSize="1.5rem" />
           <MetadataVStack label="Navn" value={deltaker.navn} />
@@ -22,9 +23,13 @@ export function DeltakerHeader({ deltaker, arrangorNavn }: Props) {
           <CopyButton size="small" copyText={deltaker.norskIdent ?? ""} />
         </HStack>
         <MetadataVStack label="Enhet" value={deltaker.oppfolgingEnhet?.navn} />
-        <MetadataVStack label="Arrangør" value={arrangorNavn} />
-        <MetadataVStack label="Startdato" value={deltaker.startDato} />
-        <MetadataVStack label="Sluttdato" value={deltaker.sluttDato} />
+        {!compact && (
+          <>
+            <MetadataVStack label="Arrangør" value={arrangorNavn} />
+            <MetadataVStack label="Startdato" value={deltaker.startDato} />
+            <MetadataVStack label="Sluttdato" value={deltaker.sluttDato} />
+          </>
+        )}
       </HStack>
       <Separator />
     </VStack>
