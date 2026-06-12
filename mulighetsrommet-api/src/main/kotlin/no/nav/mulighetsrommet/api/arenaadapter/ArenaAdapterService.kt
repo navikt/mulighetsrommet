@@ -83,7 +83,6 @@ class ArenaAdapterService(
                 ansvarligEnhet = NavEnhetNummer(arenaGjennomforing.arenaAnsvarligEnhet),
                 arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
                 arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
-                kategorisering = null, // Arena har ikke amo kategorisering
             )
             gjennomforingEnkeltplassService.synkroniserFraArena(upsert)
         } else {

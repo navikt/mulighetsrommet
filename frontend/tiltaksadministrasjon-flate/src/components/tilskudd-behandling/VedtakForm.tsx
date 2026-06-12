@@ -30,7 +30,7 @@ export function VedtakForm() {
         <VStack gap="space-8">
           <Definisjonsliste
             definitions={[
-              { key: "Journalpost-ID", value: watch("soknadJournalpostId") },
+              { key: "Journalpost-ID i Gosys", value: watch("soknadJournalpostId") },
               { key: "Søknadsdato", value: formaterDato(watch("soknadDato")) },
             ]}
           />

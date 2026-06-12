@@ -1,6 +1,5 @@
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
 import { Header } from "@/components/detaljside/Header";
-import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { DataElementStatusTag } from "@mr/frontend-common";
@@ -51,10 +50,7 @@ export function TilskuddBehandlingLayout({ gjennomforingId, status, children }: 
       {enkeltplassDeltaker && (
         <DeltakerHeader deltaker={enkeltplassDeltaker} arrangorNavn={gjennomforing.arrangor.navn} />
       )}
-      <WhitePaddedBox>
-        <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-        {children}
-      </WhitePaddedBox>
+      <WhitePaddedBox>{children}</WhitePaddedBox>
     </>
   );
 }
