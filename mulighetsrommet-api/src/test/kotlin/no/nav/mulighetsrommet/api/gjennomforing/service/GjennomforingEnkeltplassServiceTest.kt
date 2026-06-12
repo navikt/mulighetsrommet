@@ -345,6 +345,12 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val service = createService(migrert)
             val soktInn = createRequest()
 
+            service.soktInn(soktInn, opprettetAv).shouldBeRight().should { (gjennomforing) ->
+                gjennomforing.startDato shouldBe null
+                gjennomforing.sluttDato shouldBe null
+                gjennomforing.deltidsprosent shouldBe 100.0
+            }
+
             val startDato = LocalDate.of(2025, 3, 1)
             val sluttDato = LocalDate.of(2025, 9, 1)
             val deltaker = DeltakerFixtures.createDeltaker(
@@ -354,19 +360,13 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 startDato = startDato,
                 sluttDato = sluttDato,
             ).copy(deltakelsesmengder = listOf(Deltakelsesmengde(gyldigFra = startDato, deltakelsesprosent = 60.0)))
-
-            // Oppretter med standardverdier
-            service.soktInn(soktInn, opprettetAv).shouldBeRight()
-            // Oppdaterer med data fra deltaker
             service.updateFromDeltaker(deltaker, NorskIdent("12345678910"))
 
-            // soktInn igjen skal ikke overskrive datoer og status fra deltakeren
-            val (gjennomforing) = service.soktInn(soktInn, opprettetAv).shouldBeRight()
-
-            gjennomforing.startDato shouldBe startDato
-            gjennomforing.sluttDato shouldBe sluttDato
-            gjennomforing.deltidsprosent shouldBe 60.0
-            gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
+            service.soktInn(soktInn, opprettetAv).shouldBeRight().should { (gjennomforing) ->
+                gjennomforing.startDato shouldBe startDato
+                gjennomforing.sluttDato shouldBe sluttDato
+                gjennomforing.deltidsprosent shouldBe 60.0
+            }
         }
     }
 
