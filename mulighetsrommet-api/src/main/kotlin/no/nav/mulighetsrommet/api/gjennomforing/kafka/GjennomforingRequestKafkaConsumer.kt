@@ -8,12 +8,12 @@ import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.KategoriseringMapper
+import no.nav.mulighetsrommet.api.gjennomforing.service.EnkeltplassRequest
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
@@ -42,8 +42,8 @@ class GjennomforingRequestKafkaConsumer(
         validateTiltakskode(payload.tiltakskode)
 
         val arrangor = getArrangor(payload.organisasjonsnummer)
-        val upsert = toUpsert(gjennomforingId, arrangor.id, payload)
-        enkeltplasser.opprettUtkast(upsert)
+        val utkast = toRequest(gjennomforingId, arrangor.id, payload)
+        enkeltplasser.opprettUtkast(utkast, payload.opprettetAv)
             .getOrElse { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
 
@@ -52,8 +52,8 @@ class GjennomforingRequestKafkaConsumer(
         validateTiltakskode(payload.tiltakskode)
 
         val arrangor = getArrangor(payload.organisasjonsnummer)
-        val upsert = toUpsert(gjennomforingId, arrangor.id, payload)
-        enkeltplasser.soktInn(upsert, payload.opprettetAv)
+        val soktInn = toRequest(gjennomforingId, arrangor.id, payload)
+        enkeltplasser.soktInn(soktInn, payload.opprettetAv)
             .getOrElse { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
 
@@ -71,15 +71,14 @@ class GjennomforingRequestKafkaConsumer(
         .getOrElse { error("Klarte ikke hente arrangør fra brreg $it") }
 }
 
-private fun toUpsert(
+private fun toRequest(
     gjennomforingId: UUID,
     arrangorId: UUID,
     payload: UpsertEnkeltplass,
-) = UpsertGjennomforingEnkeltplass(
+) = EnkeltplassRequest(
     id = gjennomforingId,
     tiltakskode = payload.tiltakskode,
     arrangorId = arrangorId,
-    status = GjennomforingStatusType.GJENNOMFORES,
     ansvarligEnhet = payload.ansvarligEnhet,
     kategorisering = payload.kategorisering?.let(KategoriseringMapper::fromKafkaPayload),
     prismodell = toPrismodell(payload.prisinformasjon),
