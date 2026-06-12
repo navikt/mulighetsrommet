@@ -50,9 +50,7 @@ export function TilskuddBehandlingLayout({ gjennomforingId, status, children }: 
       {enkeltplassDeltaker && (
         <DeltakerHeader deltaker={enkeltplassDeltaker} arrangorNavn={gjennomforing.arrangor.navn} />
       )}
-      <WhitePaddedBox>
-        {children}
-      </WhitePaddedBox>
+      <WhitePaddedBox>{children}</WhitePaddedBox>
     </>
   );
 }
