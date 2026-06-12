@@ -40,7 +40,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.UUID
@@ -295,35 +294,6 @@ class GjennomforingQueries(private val session: Session) {
             where gjennomforing_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
         """.trimIndent()
         execute(queryOf(deleteArrangorKontaktpersoner, id, createUuidArray(arrangorKontaktpersoner)))
-    }
-
-    fun setUtdanningslop(id: UUID, utdanningslop: UtdanningslopDbo?) = with(session) {
-        @Language("PostgreSQL")
-        val deleteUtdanningslop = """
-            delete from gjennomforing_utdanningsprogram
-            where gjennomforing_id = ?::uuid
-        """.trimIndent()
-        execute(queryOf(deleteUtdanningslop, id))
-
-        @Language("PostgreSQL")
-        val insertUtdanningslop = """
-            insert into gjennomforing_utdanningsprogram(
-                gjennomforing_id,
-                utdanning_id,
-                utdanningsprogram_id
-            )
-            values(:gjennomforing_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
-        """.trimIndent()
-        if (utdanningslop != null) {
-            val utdanninger = utdanningslop.utdanninger.map {
-                mapOf(
-                    "gjennomforing_id" to id,
-                    "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
-                    "utdanning_id" to it,
-                )
-            }
-            batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
-        }
     }
 
     fun setArenaData(dbo: GjennomforingArenaDataDbo) {
