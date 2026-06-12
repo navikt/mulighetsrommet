@@ -61,6 +61,15 @@ data class Enkeltplass(
     val okonomi: Totrinnskontroll?,
 )
 
+data class EnkeltplassRequest(
+    val id: UUID,
+    val tiltakskode: Tiltakskode,
+    val arrangorId: UUID,
+    val ansvarligEnhet: NavEnhetNummer,
+    val kategorisering: OpplaringKategoriseringRequest?,
+    val prismodell: UpsertGjennomforingEnkeltplass.Prismodell,
+)
+
 data class UpsertGjennomforingEnkeltplass(
     val id: UUID,
     val tiltakskode: Tiltakskode,
@@ -68,7 +77,6 @@ data class UpsertGjennomforingEnkeltplass(
     val status: GjennomforingStatusType,
     val prismodell: UpsertGjennomforingEnkeltplass.Prismodell,
     val ansvarligEnhet: NavEnhetNummer,
-    val kategorisering: OpplaringKategoriseringRequest?,
     // TODO: fjerne fra modell når feltene ikke lengre trengs for å deles med arena
     val startDato: LocalDate? = null,
     val sluttDato: LocalDate? = null,
@@ -106,36 +114,39 @@ class GjennomforingEnkeltplassService(
         val gjennomforingV2Topic: String,
     )
 
-    fun opprettUtkast(upsert: UpsertGjennomforingEnkeltplass): Validated<Enkeltplass> = db.transaction {
-        val existing = getEnkeltplass(upsert.id)
+    fun opprettUtkast(utkast: EnkeltplassRequest, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
+        val existing = getEnkeltplass(utkast.id)
         if (existing != null) {
             return existing.right()
         }
 
-        upsert(upsert)
+        upsert(utkast.toUpsert())
+            .also { upsertKategorisering(utkast) }
             .also { updateFreeTextSearch(it, norskIdent = null) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
-            .let { Enkeltplass(it, okonomi = null) }
+            .let { logEndring("Opprettet utkast", it.id, opprettetAv) }
             .right()
     }
 
-    fun soktInn(upsert: UpsertGjennomforingEnkeltplass, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
-        val existing = getEnkeltplass(upsert.id)
+    fun soktInn(soktInn: EnkeltplassRequest, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
+        val existing = getEnkeltplass(soktInn.id)
 
         if (existing?.okonomi?.besluttelse == TotrinnskontrollBesluttelse.GODKJENT) {
             return existing.right()
         }
 
         when (existing) {
-            null -> upsert(upsert)
+            null -> upsert(soktInn.toUpsert())
+                .also { upsertKategorisering(soktInn) }
                 .also { updateFreeTextSearch(it, norskIdent = null) }
                 .also { publishTiltaksgjennomforingV2ToKafka(it) }
 
-            else -> upsert(upsert)
+            else -> upsert(soktInn.toUpsert(existing.gjennomforing))
+                .also { upsertKategorisering(soktInn) }
                 .also { publishTiltaksgjennomforingV2ToKafka(it) }
         }
 
-        settOkonomiTilGodkjenning(upsert.id, opprettetAv).right()
+        settOkonomiTilGodkjenning(soktInn.id, opprettetAv).right()
     }
 
     fun synkroniserFraArena(
@@ -178,6 +189,7 @@ class GjennomforingEnkeltplassService(
         queries.gjennomforing.getGjennomforingEnkeltplassOrError(id)
             .also { updateFreeTextSearch(it, personalia?.norskIdent()) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
+            .also { logEndring("Oppdatert med tiltaksnummer fra Arena", it.id, Tiltaksadministrasjon) }
     }
 
     fun updateFromDeltaker(
@@ -201,7 +213,7 @@ class GjennomforingEnkeltplassService(
             return enkeltplass
         }
 
-        val upsert = toUpsertGjennomforingEnkeltplass(enkeltplass.gjennomforing, deltaker)
+        val upsert = deltaker.toUpsert(enkeltplass.gjennomforing)
         if (!harEnkeltplassEndringer(upsert, enkeltplass.gjennomforing)) {
             return enkeltplass
         }
@@ -281,8 +293,6 @@ class GjennomforingEnkeltplassService(
             avtaleId = null,
         )
         queries.gjennomforing.upsert(dbo)
-
-        upsertKategorisering(upsert.id, upsert.tiltakskode, upsert.kategorisering)
 
         return queries.gjennomforing.getGjennomforingEnkeltplassOrError(dbo.id)
     }
@@ -372,77 +382,44 @@ class GjennomforingEnkeltplassService(
     }
 
     private fun QueryContext.upsertKategorisering(
-        id: UUID,
-        tiltakskode: Tiltakskode,
-        kategorisering: OpplaringKategoriseringRequest?,
+        request: EnkeltplassRequest,
     ) {
         val kurstyper = queries.opplaringKategorisering.getKurstyper(true)
-        val opplaringKategoriseringDbo = when (tiltakskode) {
-            Tiltakskode.ARBEIDSRETTET_REHABILITERING,
-            Tiltakskode.AVKLARING,
-            Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK,
-            Tiltakskode.JOBBKLUBB,
-            Tiltakskode.OPPFOLGING,
-            Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-            Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-            Tiltakskode.TILPASSET_JOBBSTOTTE,
-            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING, // Ikke i bruk hos komet
-            Tiltakskode.HOYERE_UTDANNING,
-            Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
-            Tiltakskode.INDIVIDUELL_JOBBSTOTTE,
-            Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG,
-            Tiltakskode.ARBEID_MED_STOTTE,
-            Tiltakskode.ARBEIDSTRENING,
-            Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD,
-            Tiltakskode.VARIG_LONNSTILSKUD,
-            Tiltakskode.MENTOR,
-            Tiltakskode.INKLUDERINGSTILSKUD,
-            Tiltakskode.SOMMERJOBB,
-            Tiltakskode.VTAO,
-            Tiltakskode.FIREARIG_LONNSTILSUDD,
-            -> null
-
-            Tiltakskode.STUDIESPESIALISERING -> OpplaringKategoriseringDbo(kurstypeId = kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }?.id)
+        val kurstypeId = when (request.tiltakskode) {
+            Tiltakskode.STUDIESPESIALISERING,
+            -> kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }?.id
 
             Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
             Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-            ->
-                OpplaringKategoriseringDbo(
-                    kurstypeId = kurstyper.find { it.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET }?.id,
-                    bransjeId = kategorisering?.bransjeId,
-                    forerkort = kategorisering?.forerkort?.toSet() ?: emptySet(),
-                    sertifiseringer = kategorisering?.sertifiseringer ?: emptySet(),
-                )
+            -> kurstyper.find { it.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET }?.id
 
-            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV ->
-                kategorisering?.kurstypeId?.let { kurstypeId ->
-                    OpplaringKategoriseringDbo(
-                        kurstypeId = kurstypeId,
-                        // Norskprøve og innholdselementer støttes ikke av komet
-                    )
-                }
+            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            -> request.kategorisering?.kurstypeId
 
-            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.FAG_OG_YRKESOPPLAERING,
-            ->
-                null // Håndteres via utdanning
+            else -> null
         }
+        val opplaringKategoriseringDbo = OpplaringKategoriseringDbo(
+            kurstypeId = kurstypeId,
+            bransjeId = request.kategorisering?.bransjeId,
+            forerkort = request.kategorisering?.forerkort?.toSet() ?: emptySet(),
+            sertifiseringer = request.kategorisering?.sertifiseringer ?: emptySet(),
+        )
         with(session) {
             AmoKategoriseringQueries.upsert(
                 AmoKategoriseringQueries.Relation.GJENNOMFORING,
-                id,
+                request.id,
                 opplaringKategoriseringDbo,
             )
         }
         // TODO: forene amo og utdanning som opplaringkategorisering
-        val utdanningDbo = kategorisering?.utdanningsprogramId?.let { programId ->
+        val utdanningDbo = request.kategorisering?.utdanningsprogramId?.let { programId ->
             UtdanningslopDbo(
                 utdanningsprogram = programId,
-                utdanninger = kategorisering.larefag?.toSet() ?: emptySet(),
+                utdanninger = request.kategorisering.larefag?.toSet() ?: emptySet(),
             )
         }
-        queries.gjennomforing.setUtdanningslop(id, utdanningDbo)
+        queries.gjennomforing.setUtdanningslop(request.id, utdanningDbo)
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingEnkeltplass) {
@@ -486,9 +463,24 @@ class GjennomforingEnkeltplassService(
     }
 }
 
-private fun toUpsertGjennomforingEnkeltplass(
+private fun EnkeltplassRequest.toUpsert(gjennomforing: GjennomforingEnkeltplass? = null) = UpsertGjennomforingEnkeltplass(
+    id = id,
+    tiltakskode = tiltakskode,
+    arrangorId = arrangorId,
+    ansvarligEnhet = ansvarligEnhet,
+    prismodell = prismodell,
+    status = gjennomforing?.status ?: GjennomforingStatusType.GJENNOMFORES,
+    startDato = gjennomforing?.startDato,
+    sluttDato = gjennomforing?.sluttDato,
+    deltidsprosent = gjennomforing?.deltidsprosent ?: 100.0,
+    antallPlasser = gjennomforing?.antallPlasser ?: 1,
+    navn = gjennomforing?.navn,
+    arenaTiltaksnummer = gjennomforing?.arena?.tiltaksnummer,
+    arenaAnsvarligEnhet = gjennomforing?.arena?.ansvarligNavEnhet,
+)
+
+private fun Deltaker.toUpsert(
     gjennomforing: GjennomforingEnkeltplass,
-    deltaker: Deltaker,
 ): UpsertGjennomforingEnkeltplass = UpsertGjennomforingEnkeltplass(
     id = gjennomforing.id,
     tiltakskode = gjennomforing.tiltakstype.tiltakskode,
@@ -499,12 +491,11 @@ private fun toUpsertGjennomforingEnkeltplass(
     arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
     arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
     antallPlasser = gjennomforing.antallPlasser,
-    startDato = deltaker.startDato ?: gjennomforing.startDato,
-    sluttDato = deltaker.sluttDato,
-    status = toGjennomforingStatusType(deltaker),
-    kategorisering = null, // TODO: Mappe opp enkeltplassene med kategoriseringen
+    startDato = startDato ?: gjennomforing.startDato,
+    sluttDato = sluttDato,
+    status = toGjennomforingStatusType(this),
     // TODO: nullable i stedet for default 100
-    deltidsprosent = deltaker.deltakelsesmengder.lastOrNull()?.deltakelsesprosent ?: 100.0,
+    deltidsprosent = deltakelsesmengder.lastOrNull()?.deltakelsesprosent ?: 100.0,
 )
 
 private fun toUpsertPrismodell(prismodell: Prismodell): UpsertGjennomforingEnkeltplass.Prismodell = when (prismodell) {
@@ -568,5 +559,4 @@ private fun harEnkeltplassEndringer(
     ansvarligEnhet = gjennomforing.ansvarligEnhet.enhetsnummer,
     arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
     arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
-    kategorisering = opprett.kategorisering,
 )
