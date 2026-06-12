@@ -31,13 +31,13 @@ create table opplaring_innhold_element
 );
 
 insert into opplaring_innhold_element (id, kode, navn)
-values (gen_random_uuid(), 'GRUNNLEGGENDE_FERDIGHETER', 'Grunnleggende ferdigheter'),
-       (gen_random_uuid(), 'TEORETISK_OPPLAERING', 'Teoretisk opplæring'),
-       (gen_random_uuid(), 'JOBBSOKER_KOMPETANSE', 'Jobbsøkerkompetanse'),
-       (gen_random_uuid(), 'PRAKSIS', 'Praksis'),
-       (gen_random_uuid(), 'ARBEIDSMARKEDSKUNNSKAP', 'Arbeidsmarkedskunnskap'),
-       (gen_random_uuid(), 'NORSKOPPLAERING', 'Norskopplæring'),
-       (gen_random_uuid(), 'BRANSJERETTET_OPPLARING', 'Bransjerettet opplæring');
+values ('312a02cd-8330-4c32-ae4b-8e9cde0060fb', 'GRUNNLEGGENDE_FERDIGHETER', 'Grunnleggende ferdigheter'),
+       ('0770648f-210e-4b2e-9524-0b87226c8f4b', 'TEORETISK_OPPLAERING', 'Teoretisk opplæring'),
+       ('7ee66328-2dd0-4180-9bb3-165e7854f3b6', 'JOBBSOKER_KOMPETANSE', 'Jobbsøkerkompetanse'),
+       ('4264da96-3b68-426a-8629-37a2fafafa27', 'PRAKSIS', 'Praksis'),
+       ('8f729892-dbb0-448e-ac4c-7169464f955c', 'ARBEIDSMARKEDSKUNNSKAP', 'Arbeidsmarkedskunnskap'),
+       ('c645e920-618c-4dcf-a3b7-516f32040e04', 'NORSKOPPLAERING', 'Norskopplæring'),
+       ('331d61f7-c957-4d9c-a229-41d1d1b9c675', 'BRANSJERETTET_OPPLARING', 'Bransjerettet opplæring');
 
 create trigger set_timestamp
     before update
