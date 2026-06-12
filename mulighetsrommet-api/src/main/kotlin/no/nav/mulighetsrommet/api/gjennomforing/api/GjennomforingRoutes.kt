@@ -219,6 +219,40 @@ fun Route.gjennomforingRoutes() {
                     }
             }
 
+            put("{id}/gjenapne", {
+                tags = setOf("Gjennomforing")
+                operationId = "gjenapneGjennomforing"
+                request {
+                    pathParameterUuid("id")
+                    body<GjenapneGjennomforingRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Gjennomføring ble gjenåpnet"
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val navIdent = getNavIdent()
+                val request = call.receive<GjenapneGjennomforingRequest>()
+
+                avtaleGjennomforinger.gjenapneGjennomforing(id, request.nySluttDato, navIdent)
+                    .onLeft {
+                        call.respondWithProblemDetail(ValidationError("Klarte ikke gjenåpne gjennomføring", it))
+                    }
+                    .onRight {
+                        call.respond(HttpStatusCode.OK)
+                    }
+            }
+
             put("{id}/tilgjengelig-for-veileder", {
                 tags = setOf("Gjennomforing")
                 operationId = "setPublisert"
@@ -751,6 +785,12 @@ data class DeltakerStatusSummary(
 )
 
 @Serializable
+data class GjenapneGjennomforingRequest(
+    @Serializable(with = LocalDateSerializer::class)
+    val nySluttDato: LocalDate,
+)
+
+@Serializable
 data class TiltaksnummerResponse(
     val tiltaksnummer: String,
 )
@@ -906,6 +946,7 @@ enum class GjennomforingHandling {
     PUBLISER,
     REDIGER,
     AVBRYT,
+    GJENAPNE,
     DUPLISER,
     FORHANDSVIS_I_MODIA,
     ENDRE_APEN_FOR_PAMELDING,

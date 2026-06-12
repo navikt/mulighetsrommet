@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
 
 const val TEST_GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"
@@ -105,7 +106,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             database.run {
                 shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
-                    record.key shouldBe request.id.toString().toByteArray()
+                    record.key.decodeToString().toUUID() shouldBe request.id
                     val deserialized = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
                     deserialized should beInstanceOf<TiltaksgjennomforingV2Dto.Gruppe>()
                     deserialized.id shouldBe request.id
@@ -452,6 +453,83 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
                     .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
                         it.operation shouldBe "Gjennomføringen ble avsluttet"
+                    }
+            }
+        }
+    }
+
+    context("gjenåpne gjennomføring") {
+        val service = createService()
+
+        test("gir feil dersom gjennomføringen ikke er avsluttet") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                status = GjennomforingStatusType.GJENNOMFORES,
+            )
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            service.gjenapneGjennomforing(
+                gjennomforing.id,
+                nySluttDato = LocalDate.now().plusDays(30),
+                navIdent = bertilNavIdent,
+            ).shouldBeLeft().shouldContainAll(
+                listOf(FieldError.of("Gjennomføringen må være avsluttet for å kunne gjenåpnes")),
+            )
+        }
+
+        test("gir feil dersom ny sluttdato er i fortiden") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = LocalDate.of(2023, 7, 1),
+                status = GjennomforingStatusType.AVSLUTTET,
+            )
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            service.gjenapneGjennomforing(
+                gjennomforing.id,
+                nySluttDato = LocalDate.of(2024, 5, 31),
+                navIdent = bertilNavIdent,
+                today = LocalDate.of(2024, 6, 1),
+            ).shouldBeLeft().shouldContainAll(
+                listOf(FieldError.of("Ny sluttdato må være i dag eller i fremtiden")),
+            )
+        }
+
+        test("gjenåpner gjennomføring, oppdaterer sluttdato, publiserer til kafka og skriver til endringshistorikken") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = LocalDate.of(2023, 7, 1),
+                status = GjennomforingStatusType.AVSLUTTET,
+            )
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.db)
+
+            val nySluttDato = LocalDate.of(2024, 12, 31)
+            service.gjenapneGjennomforing(
+                gjennomforing.id,
+                nySluttDato = nySluttDato,
+                navIdent = bertilNavIdent,
+                today = LocalDate.of(2024, 6, 1),
+            ).shouldBeRight().should {
+                it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                it.sluttDato shouldBe nySluttDato
+            }
+
+            database.run {
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
+                    record.key.decodeToString().toUUID() shouldBe gjennomforing.id
+                }
+
+                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
+                    .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
+                        it.operation shouldBe "Gjennomføringen ble gjenåpnet"
                     }
             }
         }
