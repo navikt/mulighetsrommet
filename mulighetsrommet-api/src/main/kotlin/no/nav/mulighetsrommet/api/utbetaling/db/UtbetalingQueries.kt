@@ -573,6 +573,7 @@ class UtbetalingQueries(private val session: Session) {
             from view_utbetaling
             where gjennomforing_id = :id::uuid
             and (:statuser::text[] is null or status = any (:statuser))
+            order by created_at desc
         """.trimIndent()
 
         val params = mapOf(

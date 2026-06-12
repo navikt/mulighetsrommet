@@ -69,12 +69,12 @@ export function compare<T>(aValue: T, bValue: T): number {
   /* eslint-enable eqeqeq */
 
   if (typeof aValue === "number" && typeof bValue === "number") {
-    return bValue - aValue;
+    return aValue - bValue;
   }
 
-  if (bValue < aValue) {
+  if (aValue < bValue) {
     return -1;
-  } else if (bValue > aValue) {
+  } else if (aValue > bValue) {
     return 1;
   } else {
     return 0;
