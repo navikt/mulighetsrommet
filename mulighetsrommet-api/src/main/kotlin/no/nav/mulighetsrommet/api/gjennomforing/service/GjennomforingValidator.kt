@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import arrow.core.Either
+import arrow.core.right
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
@@ -136,7 +137,6 @@ object GjennomforingValidator {
         val detaljer: GjennomforingDetaljerDbo,
         val administratorer: Set<NavIdent>,
         val arrangorKontaktpersoner: Set<UUID>,
-        val utdanningslop: UtdanningslopDbo?,
         val kategorisering: OpplaringKategoriseringDbo?,
     )
 
@@ -294,10 +294,10 @@ object GjennomforingValidator {
 
         detaljer = validateOrResetTilgjengeligForArrangorDato(detaljer)
 
-        val utdanningslop = validateUtdanningslop(ctx.avtale, detaljer.utdanningslop).bind()
         val kategorisering = context(ctx.avtale, ctx.kategorisering) {
             validateAmoKategorisering(
                 detaljer.amoKategorisering,
+                detaljer.utdanningslop,
             ).bind()
         }
 
@@ -321,7 +321,6 @@ object GjennomforingValidator {
             ),
             administratorer = detaljer.administratorer,
             arrangorKontaktpersoner = detaljer.arrangorKontaktpersoner,
-            utdanningslop = utdanningslop,
             kategorisering = kategorisering,
         )
     }
@@ -390,18 +389,10 @@ object GjennomforingValidator {
         tilgjengeligForArrangorDato
     }
 
-    fun validateUtdanningslop(
+    private fun FieldValidator.validateUtdanningslop(
         avtale: Avtale,
         utdanningslop: UtdanningslopDbo?,
-    ): Validated<UtdanningslopDbo?> = validation {
-        when (avtale.tiltakstype.tiltakskode) {
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.FAG_OG_YRKESOPPLAERING,
-            -> Unit
-
-            else -> return@validation null
-        }
-
+    ): Validated<UtdanningslopDbo?> {
         requireValid(utdanningslop != null) {
             FieldError.of(
                 "Du må velge utdanningsprogram og lærefag på avtalen",
@@ -420,7 +411,8 @@ object GjennomforingValidator {
                 GjennomforingDetaljerRequest::utdanningslop,
             )
         }
-        val avtalensUtdanninger = avtale.opplaringKategorisering?.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
+        val avtalensUtdanninger =
+            avtale.opplaringKategorisering?.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
         validate(avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
             FieldError.of(
                 "Lærefag må være valgt fra avtalens lærefag, minst ett av lærefagene mangler i avtalen.",
@@ -428,12 +420,13 @@ object GjennomforingValidator {
             )
         }
 
-        utdanningslop
+        return utdanningslop.right()
     }
 
     context(avtale: Avtale, kategorisering: Context.Kategorisering)
     fun validateAmoKategorisering(
         amoKategorisering: AmoKategoriseringRequest?,
+        utdanningslop: UtdanningslopDbo?,
     ): Either<List<FieldError>, OpplaringKategoriseringDbo?> = validation {
         when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
@@ -492,6 +485,14 @@ object GjennomforingValidator {
 
             Tiltakskode.STUDIESPESIALISERING,
             -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING).toOpplaringKategoriseringDbo()
+
+            Tiltakskode.FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+            -> {
+                val validatedUtdanningslop = validateUtdanningslop(avtale, utdanningslop).bind()
+                OpplaringKategoriseringDbo(utdanningslop = validatedUtdanningslop)
+            }
 
             else -> null
         }

@@ -16,6 +16,7 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
@@ -139,15 +140,17 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.opprettUtkast(gjennomforing).shouldBeRight()
 
             database.run {
-                queries.opplaringKategorisering.get(gjennomforing.id).shouldBe(
-                    OpplaringKategorisering(
-                        kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
-                        bransje = BransjeFixtures.byggOgAnlegg,
-                        forerkort = setOf(ForerkortFixtures.B, ForerkortFixtures.BE),
-                        sertifiseringer = setOf(Sertifisering(konseptId = 1234, label = "Truckførerkurs")),
-                        norskprove = false,
-                    ),
-                )
+                context(this.session) {
+                    OpplaringKategoriseringQueries.get(gjennomforing.id).shouldBe(
+                        OpplaringKategorisering(
+                            kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                            bransje = BransjeFixtures.byggOgAnlegg,
+                            forerkort = setOf(ForerkortFixtures.B, ForerkortFixtures.BE),
+                            sertifiseringer = setOf(Sertifisering(konseptId = 1234, label = "Truckførerkurs")),
+                            norskprove = false,
+                        ),
+                    )
+                }
             }
         }
 
@@ -163,9 +166,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             ).shouldBeRight()
 
             database.run {
-                queries.opplaringKategorisering.get(gjennomforing.id).shouldBe(
-                    OpplaringKategorisering(kurstype = KurstypeFixtures.fov, norskprove = false),
-                )
+                context(this.session) {
+                    OpplaringKategoriseringQueries.get(gjennomforing.id).shouldBe(
+                        OpplaringKategorisering(kurstype = KurstypeFixtures.fov, norskprove = false),
+                    )
+                }
             }
         }
 
@@ -179,7 +184,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.opprettUtkast(gjennomforing).shouldBeRight()
 
             database.run {
-                val utdanningslop = queries.opplaringKategorisering.get(gjennomforing.id)?.utdanningslop.shouldNotBeNull()
+                val utdanningslop = context(this.session) {
+                    OpplaringKategoriseringQueries.get(gjennomforing.id)?.utdanningslop.shouldNotBeNull()
+                }
                 utdanningslop.utdanningsprogram.id.shouldBe(request.utdanningsprogramId)
                 utdanningslop.utdanninger.map { it.id }.shouldContainExactly(request.larefag?.first())
             }

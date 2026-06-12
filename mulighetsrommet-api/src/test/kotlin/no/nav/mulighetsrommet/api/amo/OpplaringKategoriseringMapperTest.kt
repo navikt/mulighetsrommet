@@ -19,28 +19,42 @@ class OpplaringKategoriseringMapperTest : FunSpec({
     }
 
     test("STUDIESPESIALISERING") {
-        val service = OpplaringKategoriseringMapper(dbListener.db)
-        jsonPrettyPrint.encodeToString(service.from(Tiltakskode.STUDIESPESIALISERING)) shouldBeEqual STUDIESPESIALISERING_JSON
+        dbListener.db.session {
+            val kodeverk =
+                context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.STUDIESPESIALISERING) }
+            jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual STUDIESPESIALISERING_JSON
+        }
     }
 
     test("NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV") {
-        val service = OpplaringKategoriseringMapper(dbListener.db)
-        jsonPrettyPrint.encodeToString(service.from(Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV)) shouldBeEqual NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON
+        dbListener.db.session {
+            val kodeverk =
+                context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV) }
+            jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON
+        }
     }
 
     test("FAG_OG_YRKESOPPLAERING") {
-        val service = OpplaringKategoriseringMapper(dbListener.db)
-        jsonPrettyPrint.encodeToString(service.from(Tiltakskode.FAG_OG_YRKESOPPLAERING)) shouldBeEqual FAG_OG_YRKESOPPLAERING_JSON
+        dbListener.db.session {
+            val kodeverk = context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.FAG_OG_YRKESOPPLAERING) }
+            jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual FAG_OG_YRKESOPPLAERING_JSON
+        }
     }
 
     test("ARBEIDSMARKEDSOPPLAERING") {
-        val service = OpplaringKategoriseringMapper(dbListener.db)
-        jsonPrettyPrint.encodeToString(service.from(Tiltakskode.ARBEIDSMARKEDSOPPLAERING)) shouldBeEqual ARBEIDSMARKEDSOPPLAERING_JSON
+        dbListener.db.session {
+            val kodeverk =
+                context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.ARBEIDSMARKEDSOPPLAERING) }
+            jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual ARBEIDSMARKEDSOPPLAERING_JSON
+        }
     }
 
     test("GRUPPE_ARBEIDSMARKEDSOPPLAERING") {
-        val service = OpplaringKategoriseringMapper(dbListener.db)
-        jsonPrettyPrint.encodeToString(service.from(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING)) shouldBeEqual GRUPPE_ARBEIDSMARKEDSOPPLAERING_JSON
+        dbListener.db.session {
+            val kodeverk =
+                context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) }
+            jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual GRUPPE_ARBEIDSMARKEDSOPPLAERING_JSON
+        }
     }
 })
 

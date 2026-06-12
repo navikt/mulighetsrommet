@@ -277,6 +277,7 @@ class GjennomforingValidatorTest : FunSpec({
         context(avtaleUtenAmokategorisering, kategoriseringCtx) {
             GjennomforingValidator.validateAmoKategorisering(
                 request.detaljer.amoKategorisering,
+                request.detaljer.utdanningslop,
             ).shouldBeLeft(
                 listOf(
                     FieldError("/avtaleId", "Du må velge en kurstype for avtalen"),
@@ -299,6 +300,7 @@ class GjennomforingValidatorTest : FunSpec({
         context(avtaleUtenAmokategorisering, kategoriseringCtx) {
             GjennomforingValidator.validateAmoKategorisering(
                 request.detaljer.amoKategorisering,
+                request.detaljer.utdanningslop,
             ).shouldBeLeft(
                 listOf(
                     FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype"),
@@ -316,12 +318,14 @@ class GjennomforingValidatorTest : FunSpec({
             ),
         )
 
-        GjennomforingValidator.validateUtdanningslop(
-            avtaleGruFag,
-            request.detaljer.utdanningslop,
-        ).shouldBeLeft(
-            listOf(FieldError("/utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
-        )
+        context(avtaleGruFag, kategoriseringCtx) {
+            GjennomforingValidator.validateAmoKategorisering(
+                request.detaljer.amoKategorisering,
+                request.detaljer.utdanningslop,
+            ).shouldBeLeft(
+                listOf(FieldError("/utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
+            )
+        }
     }
 
     test("arrangøren må være aktiv i Brreg") {

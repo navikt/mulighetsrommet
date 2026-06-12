@@ -5,9 +5,9 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
@@ -34,7 +34,6 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.time.LocalDate
@@ -225,37 +224,8 @@ class AvtaleQueries(private val session: Session) {
     }
 
     context(session: TransactionalSession)
-    private fun upsertOpplaringKategorisering(avtaleId: UUID, kategorisering: OpplaringKategoriseringDbo?) = with(session) {
-        AmoKategoriseringQueries.upsert(avtaleId, kategorisering)
-    }
-
-    private fun upsertUtdanningslop(avtaleId: UUID, utdanningslop: UtdanningslopDbo?) = withTransaction(session) {
-        @Language("PostgreSQL")
-        val deleteUtdanningslop = """
-            delete from avtale_utdanningsprogram
-            where avtale_id = ?::uuid
-        """.trimIndent()
-        execute(queryOf(deleteUtdanningslop, avtaleId))
-
-        @Language("PostgreSQL")
-        val insertUtdanningslop = """
-            insert into avtale_utdanningsprogram(
-                avtale_id,
-                utdanning_id,
-                utdanningsprogram_id
-            )
-            values(:avtale_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
-        """.trimIndent()
-        utdanningslop?.let { utdanningslop ->
-            val utdanninger = utdanningslop.utdanninger.map {
-                mapOf(
-                    "avtale_id" to avtaleId,
-                    "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
-                    "utdanning_id" to it,
-                )
-            }
-            batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
-        }
+    private fun upsertOpplaringKategorisering(avtaleId: UUID, kategorisering: OpplaringKategoriseringDbo?) = withTransaction(session) {
+        OpplaringKategoriseringQueries.upsert(avtaleId, kategorisering)
     }
 
     private fun upsertDetaljer(id: UUID, detaljer: DetaljerDbo) = withTransaction(session) {

@@ -4,9 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
@@ -326,10 +324,6 @@ class GjennomforingQueries(private val session: Session) {
             }
             batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
         }
-    }
-
-    fun setAmoKategorisering(id: UUID, kategorisering: OpplaringKategoriseringDbo?) = with(session) {
-        AmoKategoriseringQueries.upsert(id, kategorisering)
     }
 
     fun setArenaData(dbo: GjennomforingArenaDataDbo) {

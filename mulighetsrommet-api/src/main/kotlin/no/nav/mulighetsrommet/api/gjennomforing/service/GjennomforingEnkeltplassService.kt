@@ -11,9 +11,9 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
@@ -270,7 +270,7 @@ class GjennomforingEnkeltplassService(
         return deltakelser.firstOrNull()
     }
 
-    private fun QueryContext.upsert(upsert: UpsertGjennomforingEnkeltplass): GjennomforingEnkeltplass {
+    private fun TransactionalQueryContext.upsert(upsert: UpsertGjennomforingEnkeltplass): GjennomforingEnkeltplass {
         val tiltakstype = tiltakstyper.getByTiltakskode(upsert.tiltakskode)
 
         val prismodellId = upsertPrismodell(upsert.id, upsert.prismodell)
@@ -384,12 +384,14 @@ class GjennomforingEnkeltplassService(
         return dbo.id
     }
 
-    private fun QueryContext.upsertKategorisering(
+    private fun TransactionalQueryContext.upsertKategorisering(
         gjennomforingId: UUID,
         tiltakskode: Tiltakskode,
         kategorisering: OpplaringKategoriseringRequest?,
     ) {
-        val kurstyper = queries.opplaringKategorisering.getKurstyper()
+        val kurstyper = context(this.session) {
+            OpplaringKategoriseringQueries.getKurstyper()
+        }
 
         val opplaringKategoriseringDbo = when (tiltakskode) {
             Tiltakskode.ARBEIDSRETTET_REHABILITERING,
@@ -450,8 +452,8 @@ class GjennomforingEnkeltplassService(
                     },
                 )
         }
-        with(session) {
-            AmoKategoriseringQueries.upsert(
+        context(this.session) {
+            OpplaringKategoriseringQueries.upsert(
                 gjennomforingId,
                 opplaringKategoriseringDbo,
             )

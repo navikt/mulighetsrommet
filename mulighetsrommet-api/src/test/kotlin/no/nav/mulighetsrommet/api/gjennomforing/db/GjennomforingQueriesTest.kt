@@ -13,6 +13,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -426,12 +427,12 @@ class GjennomforingQueriesTest : FunSpec({
 
             database.runAndRollback {
                 queries.gjennomforing.upsert(GruppeAmo1)
-                context(this.session) { queries.gjennomforing.setAmoKategorisering(GruppeAmo1.id, kategorisering.toDbo()) }
+                context(this.session) { OpplaringKategoriseringQueries.upsert(GruppeAmo1.id, kategorisering.toDbo()) }
                 queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(GruppeAmo1.id).should {
                     it.opplaringKategorisering shouldBe kategorisering
                 }
 
-                context(this.session) { queries.gjennomforing.setAmoKategorisering(GruppeAmo1.id, null) }
+                context(this.session) { OpplaringKategoriseringQueries.upsert(GruppeAmo1.id, null) }
                 queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(GruppeAmo1.id).should {
                     it.opplaringKategorisering shouldBe null
                 }

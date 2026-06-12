@@ -6,6 +6,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringMapper
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringResponse
 import no.nav.mulighetsrommet.api.avtale.model.AvtaletypeInfo
@@ -20,7 +21,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import org.koin.ktor.ext.inject
 
 fun Route.kodeverkRoutes() {
-    val opplaringKategorisering: OpplaringKategoriseringMapper by inject()
+    val db: ApiDatabase by inject()
     val pamService: PamOntologiService by inject()
 
     route("kodeverk") {
@@ -92,7 +93,7 @@ fun Route.kodeverkRoutes() {
                     call.respond(BadRequest("Ukjent tiltakskode"))
                     return@get
                 }
-                val verk = opplaringKategorisering.from(tiltakskode)
+                val verk = db.session { context(this.session) { OpplaringKategoriseringMapper.from(tiltakskode) } }
                 call.respond(verk)
             }
 

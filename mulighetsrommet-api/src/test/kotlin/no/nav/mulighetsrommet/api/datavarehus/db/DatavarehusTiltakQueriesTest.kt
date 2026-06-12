@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
@@ -147,7 +148,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             test("studiepserialisering") {
                 database.runAndRollback {
                     domain.setup(it)
-                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, studiespesialisering.toDbo())
+                    context(this.session) { OpplaringKategoriseringQueries.upsert(amoGjennomforing.id, studiespesialisering.toDbo()) }
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.Studiespesialisering)
@@ -156,7 +157,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             test("fov") {
                 database.runAndRollback { session ->
                     domain.setup(session)
-                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, fov.toDbo())
+                    context(this.session) { OpplaringKategoriseringQueries.upsert(amoGjennomforing.id, fov.toDbo()) }
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
@@ -169,7 +170,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             test("grunnleggende ferdigheter") {
                 database.runAndRollback { session ->
                     domain.setup(session)
-                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, grunnleggende.toDbo())
+                    context(this.session) { OpplaringKategoriseringQueries.upsert(amoGjennomforing.id, grunnleggende.toDbo()) }
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull()
@@ -179,7 +180,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             test("norskopplaering") {
                 database.runAndRollback { session ->
                     domain.setup(session)
-                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, norskopplaering.toDbo())
+                    context(this.session) { OpplaringKategoriseringQueries.upsert(amoGjennomforing.id, norskopplaering.toDbo()) }
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
@@ -194,7 +195,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 database.runAndRollback { session ->
                     domain.setup(session)
                     val dbo = bransje.toDbo()
-                    queries.gjennomforing.setAmoKategorisering(amoGjennomforing.id, dbo)
+                    context(this.session) { OpplaringKategoriseringQueries.upsert(amoGjennomforing.id, dbo) }
                     val bransjeOgYrkesrettet = queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull()
