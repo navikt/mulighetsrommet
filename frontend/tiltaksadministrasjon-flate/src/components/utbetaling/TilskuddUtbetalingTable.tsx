@@ -54,9 +54,6 @@ export function TilskuddUtbetalingTable({ gjennomforingId, utbetalinger }: Props
           <Table.ColumnHeader sortKey="type" sortable>
             Type
           </Table.ColumnHeader>
-          <Table.ColumnHeader sortKey="vedtakResultat" sortable>
-            Vedtakresultat
-          </Table.ColumnHeader>
           <Table.ColumnHeader sortKey="kostnadssted" sortable>
             Kostnadssted
           </Table.ColumnHeader>
@@ -81,7 +78,6 @@ export function TilskuddUtbetalingTable({ gjennomforingId, utbetalinger }: Props
             status,
             kostnadssted,
             type,
-            vedtakResultat,
             mottaker,
             tilskuddBehandlingId,
           }) => {
@@ -90,9 +86,6 @@ export function TilskuddUtbetalingTable({ gjennomforingId, utbetalinger }: Props
                 <Table.DataCell>{formaterPeriodeStart(periode)}</Table.DataCell>
                 <Table.DataCell>{formaterPeriodeSlutt(periode)}</Table.DataCell>
                 <Table.DataCell>{opplaeringTilskuddToString(type)}</Table.DataCell>
-                <Table.DataCell>
-                  {<DataElementStatusTag {...vedtakResultat.status} />}
-                </Table.DataCell>
                 <Table.DataCell> {kostnadssted?.navn ?? "-"} </Table.DataCell>
                 <Table.DataCell>{tilskuddMottakerToString(mottaker)}</Table.DataCell>
                 <Table.DataCell align="right">
