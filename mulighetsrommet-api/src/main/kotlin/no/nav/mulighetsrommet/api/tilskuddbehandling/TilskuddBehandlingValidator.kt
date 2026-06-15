@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
@@ -18,7 +19,7 @@ import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
 object TilskuddBehandlingValidator {
-    fun validate(request: TilskuddBehandlingRequest): Validated<TilskuddBehandlingDbo> = validation {
+    fun validate(request: TilskuddBehandlingRequest, gjennomforing: Gjennomforing): Validated<TilskuddBehandlingDbo> = validation {
         validateNotNull(request.kostnadssted) {
             FieldError.of("Kostnadssted er påkrevd", TilskuddBehandlingRequest::kostnadssted)
         }
@@ -41,7 +42,13 @@ object TilskuddBehandlingValidator {
         }
         requireValid(request.soknadDato != null && request.soknadJournalpostId != null && request.kostnadssted != null && periodeStart != null && periodeSlutt != null)
         requireValid(periodeStart.isBefore(periodeSlutt)) {
-            FieldError.of("Periodestart må være før slutt", TilsagnRequest::periodeStart)
+            FieldError.of("Periodestart må være før slutt", TilskuddBehandlingRequest::periodeStart)
+        }
+        validate(gjennomforing.sluttDato == null || !periodeSlutt.isAfter(gjennomforing.sluttDato)) {
+            FieldError.of(
+                "Sluttdato kan ikke være etter gjennomføringsperioden",
+                TilskuddBehandlingRequest::periodeSlutt,
+            )
         }
 
         TilskuddBehandlingDbo(

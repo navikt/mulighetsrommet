@@ -37,8 +37,11 @@ class TilskuddBehandlingService(
         request: TilskuddBehandlingRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Unit> {
+        val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(request.gjennomforingId) }
+            ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
+
         return TilskuddBehandlingValidator
-            .validate(request)
+            .validate(request, gjennomforing)
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
