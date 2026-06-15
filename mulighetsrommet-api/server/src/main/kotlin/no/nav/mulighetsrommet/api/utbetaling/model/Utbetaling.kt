@@ -132,6 +132,8 @@ data class Utbetaling(
         }
     }
 
+    fun erGenerert() = status == UtbetalingStatusType.GENERERT
+
     fun erTilBehandling(): Boolean = when (status) {
         UtbetalingStatusType.TIL_BEHANDLING,
         UtbetalingStatusType.RETURNERT,
@@ -160,6 +162,24 @@ data class Utbetaling(
         UtbetalingStatusType.TIL_AVBRYTELSE,
         UtbetalingStatusType.AVBRUTT,
         -> false
+    }
+
+    fun kanBeregningOppdateres(): Boolean = when (beregning) {
+        is UtbetalingBeregningFri -> false
+
+        is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
+        is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
+        -> erGenerert()
+
+        // PrisPerTime-beregninger tillates å kunne "regenereres" (altså motta oppdatering på deltakere)
+        // også etter at utbetalingen er innsendt av arrangør.
+        // Dette fordi deltakere knyttet til utbetalingen ikke påvirker prisen og da ønsker vi at saksbehandlere
+        // skal se oppdaterte endringer fra deltakeroversikten så lenge utbetalingen er TIL_BEHANDLING.
+        is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
+        -> erGenerert() || erTilBehandling()
     }
 
     // TODO: sealed class i stedet for nullable properties?

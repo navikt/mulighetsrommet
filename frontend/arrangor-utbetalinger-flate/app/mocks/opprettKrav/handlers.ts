@@ -1,8 +1,7 @@
 import {
-  OpprettKravDeltakere,
+  ArrangorflateFilterType,
   ArrangorflateTiltakRadDto,
   OpprettKravData,
-  ArrangorflateFilterType,
   PaginatedResponseArrangorflateTiltakRadDto,
 } from "@arrangor-utbetalinger/api-client";
 import { http, HttpResponse, PathParams } from "msw";
@@ -11,7 +10,6 @@ import { innsendingsInformasjon } from "./innsendingsInformasjonMocks";
 import { steg } from "./opprettKravStegMocks";
 import { utbetalingsInformasjon } from "./utbetalingsInformasjonMocks";
 import { vedlegg } from "./vedleggMocks";
-import { deltakere } from "./deltakelserMocks";
 
 function opprettKravData(id: string): OpprettKravData {
   return {
@@ -43,13 +41,6 @@ export const handlers = [
     ({ params }) => {
       const { gjennomforingId } = params;
       return HttpResponse.json<OpprettKravData>(opprettKravData(gjennomforingId as string));
-    },
-  ),
-  http.get<PathParams, OpprettKravDeltakere>(
-    "*/api-proxy/api/arrangorflate/arrangor/:orgnr/gjennomforing/:gjennomforingId/opprett-krav/deltakere",
-    ({ params }) => {
-      const { gjennomforingId } = params;
-      return HttpResponse.json<OpprettKravDeltakere>(deltakere[gjennomforingId as string]);
     },
   ),
 ];

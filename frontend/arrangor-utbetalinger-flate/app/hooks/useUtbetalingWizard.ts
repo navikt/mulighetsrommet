@@ -55,10 +55,13 @@ function resolveSteps(utbetaling: ArrangorflateUtbetalingDto): Step[] {
     steps.push({ name: "Deltakere", path: "deltakere" });
   }
 
-  steps.push(
-    { name: "Betalingsinformasjon", path: "betalingsinformasjon" },
-    { name: "Oppsummering", path: "oppsummering" },
-  );
+  steps.push({ name: "Betalingsinformasjon", path: "betalingsinformasjon" });
+
+  if (utbetaling.beregning.pris.type === "KREVER_REGISTRERING") {
+    steps.push({ name: "Vedlegg", path: "vedlegg" });
+  }
+
+  steps.push({ name: "Oppsummering", path: "oppsummering" });
 
   return steps;
 }
