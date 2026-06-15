@@ -98,8 +98,9 @@ class UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManedTest : FunSpec({
         val gjennomforing = createGjennomforingForForhandsgodkjentSatsPerAvtaltTiltaksplass(periode = januar)
         // Tilsagn for 30/31 dager i januar og 14/28 dager i februar
         val periode = Periode(LocalDate.of(2025, 1, 2), LocalDate.of(2025, 2, 15))
-        // En månedspris på 1000 NOK per plass og 2 plasser tilsvarer totalt 2935 (30/31*2*1000 + 14/28*2*1000)
-        val belop = UtbetalingBeregningHelpers.calculateManedsverkBelop(periode, 1000.NOK, 2) shouldBe 2935.NOK
+        // Totalt 30/31*2*1000 + 14/28*2*1000 = 1935.483 + 1000 = 2935
+        val months = UtbetalingBeregningHelpers.calculateMonthsInPeriode(periode)
+        val belop = UtbetalingBeregningHelpers.multiplyBySatsAndPlasser(months, 1000.NOK, 2) shouldBe 2935.NOK
         val tilsagn = createTilsagn(gjennomforing, periode, belop)
 
         // 2935 (beløp) * 0.967.. (brøk i januar) / 1.467.. (totalt antall måneder i tilsagnet) = 1935.164.. -> 1935
@@ -113,8 +114,11 @@ class UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManedTest : FunSpec({
 
     test("avrundingsrest tilfaller første delmåned når den har størst brøkdel av tilsagnets måneder") {
         val gjennomforing = createGjennomforingForForhandsgodkjentSatsPerAvtaltTiltaksplass(periode = januar)
+        // Tilsagn for 29/31 dager i januar og 14/28 dager i februar
         val periode = Periode(LocalDate.of(2025, 1, 3), LocalDate.of(2025, 2, 15))
-        val belop = UtbetalingBeregningHelpers.calculateManedsverkBelop(periode, 999.NOK, 3) shouldBe 4302.NOK
+        // Totalt 29/31*2*999 + 14/28*2*99 = 2817.645 + 1498.5 = 4302
+        val months = UtbetalingBeregningHelpers.calculateMonthsInPeriode(periode)
+        val belop = UtbetalingBeregningHelpers.multiplyBySatsAndPlasser(months, 999.NOK, 3) shouldBe 4302.NOK
         val tilsagn = createTilsagn(gjennomforing, periode, belop)
 
         // 4302 (beløp) * 0.935.. (brøk i januar) / 1.435.. (totalt antall måneder i tilsagnet) = 2803.645.. -> 2804 (inkludert restbeløp)

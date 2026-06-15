@@ -38,6 +38,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utbetaling.service.erBeslutter
 import no.nav.mulighetsrommet.api.utbetaling.service.erSaksbehandler
 import no.nav.mulighetsrommet.model.Agent
@@ -86,6 +88,10 @@ class TilsagnService(
         val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
 
         val previous = queries.tilsagn.get(request.id)
+        val stengt = when (gjennomforing) {
+            is GjennomforingAvtale -> gjennomforing.stengt
+            is GjennomforingEnkeltplass -> listOf()
+        }
         return TilsagnValidator
             .validate(
                 next = request,
@@ -95,6 +101,7 @@ class TilsagnService(
                 gyldigTilsagnPeriode = config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode],
                 gjennomforingSluttDato = gjennomforing.sluttDato,
                 prismodell = gjennomforing.prismodell,
+                stengt = stengt,
             )
             .map { validated ->
                 val lopenummer = previous?.lopenummer
@@ -195,6 +202,7 @@ class TilsagnService(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
                                 antallPlasser = fallback.antallPlasser,
+                                stengt = fallback.stengt,
                             ),
                         )
                     }
@@ -207,6 +215,7 @@ class TilsagnService(
                                 sats = fallback.sats,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
+                                stengt = fallback.stengt,
                             ),
                         )
                     }
@@ -219,6 +228,7 @@ class TilsagnService(
                                 sats = fallback.sats,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
+                                stengt = fallback.stengt,
                             ),
                         )
                     }
@@ -231,6 +241,7 @@ class TilsagnService(
                                 sats = fallback.sats,
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
+                                stengt = fallback.stengt,
                             ),
                         )
                     }
@@ -259,6 +270,7 @@ class TilsagnService(
         val antallPlasser: Int,
         val antallTimerOppfolgingPerDeltaker: Int,
         val prisbetingelser: String?,
+        val stengt: Set<StengtPeriode>,
     )
 
     private fun beregnTilsagnFallbackResolver(request: BeregnTilsagnRequest): TilsagnBeregningFallbackResolver? = db.session {
@@ -266,12 +278,17 @@ class TilsagnService(
             return null
         }
 
-        val prismodell = queries.gjennomforing.getPrismodellOrError(request.gjennomforingId)
-        val avtaltSats = prismodell.findAvtaltSats(request.periodeStart)
+        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
+        val avtaltSats = gjennomforing.prismodell.findAvtaltSats(request.periodeStart)
 
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0
         val antallTimerOppfolgingPerDeltakerFallback = request.beregning.antallTimerOppfolgingPerDeltaker ?: 0
         val periode = Periode.fromInclusiveDates(request.periodeStart, request.periodeSlutt)
+
+        val stengt = when (gjennomforing) {
+            is GjennomforingAvtale -> UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)
+            is GjennomforingEnkeltplass -> setOf()
+        }
 
         return TilsagnBeregningFallbackResolver(
             sats = avtaltSats?.sats ?: ValutaBelop(0, Valuta.NOK),
@@ -279,6 +296,7 @@ class TilsagnService(
             antallPlasser = antallPlasserFallback,
             antallTimerOppfolgingPerDeltaker = antallTimerOppfolgingPerDeltakerFallback,
             prisbetingelser = request.beregning.prisbetingelser,
+            stengt = stengt,
         )
     }
 

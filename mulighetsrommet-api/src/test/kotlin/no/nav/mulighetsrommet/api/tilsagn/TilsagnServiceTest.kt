@@ -26,7 +26,9 @@ import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
@@ -892,6 +894,41 @@ class TilsagnServiceTest : FunSpec({
                     it.behandletAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt1)
                     it.besluttetAv shouldBe OkonomiPart.NavAnsatt(navIdent = ansatt2)
                 }
+        }
+    }
+
+    context("beregnTilsagnUnvalidated") {
+        test("stengt periode som overlapper med tilsagnsperiode inkluderes, periode utenfor filtreres bort") {
+            val service = createTilsagnService()
+
+            database.run {
+                queries.gjennomforing.setStengtHosArrangor(
+                    GjennomforingFixtures.AFT1.id,
+                    Periode.fromInclusiveDates(LocalDate.of(2024, 12, 15), LocalDate.of(2025, 1, 14)),
+                    "Juleferie som strekker seg inn i januar",
+                )
+            }
+
+            val beregning = service.beregnTilsagnUnvalidated(
+                BeregnTilsagnRequest(
+                    gjennomforingId = GjennomforingFixtures.AFT1.id,
+                    periodeStart = LocalDate.of(2025, 1, 1),
+                    periodeSlutt = LocalDate.of(2025, 1, 31),
+                    beregning = TilsagnBeregningRequest(
+                        type = TilsagnBeregningType.PRIS_PER_MANEDSVERK,
+                        antallPlasser = 1,
+                        valuta = Valuta.NOK,
+                    ),
+                ),
+            )
+
+            beregning.shouldBeTypeOf<TilsagnBeregningPrisPerManedsverk>().should {
+                it.input.stengt shouldHaveSize 1
+                it.input.stengt.first().periode shouldBe Periode.fromInclusiveDates(
+                    LocalDate.of(2025, 1, 1),
+                    LocalDate.of(2025, 1, 14),
+                )
+            }
         }
     }
 })

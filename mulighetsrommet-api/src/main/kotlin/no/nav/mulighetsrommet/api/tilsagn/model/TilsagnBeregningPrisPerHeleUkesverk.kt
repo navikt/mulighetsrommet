@@ -2,11 +2,10 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.model.withValuta
-import java.math.RoundingMode
 
 @Serializable
 @SerialName("PRIS_PER_HELE_UKESVERK")
@@ -22,6 +21,7 @@ data class TilsagnBeregningPrisPerHeleUkesverk(
         val sats: ValutaBelop,
         val antallPlasser: Int,
         val prisbetingelser: String?,
+        val stengt: Set<StengtPeriode>,
     ) : TilsagnBeregningInput()
 
     @Serializable
@@ -32,14 +32,17 @@ data class TilsagnBeregningPrisPerHeleUkesverk(
 
     companion object {
         fun beregn(input: Input): TilsagnBeregningPrisPerHeleUkesverk {
-            val (periode, sats, antallPlasser) = input
+            val aktivePerioder = input.periode.subtractPeriods(input.stengt.map { it.periode })
 
-            val belop = UtbetalingBeregningHelpers.calculateWholeWeeksInPeriode(periode)
-                .multiply(sats.belop.toBigDecimal())
-                .multiply(antallPlasser.toBigDecimal())
-                .setScale(0, RoundingMode.HALF_UP)
-                .intValueExact()
-                .withValuta(sats.valuta)
+            val totalWholeWeeks = aktivePerioder
+                .map { UtbetalingBeregningHelpers.calculateWholeWeeksInPeriode(it) }
+                .sumOf { it }
+
+            val belop = UtbetalingBeregningHelpers.multiplyBySatsAndPlasser(
+                totalWholeWeeks,
+                input.sats,
+                input.antallPlasser,
+            )
 
             return TilsagnBeregningPrisPerHeleUkesverk(input, Output(belop))
         }

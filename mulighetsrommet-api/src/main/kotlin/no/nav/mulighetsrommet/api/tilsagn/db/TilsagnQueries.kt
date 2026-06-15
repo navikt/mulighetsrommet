@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
@@ -179,6 +180,15 @@ class TilsagnQueries(private val session: Session) {
         if (dbo.beregning is TilsagnBeregningFri) {
             upsertTilsagnBeregningFriLinjer(dbo.id, dbo.beregning.input.linjer)
         }
+
+        val stengt = when (dbo.beregning) {
+            is TilsagnBeregningPrisPerManedsverk -> dbo.beregning.input.stengt
+            is TilsagnBeregningPrisPerUkesverk -> dbo.beregning.input.stengt
+            is TilsagnBeregningPrisPerHeleUkesverk -> dbo.beregning.input.stengt
+            is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> dbo.beregning.input.stengt
+            is TilsagnBeregningFri, is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> setOf()
+        }
+        upsertTilsagnStengtePerioder(dbo.id, stengt)
     }
 
     private fun TransactionalSession.upsertTilsagnDeltakere(
@@ -257,6 +267,49 @@ class TilsagnQueries(private val session: Session) {
         }
 
         batchPreparedNamedStatement(query, paramCollection)
+    }
+
+    private fun TransactionalSession.upsertTilsagnStengtePerioder(
+        tilsagnId: UUID,
+        stengt: Set<StengtPeriode>,
+    ) {
+        @Language("PostgreSQL")
+        val deleteQuery = """
+            delete from tilsagn_stengt_periode
+            where tilsagn_id = ?::uuid
+        """.trimIndent()
+        execute(queryOf(deleteQuery, tilsagnId))
+
+        if (stengt.isEmpty()) return
+
+        @Language("PostgreSQL")
+        val insertQuery = """
+            insert into tilsagn_stengt_periode (tilsagn_id, periode, beskrivelse)
+            values (:tilsagn_id::uuid, :periode::daterange, :beskrivelse)
+        """.trimIndent()
+        val perioder = stengt.map {
+            mapOf(
+                "tilsagn_id" to tilsagnId,
+                "periode" to it.periode.toDaterange(),
+                "beskrivelse" to it.beskrivelse,
+            )
+        }
+        batchPreparedNamedStatement(insertQuery, perioder)
+    }
+
+    private fun getTilsagnStengtePerioder(tilsagnId: UUID): Set<StengtPeriode> {
+        @Language("PostgreSQL")
+        val query = """
+            select periode, beskrivelse
+            from tilsagn_stengt_periode
+            where tilsagn_id = ?::uuid
+        """.trimIndent()
+        return session.list(queryOf(query, tilsagnId)) {
+            StengtPeriode(
+                periode = it.periode("periode"),
+                beskrivelse = it.string("beskrivelse"),
+            )
+        }.toSet()
     }
 
     fun setBruktBelop(id: UUID, belop: ValutaBelop) {
@@ -530,6 +583,7 @@ class TilsagnQueries(private val session: Session) {
                     periode = periode("periode"),
                     sats = int("beregning_sats").withValuta(valuta),
                     antallPlasser = int("beregning_antall_plasser"),
+                    stengt = getTilsagnStengtePerioder(id),
                 ),
                 output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -542,6 +596,7 @@ class TilsagnQueries(private val session: Session) {
                     sats = int("beregning_sats").withValuta(valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                    stengt = getTilsagnStengtePerioder(id),
                 ),
                 output = TilsagnBeregningPrisPerManedsverk.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -554,6 +609,7 @@ class TilsagnQueries(private val session: Session) {
                     sats = ValutaBelop(int("beregning_sats"), valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                    stengt = getTilsagnStengtePerioder(id),
                 ),
                 output = TilsagnBeregningPrisPerUkesverk.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -566,6 +622,7 @@ class TilsagnQueries(private val session: Session) {
                     sats = int("beregning_sats").withValuta(valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                    stengt = getTilsagnStengtePerioder(id),
                 ),
                 output = TilsagnBeregningPrisPerHeleUkesverk.Output(
                     pris = int("belop_beregnet").withValuta(valuta),

@@ -757,6 +757,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                         periode = januar,
                         sats = 7_321.NOK,
                         antallPlasser = 1,
+                        stengt = setOf(),
                     ),
                     output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(pris = 7_321.NOK),
                 ),

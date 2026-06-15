@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerHeleUkesv
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
@@ -99,6 +100,7 @@ data class TilsagnBeregningDto(
                         antallPlasser = beregning.input.antallPlasser,
                         sats = beregning.input.sats,
                         periode = beregning.input.periode,
+                        stengt = beregning.input.stengt,
                         sum = beregning.output.pris,
                     ),
                 )
@@ -121,6 +123,7 @@ data class TilsagnBeregningDto(
                         antallPlasser = beregning.input.antallPlasser,
                         sats = beregning.input.sats,
                         periode = beregning.input.periode,
+                        stengt = beregning.input.stengt,
                         sum = beregning.output.pris,
                     ),
                 )
@@ -150,7 +153,10 @@ data class TilsagnBeregningDto(
                             DataElement.text("per tiltaksplass per uke"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.number(
-                                UtbetalingBeregningHelpers.calculateWeeksInPeriode(beregning.input.periode).toDouble(),
+                                beregning.input.periode
+                                    .subtractPeriods(beregning.input.stengt.map { it.periode })
+                                    .sumOf { UtbetalingBeregningHelpers.calculateWeeksInPeriode(it) }
+                                    .toDouble(),
                             ),
                             DataElement.text("uker"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
@@ -184,7 +190,9 @@ data class TilsagnBeregningDto(
                             DataElement.text("per tiltaksplass per uke"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.number(
-                                UtbetalingBeregningHelpers.calculateWholeWeeksInPeriode(beregning.input.periode)
+                                beregning.input.periode
+                                    .subtractPeriods(beregning.input.stengt.map { it.periode })
+                                    .sumOf { UtbetalingBeregningHelpers.calculateWholeWeeksInPeriode(it) }
                                     .toDouble(),
                             ),
                             DataElement.text("uker"),
@@ -240,23 +248,29 @@ private fun getRegnestykkeManedsverk(
     antallPlasser: Int,
     sats: ValutaBelop,
     periode: Periode,
+    stengt: Set<StengtPeriode>,
     sum: ValutaBelop,
-) = CalculationDto(
-    expression = listOf(
-        DataElement.number(antallPlasser),
-        DataElement.text("plasser"),
-        DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
-        DataElement.money(sats),
-        DataElement.text("per tiltaksplass per måned"),
-        DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
-        DataElement.number(
-            UtbetalingBeregningHelpers.calculateMonthsInPeriode(periode).toDouble(),
+): CalculationDto {
+    val aktivePerioder = periode.subtractPeriods(stengt.map { it.periode })
+    val totalMonths = aktivePerioder
+        .sumOf { UtbetalingBeregningHelpers.calculateMonthsInPeriode(it) }
+        .toDouble()
+
+    return CalculationDto(
+        expression = listOf(
+            DataElement.number(antallPlasser),
+            DataElement.text("plasser"),
+            DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+            DataElement.money(sats),
+            DataElement.text("per tiltaksplass per måned"),
+            DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
+            DataElement.number(totalMonths),
+            DataElement.text("måneder"),
+            DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
+            DataElement.money(sum),
         ),
-        DataElement.text("måneder"),
-        DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
-        DataElement.money(sum),
-    ),
-)
+    )
+}
 
 @Serializable
 data class CalculationDto(

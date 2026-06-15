@@ -190,6 +190,7 @@ class TilsagnQueriesTest : FunSpec({
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100.NOK,
+                        stengt = setOf(),
                     ),
                     output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
                         pris = 1000.NOK,
@@ -211,6 +212,7 @@ class TilsagnQueriesTest : FunSpec({
                         antallPlasser = 10,
                         sats = 100.NOK,
                         prisbetingelser = "Per måned",
+                        stengt = setOf(),
                     ),
                     output = TilsagnBeregningPrisPerManedsverk.Output(
                         pris = 1000.NOK,
@@ -232,6 +234,7 @@ class TilsagnQueriesTest : FunSpec({
                         antallPlasser = 10,
                         sats = 100.NOK,
                         prisbetingelser = "Per uke",
+                        stengt = setOf(),
                     ),
                     output = TilsagnBeregningPrisPerUkesverk.Output(
                         pris = 1000.NOK,
@@ -253,6 +256,7 @@ class TilsagnQueriesTest : FunSpec({
                         antallPlasser = 10,
                         sats = 100.NOK,
                         prisbetingelser = "Per uke",
+                        stengt = setOf(),
                     ),
                     output = TilsagnBeregningPrisPerHeleUkesverk.Output(
                         1000.NOK,

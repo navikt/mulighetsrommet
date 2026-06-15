@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
@@ -14,6 +15,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             sats = 100.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 100.NOK
@@ -25,6 +27,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             sats = 100.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 100.NOK
@@ -36,6 +39,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             sats = 100.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 0.NOK
@@ -47,6 +51,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             sats = 100.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 460.NOK
@@ -58,9 +63,40 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             sats = 100.NOK,
             antallPlasser = 10,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 4600.NOK
+    }
+
+    test("stengt hele perioden gir 0 i beløp") {
+        val periode = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 13))
+        val input = TilsagnBeregningPrisPerUkesverk.Input(
+            periode = periode,
+            sats = 100.NOK,
+            antallPlasser = 1,
+            prisbetingelser = null,
+            stengt = setOf(StengtPeriode(periode, "Ukestengt")),
+        )
+
+        TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 0.NOK
+    }
+
+    test("stengt i deler av perioden gir redusert beløp") {
+        val input = TilsagnBeregningPrisPerUkesverk.Input(
+            periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+            sats = 100.NOK,
+            antallPlasser = 1,
+            prisbetingelser = null,
+            stengt = setOf(
+                StengtPeriode(
+                    Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 13)),
+                    "Uke 2 stengt",
+                ),
+            ),
+        )
+
+        TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 360.NOK
     }
 
     test("overflow kaster exception") {
@@ -71,6 +107,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
                 sats = 20205.NOK,
                 antallPlasser = Int.MAX_VALUE,
                 prisbetingelser = null,
+                stengt = setOf(),
             )
 
             TilsagnBeregningPrisPerUkesverk.beregn(input)
@@ -83,6 +120,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
                 sats = 20205.NOK,
                 antallPlasser = 9500,
                 prisbetingelser = null,
+                stengt = setOf(),
             )
 
             TilsagnBeregningPrisPerUkesverk.beregn(input)

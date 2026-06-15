@@ -215,7 +215,11 @@ object UtbetalingBeregningHelpers {
         return UtbetalingBeregningOutputDeltakelse(deltakelse.deltakelseId, kombinertePerioder)
     }
 
-    fun calculateManedsverkBelop(periode: Periode, sats: ValutaBelop, antallPlasser: Int): ValutaBelop = calculateMonthsInPeriode(periode)
+    fun multiplyBySatsAndPlasser(
+        amount: BigDecimal,
+        sats: ValutaBelop,
+        antallPlasser: Int,
+    ): ValutaBelop = amount
         .multiply(BigDecimal(sats.belop))
         .multiply(BigDecimal(antallPlasser))
         .setScale(0, RoundingMode.HALF_UP)

@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
@@ -15,6 +16,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             sats = 20205.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(input).output.pris shouldBe 20205.NOK
@@ -26,6 +28,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             sats = 20205.NOK,
             antallPlasser = 6,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(input).output.pris shouldBe 121230.NOK
@@ -37,6 +40,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             sats = 19500.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(input).output.pris shouldBe 9750.NOK
@@ -48,6 +52,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             sats = 20205.NOK,
             antallPlasser = 10,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(input).output.pris shouldBe 303075.NOK
@@ -59,6 +64,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             sats = 20205.NOK,
             antallPlasser = 0,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         TilsagnBeregningPrisPerManedsverk.beregn(input).output.pris shouldBe 0.NOK
@@ -70,6 +76,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             sats = 20205.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         // 28 / 28 * 20205 = 20205
@@ -80,10 +87,48 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
             sats = 20205.NOK,
             antallPlasser = 1,
             prisbetingelser = null,
+            stengt = setOf(),
         )
 
         // 28 / 29 * 20205 = 19508.27...
         TilsagnBeregningPrisPerManedsverk.beregn(skuddar).output.pris shouldBe 19508.NOK
+    }
+
+    test("stengt hele perioden gir 0 i beløp") {
+        val periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1))
+        val input = TilsagnBeregningPrisPerManedsverk.Input(
+            periode = periode,
+            sats = 20205.NOK,
+            antallPlasser = 1,
+            prisbetingelser = null,
+            stengt = setOf(StengtPeriode(periode, "Juleferie")),
+        )
+
+        TilsagnBeregningPrisPerManedsverk.beregn(input).output.pris shouldBe 0.NOK
+    }
+
+    test("stengt halve perioden halverer beløpet") {
+        val input = TilsagnBeregningPrisPerManedsverk.Input(
+            periode = Periode.fromInclusiveDates(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 2, 29)),
+            sats = 20205.NOK,
+            antallPlasser = 1,
+            prisbetingelser = null,
+            stengt = setOf(StengtPeriode(Periode.forMonthOf(LocalDate.of(2024, 2, 1)), "Vinterstengt")),
+        )
+
+        TilsagnBeregningPrisPerManedsverk.beregn(input).output.pris shouldBe 20205.NOK
+    }
+
+    test("stengt periode som ikke overlapper med tilsagnperiode påvirker ikke beløpet") {
+        val input = TilsagnBeregningPrisPerManedsverk.Input(
+            periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
+            sats = 20205.NOK,
+            antallPlasser = 1,
+            prisbetingelser = null,
+            stengt = setOf(StengtPeriode(Periode.forMonthOf(LocalDate.of(2024, 3, 1)), "Utenfor periode")),
+        )
+
+        TilsagnBeregningPrisPerManedsverk.beregn(input).output.pris shouldBe 20205.NOK
     }
 
     test("overflow kaster exception") {
@@ -94,6 +139,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
                 sats = 20205.NOK,
                 antallPlasser = Int.MAX_VALUE,
                 prisbetingelser = null,
+                stengt = setOf(),
             )
 
             TilsagnBeregningPrisPerManedsverk.beregn(input)
@@ -106,6 +152,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
                 sats = 20205.NOK,
                 antallPlasser = 9500,
                 prisbetingelser = null,
+                stengt = setOf(),
             )
 
             TilsagnBeregningPrisPerManedsverk.beregn(input)
@@ -119,6 +166,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
                 sats = 20205.NOK,
                 antallPlasser = 1,
                 prisbetingelser = null,
+                stengt = setOf(),
             )
 
             // 1/31 * 20205 = 651.7
@@ -133,6 +181,7 @@ class TilsagnBeregningPrisPerManedsverkTest : FunSpec({
                 sats = 20205.NOK,
                 antallPlasser = 1,
                 prisbetingelser = null,
+                stengt = setOf(),
             )
 
             // 1/21 * 20205 = 962.1
