@@ -7,6 +7,8 @@ interface GodkjennUtbetalingParams {
   id: string;
   updatedAt: string;
   kid: string | null;
+  belop: number | null;
+  vedlegg: File[] | null;
 }
 
 interface GodkjennUtbetalingResult {
@@ -22,10 +24,12 @@ export function useGodkjennUtbetaling() {
       id,
       updatedAt,
       kid,
+      belop,
+      vedlegg,
     }: GodkjennUtbetalingParams): Promise<GodkjennUtbetalingResult> => {
       const result = await ArrangorflateService.godkjennUtbetaling({
         path: { id },
-        body: { updatedAt, kid },
+        body: { updatedAt, kid, belop, vedlegg },
         client: queryClient,
       });
 

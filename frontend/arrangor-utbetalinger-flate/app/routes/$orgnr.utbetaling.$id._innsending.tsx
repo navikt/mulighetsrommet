@@ -1,4 +1,4 @@
-import { Link as ReactRouterLink, Outlet } from "react-router";
+import { Link as ReactRouterLink, Outlet, useLocation } from "react-router";
 import { Suspense } from "react";
 import { Box, Button, Hide, HStack, Link, Stepper, VStack } from "@navikt/ds-react";
 import { Laster } from "~/components/common/Laster";
@@ -12,6 +12,10 @@ export default function InnsendingLayout() {
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
 
   const wizard = useUtbetalingWizard(utbetaling);
+  const location = useLocation();
+  const currentPath = location.pathname.split("/").pop();
+
+  const stepHandlesOwnNavigation = currentPath === "belop-og-vedlegg";
 
   return (
     <VStack gap="space-16" justify="center">
@@ -40,7 +44,7 @@ export default function InnsendingLayout() {
           <Outlet />
         </Suspense>
 
-        {!wizard.isLastStep && (
+        {!wizard.isLastStep && !stepHandlesOwnNavigation && (
           <HStack gap="space-16" marginBlock="space-16 space-0">
             {wizard.isFirstStep ? (
               <Button
@@ -56,7 +60,7 @@ export default function InnsendingLayout() {
                 Tilbake
               </Button>
             )}
-            <Button onClick={wizard.goToNext}>Neste</Button>
+            <Button onClick={() => wizard.goToNext()}>Neste</Button>
           </HStack>
         )}
       </Box>

@@ -36,6 +36,7 @@ import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -43,6 +44,13 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.util.UUID
+
+data class GodkjennUtbetaling(
+    val utbetalingId: UUID,
+    val kid: Kid? = null,
+    val belop: Int? = null,
+    val vedlegg: List<Vedlegg> = listOf(),
+)
 
 class ArrangorflateUtbetalingService(
     private val db: ApiDatabase,
@@ -58,11 +66,6 @@ class ArrangorflateUtbetalingService(
 
     fun getOrError(id: UUID): ArrangorflateUtbetaling = db.session {
         return queries.arrangorflate.utbetaling.getOrError(id)
-    }
-
-    fun getAvtaltPrisPerTimeOppfolgingData(gjennomforingId: UUID, periode: Periode): AvtaltPrisPerTimeOppfolgingData = db.session {
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforingId)
-        return getAvtaltPrisPerTimeOppfolgingData(gjennomforing, periode)
     }
 
     suspend fun opprettUtbetaling(
@@ -85,12 +88,11 @@ class ArrangorflateUtbetalingService(
     }
 
     fun godkjentAvArrangor(
-        utbetalingId: UUID,
-        kid: Kid?,
+        command: GodkjennUtbetaling,
         today: LocalDate = LocalDate.now(),
     ): Validated<AutomatisertUtbetalingResult> {
         val result = db.transaction {
-            val utbetaling = getOrError(utbetalingId)
+            val utbetaling = getOrError(command.utbetalingId)
             if (utbetaling.periode.slutt > today) {
                 return FieldError.of("Utbetalingen kan ikke godkjennes før perioden er passert").nel().left()
             }
@@ -118,23 +120,36 @@ class ArrangorflateUtbetalingService(
             if (utbetaling.blokkeringer.isNotEmpty()) {
                 return FieldError.of("Utbetalingen kan ikke godkjennes fordi det finnes blokkeringer.").nel().left()
             }
-            scheduleJournalforUtbetaling(utbetalingId, listOf())
-            utbetalingService.godkjentAvArrangor(utbetaling.id, kid)
+
+            if (command.belop != null) {
+                val beregning = utbetaling.beregning as? UtbetalingBeregningAvtaltPrisPerTimeOppfolging
+                    ?: return FieldError.of("Utbetalingen støtter ikke registrering av pris").nel().left()
+                val pris = command.belop.withValuta(utbetaling.valuta)
+                val oppdatertBeregning = beregning.copy(
+                    input = beregning.input.copy(pris = pris),
+                    output = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Output(pris),
+                )
+                utbetalingService.oppdaterBeregning(command.utbetalingId, oppdatertBeregning, Arrangor)
+            }
+
+            scheduleJournalforUtbetaling(command.utbetalingId, command.vedlegg)
+
+            utbetalingService.godkjentAvArrangor(utbetaling.id, command.kid)
         }
 
-        return result.map { tryAutomatisertUtbetaling(utbetalingId) }
+        return result.map { tryAutomatisertUtbetaling(command.utbetalingId) }
     }
 
     fun avbrytUtbetaling(
         utbetalingId: UUID,
         begrunnelse: String,
-    ): Either<List<FieldError>, Unit> = db.transaction {
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
         val utbetaling = getOrError(utbetalingId)
         if (arrangorAvbrytStatus(utbetaling) != ArrangorAvbrytStatus.ACTIVATED) {
             return FieldError.of("Utbetalingen kan ikke avbrytes").nel().left()
         }
 
-        utbetalingService.avbrytUtbetaling(utbetaling.id, begrunnelse, Arrangor).map { Unit }
+        utbetalingService.avbrytUtbetaling(utbetaling.id, begrunnelse, Arrangor)
     }
 
     suspend fun regenererUtbetaling(
@@ -178,11 +193,6 @@ class ArrangorflateUtbetalingService(
             -> Pair(Tilskuddstype.TILTAK_DRIFTSTILSKUDD, UtbetalingBeregningFri.from(opprett.pris)).right()
 
             is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
-            -> Pair(
-                Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
-                getBeregningPrisPerTimeOppfolging(opprett, gjennomforing),
-            ).right()
-
             is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
             is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
             is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
@@ -191,14 +201,6 @@ class ArrangorflateUtbetalingService(
             is Prismodell.IngenKostnader,
             -> FieldError.of("Kan ikke opprette utbetaling for denne tiltaksgjennomføringen").nel().left()
         }
-    }
-
-    private fun QueryContext.getBeregningPrisPerTimeOppfolging(
-        opprett: ArrangorflateOpprettUtbetaling,
-        gjennomforing: GjennomforingAvtale,
-    ): UtbetalingBeregningAvtaltPrisPerTimeOppfolging {
-        val (satser, stengt, _, deltakelser) = getAvtaltPrisPerTimeOppfolgingData(gjennomforing, opprett.periode)
-        return UtbetalingBeregningAvtaltPrisPerTimeOppfolging.from(satser, stengt, deltakelser, opprett.pris)
     }
 
     private fun QueryContext.getAvtaltPrisPerTimeOppfolgingData(

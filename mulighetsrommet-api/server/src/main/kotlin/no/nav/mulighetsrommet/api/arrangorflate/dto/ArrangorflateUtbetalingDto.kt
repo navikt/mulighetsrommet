@@ -59,6 +59,7 @@ data class ArrangorflateUtbetalingDto(
     val blokkeringer: Set<Utbetaling.Blokkering>,
     @Serializable(with = UUIDSerializer::class)
     val regenerertId: UUID?,
+    val kanRegistrerePris: Boolean,
 )
 
 @Serializable

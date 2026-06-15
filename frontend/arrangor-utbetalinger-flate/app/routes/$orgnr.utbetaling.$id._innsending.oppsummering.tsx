@@ -41,7 +41,7 @@ export default function BekreftUtbetaling() {
   const id = useIdFromUrl();
   const orgnr = useOrgnrFromUrl();
   const navigate = useNavigate();
-  const { updatedAt } = useLocation().state || {};
+  const { updatedAt, belop, vedlegg } = useLocation().state || {};
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
   const syncKontonummer = useSyncKontonummer(id);
@@ -56,9 +56,11 @@ export default function BekreftUtbetaling() {
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const hasError = errors.length > 0;
 
-  const handleHentKontonummer = () => {
-    syncKontonummer.mutate();
-  };
+  useEffect(() => {
+    if (hasError) {
+      errorSummaryRef.current?.focus();
+    }
+  }, [hasError]);
 
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
@@ -87,6 +89,8 @@ export default function BekreftUtbetaling() {
       id: id,
       updatedAt: updatedAt,
       kid: kid || null,
+      belop: utbetaling.kanRegistrerePris && belop != null ? belop : null,
+      vedlegg: utbetaling.kanRegistrerePris && vedlegg ? vedlegg : null,
     });
 
     if (result.errors) {
@@ -95,12 +99,6 @@ export default function BekreftUtbetaling() {
       navigate(pathTo.kvittering(orgnr, id));
     }
   };
-
-  useEffect(() => {
-    if (hasError) {
-      errorSummaryRef.current?.focus();
-    }
-  }, [hasError]);
 
   return (
     <>
@@ -126,10 +124,24 @@ export default function BekreftUtbetaling() {
         ]}
       />
       <Separator />
+      {utbetaling.kanRegistrerePris ? (
+        <VStack gap="space-4">
+          <Definisjonsliste
+            definitions={[
+              { key: "Beløp", value: `${belop} kr` },
+              {
+                key: "Vedlegg",
+                value: (vedlegg ?? []).map((file: File) => file.name).join(", "),
+              },
+            ]}
+          />
+        </VStack>
+      ) : (
       <SatsPerioderOgBelop
-        pris={utbetaling.beregning.pris}
-        satsDetaljer={utbetaling.beregning.satsDetaljer}
-      />
+          pris={utbetaling.beregning.pris}
+          satsDetaljer={utbetaling.beregning.satsDetaljer}
+        />
+      )}
       <Separator />
       <form onSubmit={handleSubmit}>
         <Box marginBlock="space-0 space-16">
@@ -140,7 +152,7 @@ export default function BekreftUtbetaling() {
             <KontonummerInput
               kontonummer={utbetaling.betalingsinformasjon?.kontonummer ?? undefined}
               error={errors.find((error) => error.pointer === "/kontonummer")?.detail}
-              onClick={() => handleHentKontonummer()}
+              onClick={() => syncKontonummer.mutate()}
             />
             <TextField
               label="KID-nummer for utbetaling (valgfritt)"

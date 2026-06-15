@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPe
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
@@ -104,6 +105,8 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
         kanRegenereres = kanRegenereres,
         regenerertId = regenerertId,
         blokkeringer = utbetaling.blokkeringer,
+        kanRegistrerePris = utbetaling.beregning is UtbetalingBeregningAvtaltPrisPerTimeOppfolging &&
+            utbetaling.status == UtbetalingStatusType.GENERERT,
     )
 }
 

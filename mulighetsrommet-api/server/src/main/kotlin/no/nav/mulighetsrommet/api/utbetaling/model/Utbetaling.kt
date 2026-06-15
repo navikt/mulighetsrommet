@@ -162,6 +162,24 @@ data class Utbetaling(
         -> false
     }
 
+    fun kanRegenereres(): Boolean = when (beregning) {
+        is UtbetalingBeregningFri -> false
+
+        is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
+        is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
+        -> status == UtbetalingStatusType.GENERERT
+
+        // PrisPerTime-beregninger tillates å kunne "regenereres" (altså motta oppdatering på deltakere)
+        // også etter at utbetalingen er innsendt av arrangør.
+        // Dette fordi deltakere knyttet til utbetalingen ikke påvirker prisen og da ønsker vi at saksbehandlere
+        // skal se oppdaterte endringer fra deltakeroversikten så lenge utbetalingen er TIL_BEHANDLING.
+        is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
+        -> status == UtbetalingStatusType.GENERERT || status == UtbetalingStatusType.TIL_BEHANDLING
+    }
+
     // TODO: sealed class i stedet for nullable properties?
     fun erInnsending(): Boolean = innsending != null
 

@@ -154,57 +154,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/deltakere:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent deltakertabell
-      operationId: getOpprettKravDeltakere
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: gjennomforingId
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: periodeStart
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: periodeSlutt
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Innsendingsdetaljer
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OpprettKravDeltakere"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/arrangorflate/orgnr-tilganger:
     get:
       tags:
@@ -438,9 +387,9 @@ paths:
           format: uuid
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: "#/components/schemas/GodkjennUtbetaling"
+              $ref: "#/components/schemas/GodkjennUtbetalingRequest"
         required: false
       responses:
         "200":
@@ -881,7 +830,6 @@ components:
       type: string
       enum:
       - INFORMASJON
-      - DELTAKERLISTE
       - UTBETALING
       - VEDLEGG
       - OPPSUMMERING
@@ -911,7 +859,6 @@ components:
       type: string
       enum:
       - INVESTERING_VTA_AFT
-      - TIMESPRIS
       - AVTALT_PRIS
     LabeledDataElement:
       type: object
@@ -1195,15 +1142,6 @@ components:
       - navn
       - norskIdent
     DatoVelger:
-      anyOf:
-      - $ref: "#/components/schemas/DatoVelgerRange"
-      - $ref: "#/components/schemas/DatoVelgerSelect"
-      discriminator:
-        propertyName: type
-        mapping:
-          DatoVelgerRange: "#/components/schemas/DatoVelgerRange"
-          DatoVelgerSelect: "#/components/schemas/DatoVelgerSelect"
-    DatoVelgerRange:
       type: object
       properties:
         maksSluttdato:
@@ -1211,15 +1149,6 @@ components:
           format: date
       required:
       - maksSluttdato
-    DatoVelgerSelect:
-      type: object
-      properties:
-        periodeForslag:
-          type: array
-          items:
-            $ref: "#/components/schemas/Periode"
-      required:
-      - periodeForslag
     OpprettKravUtbetalingSteg:
       type: object
       properties:
@@ -1249,7 +1178,6 @@ components:
       type: string
       enum:
       - INVESTERING_VTA_AFT
-      - TIMESPRIS
       - AVTALT_PRIS
     OpprettKravData:
       type: object
@@ -1269,155 +1197,6 @@ components:
       - steg
       - utbetalingSteg
       - vedleggSteg
-    OpprettKravDeltakere.GuidePanelType:
-      type: string
-      enum:
-      - GENERELL
-      - TIMESPRIS
-    StengtPeriode:
-      type: object
-      properties:
-        periode:
-          $ref: "#/components/schemas/Periode"
-        beskrivelse:
-          type: string
-      required:
-      - beskrivelse
-      - periode
-    DataDrivenTableDto:
-      type: object
-      properties:
-        columns:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataDrivenTableDto.Column"
-        rows:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataDrivenTableDto.Row"
-      required:
-      - columns
-      - rows
-    DataDrivenTableDto.Column:
-      type: object
-      properties:
-        key:
-          type: string
-        label:
-          type:
-          - "null"
-          - string
-        sortable:
-          type: boolean
-        align:
-          $ref: "#/components/schemas/DataDrivenTableDto.Column.Align"
-      required:
-      - align
-      - key
-      - label
-      - sortable
-    DataDrivenTableDto.Column.Align:
-      type: string
-      enum:
-      - left
-      - center
-      - right
-    DataDrivenTableDto.Row:
-      type: object
-      properties:
-        cells:
-          type: object
-          additionalProperties:
-            $ref: "#/components/schemas/DataElement"
-        content:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/TimelineDto"
-      required:
-      - cells
-      - content
-    TimelineDto:
-      type: object
-      properties:
-        startDate:
-          type: string
-          format: date
-        endDate:
-          type: string
-          format: date
-        rows:
-          type: array
-          items:
-            $ref: "#/components/schemas/TimelineDto.Row"
-      required:
-      - endDate
-      - rows
-      - startDate
-    TimelineDto.Row:
-      type: object
-      properties:
-        periods:
-          type: array
-          items:
-            $ref: "#/components/schemas/TimelineDto.Row.Period"
-        label:
-          type: string
-      required:
-      - label
-      - periods
-    TimelineDto.Row.Period:
-      type: object
-      properties:
-        key:
-          type: string
-        start:
-          type: string
-          format: date
-        end:
-          type: string
-          format: date
-        status:
-          $ref: "#/components/schemas/TimelineDto.Row.Period.Variant"
-        content:
-          type: string
-        hover:
-          type: string
-      required:
-      - content
-      - end
-      - hover
-      - key
-      - start
-      - status
-    TimelineDto.Row.Period.Variant:
-      type: string
-      enum:
-      - info
-      - success
-      - warning
-      - danger
-      - neutral
-    OpprettKravDeltakere:
-      type: object
-      properties:
-        guidePanel:
-          $ref: "#/components/schemas/OpprettKravDeltakere.GuidePanelType"
-        stengtHosArrangor:
-          type: array
-          items:
-            $ref: "#/components/schemas/StengtPeriode"
-          uniqueItems: true
-        tabell:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        tabellFooter:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataDetails"
-      required:
-      - guidePanel
-      - stengtHosArrangor
-      - tabell
-      - tabellFooter
     PeriodeType:
       type: string
       enum:
@@ -1615,6 +1394,129 @@ components:
       - pris
       - satsDetaljer
       - stengt
+    StengtPeriode:
+      type: object
+      properties:
+        periode:
+          $ref: "#/components/schemas/Periode"
+        beskrivelse:
+          type: string
+      required:
+      - beskrivelse
+      - periode
+    DataDrivenTableDto:
+      type: object
+      properties:
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDrivenTableDto.Column"
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDrivenTableDto.Row"
+      required:
+      - columns
+      - rows
+    DataDrivenTableDto.Column:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type:
+          - "null"
+          - string
+        sortable:
+          type: boolean
+        align:
+          $ref: "#/components/schemas/DataDrivenTableDto.Column.Align"
+      required:
+      - align
+      - key
+      - label
+      - sortable
+    DataDrivenTableDto.Column.Align:
+      type: string
+      enum:
+      - left
+      - center
+      - right
+    DataDrivenTableDto.Row:
+      type: object
+      properties:
+        cells:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/DataElement"
+        content:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TimelineDto"
+      required:
+      - cells
+      - content
+    TimelineDto:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimelineDto.Row"
+      required:
+      - endDate
+      - rows
+      - startDate
+    TimelineDto.Row:
+      type: object
+      properties:
+        periods:
+          type: array
+          items:
+            $ref: "#/components/schemas/TimelineDto.Row.Period"
+        label:
+          type: string
+      required:
+      - label
+      - periods
+    TimelineDto.Row.Period:
+      type: object
+      properties:
+        key:
+          type: string
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/TimelineDto.Row.Period.Variant"
+        content:
+          type: string
+        hover:
+          type: string
+      required:
+      - content
+      - end
+      - hover
+      - key
+      - start
+      - status
+    TimelineDto.Row.Period.Variant:
+      type: string
+      enum:
+      - info
+      - success
+      - warning
+      - danger
+      - neutral
     UtbetalingTypeDto:
       type: object
       properties:
@@ -1824,6 +1726,8 @@ components:
           - "null"
           - string
           format: uuid
+        kanRegistrerePris:
+          type: boolean
       required:
       - advarsler
       - arrangor
@@ -1838,6 +1742,7 @@ components:
       - innsendtAvArrangorDato
       - kanAvbrytes
       - kanRegenereres
+      - kanRegistrerePris
       - kanViseBeregning
       - linjer
       - periode
@@ -1848,7 +1753,7 @@ components:
       - updatedAt
       - utbetalesTidligstDato
       - valuta
-    GodkjennUtbetaling:
+    GodkjennUtbetalingRequest:
       type: object
       properties:
         updatedAt:
@@ -1857,9 +1762,23 @@ components:
           type:
           - "null"
           - string
+        belop:
+          type:
+          - "null"
+          - integer
+          format: int32
+        vedlegg:
+          type:
+          - "null"
+          - array
+          items:
+            type: string
+            format: binary
       required:
+      - belop
       - kid
       - updatedAt
+      - vedlegg
     FieldError:
       type: object
       properties:
