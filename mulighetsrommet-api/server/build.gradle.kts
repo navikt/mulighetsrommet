@@ -11,6 +11,7 @@ application {
 kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Xreturn-value-checker=check")
+        freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
     }
 }
 

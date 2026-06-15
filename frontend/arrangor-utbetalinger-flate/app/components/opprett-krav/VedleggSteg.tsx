@@ -4,14 +4,12 @@ import {
   OpprettKravVedleggStegGuidePanelType,
 } from "@arrangor-utbetalinger/api-client";
 import {
-  BodyShort,
   FileObject,
   FileRejected,
   FileRejectionReason,
   FileUpload,
   GuidePanel,
   Heading,
-  Link,
   VStack,
 } from "@navikt/ds-react";
 import { OpprettKravFormState } from "~/routes/$orgnr.opprett-krav.$gjennomforingid";
@@ -55,10 +53,10 @@ export default function VedleggSteg({
       <VStack gap="space-24">
         <GuidePanelVedlegg type={data.guidePanel} />
         <FileUpload.Dropzone
+          id="vedlegg"
           label="Last opp vedlegg"
           description={`Du kan laste opp PDF-filer. Maks ${maxFiles} filer. Maks størrelse ${maxSizeMB} MB per fil.`}
           accept=".pdf"
-          id="vedlegg"
           error={errorAt("/vedlegg", errors)}
           maxSizeInBytes={maxSizeBytes}
           fileLimit={{ max: maxFiles, current: acceptedFiles.length }}
@@ -124,30 +122,6 @@ function GuidePanelVedlegg({ type }: GuidePanelVedleggProps) {
         <GuidePanel>
           Du må laste opp vedlegg som dokumenterer de faktiske kostnadene dere har hatt for
           investeringer
-        </GuidePanel>
-      );
-    case OpprettKravVedleggStegGuidePanelType.TIMESPRIS:
-      return (
-        <GuidePanel>
-          <BodyShort spacing>
-            Fakturering skal skje i henhold til prisbilag i avtalen og eventuelle presiseringer.
-            Dere må sikre at opplysningene dere oppgir er korrekte.
-          </BodyShort>
-          <BodyShort spacing>Det skal kun faktureres for faktisk medgått tid.</BodyShort>
-          <BodyShort spacing>
-            Nav vil kunne gjennomføre kontroller og kreve innsyn for å verifisere at tjenesten og
-            tilhørerende fakturering er i henhold til avtalen.
-          </BodyShort>
-          <BodyShort>
-            <Link
-              inlineText
-              target="_blank"
-              href="https://www.nav.no/samarbeidspartner/faktura-tiltak/#fakturavedlegg"
-            >
-              Fakturavedleggsskjema
-            </Link>{" "}
-            eller tilsvarende dokumentasjon skal lastes opp under.
-          </BodyShort>
         </GuidePanel>
       );
     case OpprettKravVedleggStegGuidePanelType.AVTALT_PRIS:

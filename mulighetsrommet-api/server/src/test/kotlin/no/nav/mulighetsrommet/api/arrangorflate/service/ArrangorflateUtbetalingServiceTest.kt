@@ -38,7 +38,6 @@ import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
-import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
@@ -55,7 +54,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -174,29 +172,6 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             utbetaling.status shouldBe UtbetalingStatusType.TIL_BEHANDLING
         }
 
-        test("utbetaling for AvtaltPrisPerTimeOppfolgingPerDeltaker blir opprettet med tilskuddstype for driftstilskudd") {
-            MulighetsrommetTestDomain(
-                avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(Oppfolging1),
-            ).initialize(database.api)
-
-            val service = createUtbetalingService()
-
-            val utbetaling = service.opprettUtbetaling(
-                ArrangorflateOpprettUtbetaling(
-                    gjennomforingId = Oppfolging1.id,
-                    periode = periode,
-                    kidNummer = null,
-                    pris = 750.NOK,
-                    vedlegg = emptyList(),
-                ),
-            ).shouldBeRight()
-
-            utbetaling.tilskuddstype shouldBe Tilskuddstype.TILTAK_DRIFTSTILSKUDD
-            utbetaling.status shouldBe UtbetalingStatusType.TIL_BEHANDLING
-            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerTimeOppfolging>()
-        }
-
         test("returnerer feil for prismodeller som ikke støttes") {
             val prisPerUkesverk = PrismodellFixtures.createPrismodell(
                 type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
@@ -210,6 +185,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             forAll(
                 row(PrismodellFixtures.AvtaltPrisPerManedsverk),
                 row(PrismodellFixtures.ForhandsgodkjentTao),
+                row(PrismodellFixtures.AvtaltPrisPerTimeOppfolging),
                 row(prisPerUkesverk),
                 row(prisPerHeleUkesverk),
             ) { prismodell ->
@@ -300,7 +276,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null) shouldBeLeft listOf(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)) shouldBeLeft listOf(
                 FieldError.of("Utbetalingen kan ikke godkjennes før perioden er passert"),
             )
         }
@@ -317,7 +293,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null) shouldBeLeft listOf(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)) shouldBeLeft listOf(
                 FieldError.of("Utbetalingen kan ikke godkjennes fordi kontonummer mangler."),
             )
         }
@@ -333,7 +309,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null) shouldBeLeft listOf(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)) shouldBeLeft listOf(
                 FieldError.of(
                     "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.",
                 ),
@@ -354,7 +330,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             val journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true)
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight()
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)).shouldBeRight()
 
             database.run {
                 queries.utbetaling.getOrError(utbetaling1Id).innsending.shouldNotBeNull().tidspunkt.toLocalDate() shouldBe LocalDate.now()
@@ -389,10 +365,10 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             val job1 = async(Dispatchers.Default) {
-                service.godkjentAvArrangor(utbetaling1Id, kid = null)
+                service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id))
             }
             val job2 = async(Dispatchers.Default) {
-                service.godkjentAvArrangor(utbetaling1Id, kid = null)
+                service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id))
             }
 
             listOf(job1.await(), job2.await()) shouldContainExactlyInAnyOrder listOf(
@@ -416,7 +392,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)).shouldBeRight(
                 AutomatisertUtbetalingResult.UTBETALINGLINJER_ALLEREDE_OPPRETTET,
             )
         }
@@ -440,7 +416,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)).shouldBeRight(
                 AutomatisertUtbetalingResult.GODKJENT,
             )
 
@@ -491,11 +467,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)).shouldBeRight(
                 AutomatisertUtbetalingResult.GODKJENT,
             )
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeLeft(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)).shouldBeLeft(
                 listOf(FieldError.of("Utbetaling er allerede godkjent")),
             )
         }
@@ -511,7 +487,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)).shouldBeRight(
                 AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN,
             )
 
@@ -531,7 +507,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)).shouldBeRight(
                 AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN,
             )
 
@@ -555,7 +531,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)).shouldBeRight(
                 AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN,
             )
 
@@ -584,7 +560,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)).shouldBeRight(
                 AutomatisertUtbetalingResult.IKKE_NOK_PENGER,
             )
 
@@ -613,7 +589,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             }.initialize(database.api)
 
             val service = createUtbetalingService()
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)).shouldBeRight(
                 AutomatisertUtbetalingResult.FEIL_PRISMODELL,
             )
 
@@ -648,7 +624,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)).shouldBeRight(
                 AutomatisertUtbetalingResult.GODKJENT,
             )
 
@@ -687,7 +663,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetaling1.id, kid = null).shouldBeRight(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1.id)).shouldBeRight(
                 AutomatisertUtbetalingResult.GODKJENT,
             )
 
@@ -734,10 +710,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             }
             val service = createUtbetalingService(tilsagnService = tilsagnService)
 
-            service.godkjentAvArrangor(
-                utbetaling1.id,
-                kid = null,
-            ) shouldBeRight AutomatisertUtbetalingResult.VALIDERINGSFEIL
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1.id)) shouldBeRight AutomatisertUtbetalingResult.VALIDERINGSFEIL
 
             database.run {
                 queries.utbetaling.getOrError(utbetaling1.id).status shouldBe UtbetalingStatusType.TIL_BEHANDLING
@@ -807,7 +780,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.godkjentAvArrangor(utbetalingForAvtaltSats.id, kid = null).shouldBeRight(
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetalingForAvtaltSats.id)).shouldBeRight(
                 AutomatisertUtbetalingResult.GODKJENT,
             )
         }
@@ -827,15 +800,12 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.avbrytUtbetaling(
+            val utbetaling = service.avbrytUtbetaling(
                 utbetalingId = utbetaling1.id,
                 begrunnelse = "Feil opplysninger",
             ).shouldBeRight()
 
-            val utbetaling = database.api.session { queries.arrangorflate.utbetaling.getOrError(utbetaling1.id) }
-            utbetaling.should {
-                it.status shouldBe UtbetalingStatusType.AVBRUTT
-            }
+            utbetaling.status shouldBe UtbetalingStatusType.AVBRUTT
         }
 
         test("kan avbryte utbetaling med status RETURNERT") {
@@ -847,14 +817,12 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.avbrytUtbetaling(
+            val utbetaling = service.avbrytUtbetaling(
                 utbetalingId = utbetaling1.id,
                 begrunnelse = "Trukket tilbake",
             ).shouldBeRight()
-            val utbetaling = database.api.session { queries.arrangorflate.utbetaling.getOrError(utbetaling1.id) }
-            utbetaling.should {
-                it.status shouldBe UtbetalingStatusType.AVBRUTT
-            }
+
+            utbetaling.status shouldBe UtbetalingStatusType.AVBRUTT
         }
 
         test("kan ikke avbryte utbetaling med andre statuser") {

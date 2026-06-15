@@ -7,6 +7,8 @@ import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.engine.mock.respondError
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -141,8 +143,13 @@ class ArrangorflateRoutesTest : FunSpec({
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-                contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(updatedAt = "2026-01-01T12:00:00.000000", kid = null))
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append("updatedAt", "2026-01-01T12:00:00.000000")
+                        },
+                    ),
+                )
             }
 
             response.status shouldBe HttpStatusCode.BadRequest
@@ -160,8 +167,13 @@ class ArrangorflateRoutesTest : FunSpec({
             }
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-                contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(updatedAt = updatedAt.toString(), kid = null))
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append("updatedAt", updatedAt.toString())
+                        },
+                    ),
+                )
             }
             response.status shouldBe HttpStatusCode.OK
 
@@ -181,15 +193,26 @@ class ArrangorflateRoutesTest : FunSpec({
             }
             var response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-                contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(updatedAt = updatedAt.toString(), kid = null))
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append("updatedAt", updatedAt.toString())
+                        },
+                    ),
+                )
             }
             response.status shouldBe HttpStatusCode.OK
 
             response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
                 contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(updatedAt = updatedAt.toString(), kid = null))
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append("updatedAt", updatedAt.toString())
+                        },
+                    ),
+                )
             }
             response.status shouldBe HttpStatusCode.BadRequest
         }
@@ -212,8 +235,13 @@ class ArrangorflateRoutesTest : FunSpec({
             }
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-                contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(updatedAt = updatedAt.toString(), kid = null))
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append("updatedAt", updatedAt.toString())
+                        },
+                    ),
+                )
             }
             response.status shouldBe HttpStatusCode.OK
         }
@@ -229,8 +257,13 @@ class ArrangorflateRoutesTest : FunSpec({
             }
             val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
                 bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-                contentType(ContentType.Application.Json)
-                setBody(GodkjennUtbetaling(updatedAt = updatedAt.toString(), kid = null))
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append("updatedAt", updatedAt.toString())
+                        },
+                    ),
+                )
             }
 
             response.status shouldBe HttpStatusCode.BadRequest
