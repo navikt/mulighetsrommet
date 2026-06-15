@@ -61,20 +61,20 @@ data class UpsertEnkeltplass(
 @Serializable
 sealed interface EnkeltplassPrisinformasjon {
     @Serializable
-    @SerialName("EnkeltplassPrisinformasjonAnskaffelse")
+    @SerialName("Anskaffelse")
     data class Anskaffelse(
         val pris: Int,
     ) : EnkeltplassPrisinformasjon
 
     @Serializable
-    @SerialName("EnkeltplassPrisinformasjonTilskudd")
+    @SerialName("Tilskudd")
     data class Tilskudd(
         val tilskudd: Map<Opplaeringtilskudd.Kode, Int>,
         val tilleggsopplysninger: String?,
     ) : EnkeltplassPrisinformasjon
 
     @Serializable
-    @SerialName("EnkeltplassPrisinformasjonIngenKostnader")
+    @SerialName("IngenKostnader")
     data class IngenKostnader(
         val aarsak: Aarsak,
         val tilleggsopplysninger: String?,
