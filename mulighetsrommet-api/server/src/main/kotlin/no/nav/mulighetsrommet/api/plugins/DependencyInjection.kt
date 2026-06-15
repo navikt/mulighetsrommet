@@ -115,6 +115,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerAvtaltTiltaksplass
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerTimeOppfolgingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
@@ -538,6 +539,7 @@ private fun services(appConfig: AppConfig) = module {
                 PrisPerManedBeregning,
                 PrisPerUkeBeregning,
                 PrisPerHeleUkeBeregning,
+                PrisPerTimeOppfolgingBeregning,
             ),
         )
     }

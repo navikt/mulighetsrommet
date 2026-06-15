@@ -1,19 +1,10 @@
 import { FieldError, LabeledDataElement, PeriodeType } from "@arrangor-utbetalinger/api-client";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import {
-  Box,
-  Button,
-  Checkbox,
-  CheckboxGroup,
-  FileObject,
-  FileUpload,
-  Heading,
-  HStack,
-  VStack,
-} from "@navikt/ds-react";
+import { Box, Button, Checkbox, CheckboxGroup, Heading, HStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { OpprettKravFormState } from "~/routes/$orgnr.opprett-krav.$gjennomforingid";
 import { tekster } from "~/tekster";
+import { VedleggSummary } from "~/components/utbetaling/VedleggSummary";
 import { errorAt } from "~/utils/validering";
 import { Definisjonsliste, LabeledDataElementList } from "../common/Definisjonsliste";
 import { addDuration, formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
@@ -35,7 +26,7 @@ export default function OppsummeringStep({
   onSubmit,
   isSubmitting,
 }: OppsummeringStepProps) {
-  const acceptedFiles = formState.files.filter((f: FileObject) => !f.error);
+  const acceptedFiles = formState.files.filter((f) => !f.error).map((f) => f.file);
   const [bekreftelse, setBekreftelse] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -76,18 +67,7 @@ export default function OppsummeringStep({
             <Heading level="3" size="medium" spacing>
               Vedlegg
             </Heading>
-            <Heading level="4" size="xsmall">
-              {`Vedlegg (${acceptedFiles.length})`}
-            </Heading>
-            {acceptedFiles.length > 0 && (
-              <VStack gap="space-8" marginBlock="space-4" align="start">
-                <VStack as="ul" gap="space-8">
-                  {acceptedFiles.map((file, index) => (
-                    <FileUpload.Item as="li" key={index} file={file.file} />
-                  ))}
-                </VStack>
-              </VStack>
-            )}
+            <VedleggSummary vedlegg={acceptedFiles} />
             <Separator />
             <CheckboxGroup error={errorAt("/bekreftelse", errors)} legend="Bekreftelse">
               <Checkbox

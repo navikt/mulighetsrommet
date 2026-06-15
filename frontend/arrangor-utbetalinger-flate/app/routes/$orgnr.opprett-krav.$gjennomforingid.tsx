@@ -1,33 +1,25 @@
 import {
+  Box,
   Button,
   ErrorSummary,
   FileObject,
+  Hide,
   HStack,
+  Link,
   Stepper,
   VStack,
-  Link,
-  Hide,
-  Box,
 } from "@navikt/ds-react";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import {
   FieldError,
-  OpprettKravDeltakere,
   OpprettKravVeiviserSteg,
   OpprettKravVeiviserStegDto,
   PeriodeType,
 } from "@arrangor-utbetalinger/api-client";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link as ReactRouterLink, MetaFunction, useNavigate } from "react-router";
-import {
-  pathTo,
-  deltakerOversiktLenke,
-  useGjennomforingIdFromUrl,
-  useOrgnrFromUrl,
-} from "~/utils/navigation";
+import { pathTo, useGjennomforingIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
-import { getEnvironment } from "~/services/environment";
-import DeltakereSteg from "~/components/opprett-krav/DeltakereSteg";
 import UtbetalingSteg from "~/components/opprett-krav/UtbetalingSteg";
 import VedleggSteg from "~/components/opprett-krav/VedleggSteg";
 import OppsummeringSteg from "~/components/opprett-krav/OppsummeringSteg";
@@ -36,7 +28,6 @@ import InnsendingsinformasjonSteg, {
 } from "~/components/opprett-krav/InnsendingsinformasjonSteg";
 import { Laster } from "~/components/common/Laster";
 import { useOpprettKravData } from "~/hooks/useOpprettKravData";
-import { useOpprettKravDeltakere } from "~/hooks/useOpprettKravDeltakere";
 import { useOpprettKrav } from "~/hooks/useOpprettKrav";
 
 interface Step {
@@ -80,7 +71,6 @@ interface OpprettKravContentProps {
 
 function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps) {
   const { data, refetch } = useOpprettKravData(orgnr, gjennomforingId);
-  const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
   const navigate = useNavigate();
 
   const steps = useMemo(
@@ -95,7 +85,6 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
 
   const { innsendingSteg, utbetalingSteg, vedleggSteg } = data;
 
-  const fetchDeltakere = useOpprettKravDeltakere();
   const opprettKrav = useOpprettKrav();
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -104,7 +93,6 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
     files: [],
   });
   const [clientErrors, setClientErrors] = useState<FieldError[]>([]);
-  const [deltakere, setDeltakere] = useState<OpprettKravDeltakere | null>(null);
   const errors = clientErrors;
 
   const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -166,19 +154,6 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
       if (innsendingErrors.length > 0) {
         setClientErrors(innsendingErrors);
         return;
-      }
-      if (steps[currentStepIndex + 1].type === OpprettKravVeiviserSteg.DELTAKERLISTE) {
-        try {
-          const result = await fetchDeltakere.mutateAsync({
-            orgnr,
-            gjennomforingId,
-            periodeStart: formState.periodeStart!,
-            periodeSlutt: formState.periodeSlutt!,
-          });
-          setDeltakere(result);
-        } catch {
-          return;
-        }
       }
     }
 
@@ -256,8 +231,6 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
             errors={errors}
           />
         );
-      case OpprettKravVeiviserSteg.DELTAKERLISTE:
-        return <DeltakereSteg deltakere={deltakere} deltakerlisteUrl={deltakerlisteUrl} />;
       case OpprettKravVeiviserSteg.UTBETALING:
         return (
           <UtbetalingSteg
@@ -340,7 +313,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
                   Tilbake
                 </Button>
               )}
-              <Button type="button" onClick={goToNextStep} loading={fetchDeltakere.isPending}>
+              <Button type="button" onClick={goToNextStep}>
                 Neste
               </Button>
             </HStack>

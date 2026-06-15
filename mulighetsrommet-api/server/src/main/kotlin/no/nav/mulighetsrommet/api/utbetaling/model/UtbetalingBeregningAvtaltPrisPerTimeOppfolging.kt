@@ -1,7 +1,12 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.tiltak.okonomi.Tilskuddstype
 
 @Serializable
 data class UtbetalingBeregningAvtaltPrisPerTimeOppfolging(
@@ -42,5 +47,24 @@ data class UtbetalingBeregningAvtaltPrisPerTimeOppfolging(
                 output = Output(pris),
             )
         }
+    }
+}
+
+object PrisPerTimeOppfolgingBeregning :
+    SystemgenerertPrismodell.FraDeltakelserOgInnsendtBelop<UtbetalingBeregningAvtaltPrisPerTimeOppfolging> {
+
+    override val type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+    override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
+
+    override fun beregn(
+        gjennomforing: GjennomforingAvtale,
+        periode: Periode,
+        deltakere: List<Deltaker>,
+        pris: ValutaBelop,
+    ): UtbetalingBeregningAvtaltPrisPerTimeOppfolging {
+        val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
+        val stengt = UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)
+        val deltakelser = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
+        return UtbetalingBeregningAvtaltPrisPerTimeOppfolging.from(satser, stengt, deltakelser, pris)
     }
 }

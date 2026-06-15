@@ -2,9 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.left
 import arrow.core.raise.either
-import arrow.core.right
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.ContentType
@@ -20,10 +18,7 @@ import io.ktor.server.routing.application
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.utils.io.toByteArray
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.OkonomiConfig
@@ -38,22 +33,11 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingValidator
-import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerUtenFaktor
-import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonCells
-import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonColumns
-import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
-import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
-import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingValidator
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
@@ -62,8 +46,6 @@ import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
-import no.nav.mulighetsrommet.model.DataDetails
-import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.LabeledDataElement
@@ -75,7 +57,6 @@ import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
@@ -83,7 +64,6 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
     val arrangorflateUtbetalingService: ArrangorflateUtbetalingService by inject()
     val arrangorflateService: ArrangorflateService by inject()
     val clamAvClient: ClamAvClient by inject()
-    val personaliaService: PersonaliaService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
 
     fun requireGjennomforingTilArrangor(
@@ -102,17 +82,6 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
         val id = call.parameters.getOrFail("gjennomforingId").let { UUID.fromString(it) }
         val tiltak = db.session { queries.arrangorflate.tiltak.getOrError(id) }
         return requireGjennomforingTilArrangor(tiltak, orgnr)
-    }
-
-    fun RoutingContext.getPeriodeFromQuery(): Periode {
-        val periodeStart = call.queryParameters["periodeStart"]?.let { start ->
-            LocalDate.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        }
-        val periodeSlutt = call.queryParameters["periodeSlutt"]?.let { start ->
-            LocalDate.parse(start, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        }
-        return periodeStart?.let { start -> periodeSlutt?.let { slutt -> Periode.of(start, slutt) } }
-            ?: throw StatusException(HttpStatusCode.BadRequest, "Periode er ikke oppgitt")
     }
 
     get("/tiltaksoversikt", {
@@ -150,7 +119,6 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
                 prismodeller = listOf(
                     PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                     PrismodellType.ANNEN_AVTALT_PRIS,
-                    PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                 ),
                 filter = filter,
             )
@@ -181,7 +149,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
         }) {
             val tiltak = requireArrangorflateTiltak()
 
-            val stegListe = getVeiviserSteg(tiltak)
+            val stegListe = getVeiviserSteg()
 
             val tilsagnstyper = if (tiltak.prismodell.type == PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED) {
                 listOf(TilsagnType.INVESTERING)
@@ -211,7 +179,6 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
                 okonomiConfig,
                 tiltak,
                 tilsagn,
-                tidligereUtbetalinger = emptyList(),
             )
 
             val kontonummer = arrangorflateService.getKontonummer(tiltak.arrangor.organisasjonsnummer)
@@ -231,51 +198,6 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
                     vedleggSteg = OpprettKravVedleggSteg.from(tiltak),
                 ),
             )
-        }
-
-        get("/deltakere", {
-            description = "Hent deltakertabell"
-            tags = setOf("Arrangorflate")
-            operationId = "getOpprettKravDeltakere"
-            request {
-                pathParameter<Organisasjonsnummer>("orgnr")
-                pathParameter<String>("gjennomforingId")
-                queryParameter<String>("periodeStart")
-                queryParameter<String>("periodeSlutt")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Innsendingsdetaljer"
-                    body<OpprettKravDeltakere>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val tiltak = requireArrangorflateTiltak()
-            val periode = getPeriodeFromQuery()
-
-            val avtaltPrisPerTimeOppfolgingPerDeltaker = arrangorflateUtbetalingService
-                .getAvtaltPrisPerTimeOppfolgingData(tiltak.id, periode)
-
-            val personalia = personaliaService.getPersonalia(
-                avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.map { it.deltakelseId },
-                PersonaliaService.OnBehalfOf.Arrangor,
-            ).associateBy { it.deltakerId }
-
-            val result = OpprettKravDeltakere.from(
-                tiltak,
-                satser = avtaltPrisPerTimeOppfolgingPerDeltaker.satser,
-                stengtHosArrangor = avtaltPrisPerTimeOppfolgingPerDeltaker.stengtHosArrangor,
-                deltakere = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakere,
-                deltakelsePerioder = avtaltPrisPerTimeOppfolgingPerDeltaker.deltakelsePerioder.sortedBy {
-                    it.periode.start
-                },
-                personalia,
-            )
-            call.respondWithStatusResponse(result)
         }
 
         post({
@@ -340,25 +262,18 @@ data class OpprettKravData(
 @Serializable
 enum class OpprettKravVeiviserSteg(val navn: String, val order: Int) {
     INFORMASJON("Innsendingsinformasjon", 1),
-    DELTAKERLISTE("Deltakere", 2),
-    UTBETALING("Utbetalingsinformasjon", 3),
-    VEDLEGG("Vedlegg", 4),
-    OPPSUMMERING("Oppsummering", 5),
+    UTBETALING("Utbetalingsinformasjon", 2),
+    VEDLEGG("Vedlegg", 3),
+    OPPSUMMERING("Oppsummering", 4),
 }
 
-fun getVeiviserSteg(tiltak: ArrangorflateTiltak): List<OpprettKravVeiviserSteg> {
-    val stegListe = mutableListOf(
+fun getVeiviserSteg(): List<OpprettKravVeiviserSteg> {
+    return listOf(
         OpprettKravVeiviserSteg.INFORMASJON,
         OpprettKravVeiviserSteg.UTBETALING,
         OpprettKravVeiviserSteg.VEDLEGG,
         OpprettKravVeiviserSteg.OPPSUMMERING,
     )
-
-    if (tiltak.prismodell.type == PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER) {
-        stegListe.add(OpprettKravVeiviserSteg.DELTAKERLISTE)
-    }
-    stegListe.sortBy { it.order }
-    return stegListe
 }
 
 fun OpprettKravVeiviserSteg.toDto(): OpprettKravVeiviserStegDto = OpprettKravVeiviserStegDto(type = this, navn = navn, order = order)
@@ -378,13 +293,8 @@ data class OpprettKravInnsendingSteg(
             okonomiConfig: OkonomiConfig,
             tiltak: ArrangorflateTiltak,
             tilsagn: List<ArrangorflateTilsagnDto>,
-            tidligereUtbetalinger: List<Utbetaling>,
         ): OpprettKravInnsendingSteg {
-            val datoVelger = DatoVelger.from(
-                okonomiConfig,
-                tiltak,
-                tidligereUtbetalingsPerioder = tidligereUtbetalinger.map { it.periode }.toSet(),
-            )
+            val datoVelger = DatoVelger.from(okonomiConfig, tiltak)
 
             return OpprettKravInnsendingSteg(
                 guidePanel = panelGuide(tiltak.prismodell.type),
@@ -397,9 +307,6 @@ data class OpprettKravInnsendingSteg(
         fun panelGuide(prismodell: PrismodellType?): GuidePanelType? = when (prismodell) {
             PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED ->
                 GuidePanelType.INVESTERING_VTA_AFT
-
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
-                GuidePanelType.TIMESPRIS
 
             PrismodellType.ANNEN_AVTALT_PRIS ->
                 GuidePanelType.AVTALT_PRIS
@@ -431,7 +338,6 @@ fun getInnsendingsInformasjon(tiltak: ArrangorflateTiltak): List<LabeledDataElem
 @Serializable
 enum class GuidePanelType {
     INVESTERING_VTA_AFT,
-    TIMESPRIS,
     AVTALT_PRIS,
 }
 
@@ -441,53 +347,26 @@ enum class PeriodeType {
     Eksklusiv,
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-@JsonClassDiscriminator("type")
-sealed class DatoVelger {
-    @Serializable
-    @SerialName("DatoVelgerSelect")
-    data class DatoSelect(val periodeForslag: List<Periode>) : DatoVelger()
-
-    @Serializable
-    @SerialName("DatoVelgerRange")
-    data class DatoRange(
-        @Serializable(with = LocalDateSerializer::class)
-        val maksSluttdato: LocalDate,
-    ) : DatoVelger()
+data class DatoVelger private constructor(
+    @Serializable(with = LocalDateSerializer::class)
+    val maksSluttdato: LocalDate,
+) {
 
     companion object {
         fun from(
             okonomiConfig: OkonomiConfig,
             tiltak: ArrangorflateTiltak,
-            tidligereUtbetalingsPerioder: Set<Periode> = emptySet(),
         ): DatoVelger {
             when (tiltak.prismodell.type) {
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> {
-                    // Har de nådd innsendingssteget, kan vi garantere at tiltakskoden er konfigurert opp
-                    val tilsagnPeriode =
-                        okonomiConfig.gyldigTilsagnPeriode[tiltak.tiltakstype.tiltakskode]!!
-
-                    val firstOfThisMonth = LocalDate.now().withDayOfMonth(1)
-                    val perioder = Periode(
-                        start = maxOf(tilsagnPeriode.start, tiltak.startDato),
-                        slutt = minOf(firstOfThisMonth, tiltak.sluttDato ?: firstOfThisMonth),
-                    ).splitByMonth()
-                    val filtrertePerioder =
-                        perioder.filter { it !in tidligereUtbetalingsPerioder }.sortedBy { it.start }
-                    return DatoSelect(filtrertePerioder)
-                }
-
                 PrismodellType.ANNEN_AVTALT_PRIS,
                 PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
-                -> {
-                    return DatoRange(
-                        ArrangorflateUtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
-                            prismodell = tiltak.prismodell.type,
-                            periode = okonomiConfig.gyldigTilsagnPeriode[tiltak.tiltakstype.tiltakskode],
-                        ),
-                    )
-                }
+                -> return DatoVelger(
+                    ArrangorflateUtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
+                        prismodell = tiltak.prismodell.type,
+                        periode = okonomiConfig.gyldigTilsagnPeriode[tiltak.tiltakstype.tiltakskode],
+                    ),
+                )
 
                 else -> throw StatusException(
                     HttpStatusCode.Forbidden,
@@ -515,7 +394,6 @@ data class OpprettKravVedleggSteg(
     @Serializable
     enum class GuidePanelType {
         INVESTERING_VTA_AFT,
-        TIMESPRIS,
         AVTALT_PRIS,
         ;
 
@@ -523,89 +401,9 @@ data class OpprettKravVedleggSteg(
             fun from(prismodellType: PrismodellType?): GuidePanelType? = when (prismodellType) {
                 PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED -> INVESTERING_VTA_AFT
                 PrismodellType.ANNEN_AVTALT_PRIS -> AVTALT_PRIS
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> TIMESPRIS
                 else -> null
             }
         }
-    }
-}
-
-@Serializable
-data class OpprettKravDeltakere(
-    val guidePanel: GuidePanelType,
-    val stengtHosArrangor: Set<StengtPeriode>,
-    val tabell: DataDrivenTableDto,
-    val tabellFooter: List<DataDetails>,
-) {
-    companion object {
-        fun from(
-            tiltak: ArrangorflateTiltak,
-            satser: Set<SatsPeriode>,
-            stengtHosArrangor: Set<StengtPeriode>,
-            deltakere: List<Deltaker>,
-            deltakelsePerioder: List<DeltakelsePeriode>,
-            personalia: Map<UUID, Personalia>,
-        ): Either<BadRequest, OpprettKravDeltakere> {
-            val guidePanel = when (tiltak.prismodell.type) {
-                PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED,
-                PrismodellType.TILSKUDD_TIL_OPPLAERING,
-                PrismodellType.INGEN_KOSTNADER,
-                -> return BadRequest("Kan ikke opprette krav for dette tiltaket").left()
-
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-                -> GuidePanelType.TIMESPRIS
-
-                PrismodellType.ANNEN_AVTALT_PRIS,
-                PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
-                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
-                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
-                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE,
-                -> GuidePanelType.GENERELL
-            }
-            return OpprettKravDeltakere(
-                guidePanel = guidePanel,
-                stengtHosArrangor = stengtHosArrangor,
-                tabell = DataDrivenTableDto(
-                    columns = deltakelseCommonColumns(),
-                    rows = deltakelsePerioder.map { deltakelsePeriode ->
-                        DataDrivenTableDto.Row(
-                            cells = deltakelseCommonCells(
-                                personalia[deltakelsePeriode.deltakelseId],
-                                deltakere.find { it.id == deltakelsePeriode.deltakelseId }?.startDato,
-                                deltakelsePeriode.periode,
-                            ),
-                        )
-                    },
-                ),
-                tabellFooter = tableFooter(satser, deltakelsePerioder.size, stengtHosArrangor),
-            ).right()
-        }
-
-        fun tableFooter(
-            satser: Set<SatsPeriode>,
-            antallDeltakere: Int,
-            stengtHosArrangor: Set<StengtPeriode>,
-        ): List<DataDetails> {
-            return listOf(
-                DataDetails(
-                    entries = listOf(
-                        LabeledDataElement.number(
-                            "Antall deltakere",
-                            antallDeltakere,
-                        ),
-                    ),
-                ),
-            ) + beregningSatsPeriodeDetaljerUtenFaktor(
-                satser.toList(),
-                "Avtalt pris per time oppfølging",
-                stengtHosArrangor,
-            )
-        }
-    }
-
-    enum class GuidePanelType {
-        GENERELL,
-        TIMESPRIS,
     }
 }
 
