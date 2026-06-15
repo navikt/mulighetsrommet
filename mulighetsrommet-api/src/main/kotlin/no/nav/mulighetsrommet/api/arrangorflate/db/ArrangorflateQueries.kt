@@ -5,4 +5,5 @@ import kotliquery.Session
 class ArrangorflateQueries(val session: Session) {
     val tiltak = ArrangorflateTiltakQueries(session)
     val tilsagn = ArrangorflateTilsagnQueries(session)
+    val utbetaling = ArrangorflateUtbetalingQueries(session)
 }
