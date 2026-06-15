@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
@@ -20,6 +21,7 @@ data class TilsagnBeregningPrisPerManedsverk(
         val sats: ValutaBelop,
         val antallPlasser: Int,
         val prisbetingelser: String?,
+        val stengt: Set<StengtPeriode>,
     ) : TilsagnBeregningInput()
 
     @Serializable
@@ -30,9 +32,17 @@ data class TilsagnBeregningPrisPerManedsverk(
 
     companion object {
         fun beregn(input: Input): TilsagnBeregningPrisPerManedsverk {
-            val (periode, sats, antallPlasser) = input
+            val aktivePerioder = input.periode.subtractPeriods(input.stengt.map { it.periode })
 
-            val belop = UtbetalingBeregningHelpers.calculateManedsverkBelop(periode, sats, antallPlasser)
+            val totalMonths = aktivePerioder
+                .map { UtbetalingBeregningHelpers.calculateMonthsInPeriode(it) }
+                .sumOf { it }
+
+            val belop = UtbetalingBeregningHelpers.multiplyBySatsAndPlasser(
+                totalMonths,
+                input.sats,
+                input.antallPlasser,
+            )
 
             return TilsagnBeregningPrisPerManedsverk(input, Output(pris = belop))
         }

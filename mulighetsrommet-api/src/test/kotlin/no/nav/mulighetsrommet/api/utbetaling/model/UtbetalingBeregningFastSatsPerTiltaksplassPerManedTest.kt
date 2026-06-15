@@ -406,6 +406,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                         sats = 20205.NOK,
                         antallPlasser = 1,
                         prisbetingelser = null,
+                        stengt = setOf(),
                     ),
                 )
 

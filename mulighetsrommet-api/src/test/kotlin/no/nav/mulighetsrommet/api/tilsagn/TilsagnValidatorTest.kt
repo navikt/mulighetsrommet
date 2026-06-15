@@ -47,6 +47,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = true,
                 tiltakstypeNavn = "AFT",
                 prismodell = annenAvtaltPris,
+                stengt = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError.of("Tilsagn kan ikke opprettes fordi arrangøren er slettet i Brreg"),
             )
@@ -67,6 +68,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 prismodell = annenAvtaltPris,
+                stengt = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError.of(
                     "Tilsagn kan ikke registreres for perioden fordi det mangler registrert sats/avtalt pris",
@@ -90,6 +92,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 prismodell = forhandsgodkjent,
+                stengt = emptyList(),
             ).shouldBeRight()
         }
 
@@ -108,6 +111,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 prismodell = annenAvtaltPris,
+                stengt = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError.of("Periodestart må være satt", TilsagnRequest::periodeStart),
                 FieldError(
@@ -128,6 +132,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 prismodell = annenAvtaltPris,
+                stengt = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError.of(
                     "Minimum startdato for tilsagn til AFT er ${gyldigStart.formaterDatoTilEuropeiskDatoformat()}",
@@ -152,6 +157,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 prismodell = annenAvtaltPris,
+                stengt = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError.of("Du må legge til en linje", TilsagnRequest::beregning, TilsagnBeregningRequest::linjer),
             )
@@ -172,6 +178,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 prismodell = annenAvtaltPris,
+                stengt = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError.of("Du må velge et kostnadssted", TilsagnRequest::kostnadssted),
                 FieldError.of(
@@ -199,6 +206,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 prismodell = forhandsgodkjent,
+                stengt = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError.of("Maksimum sluttdato for tilsagn til AFT er 31.12.2025", TilsagnRequest::periodeSlutt),
             )
@@ -213,6 +221,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 prismodell = forhandsgodkjent,
+                stengt = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeStart",
@@ -230,6 +239,7 @@ class TilsagnValidatorTest : FunSpec({
                 arrangorSlettet = false,
                 tiltakstypeNavn = "AFT",
                 prismodell = forhandsgodkjent,
+                stengt = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/periodeSlutt",
@@ -253,6 +263,7 @@ class TilsagnValidatorTest : FunSpec({
                     tilsagnPerDeltaker = true,
                     totalbelop = null,
                 ),
+                stengt = emptyList(),
             ) shouldBeLeft listOf(
                 FieldError(
                     pointer = "/deltakere",

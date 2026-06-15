@@ -61,6 +61,7 @@ class TilsagnQueries(private val session: Session) {
                 beregning_antall_plasser,
                 beregning_antall_timer_oppfolging_per_deltaker,
                 beregning_prisbetingelser,
+                beregning_stengte_perioder,
                 kommentar,
                 beskrivelse,
                 datastream_periode_start,
@@ -83,6 +84,7 @@ class TilsagnQueries(private val session: Session) {
                 :beregning_antall_plasser,
                 :beregning_antall_timer_oppfolging_per_deltaker,
                 :beregning_prisbetingelser,
+                :beregning_stengte_perioder::jsonb,
                 :kommentar,
                 :beskrivelse,
                 :datastream_periode_start,
@@ -105,12 +107,20 @@ class TilsagnQueries(private val session: Session) {
                 beregning_antall_plasser                       = excluded.beregning_antall_plasser,
                 beregning_antall_timer_oppfolging_per_deltaker = excluded.beregning_antall_timer_oppfolging_per_deltaker,
                 beregning_prisbetingelser                      = excluded.beregning_prisbetingelser,
+                beregning_stengte_perioder                     = excluded.beregning_stengte_perioder,
                 kommentar                               = excluded.kommentar,
                 beskrivelse                             = excluded.beskrivelse,
                 datastream_periode_start                = excluded.datastream_periode_start,
                 datastream_periode_slutt                = excluded.datastream_periode_slutt
         """.trimIndent()
 
+        val stengt = when (dbo.beregning) {
+            is TilsagnBeregningPrisPerManedsverk -> dbo.beregning.input.stengt
+            is TilsagnBeregningPrisPerUkesverk -> dbo.beregning.input.stengt
+            is TilsagnBeregningPrisPerHeleUkesverk -> dbo.beregning.input.stengt
+            is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> dbo.beregning.input.stengt
+            is TilsagnBeregningFri, is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> setOf()
+        }
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
@@ -132,6 +142,7 @@ class TilsagnQueries(private val session: Session) {
                 is TilsagnBeregningPrisPerHeleUkesverk -> TilsagnBeregningType.PRIS_PER_HELE_UKESVERK
                 is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING
             }.name,
+            "beregning_stengte_perioder" to Json.encodeToString(stengt),
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
             "kommentar" to dbo.kommentar,
@@ -530,6 +541,7 @@ class TilsagnQueries(private val session: Session) {
                     periode = periode("periode"),
                     sats = int("beregning_sats").withValuta(valuta),
                     antallPlasser = int("beregning_antall_plasser"),
+                    stengt = Json.decodeFromString(string("beregning_stengte_perioder")),
                 ),
                 output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -542,6 +554,7 @@ class TilsagnQueries(private val session: Session) {
                     sats = int("beregning_sats").withValuta(valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                    stengt = Json.decodeFromString(string("beregning_stengte_perioder")),
                 ),
                 output = TilsagnBeregningPrisPerManedsverk.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -554,6 +567,7 @@ class TilsagnQueries(private val session: Session) {
                     sats = ValutaBelop(int("beregning_sats"), valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                    stengt = Json.decodeFromString(string("beregning_stengte_perioder")),
                 ),
                 output = TilsagnBeregningPrisPerUkesverk.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -566,6 +580,7 @@ class TilsagnQueries(private val session: Session) {
                     sats = int("beregning_sats").withValuta(valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                    stengt = Json.decodeFromString(string("beregning_stengte_perioder")),
                 ),
                 output = TilsagnBeregningPrisPerHeleUkesverk.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
