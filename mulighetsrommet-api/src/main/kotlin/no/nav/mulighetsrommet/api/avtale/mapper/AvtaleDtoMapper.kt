@@ -28,7 +28,7 @@ object AvtaleDtoMapper {
         amoKategorisering = avtale.opplaringKategorisering?.toAmoKategoriseringDto(avtale.tiltakstype.tiltakskode),
         opsjonsmodell = avtale.opsjonsmodell,
         opsjonerRegistrert = avtale.opsjonerRegistrert,
-        utdanningslop = avtale.utdanningslop,
+        utdanningslop = avtale.opplaringKategorisering?.utdanningslop,
         prismodeller = avtale.prismodeller.map { fromPrismodell(it) },
     )
 

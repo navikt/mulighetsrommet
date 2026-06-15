@@ -9,9 +9,11 @@ import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import kotliquery.Session
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
@@ -89,11 +91,13 @@ class AvtaleService(
         }
 
         val createAvtaleContext = db.session {
-            getValidatorCtx(
-                request = request.detaljer,
-                navEnheter = request.veilederinformasjon.navEnheter,
-                previous = null,
-            ).bind()
+            context(this.session) {
+                getValidatorCtx(
+                    request = request.detaljer,
+                    navEnheter = request.veilederinformasjon.navEnheter,
+                    previous = null,
+                ).bind()
+            }
         }
         val avtaleDbo = AvtaleValidator.validateCreateAvtale(request, createAvtaleContext).bind()
 
@@ -142,18 +146,22 @@ class AvtaleService(
                     AvtaleValidator.Ctx.Gjennomforing(
                         arrangor = it.arrangor,
                         startDato = it.startDato,
-                        utdanningslop = queries.gjennomforing.getUtdanningslop(it.id),
+                        utdanningslop = context(this.session) {
+                            OpplaringKategoriseringQueries.get(it.id)?.utdanningslop
+                        },
                         status = it.status,
                         prismodellId = it.prismodell.id,
                     )
                 },
                 prismodeller = avtale.prismodeller,
             )
-            val context = getValidatorCtx(
-                request = request,
-                navEnheter = listOf(),
-                previous = previous,
-            ).bind()
+            val context = context(this.session) {
+                getValidatorCtx(
+                    request = request,
+                    navEnheter = listOf(),
+                    previous = previous,
+                ).bind()
+            }
 
             val dbo = AvtaleValidator
                 .validateUpdateDetaljer(request, context)
@@ -438,28 +446,33 @@ class AvtaleService(
         )
     }
 
-    private suspend fun QueryContext.getValidatorCtx(
+    context(session: Session)
+    private suspend fun getValidatorCtx(
         request: DetaljerRequest,
         navEnheter: List<NavEnhetNummer>,
         previous: AvtaleValidator.Ctx.Avtale?,
     ): Either<List<FieldError>, AvtaleValidator.Ctx> = either {
-        val tiltakstype = queries.tiltakstype.getByTiltakskode(request.tiltakskode)
-        val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
-        val navEnheter = navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() }
+        val qctx = QueryContext(session)
+        val tiltakstype = qctx.queries.tiltakstype.getByTiltakskode(request.tiltakskode)
+        val administratorer = request.administratorer.mapNotNull { qctx.queries.ansatt.getByNavIdent(it) }
+        val navEnheter = navEnheter.mapNotNull { qctx.queries.enhet.get(it)?.toDto() }
 
         val arrangor = request.arrangor?.let {
             val (arrangor, underenheter) = syncArrangorerFromBrreg(it.hovedenhet, it.underenheter).bind()
             arrangor.copy(underenheter = underenheter)
         }
 
-        val systembestemtPrismodell = queries.prismodell.getBySystemId(request.tiltakskode.name)
+        val systembestemtPrismodell = qctx.queries.prismodell.getBySystemId(request.tiltakskode.name)
 
-        val kategorisering = AvtaleValidator.Ctx.Kategorisering(
-            kurstyper = queries.opplaringKategorisering.getKurstyper(true),
-            bransjer = queries.opplaringKategorisering.getBransjer(),
-            forerkort = queries.opplaringKategorisering.getForerkortKlasser(),
-            utdanninger = queries.utdanning.getUtdanningsprogrammer(),
-        )
+        val kategorisering = context(session) {
+            AvtaleValidator.Ctx.Kategorisering(
+                kurstyper = OpplaringKategoriseringQueries.getKurstyper(),
+                bransjer = OpplaringKategoriseringQueries.getBransjer(),
+                forerkort = OpplaringKategoriseringQueries.getForerkortKlasser(),
+                innholdElementer = OpplaringKategoriseringQueries.getInnholdElementer(),
+                utdanninger = qctx.queries.utdanning.getUtdanningsprogrammer(),
+            )
+        }
 
         AvtaleValidator.Ctx(
             previous = previous,

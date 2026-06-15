@@ -13,6 +13,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.databaseConfig
@@ -21,8 +22,10 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.ArenaEnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.GruppeAmo1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
+import no.nav.mulighetsrommet.api.fixtures.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -64,7 +67,7 @@ class GjennomforingQueriesTest : FunSpec({
             ArrangorFixtures.underenhet1,
             ArrangorFixtures.underenhet2,
         ),
-        avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT),
+        avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.VTA, AvtaleFixtures.AFT, AvtaleFixtures.gruppeAmo),
     )
 
     beforeSpec {
@@ -417,20 +420,20 @@ class GjennomforingQueriesTest : FunSpec({
                 kurstype = KurstypeFixtures.norskopplaering,
                 norskprove = true,
                 innholdElementer = setOf(
-                    OpplaringKategorisering.InnholdElement.ARBEIDSMARKEDSKUNNSKAP,
-                    OpplaringKategorisering.InnholdElement.PRAKSIS,
+                    InnholdElementFixtures.arbeidsmarkedskunnskap,
+                    InnholdElementFixtures.praksis,
                 ),
             )
 
             database.runAndRollback {
-                queries.gjennomforing.upsert(Oppfolging1)
-                context(this.session) { queries.gjennomforing.setAmoKategorisering(Oppfolging1.id, kategorisering.toDbo()) }
-                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
+                queries.gjennomforing.upsert(GruppeAmo1)
+                context(this.session) { OpplaringKategoriseringQueries.upsert(GruppeAmo1.id, kategorisering.toDbo()) }
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(GruppeAmo1.id).should {
                     it.opplaringKategorisering shouldBe kategorisering
                 }
 
-                context(this.session) { queries.gjennomforing.setAmoKategorisering(Oppfolging1.id, null) }
-                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(Oppfolging1.id).should {
+                context(this.session) { OpplaringKategoriseringQueries.upsert(GruppeAmo1.id, null) }
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(GruppeAmo1.id).should {
                     it.opplaringKategorisering shouldBe null
                 }
             }

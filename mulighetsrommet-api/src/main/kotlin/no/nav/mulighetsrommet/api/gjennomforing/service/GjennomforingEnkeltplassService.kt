@@ -11,9 +11,9 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
@@ -269,7 +269,7 @@ class GjennomforingEnkeltplassService(
         return deltakelser.firstOrNull()
     }
 
-    private fun QueryContext.upsert(upsert: UpsertGjennomforingEnkeltplass): GjennomforingEnkeltplass {
+    private fun TransactionalQueryContext.upsert(upsert: UpsertGjennomforingEnkeltplass): GjennomforingEnkeltplass {
         val tiltakstype = tiltakstyper.getByTiltakskode(upsert.tiltakskode)
 
         val prismodellId = upsertPrismodell(upsert.id, upsert.prismodell)
@@ -381,10 +381,10 @@ class GjennomforingEnkeltplassService(
         return dbo.id
     }
 
-    private fun QueryContext.upsertKategorisering(
+    private fun TransactionalQueryContext.upsertKategorisering(
         request: EnkeltplassRequest,
     ) {
-        val kurstyper = queries.opplaringKategorisering.getKurstyper(true)
+        val kurstyper = context(this.session) { OpplaringKategoriseringQueries.getKurstyper() }
         val kurstypeId = when (request.tiltakskode) {
             Tiltakskode.STUDIESPESIALISERING,
             -> kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }?.id
@@ -404,22 +404,19 @@ class GjennomforingEnkeltplassService(
             bransjeId = request.kategorisering?.bransjeId,
             forerkort = request.kategorisering?.forerkort?.toSet() ?: emptySet(),
             sertifiseringer = request.kategorisering?.sertifiseringer ?: emptySet(),
+            utdanningslop = request.kategorisering?.utdanningsprogramId?.let { programId ->
+                UtdanningslopDbo(
+                    utdanningsprogram = programId,
+                    utdanninger = request.kategorisering.larefag?.toSet() ?: emptySet(),
+                )
+            },
         )
-        with(session) {
-            AmoKategoriseringQueries.upsert(
-                AmoKategoriseringQueries.Relation.GJENNOMFORING,
+        context(this.session) {
+            OpplaringKategoriseringQueries.upsert(
                 request.id,
                 opplaringKategoriseringDbo,
             )
         }
-        // TODO: forene amo og utdanning som opplaringkategorisering
-        val utdanningDbo = request.kategorisering?.utdanningsprogramId?.let { programId ->
-            UtdanningslopDbo(
-                utdanningsprogram = programId,
-                utdanninger = request.kategorisering.larefag?.toSet() ?: emptySet(),
-            )
-        }
-        queries.gjennomforing.setUtdanningslop(request.id, utdanningDbo)
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingEnkeltplass) {

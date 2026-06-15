@@ -4,14 +4,14 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
-import no.nav.mulighetsrommet.api.amo.models.Bransje
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
+import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
-import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
@@ -36,69 +35,47 @@ class DatavarehusTiltakQueries(private val session: Session) {
 
         // TODO: inkluder utdanningsløp/amo-kategorisering når vi har dette for enkeltplasser
         return when (dto.tiltakskode) {
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING -> {
-                val utdanningslop = getUtdanningslop(id)
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            -> {
+                val kategorisering = context(this.session) {
+                    OpplaringKategoriseringQueries.get(
+                        id,
+                    )
+                }
                 DatavarehusTiltakV1YrkesfagDto(
                     dto.tiltakskode,
                     dto.avtale,
                     dto.gjennomforing,
-                    utdanningslop,
+                    kategorisering?.utdanningslop?.toDatavarehusUtdanningslop(),
                 )
             }
 
-            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
-                val amoKategorisering = getAmoKategorisering(id)
+            Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            -> {
+                val kategorisering = context(this.session) {
+                    OpplaringKategoriseringQueries.get(
+                        id,
+                    )
+                }
                 DatavarehusTiltakV1AmoDto(
                     dto.tiltakskode,
                     dto.avtale,
                     dto.gjennomforing,
-                    amoKategorisering,
+                    kategorisering?.toAmoKategorisering(id),
                 )
             }
 
             else -> dto
         }
     }
-
-    private fun getUtdanningslop(id: UUID): DatavarehusTiltakV1YrkesfagDto.Utdanningslop? {
-        @Language("PostgreSQL")
-        val query = """
-            select
-                program.id as utdanningsprogram_id,
-                array_agg(utdanning.id) as utdanning_ids
-            from gjennomforing_utdanningsprogram
-                join utdanningsprogram program on gjennomforing_utdanningsprogram.utdanningsprogram_id = program.id
-                join utdanning on gjennomforing_utdanningsprogram.utdanning_id = utdanning.id
-            where gjennomforing_utdanningsprogram.gjennomforing_id = ?
-            group by program.id
-        """.trimIndent()
-
-        return session.single(queryOf(query, id)) { row ->
-            val utdanningsprogramId = row.uuid("utdanningsprogram_id")
-            val utdanningIds = row.array<UUID>("utdanning_ids").toSet()
-            DatavarehusTiltakV1YrkesfagDto.Utdanningslop(utdanningsprogramId, utdanningIds)
-        }
-    }
-
-    private fun getAmoKategorisering(id: UUID): AmoKategorisering? {
-        @Language("PostgreSQL")
-        val amoKategoriseringQuery = """
-            select *
-            from view_gjennomforing_opplaring_kategorisering
-            where gjennomforing_id = ?;
-        """.trimIndent()
-
-        return session.single(queryOf(amoKategoriseringQuery, id)) { it.toAmoKategorisering(id) }
-    }
 }
 
-private fun Row.toAmoKategorisering(id: UUID): AmoKategorisering {
-    val kurstype = string("kurstype").let { JsonIgnoreUnknownKeys.decodeFromString<Kurstype>(it) }
-    val bransje = stringOrNull("bransje")?.let { JsonIgnoreUnknownKeys.decodeFromString<Bransje>(it) }
-    val getInnholdsElementer = {
-        string("innhold_elementer").let {
-            JsonIgnoreUnknownKeys.decodeFromString<List<AmoKategorisering.InnholdElement>>(it)
-        }
+private fun UtdanningslopDto.toDatavarehusUtdanningslop() = DatavarehusTiltakV1YrkesfagDto.Utdanningslop(utdanningsprogram.id, utdanninger.map { it.id }.toSet())
+
+private fun OpplaringKategorisering.toAmoKategorisering(id: UUID): AmoKategorisering {
+    val mappedInnholdsElementer = innholdElementer.map { AmoKategorisering.InnholdElement.valueOf(it.kode.name) }
+    requireNotNull(kurstype) {
+        "Kurstype kan ikke være null for amo kategorisering gjennomforing_id=$id"
     }
     return when (kurstype.kode) {
         Kurstype.Kode.BRANSJE_OG_YRKESRETTET -> {
@@ -107,24 +84,24 @@ private fun Row.toAmoKategorisering(id: UUID): AmoKategorisering {
             }
             AmoKategorisering.BransjeOgYrkesrettet(
                 bransje = bransje.let { AmoKategorisering.BransjeOgYrkesrettet.Bransje.valueOf(it.kode.toString()) },
-                sertifiseringer = string("sertifiseringer").let { JsonIgnoreUnknownKeys.decodeFromString<List<Sertifisering>>(it) },
-                forerkort = string("forerkort").let { JsonIgnoreUnknownKeys.decodeFromString<List<ForerkortKlasse>>(it) }
+                sertifiseringer = sertifiseringer.toList(),
+                forerkort = forerkort
                     .map { AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.valueOf(it.kode.toString()) },
-                innholdElementer = getInnholdsElementer(),
+                innholdElementer = mappedInnholdsElementer,
             )
         }
 
         Kurstype.Kode.NORSKOPPLAERING -> AmoKategorisering.Norskopplaering(
-            norskprove = boolean("norskprove"),
-            innholdElementer = getInnholdsElementer(),
+            norskprove = norskprove ?: false,
+            innholdElementer = mappedInnholdsElementer,
         )
 
         Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER -> AmoKategorisering.GrunnleggendeFerdigheter(
-            innholdElementer = getInnholdsElementer(),
+            innholdElementer = mappedInnholdsElementer,
         )
 
         Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategorisering.ForberedendeOpplaeringForVoksne(
-            innholdElementer = getInnholdsElementer(),
+            innholdElementer = mappedInnholdsElementer,
         )
 
         Kurstype.Kode.STUDIESPESIALISERING -> AmoKategorisering.Studiespesialisering

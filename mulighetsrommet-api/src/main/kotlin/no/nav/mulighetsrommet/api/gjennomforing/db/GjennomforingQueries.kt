@@ -4,9 +4,7 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
@@ -42,7 +40,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.UUID
@@ -299,59 +296,6 @@ class GjennomforingQueries(private val session: Session) {
         execute(queryOf(deleteArrangorKontaktpersoner, id, createUuidArray(arrangorKontaktpersoner)))
     }
 
-    fun setUtdanningslop(id: UUID, utdanningslop: UtdanningslopDbo?) = with(session) {
-        @Language("PostgreSQL")
-        val deleteUtdanningslop = """
-            delete from gjennomforing_utdanningsprogram
-            where gjennomforing_id = ?::uuid
-        """.trimIndent()
-        execute(queryOf(deleteUtdanningslop, id))
-
-        @Language("PostgreSQL")
-        val insertUtdanningslop = """
-            insert into gjennomforing_utdanningsprogram(
-                gjennomforing_id,
-                utdanning_id,
-                utdanningsprogram_id
-            )
-            values(:gjennomforing_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
-        """.trimIndent()
-        if (utdanningslop != null) {
-            val utdanninger = utdanningslop.utdanninger.map {
-                mapOf(
-                    "gjennomforing_id" to id,
-                    "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
-                    "utdanning_id" to it,
-                )
-            }
-            batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
-        }
-    }
-
-    fun getUtdanningslop(id: UUID): UtdanningslopDto? {
-        @Language("PostgreSQL")
-        val query = """
-            select jsonb_build_object(
-                           'utdanningsprogram',
-                           json_build_object('id', up.id, 'navn', up.navn),
-                           'utdanninger',
-                           jsonb_agg(jsonb_build_object('id', u.id, 'navn', u.navn))
-                   ) utdanningslop_json
-            from gjennomforing t
-                     join gjennomforing_utdanningsprogram upt
-                          on t.id = upt.gjennomforing_id
-                     join utdanningsprogram up on upt.utdanningsprogram_id = up.id
-                     join utdanning u on upt.utdanning_id = u.id
-            where gjennomforing_id = ?
-            group by up.id
-        """.trimIndent()
-        return session.single(queryOf(query, id)) { it.toUtdanningslopDto() }
-    }
-
-    fun setAmoKategorisering(id: UUID, kategorisering: OpplaringKategoriseringDbo?) = with(session) {
-        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.GJENNOMFORING, id, kategorisering)
-    }
-
     fun setArenaData(dbo: GjennomforingArenaDataDbo) {
         @Language("PostgreSQL")
         val query = """
@@ -536,8 +480,7 @@ class GjennomforingQueries(private val session: Session) {
                    nav_enheter_json,
                    nav_kontaktpersoner_json,
                    arrangor_kontaktpersoner_json,
-                   utdanningslop_json,
-                   amo_kategorisering_json
+                   opplaring_kategorisering_json
             from view_gjennomforing_avtale_detaljer
             where id = ?::uuid
         """.trimIndent()
@@ -845,7 +788,7 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
     val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
         ?.let { Json.decodeFromString<List<GjennomforingAvtaleDetaljer.ArrangorKontaktperson>>(it) }
         ?: emptyList()
-    val opplaringKategorisering = stringOrNull("amo_kategorisering_json")
+    val opplaringKategorisering = stringOrNull("opplaring_kategorisering_json")
         ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategorisering>(it) }
     return GjennomforingAvtaleDetaljer(
         administratorer = toAdministratorer(),
@@ -863,7 +806,7 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
         },
         tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
         opplaringKategorisering = opplaringKategorisering,
-        utdanningslop = toUtdanningslopDto(),
+        utdanningslop = opplaringKategorisering?.utdanningslop,
         arrangorKontaktpersoner = arrangorKontaktpersoner,
         avbrytelse = when (GjennomforingStatusType.valueOf(string("status"))) {
             GjennomforingStatusType.GJENNOMFORES,

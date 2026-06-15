@@ -44,7 +44,6 @@ object AvtaleFixtures {
         administratorer = listOf(NavIdent("DD1")),
         opplaringKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
-        utdanningslop = null,
     )
 
     fun personvernDbo(

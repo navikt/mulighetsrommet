@@ -1,9 +1,11 @@
 package no.nav.mulighetsrommet.api.amo
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.serializers.UUIDListSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import java.util.UUID
 
 @Serializable
@@ -15,10 +17,26 @@ data class OpplaringKategoriseringRequest(
     val sertifiseringer: Set<Sertifisering>? = null,
     @Serializable(with = UUIDListSerializer::class)
     val forerkort: List<UUID>? = null,
-    val innholdElementer: Set<OpplaringKategorisering.InnholdElement>? = null,
+    @Serializable(with = UUIDListSerializer::class)
+    val innholdElementer: List<UUID>? = null,
     val norskprove: Boolean? = null,
     @Serializable(with = UUIDSerializer::class)
     val utdanningsprogramId: UUID? = null,
     @Serializable(with = UUIDListSerializer::class)
     val larefag: List<UUID>? = null,
+)
+
+fun OpplaringKategoriseringRequest.toDbo(): OpplaringKategoriseringDbo = OpplaringKategoriseringDbo(
+    kurstypeId = kurstypeId,
+    bransjeId = bransjeId,
+    forerkort = forerkort?.toSet() ?: emptySet(),
+    sertifiseringer = sertifiseringer ?: emptySet(),
+    norskprove = norskprove,
+    innholdElementer = innholdElementer?.toSet() ?: emptySet(),
+    utdanningslop = utdanningsprogramId?.let { programId ->
+        UtdanningslopDbo(
+            utdanningsprogram = programId,
+            utdanninger = larefag?.toSet() ?: emptySet(),
+        )
+    },
 )

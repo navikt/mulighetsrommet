@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
 import no.nav.mulighetsrommet.api.fixtures.ForerkortFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
+import no.nav.mulighetsrommet.api.fixtures.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
@@ -89,7 +90,6 @@ class GjennomforingValidatorTest : FunSpec({
         personvernBekreftet = false,
         opplaringKategorisering = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
-        utdanningslop = null,
         prismodeller = listOf(
             Prismodell.AnnenAvtaltPris(
                 id = UUID.randomUUID(),
@@ -116,6 +116,7 @@ class GjennomforingValidatorTest : FunSpec({
         kurstyper = KurstypeFixtures.all(),
         bransjer = BransjeFixtures.all(),
         forerkort = ForerkortFixtures.all(),
+        innholdElementer = InnholdElementFixtures.all(),
         utdanninger = emptyList(),
     )
 
@@ -276,6 +277,7 @@ class GjennomforingValidatorTest : FunSpec({
         context(avtaleUtenAmokategorisering, kategoriseringCtx) {
             GjennomforingValidator.validateAmoKategorisering(
                 request.detaljer.amoKategorisering,
+                request.detaljer.utdanningslop,
             ).shouldBeLeft(
                 listOf(
                     FieldError("/avtaleId", "Du må velge en kurstype for avtalen"),
@@ -298,6 +300,7 @@ class GjennomforingValidatorTest : FunSpec({
         context(avtaleUtenAmokategorisering, kategoriseringCtx) {
             GjennomforingValidator.validateAmoKategorisering(
                 request.detaljer.amoKategorisering,
+                request.detaljer.utdanningslop,
             ).shouldBeLeft(
                 listOf(
                     FieldError("/amoKategorisering/kurstype", "Du må velge en kurstype"),
@@ -315,12 +318,14 @@ class GjennomforingValidatorTest : FunSpec({
             ),
         )
 
-        GjennomforingValidator.validateUtdanningslop(
-            avtaleGruFag,
-            request.detaljer.utdanningslop,
-        ).shouldBeLeft(
-            listOf(FieldError("/utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
-        )
+        context(avtaleGruFag, kategoriseringCtx) {
+            GjennomforingValidator.validateAmoKategorisering(
+                request.detaljer.amoKategorisering,
+                request.detaljer.utdanningslop,
+            ).shouldBeLeft(
+                listOf(FieldError("/utdanningslop", "Du må velge utdanningsprogram og lærefag på avtalen")),
+            )
+        }
     }
 
     test("arrangøren må være aktiv i Brreg") {

@@ -91,39 +91,40 @@ fun AmoKategorisering.toDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
 }
 
 fun OpplaringKategorisering.toAmoKategoriseringDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
+    val innholdsElementer = { this.innholdElementer.map { AmoKategorisering.InnholdElement.valueOf(it.kode.name) } }
     return when (tiltakskode) {
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ->
             when (this.kurstype?.kode) {
                 Kurstype.Kode.BRANSJE_OG_YRKESRETTET ->
                     AmoKategoriseringDto(
                         kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
-                        bransje = this.bransje?.let { AmoKategorisering.BransjeOgYrkesrettet.Bransje.valueOf(it.kode.toString()) },
+                        bransje = this.bransje?.let { AmoKategorisering.BransjeOgYrkesrettet.Bransje.valueOf(it.kode.name) },
                         sertifiseringer = this.sertifiseringer.toList(),
                         forerkort = this.forerkort.map {
                             AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.valueOf(
                                 it.kode.toString(),
                             )
                         },
-                        innholdElementer = this.innholdElementer.map { AmoKategorisering.InnholdElement.valueOf(it.toString()) },
+                        innholdElementer = innholdsElementer(),
                     )
 
                 Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE ->
                     AmoKategoriseringDto(
                         kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-                        innholdElementer = this.innholdElementer.map { AmoKategorisering.InnholdElement.valueOf(it.toString()) },
+                        innholdElementer = innholdsElementer(),
                     )
 
                 Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER ->
                     AmoKategoriseringDto(
                         kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
-                        innholdElementer = this.innholdElementer.map { AmoKategorisering.InnholdElement.valueOf(it.toString()) },
+                        innholdElementer = innholdsElementer(),
                     )
 
                 Kurstype.Kode.NORSKOPPLAERING ->
                     AmoKategoriseringDto(
                         kurstype = AmoKurstype.NORSKOPPLAERING,
                         norskprove = this.norskprove,
-                        innholdElementer = this.innholdElementer.map { AmoKategorisering.InnholdElement.valueOf(it.toString()) },
+                        innholdElementer = innholdsElementer(),
                     )
 
                 Kurstype.Kode.STUDIESPESIALISERING ->
@@ -138,32 +139,32 @@ fun OpplaringKategorisering.toAmoKategoriseringDto(tiltakskode: Tiltakskode): Am
             require(this.kurstype?.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET)
             AmoKategoriseringDto(
                 kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
-                bransje = this.bransje?.let { AmoKategorisering.BransjeOgYrkesrettet.Bransje.valueOf(it.kode.toString()) },
+                bransje = this.bransje?.let { AmoKategorisering.BransjeOgYrkesrettet.Bransje.valueOf(it.kode.name) },
                 sertifiseringer = this.sertifiseringer.toList(),
                 forerkort = this.forerkort.map {
                     AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.valueOf(
                         it.kode.toString(),
                     )
                 },
-                innholdElementer = this.innholdElementer.map { AmoKategorisering.InnholdElement.valueOf(it.toString()) },
+                innholdElementer = innholdsElementer(),
             )
         }
 
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> when (this.kurstype?.kode) {
             Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategoriseringDto(
                 kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-                innholdElementer = this.innholdElementer.map { AmoKategorisering.InnholdElement.valueOf(it.toString()) },
+                innholdElementer = innholdsElementer(),
             )
 
             Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER -> AmoKategoriseringDto(
                 kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
-                innholdElementer = this.innholdElementer.map { AmoKategorisering.InnholdElement.valueOf(it.toString()) },
+                innholdElementer = innholdsElementer(),
             )
 
             Kurstype.Kode.NORSKOPPLAERING -> AmoKategoriseringDto(
                 kurstype = AmoKurstype.NORSKOPPLAERING,
                 norskprove = this.norskprove,
-                innholdElementer = this.innholdElementer.map { AmoKategorisering.InnholdElement.valueOf(it.toString()) },
+                innholdElementer = innholdsElementer(),
             )
 
             Kurstype.Kode.STUDIESPESIALISERING,

@@ -14,8 +14,7 @@ select gjennomforing.id,
        nav_enheter_json,
        nav_kontaktpersoner_json,
        arrangor_kontaktpersoner_json,
-       utdanningslop_json,
-       amo_kategorisering_json
+       opplaring_kategorisering_json
 from gjennomforing
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
@@ -62,71 +61,6 @@ from gjennomforing
                             from gjennomforing_arrangor_kontaktperson
                                      join arrangor_kontaktperson kontaktperson on id = arrangor_kontaktperson_id
                             where gjennomforing_id = gjennomforing.id) on true
-         left join lateral (select jsonb_build_object(
-                                           'kurstype', (select jsonb_build_object(
-                                                                       'id', okk.id,
-                                                                       'navn', okk.navn,
-                                                                       'kode', okk.kode,
-                                                                       'aktiv', okk.aktiv
-                                                               )
-                                                        from opplaring_kategorisering_kurstype okk
-                                                        where okk.id = k.kurstype_id),
-                                           'bransje', (select jsonb_build_object(
-                                                                      'id', okb.id,
-                                                                      'navn', okb.navn,
-                                                                      'kode', okb.kode
-                                                              )
-                                                       from opplaring_kategorisering_bransje okb
-                                                       where okb.id = k.bransje_id),
-                                           'forerkort', coalesce(
-                                                   (select jsonb_strip_nulls(
-                                                                   jsonb_agg(
-                                                                           jsonb_build_object(
-                                                                                   'id', okf.id,
-                                                                                   'navn', okf.navn,
-                                                                                   'kode', okf.kode
-                                                                           )
-                                                                   )
-                                                           )
-                                                    from opplaring_kategorisering_forerkort okf
-                                                             join gjennomforing_amo_kategorisering_forerkort gokf
-                                                                  on gokf.forerkort_id = okf.id
-                                                    where gokf.gjennomforing_id = k.gjennomforing_id),
-                                                   '[]'::jsonb),
-                                           'norskprove', k.norskprove,
-                                           'sertifiseringer',
-                                           coalesce((select jsonb_strip_nulls(
-                                                                    jsonb_agg(
-                                                                            jsonb_build_object(
-                                                                                    'label',
-                                                                                    s.label,
-                                                                                    'konseptId',
-                                                                                    s.konsept_id
-                                                                            )
-                                                                    )
-                                                            )
-                                                     from amo_sertifisering s
-                                                              join gjennomforing_amo_kategorisering_sertifisering aks
-                                                                   on aks.konsept_id = s.konsept_id
-                                                     where aks.gjennomforing_id = k.gjennomforing_id),
-                                                    '[]'::jsonb),
-                                           'innholdElementer', coalesce(k.innhold_elementer, '{}')
-                                   ) as amo_kategorisering_json
-                            from gjennomforing_amo_kategorisering k
-                            where gjennomforing_id = gjennomforing.id) on true
-         left join lateral (select jsonb_build_object(
-                                           'utdanningsprogram',
-                                           json_build_object('id', up.id, 'navn', up.navn),
-                                           'utdanninger',
-                                           jsonb_agg(jsonb_build_object('id', u.id, 'navn', u.navn))
-                                   ) utdanningslop_json
-                            from gjennomforing t
-                                     join gjennomforing_utdanningsprogram upt
-                                          on t.id = upt.gjennomforing_id
-                                     join utdanningsprogram up on upt.utdanningsprogram_id = up.id
-                                     join utdanning u on upt.utdanning_id = u.id
-                            where gjennomforing_id = gjennomforing.id
-                            group by up.id) on true
          left join lateral (select json_agg(
                                            json_build_object(
                                                    'id', id,
@@ -137,4 +71,91 @@ from gjennomforing
                                    ) as stengt_perioder_json
                             from gjennomforing_stengt_hos_arrangor
                             where gjennomforing_id = gjennomforing.id) on true
+         left join lateral (select jsonb_build_object(
+                                           'norskprove', ok.norskprove,
+                                           'innholdElementer', coalesce(
+                                                   (select jsonb_agg(
+                                                                   jsonb_build_object(
+                                                                           'id', oie.id,
+                                                                           'navn', oie.navn,
+                                                                           'kode', oie.kode
+                                                                   )
+                                                           )
+                                                    from opplaring_innhold_element oie
+                                                             inner join opplaring_kategorisering_innhold_element okie
+                                                                        on oie.id = okie.innhold_element_id
+                                                    where okie.opplaring_kategorisering_id = ok.id),
+                                                   '[]'::jsonb),
+                                           'kurstype', (select jsonb_strip_nulls(
+                                                                       jsonb_build_object(
+                                                                               'id', okk.id,
+                                                                               'navn', okk.navn,
+                                                                               'kode', okk.kode,
+                                                                               'aktiv', okk.aktiv
+                                                                       )
+                                                               )
+                                                        from opplaring_kategorisering_kurstype okk
+                                                        where okk.id = ok.kurstype_id),
+                                           'bransje', (select jsonb_strip_nulls(
+                                                                      jsonb_build_object(
+                                                                              'id', okb.id,
+                                                                              'navn', okb.navn,
+                                                                              'kode', okb.kode
+                                                                      )
+                                                              )
+                                                       from opplaring_kategorisering_bransje okb
+                                                       where okb.id = ok.bransje_id),
+                                           'forerkort', coalesce(
+                                                   (select jsonb_strip_nulls(
+                                                                   jsonb_agg(
+                                                                           jsonb_build_object(
+                                                                                   'id', f.id,
+                                                                                   'navn', f.navn,
+                                                                                   'kode', f.kode
+                                                                           )
+                                                                   )
+                                                           )
+                                                    from opplaring_forerkort f
+                                                             join opplaring_kategorisering_forerkort okf on okf.forerkort_id = f.id
+                                                    where okf.opplaring_kategorisering_id = ok.id),
+                                                   '[]'::jsonb),
+                                           'sertifiseringer', coalesce((select jsonb_strip_nulls(
+                                                                                       jsonb_agg(
+                                                                                               jsonb_build_object(
+                                                                                                       'label', s.label,
+                                                                                                       'konseptId',
+                                                                                                       s.konsept_id
+                                                                                               )
+                                                                                       ))
+                                                                        from amo_sertifisering s
+                                                                                 join opplaring_kategorisering_sertifisering oks
+                                                                                      on oks.konsept_id = s.konsept_id
+                                                                        where oks.opplaring_kategorisering_id = ok.id),
+                                                                       '[]'::jsonb),
+                                           'utdanningslop', (select jsonb_build_object(
+                                                                            'utdanningsprogram', jsonb_build_object(
+                        'id', up.id,
+                        'navn', up.navn
+                                                                                                 ),
+                                                                            'utdanninger', coalesce(
+                                                                                            jsonb_agg(
+                                                                                            distinct jsonb_build_object(
+                                                                                                    'id', u.id,
+                                                                                                    'navn', u.navn
+                                                                                                     )
+                                                                                                     )
+                                                                                            filter (where u.id is not null),
+                                                                                            '[]'::jsonb
+                                                                                           )
+                                                                    )
+                                                             from utdanningsprogram up
+                                                                      join opplaring_kategorisering_utdanning oku
+                                                                           on oku.opplaring_kategorisering_id = ok.id
+                                                                      join utdanning u on u.id = oku.utdanning_id
+                                                             where up.id = ok.utdanningsprogram_id
+                                                             group by up.id, up.navn)
+                                   ) as opplaring_kategorisering_json
+                            from opplaring_kategorisering ok
+                            where ok.id = gjennomforing.id
+    ) on true
 where gjennomforing.gjennomforing_type = 'AVTALE'

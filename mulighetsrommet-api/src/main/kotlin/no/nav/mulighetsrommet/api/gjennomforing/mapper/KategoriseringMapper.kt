@@ -14,7 +14,7 @@ object KategoriseringMapper {
             forerkort = kategorisering.verdier[OpplaringKategoriseringResponse.Representerer.FORERKORT],
             utdanningsprogramId = kategorisering.verdier[OpplaringKategoriseringResponse.Representerer.UTDANNINGSPROGRAM_ID]?.firstOrNull(),
             larefag = kategorisering.verdier[OpplaringKategoriseringResponse.Representerer.LAREFAG],
-            // Ikke støttet
+            // Ikke kategorisert hos Komet
             innholdElementer = null,
             norskprove = null,
         )

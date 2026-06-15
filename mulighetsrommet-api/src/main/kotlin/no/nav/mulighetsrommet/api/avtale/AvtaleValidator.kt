@@ -4,10 +4,10 @@ import arrow.core.Either
 import arrow.core.right
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.models.Bransje
 import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.InnholdElement
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
@@ -90,6 +90,7 @@ object AvtaleValidator {
             val kurstyper: Set<Kurstype>,
             val bransjer: Set<Bransje>,
             val forerkort: Set<ForerkortKlasse>,
+            val innholdElementer: Set<InnholdElement>,
             val utdanninger: List<UtdanningsprogramMedUtdanninger>,
         )
 
@@ -141,7 +142,7 @@ object AvtaleValidator {
         request: DetaljerRequest,
         ctx: Ctx,
     ): Either<List<FieldError>, DetaljerDbo> = validation(OpprettAvtaleRequest::detaljer) {
-        val amoKategorisering = validateDetaljer(request, ctx).bind()
+        val opplaringKategorisering = validateDetaljer(request, ctx).bind()
 
         val previous = requireNotNull(ctx.previous) { FieldError.of("Avtalen finnes ikke") }
 
@@ -223,7 +224,7 @@ object AvtaleValidator {
             ctx.tiltakstype.id,
             ctx.arrangor?.toDbo(request.arrangor?.kontaktpersoner),
             resolveStatus(request, previous, LocalDate.now()),
-            kategorisering = amoKategorisering,
+            kategorisering = opplaringKategorisering,
         )
     }
 
@@ -444,13 +445,12 @@ object AvtaleValidator {
                 }
             }
         }
-        val amoKategorisering =
-            context(ctx.kategorisering) { validateAmoKategorisering(request.tiltakskode, request.amoKategorisering) }
-        validateUtdanningslop(request.tiltakskode, request.utdanningslop)
+        val opplaringKategorisering =
+            context(ctx.kategorisering) { validateOpplaringKategorisering(request.tiltakskode, request.amoKategorisering, request.utdanningslop) }
 
         validateSlettetNavAnsatte(ctx.administratorer)
         ctx.arrangor?.let { validateArrangor(it).bind() }
-        return amoKategorisering
+        return opplaringKategorisering
     }
 
     private fun resolveStatus(
@@ -555,9 +555,10 @@ object AvtaleValidator {
     }
 
     context(ctx: Ctx.Kategorisering)
-    private fun FieldValidator.validateAmoKategorisering(
+    private fun FieldValidator.validateOpplaringKategorisering(
         tiltakskode: Tiltakskode,
         amoKategorisering: AmoKategoriseringRequest?,
+        utdanningslop: UtdanningslopDbo?,
     ): Either<List<FieldError>, OpplaringKategoriseringDbo?> = when (tiltakskode) {
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
             requireValid(amoKategorisering?.kurstype != null) {
@@ -617,6 +618,11 @@ object AvtaleValidator {
         Tiltakskode.STUDIESPESIALISERING,
         -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING).toOpplaringKategoriseringDbo()
 
+        Tiltakskode.FAG_OG_YRKESOPPLAERING,
+        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        ->
+            validateUtdanningslop(utdanningslop).bind()
+
         else -> null
     }.right()
 
@@ -624,20 +630,19 @@ object AvtaleValidator {
     private fun AmoKategoriseringRequest.toOpplaringKategoriseringDbo(): OpplaringKategoriseringDbo {
         val forerkortStrings = this.forerkort?.map { it.toString() }
         val innholdElementerStrings = this.innholdElementer?.map { it.toString() }
-        val kategoriseringElementer = OpplaringKategorisering.InnholdElement.entries.toSet()
         return OpplaringKategoriseringDbo(
-            kurstypeId = ctx.kurstyper.find { it.kode.toString() == this.kurstype.toString() }?.id,
-            bransjeId = ctx.bransjer.find { it.kode.toString() == this.bransje.toString() }?.id,
+            kurstypeId = ctx.kurstyper.find { it.kode.name == this.kurstype.toString() }?.id,
+            bransjeId = ctx.bransjer.find { it.kode.name == this.bransje.toString() }?.id,
             forerkort = ctx.forerkort.mapNotNull { forerkort ->
-                if (forerkortStrings?.contains(forerkort.kode.toString()) ?: false) {
+                if (forerkortStrings?.contains(forerkort.kode.name) ?: false) {
                     forerkort.id
                 } else {
                     null
                 }
             }.toSet(),
-            innholdElementer = kategoriseringElementer.mapNotNull { innholdElement ->
-                if (innholdElementerStrings?.contains(innholdElement.toString()) ?: false) {
-                    innholdElement
+            innholdElementer = ctx.innholdElementer.mapNotNull { innholdElement ->
+                if (innholdElementerStrings?.contains(innholdElement.kode.name) ?: false) {
+                    innholdElement.id
                 } else {
                     null
                 }
@@ -649,23 +654,18 @@ object AvtaleValidator {
     }
 
     private fun FieldValidator.validateUtdanningslop(
-        tiltakskode: Tiltakskode,
         utdanningslop: UtdanningslopDbo?,
-    ): Either<List<FieldError>, Unit> = when (tiltakskode) {
-        Tiltakskode.FAG_OG_YRKESOPPLAERING,
-        Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-        -> {
-            validateNotNull(utdanningslop) {
-                FieldError.of(
-                    "Du må velge et utdanningsprogram og minst ett lærefag",
-                    DetaljerRequest::utdanningslop,
-                )
-            }
-            validate(utdanningslop == null || utdanningslop.utdanninger.isNotEmpty()) {
-                FieldError.of("Du må velge minst ett lærefag", DetaljerRequest::utdanningslop)
-            }
+    ): Either<List<FieldError>, OpplaringKategoriseringDbo?> {
+        validateNotNull(utdanningslop) {
+            FieldError.of(
+                "Du må velge et utdanningsprogram og minst ett lærefag",
+                DetaljerRequest::utdanningslop,
+            )
+        }
+        validate(utdanningslop == null || utdanningslop.utdanninger.isNotEmpty()) {
+            FieldError.of("Du må velge minst ett lærefag", DetaljerRequest::utdanningslop)
         }
 
-        else -> Unit
-    }.right()
+        return OpplaringKategoriseringDbo(utdanningslop = utdanningslop).right()
+    }
 }

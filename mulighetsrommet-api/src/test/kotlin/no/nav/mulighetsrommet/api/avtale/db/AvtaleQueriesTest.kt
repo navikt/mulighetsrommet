@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
+import no.nav.mulighetsrommet.api.fixtures.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -429,7 +430,7 @@ class AvtaleQueriesTest : FunSpec({
                     kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
                     bransje = BransjeFixtures.industriarbeid,
                     forerkort = emptySet(),
-                    innholdElementer = setOf(OpplaringKategorisering.InnholdElement.TEORETISK_OPPLAERING),
+                    innholdElementer = setOf(InnholdElementFixtures.teoretiskOpplaring),
                     norskprove = null,
                     sertifiseringer = setOf(
                         Sertifisering(

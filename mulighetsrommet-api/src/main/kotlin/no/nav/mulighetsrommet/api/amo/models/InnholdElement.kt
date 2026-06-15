@@ -5,17 +5,19 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
 @Serializable
-data class Kurstype(
+data class InnholdElement(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val kode: Kode,
     val navn: String,
 ) {
     enum class Kode {
-        NORSKOPPLAERING,
         GRUNNLEGGENDE_FERDIGHETER,
-        FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-        BRANSJE_OG_YRKESRETTET,
-        STUDIESPESIALISERING,
+        BRANSJERETTET_OPPLARING,
+        TEORETISK_OPPLAERING,
+        JOBBSOKER_KOMPETANSE,
+        PRAKSIS,
+        ARBEIDSMARKEDSKUNNSKAP,
+        NORSKOPPLAERING,
     }
 }

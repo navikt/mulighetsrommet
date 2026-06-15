@@ -1,12 +1,13 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import arrow.core.Either
+import arrow.core.right
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.models.Bransje
 import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.InnholdElement
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
@@ -62,6 +63,7 @@ object GjennomforingValidator {
             val kurstyper: Set<Kurstype>,
             val bransjer: Set<Bransje>,
             val forerkort: Set<ForerkortKlasse>,
+            val innholdElementer: Set<InnholdElement>,
             val utdanninger: List<UtdanningsprogramMedUtdanninger>,
         )
 
@@ -135,7 +137,6 @@ object GjennomforingValidator {
         val detaljer: GjennomforingDetaljerDbo,
         val administratorer: Set<NavIdent>,
         val arrangorKontaktpersoner: Set<UUID>,
-        val utdanningslop: UtdanningslopDbo?,
         val kategorisering: OpplaringKategoriseringDbo?,
     )
 
@@ -293,10 +294,10 @@ object GjennomforingValidator {
 
         detaljer = validateOrResetTilgjengeligForArrangorDato(detaljer)
 
-        val utdanningslop = validateUtdanningslop(ctx.avtale, detaljer.utdanningslop).bind()
         val kategorisering = context(ctx.avtale, ctx.kategorisering) {
             validateAmoKategorisering(
                 detaljer.amoKategorisering,
+                detaljer.utdanningslop,
             ).bind()
         }
 
@@ -320,7 +321,6 @@ object GjennomforingValidator {
             ),
             administratorer = detaljer.administratorer,
             arrangorKontaktpersoner = detaljer.arrangorKontaktpersoner,
-            utdanningslop = utdanningslop,
             kategorisering = kategorisering,
         )
     }
@@ -389,18 +389,10 @@ object GjennomforingValidator {
         tilgjengeligForArrangorDato
     }
 
-    fun validateUtdanningslop(
+    private fun FieldValidator.validateUtdanningslop(
         avtale: Avtale,
         utdanningslop: UtdanningslopDbo?,
-    ): Validated<UtdanningslopDbo?> = validation {
-        when (avtale.tiltakstype.tiltakskode) {
-            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
-            Tiltakskode.FAG_OG_YRKESOPPLAERING,
-            -> Unit
-
-            else -> return@validation null
-        }
-
+    ): Validated<UtdanningslopDbo?> {
         requireValid(utdanningslop != null) {
             FieldError.of(
                 "Du må velge utdanningsprogram og lærefag på avtalen",
@@ -413,13 +405,14 @@ object GjennomforingValidator {
                 GjennomforingDetaljerRequest::utdanningslop,
             )
         }
-        validate(utdanningslop.utdanningsprogram == avtale.utdanningslop?.utdanningsprogram?.id) {
+        validate(utdanningslop.utdanningsprogram == avtale.opplaringKategorisering?.utdanningslop?.utdanningsprogram?.id) {
             FieldError.of(
-                "Utdanningsprogrammet må være det samme som for avtalen: ${avtale.utdanningslop?.utdanningsprogram?.navn}",
+                "Utdanningsprogrammet må være det samme som for avtalen: ${avtale.opplaringKategorisering?.utdanningslop?.utdanningsprogram?.navn}",
                 GjennomforingDetaljerRequest::utdanningslop,
             )
         }
-        val avtalensUtdanninger = avtale.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
+        val avtalensUtdanninger =
+            avtale.opplaringKategorisering?.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
         validate(avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
             FieldError.of(
                 "Lærefag må være valgt fra avtalens lærefag, minst ett av lærefagene mangler i avtalen.",
@@ -427,12 +420,13 @@ object GjennomforingValidator {
             )
         }
 
-        utdanningslop
+        return utdanningslop.right()
     }
 
     context(avtale: Avtale, kategorisering: Context.Kategorisering)
     fun validateAmoKategorisering(
         amoKategorisering: AmoKategoriseringRequest?,
+        utdanningslop: UtdanningslopDbo?,
     ): Either<List<FieldError>, OpplaringKategoriseringDbo?> = validation {
         when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
@@ -492,6 +486,14 @@ object GjennomforingValidator {
             Tiltakskode.STUDIESPESIALISERING,
             -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING).toOpplaringKategoriseringDbo()
 
+            Tiltakskode.FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+            -> {
+                val validatedUtdanningslop = validateUtdanningslop(avtale, utdanningslop).bind()
+                OpplaringKategoriseringDbo(utdanningslop = validatedUtdanningslop)
+            }
+
             else -> null
         }
     }
@@ -538,7 +540,6 @@ object GjennomforingValidator {
     private fun AmoKategoriseringRequest.toOpplaringKategoriseringDbo(): OpplaringKategoriseringDbo {
         val forerkortStrings = this.forerkort?.map { it.toString() }
         val innholdElementerStrings = this.innholdElementer?.map { it.toString() }
-        val kategoriseringElementer = OpplaringKategorisering.InnholdElement.entries.toSet()
         return OpplaringKategoriseringDbo(
             kurstypeId = ctx.kurstyper.find { it.kode.toString() == this.kurstype.toString() }?.id,
             bransjeId = ctx.bransjer.find { it.kode.toString() == this.bransje.toString() }?.id,
@@ -549,9 +550,9 @@ object GjennomforingValidator {
                     null
                 }
             }.toSet(),
-            innholdElementer = kategoriseringElementer.mapNotNull { innholdElement ->
-                if (innholdElementerStrings?.contains(innholdElement.toString()) ?: false) {
-                    innholdElement
+            innholdElementer = ctx.innholdElementer.mapNotNull { innholdElement ->
+                if (innholdElementerStrings?.contains(innholdElement.kode.name) ?: false) {
+                    innholdElement.id
                 } else {
                     null
                 }

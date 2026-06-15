@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
-import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringMapper
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
@@ -372,7 +371,6 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { PamOntologiService(get()) }
-    single { OpplaringKategoriseringMapper(get()) }
     single { UtdanningClient(baseUrl = appConfig.utdanning.url) }
     single {
         AltinnClient(

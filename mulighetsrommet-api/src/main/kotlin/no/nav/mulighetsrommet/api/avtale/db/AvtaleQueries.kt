@@ -5,16 +5,15 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -35,7 +34,6 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.time.LocalDate
@@ -95,7 +93,6 @@ class AvtaleQueries(private val session: Session) {
         upsertAdministratorer(avtale.id, avtale.detaljerDbo.administratorer)
         upsertArrangor(avtale.id, avtale.detaljerDbo.arrangor)
         upsertOpplaringKategorisering(avtale.id, avtale.detaljerDbo.opplaringKategorisering)
-        upsertUtdanningslop(avtale.id, avtale.detaljerDbo.utdanningslop)
         updateVeilederinfo(avtale.id, avtale.veilederinformasjonDbo)
         updatePersonvern(avtale.id, avtale.personvernDbo)
         avtale.prismodeller.forEach { upsertPrismodell(avtale.id, it) }
@@ -109,7 +106,6 @@ class AvtaleQueries(private val session: Session) {
         upsertAdministratorer(avtaleId, detaljerDbo.administratorer)
         upsertArrangor(avtaleId, detaljerDbo.arrangor)
         upsertOpplaringKategorisering(avtaleId, detaljerDbo.opplaringKategorisering)
-        upsertUtdanningslop(avtaleId, detaljerDbo.utdanningslop)
     }
 
     fun updatePersonvern(avtaleId: UUID, personvernDbo: PersonvernDbo) = withTransaction(session) {
@@ -228,37 +224,8 @@ class AvtaleQueries(private val session: Session) {
     }
 
     context(session: TransactionalSession)
-    private fun upsertOpplaringKategorisering(avtaleId: UUID, kategorisering: OpplaringKategoriseringDbo?) = with(session) {
-        AmoKategoriseringQueries.upsert(AmoKategoriseringQueries.Relation.AVTALE, avtaleId, kategorisering)
-    }
-
-    private fun upsertUtdanningslop(avtaleId: UUID, utdanningslop: UtdanningslopDbo?) = withTransaction(session) {
-        @Language("PostgreSQL")
-        val deleteUtdanningslop = """
-            delete from avtale_utdanningsprogram
-            where avtale_id = ?::uuid
-        """.trimIndent()
-        execute(queryOf(deleteUtdanningslop, avtaleId))
-
-        @Language("PostgreSQL")
-        val insertUtdanningslop = """
-            insert into avtale_utdanningsprogram(
-                avtale_id,
-                utdanning_id,
-                utdanningsprogram_id
-            )
-            values(:avtale_id::uuid, :utdanning_id::uuid, :utdanningsprogram_id::uuid)
-        """.trimIndent()
-        utdanningslop?.let { utdanningslop ->
-            val utdanninger = utdanningslop.utdanninger.map {
-                mapOf(
-                    "avtale_id" to avtaleId,
-                    "utdanningsprogram_id" to utdanningslop.utdanningsprogram,
-                    "utdanning_id" to it,
-                )
-            }
-            batchPreparedNamedStatement(insertUtdanningslop, utdanninger)
-        }
+    private fun upsertOpplaringKategorisering(avtaleId: UUID, kategorisering: OpplaringKategoriseringDbo?) = withTransaction(session) {
+        OpplaringKategoriseringQueries.upsert(avtaleId, kategorisering)
     }
 
     private fun upsertDetaljer(id: UUID, detaljer: DetaljerDbo) = withTransaction(session) {
@@ -543,11 +510,8 @@ private fun Row.toAvtale(): Avtale {
         opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
         customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
     )
-    val utdanningslop = stringOrNull("utdanningslop_json")
-        ?.let { Json.decodeFromString<UtdanningslopDto>(it) }
-
-    val opplaringKategorisering = stringOrNull("amo_kategorisering_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategorisering>(it).copy(utdanningslop = utdanningslop) }
+    val opplaringKategorisering = stringOrNull("opplaring_kategorisering_json")
+        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategorisering>(it) }
 
     val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
         val underenheter = stringOrNull("arrangor_underenheter_json")
@@ -619,7 +583,6 @@ private fun Row.toAvtale(): Avtale {
         opsjonsmodell = opsjonsmodell,
         opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.createdAt },
         opplaringKategorisering = opplaringKategorisering,
-        utdanningslop = utdanningslop,
         prismodeller = prismodeller,
     )
 }

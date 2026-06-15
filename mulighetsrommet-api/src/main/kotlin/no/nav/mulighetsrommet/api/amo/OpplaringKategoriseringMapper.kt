@@ -1,13 +1,15 @@
 package no.nav.mulighetsrommet.api.amo
 
-import no.nav.mulighetsrommet.api.ApiDatabase
+import kotliquery.Session
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.models.Bransje
 import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.model.Tiltakskode
 
-class OpplaringKategoriseringMapper(val db: ApiDatabase) {
+object OpplaringKategoriseringMapper {
+    context(session: Session)
     fun from(tiltakskode: Tiltakskode): OpplaringKategoriseringResponse = when (tiltakskode) {
         Tiltakskode.ARBEIDSTRENING,
         Tiltakskode.ARBEIDSRETTET_REHABILITERING,
@@ -35,26 +37,31 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         Tiltakskode.STUDIESPESIALISERING, // Vil bli mappet med kurstype Studiespesialisering
         -> ingenValg(tiltakskode)
 
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> db.session { arenaGruppeAmo() }
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> session.arenaGruppeAmo()
 
         Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-        -> db.session { arbeidsmarkedsopplaring(tiltakskode) }
+        -> session.arbeidsmarkedsopplaring(tiltakskode)
 
-        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> db.session { norskOpplaringGrunnleggendeFerdigheterFov() }
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> session.norskOpplaringGrunnleggendeFerdigheterFov()
 
         Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
-        ->
-            db
-                .session { fagOgYrkesOpplaring(tiltakskode) }
+        -> QueryContext(session).fagOgYrkesOpplaring(tiltakskode)
     }
 
     private fun ingenValg(tiltakskode: Tiltakskode): OpplaringKategoriseringResponse = OpplaringKategoriseringResponse(tiltakskode = tiltakskode, alternativer = emptyList())
 
-    private fun QueryContext.norskOpplaringGrunnleggendeFerdigheterFov(): OpplaringKategoriseringResponse {
-        val kurstyper = queries.opplaringKategorisering.getKurstyper()
+    private fun Session.norskOpplaringGrunnleggendeFerdigheterFov(): OpplaringKategoriseringResponse {
+        val kurstyper =
+            OpplaringKategoriseringQueries.getKurstyper(
+                setOf(
+                    Kurstype.Kode.NORSKOPPLAERING,
+                    Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
+                    Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+                ),
+            )
         return OpplaringKategoriseringResponse(
             tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
             alternativer = listOf(
@@ -111,18 +118,18 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         )
     }
 
-    private fun QueryContext.arenaGruppeAmo(): OpplaringKategoriseringResponse {
-        val kurstyper = queries.opplaringKategorisering.getKurstyper(true).toMutableList()
+    private fun Session.arenaGruppeAmo(): OpplaringKategoriseringResponse {
+        val kurstyper = OpplaringKategoriseringQueries.getKurstyper().toMutableList()
         val yrkesrettetKurs = kurstyper.first {
             it.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET
         }.also { kurstyper.remove(it) }
 
-        val bransjer = queries.opplaringKategorisering.getBransjer().toMutableList()
+        val bransjer = OpplaringKategoriseringQueries.getBransjer().toMutableList()
         bransjer.find { it.kode == Bransje.Kode.ANDRE_BRANSJER }?.let {
             bransjer.remove(it)
             bransjer.addLast(it)
         }
-        val forerkort = queries.opplaringKategorisering.getForerkortKlasser()
+        val forerkort = OpplaringKategoriseringQueries.getForerkortKlasser()
 
         return OpplaringKategoriseringResponse(
             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
@@ -156,13 +163,13 @@ class OpplaringKategoriseringMapper(val db: ApiDatabase) {
         )
     }
 
-    private fun QueryContext.arbeidsmarkedsopplaring(tiltakskode: Tiltakskode): OpplaringKategoriseringResponse {
-        val bransjer = queries.opplaringKategorisering.getBransjer().toMutableList()
+    private fun Session.arbeidsmarkedsopplaring(tiltakskode: Tiltakskode): OpplaringKategoriseringResponse {
+        val bransjer = OpplaringKategoriseringQueries.getBransjer().toMutableList()
         bransjer.find { it.kode == Bransje.Kode.ANDRE_BRANSJER }?.let {
             bransjer.remove(it)
             bransjer.addLast(it)
         }
-        val forerkort = queries.opplaringKategorisering.getForerkortKlasser()
+        val forerkort = OpplaringKategoriseringQueries.getForerkortKlasser()
         return OpplaringKategoriseringResponse(
             tiltakskode = tiltakskode,
             alternativer = amoBransjeForerkortSertifisering(bransjer, forerkort),

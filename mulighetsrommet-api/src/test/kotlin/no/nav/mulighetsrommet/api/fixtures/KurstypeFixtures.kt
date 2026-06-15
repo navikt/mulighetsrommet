@@ -11,41 +11,36 @@ object KurstypeFixtures {
         UUID.fromString("8e294221-bf60-466a-96bd-7c59c338ee5e"),
         kode = Kurstype.Kode.NORSKOPPLAERING,
         navn = "Norskopplæring",
-        aktiv = true,
     )
     val grunnleggendeFerdigheter = Kurstype(
         id = UUID.fromString("19544ff4-25e5-4925-b942-6109b2a98552"),
         kode = Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
         navn = "Grunnleggende ferdigheter",
-        aktiv = true,
     )
     val fov = Kurstype(
         UUID.fromString("347ef4a1-be8c-47b6-8e67-54244b648a9f"),
         kode = Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
         navn = "FOV (Forberedende opplæring for voksne)",
-        aktiv = true,
     )
     val bransjeOgYrkesrettet = Kurstype(
         id = UUID.fromString("8c439235-4363-4137-859e-bfa33b0e8f2d"),
         kode = Kurstype.Kode.BRANSJE_OG_YRKESRETTET,
         navn = "Bransje og yrkesrettet",
-        aktiv = false,
     )
     val studiespesialisering = Kurstype(
         id = UUID.fromString("a262e282-2f81-411d-b450-06b7f3d371dc"),
         kode = Kurstype.Kode.STUDIESPESIALISERING,
         navn = "Studiespesialisering",
-        aktiv = false,
     )
 
     fun all() = setOf(norskopplaering, grunnleggendeFerdigheter, fov, bransjeOgYrkesrettet, studiespesialisering)
 
     fun query(): Query {
-        val inserts = all().joinToString(",\n") { "('${it.id}','${it.kode.name}', '${it.navn}', ${it.aktiv})" }
+        val inserts = all().joinToString(",\n") { "('${it.id}','${it.kode.name}', '${it.navn}')" }
 
         @Language("PostgreSQL")
         val query = """
-            insert into opplaring_kategorisering_kurstype (id, kode, navn, aktiv)
+            insert into opplaring_kategorisering_kurstype (id, kode, navn)
             values $inserts
             on conflict (id) do nothing;
         """.trimIndent()
