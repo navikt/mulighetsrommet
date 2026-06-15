@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
@@ -190,7 +191,12 @@ class TilsagnQueriesTest : FunSpec({
                         periode = tilsagn.periode,
                         antallPlasser = 10,
                         sats = 100.NOK,
-                        stengt = setOf(),
+                        stengt = setOf(
+                            StengtPeriode(
+                                Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 17)),
+                                "Vinterstengt",
+                            ),
+                        ),
                     ),
                     output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(
                         pris = 1000.NOK,
@@ -212,7 +218,12 @@ class TilsagnQueriesTest : FunSpec({
                         antallPlasser = 10,
                         sats = 100.NOK,
                         prisbetingelser = "Per måned",
-                        stengt = setOf(),
+                        stengt = setOf(
+                            StengtPeriode(
+                                Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 17)),
+                                "Juleferie",
+                            ),
+                        ),
                     ),
                     output = TilsagnBeregningPrisPerManedsverk.Output(
                         pris = 1000.NOK,
@@ -234,7 +245,12 @@ class TilsagnQueriesTest : FunSpec({
                         antallPlasser = 10,
                         sats = 100.NOK,
                         prisbetingelser = "Per uke",
-                        stengt = setOf(),
+                        stengt = setOf(
+                            StengtPeriode(
+                                Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 17)),
+                                "Juleferie",
+                            ),
+                        ),
                     ),
                     output = TilsagnBeregningPrisPerUkesverk.Output(
                         pris = 1000.NOK,
@@ -256,7 +272,12 @@ class TilsagnQueriesTest : FunSpec({
                         antallPlasser = 10,
                         sats = 100.NOK,
                         prisbetingelser = "Per uke",
-                        stengt = setOf(),
+                        stengt = setOf(
+                            StengtPeriode(
+                                Periode(LocalDate.of(2023, 1, 10), LocalDate.of(2023, 1, 17)),
+                                "Juleferie",
+                            ),
+                        ),
                     ),
                     output = TilsagnBeregningPrisPerHeleUkesverk.Output(
                         1000.NOK,

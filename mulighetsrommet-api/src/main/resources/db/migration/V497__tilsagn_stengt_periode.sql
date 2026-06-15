@@ -1,7 +1,2 @@
-create table tilsagn_stengt_periode
-(
-    tilsagn_id  uuid      not null references tilsagn (id) on delete cascade,
-    periode     daterange not null,
-    beskrivelse text      not null,
-    exclude using gist(tilsagn_id with =, periode with &&)
-);
+alter table tilsagn
+    add column beregning_stengte_perioder jsonb not null default '[]';
