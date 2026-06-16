@@ -1,8 +1,8 @@
 import { useGodkjennGjennomforingOkonomi } from "@/api/gjennomforing/useGodkjennGjennomforingOkonomi";
 import { Button, InfoCard, Modal, VStack } from "@navikt/ds-react";
-import { Betalingsbetingelser } from "../tilskudd-behandling/Betalingsbetingelser";
 import { PrismodellDto } from "@tiltaksadministrasjon/api-client";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
+import { BetalingsbetingelserEnkeltplass } from "./BetalingsbetingelserEnkeltplass";
 
 interface Props {
   open: boolean;
@@ -37,7 +37,7 @@ export function GodkjennOkonomiModal({ open, setOpen, gjennomforingId, prismodel
               inneholder informasjon om innhold, pris og betalingsbetingelser.
             </InfoCard.Content>
           </InfoCard>
-          <Betalingsbetingelser prisbetingelser={prismodell.prisbetingelser} />
+          <BetalingsbetingelserEnkeltplass prismodell={prismodell} />
         </VStack>
       </Modal.Body>
       <Modal.Footer>

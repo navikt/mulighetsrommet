@@ -45,7 +45,7 @@ import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPage
 import { UtdanningslopDetaljer } from "../utdanning/UtdanningslopDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 import { AmoKategoriseringDetaljer } from "../amoKategorisering/AmoKategoriseringDetaljer";
-import { Betalingsbetingelser } from "../tilskudd-behandling/Betalingsbetingelser";
+import { BetalingsbetingelserEnkeltplass } from "./BetalingsbetingelserEnkeltplass";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -155,9 +155,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
           </DetaljerLayout>
           <DetaljerLayout>
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-            {enkeltplassDeltaker && (
-              <Betalingsbetingelser prisbetingelser={prismodell.prisbetingelser} />
-            )}
+            {enkeltplassDeltaker && <BetalingsbetingelserEnkeltplass prismodell={prismodell} />}
             {isAvvist(okonomi) && <OkonomiStatusSattPaVent okonomi={okonomi} />}
           </DetaljerLayout>
         </TwoColumnGrid>

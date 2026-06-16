@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
@@ -14,9 +15,17 @@ data class PrismodellDto(
     val valuta: Valuta,
     val prisbetingelser: String?,
     val tilsagnPerDeltaker: Boolean?,
+    val tilskudd: List<TilskuddOgBelop>,
+    val totalBelop: Int?,
 ) {
     val navn: String = type.navn
     val beskrivelse: List<String> = type.beskrivelse
+
+    @Serializable
+    data class TilskuddOgBelop(
+        val type: Opplaeringtilskudd.Kode,
+        val belop: Int,
+    )
 }
 
 fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
@@ -57,6 +66,34 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.IngenKostnader,
         -> null
     }
+    val tilskudd = when (prismodell) {
+        is Prismodell.TilskuddTilOpplaering -> prismodell.tilskudd.map {
+            PrismodellDto.TilskuddOgBelop(it.key, it.value)
+        }.toList()
+
+        is Prismodell.AnnenAvtaltPris,
+        is Prismodell.AvtaltPrisPerHeleUkesverk,
+        is Prismodell.AvtaltPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
+        is Prismodell.AvtaltPrisPerUkesverk,
+        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+        is Prismodell.IngenKostnader,
+        -> emptyList()
+    }
+    val totalBelop = when (prismodell) {
+        is Prismodell.AnnenAvtaltPris -> prismodell.totalbelop
+
+        is Prismodell.AvtaltPrisPerHeleUkesverk,
+        is Prismodell.AvtaltPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
+        is Prismodell.AvtaltPrisPerUkesverk,
+        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+        is Prismodell.IngenKostnader,
+        is Prismodell.TilskuddTilOpplaering,
+        -> null
+    }
 
     return PrismodellDto(
         id = prismodell.id,
@@ -67,5 +104,7 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         },
         prisbetingelser = prisbetingelser,
         tilsagnPerDeltaker = tilsagnPerDeltaker,
+        tilskudd = tilskudd,
+        totalBelop = totalBelop,
     )
 }

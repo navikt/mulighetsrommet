@@ -4717,6 +4717,15 @@ components:
           type:
           - "null"
           - boolean
+        tilskudd:
+          type: array
+          items:
+            $ref: "#/components/schemas/PrismodellDto.TilskuddOgBelop"
+        totalBelop:
+          type:
+          - "null"
+          - integer
+          format: int32
         navn:
           type: string
         beskrivelse:
@@ -4730,6 +4739,8 @@ components:
       - prisbetingelser
       - satser
       - tilsagnPerDeltaker
+      - tilskudd
+      - totalBelop
       - type
       - valuta
     AvtaltSatsDto:
@@ -4760,6 +4771,25 @@ components:
       required:
       - belop
       - valuta
+    PrismodellDto.TilskuddOgBelop:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
+        belop:
+          type: integer
+          format: int32
+      required:
+      - belop
+      - type
+    Opplaeringtilskudd.Kode:
+      type: string
+      enum:
+      - SKOLEPENGER
+      - STUDIEREISE
+      - EKSAMENSAVGIFT
+      - SEMESTERAVGIFT
+      - INTEGRERT_BOTILBUD
     AvtaleDto:
       type: object
       properties:
@@ -7654,14 +7684,6 @@ components:
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
       - UTBETALT
-    Opplaeringtilskudd.Kode:
-      type: string
-      enum:
-      - SKOLEPENGER
-      - STUDIEREISE
-      - EKSAMENSAVGIFT
-      - SEMESTERAVGIFT
-      - INTEGRERT_BOTILBUD
     VedtakResultatDto:
       type: object
       properties:

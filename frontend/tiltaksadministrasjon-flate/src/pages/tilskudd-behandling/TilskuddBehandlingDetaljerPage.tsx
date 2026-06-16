@@ -42,7 +42,7 @@ import {
   tilskuddMottakerToString,
 } from "@/utils/Utils";
 import { PencilFillIcon } from "@navikt/aksel-icons";
-import { Betalingsbetingelser } from "@/components/tilskudd-behandling/Betalingsbetingelser";
+import { BetalingsbetingelserEnkeltplass } from "@/components/gjennomforing/BetalingsbetingelserEnkeltplass";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -208,7 +208,7 @@ export function TilskuddBehandlingDetaljerPage() {
                 />
               </VStack>
             </>
-            <Betalingsbetingelser prisbetingelser={prismodell.prisbetingelser} />
+            <BetalingsbetingelserEnkeltplass prismodell={prismodell} />
           </TwoColumnGrid>
         </Box>
         <Separator />
