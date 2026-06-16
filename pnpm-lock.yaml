@@ -39,8 +39,8 @@ importers:
         specifier: 11.14.0
         version: 11.14.0(@types/react@19.2.14)(react@19.2.4)
       '@grafana/faro-web-sdk':
-        specifier: 2.7.0
-        version: 2.7.0
+        specifier: 2.7.1
+        version: 2.7.1
       '@mr/frontend-common':
         specifier: workspace:*
         version: link:../frontend-common
@@ -227,8 +227,8 @@ importers:
         specifier: workspace:*
         version: link:../arrangor-utbetalinger-api-client
       '@grafana/faro-react':
-        specifier: 2.7.0
-        version: 2.7.0(react-dom@19.2.4(react@19.2.4))(react-router@7.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
+        specifier: 2.7.1
+        version: 2.7.1(react-dom@19.2.4(react@19.2.4))(react-router@7.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
       '@mjackson/form-data-parser':
         specifier: 0.9.1
         version: 0.9.1
@@ -578,8 +578,8 @@ importers:
   frontend/tiltaksadministrasjon-flate:
     dependencies:
       '@grafana/faro-web-sdk':
-        specifier: 2.7.0
-        version: 2.7.0
+        specifier: 2.7.1
+        version: 2.7.1
       '@hookform/resolvers':
         specifier: 5.4.0
         version: 5.4.0(react-hook-form@7.78.0(react@19.2.4))
@@ -2009,11 +2009,11 @@ packages:
   '@floating-ui/utils@0.2.11':
     resolution: {integrity: sha512-RiB/yIh78pcIxl6lLMG0CgBXAZ2Y0eVHqMPYugu+9U0AeT6YBeiJpf7lbdJNIugFP5SIjwNRgo4DhR1Qxi26Gg==}
 
-  '@grafana/faro-core@2.7.0':
-    resolution: {integrity: sha512-fNOfWEouoHhZ4dw+oLO+UGoMBLgiLLQU56dp9+NgO3mGNwCYsFTQuKgKQfOe5DDmAbwpRISEyLbiMkEyY7mIJQ==}
+  '@grafana/faro-core@2.7.1':
+    resolution: {integrity: sha512-qJOp0sPBAEsmUxhs11nVdGx5Dk+VJ4CN/4s9ek99m33FfzybmjQ9nPXLHWhwEeNJNiEwQdDl4HsNUlXBGT5YEw==}
 
-  '@grafana/faro-react@2.7.0':
-    resolution: {integrity: sha512-95wmypcDjHdGe64TCivq3DKLut9q3RRANgKoSLSQhGHmXdKTwE2Ov0+UdUkVQ9uu3KsGGQJRuXkldP0YMIEMiw==}
+  '@grafana/faro-react@2.7.1':
+    resolution: {integrity: sha512-Gg94peyHQkqzTw6+ALZP5paxhu83QAAr03JlFMgKXmCs7+S9O5j/N+hDWiy91mws1bMpGDqdUxAishwEewTmHQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -2027,11 +2027,11 @@ packages:
       react-router-dom:
         optional: true
 
-  '@grafana/faro-web-sdk@2.7.0':
-    resolution: {integrity: sha512-NIbFK2g634/KOcq6ej1LseZrbbRejBiIrO8beQpYX6CkyXVGrcdoWRfJdqkQ3Ys60h4aTH+xoAh2Oh0HebhOZg==}
+  '@grafana/faro-web-sdk@2.7.1':
+    resolution: {integrity: sha512-ZK3MuE6FWBmiT5tTivcMovTVe8fG1tPm1ctc84blVoJkpQXlgODxOX7/fNmDBOjaHZ3EWdoGplZmjoXQ3g0mDw==}
 
-  '@grafana/faro-web-tracing@2.7.0':
-    resolution: {integrity: sha512-k6eIJeLwm60FpCB+OevL+VLqnoibtCsnozs3ZCQpiUMt6G2PUIQ6/wkHfSEF46R2H+AuVB3nk9oHUKpS5o2wQQ==}
+  '@grafana/faro-web-tracing@2.7.1':
+    resolution: {integrity: sha512-BCgFfxme4geu3glzHTbgdQpt1foKLS7Vu+jtuTYtelmR6VWBNcgrmrrzzOfJKTEmruk3Sq7SLM6/iAQS4CV1zA==}
 
   '@hey-api/codegen-core@0.9.0':
     resolution: {integrity: sha512-OK9/R8WuujwgvnrDIPnEiIf6WnfUOi3GaEr6kIngqoI5FUQwYbeDKHE/frTVUl2A76ZQPCrMknHtPx6Gqtwf8Q==}
@@ -5906,8 +5906,8 @@ packages:
     resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
     engines: {node: '>=6'}
 
-  import-in-the-middle@3.0.1:
-    resolution: {integrity: sha512-pYkiyXVL2Mf3pozdlDGV6NAObxQx13Ae8knZk1UJRJ6uRW/ZRmTGHlQYtrsSl7ubuE5F8CD1z+s1n4RHNuTtuA==}
+  import-in-the-middle@3.0.2:
+    resolution: {integrity: sha512-LGLYRl0A2gtyUJb2WDliBHmk6TtlHwdDjxonacZ8QrEs/ZW+YDgNv2QAfjRQWpS8HqvNcq6GGnN6jrOa5FysDQ==}
     engines: {node: '>=18'}
 
   import-meta-resolve@4.2.0:
@@ -8602,9 +8602,6 @@ packages:
     resolution: {integrity: sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==}
     engines: {node: '>=18'}
 
-  web-vitals@5.2.0:
-    resolution: {integrity: sha512-i2z98bEmaCqSDiHEDu+gHl/dmR4Q+TxFmG3/13KkMO+o8UxQzCqWaDRCiLgEa41nlO4VpXSI0ASa1xWmO9sBlA==}
-
   web-vitals@5.3.0:
     resolution: {integrity: sha512-q6LWsLatGYZp5VGBIOvbTj6JBV2nOmC8KvWztXBmwJcfFAzhwKwbOxhUH306XY3CcaZDUlSmSuNPBsCn0bFu+g==}
 
@@ -10250,15 +10247,15 @@ snapshots:
 
   '@floating-ui/utils@0.2.11': {}
 
-  '@grafana/faro-core@2.7.0':
+  '@grafana/faro-core@2.7.1':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/otlp-transformer': 0.218.0(@opentelemetry/api@1.9.1)
 
-  '@grafana/faro-react@2.7.0(react-dom@19.2.4(react@19.2.4))(react-router@7.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)':
+  '@grafana/faro-react@2.7.1(react-dom@19.2.4(react@19.2.4))(react-router@7.17.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)':
     dependencies:
-      '@grafana/faro-web-sdk': 2.7.0
-      '@grafana/faro-web-tracing': 2.7.0
+      '@grafana/faro-web-sdk': 2.7.1
+      '@grafana/faro-web-tracing': 2.7.1
       hoist-non-react-statics: 3.3.2
       react: 19.2.4
     optionalDependencies:
@@ -10267,15 +10264,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@grafana/faro-web-sdk@2.7.0':
+  '@grafana/faro-web-sdk@2.7.1':
     dependencies:
-      '@grafana/faro-core': 2.7.0
+      '@grafana/faro-core': 2.7.1
       ua-parser-js: 1.0.41
-      web-vitals: 5.2.0
+      web-vitals: 5.3.0
 
-  '@grafana/faro-web-tracing@2.7.0':
+  '@grafana/faro-web-tracing@2.7.1':
     dependencies:
-      '@grafana/faro-web-sdk': 2.7.0
+      '@grafana/faro-web-sdk': 2.7.1
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/core': 2.7.1(@opentelemetry/api@1.9.1)
       '@opentelemetry/exporter-trace-otlp-http': 0.218.0(@opentelemetry/api@1.9.1)
@@ -10950,7 +10947,7 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/api-logs': 0.218.0
-      import-in-the-middle: 3.0.1
+      import-in-the-middle: 3.0.2
       require-in-the-middle: 8.0.1
     transitivePeerDependencies:
       - supports-color
@@ -14596,7 +14593,7 @@ snapshots:
       parent-module: 1.0.1
       resolve-from: 4.0.0
 
-  import-in-the-middle@3.0.1:
+  import-in-the-middle@3.0.2:
     dependencies:
       acorn: 8.16.0
       acorn-import-attributes: 1.9.5(acorn@8.16.0)
@@ -17604,8 +17601,6 @@ snapshots:
   w3c-xmlserializer@5.0.0:
     dependencies:
       xml-name-validator: 5.0.0
-
-  web-vitals@5.2.0: {}
 
   web-vitals@5.3.0: {}
 
