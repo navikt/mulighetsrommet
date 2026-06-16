@@ -52,9 +52,8 @@ class ArrangorflateService(
 ) {
 
     fun getAllUtbetalingKompakt(filter: ArrangorflateUtbetalingFilter): PaginatedResult<ArrangorflateUtbetalingKompakt> = db.session {
-        queries.utbetaling
-            .getArrangorflateFiltered(filter)
-            .map { toArrangorflateUtbetalingKompakt(it) }
+        queries.arrangorflate.utbetaling
+            .getFilteredKompakt(filter)
     }
 
     suspend fun getTilsagn(id: UUID): ArrangorflateTilsagnDto? = db.session {
@@ -223,7 +222,7 @@ class ArrangorflateService(
 
     private fun QueryContext.toArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
         val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
-        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling)
+        val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
         val godkjentBelop = when (status) {
             ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
             ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,

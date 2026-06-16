@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.util.UUID
 
 enum class UtbetalingType(val displayName: String, val displayNameLong: String?, val tagName: String?) {
     KORRIGERING("Korrigering", null, "KOR"),
@@ -11,9 +12,11 @@ enum class UtbetalingType(val displayName: String, val displayNameLong: String?,
     ;
 
     companion object {
-        fun from(utbetaling: Utbetaling): UtbetalingType = when {
-            utbetaling.korreksjon != null -> KORRIGERING
-            utbetaling.tilskuddstype == Tilskuddstype.TILTAK_INVESTERINGER -> INVESTERING
+        fun from(utbetaling: Utbetaling): UtbetalingType = from(utbetaling.korreksjon?.gjelderUtbetalingId, utbetaling.tilskuddstype)
+
+        fun from(korreksjonId: UUID?, tilskuddstype: Tilskuddstype) = when {
+            korreksjonId != null -> KORRIGERING
+            tilskuddstype == Tilskuddstype.TILTAK_INVESTERINGER -> INVESTERING
             else -> INNSENDING
         }
     }
