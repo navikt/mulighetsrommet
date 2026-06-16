@@ -46,7 +46,11 @@ updates:
       # Trukket ut til egen gruppe siden nye versjoner av biblioteket kan introdusere regler som gjør at bygget feiler
       ktlint:
         patterns:
-          - "com.pinterest.ktlint:ktlint-cli"
+          - "com.pinterest.kotlint:ktlint-cli"
+
+      ktor:
+        patterns:
+          - "io.ktor:*"
 
       minor-and-patch:
         update-types:
@@ -54,6 +58,7 @@ updates:
           - "patch"
         exclude-patterns:
           - "com.pinterest.ktlint:ktlint-cli"
+          - "io.ktor:*"
 
   - package-ecosystem: npm
     directory: "/"
