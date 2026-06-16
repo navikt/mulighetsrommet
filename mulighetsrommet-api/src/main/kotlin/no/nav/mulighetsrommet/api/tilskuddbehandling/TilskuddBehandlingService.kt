@@ -106,8 +106,7 @@ class TilskuddBehandlingService(
                 .map {
                     queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
                     scheduleJournalforVedtak(id)
-                    logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent)
-                }
+            logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent)}
         }
     } catch (e: UtbetalingException) {
         e.errors.left()
