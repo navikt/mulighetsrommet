@@ -1,8 +1,4 @@
 {
-  "title": "Vedtak om opplæringstilskudd",
-  "subject": "Vedtak om opplæringstilskudd for Ola Normann",
-  "description": "Vedtak om opplæringstilskudd for Ola Normann",
-  "author": "Tiltaksadministrasjon",
   "deltaker": {
     "fornavn": "Ola",
     "mellomnavn": "",
@@ -11,13 +7,9 @@
   },
   "saksnummer": "V-2026/9999-1",
   "opprettetDato": "2026-05-26",
-  "saksbehandler": {
-    "navn": "Saksbehandler"
-  },
-  "beslutter": {
-    "navn": "Beslutter"
-  },
-    "enhet": "Nav Øst-Viken",
+  "saksbehandler": "Saksbehandler",
+  "beslutter": "Beslutter",
+  "enhet": "Nav Øst-Viken",
   "vedtak": [
     {
       "utfall": "Innvilgelse",

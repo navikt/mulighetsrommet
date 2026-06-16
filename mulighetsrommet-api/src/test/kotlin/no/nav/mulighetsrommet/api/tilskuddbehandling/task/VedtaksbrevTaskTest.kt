@@ -78,10 +78,11 @@ class VedtaksbrevTaskTest : FunSpec({
     test("journalforing setter journalpostid") {
         val pdfGenClient = mockk<PdfGenClient>()
         val dokarkClient = mockk<DokarkClient>()
+        val totrinnskontroll = mockk<TotrinnskontrollService>(relaxed = true)
         val distribuerVedtaksbrev = mockk<DistribuerVedtaksbrev>(relaxed = true)
-        val pdfMock = byteArrayOf(1)
+        val pdfPayload = byteArrayOf(1)
 
-        coEvery { pdfGenClient.getPdfDocument(any()) } returns pdfMock.right()
+        coEvery { pdfGenClient.getPdfVedtaksbrev(any()) } returns pdfPayload.right()
         coEvery { dokarkClient.opprettJournalpost(any(), any()) } returns DokarkResponse(
             journalpostId = "121212",
             journalstatus = "ok",
@@ -96,6 +97,7 @@ class VedtaksbrevTaskTest : FunSpec({
             personaliaService = personaliaService,
             pdf = pdfGenClient,
             distribuerVedtaksbrev = distribuerVedtaksbrev,
+            totrinnskontrollService = totrinnskontroll,
         )
 
         task.journalfor(behandlingId).shouldBeRight()
@@ -109,7 +111,7 @@ class VedtaksbrevTaskTest : FunSpec({
         val pdfGenClient = mockk<PdfGenClient>()
         val dokarkClient = mockk<DokarkClient>()
 
-        coEvery { pdfGenClient.getPdfDocument(any()) } returns PdfGenError(500, "").left()
+        coEvery { pdfGenClient.getPdfVedtaksbrev(any()) } returns PdfGenError(500, "").left()
 
         val task = JournalforVedtaksbrev(
             db = database.db,
@@ -117,6 +119,7 @@ class VedtaksbrevTaskTest : FunSpec({
             personaliaService = personaliaService,
             pdf = pdfGenClient,
             distribuerVedtaksbrev = mockk(relaxed = true),
+            totrinnskontrollService = mockk(relaxed = true),
         )
 
         task.journalfor(behandlingId).shouldBeLeft("Feil fra pdfgen: PdfGenError(statusCode=500, message=)")

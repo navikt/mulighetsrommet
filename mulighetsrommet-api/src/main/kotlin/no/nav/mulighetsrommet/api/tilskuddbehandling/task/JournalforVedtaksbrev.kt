@@ -14,8 +14,12 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
+import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToVedtaksbrevContent
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -32,6 +36,7 @@ class JournalforVedtaksbrev(
     private val db: ApiDatabase,
     private val dokarkClient: DokarkClient,
     private val personaliaService: PersonaliaService,
+    private val totrinnskontrollService: TotrinnskontrollService,
     private val pdf: PdfGenClient,
     private val distribuerVedtaksbrev: DistribuerVedtaksbrev,
 ) {
@@ -71,8 +76,9 @@ class JournalforVedtaksbrev(
         val fagsakId = gjennomforing.lopenummer.value
         val deltaker = queries.deltaker.getByGjennomforingId(gjennomforing.id).first()
         val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
+        val totrinnskontroll = totrinnskontrollService.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE).toDto() as TotrinnskontrollDto.Besluttet
 
-        generatePdf(tilskudd, gjennomforing, personalia)
+        generatePdf(tilskudd, totrinnskontroll, gjennomforing, personalia)
             .flatMap { pdf ->
                 val journalpost = vedtakJournalpost(
                     pdf,
@@ -91,16 +97,18 @@ class JournalforVedtaksbrev(
 
     private suspend fun generatePdf(
         tilskudd: TilskuddBehandlingDto,
+        totrinnskontroll: TotrinnskontrollDto.Besluttet,
         gjennomforing: GjennomforingEnkeltplass,
         personalia: Personalia,
     ): Either<String, ByteArray> {
-        val content = TilskuddVedtakToPdfDocumentContentMapper.toVedtakPdfContent(
+        val content = TilskuddVedtakToVedtaksbrevContent.toVedtakPdfContent(
             tilskudd,
+            totrinnskontroll,
             personalia,
             gjennomforing,
         )
         return pdf
-            .getPdfDocument(content)
+            .getPdfVedtaksbrev(content)
             .mapLeft { error -> "Feil fra pdfgen: $error" }
     }
 }

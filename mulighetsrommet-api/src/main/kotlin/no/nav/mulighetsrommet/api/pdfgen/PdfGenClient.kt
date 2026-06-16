@@ -32,13 +32,19 @@ class PdfGenClient(
         }
     }
 
-    suspend fun getPdfDocument(
-        content: PdfDocumentContent,
-    ): Either<PdfGenError, ByteArray> {
+    suspend fun getPdfDocument(content: PdfDocumentContent): Either<PdfGenError, ByteArray> {
         return downloadPdf(
             app = "block-content",
             template = "document",
             body = content,
+        )
+    }
+
+    suspend fun getPdfVedtaksbrev(vedtaksbrev: VedtaksbrevContent): Either<PdfGenError, ByteArray> {
+        return downloadPdf(
+            app = "block-content",
+            template = "vedtak",
+            body = vedtaksbrev,
         )
     }
 

@@ -569,7 +569,7 @@ private fun tasks(config: AppConfig) = module {
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
     single { JournalforEnkeltplassTilsagnsbrev(get(), get(), get(), get(), get(), get()) }
     single { DistribuerTilsagnsbrev(get(), get()) }
-    single { JournalforVedtaksbrev(get(), get(), get(), get(), get()) }
+    single { JournalforVedtaksbrev(get(), get(), get(), get(), get(), get()) }
     single { DistribuerVedtaksbrev(get(), get()) }
     single { UpdateGjennomforingAvtaleFreeTextSearch(get(), get()) }
     single {
