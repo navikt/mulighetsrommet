@@ -1,20 +1,9 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     application
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
 }
 
-val compileKotlin: KotlinCompile by tasks
-compileKotlin.compilerOptions {
-    freeCompilerArgs.set(listOf("-Xcontext-parameters"))
-}
-
-val compileTestKotlin: KotlinCompile by tasks
-compileTestKotlin.compilerOptions {
-    freeCompilerArgs.set(listOf("-Xcontext-parameters"))
-}
 application {
     mainClass.set("no.nav.mulighetsrommet.api.ApplicationKt")
 }
