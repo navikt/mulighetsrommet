@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Periode
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
@@ -17,7 +18,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendels
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
-import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -56,7 +56,10 @@ class TilskuddBrukerUtbetalingConsumer(
         utbetalTilskuddTilBruker(behandling, totrinnskontrollHendelse)
     }
 
-    private suspend fun utbetalTilskuddTilBruker(behandling: TilskuddBehandlingDto, totrinnskontroll: TotrinnskontrollHendelse) {
+    private suspend fun utbetalTilskuddTilBruker(
+        behandling: TilskuddBehandlingDto,
+        totrinnskontroll: TotrinnskontrollHendelse,
+    ) {
         val (gjennomforing, deltaker) = db.session {
             val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(behandling.gjennomforingId)
             val deltaker = getDeltaker(gjennomforing.id)

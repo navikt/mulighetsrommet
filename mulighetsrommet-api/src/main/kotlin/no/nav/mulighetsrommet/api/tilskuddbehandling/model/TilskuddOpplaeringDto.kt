@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
-import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.ValutaBelop

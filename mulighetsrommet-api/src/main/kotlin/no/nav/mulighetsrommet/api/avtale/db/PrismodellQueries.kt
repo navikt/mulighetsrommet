@@ -7,7 +7,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.Valuta
 import org.intellij.lang.annotations.Language

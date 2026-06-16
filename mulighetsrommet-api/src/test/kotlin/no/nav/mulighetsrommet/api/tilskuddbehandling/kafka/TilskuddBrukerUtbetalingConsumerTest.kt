@@ -19,8 +19,10 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
@@ -30,7 +32,6 @@ import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
-import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -44,6 +45,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
     val personaliaService = mockk<PersonaliaService>()
     val brukerUtbetalingService = mockk<BrukerUtbetalingService>(relaxed = true)
+    val journalforVedtaksbrev = mockk<JournalforVedtaksbrev>(relaxed = true)
 
     val behandlingId = UUID.randomUUID()
     val tilskuddId = UUID.randomUUID()
@@ -55,7 +57,9 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
-            deltakere = listOf(DeltakerFixtures.createDeltakerDbo(GjennomforingFixtures.EnkelAmo.id).copy(id = deltakerId)),
+            deltakere = listOf(
+                DeltakerFixtures.createDeltakerDbo(GjennomforingFixtures.EnkelAmo.id).copy(id = deltakerId),
+            ),
         ).initialize(database.db)
 
         coEvery { personaliaService.getPersonalia(deltakerId, any()) } returns Personalia(
@@ -117,7 +121,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     )
 
     test("oppretter hel ved utbetaling for innvilget tilskudd til bruker") {
-        val service = TilskuddBehandlingService(database.db, TotrinnskontrollService(""))
+        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService(""))
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         createConsumer().consume(behandlingId, Json.encodeToJsonElement(godkjentHendelse))
@@ -135,7 +139,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     }
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
-        val service = TilskuddBehandlingService(database.db, TotrinnskontrollService(""))
+        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService(""))
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()

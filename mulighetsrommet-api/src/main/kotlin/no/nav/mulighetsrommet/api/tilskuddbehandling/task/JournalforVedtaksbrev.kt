@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.task
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
+import com.github.kagkarlsson.scheduler.task.FailureHandler
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
@@ -22,6 +23,7 @@ import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
+import java.time.Duration.ofMinutes
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -31,6 +33,7 @@ class JournalforVedtaksbrev(
     private val dokarkClient: DokarkClient,
     private val personaliaService: PersonaliaService,
     private val pdf: PdfGenClient,
+    private val distribuerVedtaksbrev: DistribuerVedtaksbrev,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -42,9 +45,13 @@ class JournalforVedtaksbrev(
 
     val task: OneTimeTask<TaskData> = Tasks
         .oneTime(javaClass.simpleName, TaskData::class.java)
+        .onFailure(FailureHandler.ExponentialBackoffFailureHandler<TaskData>(ofMinutes(5)))
         .executeSuspend { inst, _ ->
             journalfor(inst.data.vedtakId).onLeft { message ->
                 throw Exception("Feil ved journalføring av vedtak med id=${inst.data.vedtakId}: $message")
+            }.map { response ->
+                logger.info("Skedulerer distribusjon av vedtaksbrev journalpostId: ${response.journalpostId}, vedtakId: ${inst.data.vedtakId}")
+                distribuerVedtaksbrev.schedule(inst.data.vedtakId)
             }
         }
 
@@ -56,7 +63,7 @@ class JournalforVedtaksbrev(
         return id
     }
 
-    suspend fun journalfor(id: UUID): Either<String, DokarkResponse> = db.session {
+    suspend fun journalfor(id: UUID): Either<String, DokarkResponse> = db.transaction {
         logger.info("Journalfører vedtak med id: $id")
 
         val tilskudd = queries.tilskuddBehandling.getOrError(id)

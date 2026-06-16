@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.kafka
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringResponse
-import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer

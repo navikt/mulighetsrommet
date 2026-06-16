@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="nb">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>{{title}}</title>
+  <meta name="subject" content="{{subject}}" />
+  <meta name="description" content="{{description}}" />
+  <meta name="author" content="{{author}}" />
+  {{> block-content/vedtak/vedtak-style}}
+</head>
+
+<body>
+<div id="footer">
+  <span class="sidetall">side <span id="pagenumber"></span> av <span id="pagecount"></span></span>
+</div>
+{{> block-content/vedtak/header}}
+<main>
+  <h1>Vedtak om tilskudd til opplæring</h1>
+  {{#each vedtak}}
+    {{> block-content/vedtak/vedtakinnvilgelse }}
+  {{/each}}
+  {{> block-content/vedtak/innsynsrett}}
+  {{> block-content/vedtak/personopplysninger}}
+  {{> block-content/vedtak/klagerett}}
+  {{> block-content/vedtak/avsender}}
+</main>
+</body>
+
+</html>
