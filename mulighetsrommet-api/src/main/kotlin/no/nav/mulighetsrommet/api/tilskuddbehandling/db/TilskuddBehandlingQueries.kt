@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.intellij.lang.annotations.Language
 import java.util.UUID
+import no.nav.mulighetsrommet.model.JournalpostId
 
 class TilskuddBehandlingQueries(private val session: Session) {
     fun upsert(dbo: TilskuddBehandlingDbo): Unit = withTransaction(session) {
@@ -121,6 +122,23 @@ class TilskuddBehandlingQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
+    fun setJournalpostId(tilskuddBehandlingId: UUID, journalpostId: String) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilskudd_behandling
+              set vedtak_journalpost_id = :journalpost_id,
+              vedtak_journalfort_tidspunkt = now()
+            where
+              id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to tilskuddBehandlingId,
+            "journalpost_id" to journalpostId,
+        )
+        session.execute(queryOf(query, params))
+    }
+
     fun setStatus(id: UUID, status: TilskuddBehandlingStatus) {
         @Language("PostgreSQL")
         val query = """
@@ -175,7 +193,12 @@ class TilskuddBehandlingQueries(private val session: Session) {
             where gjennomforing_id = :gjennomforing_id::uuid
         """.trimIndent()
 
-        return session.list(queryOf(query, mapOf("gjennomforing_id" to gjennomforingId))) { it.toTilskuddBehandlingDto() }
+        return session.list(
+            queryOf(
+                query,
+                mapOf("gjennomforing_id" to gjennomforingId),
+            ),
+        ) { it.toTilskuddBehandlingDto() }
     }
 }
 

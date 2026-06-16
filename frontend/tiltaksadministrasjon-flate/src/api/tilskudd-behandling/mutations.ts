@@ -25,7 +25,7 @@ export function useGodkjennTilskuddBehandling(gjennomforingId: string) {
   const queryClient = useQueryClient();
 
   return useApiMutation<unknown, ProblemDetail, string>({
-    mutationFn: (id) => TilskuddBehandlingService.godkjennTilskuddBehandling({ path: { id } }),
+    mutationFn: (id) => TilskuddBehandlingService.attesterTilskuddBehandling({ path: { id } }),
     async onSuccess() {
       await queryClient.invalidateQueries({
         queryKey: QueryKeys.tilskuddBehandlinger(gjennomforingId),
