@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
-import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -39,8 +38,7 @@ data class ArrangorflateUtbetaling(
     val innsending: Innsending?,
     val valuta: Valuta,
     val beregning: UtbetalingBeregning,
-    val betalingsinformasjon: Betalingsinformasjon?,
-    val journalpostId: JournalpostId?,
+    val betalingsinformasjon: Betalingsinformasjon.BBan?,
     val periode: Periode,
     @Serializable(with = InstantSerializer::class)
     val utbetalesTidligstTidspunkt: Instant?,
@@ -48,11 +46,8 @@ data class ArrangorflateUtbetaling(
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime,
-    val kommentar: String?,
-    val begrunnelseMindreBetalt: String?,
     val tilskuddstype: Tilskuddstype,
     val status: UtbetalingStatusType,
-    val avbruttBegrunnelse: String?,
     @Serializable(with = InstantSerializer::class)
     val avbruttTidspunkt: Instant?,
     val blokkeringer: Set<Utbetaling.Blokkering>,
@@ -70,39 +65,6 @@ data class ArrangorflateUtbetaling(
             is UtbetalingBeregningFri -> innsending != null
         }
     }
-
-    fun erTilBehandling(): Boolean = when (status) {
-        UtbetalingStatusType.TIL_BEHANDLING,
-        UtbetalingStatusType.RETURNERT,
-        -> true
-
-        UtbetalingStatusType.GENERERT,
-        UtbetalingStatusType.TIL_ATTESTERING,
-        UtbetalingStatusType.FERDIG_BEHANDLET,
-        UtbetalingStatusType.DELVIS_UTBETALT,
-        UtbetalingStatusType.UTBETALT,
-        UtbetalingStatusType.AVBRUTT,
-        -> false
-    }
-
-    fun erFerdigBehandlet(): Boolean = when (status) {
-        UtbetalingStatusType.FERDIG_BEHANDLET,
-        UtbetalingStatusType.DELVIS_UTBETALT,
-        UtbetalingStatusType.UTBETALT,
-        -> true
-
-        UtbetalingStatusType.RETURNERT,
-        UtbetalingStatusType.TIL_BEHANDLING,
-        UtbetalingStatusType.GENERERT,
-        UtbetalingStatusType.TIL_ATTESTERING,
-        UtbetalingStatusType.AVBRUTT,
-        -> false
-    }
-
-    // TODO: sealed class i stedet for nullable properties?
-    fun erInnsending(): Boolean = innsending != null
-
-    fun erKorreksjon(): Boolean = korreksjon != null
 
     @Serializable
     data class Gjennomforing(
@@ -122,7 +84,6 @@ data class ArrangorflateUtbetaling(
         val id: UUID,
         val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
-        val slettet: Boolean,
     )
 
     @Serializable

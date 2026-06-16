@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.mapPaginated
-import no.nav.mulighetsrommet.model.JournalpostId
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -44,6 +43,7 @@ import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
 import java.util.UUID
+import kotlin.IllegalStateException
 
 class ArrangorflateUtbetalingQueries(private val session: Session) {
     fun getFilteredKompakt(
@@ -109,6 +109,8 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
         val id = uuid("id")
         val valuta = string("valuta").let { Valuta.valueOf(it) }
         val beregning = getBeregning(id, valuta, UtbetalingBeregningType.valueOf(string("beregning_type")))
+
+        val arrangorId = uuid("arrangor_id")
         return ArrangorflateUtbetaling(
             id = id,
             gjennomforing = ArrangorflateUtbetaling.Gjennomforing(
@@ -119,10 +121,9 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
                 sluttDato = localDateOrNull("gjennomforing_slutt_dato"),
             ),
             arrangor = ArrangorflateUtbetaling.Arrangor(
-                id = uuid("arrangor_id"),
+                id = arrangorId,
                 organisasjonsnummer = Organisasjonsnummer(string("arrangor_organisasjonsnummer")),
                 navn = string("arrangor_navn"),
-                slettet = boolean("arrangor_slettet"),
             ),
             tiltakstype = ArrangorflateUtbetaling.Tiltakstype(
                 navn = string("tiltakstype_navn"),
@@ -140,22 +141,18 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             status = UtbetalingStatusType.valueOf(string("status")),
             valuta = valuta,
             beregning = beregning,
-            betalingsinformasjon = toBankKonto(),
-            journalpostId = stringOrNull("journalpost_id")?.let { JournalpostId.parse(it) },
+            betalingsinformasjon = toBankKonto(arrangorId),
             periode = periode("periode"),
             createdAt = localDateTime("created_at"),
             updatedAt = localDateTime("updated_at"),
-            kommentar = stringOrNull("kommentar"),
-            begrunnelseMindreBetalt = stringOrNull("begrunnelse_mindre_betalt"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
             utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
-            avbruttBegrunnelse = stringOrNull("avbrutt_begrunnelse"),
             avbruttTidspunkt = instantOrNull("avbrutt_tidspunkt"),
             blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
         )
     }
 
-    private fun Row.toBankKonto(): Betalingsinformasjon? = when (val iban = stringOrNull("iban")) {
+    private fun Row.toBankKonto(arrangorId: UUID): Betalingsinformasjon.BBan? = when (val iban = stringOrNull("iban")) {
         null -> stringOrNull("kontonummer")?.let {
             Betalingsinformasjon.BBan(
                 kontonummer = Kontonummer(it),
@@ -163,12 +160,7 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             )
         }
 
-        else -> Betalingsinformasjon.IBan(
-            iban = iban,
-            bic = string("bic"),
-            bankLandKode = string("bank_land_kode"),
-            bankNavn = string("bank_navn"),
-        )
+        else -> throw IllegalStateException("IBan funnet for norsk arrangor med id: $arrangorId")
     }
 
     private fun getBeregning(id: UUID, valuta: Valuta, beregning: UtbetalingBeregningType): UtbetalingBeregning {

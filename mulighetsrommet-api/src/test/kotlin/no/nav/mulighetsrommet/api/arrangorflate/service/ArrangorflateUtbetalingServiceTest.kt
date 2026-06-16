@@ -835,7 +835,6 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             val utbetaling = database.db.session { queries.arrangorflate.utbetaling.getOrError(utbetaling1.id) }
             utbetaling.should {
                 it.status shouldBe UtbetalingStatusType.AVBRUTT
-                it.avbruttBegrunnelse shouldBe "Feil opplysninger"
             }
         }
 

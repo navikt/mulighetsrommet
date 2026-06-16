@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
-import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
@@ -128,7 +127,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         return tilsagn
     }
 
-    suspend fun RoutingContext.getUtbetalingOrRespondWithClientError(): ArrangorflateUtbetaling {
+    suspend fun RoutingContext.getArrangorflateUtbetalingOrRespondWithClientError(): ArrangorflateUtbetaling {
         val id: UUID by call.parameters
 
         val utbetaling = utbetalingService.get(id)
@@ -278,7 +277,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             val response = arrangorflateService.toArrangorflateUtbetaling(utbetaling)
 
@@ -307,7 +306,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             val request = call.receive<GodkjennUtbetaling>()
 
@@ -341,7 +340,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             if (utbetaling.innsending == null) {
                 return@get call.respondWithProblemDetail(NotFound("Utbetalingskravet er ikke sendt inn. Ingen kvittering tilgjengelig."))
@@ -351,11 +350,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 id = utbetaling.id,
                 mottattDato = utbetaling.innsending.tidspunkt.toLocalDate(),
                 utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
-                kontonummer = when (utbetaling.betalingsinformasjon) {
-                    is Betalingsinformasjon.BBan -> utbetaling.betalingsinformasjon.kontonummer
-                    is Betalingsinformasjon.IBan -> null
-                    null -> null
-                },
+                kontonummer = utbetaling.betalingsinformasjon?.kontonummer,
             )
 
             call.respond(kvittering)
@@ -379,7 +374,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             val request = call.receive<AvbrytUtbetaling>()
 
@@ -413,7 +408,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             utbetalingService.regenererUtbetaling(utbetaling)
                 .onLeft {
@@ -491,7 +486,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             val tilsagn = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(utbetaling)
 
@@ -517,7 +512,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             arrangorflateService.synkroniserKontonummer(utbetaling)
                 .onLeft { error ->

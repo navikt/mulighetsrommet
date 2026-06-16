@@ -37,7 +37,6 @@ import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.slf4j.Logger
