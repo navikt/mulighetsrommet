@@ -18,7 +18,6 @@ import { Alert, BodyLong, Box, Button, Heading, HStack, VStack } from "@navikt/d
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
-import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 import { ToTrinnsOpprettelsesForklaring } from "../gjennomforing/tilsagn/ToTrinnsOpprettelseForklaring";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import {
@@ -29,8 +28,7 @@ import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjenn
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
-import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
-import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
+import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { isAvvist } from "@/utils/totrinnskontroll";
 import { DataElementStatusTag } from "@mr/frontend-common";
@@ -51,10 +49,6 @@ export function TilskuddBehandlingDetaljerPage() {
   const {
     data: { behandling, handlinger, opprettelse },
   } = useTilskuddBehandling(behandlingId);
-  const { data: historikk } = useEndringshistorikk(
-    behandling.id,
-    EndringshistorikkType.TILSKUDD_BEHANDLING,
-  );
   const [returModalOpen, setReturModalOpen] = useState(false);
   const [attesterModalOpen, setAttesterModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -101,9 +95,10 @@ export function TilskuddBehandlingDetaljerPage() {
         )}
         <Box marginBlock="space-16">
           <HStack gap="space-8" justify="end">
-            <EndringshistorikkPopover>
-              <ViewEndringshistorikk historikk={historikk} />
-            </EndringshistorikkPopover>
+            <Endringshistorikk
+              id={behandling.id}
+              type={EndringshistorikkType.TILSKUDD_BEHANDLING}
+            />
             <Handlinger
               handlinger={handlinger}
               grupper={[

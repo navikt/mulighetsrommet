@@ -1,5 +1,4 @@
-import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
-import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
+import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import { SetApentForPameldingModal } from "@/components/gjennomforing/SetApentForPameldingModal";
 import { SetEstimertVentetidModal } from "@/components/gjennomforing/SetEstimertVentetidModal";
 import { RegistrerStengtHosArrangorModal } from "@/components/gjennomforing/stengt/RegistrerStengtHosArrangorModal";
@@ -23,7 +22,6 @@ import { GjenapneGjennomforingModal } from "@/components/gjennomforing/GjenapneG
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { previewArbeidsmarkedstiltakUrl } from "@/constants";
 import { Handlinger } from "@/components/handlinger/Handlinger";
-import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 interface Props {
   ansatt: NavAnsattDto;
@@ -82,9 +80,7 @@ export function GjennomforingHandlinger({
           Publiser
         </Switch>
       )}
-      <EndringshistorikkPopover>
-        <GjennomforingEndringshistorikk id={gjennomforing.id} />
-      </EndringshistorikkPopover>
+      <Endringshistorikk id={gjennomforing.id} type={EndringshistorikkType.GJENNOMFORING} />
       <Handlinger
         handlinger={handlinger}
         navIdent={ansatt.navIdent}
@@ -202,10 +198,4 @@ export function GjennomforingHandlinger({
       />
     </KnapperadContainer>
   );
-}
-
-function GjennomforingEndringshistorikk({ id }: { id: string }) {
-  const historikk = useEndringshistorikk(id, EndringshistorikkType.GJENNOMFORING);
-
-  return <ViewEndringshistorikk historikk={historikk.data} />;
 }

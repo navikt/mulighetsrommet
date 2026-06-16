@@ -1,13 +1,29 @@
+import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
+import { EndringshistorikkType } from "@tiltaksadministrasjon/api-client";
 import React, { ReactElement, useRef, useState } from "react";
 import { ClockDashedIcon } from "@navikt/aksel-icons";
 import { Button, Loader, Popover } from "@navikt/ds-react";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { ViewEndringshistorikk } from "./ViewEndringshistorikk";
 
-export interface EndringshistorikkPopoverProps {
+interface EndringshistorikkProps {
+  id: string;
+  type: EndringshistorikkType;
+}
+
+export function Endringshistorikk({ id, type }: EndringshistorikkProps) {
+  return (
+    <EndringshistorikkPopover>
+      <EndringshistorikkView id={id} type={type} />
+    </EndringshistorikkPopover>
+  );
+}
+
+interface EndringshistorikkPopoverProps {
   children: ReactElement;
 }
 
-export function EndringshistorikkPopover({ children }: EndringshistorikkPopoverProps) {
+function EndringshistorikkPopover({ children }: EndringshistorikkPopoverProps) {
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -39,4 +55,9 @@ export function EndringshistorikkPopover({ children }: EndringshistorikkPopoverP
       </Popover>
     </>
   );
+}
+
+function EndringshistorikkView({ id, type }: EndringshistorikkProps) {
+  const { data: historikk } = useEndringshistorikk(id, type);
+  return <ViewEndringshistorikk historikk={historikk} />;
 }
