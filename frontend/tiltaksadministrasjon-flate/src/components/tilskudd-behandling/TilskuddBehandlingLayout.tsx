@@ -18,7 +18,7 @@ interface Props {
 }
 
 export function TilskuddBehandlingLayout({ gjennomforingId, status, children }: Props) {
-  const { gjennomforing, enkeltplassDeltaker } =
+  const { gjennomforing, enkeltplassDeltaker, tiltakstype } =
     useEnkeltplassGjennomforingOrError(gjennomforingId);
 
   return (
@@ -43,7 +43,7 @@ export function TilskuddBehandlingLayout({ gjennomforingId, status, children }: 
           height="2.5rem"
         />
         <Heading size="large" level="2">
-          Tilskuddsbehandling
+          {`Tilskuddsbehandling for ${tiltakstype.navn}`}
         </Heading>
         {status && <DataElementStatusTag {...status} />}
       </Header>
