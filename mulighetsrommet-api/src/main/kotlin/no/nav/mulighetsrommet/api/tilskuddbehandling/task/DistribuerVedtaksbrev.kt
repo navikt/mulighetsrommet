@@ -69,15 +69,4 @@ class DistribuerVedtaksbrev(
             response
         }
     }
-
-    fun hentUtenlandskArrangorAdresse(arrangorId: UUID): DokdistRequest.Adresse.UtenlandskPostadresse = db.session {
-        val utenlandskArrangor = queries.arrangor.getUtenlandskArrangor(arrangorId)
-        require(utenlandskArrangor != null) { "Utenlandsk arrangør med id=$arrangorId mangler informasjon, kunne ikke hente adresse" }
-        DokdistRequest.Adresse.UtenlandskPostadresse(
-            land = utenlandskArrangor.landKode,
-            adresselinje1 = utenlandskArrangor.gateNavn,
-            adresselinje2 = utenlandskArrangor.by,
-            adresselinje3 = null,
-        )
-    }
-}*/
+}
