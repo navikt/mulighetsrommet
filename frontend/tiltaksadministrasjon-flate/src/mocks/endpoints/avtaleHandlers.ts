@@ -9,6 +9,7 @@ import {
   PrismodellInfo,
   PrismodellType,
   Tiltakskode,
+  RammedetaljerDto,
 } from "@tiltaksadministrasjon/api-client";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockEndringshistorikkAvtaler } from "../fixtures/mock_endringshistorikk_avtaler";
@@ -84,6 +85,19 @@ export const avtaleHandlers = [
         AvtaleHandling.REGISTRER_OPSJON,
         AvtaleHandling.OPPDATER_PRIS,
       ]);
+    },
+  ),
+
+  http.get<PathParams, undefined, RammedetaljerDto>(
+    "*/api/tiltaksadministrasjon/avtaler/:id/rammedetaljer",
+    () => {
+      return HttpResponse.json({
+        type: "TOTALT_UTBETALT",
+        utbetaltArena: null,
+        utbetaltTiltaksadmin: [],
+        totaltUtbetalt: null,
+        reservert: [],
+      });
     },
   ),
 
