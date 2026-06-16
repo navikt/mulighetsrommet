@@ -206,6 +206,5 @@ export function GjennomforingHandlinger({
 
 function GjennomforingEndringshistorikk({ id }: { id: string }) {
   const historikk = useEndringshistorikk(id, EndringshistorikkType.GJENNOMFORING);
-
   return <ViewEndringshistorikk historikk={historikk.data} />;
 }

@@ -37,7 +37,6 @@ const tilAnnuleringAarsaker = [
 
 export function TilsagnHandlinger() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
-  const { data: historikk } = useEndringshistorikk(tilsagnId, EndringshistorikkType.TILSAGN);
   const { data: tilsagn } = useTilsagn(tilsagnId);
 
   const navigate = useNavigate();
@@ -77,7 +76,7 @@ export function TilsagnHandlinger() {
   return (
     <HStack gap="space-8" justify={"end"}>
       <EndringshistorikkPopover>
-        <ViewEndringshistorikk historikk={historikk} />
+        <TilsagnEndringshistorikk id={tilsagnId} />
       </EndringshistorikkPopover>
       <Handlinger
         handlinger={tilsagn.handlinger}
@@ -167,4 +166,9 @@ export function TilsagnHandlinger() {
       />
     </HStack>
   );
+}
+
+function TilsagnEndringshistorikk({ id }: { id: string }) {
+  const { data: historikk } = useEndringshistorikk(id, EndringshistorikkType.TILSAGN);
+  return <ViewEndringshistorikk historikk={historikk} />;
 }

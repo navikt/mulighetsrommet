@@ -32,16 +32,13 @@ import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistori
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
-
-  const { data: historikk } = useEndringshistorikk(utbetalingId, EndringshistorikkType.UTBETALING);
   const { utbetaling, handlinger } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
-
-  return { historikk, utbetaling, handlinger, beregning };
+  return { utbetaling, handlinger, beregning };
 }
 
 export function UtbetalingDetaljerPage() {
-  const { historikk, utbetaling, handlinger, beregning } = useUtbetalingDetaljerData();
+  const { utbetaling, handlinger, beregning } = useUtbetalingDetaljerData();
 
   return (
     <VStack gap="space-12">
@@ -159,7 +156,7 @@ export function UtbetalingDetaljerPage() {
           </Box>
         </TwoColumnGrid>
         <EndringshistorikkPopover>
-          <ViewEndringshistorikk historikk={historikk} />
+          <UtbetalingEndringshistorikk utbetalingId={utbetaling.id} />
         </EndringshistorikkPopover>
       </HGrid>
       <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
@@ -198,4 +195,9 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
     case UtbetalingStatusDtoType.UTBETALT:
       return <BesluttUtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />;
   }
+}
+
+function UtbetalingEndringshistorikk({ utbetalingId }: { utbetalingId: string }) {
+  const { data: historikk } = useEndringshistorikk(utbetalingId, EndringshistorikkType.UTBETALING);
+  return <ViewEndringshistorikk historikk={historikk} />;
 }

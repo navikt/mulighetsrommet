@@ -51,10 +51,6 @@ export function TilskuddBehandlingDetaljerPage() {
   const {
     data: { behandling, handlinger, opprettelse },
   } = useTilskuddBehandling(behandlingId);
-  const { data: historikk } = useEndringshistorikk(
-    behandling.id,
-    EndringshistorikkType.TILSKUDD_BEHANDLING,
-  );
   const [returModalOpen, setReturModalOpen] = useState(false);
   const [attesterModalOpen, setAttesterModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -102,7 +98,7 @@ export function TilskuddBehandlingDetaljerPage() {
         <Box marginBlock="space-16">
           <HStack gap="space-8" justify="end">
             <EndringshistorikkPopover>
-              <ViewEndringshistorikk historikk={historikk} />
+              <TilskuddBehandlingEndringshistorikk id={behandling.id} />
             </EndringshistorikkPopover>
             <Handlinger
               handlinger={handlinger}
@@ -293,4 +289,9 @@ export function TilskuddBehandlingDetaljerPage() {
       </>
     </TilskuddBehandlingLayout>
   );
+}
+
+function TilskuddBehandlingEndringshistorikk({ id }: { id: string }) {
+  const { data: historikk } = useEndringshistorikk(id, EndringshistorikkType.TILSKUDD_BEHANDLING);
+  return <ViewEndringshistorikk historikk={historikk} />;
 }
