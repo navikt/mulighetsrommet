@@ -1,5 +1,4 @@
 import {
-  Valuta,
   DataDrivenTableDto,
   DataElementTextFormat,
   LabeledDataElementType,
@@ -9,6 +8,7 @@ import {
   TilsagnRequest,
   TilsagnType,
   TotrinnskontrollDtoTilBeslutning,
+  Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { mockTilsagn, mockTilsagnTable } from "../fixtures/mock_tilsagn";
@@ -87,6 +87,7 @@ const tilBeslutning: TotrinnskontrollDtoTilBeslutning = {
 };
 
 const beregning: TilsagnBeregningDto = {
+  stengt: [],
   pris: {
     belop: 12207450,
     valuta: Valuta.NOK,

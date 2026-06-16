@@ -23,6 +23,7 @@ data class TilsagnBeregningDto(
     val pris: ValutaBelop,
     val prismodell: DataDetails,
     val regnestykke: CalculationDto,
+    val stengt: List<StengtPeriode>,
 ) {
     companion object {
         fun from(beregning: TilsagnBeregning): TilsagnBeregningDto {
@@ -82,6 +83,7 @@ data class TilsagnBeregningDto(
                             },
                         ),
                     ),
+                    stengt = listOf(),
                 )
 
                 is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningDto(
@@ -103,6 +105,7 @@ data class TilsagnBeregningDto(
                         stengt = beregning.input.stengt,
                         sum = beregning.output.pris,
                     ),
+                    stengt = getStengtePerioder(beregning.input.stengt),
                 )
 
                 is TilsagnBeregningPrisPerManedsverk -> TilsagnBeregningDto(
@@ -126,6 +129,8 @@ data class TilsagnBeregningDto(
                         stengt = beregning.input.stengt,
                         sum = beregning.output.pris,
                     ),
+
+                    stengt = getStengtePerioder(beregning.input.stengt),
                 )
 
                 is TilsagnBeregningPrisPerUkesverk -> TilsagnBeregningDto(
@@ -165,6 +170,8 @@ data class TilsagnBeregningDto(
                             ),
                         ),
                     ),
+
+                    stengt = getStengtePerioder(beregning.input.stengt),
                 )
 
                 is TilsagnBeregningPrisPerHeleUkesverk -> TilsagnBeregningDto(
@@ -202,6 +209,8 @@ data class TilsagnBeregningDto(
                             ),
                         ),
                     ),
+
+                    stengt = getStengtePerioder(beregning.input.stengt),
                 )
 
                 is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningDto(
@@ -238,6 +247,8 @@ data class TilsagnBeregningDto(
                             ),
                         ),
                     ),
+
+                    stengt = listOf(),
                 )
             }
         }
@@ -271,6 +282,10 @@ private fun getRegnestykkeManedsverk(
         ),
     )
 }
+
+private fun getStengtePerioder(
+    perioder: Set<StengtPeriode>,
+): List<StengtPeriode> = perioder.sortedBy { it.periode }
 
 @Serializable
 data class CalculationDto(

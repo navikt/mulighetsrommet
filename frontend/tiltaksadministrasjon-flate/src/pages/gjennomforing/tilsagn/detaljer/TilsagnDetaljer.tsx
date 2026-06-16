@@ -32,6 +32,7 @@ import { useGodkjennTilsagn, useReturnerTilsagn } from "@/api/tilsagn/mutations"
 import { TilsagnHandlinger } from "./TilsagnHandlinger";
 import { TilsagnDeltakerCompact } from "@/components/personalia/TilsagnDeltakerCompact";
 import { aarsakTilTekst } from "@/utils/Utils";
+import { TilsagnStengtePerioder } from "@/components/tilsagn/beregning/TilsagnStengtePerioder";
 
 export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
@@ -221,10 +222,13 @@ export function TilsagnDetaljer() {
             </VStack>
             <Separator />
             <Box>
-              <Heading size="small" spacing>
+              <Heading size="small" level="4" spacing>
                 Beregning
               </Heading>
-              <TilsagnRegnestykke regnestykke={beregning.regnestykke} />
+              <VStack gap="space-16">
+                <TilsagnRegnestykke regnestykke={beregning.regnestykke} />
+                <TilsagnStengtePerioder stengt={beregning.stengt} />
+              </VStack>
             </Box>
             {status.type === TilsagnStatus.ANNULLERT && (
               <>

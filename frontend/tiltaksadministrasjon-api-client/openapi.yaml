@@ -6701,10 +6701,15 @@ components:
           $ref: "#/components/schemas/DataDetails"
         regnestykke:
           $ref: "#/components/schemas/CalculationDto"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/StengtPeriode"
       required:
       - pris
       - prismodell
       - regnestykke
+      - stengt
     DataDetails:
       type: object
       properties:
@@ -6755,6 +6760,16 @@ components:
       required:
       - breakdown
       - expression
+    StengtPeriode:
+      type: object
+      properties:
+        periode:
+          $ref: "#/components/schemas/Periode"
+        beskrivelse:
+          type: string
+      required:
+      - beskrivelse
+      - periode
     TilsagnHandling:
       type: string
       enum:
