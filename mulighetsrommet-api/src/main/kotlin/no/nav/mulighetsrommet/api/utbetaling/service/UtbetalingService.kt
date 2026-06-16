@@ -78,7 +78,7 @@ class UtbetalingService(
     fun godkjentAvArrangor(
         utbetalingId: UUID,
         kid: Kid?,
-    ): Either<List<FieldError>, Utbetaling> = with(tx) {
+    ): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
         if (utbetaling.status != UtbetalingStatusType.GENERERT) {
             return FieldError.of("Utbetaling er allerede godkjent").nel().left()
@@ -88,7 +88,9 @@ class UtbetalingService(
         queries.utbetaling.setKid(utbetalingId, kid)
         queries.utbetaling.setStatus(utbetalingId, UtbetalingStatusType.TIL_BEHANDLING)
 
-        return logEndring("Utbetaling sendt inn", utbetalingId, Arrangor).right()
+        logEndring("Utbetaling sendt inn", utbetalingId, Arrangor)
+
+        Unit.right()
     }
 
     context(tx: TransactionalQueryContext)

@@ -3,11 +3,9 @@ package no.nav.mulighetsrommet.api.arrangorflate.model
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.util.UUID
@@ -25,8 +23,7 @@ data class ArrangorflateUtbetalingKompakt(
 ) {
     companion object {
         fun fromUtbetaling(
-            utbetaling: Utbetaling,
-            gjennomforing: GjennomforingAvtale,
+            utbetaling: ArrangorflateUtbetaling,
             status: ArrangorflateUtbetalingStatus,
             godkjentBelop: ValutaBelop?,
         ) = ArrangorflateUtbetalingKompakt(
@@ -37,9 +34,9 @@ data class ArrangorflateUtbetalingKompakt(
                 tiltakskode = utbetaling.tiltakstype.tiltakskode,
             ),
             gjennomforing = ArrangorflateGjennomforingDto(
-                id = gjennomforing.id,
-                lopenummer = gjennomforing.lopenummer,
-                navn = gjennomforing.navn,
+                id = utbetaling.gjennomforing.id,
+                lopenummer = utbetaling.gjennomforing.lopenummer,
+                navn = utbetaling.gjennomforing.navn,
             ),
             arrangor = ArrangorflateArrangorDto(
                 id = utbetaling.arrangor.id,
@@ -49,7 +46,7 @@ data class ArrangorflateUtbetalingKompakt(
             periode = utbetaling.periode,
             pris = utbetaling.beregning.output.pris,
             godkjentBelop = godkjentBelop,
-            type = UtbetalingType.from(utbetaling).toDto(),
+            type = UtbetalingType.from(utbetaling.korreksjon?.gjelderUtbetalingId, utbetaling.tilskuddstype).toDto(),
         )
     }
 }

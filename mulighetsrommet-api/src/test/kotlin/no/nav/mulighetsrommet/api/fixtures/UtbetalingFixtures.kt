@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
@@ -79,6 +80,47 @@ object UtbetalingFixtures {
         begrunnelseMindreBetalt = null,
         createdAt = LocalDateTime.now(),
         updatedAt = LocalDateTime.now(),
+        avbruttBegrunnelse = null,
+        avbruttTidspunkt = null,
+        blokkeringer = emptySet(),
+    )
+
+    val arrangorflateUtbetalingDto1 = ArrangorflateUtbetaling(
+        id = utbetalingDto1.id,
+        gjennomforing = ArrangorflateUtbetaling.Gjennomforing(
+            id = utbetalingDto1.gjennomforing.id,
+            navn = "AFT #1",
+            lopenummer = utbetalingDto1.gjennomforing.lopenummer,
+            startDato = LocalDate.of(2025, 1, 1),
+            sluttDato = LocalDate.of(2025, 1, 31),
+        ),
+        korreksjon = null,
+        innsending = null,
+        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+        valuta = Valuta.NOK,
+        beregning = UtbetalingBeregningFri(
+            input = UtbetalingBeregningFri.Input(1000.NOK),
+            output = UtbetalingBeregningFri.Output(1000.NOK),
+        ),
+        kommentar = null,
+        tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+        utbetalesTidligstTidspunkt = null,
+        status = UtbetalingStatusType.GENERERT,
+        tiltakstype = ArrangorflateUtbetaling.Tiltakstype(
+            navn = TiltakstypeFixtures.AFT.navn,
+            tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
+        ),
+        arrangor = ArrangorflateUtbetaling.Arrangor(
+            id = ArrangorFixtures.underenhet1.id,
+            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            navn = ArrangorFixtures.underenhet1.navn,
+            slettet = false,
+        ),
+        betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), null),
+        journalpostId = null,
+        begrunnelseMindreBetalt = null,
+        createdAt = utbetalingDto1.createdAt,
+        updatedAt = utbetalingDto1.updatedAt,
         avbruttBegrunnelse = null,
         avbruttTidspunkt = null,
         blokkeringer = emptySet(),

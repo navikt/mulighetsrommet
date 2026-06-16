@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateTilsagnFilte
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTilsagnKompakt
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
@@ -46,7 +47,6 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
@@ -128,10 +128,10 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         return tilsagn
     }
 
-    suspend fun RoutingContext.getUtbetalingOrRespondWithClientError(): Utbetaling {
+    suspend fun RoutingContext.getUtbetalingOrRespondWithClientError(): ArrangorflateUtbetaling {
         val id: UUID by call.parameters
 
-        val utbetaling = utbetalingService.getUtbetaling(id)
+        val utbetaling = utbetalingService.get(id)
             ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
 
         requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
@@ -444,7 +444,12 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val id: UUID by call.parameters
+
+            val utbetaling = db.session { queries.utbetaling.get(id) }
+                ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+
             val linjer = arrangorflateService.getLinjer(utbetaling.id)
             val gjennomforing = db.session {
                 queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
@@ -542,7 +547,7 @@ data class GodkjennUtbetaling(
     val kid: String?,
 ) {
     @OptIn(ExperimentalContracts::class)
-    fun validate(utbetaling: Utbetaling): Validated<Kid?> = validation {
+    fun validate(utbetaling: ArrangorflateUtbetaling): Validated<Kid?> = validation {
         validate(updatedAt == utbetaling.updatedAt.toString()) {
             FieldError.of("Informasjonen i kravet har endret seg. Vennligst se over på nytt.")
         }

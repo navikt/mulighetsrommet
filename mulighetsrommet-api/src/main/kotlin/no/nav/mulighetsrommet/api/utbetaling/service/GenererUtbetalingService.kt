@@ -131,6 +131,11 @@ class GenererUtbetalingService(
         }
     }
 
+    suspend fun regenererUtbetaling(id: UUID): Utbetaling {
+        val utbetaling = db.session { queries.utbetaling.getOrError(id) }
+        return regenererUtbetaling(utbetaling)
+    }
+
     suspend fun regenererUtbetaling(utbetaling: Utbetaling): Utbetaling {
         val utbetalingerSammePeriode = getUtbetalinger(utbetaling.gjennomforing.id)
             .filter { it.periode == utbetaling.periode }

@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.amt.model.AmtArrangorMelding
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
@@ -27,7 +28,24 @@ object UtbetalingAdvarsler {
         deltakere: List<Deltaker>,
         forslag: Map<UUID, List<DeltakerForslag>>,
     ): List<DeltakerAdvarsel> {
-        return relevanteForslag(utbetaling.periode, utbetaling.beregning, forslag) + deltakereMedFeilSluttDato(deltakere, LocalDate.now())
+        return getUtbetalingAdvarsel(utbetaling.periode, utbetaling.beregning, deltakere, forslag)
+    }
+
+    fun getAdvarsler(
+        utbetaling: ArrangorflateUtbetaling,
+        deltakere: List<Deltaker>,
+        forslag: Map<UUID, List<DeltakerForslag>>,
+    ): List<DeltakerAdvarsel> {
+        return getUtbetalingAdvarsel(utbetaling.periode, utbetaling.beregning, deltakere, forslag)
+    }
+
+    private fun getUtbetalingAdvarsel(
+        periode: Periode,
+        beregning: UtbetalingBeregning,
+        deltakere: List<Deltaker>,
+        forslag: Map<UUID, List<DeltakerForslag>>,
+    ): List<DeltakerAdvarsel> {
+        return relevanteForslag(periode, beregning, forslag) + deltakereMedFeilSluttDato(deltakere, LocalDate.now())
     }
 
     fun isForslagRelevantForUtbetaling(

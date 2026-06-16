@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
@@ -15,7 +16,6 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.Kontoregiste
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
-import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Valuta
@@ -62,11 +61,11 @@ class ArrangorflateService(
             ?.let { ArrangorflateTilsagnDto.from(it, getPersonalia(it.deltakere.map { it.deltakerId })) }
     }
 
-    fun getUtbetaling(id: UUID): Utbetaling? = db.session {
-        return queries.utbetaling.get(id)
+    fun getUtbetaling(id: UUID): ArrangorflateUtbetaling? = db.session {
+        return queries.arrangorflate.utbetaling.get(id)
     }
 
-    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: Utbetaling): List<ArrangorflateTilsagnDto> = db.session {
+    suspend fun getArrangorflateTilsagnTilUtbetaling(utbetaling: ArrangorflateUtbetaling): List<ArrangorflateTilsagnDto> = db.session {
         queries.tilsagn
             .getAll(
                 gjennomforingId = utbetaling.gjennomforing.id,
@@ -77,7 +76,7 @@ class ArrangorflateService(
             .map { ArrangorflateTilsagnDto.from(it, getPersonalia(it.deltakere.map { it.deltakerId })) }
     }
 
-    fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.session {
+    fun getAdvarsler(utbetaling: ArrangorflateUtbetaling): List<DeltakerAdvarsel> = db.session {
         return when (utbetaling.status) {
             UtbetalingStatusType.GENERERT -> {
                 val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
@@ -100,14 +99,12 @@ class ArrangorflateService(
     }
 
     suspend fun toArrangorflateUtbetaling(
-        utbetaling: Utbetaling,
+        utbetaling: ArrangorflateUtbetaling,
         today: LocalDate = LocalDate.now(),
     ): ArrangorflateUtbetalingDto = db.session {
         val erTolvUkerEtterInnsending = utbetaling.innsending
             ?.let { it.tidspunkt.toLocalDate().plusWeeks(12) <= today }
             ?: false
-
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
 
         val deltakere = if (erTolvUkerEtterInnsending) {
             emptyList()
@@ -123,9 +120,8 @@ class ArrangorflateService(
         val advarsler = getAdvarsler(utbetaling)
         val (kanRegenereres, regenrertId) = kanRegenereres(utbetaling)
 
-        return mapUtbetalingToArrangorflateUtbetaling(
+        return mapUtbetalingToArrangorflateUtbetalingDto(
             utbetaling = utbetaling,
-            gjennomforing = gjennomforing,
             deltakereById = deltakere.associateBy { it.id },
             personaliaById = personalia,
             advarsler = advarsler,
@@ -157,7 +153,7 @@ class ArrangorflateService(
             }
     }
 
-    fun QueryContext.kanRegenereres(utbetaling: Utbetaling): Pair<Boolean, UUID?> {
+    fun QueryContext.kanRegenereres(utbetaling: ArrangorflateUtbetaling): Pair<Boolean, UUID?> {
         if (utbetaling.innsending == null) {
             return false to null
         }
@@ -200,7 +196,7 @@ class ArrangorflateService(
     }
 
     suspend fun synkroniserKontonummer(
-        utbetaling: Utbetaling,
+        utbetaling: ArrangorflateUtbetaling,
     ): Either<KontonummerRegisterOrganisasjonError, Kontonummer> = db.session {
         getKontonummer(utbetaling.arrangor.organisasjonsnummer).onRight { kontonummer ->
             queries.utbetaling.setKontonummer(
@@ -220,8 +216,7 @@ class ArrangorflateService(
             }
     }
 
-    private fun QueryContext.toArrangorflateUtbetalingKompakt(utbetaling: Utbetaling): ArrangorflateUtbetalingKompakt {
-        val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
+    private fun QueryContext.toArrangorflateUtbetalingKompakt(utbetaling: ArrangorflateUtbetaling): ArrangorflateUtbetalingKompakt {
         val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer)
         val godkjentBelop = when (status) {
             ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
@@ -235,7 +230,7 @@ class ArrangorflateService(
             ArrangorflateUtbetalingStatus.AVBRUTT,
             -> null
         }
-        return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, gjennomforing, status, godkjentBelop)
+        return ArrangorflateUtbetalingKompakt.fromUtbetaling(utbetaling, status, godkjentBelop)
     }
 
     private fun QueryContext.getGodkjentBelopForUtbetaling(id: UUID, valuta: Valuta): ValutaBelop {
@@ -243,7 +238,7 @@ class ArrangorflateService(
     }
 }
 
-fun arrangorAvbrytStatus(utbetaling: Utbetaling): ArrangorAvbrytStatus {
+fun arrangorAvbrytStatus(utbetaling: ArrangorflateUtbetaling): ArrangorAvbrytStatus {
     if (utbetaling.innsending == null) {
         return ArrangorAvbrytStatus.HIDDEN
     }

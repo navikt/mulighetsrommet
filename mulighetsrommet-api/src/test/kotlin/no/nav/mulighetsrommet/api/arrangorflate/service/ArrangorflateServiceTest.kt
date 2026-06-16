@@ -14,11 +14,11 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -121,7 +121,7 @@ class ArrangorflateServiceTest : FunSpec({
 
         val date = LocalDate.now()
         val godkjentAvArrangorUtbetaling = arrangorflateService.getUtbetaling(utbetaling.id)!!.copy(
-            innsending = Utbetaling.Innsending(date.atStartOfDay().minusDays(1)),
+            innsending = ArrangorflateUtbetaling.Innsending(date.atStartOfDay().minusDays(1)),
         )
         val result = arrangorflateService.toArrangorflateUtbetaling(
             godkjentAvArrangorUtbetaling,
@@ -141,7 +141,7 @@ class ArrangorflateServiceTest : FunSpec({
 
         val date = LocalDate.now()
         val godkjentAvArrangorUtbetaling = arrangorflateService.getUtbetaling(utbetaling.id)!!.copy(
-            innsending = Utbetaling.Innsending(date.atStartOfDay().minusWeeks(12)),
+            innsending = ArrangorflateUtbetaling.Innsending(date.atStartOfDay().minusWeeks(12)),
         )
         val result = arrangorflateService.toArrangorflateUtbetaling(
             godkjentAvArrangorUtbetaling,

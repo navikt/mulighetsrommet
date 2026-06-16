@@ -8,8 +8,8 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTimeline
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
@@ -44,9 +43,8 @@ import java.math.RoundingMode
 import java.time.LocalDate
 import java.util.UUID
 
-fun mapUtbetalingToArrangorflateUtbetaling(
-    utbetaling: Utbetaling,
-    gjennomforing: GjennomforingAvtale,
+fun mapUtbetalingToArrangorflateUtbetalingDto(
+    utbetaling: ArrangorflateUtbetaling,
     deltakereById: Map<UUID, Deltaker>,
     personaliaById: Map<UUID, Personalia>,
     advarsler: List<DeltakerAdvarsel>,
@@ -80,9 +78,9 @@ fun mapUtbetalingToArrangorflateUtbetaling(
             tiltakskode = utbetaling.tiltakstype.tiltakskode,
         ),
         gjennomforing = ArrangorflateGjennomforingDto(
-            id = gjennomforing.id,
-            lopenummer = gjennomforing.lopenummer,
-            navn = gjennomforing.navn,
+            id = utbetaling.gjennomforing.id,
+            lopenummer = utbetaling.gjennomforing.lopenummer,
+            navn = utbetaling.gjennomforing.navn,
         ),
         arrangor = ArrangorflateArrangorDto(
             id = utbetaling.arrangor.id,
@@ -97,9 +95,9 @@ fun mapUtbetalingToArrangorflateUtbetaling(
             is Betalingsinformasjon.IBan -> throw IllegalStateException("IBan funnet for norsk arrangor med id: ${utbetaling.arrangor.id}")
             null -> null
         },
-        type = UtbetalingType.from(utbetaling).toDto(),
+        type = UtbetalingType.from(utbetaling.korreksjon?.gjelderUtbetalingId, utbetaling.tilskuddstype).toDto(),
         linjer = linjer,
-        innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, gjennomforing, innsendtAvArrangorDato),
+        innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),
         advarsler = advarsler.map { advarsel ->
             DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn() ?: "-")
         },
@@ -111,8 +109,7 @@ fun mapUtbetalingToArrangorflateUtbetaling(
 }
 
 private fun getInnsendingsDetaljer(
-    utbetaling: Utbetaling,
-    gjennomforing: GjennomforingAvtale,
+    utbetaling: ArrangorflateUtbetaling,
     innsendtAvArrangorDato: LocalDate?,
 ): List<LabeledDataElement> {
     return listOfNotNull(
@@ -123,13 +120,13 @@ private fun getInnsendingsDetaljer(
         },
         LabeledDataElement.text(
             "Tiltaksnavn",
-            "${gjennomforing.navn} (${gjennomforing.lopenummer})",
+            "${utbetaling.gjennomforing.navn} (${utbetaling.gjennomforing.lopenummer})",
         ),
         LabeledDataElement.text("Tiltakstype", utbetaling.tiltakstype.navn),
         if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
             LabeledDataElement.text(
                 "Tiltaksperiode",
-                Periode.formatPeriode(gjennomforing.startDato, gjennomforing.sluttDato),
+                Periode.formatPeriode(utbetaling.gjennomforing.startDato, utbetaling.gjennomforing.sluttDato),
             )
         } else {
             null
@@ -412,7 +409,7 @@ fun beregningSatsPeriodeDetaljerUtenFaktor(
 }
 
 private fun beregningDeltakerTable(
-    utbetaling: Utbetaling,
+    utbetaling: ArrangorflateUtbetaling,
     deltakereById: Map<UUID, Deltaker>,
     personaliaById: Map<UUID, Personalia?>,
 ): DataDrivenTableDto? {
