@@ -4,6 +4,7 @@ import { TilsagnRegnestykke } from "../beregning/TilsagnRegnestykke";
 import { useFormContext } from "react-hook-form";
 import { TilsagnRequest } from "@tiltaksadministrasjon/api-client";
 import { useBeregnTilsagn } from "@/api/tilsagn/useBeregnTilsagn";
+import { TilsagnStengtePerioder } from "@/components/tilsagn/beregning/TilsagnStengtePerioder";
 
 export function TilsagnBeregningPreview() {
   const { watch } = useFormContext<TilsagnRequest>();
@@ -33,6 +34,7 @@ export function TilsagnBeregningPreview() {
           </Label>
         </HStack>
         <TilsagnRegnestykke regnestykke={data.beregning.regnestykke} />
+        <TilsagnStengtePerioder stengt={data.beregning.stengt} />
       </VStack>
     </>
   );
