@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
@@ -54,6 +55,7 @@ fun Route.maamRoutes() {
     val beregnUtbetaling: BeregnUtbetaling by inject()
     val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
     val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
+    val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
     val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
     val brukerUtbetalingService: BrukerUtbetalingService by inject()
 
@@ -180,6 +182,12 @@ fun Route.maamRoutes() {
                 call.respond(ScheduleTaskResponse(taskId))
             }
 
+            post("distribuer-vedtaksbrev") {
+                val request = call.receive<VedtakIdRequest>()
+                val taskId = distribuerVedtaksbrev.schedule(request.vedtakId)
+                call.respond(ScheduleTaskResponse(taskId))
+            }
+
             post("sync-gjennomforing-avtale-fts") {
                 val taskId = updateGjennomforingAvtaleFreeTextSearch.schedule()
                 call.respond(ScheduleTaskResponse(taskId))
@@ -279,6 +287,12 @@ data class ExecutedTaskResponse(
 data class TilsagnIdRequest(
     @Serializable(with = UUIDSerializer::class)
     val tilsagnId: UUID,
+)
+
+@Serializable
+data class VedtakIdRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val vedtakId: UUID,
 )
 
 @Serializable

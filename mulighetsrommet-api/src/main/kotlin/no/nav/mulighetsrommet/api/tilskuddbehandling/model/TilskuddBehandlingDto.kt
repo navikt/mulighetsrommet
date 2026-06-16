@@ -25,6 +25,7 @@ data class TilskuddBehandlingDto(
     val tilskudd: List<TilskuddOpplaeringDto>,
     val status: TilskuddBehandlingStatusDto,
     val kommentarIntern: String?,
+    val vedtakJournalpostId: String?,
 )
 
 @Serializable

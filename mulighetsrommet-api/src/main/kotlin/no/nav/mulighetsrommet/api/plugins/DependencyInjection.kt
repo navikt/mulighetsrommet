@@ -73,9 +73,10 @@ import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
 import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
-import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddArrangorUtbetalingConsumer
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddBrukerUtbetalingConsumer
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.tiltakstype.service.RedaksjoneltInnholdLenkeService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
@@ -568,7 +569,8 @@ private fun tasks(config: AppConfig) = module {
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
     single { JournalforEnkeltplassTilsagnsbrev(get(), get(), get(), get(), get(), get()) }
     single { DistribuerTilsagnsbrev(get(), get()) }
-    single { JournalforVedtaksbrev(get(), get(), get(), get()) }
+    single { JournalforVedtaksbrev(get(), get(), get(), get(), get()) }
+    single { DistribuerVedtaksbrev(get(), get()) }
     single { UpdateGjennomforingAvtaleFreeTextSearch(get(), get()) }
     single {
         val updateAvtaleStatus = UpdateAvtaleStatus(
@@ -603,6 +605,7 @@ private fun tasks(config: AppConfig) = module {
         val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
         val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
         val journalforVedtaksbrev: JournalforVedtaksbrev by inject()
+        val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
         val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
 
         val db: Database by inject()
@@ -619,6 +622,7 @@ private fun tasks(config: AppConfig) = module {
                 journalforEnkeltplassTilsagnsbrev.task,
                 distribuerTilsagnsbrev.task,
                 journalforVedtaksbrev.task,
+                distribuerVedtaksbrev.task,
                 updateGjennomforingAvtaleFreeTextSearch.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
