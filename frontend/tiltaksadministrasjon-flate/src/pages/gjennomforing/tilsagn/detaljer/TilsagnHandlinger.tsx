@@ -1,5 +1,4 @@
-import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
-import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
+import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { EraserIcon, PencilFillIcon, TrashFillIcon, TrashIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, HStack } from "@navikt/ds-react";
@@ -23,7 +22,6 @@ import {
   useTilsagnTilOppgjor,
 } from "@/api/tilsagn/mutations";
 import { aarsakTilTekst } from "@/utils/Utils";
-import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 const tilAnnuleringAarsaker = [
   TilsagnStatusAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV,
@@ -75,9 +73,7 @@ export function TilsagnHandlinger() {
 
   return (
     <HStack gap="space-8" justify={"end"}>
-      <EndringshistorikkPopover>
-        <TilsagnEndringshistorikk id={tilsagnId} />
-      </EndringshistorikkPopover>
+      <Endringshistorikk id={tilsagnId} type={EndringshistorikkType.TILSAGN} />
       <Handlinger
         handlinger={tilsagn.handlinger}
         grupper={[
@@ -166,9 +162,4 @@ export function TilsagnHandlinger() {
       />
     </HStack>
   );
-}
-
-function TilsagnEndringshistorikk({ id }: { id: string }) {
-  const { data: historikk } = useEndringshistorikk(id, EndringshistorikkType.TILSAGN);
-  return <ViewEndringshistorikk historikk={historikk} />;
 }

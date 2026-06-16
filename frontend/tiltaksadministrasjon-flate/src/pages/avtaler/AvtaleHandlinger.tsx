@@ -1,6 +1,5 @@
 import { RegistrerOpsjonModal } from "@/components/avtaler/opsjoner/RegistrerOpsjonModal";
-import { EndringshistorikkPopover } from "@/components/endringshistorikk/EndringshistorikkPopover";
-import { ViewEndringshistorikk } from "@/components/endringshistorikk/ViewEndringshistorikk";
+import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import {
   AvbrytAvtaleAarsak,
@@ -20,7 +19,6 @@ import { OppdaterPrisModal } from "@/components/avtaler/OppdaterPrisModal";
 import { useAvtaleHandlinger } from "@/api/avtaler/useAvtale";
 import { OppdaterRammedetaljerModal } from "@/components/avtaler/OppdaterRammedetaljerModal";
 import { Handlinger } from "@/components/handlinger/Handlinger";
-import { useEndringshistorikk } from "@/api/endringshistorikk/useEndringshistorikk";
 
 interface Props {
   avtale: AvtaleDto;
@@ -74,9 +72,7 @@ export function AvtaleHandlinger({ avtale }: Props) {
 
   return (
     <KnapperadContainer>
-      <EndringshistorikkPopover>
-        <AvtaleEndringshistorikk id={avtale.id} />
-      </EndringshistorikkPopover>
+      <Endringshistorikk id={avtale.id} type={EndringshistorikkType.AVTALE} />
       <Handlinger
         handlinger={handlinger}
         navIdent={ansatt.navIdent}
@@ -182,10 +178,4 @@ export function AvtaleHandlinger({ avtale }: Props) {
       )}
     </KnapperadContainer>
   );
-}
-
-function AvtaleEndringshistorikk({ id }: { id: string }) {
-  const historikk = useEndringshistorikk(id, EndringshistorikkType.AVTALE);
-
-  return <ViewEndringshistorikk historikk={historikk.data} />;
 }
