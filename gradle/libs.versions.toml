@@ -1,15 +1,15 @@
 [versions]
 common-java-modules = "3.2026.04.08_08.37-229807cc181a"
-flyway = "12.6.2"
+flyway = "12.8.1"
 koin-bom = "4.2.1"
 kotest = "6.1.11"
-kotlin = "2.3.21"
+kotlin = "2.4.0"
 ktor = "3.4.3"
 netty = "4.2.15.Final"
-logback = "1.5.32"
+logback = "1.5.34"
 metrics = "4.2.39"
-arrow = "2.2.2.1"
-micrometer = "1.16.5"
+arrow = "2.2.3"
+micrometer = "1.17.0"
 testcontainers = "2.0.5"
 
 [plugins]
@@ -61,13 +61,13 @@ assertj-db = "org.assertj:assertj-db:3.0.2"
 
 caffeine = "com.github.ben-manes.caffeine:caffeine:3.2.4"
 
-dbScheduler = "com.github.kagkarlsson:db-scheduler:16.11.0"
+dbScheduler = "com.github.kagkarlsson:db-scheduler:16.12.0"
 
 flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.28.4"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.68.0"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.69.0"
 
 hikaricp = "com.zaxxer:HikariCP:7.0.2"
 
@@ -124,7 +124,7 @@ metrics-healthchecks = { module = "io.dropwizard.metrics:metrics-healthchecks", 
 micrometer-core = { module = "io.micrometer:micrometer-core", version.ref = "micrometer" }
 micrometer-registry-prometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "micrometer" }
 
-mockk = "io.mockk:mockk:1.14.9"
+mockk = "io.mockk:mockk:1.14.11"
 
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
@@ -142,7 +142,7 @@ netty-transport-native-kqueue = { module = "io.netty:netty-transport-native-kque
 netty-transport-native-unix-common = { module = "io.netty:netty-transport-native-unix-common", version.ref = "netty" }
 netty-transport = { module = "io.netty:netty-transport", version.ref = "netty" }
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.62.0"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.63.0"
 
 postgresql = "org.postgresql:postgresql:42.7.11"
 
