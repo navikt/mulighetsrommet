@@ -1,5 +1,6 @@
 import { useSettPaVentGjennomforingOkonomi } from "@/api/gjennomforing/useSettPaVentGjennomforingOkonomi";
-import { BodyShort, Button, Modal, Textarea } from "@navikt/ds-react";
+import { InformationSquareIcon } from "@navikt/aksel-icons";
+import { Button, InfoCard, Modal, Textarea, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 
 interface Props {
@@ -25,24 +26,43 @@ export function SettPaVentOkonomiModal({ open, setOpen, gjennomforingId }: Props
   }
 
   return (
-    <Modal open={open} onClose={close} header={{ heading: "Sett på vent" }} width="medium">
+    <Modal
+      open={open}
+      onClose={close}
+      header={{ heading: "Sett enkeltplass på vent" }}
+      width="medium"
+    >
       <Modal.Body>
-        <BodyShort spacing>
-          Du er i ferd med å sette besluttelse av økonomi for gjennomføringen på vent. Du kan
-          eventuelt legge inn en forklaring nedenfor.
-        </BodyShort>
-        <Textarea
-          label="Forklaring (valgfritt)"
-          value={forklaring}
-          onChange={(e) => setForklaring(e.target.value)}
-          maxLength={500}
-        />
+        <VStack gap="space-8">
+          <InfoCard data-color="info">
+            <InfoCard.Header icon={<InformationSquareIcon aria-hidden />}>
+              <InfoCard.Title>
+                Du er i ferd med å sette godkjenning av enkeltplassen på vent
+              </InfoCard.Title>
+            </InfoCard.Header>
+            <InfoCard.Content>
+              For at veileder skal få beskjed, må du sende en oppgave i Gosys med beskrivelse av hva
+              som er mangelfullt i påmeldingen.
+            </InfoCard.Content>
+          </InfoCard>
+          <Textarea
+            label="Forklaring (valgfritt)"
+            value={forklaring}
+            onChange={(e) => setForklaring(e.target.value)}
+            maxLength={500}
+          />
+        </VStack>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" onClick={settPaVent} loading={settPaVentMutation.isPending}>
+        <Button
+          size="small"
+          variant="primary"
+          onClick={settPaVent}
+          loading={settPaVentMutation.isPending}
+        >
           Sett på vent
         </Button>
-        <Button variant="secondary" onClick={close}>
+        <Button size="small" variant="secondary" onClick={close}>
           Avbryt
         </Button>
       </Modal.Footer>

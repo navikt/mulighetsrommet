@@ -1,4 +1,5 @@
 import { MetadataVStack, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 import { PersonIcon } from "@navikt/aksel-icons";
 import { CopyButton, HStack, VStack } from "@navikt/ds-react";
 import { DeltakerDto } from "@tiltaksadministrasjon/api-client";
@@ -26,8 +27,8 @@ export function DeltakerHeader({ deltaker, arrangorNavn, compact = false }: Prop
         {!compact && (
           <>
             <MetadataVStack label="Arrangør" value={arrangorNavn} />
-            <MetadataVStack label="Startdato" value={deltaker.startDato} />
-            <MetadataVStack label="Sluttdato" value={deltaker.sluttDato} />
+            <MetadataVStack label="Startdato" value={formaterDato(deltaker.startDato)} />
+            <MetadataVStack label="Sluttdato" value={formaterDato(deltaker.sluttDato)} />
           </>
         )}
       </HStack>

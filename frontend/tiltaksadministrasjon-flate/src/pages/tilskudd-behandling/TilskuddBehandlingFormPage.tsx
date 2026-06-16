@@ -23,7 +23,7 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { CalculatorIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
-import { Betalingsbetingelser } from "@/components/tilskudd-behandling/Betalingsbetingelser";
+import { BetalingsbetingelserEnkeltplass } from "@/components/gjennomforing/BetalingsbetingelserEnkeltplass";
 
 interface Tab {
   key: TilskuddBehandlingTab;
@@ -175,7 +175,7 @@ export function TilskuddBehandlingFormPage() {
                       <VedtakForm />
                     </Tabs.Panel>
                   </Box>
-                  <Betalingsbetingelser prisbetingelser={prismodell.prisbetingelser} />
+                  <BetalingsbetingelserEnkeltplass prismodell={prismodell} />
                 </TwoColumnGrid>
               </Box>
             </Tabs>
