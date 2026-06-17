@@ -11,7 +11,7 @@ export const OPPMOTE_STED_MAX_LENGTH = 500;
 
 export const MIN_START_DATO_FOR_AVTALER = new Date(2020, 0, 1);
 export const MAKS_AAR_FOR_AVTALER = 6;
-export const MAKS_DATEPICKER_SLUTT_DATO = addDuration(new Date(), { years: 15 });
+export const MAKS_DATEPICKER_SLUTT_DATO = addDuration(new Date(), { years: 20 });
 
 export function previewArbeidsmarkedstiltakUrl(): string {
   const ansattDomene = isAnsattDomene();
