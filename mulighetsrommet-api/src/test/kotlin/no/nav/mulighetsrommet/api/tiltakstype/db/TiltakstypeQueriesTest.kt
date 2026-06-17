@@ -85,14 +85,11 @@ class TiltakstypeQueriesTest : FunSpec({
         test("Skal støtte å hente tiltaktype som bare har ledetekst, men ingen innholdselementer") {
             database.runAndRollback { session ->
                 queries.tiltakstype.upsert(TiltakstypeFixtures.VTA)
-
-                @Language("PostgreSQL")
-                val query = """
-                update tiltakstype
-                set deltaker_registrering_ledetekst = 'VTA er kjempebra'
-                where tiltakskode = '${Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name}';
-                """.trimIndent()
-                session.execute(queryOf(query))
+                queries.tiltakstype.upsertDeltakerRegistreringInnhold(
+                    TiltakstypeFixtures.VTA.id,
+                    "VTA er kjempebra",
+                    listOf(),
+                )
 
                 queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).shouldNotBeNull().should {
                     it.navn shouldBe "Varig tilrettelagt arbeid i skjermet virksomhet"
