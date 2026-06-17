@@ -76,7 +76,7 @@ export function GjennomforingFormDetaljer(props: Props) {
   const maxSluttdato =
     addDuration(gjennomforing?.sluttDato, { years: 6 }) ?? addDuration(maxStartdato, { years: 6 });
 
-  const visOppmotested = tiltakstype.tiltakskode !== Tiltakskode.TILPASSET_JOBBSTOTTE;
+  const visOppmotested = tiltakstype.tiltakskode !== Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER;
 
   return (
     <>

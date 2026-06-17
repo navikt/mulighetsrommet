@@ -43,7 +43,7 @@ object TiltakstypeFixtures {
     val TilpassetJobbstotte = TiltakstypeDbo(
         id = UUID.fromString("930ff2c1-2ab3-4787-aa9e-4006d26e8180"),
         navn = "Tilpasset jobbstøtte",
-        tiltakskode = Tiltakskode.TILPASSET_JOBBSTOTTE,
+        tiltakskode = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER,
         arenaKode = null,
     )
 

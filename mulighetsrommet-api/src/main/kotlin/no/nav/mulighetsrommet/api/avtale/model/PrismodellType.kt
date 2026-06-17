@@ -66,7 +66,7 @@ object Prismodeller {
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         )
 
-        Tiltakskode.TILPASSET_JOBBSTOTTE,
+        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER,
         -> listOf(
             PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
         )

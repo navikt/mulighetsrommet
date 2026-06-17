@@ -54,7 +54,7 @@ object PrismodellFixtures {
     )
 
     val ForhandsgodkjentTilpassetJobbstotte = createPrismodellDbo(
-        systemId = Tiltakskode.TILPASSET_JOBBSTOTTE.name,
+        systemId = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER.name,
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 7_321.NOK),
