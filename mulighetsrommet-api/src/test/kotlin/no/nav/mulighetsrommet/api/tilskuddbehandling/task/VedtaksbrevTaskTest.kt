@@ -136,7 +136,7 @@ class VedtaksbrevTaskTest : FunSpec({
             dokdistClient.distribuerJournalpost(
                 journalpostId = "121212",
                 accessType = AccessType.M2M,
-                distribusjonstype = DokdistRequest.DistribusjonsType.ANNET,
+                distribusjonstype = DokdistRequest.DistribusjonsType.VEDTAK,
                 adresse = null,
                 batchId = null,
             )
@@ -157,7 +157,7 @@ class VedtaksbrevTaskTest : FunSpec({
             dokdistClient.distribuerJournalpost(
                 journalpostId = "121212",
                 accessType = AccessType.M2M,
-                distribusjonstype = DokdistRequest.DistribusjonsType.ANNET,
+                distribusjonstype = DokdistRequest.DistribusjonsType.VEDTAK,
                 adresse = null,
                 batchId = null,
             )
