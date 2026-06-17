@@ -19,6 +19,7 @@ const TILTAKSTYPER = [
   { value: "JOBBKLUBB", label: "Jobbklubb" },
   { value: "OPPFOLGING", label: "Oppfølging" },
   { value: "VARIG_TILRETTELAGT_ARBEID_SKJERMET", label: "Varig tilrettelagt arbeid skjermet" },
+  { value: "VARIG_TILRETTELAGT_ARBEID_ORDINAER", label: "Varig tilrettelagt arbeid ordinær" },
   { value: "ARBEIDSMARKEDSOPPLAERING", label: "Arbeidsmarkedsopplæring (AMO)" },
   {
     value: "NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV",
