@@ -141,17 +141,19 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
         <TwoColumnGrid separator>
           <DetaljerLayout>
             <Definisjonsliste title="Gjennomføring" definitions={gjennomforingMeta} />
-            <GjennomforingDetaljerVarighet
-              tiltakstype={tiltakstype}
-              gjennomforing={gjennomforing}
-              veilederinfo={veilederinfo}
-            />
             {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
             {amoKategorisering &&
               !kursOgTiltakErStudiespesialisering(
                 amoKategorisering.kurstype,
                 tiltakstype.tiltakskode,
-              ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+              ) && (
+                <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} erEnkeltplass />
+              )}
+            <GjennomforingDetaljerVarighet
+              tiltakstype={tiltakstype}
+              gjennomforing={gjennomforing}
+              veilederinfo={veilederinfo}
+            />
           </DetaljerLayout>
           <DetaljerLayout>
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
