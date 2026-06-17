@@ -8329,6 +8329,10 @@ components:
           type:
           - "null"
           - string
+        vedtakJournalpostId:
+          type:
+          - "null"
+          - string
       required:
       - gjennomforingId
       - id
@@ -8339,6 +8343,7 @@ components:
       - soknadJournalpostId
       - status
       - tilskudd
+      - vedtakJournalpostId
     TilskuddOpplaeringDto:
       type: object
       properties:

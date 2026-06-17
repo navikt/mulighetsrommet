@@ -401,7 +401,7 @@ private fun services(appConfig: AppConfig) = module {
     single {
         DokdistClient(
             baseUrl = appConfig.dokdistfordeling.url,
-            clientEngine = appConfig.engine,
+            clientEngine = appConfig.dokdistfordeling.engine ?: appConfig.engine,
             tokenProvider = azureAdTokenProvider.withScope(appConfig.dokdistfordeling.scope),
         )
     }

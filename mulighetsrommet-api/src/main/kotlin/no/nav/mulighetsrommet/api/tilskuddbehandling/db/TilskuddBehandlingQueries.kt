@@ -142,7 +142,8 @@ class TilskuddBehandlingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             update tilskudd_behandling
-              set vedtak_journalpost_distribuering_id = :journalpost_distribuering_id
+              set vedtak_journalpost_distribuering_id = :journalpost_distribuering_id,
+              vedtak_distribuert_tidspunkt = now()
             where
               id = :id::uuid
         """.trimIndent()

@@ -62,7 +62,7 @@ class DistribuerVedtaksbrev(
         dokdistClient.distribuerJournalpost(
             journalpostId = tilskudd.vedtakJournalpostId,
             accessType = AccessType.M2M,
-            distribusjonstype = DokdistRequest.DistribusjonsType.ANNET,
+            distribusjonstype = DokdistRequest.DistribusjonsType.VEDTAK,
             adresse = null,
         ).map { response ->
             queries.tilskuddBehandling.setJournalpostDistribueringId(tilskuddBehandlingId, response.bestillingsId)
