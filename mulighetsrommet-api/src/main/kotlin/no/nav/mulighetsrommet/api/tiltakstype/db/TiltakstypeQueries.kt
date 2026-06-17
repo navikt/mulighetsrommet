@@ -191,7 +191,7 @@ class TiltakstypeQueries(private val session: Session) {
         @Language("PostgreSQL")
         val deleteQuery = """
             delete from tiltakstype_deltaker_registrering_innholdselement
-            where tiltakskode = (select tiltakskode from tiltakstype where id = ?::uuid)
+            where tiltakstype_id = ?::uuid
         """.trimIndent()
 
         execute(queryOf(deleteQuery, id))
@@ -199,13 +199,13 @@ class TiltakstypeQueries(private val session: Session) {
         if (innholdskoder.isNotEmpty()) {
             @Language("PostgreSQL")
             val insertQuery = """
-                insert into tiltakstype_deltaker_registrering_innholdselement (innholdskode, tiltakskode)
-                select :innholdskode, tiltakskode from tiltakstype where id = :id::uuid
+                insert into tiltakstype_deltaker_registrering_innholdselement (innholdskode, tiltakstype_id)
+                values (:innholdskode, :tiltakstype_id::uuid)
                 on conflict do nothing
             """.trimIndent()
 
             innholdskoder.forEach { innholdskode ->
-                execute(queryOf(insertQuery, mapOf("innholdskode" to innholdskode, "id" to id)))
+                execute(queryOf(insertQuery, mapOf("innholdskode" to innholdskode, "tiltakstype_id" to id)))
             }
         }
     }
@@ -215,7 +215,7 @@ class TiltakstypeQueries(private val session: Session) {
         val query = """
            select tiltakstype.deltaker_registrering_ledetekst, element.innholdskode, element.tekst
            from tiltakstype
-               left join tiltakstype_deltaker_registrering_innholdselement tiltakstype_innholdselement on tiltakstype_innholdselement.tiltakskode = tiltakstype.tiltakskode
+               left join tiltakstype_deltaker_registrering_innholdselement tiltakstype_innholdselement on tiltakstype_innholdselement.tiltakstype_id = tiltakstype.id
                left join deltaker_registrering_innholdselement element on tiltakstype_innholdselement.innholdskode = element.innholdskode
            where tiltakstype.id = ?::uuid and tiltakstype.deltaker_registrering_ledetekst is not null;
         """.trimIndent()

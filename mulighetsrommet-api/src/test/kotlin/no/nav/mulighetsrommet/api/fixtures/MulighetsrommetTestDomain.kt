@@ -45,7 +45,7 @@ data class MulighetsrommetTestDomain(
         PrismodellFixtures.AnnenAvtaltPris,
         PrismodellFixtures.AvtaltPrisPerTimeOppfolging,
         PrismodellFixtures.ForhandsgodkjentAft,
-        PrismodellFixtures.ForhandsgodkjentVta,
+        PrismodellFixtures.ForhandsgodkjentVtas,
     ),
     val avtaler: List<AvtaleDbo> = listOf(),
     val gjennomforinger: List<GjennomforingDbo> = listOf(),

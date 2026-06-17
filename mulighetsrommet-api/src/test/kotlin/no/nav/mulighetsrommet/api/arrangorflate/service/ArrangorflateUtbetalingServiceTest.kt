@@ -213,7 +213,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             forAll(
                 row(PrismodellFixtures.AvtaltPrisPerManedsverk),
-                row(PrismodellFixtures.ForhandsgodkjentTilpassetJobbstotte),
+                row(PrismodellFixtures.ForhandsgodkjentVtao),
                 row(prisPerUkesverk),
                 row(prisPerHeleUkesverk),
             ) { prismodell ->
@@ -751,7 +751,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val tilsagnForAvtaltSats = Tilsagn1.copy(
                 id = UUID.randomUUID(),
-                gjennomforingId = GjennomforingFixtures.TilpassetJobbstotte.id,
+                gjennomforingId = GjennomforingFixtures.VTAO.id,
                 periode = januar,
                 belopBrukt = 0.NOK,
                 beregning = TilsagnBeregningFastSatsPerTiltaksplassPerManed(
@@ -766,7 +766,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             )
 
             val utbetalingForAvtaltSats = utbetaling1.copy(
-                gjennomforingId = GjennomforingFixtures.TilpassetJobbstotte.id,
+                gjennomforingId = GjennomforingFixtures.VTAO.id,
                 periode = januar,
                 beregning = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed(
                     input = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.Input(
@@ -794,11 +794,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             )
 
             MulighetsrommetTestDomain(
-                tiltakstyper = listOf(TiltakstypeFixtures.TilpassetJobbstotte),
+                tiltakstyper = listOf(TiltakstypeFixtures.VTAO),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.TilpassetJobbstotte),
-                gjennomforinger = listOf(GjennomforingFixtures.TilpassetJobbstotte),
-                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTilpassetJobbstotte),
+                avtaler = listOf(AvtaleFixtures.VTAO),
+                gjennomforinger = listOf(GjennomforingFixtures.VTAO),
+                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentVtao),
                 tilsagn = listOf(tilsagnForAvtaltSats),
                 utbetalinger = listOf(utbetalingForAvtaltSats),
             ) {

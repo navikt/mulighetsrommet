@@ -54,7 +54,7 @@ val ApplicationConfigDev = AppConfig(
                 Tiltakskode.STUDIESPESIALISERING to admin + modia + migrert,
                 Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to admin + modia + migrert,
 
-                Tiltakskode.TILPASSET_JOBBSTOTTE to admin + modia,
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER to admin + modia,
 
                 Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to admin + modia,
                 Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin + modia,

@@ -96,7 +96,7 @@ function oppmoteSted(
   tiltakskode: Tiltakskode,
   veilederinfo: Partial<GjennomforingVeilederinfoDto> | null,
 ): string | null {
-  if (tiltakskode === Tiltakskode.TILPASSET_JOBBSTOTTE) {
+  if (tiltakskode === Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER) {
     return null;
   }
   return veilederinfo?.oppmoteSted ?? null;

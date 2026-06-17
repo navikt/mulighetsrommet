@@ -22,7 +22,7 @@ class TiltakstypeQueriesTest : FunSpec({
             database.runAndRollback {
                 queries.tiltakstype.upsert(TiltakstypeFixtures.Arbeidstrening)
                 queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
-                queries.tiltakstype.upsert(TiltakstypeFixtures.TilpassetJobbstotte)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.VTAO)
 
                 queries.tiltakstype.getAll().size shouldBe 3
             }
@@ -55,31 +55,24 @@ class TiltakstypeQueriesTest : FunSpec({
     context("Strukturert innhold for deltakerregistrering") {
         test("Skal hente ut korrekt strukturert innhold for tiltakstype som har strukturert innhold") {
             database.runAndRollback { session ->
-                queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
-                queries.tiltakstype.upsert(TiltakstypeFixtures.VTA)
-                queries.tiltakstype.upsert(TiltakstypeFixtures.AFT)
-
                 @Language("PostgreSQL")
                 val query = """
                     insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                    values('jobbsoking', '${Tiltakskode.OPPFOLGING.name}')
+                    values('jobbsoking', 'Jobbsøking')
                     on conflict do nothing;
 
                     insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                    values('kartlegge-helse', '${Tiltakskode.OPPFOLGING.name}')
+                    values('kartlegge-helse', 'Kartlegge helse')
                     on conflict do nothing;
-
-                    update tiltakstype
-                    set deltaker_registrering_ledetekst = 'Oppfølging er et bra tiltak'
-                    where tiltakskode = '${Tiltakskode.OPPFOLGING.name}';
-
-                    insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
-                    values('jobbsoking', '${Tiltakskode.OPPFOLGING.name}');
-
-                    insert into tiltakstype_deltaker_registrering_innholdselement(innholdskode, tiltakskode)
-                    values('kartlegge-helse', '${Tiltakskode.OPPFOLGING.name}');
                 """.trimIndent()
                 session.execute(queryOf(query))
+
+                queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
+                queries.tiltakstype.upsertDeltakerRegistreringInnhold(
+                    TiltakstypeFixtures.Oppfolging.id,
+                    "Oppfølging er et bra tiltak",
+                    listOf("jobbsoking", "kartlegge-helse"),
+                )
 
                 queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).shouldNotBeNull().should {
                     it.navn shouldBe "Oppfølging"
@@ -92,14 +85,11 @@ class TiltakstypeQueriesTest : FunSpec({
         test("Skal støtte å hente tiltaktype som bare har ledetekst, men ingen innholdselementer") {
             database.runAndRollback { session ->
                 queries.tiltakstype.upsert(TiltakstypeFixtures.VTA)
-
-                @Language("PostgreSQL")
-                val query = """
-                update tiltakstype
-                set deltaker_registrering_ledetekst = 'VTA er kjempebra'
-                where tiltakskode = '${Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name}';
-                """.trimIndent()
-                session.execute(queryOf(query))
+                queries.tiltakstype.upsertDeltakerRegistreringInnhold(
+                    TiltakstypeFixtures.VTA.id,
+                    "VTA er kjempebra",
+                    listOf(),
+                )
 
                 queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).shouldNotBeNull().should {
                     it.navn shouldBe "Varig tilrettelagt arbeid i skjermet virksomhet"

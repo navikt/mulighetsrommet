@@ -44,7 +44,7 @@ object PrismodellFixtures {
         ),
     )
 
-    val ForhandsgodkjentVta = createPrismodellDbo(
+    val ForhandsgodkjentVtas = createPrismodellDbo(
         systemId = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name,
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
         satser = listOf(
@@ -53,8 +53,8 @@ object PrismodellFixtures {
         ),
     )
 
-    val ForhandsgodkjentTilpassetJobbstotte = createPrismodellDbo(
-        systemId = Tiltakskode.TILPASSET_JOBBSTOTTE.name,
+    val ForhandsgodkjentVtao = createPrismodellDbo(
+        systemId = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER.name,
         type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 7_321.NOK),
