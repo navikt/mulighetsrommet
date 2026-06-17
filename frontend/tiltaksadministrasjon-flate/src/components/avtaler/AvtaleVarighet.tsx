@@ -1,7 +1,7 @@
 import { HGrid, VStack } from "@navikt/ds-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useFormContext } from "react-hook-form";
-import { MAKS_AAR_FOR_AVTALER, MIN_START_DATO_FOR_AVTALER } from "@/constants";
+import { MAKS_DATEPICKER_SLUTT_DATO, MIN_START_DATO_FOR_AVTALER } from "@/constants";
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { RegistrerteOpsjoner } from "./opsjoner/RegistrerteOpsjoner";
 import {
@@ -34,11 +34,7 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
     [startDato],
   );
 
-  const sluttDatoTilDato = useMemo(
-    () =>
-      addDuration(startDato ? new Date(startDato) : new Date(), { years: MAKS_AAR_FOR_AVTALER }),
-    [startDato],
-  );
+  const sluttDatoTilDato = MAKS_DATEPICKER_SLUTT_DATO;
 
   const watchedAvtaletype = watch("detaljer.avtaletype");
   const watchedOpsjonsmodell = watch("detaljer.opsjonsmodell");
@@ -121,7 +117,6 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
             readOnly={opsjonUtlost || opsjonsmodell.type !== OpsjonsmodellType.ANNET}
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
-            invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
           />
           <FormDateInput
             key={watchedOpsjonsmodell.opsjonMaksVarighet}
@@ -130,7 +125,6 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
             fromDate={minStartDato}
             toDate={sluttDatoTilDato}
             readOnly={opsjonUtlost || opsjonsmodell.type !== OpsjonsmodellType.ANNET}
-            invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
           />
         </HGrid>
       ) : (
@@ -146,7 +140,6 @@ export function AvtaleVarighet({ opsjonUtlost }: Props) {
             label={avtaletekster.sluttdatoLabel(watchedAvtaletype, opsjonUtlost)}
             fromDate={sluttDatoFraDato}
             toDate={sluttDatoTilDato}
-            invalidDatoEtterPeriode={`Sluttdato kan ikke settes lenger enn ${MAKS_AAR_FOR_AVTALER} år frem i tid`}
           />
         </HGrid>
       )}
