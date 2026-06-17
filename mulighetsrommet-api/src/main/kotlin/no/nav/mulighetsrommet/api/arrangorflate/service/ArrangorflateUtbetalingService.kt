@@ -9,13 +9,16 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.AvtaltPrisPerTimeOppfolgingData
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
@@ -49,8 +52,12 @@ class ArrangorflateUtbetalingService(
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
-    fun getUtbetaling(id: UUID): Utbetaling? = db.session {
-        return queries.utbetaling.get(id)
+    fun get(id: UUID): ArrangorflateUtbetaling? = db.session {
+        return queries.arrangorflate.utbetaling.get(id)
+    }
+
+    fun getOrError(id: UUID): ArrangorflateUtbetaling = db.session {
+        return queries.arrangorflate.utbetaling.getOrError(id)
     }
 
     fun getAvtaltPrisPerTimeOppfolgingData(gjennomforingId: UUID, periode: Periode): AvtaltPrisPerTimeOppfolgingData = db.session {
@@ -92,7 +99,7 @@ class ArrangorflateUtbetalingService(
                 return FieldError.of("Utbetalingen kan ikke godkjennes fordi kontonummer mangler.").nel().left()
             }
 
-            val advarsler = utbetalingService.getAdvarsler(utbetaling)
+            val advarsler = getAdvarsler(utbetaling)
             if (utbetaling.blokkeringer.isNotEmpty() || advarsler.isNotEmpty()) {
                 return FieldError.of("Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.")
                     .nel()
@@ -102,24 +109,47 @@ class ArrangorflateUtbetalingService(
             utbetalingService.godkjentAvArrangor(utbetaling.id, kid)
         }
 
-        return result.map { tryAutomatisertUtbetaling(it) }
+        return result.map { tryAutomatisertUtbetaling(utbetalingId) }
+    }
+
+    context(tx: TransactionalQueryContext)
+    private fun getAdvarsler(utbetaling: ArrangorflateUtbetaling): List<DeltakerAdvarsel> = with(tx) {
+        return when (utbetaling.status) {
+            UtbetalingStatusType.GENERERT -> {
+                val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
+                val deltakere = queries.deltaker
+                    .getByGjennomforingId(utbetaling.gjennomforing.id)
+                    .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
+
+                UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
+            }
+
+            UtbetalingStatusType.TIL_BEHANDLING,
+            UtbetalingStatusType.TIL_ATTESTERING,
+            UtbetalingStatusType.RETURNERT,
+            UtbetalingStatusType.FERDIG_BEHANDLET,
+            UtbetalingStatusType.DELVIS_UTBETALT,
+            UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.AVBRUTT,
+            -> emptyList()
+        }
     }
 
     fun avbrytUtbetaling(
         utbetalingId: UUID,
         begrunnelse: String,
-    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+    ): Either<List<FieldError>, Unit> = db.transaction {
         val utbetaling = getOrError(utbetalingId)
         if (arrangorAvbrytStatus(utbetaling) != ArrangorAvbrytStatus.ACTIVATED) {
             return FieldError.of("Utbetalingen kan ikke avbrytes").nel().left()
         }
 
-        utbetalingService.avbrytUtbetaling(utbetaling.id, begrunnelse, Arrangor)
+        utbetalingService.avbrytUtbetaling(utbetaling.id, begrunnelse, Arrangor).map { Unit }
     }
 
     suspend fun regenererUtbetaling(
-        utbetaling: Utbetaling,
-    ): Either<List<FieldError>, Utbetaling> = validation {
+        utbetaling: ArrangorflateUtbetaling,
+    ): Either<List<FieldError>, Unit> = validation {
         validate(utbetaling.status == UtbetalingStatusType.AVBRUTT) {
             FieldError.of("Utbetalingen kan bare regenereres når den er avbrutt")
         }
@@ -139,11 +169,12 @@ class ArrangorflateUtbetalingService(
             -> Unit
         }
     }.map {
-        genererUtbetalingService.regenererUtbetaling(utbetaling)
+        genererUtbetalingService.regenererUtbetaling(utbetaling.id)
+        Unit
     }
 
-    private fun QueryContext.getOrError(id: UUID): Utbetaling {
-        return queries.utbetaling.getOrError(id)
+    private fun QueryContext.getOrError(id: UUID): ArrangorflateUtbetaling {
+        return queries.arrangorflate.utbetaling.getOrError(id)
     }
 
     private fun beregnUtbetaling(
@@ -196,7 +227,8 @@ class ArrangorflateUtbetalingService(
         journalforUtbetaling.schedule(JournalforUtbetaling.TaskData(utbetalingId, vedlegg), session)
     }
 
-    private fun tryAutomatisertUtbetaling(utbetaling: Utbetaling): AutomatisertUtbetalingResult {
+    private fun tryAutomatisertUtbetaling(utbetalingId: UUID): AutomatisertUtbetalingResult {
+        val utbetaling = db.session { queries.utbetaling.getOrError(utbetalingId) }
         return try {
             when (utbetaling.beregning) {
                 is UtbetalingBeregningFri,

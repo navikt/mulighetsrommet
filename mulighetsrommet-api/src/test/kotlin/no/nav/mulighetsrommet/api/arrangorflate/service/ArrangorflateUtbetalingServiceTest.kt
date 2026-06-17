@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -39,6 +40,7 @@ import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.arrangorflateUtbetalingDto1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingDto1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje1
@@ -828,9 +830,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             service.avbrytUtbetaling(
                 utbetalingId = utbetaling1.id,
                 begrunnelse = "Feil opplysninger",
-            ).shouldBeRight().should {
+            ).shouldBeRight()
+
+            val utbetaling = database.db.session { queries.arrangorflate.utbetaling.getOrError(utbetaling1.id) }
+            utbetaling.should {
                 it.status shouldBe UtbetalingStatusType.AVBRUTT
-                it.avbruttBegrunnelse shouldBe "Feil opplysninger"
             }
         }
 
@@ -846,7 +850,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             service.avbrytUtbetaling(
                 utbetalingId = utbetaling1.id,
                 begrunnelse = "Trukket tilbake",
-            ).shouldBeRight().status shouldBe UtbetalingStatusType.AVBRUTT
+            ).shouldBeRight()
+            val utbetaling = database.db.session { queries.arrangorflate.utbetaling.getOrError(utbetaling1.id) }
+            utbetaling.should {
+                it.status shouldBe UtbetalingStatusType.AVBRUTT
+            }
         }
 
         test("kan ikke avbryte utbetaling med andre statuser") {
@@ -890,16 +898,25 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             ),
         )
 
+        val avbruttArrangorflateUtbetaling = arrangorflateUtbetalingDto1.copy(
+            status = UtbetalingStatusType.AVBRUTT,
+            innsending = ArrangorflateUtbetaling.Innsending(LocalDateTime.of(2025, 1, 31, 12, 0)),
+            beregning = getForhandsgodkjentBeregning(
+                periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                pris = 1000.NOK,
+            ),
+        )
+
         test("kan regenerere avbrutt utbetaling med støttet beregningstype") {
             val genererUtbetalingService = mockk<GenererUtbetalingService>()
-            coEvery { genererUtbetalingService.regenererUtbetaling(any()) } returns avbruttUtbetaling.copy(
+            coEvery { genererUtbetalingService.regenererUtbetaling(utbetalingDto1.id) } returns avbruttUtbetaling.copy(
                 status = UtbetalingStatusType.GENERERT,
                 innsending = null,
             )
 
             val service = createUtbetalingService(genererUtbetalingService = genererUtbetalingService)
 
-            service.regenererUtbetaling(avbruttUtbetaling).shouldBeRight()
+            service.regenererUtbetaling(avbruttArrangorflateUtbetaling).shouldBeRight()
         }
 
         test("kan ikke regenerere utbetaling med status som ikke er AVBRUTT") {
@@ -914,7 +931,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 row(UtbetalingStatusType.UTBETALT),
                 row(UtbetalingStatusType.DELVIS_UTBETALT),
             ) { status ->
-                service.regenererUtbetaling(avbruttUtbetaling.copy(status = status)) shouldBeLeft listOf(
+                service.regenererUtbetaling(avbruttArrangorflateUtbetaling.copy(status = status)) shouldBeLeft listOf(
                     FieldError.of("Utbetalingen kan bare regenereres når den er avbrutt"),
                 )
             }
@@ -923,7 +940,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
         test("kan ikke regenerere utbetaling uten innsending") {
             val service = createUtbetalingService()
 
-            service.regenererUtbetaling(avbruttUtbetaling.copy(innsending = null)) shouldBeLeft listOf(
+            service.regenererUtbetaling(avbruttArrangorflateUtbetaling.copy(innsending = null)) shouldBeLeft listOf(
                 FieldError.of("Utbetalingen kan bare regenereres når den er innsendt"),
             )
         }
@@ -936,7 +953,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 output = UtbetalingBeregningFri.Output(1.NOK),
             )
 
-            service.regenererUtbetaling(avbruttUtbetaling.copy(beregning = beregning)) shouldBeLeft listOf(
+            service.regenererUtbetaling(avbruttArrangorflateUtbetaling.copy(beregning = beregning)) shouldBeLeft listOf(
                 FieldError.of("Utbetalingen kan ikke regenereres"),
             )
         }

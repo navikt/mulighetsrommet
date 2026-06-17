@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
-import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
@@ -35,6 +34,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateTilsagnFilte
 import no.nav.mulighetsrommet.api.arrangorflate.dto.getArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.dto.toRadDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTilsagnKompakt
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
@@ -46,7 +46,6 @@ import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
-import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
@@ -128,10 +127,10 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         return tilsagn
     }
 
-    suspend fun RoutingContext.getUtbetalingOrRespondWithClientError(): Utbetaling {
+    suspend fun RoutingContext.getArrangorflateUtbetalingOrRespondWithClientError(): ArrangorflateUtbetaling {
         val id: UUID by call.parameters
 
-        val utbetaling = utbetalingService.getUtbetaling(id)
+        val utbetaling = utbetalingService.get(id)
             ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
 
         requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
@@ -278,7 +277,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             val response = arrangorflateService.toArrangorflateUtbetaling(utbetaling)
 
@@ -307,7 +306,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             val request = call.receive<GodkjennUtbetaling>()
 
@@ -341,7 +340,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             if (utbetaling.innsending == null) {
                 return@get call.respondWithProblemDetail(NotFound("Utbetalingskravet er ikke sendt inn. Ingen kvittering tilgjengelig."))
@@ -351,11 +350,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 id = utbetaling.id,
                 mottattDato = utbetaling.innsending.tidspunkt.toLocalDate(),
                 utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
-                kontonummer = when (utbetaling.betalingsinformasjon) {
-                    is Betalingsinformasjon.BBan -> utbetaling.betalingsinformasjon.kontonummer
-                    is Betalingsinformasjon.IBan -> null
-                    null -> null
-                },
+                kontonummer = utbetaling.betalingsinformasjon?.kontonummer,
             )
 
             call.respond(kvittering)
@@ -379,7 +374,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             val request = call.receive<AvbrytUtbetaling>()
 
@@ -413,7 +408,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             utbetalingService.regenererUtbetaling(utbetaling)
                 .onLeft {
@@ -444,7 +439,12 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val id: UUID by call.parameters
+
+            val utbetaling = db.session { queries.utbetaling.get(id) }
+                ?: throw NotFoundException("Fant ikke utbetaling med id=$id")
+            requireTilgangHosArrangor(altinnRettigheterService, utbetaling.arrangor.organisasjonsnummer)
+
             val linjer = arrangorflateService.getLinjer(utbetaling.id)
             val gjennomforing = db.session {
                 queries.gjennomforing.getGjennomforingAvtaleOrError(utbetaling.gjennomforing.id)
@@ -486,7 +486,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             val tilsagn = arrangorflateService.getArrangorflateTilsagnTilUtbetaling(utbetaling)
 
@@ -512,7 +512,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 }
             }
         }) {
-            val utbetaling = getUtbetalingOrRespondWithClientError()
+            val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
             arrangorflateService.synkroniserKontonummer(utbetaling)
                 .onLeft { error ->
@@ -542,7 +542,7 @@ data class GodkjennUtbetaling(
     val kid: String?,
 ) {
     @OptIn(ExperimentalContracts::class)
-    fun validate(utbetaling: Utbetaling): Validated<Kid?> = validation {
+    fun validate(utbetaling: ArrangorflateUtbetaling): Validated<Kid?> = validation {
         validate(updatedAt == utbetaling.updatedAt.toString()) {
             FieldError.of("Informasjonen i kravet har endret seg. Vennligst se over på nytt.")
         }
