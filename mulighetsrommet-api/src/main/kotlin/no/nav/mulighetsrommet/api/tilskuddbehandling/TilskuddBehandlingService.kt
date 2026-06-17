@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -17,6 +18,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKom
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
@@ -25,12 +27,14 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.String
 
 class TilskuddBehandlingService(
     private val db: ApiDatabase,
+    private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val totrinnskontroll: TotrinnskontrollService,
 ) {
     fun upsert(
@@ -82,7 +86,7 @@ class TilskuddBehandlingService(
         }
     }
 
-    fun godkjenn(
+    fun attester(
         id: UUID,
         navIdent: NavIdent,
     ): Either<List<FieldError>, TilskuddBehandlingDto> = try {
@@ -92,7 +96,7 @@ class TilskuddBehandlingService(
             }
             if (behandling.status.type !== TilskuddBehandlingStatus.TIL_ATTESTERING) {
                 return FieldError
-                    .of("Tilskuddsbehandling kan ikke godkjennes fordi det har status ${behandling.status.type.beskrivelse}")
+                    .of("Tilskuddsbehandling kan ikke attesteres fordi det har status ${behandling.status.type.beskrivelse}")
                     .nel()
                     .left()
             }
@@ -101,11 +105,20 @@ class TilskuddBehandlingService(
             totrinnskontroll.godkjent(opprettelse, navIdent)
                 .map {
                     queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
+                    scheduleJournalforVedtak(id)
                     logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent)
                 }
         }
     } catch (e: UtbetalingException) {
         e.errors.left()
+    }
+
+    private fun TransactionalQueryContext.scheduleJournalforVedtak(behandlingId: UUID) {
+        journalforVedtaksbrev.schedule(
+            vedtakId = behandlingId,
+            startTime = Instant.now(),
+            tx = session,
+        )
     }
 
     fun returner(

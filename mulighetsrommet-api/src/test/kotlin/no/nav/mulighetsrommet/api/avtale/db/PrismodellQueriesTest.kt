@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
-import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 
 class PrismodellQueriesTest : FunSpec({

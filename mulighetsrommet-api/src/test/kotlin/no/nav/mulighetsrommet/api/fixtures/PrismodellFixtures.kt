@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta

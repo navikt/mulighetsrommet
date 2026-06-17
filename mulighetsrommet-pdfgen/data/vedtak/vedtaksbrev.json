@@ -1,0 +1,31 @@
+{
+  "deltaker": {
+    "fornavn": "Ola",
+    "mellomnavn": "",
+    "etternavn": "Normann",
+    "personident": "01010112345"
+  },
+  "saksnummer": "V-2026/9999-1",
+  "opprettetDato": "2026-05-26",
+  "saksbehandler": "Saksbehandler",
+  "beslutter": "Beslutter",
+  "enhet": "Nav Øst-Viken",
+  "vedtak": [
+    {
+      "utfall": "Innvilgelse",
+      "tilskuddType": "Skolepenger",
+      "tilskuddBelop": 50000,
+      "valuta": "NOK",
+      "periode": { "fradato": "2026-08-01", "tildato": "2027-06-30" },
+      "kommentar": "Utbetaling vil gis med forbehold om at vilkårene for tilskuddet fortsatt er oppfylt."
+    },
+    {
+      "utfall": "Innvilgelse",
+      "tilskuddType": "Eksamensgebyr",
+      "tilskuddBelop": 1200,
+      "valuta": "NOK",
+      "periode": { "fradato": "2026-08-01", "tildato": "2027-06-30" },
+      "kommentar": "Utbetaling vil gis med forbehold om at vilkårene for tilskuddet fortsatt er oppfylt."
+    }
+  ]
+}

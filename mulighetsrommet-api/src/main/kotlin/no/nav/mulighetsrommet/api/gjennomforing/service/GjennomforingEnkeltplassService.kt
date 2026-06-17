@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
@@ -36,7 +37,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.validation.Validated
-import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype

@@ -17,8 +17,10 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
@@ -28,7 +30,6 @@ import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
-import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -46,6 +47,7 @@ private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
 class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener(databaseConfig))
 
+    val journalforVedtaksbrev = mockk<JournalforVedtaksbrev>()
     val arrangorService = mockk<ArrangorService>()
 
     beforeEach {
@@ -132,7 +134,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     }
 
     test("oppretter utbetaling for innvilget tilskudd til arrangør") {
-        val service = TilskuddBehandlingService(database.db, TotrinnskontrollService(""))
+        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService(""))
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()
@@ -148,7 +150,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     }
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
-        val service = TilskuddBehandlingService(database.db, TotrinnskontrollService(""))
+        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService(""))
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()

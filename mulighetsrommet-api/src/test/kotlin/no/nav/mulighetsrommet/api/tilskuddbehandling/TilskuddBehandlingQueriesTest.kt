@@ -11,9 +11,9 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
-import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer

@@ -1,0 +1,23 @@
+<header>
+  <img class="logo" alt="Nav-logo" src="{{ image "navlogo.svg" }}" />
+  <div class="personalia-wrapper">
+    <table class="personalia-table">
+      <tr>
+        <th scope="row">Navn:</th>
+        <td>{{deltaker.fornavn}} {{#if deltaker.mellomnavn}} {{deltaker.mellomnavn}} {{/if}}
+          {{deltaker.etternavn}}</td>
+      </tr>
+      <tr>
+        <th scope="row">Fødselsnummer:</th>
+        <td>{{deltaker.personident}}</td>
+      </tr>
+      <tr>
+        <th scope="row">Saksnummer:</th>
+        <th scope="row">{{this.saksnummer}}</th>
+      </tr>
+    </table>
+    <div class="vedtaksdato">
+      <p>{{iso_to_long_date this.opprettetDato}}</p>
+    </div>
+  </div>
+</header>

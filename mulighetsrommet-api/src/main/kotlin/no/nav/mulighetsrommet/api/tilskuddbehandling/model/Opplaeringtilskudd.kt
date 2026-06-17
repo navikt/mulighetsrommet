@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.vedtak
+package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
