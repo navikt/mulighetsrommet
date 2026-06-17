@@ -40,9 +40,9 @@ object TiltakstypeFixtures {
         arenaKode = "INDOPPFAG",
     )
 
-    val TilpassetJobbstotte = TiltakstypeDbo(
+    val VTAO = TiltakstypeDbo(
         id = UUID.fromString("930ff2c1-2ab3-4787-aa9e-4006d26e8180"),
-        navn = "Tilpasset jobbstøtte",
+        navn = "Varig tilrettelagt arbeid i ordinær virksomhet",
         tiltakskode = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER,
         arenaKode = null,
     )

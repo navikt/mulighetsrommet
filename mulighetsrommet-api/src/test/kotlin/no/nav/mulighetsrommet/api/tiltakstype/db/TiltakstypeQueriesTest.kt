@@ -22,7 +22,7 @@ class TiltakstypeQueriesTest : FunSpec({
             database.runAndRollback {
                 queries.tiltakstype.upsert(TiltakstypeFixtures.Arbeidstrening)
                 queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
-                queries.tiltakstype.upsert(TiltakstypeFixtures.TilpassetJobbstotte)
+                queries.tiltakstype.upsert(TiltakstypeFixtures.VTAO)
 
                 queries.tiltakstype.getAll().size shouldBe 3
             }

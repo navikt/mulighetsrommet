@@ -108,7 +108,7 @@ object AvtaleFixtures {
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentVta.id),
+        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentVtas.id),
     )
 
     val AFT: AvtaleDbo = AvtaleDbo(
@@ -125,18 +125,18 @@ object AvtaleFixtures {
         prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft.id),
     )
 
-    val TilpassetJobbstotte: AvtaleDbo = AvtaleDbo(
+    val VTAO: AvtaleDbo = AvtaleDbo(
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo().copy(
             navn = "Avtalenavn for TJ",
-            tiltakstypeId = TiltakstypeFixtures.TilpassetJobbstotte.id,
+            tiltakstypeId = TiltakstypeFixtures.VTAO.id,
             sluttDato = null,
             avtaletype = Avtaletype.FORHANDSGODKJENT,
             opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
         ),
         veilederinformasjonDbo = veilederinformasjonDbo(),
         personvernDbo = personvernDbo(),
-        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTilpassetJobbstotte.id),
+        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentVtao.id),
     )
 
     val EnkelAmo: AvtaleDbo = AvtaleDbo(

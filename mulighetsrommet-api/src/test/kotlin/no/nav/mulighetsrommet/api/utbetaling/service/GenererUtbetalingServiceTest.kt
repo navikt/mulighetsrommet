@@ -893,17 +893,17 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         beforeEach {
             MulighetsrommetTestDomain(
-                tiltakstyper = listOf(TiltakstypeFixtures.TilpassetJobbstotte),
+                tiltakstyper = listOf(TiltakstypeFixtures.VTAO),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.TilpassetJobbstotte),
-                gjennomforinger = listOf(GjennomforingFixtures.TilpassetJobbstotte),
-                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTilpassetJobbstotte),
+                avtaler = listOf(AvtaleFixtures.VTAO),
+                gjennomforinger = listOf(GjennomforingFixtures.VTAO),
+                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentVtao),
             ).initialize(database.db)
         }
 
         val tilsagn = TilsagnFixtures.Tilsagn1.copy(
             id = UUID.randomUUID(),
-            gjennomforingId = GjennomforingFixtures.TilpassetJobbstotte.id,
+            gjennomforingId = GjennomforingFixtures.VTAO.id,
             periode = januar,
             belopBrukt = 0.NOK,
             beregning = TilsagnBeregningFastSatsPerTiltaksplassPerManed(
