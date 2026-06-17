@@ -10,9 +10,10 @@ import { Definisjonsliste } from "@mr/frontend-common/components/definisjonslist
 
 interface Props {
   amoKategorisering: AmoKategoriseringDto;
+  erEnkeltplass?: boolean;
 }
 
-export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
+export function AmoKategoriseringDetaljer({ amoKategorisering, erEnkeltplass }: Props) {
   return (
     <Definisjonsliste
       title="Kursdetaljer"
@@ -49,22 +50,24 @@ export function AmoKategoriseringDetaljer({ amoKategorisering }: Props) {
               },
             ]
           : []),
-        amoKategorisering.norskprove !== null && {
-          key: gjennomforingTekster.norskproveLabel,
-          value: amoKategorisering.norskprove ? "Ja" : "Nei",
-        },
-        amoKategorisering.innholdElementer && {
-          key: gjennomforingTekster.innholdElementerLabel,
-          value: (
-            <ul>
-              {amoKategorisering.innholdElementer.map((element) => (
-                <li key={element} className="list-disc list-inside">
-                  {innholdElementToString(element)}
-                </li>
-              ))}
-            </ul>
-          ),
-        },
+        !erEnkeltplass &&
+          amoKategorisering.norskprove !== null && {
+            key: gjennomforingTekster.norskproveLabel,
+            value: amoKategorisering.norskprove ? "Ja" : "Nei",
+          },
+        !erEnkeltplass &&
+          amoKategorisering.innholdElementer && {
+            key: gjennomforingTekster.innholdElementerLabel,
+            value: (
+              <ul>
+                {amoKategorisering.innholdElementer.map((element) => (
+                  <li key={element} className="list-disc list-inside">
+                    {innholdElementToString(element)}
+                  </li>
+                ))}
+              </ul>
+            ),
+          },
       ].filter((definition) => !!definition)}
     />
   );
