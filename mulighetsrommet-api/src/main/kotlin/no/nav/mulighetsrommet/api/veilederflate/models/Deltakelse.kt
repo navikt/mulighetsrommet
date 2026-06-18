@@ -1,43 +1,79 @@
 package no.nav.mulighetsrommet.api.veilederflate.models
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class Deltakelse(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val eierskap: DeltakelseEierskap,
-    val tittel: String,
-    val tiltakstype: DeltakelseTiltakstype,
-    @Serializable(with = LocalDateSerializer::class)
-    val innsoktDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    val sistEndretDato: LocalDate?,
-    val periode: DeltakelsePeriode,
-    val tilstand: DeltakelseTilstand,
-    val status: DeltakelseStatus,
-    val pamelding: DeltakelsePamelding?,
-)
+@JsonClassDiscriminator("type")
+sealed class Deltakelse {
+    abstract val id: UUID
+    abstract val tilstand: DeltakelseTilstand
+    abstract val tiltakstype: DeltakelseTiltakstype
+    abstract val periode: DeltakelsePeriode
+    abstract val tittel: String
+    abstract val status: DeltakelseStatus
 
-@Serializable
-data class DeltakelsePamelding(
-    @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
-    val status: DeltakerStatusType,
-)
+    @Serializable
+    @SerialName("TILTAKSADMINISTRASJON")
+    data class TiltaksadministrasjonDeltakelse(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        override val tilstand: DeltakelseTilstand,
+        override val tiltakstype: DeltakelseTiltakstype,
+        override val periode: DeltakelsePeriode,
+        override val tittel: String,
+        override val status: DeltakelseStatus,
+        @Serializable(with = LocalDateSerializer::class)
+        val innsoktDato: LocalDate?,
+        @Serializable(with = LocalDateSerializer::class)
+        val sistEndretDato: LocalDate?,
+        @Serializable(with = UUIDSerializer::class)
+        val gjennomforingId: UUID,
+        val infoMeldingStatus: InfoMeldingStatus?,
+    ) : Deltakelse() {
+        enum class InfoMeldingStatus {
+            VENTER_PA_OPPSTART,
+            DELTAR,
+            UTKAST_TIL_PAMELDING,
+            KLADD,
+            SOKT_INN,
+            VENTELISTE,
+            VURDERES,
+        }
+    }
 
-@Serializable
-enum class DeltakelseEierskap {
-    ARENA,
-    TEAM_KOMET,
-    TEAM_TILTAK,
+    @Serializable
+    @SerialName("ARENA")
+    data class ArenaDeltakelse(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        override val tilstand: DeltakelseTilstand,
+        override val tiltakstype: DeltakelseTiltakstype,
+        override val periode: DeltakelsePeriode,
+        override val tittel: String,
+        override val status: DeltakelseStatus,
+    ) : Deltakelse()
+
+    @Serializable
+    @SerialName("TILTAK_ARBEIDSGIVER")
+    data class TiltakArbeidsgiverDeltakelse(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        override val tilstand: DeltakelseTilstand,
+        override val tiltakstype: DeltakelseTiltakstype,
+        override val periode: DeltakelsePeriode,
+        override val tittel: String,
+        override val status: DeltakelseStatus,
+    ) : Deltakelse()
 }
 
 @Serializable

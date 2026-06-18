@@ -568,6 +568,31 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltak & VeilederflateTilta
   tiltaksnummer: null,
 };
 
+export const tiltakFagOgYrke: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
+  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
+  sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
+  navn: "Opplæring Fag og Yrke",
+  oppmoteSted: null,
+  tiltakstype: mockTiltakstyper.OpplarinFagOgYrke,
+  oppstart: GjennomforingOppstartstype.LOPENDE,
+  kontaktinfo: {
+    tiltaksansvarlige: [
+      {
+        navn: "Truls Svendsen",
+        epost: "test@example.com",
+        telefon: null,
+        enhet: null,
+        beskrivelse: null,
+      },
+    ],
+  },
+  fylker: [],
+  enheter: [],
+  beskrivelse: null,
+  faneinnhold: null,
+  tiltaksnummer: null,
+};
+
 export const mockGjennomforinger: VeilederflateTiltak[] = [
   tiltakAvklaring,
   tiltakMentor,

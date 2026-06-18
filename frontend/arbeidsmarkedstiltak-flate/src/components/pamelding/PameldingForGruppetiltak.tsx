@@ -1,12 +1,12 @@
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
-import { VeilederflateTiltakGruppe } from "@arbeidsmarkedstiltak/api-client";
+import { Tiltaksadministrasjon, VeilederflateTiltakGruppe } from "@arbeidsmarkedstiltak/api-client";
 import { Button, HStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { useAktiveDeltakelser } from "@/api/queries/useDeltakelse";
 import { Melding } from "../melding/Melding";
-import { PameldingDeltakelseAlert } from "./PameldingDeltakelseAlert";
+import { InfoMeldingDeltakelse } from "./PameldingDeltakelseAlert";
 
 interface PameldingProps {
   brukerHarRettPaaValgtTiltak: boolean;
@@ -23,9 +23,11 @@ export function PameldingForGruppetiltak({
   if (deltakelser && deltakelser.length > 0) {
     return (
       <>
-        {deltakelser.map((deltakelse) => (
-          <PameldingDeltakelseAlert key={deltakelse.id} deltakelse={deltakelse} />
-        ))}
+        {deltakelser
+          .filter((d): d is Tiltaksadministrasjon => d.type === "TILTAKSADMINISTRASJON")
+          .map((deltakelse) => (
+            <InfoMeldingDeltakelse key={deltakelse.id} deltakelse={deltakelse} />
+          ))}
       </>
     );
   }

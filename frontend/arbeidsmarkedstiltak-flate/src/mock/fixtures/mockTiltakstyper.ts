@@ -306,6 +306,132 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
     ],
     kanKombineresMed: [],
   },
+  OpplaringFagOgYrke: {
+    id: "d621f42f-781e-4654-9902-7ad7d2250721",
+    beskrivelse:
+      "Opplæringstiltak i form av Fag- og yrkesopplæring (jf. tiltaksforskriften § 7-2 b) er opplæring som fører frem mot fag- eller svennebrev, praksisbrev eller kompetansebevis som lærekandidat. \n\nOpplæringen skal bidra til at arbeidssøkere kvalifiseres til ledige jobber. ",
+    navn: "Opplæring - Enkeltplass Fag- og yrkesopplæring",
+    faglenker: null,
+    tiltakskode: Tiltakskode.FAG_OG_YRKESOPPLAERING,
+    system: TiltakstypeSystem.TILTAKSADMINISTRASJON,
+    tiltaksgruppe: "Opplæring",
+    features: [],
+    egenskaper: [],
+    faneinnhold: {
+      forHvem: [
+        {
+          style: "normal",
+          _key: "890591b0e2f0",
+          listItem: "bullet",
+          markDefs: [],
+          children: [
+            {
+              text: "Brukere med behov for kvalifisering for å komme inn på arbeidsmarkedet",
+              _key: "67a4a49ed07c",
+              _type: "span",
+              marks: [],
+            },
+          ],
+          level: 1,
+          _type: "block",
+        },
+        {
+          level: 1,
+          _type: "block",
+          style: "normal",
+          _key: "4452c393d182",
+          listItem: "bullet",
+          markDefs: [],
+          children: [
+            {
+              marks: [],
+              text: "Brukere få opplæringstiltak i form av fagskole fra det året de fyller 19 år",
+              _key: "8d6fbc07d76d",
+              _type: "span",
+            },
+          ],
+          kanKombineresMed: [],
+        },
+        {
+          _type: "block",
+          style: "normal",
+          _key: "d6ca0d7bd5ea",
+          listItem: "bullet",
+          markDefs: [],
+          children: [
+            {
+              marks: [],
+              text: "Åpent for brukere med situasjonsbestemt, spesielt tilpasset og varig tilpasset innsats",
+              _key: "92dc887ca319",
+              _type: "span",
+            },
+          ],
+          level: 1,
+        },
+      ],
+      detaljerOgInnhold: [
+        {
+          style: "normal",
+          _key: "5c7380e19b69",
+          markDefs: [],
+          children: [
+            {
+              marks: [],
+              text: 'Enkeltplass fag- og yrkesopplæring skal registreres som "Enkeltplass Fag- og yrkesopplæring VGS og høyere yrkesfaglig utdanning" i Arena. ',
+              _key: "22742af00dc3",
+              _type: "span",
+            },
+          ],
+          _type: "block",
+        },
+        {
+          _key: "3dfe5f89b80c",
+          markDefs: [],
+          children: [
+            {
+              marks: [],
+              text: "Tiltaket kan gis i inntil tre år, med mulighet for forlengelse i ett år dersom tiltaksdeltakeren av særlige grunner ikke kan gjennomføre utdanningen i løpet av tre år.",
+              _key: "1de959d0dc67",
+              _type: "span",
+            },
+          ],
+          _type: "block",
+          style: "normal",
+        },
+      ],
+      pameldingOgVarighet: [
+        {
+          style: "normal",
+          _key: "28ad9b3b6efc",
+          markDefs: [],
+          children: [
+            {
+              _type: "span",
+              marks: [],
+              text: "Husk å følge rutiner for anskaffelse av enkeltplasser hvis Nav skal betale for en skoleplass for en bruker.",
+              _key: "716ab73fbda40",
+            },
+          ],
+          _type: "block",
+        },
+      ],
+      forHvemInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      detaljerOgInnholdInfoboks: null,
+      oppskrift: null,
+      pameldingOgVarighetInfoboks: null,
+      delMedBruker: null,
+      lenker: null,
+    },
+    innsatsgrupper: [
+      Innsatsgruppe.TRENGER_VEILEDNING,
+      Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
+      Innsatsgruppe.JOBBE_DELVIS,
+      Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
+    ],
+    kanKombineresMed: [],
+  },
   jobbklubb: {
     id: "31e72dd8-ad05-4e81-a7f9-fd4c8f295864",
     tiltakskode: Tiltakskode.JOBBKLUBB,

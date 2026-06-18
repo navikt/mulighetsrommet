@@ -212,11 +212,7 @@ function DeltakelserHistoriske() {
     const femAarSiden = new Date();
     femAarSiden.setFullYear(new Date().getFullYear() - 5);
 
-    const dato =
-      deltakelse.periode.sluttDato ??
-      deltakelse.periode.startDato ??
-      deltakelse.innsoktDato ??
-      deltakelse.sistEndretDato;
+    const dato = hentDato(deltakelse);
 
     return dato ? new Date(dato) > femAarSiden : false;
   }
@@ -246,6 +242,24 @@ function DeltakelserHistoriske() {
         })}
     </Container>
   );
+}
+
+function hentDato(deltakelse: Deltakelse) {
+  switch (deltakelse.type) {
+    case "TILTAKSADMINISTRASJON":
+      return (
+        deltakelse.periode.sluttDato ??
+        deltakelse.periode.startDato ??
+        deltakelse.innsoktDato ??
+        deltakelse.sistEndretDato
+      );
+    case "ARENA":
+      return deltakelse.periode.sluttDato ?? deltakelse.periode.startDato;
+    case "TILTAK_ARBEIDSGIVER":
+      return deltakelse.periode.sluttDato ?? deltakelse.periode.startDato;
+    case undefined:
+      return null;
+  }
 }
 
 function TiltakshistorikkMeldinger({ meldinger }: GetDeltakelserForBrukerResponse) {

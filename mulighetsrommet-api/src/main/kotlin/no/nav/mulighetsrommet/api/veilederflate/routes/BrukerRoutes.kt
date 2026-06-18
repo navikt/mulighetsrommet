@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeSystem
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
@@ -149,15 +148,17 @@ fun Route.brukerRoutes() {
                 emptyList()
             } else {
                 val deltakelser = historikkService.getDeltakelserKomet(norskIdent, obo)
-                when(gjennomforing) {
-                   is VeilederflateTiltakEnkeltplassAnskaffet,
-                   is VeilederflateTiltakEnkeltplass ->
-                     deltakelser.aktive
-                       .filter { it.tiltakstype.tiltakskode == gjennomforing.tiltakstype.tiltakskode }
-                   is VeilederflateTiltakGruppe ->
-                   deltakelser.aktive
-                       .filter { it.pamelding?.gjennomforingId == tiltakId }
-               }
+                when (gjennomforing) {
+                    is VeilederflateTiltakEnkeltplassAnskaffet,
+                    is VeilederflateTiltakEnkeltplass,
+                    ->
+                        deltakelser.aktive
+                            .filter { it.tiltakstype.tiltakskode == gjennomforing.tiltakstype.tiltakskode }
+
+                    is VeilederflateTiltakGruppe ->
+                        deltakelser.aktive
+                            .filter { (it as? Deltakelse.TiltaksadministrasjonDeltakelse)?.gjennomforingId == tiltakId }
+                }
             }
 
             call.respond(response)

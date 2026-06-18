@@ -1,13 +1,16 @@
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
-import { Deltakelse, DeltakerStatusType } from "@arbeidsmarkedstiltak/api-client";
+import {
+  DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus as InfoMeldingStatus,
+  Tiltaksadministrasjon,
+} from "@arbeidsmarkedstiltak/api-client";
 import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
 
 interface PameldingDeltakelseAlertProps {
-  deltakelse: Deltakelse;
+  deltakelse: Tiltaksadministrasjon;
 }
 
-export function PameldingDeltakelseAlert({ deltakelse }: PameldingDeltakelseAlertProps) {
-  if (!deltakelse.pamelding) {
+export function InfoMeldingDeltakelse({ deltakelse }: PameldingDeltakelseAlertProps) {
+  if (!deltakelse.infoMeldingStatus) {
     return null;
   }
   const vedtakRoute = resolveModiaRoute({
@@ -15,7 +18,7 @@ export function PameldingDeltakelseAlert({ deltakelse }: PameldingDeltakelseAler
     deltakerId: deltakelse.id,
   });
 
-  const tekster = utledTekster(deltakelse.pamelding.status);
+  const tekster = utledTekster(deltakelse.infoMeldingStatus);
   return (
     <Alert variant={tekster.variant}>
       <Heading level={"2"} size="small">
@@ -44,57 +47,49 @@ interface Tekst {
   variant: "info" | "success" | "warning";
 }
 
-function utledTekster(status: DeltakerStatusType): Tekst {
+function utledTekster(status: InfoMeldingStatus): Tekst {
   switch (status) {
-    case DeltakerStatusType.VENTER_PA_OPPSTART:
+    case InfoMeldingStatus.VENTER_PA_OPPSTART:
       return {
         overskrift: "Venter på oppstart",
         variant: "info",
         lenketekst: "Les om brukerens deltakelse",
       };
-    case DeltakerStatusType.DELTAR:
+    case InfoMeldingStatus.DELTAR:
       return {
         overskrift: "Brukeren deltar på tiltaket",
         variant: "success",
         lenketekst: "Les om brukerens deltakelse",
       };
-    case DeltakerStatusType.UTKAST_TIL_PAMELDING:
+    case InfoMeldingStatus.UTKAST_TIL_PAMELDING:
       return {
         overskrift: "Utkastet er delt og venter på godkjenning",
         variant: "info",
         lenketekst: "Gå til utkastet",
       };
-    case DeltakerStatusType.KLADD:
+    case InfoMeldingStatus.KLADD:
       return {
         overskrift: "Kladden er ikke delt",
         lenketekst: "Gå til kladden",
         variant: "warning",
       };
-    case DeltakerStatusType.SOKT_INN:
+    case InfoMeldingStatus.SOKT_INN:
       return {
         overskrift: "Brukeren er søkt inn",
         lenketekst: "Les om brukerens deltakelse",
         variant: "info",
       };
-    case DeltakerStatusType.VENTELISTE:
+    case InfoMeldingStatus.VENTELISTE:
       return {
         overskrift: "Brukeren er på venteliste",
         lenketekst: "Les om brukerens deltakelse",
         variant: "info",
       };
-    case DeltakerStatusType.VURDERES:
+    case InfoMeldingStatus.VURDERES:
       return {
         overskrift: "Brukeren er søkt inn",
         lenketekst: "Les om brukerens deltakelse",
         variant: "info",
       };
-    case DeltakerStatusType.AVBRUTT:
-    case DeltakerStatusType.AVBRUTT_UTKAST:
-    case DeltakerStatusType.FEILREGISTRERT:
-    case DeltakerStatusType.FULLFORT:
-    case DeltakerStatusType.HAR_SLUTTET:
-    case DeltakerStatusType.IKKE_AKTUELL:
-    case DeltakerStatusType.PABEGYNT_REGISTRERING:
-      throw new Error("Ukjent deltakerstatus");
   }
 }

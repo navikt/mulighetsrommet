@@ -20,8 +20,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseEierskap
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePamelding
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseStatus
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTilstand
@@ -157,9 +155,8 @@ class TiltakshistorikkServiceTest : FunSpec({
         sistEndretDato = LocalDate.of(2018, 12, 5),
     )
 
-    val deltakelseOppfolging = Deltakelse(
+    val deltakelseOppfolging = Deltakelse.TiltaksadministrasjonDeltakelse(
         id = tiltakshistorikkOppfolging.id,
-        eierskap = DeltakelseEierskap.TEAM_KOMET,
         tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Oppfølging hos Fretex AS",
         tiltakstype = DeltakelseTiltakstype(TiltakstypeFixtures.Oppfolging.navn, Tiltakskode.OPPFOLGING),
@@ -173,14 +170,11 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         sistEndretDato = LocalDate.of(2018, 12, 5),
         innsoktDato = LocalDate.of(2018, 12, 3),
-        pamelding = DeltakelsePamelding(
-            gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
-            status = DeltakerStatusType.VENTELISTE,
-        ),
+        gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
+        infoMeldingStatus = Deltakelse.TiltaksadministrasjonDeltakelse.InfoMeldingStatus.VENTELISTE,
     )
-    val deltakelseIps = Deltakelse(
+    val deltakelseIps = Deltakelse.ArenaDeltakelse(
         id = tiltakshistorikkIps.id,
-        eierskap = DeltakelseEierskap.ARENA,
         tilstand = DeltakelseTilstand.AKTIV,
         tittel = "IPS (Individuell jobbstøtte) hos Underenhet 1 AS",
         tiltakstype = DeltakelseTiltakstype("IPS (Individuell jobbstøtte)", null),
@@ -192,13 +186,9 @@ class TiltakshistorikkServiceTest : FunSpec({
             startDato = LocalDate.of(2018, 12, 3),
             sluttDato = LocalDate.of(2019, 12, 3),
         ),
-        sistEndretDato = null,
-        innsoktDato = null,
-        pamelding = null,
     )
-    val deltakelseArbeidstrening = Deltakelse(
+    val deltakelseArbeidstrening = Deltakelse.TiltakArbeidsgiverDeltakelse(
         id = tiltakshistorikkArbeidstrening.id,
-        eierskap = DeltakelseEierskap.TEAM_TILTAK,
         tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
         tiltakstype = DeltakelseTiltakstype("Arbeidstrening", null),
@@ -210,9 +200,6 @@ class TiltakshistorikkServiceTest : FunSpec({
             startDato = LocalDate.of(2020, 1, 1),
             sluttDato = LocalDate.of(2021, 12, 31),
         ),
-        sistEndretDato = null,
-        innsoktDato = null,
-        pamelding = null,
     )
 
     val historiskeIdenterQuery: HentHistoriskeIdenterPdlQuery = mockk()
@@ -252,6 +239,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(gjennomforing),
+            deltakere = listOf(),
         ).initialize(database.db)
     }
 
@@ -346,7 +334,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                         type = DataElement.Status("Har sluttet", DataElement.Status.Variant.ALT_1),
                         aarsak = null,
                     ),
-                    pamelding = null,
+                    infoMeldingStatus = null,
                 ),
                 deltakelseIps,
             ),
@@ -415,10 +403,8 @@ class TiltakshistorikkServiceTest : FunSpec({
                 type = DataElement.Status("Kladd", DataElement.Status.Variant.WARNING),
                 aarsak = null,
             ),
-            pamelding = DeltakelsePamelding(
-                gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
-                status = DeltakerStatusType.KLADD,
-            ),
+            gjennomforingId = deltakelseOppfolging.gjennomforingId,
+            infoMeldingStatus = Deltakelse.TiltaksadministrasjonDeltakelse.InfoMeldingStatus.KLADD,
         )
         historikk shouldBe Deltakelser(
             meldinger = setOf(),
@@ -499,9 +485,8 @@ class TiltakshistorikkServiceTest : FunSpec({
             historikk shouldBe Deltakelser(
                 meldinger = setOf(),
                 aktive = listOf(
-                    Deltakelse(
+                    Deltakelse.ArenaDeltakelse(
                         id = tiltakshistorikkEnkelAmo.id,
-                        eierskap = DeltakelseEierskap.ARENA,
                         tilstand = DeltakelseTilstand.AKTIV,
                         tittel = "Enkel AMO hos Underenhet 1 AS",
                         tiltakstype = DeltakelseTiltakstype(
@@ -516,9 +501,6 @@ class TiltakshistorikkServiceTest : FunSpec({
                             startDato = LocalDate.of(2018, 12, 3),
                             sluttDato = LocalDate.of(2019, 12, 3),
                         ),
-                        sistEndretDato = null,
-                        innsoktDato = null,
-                        pamelding = null,
                     ),
                 ),
                 historiske = emptyList(),
@@ -550,9 +532,8 @@ class TiltakshistorikkServiceTest : FunSpec({
             historikk shouldBe Deltakelser(
                 meldinger = setOf(),
                 aktive = listOf(
-                    Deltakelse(
+                    Deltakelse.TiltaksadministrasjonDeltakelse(
                         id = deltakelseEnkelAmo.deltakerId,
-                        eierskap = DeltakelseEierskap.TEAM_KOMET,
                         tilstand = DeltakelseTilstand.AKTIV,
                         tittel = "Tilfeldig enkeltplass fra Komet",
                         tiltakstype = DeltakelseTiltakstype(
@@ -569,7 +550,8 @@ class TiltakshistorikkServiceTest : FunSpec({
                         ),
                         sistEndretDato = LocalDate.of(2018, 12, 5),
                         innsoktDato = LocalDate.of(2018, 12, 3),
-                        pamelding = null,
+                        gjennomforingId = deltakelseEnkelAmo.deltakerlisteId,
+                        infoMeldingStatus = Deltakelse.TiltaksadministrasjonDeltakelse.InfoMeldingStatus.VENTELISTE,
                     ),
                 ),
                 historiske = emptyList(),
