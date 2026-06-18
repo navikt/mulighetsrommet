@@ -231,6 +231,7 @@ object BeregningTestHelpers {
         ),
         deltakelsesmengder = deltakelsesmengder,
         innholdAnnet = null,
+        navVeileder = null,
     )
 
     fun toStengtPeriode(periode: Periode, beskrivelse: String = "Stengt"): GjennomforingAvtale.StengtPeriode {

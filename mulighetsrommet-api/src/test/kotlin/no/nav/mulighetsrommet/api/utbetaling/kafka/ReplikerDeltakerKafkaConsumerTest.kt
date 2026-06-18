@@ -97,6 +97,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         innholdAnnet = amtDeltaker1.innhold?.let {
                             it.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
                         },
+                        navVeileder = null,
                     ),
                     Deltaker(
                         id = amtDeltaker2.id,
@@ -114,6 +115,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         innholdAnnet = amtDeltaker1.innhold?.let {
                             it.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
                         },
+                        navVeileder = null,
                     ),
                 )
             }

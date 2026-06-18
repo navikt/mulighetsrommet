@@ -28,7 +28,8 @@ class DeltakerQueries(private val session: Session) {
                                   status_type,
                                   status_aarsak,
                                   status_opprettet_tidspunkt,
-                                  innhold_annet)
+                                  innhold_annet,
+                                  nav_veileder)
             values (:id::uuid,
                     :gjennomforing_id::uuid,
                     :start_dato,
@@ -38,7 +39,8 @@ class DeltakerQueries(private val session: Session) {
                     :status_type::deltaker_status_type,
                     :status_aarsak::deltaker_status_aarsak,
                     :status_opprettet_tidspunkt,
-                    :innhold_annet)
+                    :innhold_annet,
+                    :nav_veileder::jsonb)
             on conflict (id)
                 do update set gjennomforing_id           = excluded.gjennomforing_id,
                               start_dato                 = excluded.start_dato,
@@ -48,7 +50,8 @@ class DeltakerQueries(private val session: Session) {
                               status_type                = excluded.status_type,
                               status_aarsak              = excluded.status_aarsak,
                               status_opprettet_tidspunkt = excluded.status_opprettet_tidspunkt,
-                              innhold_annet              = excluded.innhold_annet
+                              innhold_annet              = excluded.innhold_annet,
+                              nav_veileder               = excluded.nav_veileder
         """.trimIndent()
         val params = mapOf(
             "id" to deltaker.id,
@@ -61,6 +64,7 @@ class DeltakerQueries(private val session: Session) {
             "status_aarsak" to deltaker.status.aarsak?.name,
             "status_opprettet_tidspunkt" to deltaker.status.opprettetTidspunkt,
             "innhold_annet" to deltaker.innholdAnnet,
+            "nav_veileder" to Json.encodeToString(deltaker.navVeileder),
         )
         execute(queryOf(query, params))
 
@@ -163,4 +167,5 @@ private fun Row.toDeltaker() = Deltaker(
     ),
     deltakelsesmengder = stringOrNull("deltakelsesmengder_json")?.let { Json.decodeFromString(it) } ?: listOf(),
     innholdAnnet = stringOrNull("innhold_annet"),
+    navVeileder = stringOrNull("nav_veileder")?.let { Json.decodeFromString(it) },
 )

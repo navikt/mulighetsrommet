@@ -155,7 +155,7 @@ class KafkaClients(
     var replikerDeltakerEnkeltplass: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "repliker-deltaker-enkeltplass",
         topic = "amt.deltaker-ekstern-v1",
-        consumerProperties = getConsumerProperties("mulighetsrommet-api.repliker-deltaker-enkeltplass.v2"),
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.repliker-deltaker-enkeltplass-v1-3"),
     )
     var replikerDeltakerEksternV1: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "repliker-amt-deltaker-ekstern",

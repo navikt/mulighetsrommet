@@ -3,6 +3,8 @@ package no.nav.amt.model
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -29,6 +31,7 @@ data class AmtDeltakerEksternV1Dto(
     val kilde: Kilde,
     val innhold: DeltakelsesinnholdDto?,
     val deltakelsesmengder: List<DeltakelsesmengdeDto>,
+    val navVeileder: NavVeileder?,
 ) {
     @Serializable
     data class StatusDto(
@@ -71,4 +74,10 @@ data class AmtDeltakerEksternV1Dto(
         ARENA,
         KOMET,
     }
+
+    @Serializable
+    data class NavVeileder(
+        val navIdent: NavIdent,
+        val enhetsnummer: NavEnhetNummer?,
+    )
 }

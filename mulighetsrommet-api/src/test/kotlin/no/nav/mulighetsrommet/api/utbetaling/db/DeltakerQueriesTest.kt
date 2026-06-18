@@ -9,9 +9,12 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.model.NavVeileder
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -43,6 +46,10 @@ class DeltakerQueriesTest : FunSpec({
         ),
         deltakelsesmengder = emptyList(),
         innholdAnnet = null,
+        navVeileder = DeltakerDbo.NavVeileder(
+            navIdent = NavIdent("B123456"),
+            enhetsnummer = NavEnhetNummer("0200"),
+        ),
     )
     val deltaker2 = deltaker1.copy(
         id = UUID.randomUUID(),
@@ -146,6 +153,17 @@ fun DeltakerDbo.toDeltaker() = Deltaker(
     registrertTidspunkt = registrertTidspunkt,
     endretTidspunkt = endretTidspunkt,
     status = status,
-    deltakelsesmengder = deltakelsesmengder.map { Deltakelsesmengde(it.gyldigFra, it.deltakelsesprosent) },
+    deltakelsesmengder = deltakelsesmengder.map {
+        Deltakelsesmengde(
+            it.gyldigFra,
+            it.deltakelsesprosent,
+        )
+    },
     innholdAnnet = innholdAnnet,
+    navVeileder = navVeileder?.let {
+        NavVeileder(
+            navIdent = it.navIdent,
+            enhetsnummer = it.enhetsnummer,
+        )
+    },
 )

@@ -38,6 +38,7 @@ object DeltakerFixtures {
             opprettetTidspunkt = statusOpprettet,
         ),
         innholdAnnet = null,
+        navVeileder = null,
     )
 
     fun createDeltakerDbo(
@@ -61,6 +62,7 @@ object DeltakerFixtures {
             opprettetTidspunkt = endretTidspunkt,
         ),
         innholdAnnet = innhold,
+        navVeileder = null,
     )
 
     fun createDeltaker(
@@ -84,6 +86,7 @@ object DeltakerFixtures {
         ),
         deltakelsesmengder = listOf(),
         innholdAnnet = null,
+        navVeileder = null,
     )
 
     fun createAmtDeltakerDto(
@@ -114,6 +117,7 @@ object DeltakerFixtures {
                 ),
             ),
         ),
+        navVeileder = null,
     )
 
     fun createAmtDeltakerStatusDto(

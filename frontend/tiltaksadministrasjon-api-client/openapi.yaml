@@ -5794,10 +5794,15 @@ components:
           - "null"
           - string
           format: date
+        navVeileder:
+          type:
+          - "null"
+          - string
       required:
       - avvistGrunn
       - id
       - innholdAnnet
+      - navVeileder
       - navn
       - norskIdent
       - oppfolgingEnhet
