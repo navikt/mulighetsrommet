@@ -122,6 +122,40 @@ class TilskuddBehandlingQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
+    fun setJournalpostId(tilskuddBehandlingId: UUID, journalpostId: String) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilskudd_behandling
+              set vedtak_journalpost_id = :journalpost_id,
+              vedtak_journalfort_tidspunkt = now()
+            where
+              id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to tilskuddBehandlingId,
+            "journalpost_id" to journalpostId,
+        )
+        session.execute(queryOf(query, params))
+    }
+
+    fun setJournalpostDistribueringId(id: UUID, journalpostDistribueringId: String) {
+        @Language("PostgreSQL")
+        val query = """
+            update tilskudd_behandling
+              set vedtak_journalpost_distribuering_id = :journalpost_distribuering_id,
+              vedtak_distribuert_tidspunkt = now()
+            where
+              id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+            "journalpost_distribuering_id" to journalpostDistribueringId,
+        )
+        session.execute(queryOf(query, params))
+    }
+
     fun setStatus(id: UUID, status: TilskuddBehandlingStatus) {
         @Language("PostgreSQL")
         val query = """
@@ -176,7 +210,12 @@ class TilskuddBehandlingQueries(private val session: Session) {
             where gjennomforing_id = :gjennomforing_id::uuid
         """.trimIndent()
 
-        return session.list(queryOf(query, mapOf("gjennomforing_id" to gjennomforingId))) { it.toTilskuddBehandlingDto() }
+        return session.list(
+            queryOf(
+                query,
+                mapOf("gjennomforing_id" to gjennomforingId),
+            ),
+        ) { it.toTilskuddBehandlingDto() }
     }
 }
 
@@ -196,6 +235,7 @@ private fun Row.toTilskuddBehandlingDto(): TilskuddBehandlingDto {
         tilskudd = tilskudd,
         status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(string("status"))),
         kommentarIntern = stringOrNull("kommentar_intern"),
+        vedtakJournalpostId = stringOrNull("vedtak_journalpost_id"),
         samletVedtakResultat = samletVedtakResultatStatusTag(tilskudd.map { it.vedtakResultat.type }),
     )
 }

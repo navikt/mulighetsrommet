@@ -76,7 +76,6 @@ data class Journalpost(
     val avsenderMottaker: AvsenderMottaker,
     val bruker: Bruker?,
     val tema: String,
-    val behandlingstema: String?,
     val datoMottatt: String,
     val dokumenter: List<Dokument>,
     val eksternReferanseId: String,
@@ -84,6 +83,7 @@ data class Journalpost(
     val journalposttype: String,
     val kanal: String,
     val sak: Sak,
+    val brevkode: String? = null,
 ) {
     @Serializable
     data class AvsenderMottaker(

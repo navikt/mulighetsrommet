@@ -453,6 +453,17 @@ val ApplicationConfigLocal = AppConfig(
     dokdistfordeling = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/dokdistfordeling",
         scope = "default",
+        engine = MockEngine { request ->
+            respond(
+                status = HttpStatusCode.OK,
+                content = ByteReadChannel(
+                    """
+                {"bestillingsId": "1234"}
+                    """.trimIndent(),
+                ),
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        },
     ),
     utdanning = HttpClientConfig(
         url = "https://api.utdanning.no",

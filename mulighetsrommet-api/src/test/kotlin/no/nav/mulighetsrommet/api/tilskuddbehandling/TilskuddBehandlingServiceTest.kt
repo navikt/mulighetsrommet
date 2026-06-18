@@ -7,12 +7,14 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import io.mockk.mockk
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
@@ -21,7 +23,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
-import no.nav.mulighetsrommet.api.vedtak.Opplaeringtilskudd
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Valuta
@@ -72,7 +73,11 @@ class TilskuddBehandlingServiceTest : FunSpec({
         ),
     )
 
-    fun createService() = TilskuddBehandlingService(database.db, TotrinnskontrollService(""))
+    fun createService() = TilskuddBehandlingService(
+        database.db,
+        mockk(relaxed = true),
+        TotrinnskontrollService(""),
+    )
 
     context("attester og returner") {
         test("kan ikke attestere sin egen behandling") {
@@ -80,7 +85,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
 
             service.upsert(request, ansatt1).shouldBeRight()
 
-            service.godkjenn(request.id, ansatt1).shouldBeLeft().shouldHaveSize(1).first().should {
+            service.attester(request.id, ansatt1).shouldBeLeft().shouldHaveSize(1).first().should {
                 it.detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
             }
         }
@@ -90,7 +95,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
 
             service.upsert(request, ansatt1).shouldBeRight()
 
-            service.godkjenn(request.id, ansatt2).shouldBeRight()
+            service.attester(request.id, ansatt2).shouldBeRight()
 
             val detaljer = service.getDetaljerDto(request.id, ansatt1)
             detaljer?.behandling?.status?.type shouldBe TilskuddBehandlingStatus.FERDIG_BEHANDLET

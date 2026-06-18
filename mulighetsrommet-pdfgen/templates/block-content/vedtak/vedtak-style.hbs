@@ -1,0 +1,94 @@
+<style>
+  @page {
+    margin: 64px;
+    margin-bottom: 74px;
+    @bottom-left {
+      content: element(footer);
+    }
+  }
+  * {
+    font-family: "Source Sans Pro", SourceSans3, Source_Sans_3, ArialSystem, sans-serif;
+    font-size: 13px;
+    line-height: 20px;
+    box-sizing: border-box;
+  }
+  section {
+    page-break-inside: avoid;
+  }
+  header {
+    display: block;
+    margin-bottom: 3rem;
+  }
+  h1 {
+    margin-bottom: 26px;
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 700;
+  }
+  h2 {
+    margin-top: 26px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 16px;
+  }
+  .logo {
+    height: 16px;
+  }
+  .personalia-table {
+    float: left;
+    padding-top: 48px;
+  }
+  .personalia-table th {
+    font-weight: normal;
+    padding-right: 1rem;
+  }
+  .vedtaksdato {
+    float: right;
+    padding-top: 63px;
+  }
+  .avsender {
+    padding-top: 32px;
+    padding-bottom: 40px;
+  }
+  .forslag {
+    padding-top: 0.5rem;
+  }
+  .fritekst {
+    white-space: pre-wrap;
+  }
+  .margins-1-rem { /* burde kanskje vært default for p */
+    margin: 1rem 0;
+  }
+
+  .avsender_navn {
+    display: flex;
+    justify-content: space-between;
+  }
+  p {
+    padding: 0;
+    margin: 0;
+  }
+  main {
+    clear: both;
+  }
+  #footer {
+    position: running(footer);
+    font-size: 9px;
+    line-height: 16px;
+    margin-top: -25px;
+    padding-left: 0.6cm;
+  }
+  .sidetall {
+    float: right;
+  }
+  #pagenumber, #pagecount, .sidetall {
+    font-size: 12px;
+  }
+  #pagenumber:before {
+    content: counter(page);
+  }
+  #pagecount:before {
+    content: counter(pages)
+  }
+</style>
