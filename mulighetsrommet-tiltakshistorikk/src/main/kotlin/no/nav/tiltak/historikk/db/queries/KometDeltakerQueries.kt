@@ -96,6 +96,7 @@ class KometDeltakerQueries(private val session: Session) {
                     deltaker.prosent_stilling,
                     deltaker.dager_per_uke,
                     gjennomforing.id as gjennomforing_id,
+                    gjennomforing_type as gjennomforing_type,
                     gjennomforing.navn as gjennomforing_navn,
                     gjennomforing.deltidsprosent as gjennomforing_deltidsprosent,
                     tiltakstype.tiltakskode as tiltakstype_tiltakskode,
@@ -167,10 +168,11 @@ private fun Row.toTeamKometDeltakelse(): TiltakshistorikkV1Dto.TeamKometDeltakel
             opprettetDato = localDateTime("status_opprettet_dato"),
         ),
         tiltakstype = tiltakstype,
-        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+        gjennomforing = TiltakshistorikkV1Dto.TeamKometDeltakelse.Gjennomforing(
             id = uuid("gjennomforing_id"),
             navn = stringOrNull("gjennomforing_navn"),
             deltidsprosent = floatOrNull("gjennomforing_deltidsprosent"),
+            type = string("gjennomforing_type").let { TiltakshistorikkV1Dto.TeamKometDeltakelse.GjennomforingType.valueOf(it) },
         ),
         arrangor = arrangor,
         deltidsprosent = floatOrNull("prosent_stilling"),
