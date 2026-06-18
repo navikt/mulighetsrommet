@@ -151,6 +151,5 @@ fun vedtakJournalpost(
         fagsakId = fagsakId,
         fagsaksystem = Journalpost.Sak.Fagsaksystem.TILTAKSADMINISTRASJON,
     ),
-    behandlingstema = "TIL",
     kanal = "NAV_NO",
 )

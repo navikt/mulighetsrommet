@@ -146,5 +146,4 @@ fun utbetalingJournalpost(
         fagsakId = fagsakId,
         fagsaksystem = Journalpost.Sak.Fagsaksystem.TILTAKSADMINISTRASJON,
     ),
-    behandlingstema = null,
 )
