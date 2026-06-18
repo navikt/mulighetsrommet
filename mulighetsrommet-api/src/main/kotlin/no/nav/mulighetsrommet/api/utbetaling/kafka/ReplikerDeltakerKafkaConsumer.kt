@@ -86,6 +86,12 @@ fun AmtDeltakerEksternV1Dto.toDeltaker(): Deltaker = Deltaker(
     innholdAnnet = innhold?.let { innhold ->
         innhold.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
     },
+    navVeileder = navVeileder?.let {
+        no.nav.mulighetsrommet.api.utbetaling.model.NavVeileder(
+            navIdent = it.navIdent,
+            enhetsnummer = it.enhetsnummer,
+        )
+    },
 )
 
 fun AmtDeltakerEksternV1Dto.toDeltakerDbo(): DeltakerDbo = DeltakerDbo(
@@ -105,6 +111,12 @@ fun AmtDeltakerEksternV1Dto.toDeltakerDbo(): DeltakerDbo = DeltakerDbo(
     },
     innholdAnnet = innhold?.let { innhold ->
         innhold.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
+    },
+    navVeileder = navVeileder?.let {
+        DeltakerDbo.NavVeileder(
+            navIdent = it.navIdent,
+            enhetsnummer = it.enhetsnummer,
+        )
     },
 )
 

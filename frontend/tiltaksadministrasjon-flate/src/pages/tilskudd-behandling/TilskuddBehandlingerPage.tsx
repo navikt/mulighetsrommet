@@ -4,7 +4,7 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { DataElementStatusTag, useSortableData } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
-import { Alert, Table } from "@navikt/ds-react";
+import { Alert, Table, Tag } from "@navikt/ds-react";
 import {
   formaterDato,
   formaterPeriodeSlutt,
@@ -12,6 +12,8 @@ import {
 } from "@mr/frontend-common/utils/date";
 import { opplaeringTilskuddToString } from "@/utils/Utils";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
+import { SamletVedtakResultat, TilskuddBehandlingKompakt } from "@tiltaksadministrasjon/api-client";
+import { GavelSoundBlockIcon, PiggybankIcon } from "@navikt/aksel-icons";
 
 export function TilskuddBehandlingerPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -64,6 +66,9 @@ export function TilskuddBehandlingerPage() {
               <TableColumnHeader sortKey="tilskuddtyper" sortable>
                 Tilskuddstype
               </TableColumnHeader>
+              <TableColumnHeader sortKey="tilskuddtyper" sortable>
+                Vedtaksresultat
+              </TableColumnHeader>
               <TableColumnHeader sortKey="status.type" sortable>
                 Behandlingsstatus
               </TableColumnHeader>
@@ -71,7 +76,7 @@ export function TilskuddBehandlingerPage() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {sortedData.map((b) => (
+            {sortedData.map((b: TilskuddBehandlingKompakt) => (
               <Table.Row key={b.id}>
                 <Table.DataCell>{formaterDato(b.soknadDato)}</Table.DataCell>
                 <Table.DataCell>{b.journalpostId}</Table.DataCell>
@@ -79,6 +84,9 @@ export function TilskuddBehandlingerPage() {
                 <Table.DataCell>{formaterPeriodeSlutt(b.periode)}</Table.DataCell>
                 <Table.DataCell>
                   {b.tilskuddtyper.map((t) => opplaeringTilskuddToString(t)).join(", ")}
+                </Table.DataCell>
+                <Table.DataCell>
+                  <SamletVedtakResultatStatusTag status={b.samletVedtakResultat} />
                 </Table.DataCell>
                 <Table.DataCell>
                   <DataElementStatusTag {...b.status.status} />
@@ -93,4 +101,27 @@ export function TilskuddBehandlingerPage() {
       )}
     </>
   );
+}
+
+function SamletVedtakResultatStatusTag({ status }: { status: SamletVedtakResultat }) {
+  switch (status) {
+    case SamletVedtakResultat.INNVILGELSE:
+      return (
+        <Tag size="small" data-color="success" icon={<PiggybankIcon fontSize="1rem" />}>
+          Innvilgelse
+        </Tag>
+      );
+    case SamletVedtakResultat.DELVIS_INNVILGELSE:
+      return (
+        <Tag size="small" data-color="warning" icon={<GavelSoundBlockIcon fontSize="1rem" />}>
+          Avslag
+        </Tag>
+      );
+    case SamletVedtakResultat.AVSLAG:
+      return (
+        <Tag size="small" data-color="danger" icon={<PiggybankIcon fontSize="1rem" />}>
+          Delvis innvilgelse
+        </Tag>
+      );
+  }
 }

@@ -24,6 +24,7 @@ export function DeltakerHeader({ deltaker, arrangorNavn, compact = false }: Prop
           <CopyButton size="small" copyText={deltaker.norskIdent ?? ""} />
         </HStack>
         <MetadataVStack label="Enhet" value={deltaker.oppfolgingEnhet?.navn} />
+        <MetadataVStack label="Veileder" value={deltaker.navVeileder} />
         {!compact && (
           <>
             <MetadataVStack label="Arrangør" value={arrangorNavn} />

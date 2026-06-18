@@ -9,7 +9,9 @@ select deltaker.id,
        deltaker.status_aarsak,
        deltaker.status_opprettet_tidspunkt,
        deltakelsesmengder_json,
-       deltaker.innhold_annet
+       deltaker.innhold_annet,
+       deltaker.nav_veileder_nav_ident,
+       deltaker.nav_veileder_enhetsnummer
 from deltaker
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(

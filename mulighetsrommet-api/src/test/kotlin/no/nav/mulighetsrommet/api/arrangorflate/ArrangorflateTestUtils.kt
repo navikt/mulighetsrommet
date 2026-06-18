@@ -73,6 +73,7 @@ object ArrangorflateTestUtils {
             opprettetTidspunkt = LocalDateTime.now(),
         ),
         innholdAnnet = null,
+        navVeileder = null,
     )
 
     fun createTestTilsagn(): TilsagnDbo = TilsagnDbo(
