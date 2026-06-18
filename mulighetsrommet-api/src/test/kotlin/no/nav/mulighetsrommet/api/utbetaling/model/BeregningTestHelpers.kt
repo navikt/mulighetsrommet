@@ -101,7 +101,7 @@ object BeregningTestHelpers {
 
     fun createGjennomforingForForhandsgodkjentSatsPerAvtaltTiltaksplass(
         id: UUID = UUID.randomUUID(),
-        tiltakskode: Tiltakskode = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER,
+        tiltakskode: Tiltakskode = Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER,
         periode: Periode,
         sats: ValutaBelop = ValutaBelop(7_321, Valuta.NOK),
     ): GjennomforingAvtale = createGjennomforing(

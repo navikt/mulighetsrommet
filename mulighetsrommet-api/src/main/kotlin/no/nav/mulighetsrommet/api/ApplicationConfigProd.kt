@@ -72,7 +72,7 @@ val ApplicationConfigProd = AppConfig(
                 /*
                  * Nye tiltakstyper under utvikling
                  */
-                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER to setOf(),
+                Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER to setOf(),
                 Tiltakskode.FIREARIG_LONNSTILSUDD to setOf(),
             )
         },

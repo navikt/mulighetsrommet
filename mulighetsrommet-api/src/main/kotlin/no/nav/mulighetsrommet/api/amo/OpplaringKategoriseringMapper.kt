@@ -19,7 +19,7 @@ object OpplaringKategoriseringMapper {
         Tiltakskode.OPPFOLGING,
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER,
+        Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER,
         Tiltakskode.HOYERE_UTDANNING,
         Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
         Tiltakskode.INDIVIDUELL_JOBBSTOTTE,
