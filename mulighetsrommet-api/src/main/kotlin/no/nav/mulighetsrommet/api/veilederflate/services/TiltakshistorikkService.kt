@@ -118,8 +118,8 @@ class TiltakshistorikkService(
         //  som feature toggle er definert for
         val tiltakstype =
             tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode).singleOrNull()?.let {
-                DeltakelseTiltakstype(it.navn, it.tiltakskode)
-            } ?: DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
+                DeltakelseTiltakstype(it.navn, it.tiltakskode.gruppe, it.tiltakskode)
+            } ?: DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null, null)
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -152,7 +152,7 @@ class TiltakshistorikkService(
                 aarsak = deltakelse.status.aarsak?.description,
             ),
             tittel = deltakelse.tittel,
-            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, deltakelse.tiltakstype.tiltakskode),
+            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, deltakelse.tiltakstype.tiltakskode.gruppe, deltakelse.tiltakstype.tiltakskode),
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.TEAM_KOMET,
@@ -174,7 +174,7 @@ class TiltakshistorikkService(
                 aarsak = null,
             ),
             tittel = deltakelse.tittel,
-            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null),
+            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null, null),
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.TEAM_TILTAK,
@@ -187,7 +187,7 @@ class TiltakshistorikkService(
         // TODO: ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
         //  `tiltakshistorikk`-appen som kilde
         val tiltakstype = tiltakstypeService.getByTiltakskode(deltakelse.tiltakstype.tiltakskode)
-            .let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
+            .let { DeltakelseTiltakstype(it.navn, it.tiltakskode.gruppe, it.tiltakskode) }
         val tilstand = getTilstand(deltakelse.status.type)
         val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
             DeltakelsePamelding(deltakelse.deltakerlisteId, deltakelse.status.type)
