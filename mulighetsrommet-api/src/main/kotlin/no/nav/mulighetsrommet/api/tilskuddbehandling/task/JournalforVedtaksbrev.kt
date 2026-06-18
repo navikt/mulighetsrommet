@@ -135,6 +135,7 @@ fun vedtakJournalpost(
     dokumenter = listOf(
         Journalpost.Dokument(
             tittel = "Vedtak om tilskudd til opplæring",
+            brevKode = "tilskudd-vedtak",
             dokumentvarianter = listOf(
                 Journalpost.Dokument.Dokumentvariant(
                     "PDFA",
@@ -152,5 +153,4 @@ fun vedtakJournalpost(
         fagsaksystem = Journalpost.Sak.Fagsaksystem.TILTAKSADMINISTRASJON,
     ),
     kanal = "NAV_NO",
-    brevkode = "tilskudd-vedtak",
 )
