@@ -1017,22 +1017,13 @@ components:
       properties:
         navn:
           type: string
-        gruppe:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Tiltaksgruppe"
         tiltakskode:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Tiltakskode"
       required:
-      - gruppe
       - navn
       - tiltakskode
-    Tiltaksgruppe:
-      type: string
-      enum:
-      - OPPLAERING
     Tiltakskode:
       type: string
       enum:

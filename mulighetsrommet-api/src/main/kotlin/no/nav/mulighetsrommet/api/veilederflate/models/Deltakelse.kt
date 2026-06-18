@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.veilederflate.models
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.Tiltaksgruppe
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -44,7 +43,6 @@ enum class DeltakelseEierskap {
 @Serializable
 data class DeltakelseTiltakstype(
     val navn: String,
-    val gruppe: Tiltaksgruppe? = null,
     val tiltakskode: Tiltakskode?,
 )
 

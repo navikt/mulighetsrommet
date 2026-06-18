@@ -20,7 +20,6 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
       tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
-      gruppe: null,
     },
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
@@ -46,7 +45,6 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstype: {
       navn: "Avklaring",
       tiltakskode: Tiltakskode.AVKLARING,
-      gruppe: null,
     },
     tittel: "Avklaring hos Fretex AS",
     eierskap: DeltakelseEierskap.TEAM_KOMET,
@@ -71,7 +69,6 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstype: {
       navn: "Jobbklubb",
       tiltakskode: Tiltakskode.JOBBKLUBB,
-      gruppe: null,
     },
     periode: {
       startDato: "2023-08-10",
@@ -96,7 +93,6 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstype: {
       navn: "Jobbklubb",
       tiltakskode: Tiltakskode.JOBBKLUBB,
-      gruppe: null,
     },
     periode: {
       startDato: "2023-08-10",
@@ -121,7 +117,6 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstype: {
       navn: "Arbeidstrening",
       tiltakskode: null,
-      gruppe: null,
     },
     periode: {
       startDato: "2023-08-10",

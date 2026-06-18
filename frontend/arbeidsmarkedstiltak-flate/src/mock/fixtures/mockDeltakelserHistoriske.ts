@@ -14,7 +14,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Oppfølging",
       tiltakskode: Tiltakskode.OPPFOLGING,
-      gruppe: null,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -40,7 +39,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Mentor",
       tiltakskode: null,
-      gruppe: null,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -59,7 +57,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Oppfølging",
       tiltakskode: Tiltakskode.OPPFOLGING,
-      gruppe: null,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -82,7 +79,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Oppfølging",
       tiltakskode: Tiltakskode.OPPFOLGING,
-      gruppe: null,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -107,7 +103,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Avklaring",
       tiltakskode: Tiltakskode.AVKLARING,
-      gruppe: null,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -132,7 +127,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Avklaring",
       tiltakskode: Tiltakskode.AVKLARING,
-      gruppe: null,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -153,7 +147,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Avklaring",
       tiltakskode: Tiltakskode.AVKLARING,
-      gruppe: null,
     },
     id: window.crypto.randomUUID(),
     status: {
@@ -179,7 +172,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Avklaring",
       tiltakskode: Tiltakskode.AVKLARING,
-      gruppe: null,
     },
     id: window.crypto.randomUUID(),
     status: {
