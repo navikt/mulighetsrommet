@@ -172,10 +172,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Deltakelse"
-        "404":
-          description: Fant ikke aktiv deltakelse for tiltak
-          headers: {}
+                type: array
+                items:
+                  $ref: "#/components/schemas/Deltakelse"
         default:
           description: Feil ved henting av aktiv deltakelse
           headers: {}

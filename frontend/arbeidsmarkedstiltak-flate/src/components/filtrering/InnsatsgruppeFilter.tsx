@@ -1,4 +1,4 @@
-import { Accordion, HelpText, Radio, RadioGroup } from "@navikt/ds-react";
+import { Accordion, BodyShort, HelpText, Link, Radio, RadioGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "@arbeidsmarkedstiltak/api-client";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
@@ -53,15 +53,18 @@ function InnsatsgruppeAccordion({ value, onChange, options }: InnsatsgruppeAccor
           tittel="Innsatsgruppe"
           tilleggsinformasjon={
             <HelpText placement="right" strategy="fixed" onClick={(e) => e.stopPropagation()}>
-              Filteret viser de tiltakene som kan være aktuelle for brukere med valgt innsatsgruppe.
-              <br />
-              <a
-                href="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Tiltak-og-virkemidler-etter-innsatsbehov.aspx"
-                rel="noreferrer"
-                target="_blank"
-              >
-                Se mer informasjon om innsatsgruppe og tiltak her.
-              </a>
+              <BodyShort>
+                Filteret viser de tiltakene som kan være aktuelle for brukere med valgt
+                innsatsgruppe.
+                <br />
+                <Link
+                  href="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Tiltak-og-virkemidler-etter-innsatsbehov.aspx"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Mer informasjon om innsatsgruppe og tiltak
+                </Link>
+              </BodyShort>
             </HelpText>
           }
         />

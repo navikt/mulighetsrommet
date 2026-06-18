@@ -189,7 +189,7 @@ class TiltakshistorikkService(
         val tiltakstype = tiltakstypeService.getByTiltakskode(deltakelse.tiltakstype.tiltakskode)
             .let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
         val tilstand = getTilstand(deltakelse.status.type)
-        val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
+        val pamelding = if (erAktiv(tilstand)) {
             DeltakelsePamelding(deltakelse.deltakerlisteId, deltakelse.status.type)
         } else {
             null

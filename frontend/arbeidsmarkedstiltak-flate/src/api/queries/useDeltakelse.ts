@@ -4,7 +4,7 @@ import { QueryKeys } from "../query-keys";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import { useQuery } from "@tanstack/react-query";
 
-export function useDeltakelse() {
+export function useAktiveDeltakelser() {
   const { fnr: norskIdent } = useModiaContext();
 
   const tiltakId = useTiltakIdFraUrl();
@@ -14,13 +14,8 @@ export function useDeltakelse() {
       const { data } = await HistorikkService.hentDeltakelse({
         body: { norskIdent, tiltakId },
       });
-      if ("id" in data) {
-        return data;
-      } else {
-        return null;
-      }
+      return data;
     },
-    throwOnError: false,
     enabled: !!tiltakId,
   });
 }

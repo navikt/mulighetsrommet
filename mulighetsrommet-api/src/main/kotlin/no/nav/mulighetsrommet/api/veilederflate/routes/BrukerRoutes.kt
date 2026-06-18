@@ -10,19 +10,27 @@ import kotlinx.serialization.Serializable
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
+import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
+import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.Brukerdata
 import no.nav.mulighetsrommet.api.veilederflate.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
+import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeSystem
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
@@ -31,6 +39,7 @@ import java.util.UUID
 fun Route.brukerRoutes() {
     val brukerService: BrukerService by inject()
     val historikkService: TiltakshistorikkService by inject()
+    val veilerflateService: VeilederflateService by inject()
     val poaoTilgangService: PoaoTilgangService by inject()
 
     route("bruker") {
@@ -122,10 +131,7 @@ fun Route.brukerRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Aktiv deltakelse for bruker"
-                    body<Deltakelse>()
-                }
-                code(HttpStatusCode.NotFound) {
-                    description = "Fant ikke aktiv deltakelse for tiltak"
+                    body<List<Deltakelse>>()
                 }
                 default {
                     description = "Feil ved henting av aktiv deltakelse"
@@ -138,11 +144,21 @@ fun Route.brukerRoutes() {
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), norskIdent)
 
-            val deltakelser = historikkService.getDeltakelserKomet(norskIdent, obo)
-
-            val response = deltakelser.aktive
-                .firstOrNull { it.pamelding?.gjennomforingId == tiltakId }
-                ?: HttpStatusCode.NoContent
+            val gjennomforing = veilerflateService.hentTiltaksgjennomforing(tiltakId, SanityPerspective.PUBLISHED, CacheUsage.UseCache)
+            val response = if (gjennomforing.tiltakstype.system != TiltakstypeSystem.TILTAKSADMINISTRASJON) {
+                emptyList()
+            } else {
+                val deltakelser = historikkService.getDeltakelserKomet(norskIdent, obo)
+                when(gjennomforing) {
+                   is VeilederflateTiltakEnkeltplassAnskaffet,
+                   is VeilederflateTiltakEnkeltplass ->
+                     deltakelser.aktive
+                       .filter { it.tiltakstype.tiltakskode == gjennomforing.tiltakstype.tiltakskode }
+                   is VeilederflateTiltakGruppe ->
+                   deltakelser.aktive
+                       .filter { it.pamelding?.gjennomforingId == tiltakId }
+               }
+            }
 
             call.respond(response)
         }
