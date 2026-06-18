@@ -152,4 +152,5 @@ fun vedtakJournalpost(
         fagsaksystem = Journalpost.Sak.Fagsaksystem.TILTAKSADMINISTRASJON,
     ),
     kanal = "NAV_NO",
+    brevkode = "tilskudd-vedtak",
 )
