@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.samletVedtakResultatStatusTag
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.withTransaction
@@ -179,17 +180,22 @@ class TilskuddBehandlingQueries(private val session: Session) {
     }
 }
 
-private fun Row.toTilskuddBehandlingDto() = TilskuddBehandlingDto(
-    id = uuid("id"),
-    gjennomforingId = uuid("gjennomforing_id"),
-    soknadJournalpostId = string("soknad_journalpost_id"),
-    soknadDato = localDate("soknad_dato"),
-    periode = periode("periode"),
-    kostnadssted = KostnadsstedDto(
-        navn = string("kostnadssted_navn"),
-        enhetsnummer = NavEnhetNummer(string("kostnadssted_enhetsnummer")),
-    ),
-    tilskudd = Json.decodeFromString<List<TilskuddOpplaeringDto>>(string("vedtak_json")),
-    status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(string("status"))),
-    kommentarIntern = stringOrNull("kommentar_intern"),
-)
+private fun Row.toTilskuddBehandlingDto(): TilskuddBehandlingDto {
+    val tilskudd = Json.decodeFromString<List<TilskuddOpplaeringDto>>(string("vedtak_json"))
+
+    return TilskuddBehandlingDto(
+        id = uuid("id"),
+        gjennomforingId = uuid("gjennomforing_id"),
+        soknadJournalpostId = string("soknad_journalpost_id"),
+        soknadDato = localDate("soknad_dato"),
+        periode = periode("periode"),
+        kostnadssted = KostnadsstedDto(
+            navn = string("kostnadssted_navn"),
+            enhetsnummer = NavEnhetNummer(string("kostnadssted_enhetsnummer")),
+        ),
+        tilskudd = tilskudd,
+        status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(string("status"))),
+        kommentarIntern = stringOrNull("kommentar_intern"),
+        samletVedtakResultat = samletVedtakResultatStatusTag(tilskudd.map { it.vedtakResultat.type }),
+    )
+}

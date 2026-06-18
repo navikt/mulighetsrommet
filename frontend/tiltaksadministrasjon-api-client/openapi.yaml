@@ -8329,12 +8329,15 @@ components:
           type:
           - "null"
           - string
+        samletVedtakResultat:
+          $ref: "#/components/schemas/SamletVedtakResultat"
       required:
       - gjennomforingId
       - id
       - kommentarIntern
       - kostnadssted
       - periode
+      - samletVedtakResultat
       - soknadDato
       - soknadJournalpostId
       - status
@@ -8390,6 +8393,12 @@ components:
       - TIL_ATTESTERING
       - FERDIG_BEHANDLET
       - RETURNERT
+    SamletVedtakResultat:
+      type: string
+      enum:
+      - INNVILGELSE
+      - DELVIS_INNVILGELSE
+      - AVSLAG
     TilskuddBehandlingHandling:
       type: string
       enum:
@@ -8434,11 +8443,14 @@ components:
           $ref: "#/components/schemas/KostnadsstedDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+        samletVedtakResultat:
+          $ref: "#/components/schemas/SamletVedtakResultat"
       required:
       - id
       - journalpostId
       - kostnadssted
       - periode
+      - samletVedtakResultat
       - soknadDato
       - status
       - tilskuddtyper

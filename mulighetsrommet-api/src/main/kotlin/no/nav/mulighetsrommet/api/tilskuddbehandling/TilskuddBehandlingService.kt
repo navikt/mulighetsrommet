@@ -64,6 +64,7 @@ class TilskuddBehandlingService(
                             .toSet(),
                         kostnadssted = it.kostnadssted,
                         status = it.status,
+                        samletVedtakResultat = it.samletVedtakResultat,
                     )
                 }
         }

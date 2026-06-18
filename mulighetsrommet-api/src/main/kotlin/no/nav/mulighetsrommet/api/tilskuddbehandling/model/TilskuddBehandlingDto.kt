@@ -26,6 +26,7 @@ data class TilskuddBehandlingDto(
     val tilskudd: List<TilskuddOpplaeringDto>,
     val status: TilskuddBehandlingStatusDto,
     val kommentarIntern: String?,
+    val samletVedtakResultat: SamletVedtakResultat,
 )
 
 @Serializable
@@ -46,6 +47,7 @@ data class TilskuddBehandlingKompakt(
     val periode: Periode,
     val kostnadssted: KostnadsstedDto,
     val status: TilskuddBehandlingStatusDto,
+    val samletVedtakResultat: SamletVedtakResultat,
 )
 
 @Serializable
@@ -62,6 +64,16 @@ fun toTilskuddBehandlingStatusTag(status: TilskuddBehandlingStatus): DataElement
         TilskuddBehandlingStatus.RETURNERT -> DataElement.Status.Variant.ERROR
     }
     return DataElement.Status(status.beskrivelse, variant)
+}
+
+fun samletVedtakResultatStatusTag(vedtakResultat: List<VedtakResultat>): SamletVedtakResultat {
+    return if (vedtakResultat.all { it == VedtakResultat.INNVILGELSE }) {
+        SamletVedtakResultat.INNVILGELSE
+    } else if (vedtakResultat.all { it == VedtakResultat.AVSLAG }) {
+        SamletVedtakResultat.AVSLAG
+    } else {
+        SamletVedtakResultat.DELVIS_INNVILGELSE
+    }
 }
 
 @Serializable
