@@ -83,6 +83,7 @@ data class Journalpost(
     val journalposttype: String,
     val kanal: String,
     val sak: Sak,
+    val brevkode: String? = null,
 ) {
     @Serializable
     data class AvsenderMottaker(
