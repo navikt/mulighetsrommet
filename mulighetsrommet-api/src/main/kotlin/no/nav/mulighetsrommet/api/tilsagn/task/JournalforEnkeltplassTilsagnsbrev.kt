@@ -184,5 +184,4 @@ fun tilsagnJournalpost(
         fagsakId = fagsakId,
         fagsaksystem = Journalpost.Sak.Fagsaksystem.TILTAKSADMINISTRASJON,
     ),
-    behandlingstema = null,
 )
