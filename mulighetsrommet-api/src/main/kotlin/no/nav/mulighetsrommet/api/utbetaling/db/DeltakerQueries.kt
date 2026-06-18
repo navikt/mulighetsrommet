@@ -6,11 +6,14 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.utbetaling.model.NavVeileder
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 import kotlin.collections.listOf
@@ -29,7 +32,8 @@ class DeltakerQueries(private val session: Session) {
                                   status_aarsak,
                                   status_opprettet_tidspunkt,
                                   innhold_annet,
-                                  nav_veileder)
+                                  nav_veileder_nav_ident,
+                                  nav_veileder_enhetsnummer)
             values (:id::uuid,
                     :gjennomforing_id::uuid,
                     :start_dato,
@@ -40,7 +44,8 @@ class DeltakerQueries(private val session: Session) {
                     :status_aarsak::deltaker_status_aarsak,
                     :status_opprettet_tidspunkt,
                     :innhold_annet,
-                    :nav_veileder::jsonb)
+                    :nav_veileder_nav_ident,
+                    :nav_veileder_enhetsnummer)
             on conflict (id)
                 do update set gjennomforing_id           = excluded.gjennomforing_id,
                               start_dato                 = excluded.start_dato,
@@ -51,7 +56,8 @@ class DeltakerQueries(private val session: Session) {
                               status_aarsak              = excluded.status_aarsak,
                               status_opprettet_tidspunkt = excluded.status_opprettet_tidspunkt,
                               innhold_annet              = excluded.innhold_annet,
-                              nav_veileder               = excluded.nav_veileder
+                              nav_veileder_nav_ident     = excluded.nav_veileder_nav_ident,
+                              nav_veileder_enhetsnummer  = excluded.nav_veileder_enhetsnummer
         """.trimIndent()
         val params = mapOf(
             "id" to deltaker.id,
@@ -64,7 +70,8 @@ class DeltakerQueries(private val session: Session) {
             "status_aarsak" to deltaker.status.aarsak?.name,
             "status_opprettet_tidspunkt" to deltaker.status.opprettetTidspunkt,
             "innhold_annet" to deltaker.innholdAnnet,
-            "nav_veileder" to Json.encodeToString(deltaker.navVeileder),
+            "nav_veileder_nav_ident" to deltaker.navVeileder?.navIdent?.value,
+            "nav_veileder_enhetsnummer" to deltaker.navVeileder?.enhetsnummer?.value,
         )
         execute(queryOf(query, params))
 
@@ -167,5 +174,10 @@ private fun Row.toDeltaker() = Deltaker(
     ),
     deltakelsesmengder = stringOrNull("deltakelsesmengder_json")?.let { Json.decodeFromString(it) } ?: listOf(),
     innholdAnnet = stringOrNull("innhold_annet"),
-    navVeileder = stringOrNull("nav_veileder")?.let { Json.decodeFromString(it) },
+    navVeileder = stringOrNull("nav_veileder_nav_ident")?.let {
+        NavVeileder(
+            navIdent = NavIdent(it),
+            enhetsnummer = stringOrNull("nav_veileder_enhetsnummer")?.let { NavEnhetNummer(it) },
+        )
+    },
 )
