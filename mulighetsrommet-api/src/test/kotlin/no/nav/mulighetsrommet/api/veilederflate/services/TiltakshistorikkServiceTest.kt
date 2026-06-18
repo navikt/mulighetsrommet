@@ -41,7 +41,6 @@ import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.historikk.TiltakshistorikkClient
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto.Arrangor
-import no.nav.tiltak.historikk.TiltakshistorikkV1Dto.Gjennomforing
 import no.nav.tiltak.historikk.TiltakshistorikkV1Response
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -70,10 +69,11 @@ class TiltakshistorikkServiceTest : FunSpec({
             tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
             navn = TiltakstypeFixtures.Oppfolging.navn,
         ),
-        gjennomforing = Gjennomforing(
+        gjennomforing = TiltakshistorikkV1Dto.TeamKometDeltakelse.Gjennomforing(
             id = gjennomforing.id,
             navn = gjennomforing.navn,
             deltidsprosent = 100f,
+            type = TiltakshistorikkV1Dto.TeamKometDeltakelse.GjennomforingType.GRUPPE,
         ),
         norskIdent = NorskIdent("12345678910"),
         status = TiltakshistorikkV1Dto.TeamKometDeltakelse.Status(
@@ -103,7 +103,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             tiltakskode = "IPSUNG",
             navn = "IPS (Individuell jobbstøtte)",
         ),
-        gjennomforing = Gjennomforing(
+        gjennomforing = TiltakshistorikkV1Dto.ArenaDeltakelse.Gjennomforing(
             id = UUID.randomUUID(),
             navn = "IPS",
             deltidsprosent = 100f,
@@ -440,7 +440,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                 tiltakskode = "ENKELAMO",
                 navn = TiltakstypeFixtures.EnkelAmo.navn,
             ),
-            gjennomforing = Gjennomforing(
+            gjennomforing = TiltakshistorikkV1Dto.ArenaDeltakelse.Gjennomforing(
                 id = UUID.randomUUID(),
                 navn = "Tilfeldig enkeltplass fra Arena",
                 deltidsprosent = 100f,

@@ -149,7 +149,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "MENTOR",
                             navn = "Mentor",
                         ),
-                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                        gjennomforing = TiltakshistorikkV1Dto.ArenaDeltakelse.Gjennomforing(
                             id = arenaMentor.id,
                             navn = "Mentortiltak hos Joblearn",
                             deltidsprosent = 100f,
@@ -179,7 +179,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "ARBTREN",
                             navn = "Arbeidstrening",
                         ),
-                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                        gjennomforing = TiltakshistorikkV1Dto.ArenaDeltakelse.Gjennomforing(
                             id = arenaArbeidstrening.id,
                             navn = "Arbeidstrening hos Fretex",
                             deltidsprosent = 80f,
@@ -217,7 +217,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = "ARBTREN",
                             navn = "Arbeidstrening",
                         ),
-                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                        gjennomforing = TiltakshistorikkV1Dto.ArenaDeltakelse.Gjennomforing(
                             id = arenaArbeidstrening.id,
                             navn = "Arbeidstrening hos Fretex",
                             deltidsprosent = 80f,
@@ -368,10 +368,11 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             tiltakskode = gruppeAmo.tiltakskode,
                             navn = "Arbeidsmarkedsopplæring (gruppe)",
                         ),
-                        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
+                        gjennomforing = TiltakshistorikkV1Dto.TeamKometDeltakelse.Gjennomforing(
                             id = gruppeAmo.id,
                             navn = gruppeAmo.navn,
                             deltidsprosent = 80f,
+                            type = TiltakshistorikkV1Dto.TeamKometDeltakelse.GjennomforingType.GRUPPE,
                         ),
                         arrangor = TiltakshistorikkV1Dto.Arrangor(
                             hovedenhet = TiltakshistorikkV1Dto.Virksomhet(
