@@ -37,7 +37,6 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Tiltaksgruppe
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.historikk.TiltakshistorikkClient
@@ -164,7 +163,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         eierskap = DeltakelseEierskap.TEAM_KOMET,
         tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Oppfølging hos Fretex AS",
-        tiltakstype = DeltakelseTiltakstype(TiltakstypeFixtures.Oppfolging.navn, null, Tiltakskode.OPPFOLGING),
+        tiltakstype = DeltakelseTiltakstype(TiltakstypeFixtures.Oppfolging.navn, Tiltakskode.OPPFOLGING),
         status = DeltakelseStatus(
             type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
             aarsak = null,
@@ -185,7 +184,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         eierskap = DeltakelseEierskap.ARENA,
         tilstand = DeltakelseTilstand.AKTIV,
         tittel = "IPS (Individuell jobbstøtte) hos Underenhet 1 AS",
-        tiltakstype = DeltakelseTiltakstype("IPS (Individuell jobbstøtte)", null, null),
+        tiltakstype = DeltakelseTiltakstype("IPS (Individuell jobbstøtte)", null),
         status = DeltakelseStatus(
             type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
             aarsak = null,
@@ -203,7 +202,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         eierskap = DeltakelseEierskap.TEAM_TILTAK,
         tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
-        tiltakstype = DeltakelseTiltakstype("Arbeidstrening", null, null),
+        tiltakstype = DeltakelseTiltakstype("Arbeidstrening", null),
         status = DeltakelseStatus(
             type = DataElement.Status("Gjennomføres", DataElement.Status.Variant.BLANK),
             aarsak = null,
@@ -508,7 +507,6 @@ class TiltakshistorikkServiceTest : FunSpec({
                         tittel = "Enkel AMO hos Underenhet 1 AS",
                         tiltakstype = DeltakelseTiltakstype(
                             TiltakstypeFixtures.EnkelAmo.navn,
-                            Tiltaksgruppe.OPPLAERING,
                             Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
                         ),
                         status = DeltakelseStatus(
@@ -560,7 +558,6 @@ class TiltakshistorikkServiceTest : FunSpec({
                         tittel = "Tilfeldig enkeltplass fra Komet",
                         tiltakstype = DeltakelseTiltakstype(
                             TiltakstypeFixtures.EnkelAmo.navn,
-                            Tiltaksgruppe.OPPLAERING,
                             Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
                         ),
                         status = DeltakelseStatus(

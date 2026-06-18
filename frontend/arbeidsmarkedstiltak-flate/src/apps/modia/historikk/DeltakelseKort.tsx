@@ -2,7 +2,6 @@ import {
   Deltakelse,
   DeltakelseEierskap,
   DeltakelseTilstand,
-  Tiltaksgruppe,
 } from "@arbeidsmarkedstiltak/api-client";
 import { BodyShort, Box, Button, Heading, HGrid, HStack, VStack, Link } from "@navikt/ds-react";
 import { formaterDato } from "@/utils/Utils";
@@ -45,7 +44,7 @@ function Knapper({ deltakelse }: Props) {
           <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
             Gå til deltakelse
           </Button>
-          {deltakelse.pamelding && deltakelse.tiltakstype.gruppe !== Tiltaksgruppe.OPPLAERING && (
+          {deltakelse.pamelding && (
             <Link
               as={ReactRouterLink}
               to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.pamelding.gjennomforingId}`}
