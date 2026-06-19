@@ -31,7 +31,10 @@ export function InformasjonFraSoknad(props: InformasjonFraSoknadProps) {
               key: "Søknadsdato",
               value: props.soknadsdato ? formaterDato(props.soknadsdato) : null,
             },
-            { key: "Periode", value: props.periode ? formaterPeriode(props.periode) : null },
+            {
+              key: "Tilskuddsperiode",
+              value: props.periode ? formaterPeriode(props.periode) : null,
+            },
             {
               key: "Kostnadssted",
               value: props.kostnadssted
