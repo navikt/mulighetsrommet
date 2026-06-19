@@ -1,10 +1,10 @@
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { GavelSoundBlockFillIcon } from "@navikt/aksel-icons";
 import React from "react";
 import { DeltakerHeader } from "../gjennomforing/DeltakerHeader";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
+import { TilskuddIkon } from "@/components/ikoner/TilskuddIkon";
 
 export type TilskuddBehandlingTab = "saksopplysninger" | "vedtak";
 
@@ -32,14 +32,7 @@ export function TilskuddBehandlingLayout({ gjennomforingId, children }: Props) {
         ]}
       />
       <HeaderBanner
-        ikon={
-          <GavelSoundBlockFillIcon
-            color="var(--ax-text-brand-blue-decoration)"
-            aria-hidden
-            width="2.5rem"
-            height="2.5rem"
-          />
-        }
+        ikon={<TilskuddIkon />}
         heading={`Tilskuddsbehandling for ${tiltakstype.navn}`}
       />
       {enkeltplassDeltaker && (
