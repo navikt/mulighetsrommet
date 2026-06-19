@@ -1,8 +1,7 @@
-import { Header } from "@/components/detaljside/Header";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Box, Heading, Tabs } from "@navikt/ds-react";
+import { Box, Tabs } from "@navikt/ds-react";
 import React from "react";
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -14,12 +13,12 @@ import {
   PrismodellDto,
   PrismodellType,
 } from "@tiltaksadministrasjon/api-client";
-import { DataElementStatusTag } from "@mr/frontend-common";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { DeltakerHeader } from "@/components/gjennomforing/DeltakerHeader";
 import { GjennomforingEnkeltplassIkon } from "@/components/ikoner/GjennomforingEnkeltplassIkon";
 import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -51,17 +50,17 @@ export function GjennomforingPage() {
     <>
       <title>{`Gjennomføring | ${gjennomforing.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <Header>
-        {isGruppetiltak(gjennomforing) ? (
-          <GjennomforingAvtaleIkon />
-        ) : (
-          <GjennomforingEnkeltplassIkon />
-        )}
-        <Heading size="large" level="2">
-          {gjennomforing.navn}
-        </Heading>
-        <DataElementStatusTag {...gjennomforing.status.status} />
-      </Header>
+      <HeaderBanner
+        ikon={
+          isGruppetiltak(gjennomforing) ? (
+            <GjennomforingAvtaleIkon />
+          ) : (
+            <GjennomforingEnkeltplassIkon />
+          )
+        }
+        heading={gjennomforing.navn}
+        status={gjennomforing.status.status}
+      />
       {enkeltplassDeltaker && <DeltakerHeader deltaker={enkeltplassDeltaker} compact />}
       <Tabs value={currentTab}>
         <Box background="default">

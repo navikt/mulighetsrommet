@@ -2,7 +2,6 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useOpprettAvtale } from "@/api/avtaler/useOpprettAvtale";
 import { AvtaleDetaljerForm } from "@/components/avtaler/AvtaleDetaljerForm";
 import { AvtalePersonvernForm } from "@/components/avtaler/AvtalePersonvernForm";
-import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { applyValidationErrors } from "@/components/skjema/helpers";
@@ -16,13 +15,13 @@ import {
 } from "@/pages/avtaler/form/validation";
 import { WizardStep } from "@/hooks/useWizardForm";
 import { ValidationError } from "@tiltaksadministrasjon/api-client";
-import { Heading } from "@navikt/ds-react";
 import { useLocation, useNavigate } from "react-router";
 import { toOpprettAvtaleRequest } from "./form/mappers";
 import { AvtaleInformasjonForVeiledereForm } from "@/components/avtaler/AvtaleInformasjonForVeiledereForm";
 import AvtalePrismodellStep from "@/components/avtaler/AvtalePrismodellStep";
 import { v4 as uuidv4 } from "uuid";
 import { defaultAvtaleData } from "@/pages/avtaler/form/defaults";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
 
 const steps: WizardStep[] = [
   {
@@ -61,12 +60,7 @@ export function OpprettAvtaleFormPage() {
   return (
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <Header>
-        <AvtaleIkon />
-        <Heading size="large" level="2">
-          Opprett ny avtale
-        </Heading>
-      </Header>
+      <HeaderBanner ikon={<AvtaleIkon />} heading="Opprett ny avtale" />
       <WizardForm<AvtaleFormValues>
         steps={steps}
         defaultValues={defaultAvtaleData(ansatt, location.state?.dupliserAvtale)}

@@ -1,14 +1,14 @@
-import { Header } from "@/components/detaljside/Header";
 import { TiltakstypeIkon } from "@/components/ikoner/TiltakstypeIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { Box, Heading, Tabs } from "@navikt/ds-react";
+import { Box, Tabs } from "@navikt/ds-react";
 import React from "react";
 import { useTiltakstypeById } from "@/api/tiltakstyper/useTiltakstypeById";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
 
 export function TiltakstypePage() {
   const { tiltakstypeId } = useRequiredParams(["tiltakstypeId"]);
@@ -29,12 +29,7 @@ export function TiltakstypePage() {
     <>
       <title>{`Tiltakstype | ${tiltakstype.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <Header>
-        <TiltakstypeIkon />
-        <Heading size="large" level="2">
-          {tiltakstype.navn}
-        </Heading>
-      </Header>
+      <HeaderBanner ikon={<TiltakstypeIkon />} heading={tiltakstype.navn} />
       <Tabs value={currentTab}>
         <Box background="default">
           <Tabs.List>

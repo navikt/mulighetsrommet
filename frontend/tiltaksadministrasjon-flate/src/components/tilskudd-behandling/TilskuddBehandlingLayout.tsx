@@ -1,11 +1,10 @@
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
-import { Header } from "@/components/detaljside/Header";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { GavelSoundBlockFillIcon } from "@navikt/aksel-icons";
-import { Heading } from "@navikt/ds-react";
 import React from "react";
 import { DeltakerHeader } from "../gjennomforing/DeltakerHeader";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
 
 export type TilskuddBehandlingTab = "saksopplysninger" | "vedtak";
 
@@ -32,17 +31,17 @@ export function TilskuddBehandlingLayout({ gjennomforingId, children }: Props) {
           { tittel: "Behandling" },
         ]}
       />
-      <Header>
-        <GavelSoundBlockFillIcon
-          color="var(--ax-text-brand-blue-decoration)"
-          aria-hidden
-          width="2.5rem"
-          height="2.5rem"
-        />
-        <Heading size="large" level="2">
-          {`Tilskuddsbehandling for ${tiltakstype.navn}`}
-        </Heading>
-      </Header>
+      <HeaderBanner
+        ikon={
+          <GavelSoundBlockFillIcon
+            color="var(--ax-text-brand-blue-decoration)"
+            aria-hidden
+            width="2.5rem"
+            height="2.5rem"
+          />
+        }
+        heading={`Tilskuddsbehandling for ${tiltakstype.navn}`}
+      />
       {enkeltplassDeltaker && (
         <DeltakerHeader deltaker={enkeltplassDeltaker} arrangorNavn={gjennomforing.arrangor.navn} />
       )}

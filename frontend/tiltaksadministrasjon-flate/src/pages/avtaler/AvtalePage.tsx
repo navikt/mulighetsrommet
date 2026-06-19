@@ -1,12 +1,11 @@
-import { Header } from "@/components/detaljside/Header";
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { Box, Heading, Tabs } from "@navikt/ds-react";
+import { Box, Tabs } from "@navikt/ds-react";
 import { Outlet, useLocation, useMatch } from "react-router";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
-import { DataElementStatusTag } from "@mr/frontend-common";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
 
 function useAvtaleBrodsmuler(avtaleId?: string): Array<Brodsmule | undefined> {
   const match = useMatch("/avtaler/:avtaleId/gjennomforinger");
@@ -82,13 +81,7 @@ export function AvtalePage() {
     <div data-testid="avtale_info-container">
       <title>{`Avtale | ${avtale.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <Header>
-        <AvtaleIkon />
-        <Heading size="large" level="2">
-          {avtale.navn}
-        </Heading>
-        <DataElementStatusTag {...avtale.status.status} />
-      </Header>
+      <HeaderBanner ikon={<AvtaleIkon />} heading={avtale.navn} status={avtale.status.status} />
       <Tabs value={currentTab}>
         <Box background="default">
           <Tabs.List>
