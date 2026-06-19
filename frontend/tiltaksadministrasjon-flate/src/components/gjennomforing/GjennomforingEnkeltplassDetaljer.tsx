@@ -24,7 +24,6 @@ import {
   MetadataFritekstfelt,
   Separator,
 } from "@mr/frontend-common/components/datadriven/Metadata";
-import { GjennomforingDetaljerVarighet } from "@/pages/gjennomforing/GjennomforingDetaljerVarighet";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import {
   AmoKategoriseringDto,
@@ -46,6 +45,7 @@ import { UtdanningslopDetaljer } from "../utdanning/UtdanningslopDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 import { AmoKategoriseringDetaljer } from "../amoKategorisering/AmoKategoriseringDetaljer";
 import { BetalingsbetingelserEnkeltplass } from "./BetalingsbetingelserEnkeltplass";
+import { GjennomforingEnkeltplassVarighet } from "@/pages/gjennomforing/GjennomforingEnkeltplassVarighet";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -62,7 +62,6 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
   const {
     tiltakstype,
     gjennomforing,
-    veilederinfo,
     prismodell,
     enkeltplassDeltaker,
     okonomi,
@@ -149,11 +148,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
               ) && (
                 <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} erEnkeltplass />
               )}
-            <GjennomforingDetaljerVarighet
-              tiltakstype={tiltakstype}
-              gjennomforing={gjennomforing}
-              veilederinfo={veilederinfo}
-            />
+            <GjennomforingEnkeltplassVarighet gjennomforing={gjennomforing} />
           </DetaljerLayout>
           <DetaljerLayout>
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
