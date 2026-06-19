@@ -1,12 +1,13 @@
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { GjennomforingDetaljerMini } from "@/components/gjennomforing/GjennomforingDetaljerMini";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
-import { ContentBox } from "@/layouts/ContentBox";
 import { PiggybankFillIcon } from "@navikt/aksel-icons";
 import { Outlet, useParams } from "react-router";
 import { AktiveTilsagnTable } from "@/pages/gjennomforing/tilsagn/tabell/TilsagnTable";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { Heading, HStack, VStack } from "@navikt/ds-react";
+import { VStack } from "@navikt/ds-react";
+import { GjennomforingHeader } from "@/components/gjennomforing/GjennomforingHeader";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
+import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 
 export function TilsagnPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -34,18 +35,14 @@ export function TilsagnPage() {
   return (
     <>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <HStack gap="space-8" className="bg-ax-bg-default border-b-2 border-ax-neutral-300 p-2">
-        <PiggybankFillIcon color="#FFAA33" width="2.5rem" height="2.5rem" />
-        <Heading size="large" level="2">
-          {tilsagnId ? `Tilsagn for ${gjennomforing.navn}` : "Opprett tilsagn"}
-        </Heading>
-      </HStack>
-      <ContentBox>
-        <VStack gap="space-16" padding="space-8" className="bg-ax-bg-default">
-          <GjennomforingDetaljerMini gjennomforing={gjennomforing} />
-          <Outlet />
-        </VStack>
-      </ContentBox>
+      <HeaderBanner
+        ikon={<PiggybankFillIcon color="#FFAA33" width="2.5rem" height="2.5rem" />}
+        heading={tilsagnId ? `Tilsagn for ${gjennomforing.navn}` : "Opprett tilsagn"}
+      />
+      <GjennomforingHeader gjennomforingId={gjennomforingId} />
+      <WhitePaddedBox>
+        <Outlet />
+      </WhitePaddedBox>
       <VStack padding="space-8" className="bg-ax-bg-default overflow-x-scroll">
         <AktiveTilsagnTable gjennomforingId={gjennomforingId} />
       </VStack>
