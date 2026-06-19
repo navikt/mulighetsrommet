@@ -9,7 +9,6 @@ import {
   EndringshistorikkType,
   FieldError,
   TilskuddBehandlingHandling,
-  TilskuddBehandlingStatus,
   TilskuddBehandlingStatusAarsak,
   ValidationError,
   Valuta,
@@ -82,8 +81,8 @@ export function TilskuddBehandlingDetaljerPage() {
     );
   }
 
-  const erTilAttestering = behandling.status.type === TilskuddBehandlingStatus.TIL_ATTESTERING;
-
+  const kanReturneres = handlinger.includes(TilskuddBehandlingHandling.RETURNER);
+  const kanAttesteres = handlinger.includes(TilskuddBehandlingHandling.ATTESTER);
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
       <>
@@ -212,9 +211,9 @@ export function TilskuddBehandlingDetaljerPage() {
         </Box>
         <Separator />
         <>
-          {erTilAttestering && (
+          {(kanReturneres || kanAttesteres) && (
             <HStack gap="space-8" marginBlock="space-16" justify="end">
-              {handlinger.includes(TilskuddBehandlingHandling.RETURNER) && (
+              {kanReturneres && (
                 <Button
                   variant="secondary"
                   size="small"
@@ -224,7 +223,7 @@ export function TilskuddBehandlingDetaljerPage() {
                   Send i retur
                 </Button>
               )}
-              {handlinger.includes(TilskuddBehandlingHandling.ATTESTER) && (
+              {kanAttesteres && (
                 <Button
                   variant="primary"
                   size="small"
