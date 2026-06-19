@@ -1,5 +1,5 @@
 import { Header } from "@/components/detaljside/Header";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
+import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { DataElementStatusTag } from "@mr/frontend-common";
@@ -30,7 +30,7 @@ export function RedigerGjennomforingPageLayout({ children }: Props) {
         ]}
       />
       <Header>
-        <GjennomforingIkon />
+        <GjennomforingAvtaleIkon />
         <Heading size="large" level="2">
           {gjennomforing.navn}
         </Heading>
