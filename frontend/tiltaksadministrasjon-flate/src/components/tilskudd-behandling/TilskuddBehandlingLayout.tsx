@@ -2,10 +2,8 @@ import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjenn
 import { Header } from "@/components/detaljside/Header";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { DataElementStatusTag } from "@mr/frontend-common";
 import { GavelSoundBlockFillIcon } from "@navikt/aksel-icons";
 import { Heading } from "@navikt/ds-react";
-import { DataElementStatus } from "@tiltaksadministrasjon/api-client";
 import React from "react";
 import { DeltakerHeader } from "../gjennomforing/DeltakerHeader";
 
@@ -13,11 +11,10 @@ export type TilskuddBehandlingTab = "saksopplysninger" | "vedtak";
 
 interface Props {
   gjennomforingId: string;
-  status?: DataElementStatus;
   children: React.ReactNode;
 }
 
-export function TilskuddBehandlingLayout({ gjennomforingId, status, children }: Props) {
+export function TilskuddBehandlingLayout({ gjennomforingId, children }: Props) {
   const { gjennomforing, enkeltplassDeltaker, tiltakstype } =
     useEnkeltplassGjennomforingOrError(gjennomforingId);
 
@@ -45,7 +42,6 @@ export function TilskuddBehandlingLayout({ gjennomforingId, status, children }: 
         <Heading size="large" level="2">
           {`Tilskuddsbehandling for ${tiltakstype.navn}`}
         </Heading>
-        {status && <DataElementStatusTag {...status} />}
       </Header>
       {enkeltplassDeltaker && (
         <DeltakerHeader deltaker={enkeltplassDeltaker} arrangorNavn={gjennomforing.arrangor.navn} />
