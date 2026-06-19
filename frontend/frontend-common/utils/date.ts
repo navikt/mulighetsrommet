@@ -125,6 +125,8 @@ export function maxOf(dates: UnparsedDate[]): Date {
  * @param duration
  * @returns
  */
+export function subDuration(dato: Date, duration: Duration): Date;
+export function subDuration(dato: string | undefined | null, duration: Duration): Date | undefined;
 export function subDuration(dato: UnparsedDate, duration: Duration) {
   const parsedDate = parseDate(dato);
   if (parsedDate) {
