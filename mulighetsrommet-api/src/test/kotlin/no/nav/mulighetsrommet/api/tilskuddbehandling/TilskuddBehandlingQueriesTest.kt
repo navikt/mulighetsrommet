@@ -57,7 +57,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             ),
             TilskuddDbo(
                 id = UUID.randomUUID(),
-                tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSAVGIFT,
+                tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSGEBYR,
                 soknadBelop = ValutaBelop(
                     belop = 1000,
                     valuta = Valuta.NOK,
@@ -121,7 +121,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     }
                     it.tilskudd[1] should { v ->
                         v.id shouldBe behandling.tilskudd[1].id
-                        v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.EKSAMENSAVGIFT
+                        v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.EKSAMENSGEBYR
                         v.soknadBelop.belop shouldBe 1000
                         v.soknadBelop.valuta shouldBe Valuta.NOK
                         v.vedtakResultat.type shouldBe VedtakResultat.INNVILGELSE

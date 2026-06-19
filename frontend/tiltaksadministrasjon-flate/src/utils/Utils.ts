@@ -171,8 +171,8 @@ export function kurstypeToString(kurstype: AmoKategoriseringDto["kurstype"]): st
 
 export function opplaeringTilskuddToString(tilskuddType: OpplaeringtilskuddKode): string {
   switch (tilskuddType) {
-    case OpplaeringtilskuddKode.EKSAMENSAVGIFT:
-      return "Eksamensavgift";
+    case OpplaeringtilskuddKode.EKSAMENSGEBYR:
+      return "Eksamensgebyr";
     case OpplaeringtilskuddKode.INTEGRERT_BOTILBUD:
       return "Integrert botilbud";
     case OpplaeringtilskuddKode.SEMESTERAVGIFT:

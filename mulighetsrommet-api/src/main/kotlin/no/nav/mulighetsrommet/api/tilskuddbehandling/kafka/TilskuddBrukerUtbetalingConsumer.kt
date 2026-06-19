@@ -147,7 +147,7 @@ fun Opplaeringtilskudd.Kode.toHelVedTilskuddstype(): HelVedUtbetaling.Tilskuddst
     return when (this) {
         Opplaeringtilskudd.Kode.SKOLEPENGER -> HelVedUtbetaling.Tilskuddstype.SKOLEPENGER
         Opplaeringtilskudd.Kode.STUDIEREISE -> HelVedUtbetaling.Tilskuddstype.STUDIEREISE
-        Opplaeringtilskudd.Kode.EKSAMENSAVGIFT -> HelVedUtbetaling.Tilskuddstype.EKSAMENSGEBYR
+        Opplaeringtilskudd.Kode.EKSAMENSGEBYR -> HelVedUtbetaling.Tilskuddstype.EKSAMENSGEBYR
         Opplaeringtilskudd.Kode.SEMESTERAVGIFT -> HelVedUtbetaling.Tilskuddstype.SEMESTERAVGIFT
         Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD -> HelVedUtbetaling.Tilskuddstype.INTEGRERT_BOTILBUD
     }

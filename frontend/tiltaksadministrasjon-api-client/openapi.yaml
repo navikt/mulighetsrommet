@@ -4787,7 +4787,7 @@ components:
       enum:
       - SKOLEPENGER
       - STUDIEREISE
-      - EKSAMENSAVGIFT
+      - EKSAMENSGEBYR
       - SEMESTERAVGIFT
       - INTEGRERT_BOTILBUD
     AvtaleDto:
