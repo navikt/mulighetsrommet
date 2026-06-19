@@ -17,7 +17,7 @@ import {
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { GjennomforingDetaljerAvtale } from "@/pages/gjennomforing/GjennomforingDetaljerAvtale";
-import { GjennomforingDetaljerVarighet } from "@/pages/gjennomforing/GjennomforingDetaljerVarighet";
+import { GjennomforingAvtaleVarighet } from "@/pages/gjennomforing/GjennomforingAvtaleVarighet";
 import { GjennomforingDetaljerAdministratorer } from "@/pages/gjennomforing/GjennomforingDetaljerAdministratorer";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import {
@@ -120,7 +120,7 @@ export function GjennomforingAvtaleDetaljer(props: Props) {
               amoKategorisering.kurstype,
               tiltakstype.tiltakskode,
             ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
-          <GjennomforingDetaljerVarighet
+          <GjennomforingAvtaleVarighet
             tiltakstype={tiltakstype}
             gjennomforing={gjennomforing}
             veilederinfo={veilederinfo}

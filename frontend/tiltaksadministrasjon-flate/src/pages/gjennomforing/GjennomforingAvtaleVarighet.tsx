@@ -6,10 +6,7 @@ import {
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { kreverDeltidsprosent } from "@/utils/tiltakstype";
-import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import {
-  GjennomforingDto,
-  GjennomforingEnkeltplassDto,
   GjennomforingAvtaleDto,
   GjennomforingVeilederinfoDto,
   TiltakstypeDto,
@@ -18,16 +15,13 @@ import { AarsakerOgForklaring } from "./tilsagn/AarsakerOgForklaring";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
-  gjennomforing: GjennomforingDto;
+  gjennomforing: GjennomforingAvtaleDto;
   veilederinfo: GjennomforingVeilederinfoDto | null;
 }
 
-export function GjennomforingDetaljerVarighet({ tiltakstype, gjennomforing, veilederinfo }: Props) {
-  const varighetMeta = isGruppetiltak(gjennomforing)
-    ? getVarighetOgPameldingGruppe(tiltakstype, gjennomforing, veilederinfo)
-    : getVarighetOgPameldingEnkeltplass(gjennomforing);
-
-  return <Definisjonsliste title="Varighet og påmelding" definitions={varighetMeta} />;
+export function GjennomforingAvtaleVarighet({ tiltakstype, gjennomforing, veilederinfo }: Props) {
+  const definitions = getVarighetOgPameldingGruppe(tiltakstype, gjennomforing, veilederinfo);
+  return <Definisjonsliste title="Varighet og påmelding" definitions={definitions} />;
 }
 
 function getVarighetOgPameldingGruppe(
@@ -89,19 +83,4 @@ function getVarighetOgPameldingGruppe(
       spanColumns: true,
     },
   ].filter((definition) => !!definition);
-}
-
-function getVarighetOgPameldingEnkeltplass(
-  gjennomforing: GjennomforingEnkeltplassDto,
-): Definition[] {
-  return [
-    {
-      key: gjennomforingTekster.startdatoLabel,
-      value: formaterDato(gjennomforing.startDato),
-    },
-    {
-      key: gjennomforingTekster.sluttdatoLabel,
-      value: formaterDato(gjennomforing.sluttDato) ?? "-",
-    },
-  ];
 }
