@@ -114,13 +114,13 @@ function SamletVedtakResultatStatusTag({ status }: { status: SamletVedtakResulta
     case SamletVedtakResultat.DELVIS_INNVILGELSE:
       return (
         <Tag size="small" data-color="warning" icon={<GavelSoundBlockIcon fontSize="1rem" />}>
-          Avslag
+          Delvis innvilgelse
         </Tag>
       );
     case SamletVedtakResultat.AVSLAG:
       return (
         <Tag size="small" data-color="danger" icon={<PiggybankIcon fontSize="1rem" />}>
-          Delvis innvilgelse
+          Avslag
         </Tag>
       );
   }
