@@ -85,210 +85,201 @@ export function TilskuddBehandlingDetaljerPage() {
   const kanAttesteres = handlinger.includes(TilskuddBehandlingHandling.ATTESTER);
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
-      <>
-        {isAvvist(opprettelse) && (
-          <ToTrinnsOpprettelsesForklaring
-            heading="Behandlingen ble returnert"
-            opprettelse={opprettelse}
-          />
-        )}
-        <Box marginBlock="space-16">
-          <HStack gap="space-8" justify="end">
-            <Endringshistorikk
-              id={behandling.id}
-              type={EndringshistorikkType.TILSKUDD_BEHANDLING}
-            />
-            <Handlinger
-              handlinger={handlinger}
-              grupper={[
-                {
-                  items: [
-                    {
-                      label: "Rediger tilskuddsbehandling",
-                      href: "rediger",
-                      handling: TilskuddBehandlingHandling.REDIGER,
-                      icon: <PencilFillIcon />,
-                    },
-                  ],
-                },
-              ]}
-            />
-          </HStack>
-          <TwoColumnGrid separator>
-            <>
-              <Heading size="small" level="3" spacing>
-                Informasjon fra søknad
-              </Heading>
-              <VStack gap="space-16">
-                <Definisjonsliste
-                  definitions={[
-                    {
-                      key: "Status",
-                      value: <DataElementStatusTag {...behandling.status.status} />,
-                    },
-                    { key: "Journalpost-ID i Gosys", value: behandling.soknadJournalpostId },
-                    { key: "Søknadsdato", value: formaterDato(behandling.soknadDato) },
-                    { key: "Periode", value: formaterPeriode(behandling.periode) },
-                    {
-                      key: "Kostnadssted",
-                      value: `${behandling.kostnadssted.enhetsnummer} ${behandling.kostnadssted.navn}`,
-                    },
-                  ]}
-                />
-                <VStack gap="space-20" align="start">
-                  {behandling.tilskudd.map((t) => (
-                    <Box
-                      className="w-full"
-                      borderWidth="2"
-                      borderRadius="8"
-                      borderColor="neutral-subtle"
-                      padding="space-8"
-                      key={t.id}
-                    >
-                      <VStack gap="space-8">
-                        <Definisjonsliste
-                          definitions={[
-                            {
-                              key: "Tilskuddstype",
-                              value: opplaeringTilskuddToString(t.tilskuddOpplaeringType),
-                            },
-                            {
-                              key: "Hvem skal motta utbetalingen?",
-                              value: tilskuddMottakerToString(t.utbetalingMottaker),
-                            },
-                            {
-                              key: "Beløp fra søknad",
-                              value: formaterValutaBelop(t.soknadBelop),
-                            },
-                          ]}
-                        />
-                        <Separator />
-                        <Definisjonsliste
-                          columns={1}
-                          definitions={[
-                            {
-                              key: "Vedtaksresultat",
-                              value: <DataElementStatusTag {...t.vedtakResultat.status} />,
-                            },
-                            {
-                              key: "Beløp til utbetaling",
-                              value: t.utbetalingBelop
-                                ? formaterValutaBelop(t.utbetalingBelop)
-                                : "-",
-                            },
-                            { key: "Kommentar til brukeren", value: t.kommentarVedtaksbrev },
-                          ]}
-                        />
-                      </VStack>
-                    </Box>
-                  ))}
-                </VStack>
-                <TotaltBelopBox
-                  label="Totalt beløp fra søknad"
-                  belop={{
-                    belop: behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
-                    valuta: behandling.tilskudd.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
-                  }}
-                />
-                <TotaltBelopBox
-                  label="Totalt beløp til utbetaling"
-                  belop={{
-                    belop: behandling.tilskudd.reduce(
-                      (sum, t) => sum + (t.utbetalingBelop?.belop ?? 0),
-                      0,
-                    ),
-                    valuta: Valuta.NOK,
-                  }}
-                />
-                <MetadataFritekstfelt
-                  label="Kommentar (internt i Nav)"
-                  value={behandling.kommentarIntern}
-                />
-              </VStack>
-            </>
-            <BetalingsbetingelserEnkeltplass prismodell={prismodell} />
-          </TwoColumnGrid>
-        </Box>
-        <Separator />
-        <>
-          {(kanReturneres || kanAttesteres) && (
-            <HStack gap="space-8" marginBlock="space-16" justify="end">
-              {kanReturneres && (
-                <Button
-                  variant="secondary"
-                  size="small"
-                  type="button"
-                  onClick={() => setReturModalOpen(true)}
-                >
-                  Send i retur
-                </Button>
-              )}
-              {kanAttesteres && (
-                <Button
-                  variant="primary"
-                  size="small"
-                  type="button"
-                  onClick={() => setAttesterModalOpen(true)}
-                >
-                  Attester
-                </Button>
-              )}
-            </HStack>
-          )}
-          {errors.map((error) => (
-            <Alert className="self-end" variant="error" size="small">
-              {error.detail}
-            </Alert>
-          ))}
-          <AarsakerOgForklaringModal<TilskuddBehandlingStatusAarsak>
-            aarsaker={[
+      {isAvvist(opprettelse) && (
+        <ToTrinnsOpprettelsesForklaring
+          heading="Behandlingen ble returnert"
+          opprettelse={opprettelse}
+        />
+      )}
+      <Box marginBlock="space-16">
+        <HStack gap="space-8" justify="end">
+          <Endringshistorikk id={behandling.id} type={EndringshistorikkType.TILSKUDD_BEHANDLING} />
+          <Handlinger
+            handlinger={handlinger}
+            grupper={[
               {
-                value: TilskuddBehandlingStatusAarsak.FEIL_SAKSOPPLYSNINGER,
-                label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.FEIL_SAKSOPPLYSNINGER),
-              },
-              {
-                value: TilskuddBehandlingStatusAarsak.FEIL_BELOP,
-                label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.FEIL_BELOP),
-              },
-              {
-                value: TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT,
-                label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT),
-              },
-              {
-                value: TilskuddBehandlingStatusAarsak.ANNET,
-                label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.ANNET),
+                items: [
+                  {
+                    label: "Rediger tilskuddsbehandling",
+                    href: "rediger",
+                    handling: TilskuddBehandlingHandling.REDIGER,
+                    icon: <PencilFillIcon />,
+                  },
+                ],
               },
             ]}
-            header="Send i retur med forklaring"
-            buttonLabel="Send i retur"
-            open={returModalOpen}
-            onClose={() => setReturModalOpen(false)}
-            errors={errors}
-            onConfirm={sendIRetur}
           />
-          <VarselModal
-            open={attesterModalOpen}
-            handleClose={() => setAttesterModalOpen(false)}
-            headingText="Attester tilskuddsbehandling"
-            headingIconType="info"
-            body={
-              <BodyLong>
-                <p>Du er i ferd med å attestere en innvilgelse om tilskudd til utdanning.</p>
-                <p>
-                  Utbetaling direkte til brukeren vil skje automatisk og krever ikke videre
-                  behandling. Vedtaksbrev vil sendes til brukeren og arkiveres i GoSys.
-                </p>
-              </BodyLong>
-            }
-            secondaryButton
-            primaryButton={
-              <Button variant="primary" onClick={attester}>
-                Ja, attester behandling
-              </Button>
-            }
-          />
-        </>
-      </>
+        </HStack>
+        <TwoColumnGrid separator>
+          <>
+            <Heading size="small" level="3" spacing>
+              Informasjon fra søknad
+            </Heading>
+            <VStack gap="space-16">
+              <Definisjonsliste
+                definitions={[
+                  {
+                    key: "Status",
+                    value: <DataElementStatusTag {...behandling.status.status} />,
+                  },
+                  { key: "Journalpost-ID i Gosys", value: behandling.soknadJournalpostId },
+                  { key: "Søknadsdato", value: formaterDato(behandling.soknadDato) },
+                  { key: "Periode", value: formaterPeriode(behandling.periode) },
+                  {
+                    key: "Kostnadssted",
+                    value: `${behandling.kostnadssted.enhetsnummer} ${behandling.kostnadssted.navn}`,
+                  },
+                ]}
+              />
+              <VStack gap="space-20" align="start">
+                {behandling.tilskudd.map((t) => (
+                  <Box
+                    className="w-full"
+                    borderWidth="2"
+                    borderRadius="8"
+                    borderColor="neutral-subtle"
+                    padding="space-8"
+                    key={t.id}
+                  >
+                    <VStack gap="space-8">
+                      <Definisjonsliste
+                        definitions={[
+                          {
+                            key: "Tilskuddstype",
+                            value: opplaeringTilskuddToString(t.tilskuddOpplaeringType),
+                          },
+                          {
+                            key: "Hvem skal motta utbetalingen?",
+                            value: tilskuddMottakerToString(t.utbetalingMottaker),
+                          },
+                          {
+                            key: "Beløp fra søknad",
+                            value: formaterValutaBelop(t.soknadBelop),
+                          },
+                        ]}
+                      />
+                      <Separator />
+                      <Definisjonsliste
+                        columns={1}
+                        definitions={[
+                          {
+                            key: "Vedtaksresultat",
+                            value: <DataElementStatusTag {...t.vedtakResultat.status} />,
+                          },
+                          {
+                            key: "Beløp til utbetaling",
+                            value: t.utbetalingBelop ? formaterValutaBelop(t.utbetalingBelop) : "-",
+                          },
+                          { key: "Kommentar til brukeren", value: t.kommentarVedtaksbrev },
+                        ]}
+                      />
+                    </VStack>
+                  </Box>
+                ))}
+              </VStack>
+              <TotaltBelopBox
+                label="Totalt beløp fra søknad"
+                belop={{
+                  belop: behandling.tilskudd.reduce((sum, t) => sum + t.soknadBelop.belop, 0),
+                  valuta: behandling.tilskudd.at(0)?.soknadBelop.valuta ?? Valuta.NOK,
+                }}
+              />
+              <TotaltBelopBox
+                label="Totalt beløp til utbetaling"
+                belop={{
+                  belop: behandling.tilskudd.reduce(
+                    (sum, t) => sum + (t.utbetalingBelop?.belop ?? 0),
+                    0,
+                  ),
+                  valuta: Valuta.NOK,
+                }}
+              />
+              <MetadataFritekstfelt
+                label="Kommentar (internt i Nav)"
+                value={behandling.kommentarIntern}
+              />
+            </VStack>
+          </>
+          <BetalingsbetingelserEnkeltplass prismodell={prismodell} />
+        </TwoColumnGrid>
+      </Box>
+      <Separator />
+      {(kanReturneres || kanAttesteres) && (
+        <HStack gap="space-8" marginBlock="space-16" justify="end">
+          {kanReturneres && (
+            <Button
+              variant="secondary"
+              size="small"
+              type="button"
+              onClick={() => setReturModalOpen(true)}
+            >
+              Send i retur
+            </Button>
+          )}
+          {kanAttesteres && (
+            <Button
+              variant="primary"
+              size="small"
+              type="button"
+              onClick={() => setAttesterModalOpen(true)}
+            >
+              Attester
+            </Button>
+          )}
+        </HStack>
+      )}
+      {errors.map((error) => (
+        <Alert className="self-end" variant="error" size="small">
+          {error.detail}
+        </Alert>
+      ))}
+      <AarsakerOgForklaringModal<TilskuddBehandlingStatusAarsak>
+        aarsaker={[
+          {
+            value: TilskuddBehandlingStatusAarsak.FEIL_SAKSOPPLYSNINGER,
+            label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.FEIL_SAKSOPPLYSNINGER),
+          },
+          {
+            value: TilskuddBehandlingStatusAarsak.FEIL_BELOP,
+            label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.FEIL_BELOP),
+          },
+          {
+            value: TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT,
+            label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT),
+          },
+          {
+            value: TilskuddBehandlingStatusAarsak.ANNET,
+            label: aarsakTilTekst(TilskuddBehandlingStatusAarsak.ANNET),
+          },
+        ]}
+        header="Send i retur med forklaring"
+        buttonLabel="Send i retur"
+        open={returModalOpen}
+        onClose={() => setReturModalOpen(false)}
+        errors={errors}
+        onConfirm={sendIRetur}
+      />
+      <VarselModal
+        open={attesterModalOpen}
+        handleClose={() => setAttesterModalOpen(false)}
+        headingText="Attester tilskuddsbehandling"
+        headingIconType="info"
+        body={
+          <BodyLong>
+            <p>Du er i ferd med å attestere en innvilgelse om tilskudd til utdanning.</p>
+            <p>
+              Utbetaling direkte til brukeren vil skje automatisk og krever ikke videre behandling.
+              Vedtaksbrev vil sendes til brukeren og arkiveres i GoSys.
+            </p>
+          </BodyLong>
+        }
+        secondaryButton
+        primaryButton={
+          <Button variant="primary" onClick={attester}>
+            Ja, attester behandling
+          </Button>
+        }
+      />
     </TilskuddBehandlingLayout>
   );
 }
