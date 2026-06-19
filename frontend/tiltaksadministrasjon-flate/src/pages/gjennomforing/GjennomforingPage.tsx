@@ -1,5 +1,4 @@
 import { Header } from "@/components/detaljside/Header";
-import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
@@ -19,6 +18,8 @@ import { DataElementStatusTag } from "@mr/frontend-common";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { DeltakerHeader } from "@/components/gjennomforing/DeltakerHeader";
+import { GjennomforingEnkeltplassIkon } from "@/components/ikoner/GjennomforingEnkeltplassIkon";
+import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -51,7 +52,11 @@ export function GjennomforingPage() {
       <title>{`Gjennomføring | ${gjennomforing.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <GjennomforingAvtaleIkon />
+        {isGruppetiltak(gjennomforing) ? (
+          <GjennomforingAvtaleIkon />
+        ) : (
+          <GjennomforingEnkeltplassIkon />
+        )}
         <Heading size="large" level="2">
           {gjennomforing.navn}
         </Heading>
