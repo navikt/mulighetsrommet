@@ -13,7 +13,7 @@ import {
   ValidationError,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
-import { Alert, BodyLong, Box, Button, Heading, HStack, VStack } from "@navikt/ds-react";
+import { Alert, BodyLong, Box, Button, HStack, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
@@ -25,7 +25,6 @@ import {
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import { Handlinger } from "@/components/handlinger/Handlinger";
@@ -40,6 +39,7 @@ import {
 } from "@/utils/Utils";
 import { PencilFillIcon } from "@navikt/aksel-icons";
 import { BetalingsbetingelserEnkeltplass } from "@/components/gjennomforing/BetalingsbetingelserEnkeltplass";
+import { InformasjonFraSoknad } from "@/components/tilskudd-behandling/InformasjonFraSoknad";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -112,24 +112,13 @@ export function TilskuddBehandlingDetaljerPage() {
         </HStack>
         <TwoColumnGrid separator>
           <>
-            <Heading size="small" level="3" spacing>
-              Informasjon fra søknad
-            </Heading>
             <VStack gap="space-16">
-              <Definisjonsliste
-                definitions={[
-                  {
-                    key: "Status",
-                    value: <DataElementStatusTag {...behandling.status.status} />,
-                  },
-                  { key: "Journalpost-ID i Gosys", value: behandling.soknadJournalpostId },
-                  { key: "Søknadsdato", value: formaterDato(behandling.soknadDato) },
-                  { key: "Periode", value: formaterPeriode(behandling.periode) },
-                  {
-                    key: "Kostnadssted",
-                    value: `${behandling.kostnadssted.enhetsnummer} ${behandling.kostnadssted.navn}`,
-                  },
-                ]}
+              <InformasjonFraSoknad
+                status={behandling.status.status}
+                journalpostId={behandling.soknadJournalpostId}
+                soknadsdato={behandling.soknadDato}
+                periode={behandling.periode}
+                kostnadssted={behandling.kostnadssted}
               />
               <VStack gap="space-20" align="start">
                 {behandling.tilskudd.map((t) => (

@@ -1,5 +1,5 @@
 import { MetadataVStack, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import { Box, Heading, VStack, HStack, Radio, TextField, Select } from "@navikt/ds-react";
+import { Box, HStack, Radio, Select, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { ControlledRadioGroup } from "@/components/skjema/ControlledRadioGroup";
@@ -11,9 +11,10 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { opplaeringTilskuddToString, tilskuddMottakerToString } from "@/utils/Utils";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
-import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
-import { formaterDato } from "@mr/frontend-common/utils/date";
+import { addDuration, yyyyMMddSafeFormatting } from "@mr/frontend-common/utils/date";
 import { TotaltBelopBox } from "./TotaltBelopBox";
+import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
+import { InformasjonFraSoknad } from "@/components/tilskudd-behandling/InformasjonFraSoknad";
 
 export function VedtakForm() {
   const {
@@ -22,28 +23,37 @@ export function VedtakForm() {
     formState: { errors },
   } = useFormContext<TilskuddBehandlingRequest>();
 
+  const { data: kostnadssteder } = useKostnadssteder();
+
   const tilskudd = watch("tilskudd");
+
+  // FIXME: Småhacky konvertering fra separate dato-felter til Periode
+  //  Det ideelle hadde kanskje heller vært å ta høyde off-by-one-problematikken ved å ha en egen FormPeriode-komponent
+  const start = watch("periodeStart");
+  const slutt = watch("periodeSlutt");
+  const periode =
+    start && slutt
+      ? {
+          start,
+          slutt: yyyyMMddSafeFormatting(addDuration(new Date(slutt), { days: 1 })),
+        }
+      : null;
+
+  const valgtKostnadssted = watch("kostnadssted");
+  const kostnadssted = kostnadssteder
+    .flatMap((region) => region.kostnadssteder)
+    .find((k) => k.enhetsnummer === valgtKostnadssted);
 
   return (
     <>
       <VStack gap="space-20">
         <VStack gap="space-8">
-          <Definisjonsliste
-            definitions={[
-              { key: "Journalpost-ID i Gosys", value: watch("soknadJournalpostId") },
-              { key: "Søknadsdato", value: formaterDato(watch("soknadDato")) },
-            ]}
-          />
-          <Separator />
-          <Heading size="small" level="3" spacing>
-            Søknadsperiode
-          </Heading>
-          <Definisjonsliste
-            definitions={[
-              { key: "Periodestart", value: formaterDato(watch("periodeStart")) },
-              { key: "Periodeslutt", value: formaterDato(watch("periodeSlutt")) },
-              { key: "Kostnadssted", value: watch("kostnadssted") },
-            ]}
+          <InformasjonFraSoknad
+            status={null}
+            journalpostId={watch("soknadJournalpostId")}
+            soknadsdato={watch("soknadDato")}
+            periode={periode}
+            kostnadssted={kostnadssted || null}
           />
         </VStack>
         {tilskudd.map((t, index) => (
