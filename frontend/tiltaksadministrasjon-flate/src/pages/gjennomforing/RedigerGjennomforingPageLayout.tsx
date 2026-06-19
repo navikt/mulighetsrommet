@@ -1,13 +1,11 @@
-import { Header } from "@/components/detaljside/Header";
 import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
-import { DataElementStatusTag } from "@mr/frontend-common";
-import { Heading } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { useGjennomforingByPathParam } from "@/api/gjennomforing/useGjennomforing";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useHead } from "@unhead/react";
+import { HeaderBanner } from "@/layouts/HeaderBanner";
 
 interface Props {
   children: ReactNode;
@@ -29,13 +27,11 @@ export function RedigerGjennomforingPageLayout({ children }: Props) {
           { tittel: `Rediger gjennomføring` },
         ]}
       />
-      <Header>
-        <GjennomforingAvtaleIkon />
-        <Heading size="large" level="2">
-          {gjennomforing.navn}
-        </Heading>
-        <DataElementStatusTag {...gjennomforing.status.status} />
-      </Header>
+      <HeaderBanner
+        ikon={<GjennomforingAvtaleIkon />}
+        heading={gjennomforing.navn}
+        status={gjennomforing.status.status}
+      />
       <WhitePaddedBox>
         <InlineErrorBoundary>{children}</InlineErrorBoundary>
       </WhitePaddedBox>
