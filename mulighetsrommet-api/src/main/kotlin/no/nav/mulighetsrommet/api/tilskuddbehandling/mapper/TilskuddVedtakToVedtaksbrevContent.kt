@@ -50,7 +50,7 @@ object TilskuddVedtakToVedtaksbrevContent {
     private fun Opplaeringtilskudd.Kode.toDisplayName(): String = when (this) {
         Opplaeringtilskudd.Kode.SKOLEPENGER -> "Skolepenger"
         Opplaeringtilskudd.Kode.STUDIEREISE -> "Studiereise"
-        Opplaeringtilskudd.Kode.EKSAMENSAVGIFT -> "Eksamensavgift"
+        Opplaeringtilskudd.Kode.EKSAMENSGEBYR -> "Eksamensgebyr"
         Opplaeringtilskudd.Kode.SEMESTERAVGIFT -> "Semesteravgift"
         Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD -> "Integrert botilbud"
     }

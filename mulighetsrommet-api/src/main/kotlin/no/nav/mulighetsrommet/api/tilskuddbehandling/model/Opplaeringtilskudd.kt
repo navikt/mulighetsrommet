@@ -14,7 +14,7 @@ data class Opplaeringtilskudd(
     enum class Kode {
         SKOLEPENGER,
         STUDIEREISE,
-        EKSAMENSAVGIFT,
+        EKSAMENSGEBYR,
         SEMESTERAVGIFT,
         INTEGRERT_BOTILBUD,
     }
