@@ -1,6 +1,6 @@
 import { AvtaleIkon } from "@/components/ikoner/AvtaleIkon";
 import { ForhandsvisningIkon } from "@/components/ikoner/ForhandsvisningIkon";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
+import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { Forsidekort, ForsideKortProps } from "./Forsidekort";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { HGrid } from "@navikt/ds-react";
@@ -26,7 +26,7 @@ const forsidekortData: ForsideKortProps[] = [
   },
   {
     navn: "Gjennomføringer",
-    ikon: <GjennomforingIkon inkluderBakgrunn aria-label="Gjennomføringer for gruppetiltak" />,
+    ikon: <GjennomforingAvtaleIkon inkluderBakgrunn />,
     url: "/gjennomforinger",
     tekst: "Her finner du informasjon om Gjennomføringer for gruppetiltak",
   },

@@ -3,7 +3,7 @@ import { Header } from "@/components/detaljside/Header";
 import { defaultGjennomforingData } from "@/pages/gjennomforing/form/defaults";
 import { GjennomforingFormDetaljer } from "@/components/gjennomforing/GjennomforingFormDetaljer";
 import { GjennomforingInformasjonForVeiledereForm } from "@/components/gjennomforing/GjennomforingInformasjonForVeiledereForm";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
+import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { WizardForm } from "@/components/skjema/WizardForm";
@@ -62,7 +62,7 @@ export function OpprettGjennomforingPage() {
       <title>Opprett gjennomføring</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <GjennomforingIkon />
+        <GjennomforingAvtaleIkon />
         <Heading size="large" level="2">
           Opprett gjennomføring
         </Heading>

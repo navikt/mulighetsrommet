@@ -1,5 +1,5 @@
 import { Header } from "@/components/detaljside/Header";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
+import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { Laster } from "@/components/laster/Laster";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
@@ -51,7 +51,7 @@ export function GjennomforingPage() {
       <title>{`Gjennomføring | ${gjennomforing.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <Header>
-        <GjennomforingIkon />
+        <GjennomforingAvtaleIkon />
         <Heading size="large" level="2">
           {gjennomforing.navn}
         </Heading>

@@ -1,7 +1,7 @@
 import { GjennomforingFilter } from "@/components/filter/GjennomforingFilter";
 import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilterTags";
 import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
-import { GjennomforingIkon } from "@/components/ikoner/GjennomforingIkon";
+import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -37,7 +37,7 @@ export function GjennomforingerPage() {
   return (
     <>
       <title>Gjennomføringer</title>
-      <HeaderBanner heading="Oversikt over gjennomføringer" ikon={<GjennomforingIkon />} />
+      <HeaderBanner heading="Oversikt over gjennomføringer" ikon={<GjennomforingAvtaleIkon />} />
       <ContentBox>
         <FilterAndTableLayout
           filter={<GjennomforingFilter filter={filter.values} updateFilter={updateFilter} />}

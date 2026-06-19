@@ -1,6 +1,6 @@
 import { IkonTypeProps } from "./IkonType";
 
-export function GjennomforingIkon({ inkluderBakgrunn = false }: IkonTypeProps) {
+export function GjennomforingAvtaleIkon({ inkluderBakgrunn = false }: IkonTypeProps) {
   return inkluderBakgrunn ? (
     <svg
       width="100"
