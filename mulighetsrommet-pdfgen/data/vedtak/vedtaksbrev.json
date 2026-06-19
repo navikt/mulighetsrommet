@@ -20,12 +20,12 @@
       "kommentar": "Utbetaling vil gis med forbehold om at vilkårene for tilskuddet fortsatt er oppfylt."
     },
     {
-      "utfall": "Innvilgelse",
+      "utfall": "Avslag",
       "tilskuddType": "Eksamensgebyr",
       "tilskuddBelop": 1200,
       "valuta": "NOK",
       "periode": { "fradato": "2026-08-01", "tildato": "2027-06-30" },
-      "kommentar": "Utbetaling vil gis med forbehold om at vilkårene for tilskuddet fortsatt er oppfylt."
+      "kommentar": "Søknaden er avslått fordi det ikke er dokumentert at vilkårene for tilskuddet er oppfylt."
     }
   ]
 }

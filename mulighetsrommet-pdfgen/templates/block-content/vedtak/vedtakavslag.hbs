@@ -1,0 +1,14 @@
+<h2>{{this.utfall}} - {{this.tilskuddType}}</h2>
+<p>Ditt krav om
+  {{this.tilskuddType}}
+  er avslått for perioden
+  {{iso_to_nor_date this.periode.fradato}}
+  -
+  {{iso_to_nor_date this.periode.tildato}}
+</p>
+<br />
+<p>Begrunnelse:</p>
+<p>{{this.kommentar}}</p>
+<br />
+<p>Vedtaket er fattet med hjemmel i forskrift om arbeidsmarkedstiltak (tiltaksforskriften) § 7-5,
+  jf. lov om arbeidsmarkedstjenester (arbeidsmarkedsloven) § 13.</p>
