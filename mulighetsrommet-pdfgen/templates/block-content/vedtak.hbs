@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Vedtak om tilskudd til opplæring</title>
+  <description>Vedtak om tilskudd til opplæring for {{navn}}</description>
   <meta name="author" content="Nav" />
   {{> block-content/vedtak/vedtak-style}}
 </head>
@@ -16,7 +17,13 @@
 <main>
   <h1>Vedtak om tilskudd til opplæring</h1>
   {{#each vedtak}}
+  {{#if utfall}}
+  {{#eq utfall "Innvilgelse"}}
     {{> block-content/vedtak/vedtakinnvilgelse }}
+  {{else}}
+    {{> block-content/vedtak/vedtakavslag }}
+  {{/eq}}
+  {{/if}}
   {{/each}}
   {{> block-content/vedtak/innsynsrett}}
   {{> block-content/vedtak/personopplysninger}}
