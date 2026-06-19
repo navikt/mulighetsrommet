@@ -3,6 +3,7 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { PersonIcon } from "@navikt/aksel-icons";
 import { CopyButton, HStack, VStack } from "@navikt/ds-react";
 import { DeltakerDto } from "@tiltaksadministrasjon/api-client";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 interface Props {
   deltaker: DeltakerDto;
@@ -30,6 +31,7 @@ export function DeltakerHeader({ deltaker, arrangorNavn, compact = false }: Prop
             <MetadataVStack label="Arrangør" value={arrangorNavn} />
             <MetadataVStack label="Startdato" value={formaterDato(deltaker.startDato)} />
             <MetadataVStack label="Sluttdato" value={formaterDato(deltaker.sluttDato)} />
+            <MetadataVStack label="Status" value={<DataElementStatusTag {...deltaker.status} />} />
           </>
         )}
       </HStack>
