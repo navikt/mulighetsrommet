@@ -36,9 +36,12 @@ async function dedupeDependencies(lib: string) {
   const projectDependencies = Object.keys(projectPackageJson.dependencies ?? {});
 
   const libPackageJson = (await import(`${lib}/package.json`, { with: { type: "json" } }))
-    .default as { dependencies?: object };
+    .default as { dependencies?: object; peerDependencies?: object };
 
-  return Object.keys(libPackageJson.dependencies ?? {}).filter((p) =>
-    projectDependencies.includes(p),
-  );
+  const dependencies = [
+    ...Object.keys(libPackageJson.dependencies ?? {}),
+    ...Object.keys(libPackageJson.peerDependencies ?? {}),
+  ];
+
+  return dependencies.filter((p) => projectDependencies.includes(p));
 }

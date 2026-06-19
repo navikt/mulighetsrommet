@@ -85,7 +85,7 @@ export function TilskuddBehandlingDetaljerPage() {
   const erTilAttestering = behandling.status.type === TilskuddBehandlingStatus.TIL_ATTESTERING;
 
   return (
-    <TilskuddBehandlingLayout gjennomforingId={gjennomforingId} status={behandling.status.status}>
+    <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
       <>
         {isAvvist(opprettelse) && (
           <ToTrinnsOpprettelsesForklaring
@@ -123,6 +123,10 @@ export function TilskuddBehandlingDetaljerPage() {
               <VStack gap="space-16">
                 <Definisjonsliste
                   definitions={[
+                    {
+                      key: "Status",
+                      value: <DataElementStatusTag {...behandling.status.status} />,
+                    },
                     { key: "Journalpost-ID i Gosys", value: behandling.soknadJournalpostId },
                     { key: "Søknadsdato", value: formaterDato(behandling.soknadDato) },
                     { key: "Periode", value: formaterPeriode(behandling.periode) },
