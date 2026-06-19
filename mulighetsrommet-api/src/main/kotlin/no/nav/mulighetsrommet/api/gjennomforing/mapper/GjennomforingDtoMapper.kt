@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.toAmoKategoriseringDto
-import no.nav.mulighetsrommet.api.avtale.model.toDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytelseDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.DeltakerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
@@ -87,7 +86,9 @@ object GjennomforingDtoMapper {
             ),
             startDato = gjennomforing.startDato,
             sluttDato = gjennomforing.sluttDato,
-            status = fromGjennomforingStatus(gjennomforing.status),
+            status = deltakerDto
+                ?.let { GjennomforingDto.Status(gjennomforing.status, it.status) }
+                ?: fromGjennomforingStatus(gjennomforing.status),
             ansvarligEnhet = gjennomforing.toAnsvarligEnhetDto(),
         ),
         veilederinfo = null,

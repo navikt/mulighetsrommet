@@ -89,7 +89,7 @@ class GjennomforingDetaljerService(
                     }
                     DeltakerDto.from(it, personalia)
                 }
-                val opplaringKategorisering = context(this.session) {
+                val opplaringKategorisering = context(session) {
                     OpplaringKategoriseringQueries.get(gjennomforing.id)
                 }
                 GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerDto, opplaringKategorisering)
