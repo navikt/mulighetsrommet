@@ -16,6 +16,8 @@ dependencies {
     implementation(projects.common.databaseHelpers)
     implementation(projects.common.kafka)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(projects.common.kafka)
 
     testFixturesImplementation(testFixtures(projects.common.database))
 

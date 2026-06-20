@@ -45,7 +45,7 @@ class ArenaAdapterServiceTest : FunSpec({
     ): ArenaAdapterService {
         val tiltakstypeService = TiltakstypeService(
             TiltakstypeService.Config(features),
-            database.db,
+            database.newDb,
         )
         return ArenaAdapterService(
             db = database.db,

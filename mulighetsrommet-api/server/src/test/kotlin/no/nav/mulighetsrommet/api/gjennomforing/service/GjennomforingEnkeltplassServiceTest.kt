@@ -17,9 +17,9 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
+import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.ForerkortFixtures
@@ -71,7 +71,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         return GjennomforingEnkeltplassService(
             db = database.db,
             personaliaService = mockk(),
-            tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.db),
+            tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.newDb),
         )
     }
 

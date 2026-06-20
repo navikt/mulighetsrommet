@@ -2,12 +2,15 @@ package no.nav.mulighetsrommet.api.persistence
 
 import kotliquery.Session
 import no.nav.mulighetsrommet.api.application.QueryContext
+import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkQueryHandler
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 
 class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     private val tiltakstypeDao = TiltakstypeQueries(session)
+    private val endringshistorikkDao = EndringshistorikkQueries(session)
 
     override val repository = object : Repositories() {
         override val tiltakstype: TiltakstypeRepository = tiltakstypeDao
@@ -15,6 +18,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
 
     override val queries = object : Queries() {
         override val tiltakstype: TiltakstypeQueryHandler = tiltakstypeDao
+        override val endringshistorikk: EndringshistorikkQueryHandler = endringshistorikkDao
     }
 
     override val outbox = SqlOutbox(session, topics)

@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.tiltakstype.service
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.application.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.model.Tiltakskode

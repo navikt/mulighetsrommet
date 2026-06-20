@@ -2,12 +2,12 @@ package no.nav.mulighetsrommet.api.tiltakstype.service
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.application.ApiDatabase
+import no.nav.mulighetsrommet.api.application.QueryContext
+import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeDeltakerinfoRequest
@@ -32,7 +32,7 @@ class TiltakstypeDetaljerService(
         request: TiltakstypeVeilederinfoRequest,
         navIdent: NavIdent,
     ): TiltakstypeDto? = db.transaction {
-        repository.tiltakstype.get(id) ?: return null
+        repository.tiltakstype.get(id) ?: return@transaction null
 
         queries.tiltakstype.upsertRedaksjoneltInnhold(id, request.beskrivelse, request.faneinnhold)
         queries.tiltakstype.setKanKombineresMed(id, request.kanKombineresMed)
@@ -46,7 +46,7 @@ class TiltakstypeDetaljerService(
         request: TiltakstypeDeltakerinfoRequest,
         navIdent: NavIdent,
     ): TiltakstypeDto? = db.transaction {
-        repository.tiltakstype.get(id) ?: return null
+        repository.tiltakstype.get(id) ?: return@transaction null
 
         queries.tiltakstype.upsertDeltakerRegistreringInnhold(id, request.ledetekst, request.innholdskoder)
         publishToKafka(id)

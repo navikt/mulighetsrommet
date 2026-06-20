@@ -56,10 +56,10 @@ class TiltakstypeDetaljerServiceTest : FunSpec({
             config = TiltakstypeService.Config(
                 features = mapOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to setOf(*features)),
             ),
-            db = database.db,
+            db = database.newDb,
         )
         return TiltakstypeDetaljerService(
-            db = database.db,
+            db = database.newDb,
             tiltakstypeService = tiltakstypeService,
             navAnsattService = mockk(),
         )

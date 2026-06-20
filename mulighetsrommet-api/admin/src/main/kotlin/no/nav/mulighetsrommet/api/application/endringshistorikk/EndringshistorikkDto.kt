@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.endringshistorikk
+package no.nav.mulighetsrommet.api.application.endringshistorikk
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.Agent

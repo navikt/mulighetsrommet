@@ -101,7 +101,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
         fun configureTiltakstypeService(
             migrert: TiltakstypeService.Config = TiltakstypeService.Config(),
         ): TiltakstypeService {
-            return TiltakstypeService(migrert, database.db)
+            return TiltakstypeService(migrert, database.newDb)
         }
 
         afterEach {

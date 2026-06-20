@@ -8,7 +8,10 @@ import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
+import no.nav.mulighetsrommet.api.KafkaTopics
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.persistence.OutboxTopics
+import no.nav.mulighetsrommet.api.persistence.SqlApiDatabase
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -30,6 +33,13 @@ class ApiDatabaseTestListener(
         get() {
             return delegate
                 ?.let { ApiDatabase(it, ApplicationConfigTest.kafka.topics) }
+                ?: throw RuntimeException("Database has not yet been initialized")
+        }
+
+    val newDb: SqlApiDatabase
+        get() {
+            return delegate
+                ?.let { SqlApiDatabase(it, ApplicationConfigTest.kafka.topics.toOutboxTopics()) }
                 ?: throw RuntimeException("Database has not yet been initialized")
         }
 
@@ -102,4 +112,8 @@ class ApiDatabaseTestListener(
                 session.execute(queryOf("truncate table $it restart identity cascade"))
             }
     }
+}
+
+private fun KafkaTopics.toOutboxTopics(): OutboxTopics {
+    return OutboxTopics(sisteTiltakstyperTopic)
 }

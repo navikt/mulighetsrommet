@@ -145,7 +145,7 @@ class VeilederflateServiceTest : FunSpec({
     ): VeilederflateService {
         val tiltakstypeService = TiltakstypeService(
             config = TiltakstypeService.Config(features),
-            db = database.db,
+            db = database.newDb,
         )
         return VeilederflateService(
             db = database.db,

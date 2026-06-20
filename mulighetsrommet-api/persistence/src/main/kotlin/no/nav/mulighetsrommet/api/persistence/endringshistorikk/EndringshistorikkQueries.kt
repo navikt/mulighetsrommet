@@ -1,8 +1,11 @@
-package no.nav.mulighetsrommet.api.endringshistorikk
+package no.nav.mulighetsrommet.api.persistence.endringshistorikk
 
 import kotlinx.serialization.json.JsonElement
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkQueryHandler
+import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.textRepr
 import no.nav.mulighetsrommet.model.toAgent
@@ -10,8 +13,8 @@ import org.intellij.lang.annotations.Language
 import java.time.LocalDateTime
 import java.util.UUID
 
-class EndringshistorikkQueries(private val session: Session) {
-    fun getEndringshistorikk(type: EndringshistorikkType, id: UUID): EndringshistorikkDto {
+class EndringshistorikkQueries(private val session: Session) : EndringshistorikkQueryHandler {
+    override fun getEndringshistorikk(type: EndringshistorikkType, id: UUID): EndringshistorikkDto {
         @Language("PostgreSQL")
         val statement = """
             select
@@ -48,7 +51,7 @@ class EndringshistorikkQueries(private val session: Session) {
         return EndringshistorikkDto(entries = entries)
     }
 
-    fun logEndring(
+    override fun logEndring(
         type: EndringshistorikkType,
         operation: String,
         agent: Agent,
