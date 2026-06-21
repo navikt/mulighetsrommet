@@ -18,6 +18,8 @@ import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinRequest
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
 import no.nav.mulighetsrommet.api.createAuthConfig
@@ -31,12 +33,15 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.getAnsattClaims
+import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.ktor.decodeRequestBody
+import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
@@ -92,8 +97,28 @@ class TilsagnRoutesTest : FunSpec({
     fun appConfig() = createTestApplicationConfig().copy(
         auth = createAuthConfig(oauth, roles = setOf(okonomiLesRolle, generellRolle)),
         engine = createMockEngine {
+            mockPdlEmptyResult()
+
             get("/norg2/norg2/api/v1/enhet/navkontor/030102") {
                 respond("", HttpStatusCode.NotFound)
+            }
+
+            post("/amt-deltaker/external/deltakere/personalia") { request ->
+                val ids = request.decodeRequestBody<List<String>>()
+                respondJson(
+                    ids.map { id ->
+                        DeltakerPersonaliaResponse(
+                            deltakerId = UUID.fromString(id),
+                            personident = "12345678901",
+                            fornavn = "Ola",
+                            mellomnavn = null,
+                            etternavn = "Nordmann",
+                            navEnhetsnummer = "1206",
+                            erSkjermet = false,
+                            adressebeskyttelse = PdlGradering.UGRADERT,
+                        )
+                    },
+                )
             }
         },
         tilgangsmaskin = createTestApplicationConfig().tilgangsmaskin.copy(

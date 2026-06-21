@@ -15,7 +15,6 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.serializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 
 /**
@@ -23,7 +22,7 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
  */
 @OptIn(InternalSerializationApi::class)
 inline fun <reified T : Any> HttpRequestData.decodeRequestBody(): T {
-    return JsonIgnoreUnknownKeys.decodeFromString(T::class.serializer(), (body as TextContent).text)
+    return JsonIgnoreUnknownKeys.decodeFromString((body as TextContent).text)
 }
 
 /**

@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -281,6 +282,7 @@ object ArrangorflateTestUtils {
             mockClamAvScan(this)
             mockAmtDeltaker(this)
             mockNorg(this)
+            mockPdlEmptyResult()
             mockTilgangsmaskin(this)
             mockKontoregisterOrganisasjon(this)
         },

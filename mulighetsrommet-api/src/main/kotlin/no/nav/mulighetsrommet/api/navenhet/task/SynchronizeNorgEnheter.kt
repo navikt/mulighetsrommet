@@ -13,7 +13,7 @@ class SynchronizeNorgEnheter(
     navEnheterSyncService: NavEnheterSyncService,
 ) {
     data class Config(
-        val delayOfMinutes: Int,
+        val delayOfMinutes: Int = 360,
         val disabled: Boolean = false,
     ) {
         fun toSchedule(): Schedule {
