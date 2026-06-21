@@ -1,4 +1,4 @@
-import { opplaeringTilskuddToString } from "@/utils/Utils";
+import { ingenKostnaderAarsakToString, opplaeringTilskuddToString } from "@/utils/Utils";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { BodyShort, Heading, HStack, List, VStack } from "@navikt/ds-react";
@@ -72,8 +72,12 @@ function BetalingsbetingelserTilskudd({ prismodell }: Props) {
         Valuta.NOK,
       )}`}</BodyShort>
       <Separator />
-      <Heading size="xsmall">Tilleggsopplysninger om kostnader</Heading>
-      <BodyShort textColor="subtle">{prismodell.prisbetingelser}</BodyShort>
+      {prismodell.prisbetingelser && (
+        <>
+          <Heading size="xsmall">Tilleggsopplysninger om kostnader</Heading>
+          <BodyShort textColor="subtle">{prismodell.prisbetingelser}</BodyShort>
+        </>
+      )}
     </VStack>
   );
 }
@@ -84,10 +88,20 @@ function BetalingsbetingelserIngenKostnader({ prismodell }: Props) {
       <Heading size="small">Betalingsbetingelser</Heading>
       <Heading size="xsmall">Ingen kostnader</Heading>
       <BodyShort textColor="subtle">Ikke aktuelt med betaling eller refusjon fra Nav</BodyShort>
-      <Heading size="xsmall">Årsak</Heading>
-      <BodyShort textColor="subtle">aarsak</BodyShort>
-      <Heading size="xsmall">Tilleggsopplysninger om egenfinansieringen</Heading>
-      <BodyShort textColor="subtle">{prismodell.prisbetingelser}</BodyShort>
+      {prismodell.aarsak && (
+        <>
+          <Heading size="xsmall">Årsak</Heading>
+          <BodyShort textColor="subtle">
+            {ingenKostnaderAarsakToString(prismodell.aarsak)}
+          </BodyShort>
+        </>
+      )}
+      {prismodell.prisbetingelser && (
+        <>
+          <Heading size="xsmall">Tilleggsopplysninger om egenfinansieringen</Heading>
+          <BodyShort textColor="subtle">{prismodell.prisbetingelser}</BodyShort>
+        </>
+      )}
     </VStack>
   );
 }

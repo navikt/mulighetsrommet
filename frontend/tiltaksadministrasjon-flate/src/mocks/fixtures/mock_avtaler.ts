@@ -75,6 +75,7 @@ export const mockAvtaler: AvtaleDto[] = [
     prismodeller: [
       {
         id: "d136d6a4-c812-4d28-81db-b688187e4e32",
+        aarsak: null,
         type: PrismodellType.ANNEN_AVTALT_PRIS,
         valuta: Valuta.NOK,
         totalBelop: null,
@@ -149,6 +150,7 @@ export const mockAvtaler: AvtaleDto[] = [
     utdanningslop: null,
     prismodeller: [
       {
+        aarsak: null,
         id: "d136d6a4-c812-4d28-81db-b688187e4e32",
         type: PrismodellType.ANNEN_AVTALT_PRIS,
         totalBelop: null,
@@ -211,6 +213,7 @@ export const mockAvtaler: AvtaleDto[] = [
     utdanningslop: null,
     prismodeller: [
       {
+        aarsak: null,
         id: "d136d6a4-c812-4d28-81db-b688187e4e32",
         totalBelop: null,
         tilskudd: [],
@@ -273,6 +276,7 @@ export const mockAvtaler: AvtaleDto[] = [
     utdanningslop: null,
     prismodeller: [
       {
+        aarsak: null,
         id: "d136d6a4-c812-4d28-81db-b688187e4e32",
         totalBelop: null,
         tilskudd: [],

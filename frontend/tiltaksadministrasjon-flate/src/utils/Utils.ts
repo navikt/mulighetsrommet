@@ -16,6 +16,7 @@ import {
   TilskuddBehandlingStatusAarsak,
   TilskuddMottaker,
   OpplaeringtilskuddKode,
+  PrismodellIngenKostnaderAarsak,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -365,5 +366,14 @@ export function gjennomforingTypeToString(type: GjennomforingType): string {
       return "Gruppe";
     case GjennomforingType.ENKELTPLASS:
       return "Enkeltplass";
+  }
+}
+
+export function ingenKostnaderAarsakToString(aarsak: PrismodellIngenKostnaderAarsak): string {
+  switch (aarsak) {
+    case PrismodellIngenKostnaderAarsak.OPPLAERINGEN_ER_KOSTNADSFRI:
+      return "Opplæringen er kostnadsfri";
+    case PrismodellIngenKostnaderAarsak.OPPLAERINGEN_ER_EGENFINANSIERT:
+      return "Bruker dekker opplæringen fullt ut selv";
   }
 }
