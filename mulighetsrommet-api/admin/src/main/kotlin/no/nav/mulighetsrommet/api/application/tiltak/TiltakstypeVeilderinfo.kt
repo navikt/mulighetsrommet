@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.application.tiltak
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID

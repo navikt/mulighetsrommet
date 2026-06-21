@@ -4,12 +4,12 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.application.tiltak.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.application.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeKombinasjon
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeSortField
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeVeilderinfo
+import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.database.createTextArray
@@ -373,5 +373,18 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
             oppdatertTidspunkt = localDateTime("updated_at"),
             deltakerRegistreringInnhold = deltakerRegistreringInnhold,
         )
+    }
+
+    override fun getNamesReferencingLenke(lenkeId: UUID): List<String> = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            select tiltakstype.navn
+            from tiltakstype
+            join tiltakstype_faglenke faglenke on faglenke.tiltakstype_id = tiltakstype.id
+            where faglenke.lenke_id = ?::uuid
+            order by tiltakstype.navn
+        """.trimIndent()
+
+        return list(queryOf(query, lenkeId)) { it.string("navn") }
     }
 }

@@ -32,4 +32,6 @@ interface TiltakstypeQueryHandler {
     fun setFaglenker(id: UUID, lenker: List<UUID>)
 
     fun setKanKombineresMed(id: UUID, kombineresmedIds: List<UUID>)
+
+    fun getNamesReferencingLenke(lenkeId: UUID): List<String>
 }

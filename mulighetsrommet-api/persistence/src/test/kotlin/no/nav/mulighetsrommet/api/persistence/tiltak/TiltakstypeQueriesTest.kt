@@ -1,10 +1,12 @@
 package no.nav.mulighetsrommet.api.persistence.tiltak
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.persistence.SqlApiDatabaseTestListener
@@ -95,6 +97,33 @@ class TiltakstypeQueriesTest : FunSpec({
                 queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.AFT.id).shouldNotBeNull().should {
                     it.deltakerRegistreringInnhold shouldBe null
                 }
+            }
+        }
+    }
+
+    context("getNamesReferencingLenke") {
+        test("returnerer tom liste når ingen tiltakstyper bruker lenken") {
+            database.runAndRollback {
+                val lenke = RedaksjoneltInnholdLenke(id = UUID.randomUUID(), url = "https://nav.no", navn = null)
+                repository.redaksjoneltInnholdLenke.upsert(lenke)
+
+                queries.tiltakstype.getNamesReferencingLenke(lenke.id).shouldBeEmpty()
+            }
+        }
+
+        test("returnerer navn på tiltakstyper som har lenken som faglenke, sortert alfabetisk") {
+            database.runAndRollback {
+                val lenke = RedaksjoneltInnholdLenke(id = UUID.randomUUID(), url = "https://nav.no", navn = null)
+                repository.redaksjoneltInnholdLenke.upsert(lenke)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.AFT)
+                repository.tiltakstype.upsert(TiltakstypeFixtures.VTA)
+                queries.tiltakstype.setFaglenker(TiltakstypeFixtures.AFT.id, listOf(lenke.id))
+                queries.tiltakstype.setFaglenker(TiltakstypeFixtures.VTA.id, listOf(lenke.id))
+
+                queries.tiltakstype.getNamesReferencingLenke(lenke.id) shouldBe listOf(
+                    "Arbeidsforberedende trening",
+                    "Varig tilrettelagt arbeid i skjermet virksomhet",
+                )
             }
         }
     }

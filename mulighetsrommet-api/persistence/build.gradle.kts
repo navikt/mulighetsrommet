@@ -21,6 +21,7 @@ dependencies {
 
     testFixturesImplementation(testFixtures(projects.common.database))
 
+    testImplementation(libs.arrow.core)
     testImplementation(testFixtures(projects.common.database))
     testImplementation(testFixtures(projects.mulighetsrommetApi.domain))
     testImplementation(projects.common.slack)

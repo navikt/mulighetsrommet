@@ -1,16 +1,17 @@
-package no.nav.mulighetsrommet.api.tiltakstype.db
+package no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold
 
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.application.tiltak.RedaksjoneltInnholdLenke
+import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
+import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
 import no.nav.mulighetsrommet.database.requireSingle
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
-class RedaksjoneltInnholdLenkeQueries(private val session: Session) {
+class RedaksjoneltInnholdLenkeQueries(private val session: Session) : RedaksjoneltInnholdLenkeRepository {
 
-    fun upsert(lenke: RedaksjoneltInnholdLenke): RedaksjoneltInnholdLenke {
+    override fun upsert(lenke: RedaksjoneltInnholdLenke): RedaksjoneltInnholdLenke {
         @Language("PostgreSQL")
         val query = """
             insert into redaksjonelt_innhold_lenke (id, url, navn, beskrivelse)
@@ -31,7 +32,7 @@ class RedaksjoneltInnholdLenkeQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, params)) { it.toRedaksjoneltInnholdLenke() }
     }
 
-    fun getAll(): List<RedaksjoneltInnholdLenke> {
+    override fun getAll(): List<RedaksjoneltInnholdLenke> {
         @Language("PostgreSQL")
         val query = """
             select id, url, navn, beskrivelse
@@ -42,7 +43,7 @@ class RedaksjoneltInnholdLenkeQueries(private val session: Session) {
         return session.list(queryOf(query)) { it.toRedaksjoneltInnholdLenke() }
     }
 
-    fun get(id: UUID): RedaksjoneltInnholdLenke? {
+    override fun get(id: UUID): RedaksjoneltInnholdLenke? {
         @Language("PostgreSQL")
         val query = """
             select id, url, navn, beskrivelse
@@ -53,20 +54,7 @@ class RedaksjoneltInnholdLenkeQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toRedaksjoneltInnholdLenke() }
     }
 
-    fun getReferencingTiltakstyper(id: UUID): List<String> {
-        @Language("PostgreSQL")
-        val query = """
-            select tiltakstype.navn
-            from tiltakstype
-            join tiltakstype_faglenke faglenke on faglenke.tiltakstype_id = tiltakstype.id
-            where faglenke.lenke_id = ?::uuid
-            order by tiltakstype.navn
-        """.trimIndent()
-
-        return session.list(queryOf(query, id)) { it.string("navn") }
-    }
-
-    fun delete(id: UUID): Int {
+    override fun delete(id: UUID): Int {
         @Language("PostgreSQL")
         val query = """
             delete from redaksjonelt_innhold_lenke where id = ?::uuid
