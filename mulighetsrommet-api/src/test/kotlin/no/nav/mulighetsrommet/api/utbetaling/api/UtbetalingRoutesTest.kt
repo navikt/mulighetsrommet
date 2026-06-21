@@ -2,9 +2,12 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -14,25 +17,36 @@ import io.ktor.http.contentType
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.getAnsattClaims
+import no.nav.mulighetsrommet.api.mockAmtDeltakerPersonalia
+import no.nav.mulighetsrommet.api.mockKontoregisterOrganisasjon
+import no.nav.mulighetsrommet.api.mockPdlEmptyResult
+import no.nav.mulighetsrommet.api.mockTilgangsmaskinenForbidden
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
+import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.ktor.respondJson
+import no.nav.mulighetsrommet.model.NOK
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.time.LocalDate
@@ -62,18 +76,6 @@ class UtbetalingRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    fun mockKontoregisterOrganisasjon(builder: MockEngineBuilder) {
-        val path = Regex(""".*/kontoregister/api/v1/hent-kontonummer-for-organisasjon/.*""")
-        builder.get(path) {
-            respondJson(
-                KontonummerResponse(
-                    kontonr = "12345678901",
-                    mottaker = "asdf",
-                ),
-            )
-        }
-    }
-
     val generellRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
     val saksbehandlerOkonomiRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
     val attestantUtbetalingRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
@@ -84,7 +86,7 @@ class UtbetalingRoutesTest : FunSpec({
             roles = setOf(generellRolle, saksbehandlerOkonomiRolle, attestantUtbetalingRolle),
         ),
         engine = createMockEngine {
-            mockKontoregisterOrganisasjon(this)
+            mockKontoregisterOrganisasjon()
         },
     )
 
@@ -295,6 +297,74 @@ class UtbetalingRoutesTest : FunSpec({
                 response.body<ValidationError>().errors shouldContainExactlyInAnyOrder listOf(
                     FieldError("/utbetalingLinjer/0/pris/belop", "Beløp må være positivt"),
                 )
+            }
+        }
+    }
+
+    context("personvern i beregning") {
+        val deltaker = DeltakerFixtures.createDeltakerDbo(AFT1.id)
+
+        val beregningPeriode = Periode.forMonthOf(LocalDate.of(2024, 8, 1))
+        val utbetaling = UtbetalingFixtures.utbetaling1.copy(
+            id = UUID.randomUUID(),
+            periode = beregningPeriode,
+            beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+                input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+                    satser = setOf(SatsPeriode(periode = beregningPeriode, sats = 20205.NOK)),
+                    stengt = setOf(),
+                    deltakelser = setOf(
+                        DeltakelseDeltakelsesprosentPerioder(
+                            deltakelseId = deltaker.id,
+                            perioder = listOf(DeltakelsesprosentPeriode(beregningPeriode, 100.0)),
+                        ),
+                    ),
+                ),
+                output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                    pris = 20205.NOK,
+                    deltakelser = setOf(
+                        UtbetalingBeregningOutputDeltakelse(
+                            deltaker.id,
+                            setOf(
+                                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(beregningPeriode, 1.0, 20205.NOK),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        fun appConfigMedTilgangsmaskinAvvist() = appConfig().copy(
+            engine = createMockEngine {
+                mockKontoregisterOrganisasjon()
+                mockPdlEmptyResult()
+                mockAmtDeltakerPersonalia(gradering = PdlGradering.UGRADERT)
+                mockTilgangsmaskinenForbidden(avvistGrunn = "AVVIST_SKJERMING")
+            },
+        )
+
+        test("personalia er maskert i GET /beregning når NavAnsatt mangler tilgang") {
+            MulighetsrommetTestDomain(
+                utbetalinger = listOf(utbetaling),
+                deltakere = listOf(deltaker),
+            ).initialize(database.db)
+
+            withTestApplication(appConfigMedTilgangsmaskinAvvist()) {
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+
+                val response = client.get("/api/tiltaksadministrasjon/utbetaling/${utbetaling.id}/beregning") {
+                    bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                }
+
+                response.status shouldBe HttpStatusCode.OK
+
+                val body = response.body<UtbetalingBeregningDto>()
+                body.deltakere.shouldHaveSize(1)
+
+                val deltaker = body.deltakere.first()
+                deltaker.navn shouldBe "Skjermet"
+                deltaker.norskIdent.shouldBeNull()
+                deltaker.geografiskEnhet.shouldBeNull()
+                deltaker.gradering shouldBe Gradering.SKJERMING
             }
         }
     }

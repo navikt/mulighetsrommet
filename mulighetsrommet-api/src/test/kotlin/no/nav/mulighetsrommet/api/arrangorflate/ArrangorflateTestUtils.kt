@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.createAuthConfig
@@ -22,6 +21,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.mockKontoregisterOrganisasjon
 import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
@@ -238,18 +238,6 @@ object ArrangorflateTestUtils {
         }
     }
 
-    fun mockKontoregisterOrganisasjon(builder: MockEngineBuilder) {
-        val path = Regex(""".*/kontoregister/api/v1/hent-kontonummer-for-organisasjon/.*""")
-        builder.get(path) {
-            respondJson(
-                KontonummerResponse(
-                    kontonr = "12345678901",
-                    mottaker = "asdf",
-                ),
-            )
-        }
-    }
-
     fun mockClamAvScan(builder: MockEngineBuilder) {
         builder.post("/scan") {
             respondJson(listOf(ScanResult(Filename = "filnavn", Result = Status.OK)))
@@ -284,7 +272,7 @@ object ArrangorflateTestUtils {
             mockNorg(this)
             mockPdlEmptyResult()
             mockTilgangsmaskin(this)
-            mockKontoregisterOrganisasjon(this)
+            mockKontoregisterOrganisasjon()
         },
     ) = ApplicationConfigTest.copy(
         database = databaseConfig,

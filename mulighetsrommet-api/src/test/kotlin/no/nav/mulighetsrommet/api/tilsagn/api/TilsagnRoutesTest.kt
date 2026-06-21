@@ -6,23 +6,12 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.TextContent
-import io.ktor.http.headersOf
-import io.ktor.utils.io.ByteReadChannel
-import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
-import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinRequest
-import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -32,16 +21,15 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.getAnsattClaims
+import no.nav.mulighetsrommet.api.mockAmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.mockPdlEmptyResult
+import no.nav.mulighetsrommet.api.mockTilgangsmaskinenForbidden
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.ktor.decodeRequestBody
-import no.nav.mulighetsrommet.ktor.respondJson
-import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
 
@@ -93,68 +81,17 @@ class TilsagnRoutesTest : FunSpec({
         database.truncateAll()
     }
 
-    fun appConfig() = ApplicationConfigTest.copy(
+    fun appConfig(avvistGrunn: String) = ApplicationConfigTest.copy(
         auth = createAuthConfig(oauth, roles = setOf(okonomiLesRolle, generellRolle)),
         engine = createMockEngine {
             mockPdlEmptyResult()
-
-            get("/norg2/norg2/api/v1/enhet/navkontor/030102") {
-                respond("", HttpStatusCode.NotFound)
-            }
-
-            post("/amt-deltaker/external/deltakere/personalia") { request ->
-                val ids = request.decodeRequestBody<List<String>>()
-                respondJson(
-                    ids.map { id ->
-                        DeltakerPersonaliaResponse(
-                            deltakerId = UUID.fromString(id),
-                            personident = "12345678901",
-                            fornavn = "Ola",
-                            mellomnavn = null,
-                            etternavn = "Nordmann",
-                            navEnhetsnummer = "1206",
-                            erSkjermet = false,
-                            adressebeskyttelse = PdlGradering.UGRADERT,
-                        )
-                    },
-                )
-            }
+            mockAmtDeltakerPersonalia(gradering = PdlGradering.UGRADERT)
+            mockTilgangsmaskinenForbidden(avvistGrunn)
         },
-        tilgangsmaskin = ApplicationConfigTest.tilgangsmaskin.copy(
-            engine = MockEngine { request ->
-                if (request.url.toString().endsWith("/api/v1/bulk/obo")) {
-                    val jsonString = (request.body as TextContent).text
-                    val requests = Json.decodeFromString<List<TilgangsmaskinRequest>>(jsonString)
-                    val payload = TilgangsmaskinResponse(
-                        requests.map { req ->
-                            TilgangsmaskinResponse.Resultat(
-                                brukerId = req.brukerId,
-                                status = 403,
-                                detaljer = object : ProblemDetail() {
-                                    override val type = ""
-                                    override val title = "AVVIST_SKJERMING"
-                                    override val status = 403
-                                    override val detail = ""
-                                    override val instance = null
-                                    override val extensions = null
-                                },
-                            )
-                        },
-                    )
-                    respond(
-                        content = ByteReadChannel(Json.encodeToString(payload)),
-                        status = HttpStatusCode.MultiStatus,
-                        headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
-                    )
-                } else {
-                    error("Unexpected request: ${request.url}")
-                }
-            },
-        ),
     )
 
     test("personalia blir skjermet i TilsagnDeltakerDto når man ikke har tilgang") {
-        withTestApplication(appConfig()) {
+        withTestApplication(appConfig("AVVIST_SKJERMING")) {
             val navAnsattClaims = getAnsattClaims(ansatt, setOf(okonomiLesRolle, generellRolle))
 
             val response = client.get("/api/tiltaksadministrasjon/tilsagn/${tilsagn.id}") {
@@ -167,6 +104,24 @@ class TilsagnRoutesTest : FunSpec({
                 it.norskIdent.shouldBeNull()
                 it.navn shouldBe "Skjermet"
                 it.innholdAnnet.shouldNotBeNull()
+            }
+        }
+    }
+
+    test("personalia viser 'Adressebeskyttet' i TilsagnDeltakerDto ved AVVIST_FORTROLIG_ADRESSE") {
+        withTestApplication(appConfig("AVVIST_FORTROLIG_ADRESSE")) {
+            val navAnsattClaims = getAnsattClaims(ansatt, setOf(okonomiLesRolle, generellRolle))
+
+            val response = client.get("/api/tiltaksadministrasjon/tilsagn/${tilsagn.id}") {
+                bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+            }
+
+            response.status shouldBe HttpStatusCode.OK
+
+            val body = response.body<TilsagnDetaljerDto>()
+            body.deltakere.first { it.deltakerId == deltaker.id } should {
+                it.norskIdent.shouldBeNull()
+                it.navn shouldBe "Adressebeskyttet"
             }
         }
     }

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
@@ -15,6 +16,9 @@ import io.ktor.http.contentType
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
+import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
+import no.nav.mulighetsrommet.api.mockAmtDeltakerPersonalia
+import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
@@ -22,6 +26,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.model.DataElement
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 class ArrangorflateRoutesTest : FunSpec({
@@ -232,6 +237,29 @@ class ArrangorflateRoutesTest : FunSpec({
             response.body<ValidationError>().errors shouldBe listOf(
                 FieldError.of("Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn."),
             )
+        }
+    }
+
+    test("personalia er maskert i utbetaling beregning for FORTROLIG deltaker") {
+        val clientEngine = createMockEngine {
+            ArrangorflateTestUtils.mockAltinnAuthorizedParties(this)
+            ArrangorflateTestUtils.mockNorg(this)
+            mockPdlEmptyResult()
+            mockAmtDeltakerPersonalia(gradering = PdlGradering.FORTROLIG)
+        }
+
+        val config = ArrangorflateTestUtils.appConfig(oauth, clientEngine)
+
+        withTestApplication(config) {
+            val response = client.get("/api/arrangorflate/utbetaling/${utbetaling.id}") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+            }
+
+            response.status shouldBe HttpStatusCode.OK
+            val dto = response.body<ArrangorflateUtbetalingDto>()
+            val row = dto.beregning.deltakelser.shouldNotBeNull().rows.first()
+            row.cells["navn"] shouldBe DataElement.Text("Adressebeskyttet", null)
+            row.cells["identitetsnummer"] shouldBe DataElement.Text(null, null)
         }
     }
 })
