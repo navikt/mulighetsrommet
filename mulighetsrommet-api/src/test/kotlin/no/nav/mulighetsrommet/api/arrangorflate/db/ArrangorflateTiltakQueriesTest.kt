@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -18,7 +17,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class ArrangorflateTiltakQueriesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val aft2 = AFT1.copy(
         id = UUID.randomUUID(),

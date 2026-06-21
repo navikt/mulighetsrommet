@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.utbetaling.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -20,7 +19,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class DeltakerQueriesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val domain = MulighetsrommetTestDomain(
         avtaler = listOf(AvtaleFixtures.oppfolging),

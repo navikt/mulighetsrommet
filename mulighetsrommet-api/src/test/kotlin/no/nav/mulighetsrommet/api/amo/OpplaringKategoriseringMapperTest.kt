@@ -3,13 +3,12 @@ package no.nav.mulighetsrommet.api.amo
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 class OpplaringKategoriseringMapperTest : FunSpec({
-    val dbListener = extension(ApiDatabaseTestListener(databaseConfig))
+    val dbListener = extension(ApiDatabaseTestListener())
     val jsonPrettyPrint = Json {
         prettyPrint = true
         prettyPrintIndent = "  "

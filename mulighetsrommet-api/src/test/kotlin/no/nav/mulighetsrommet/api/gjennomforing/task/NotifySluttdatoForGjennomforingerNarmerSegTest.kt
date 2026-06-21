@@ -5,7 +5,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -17,7 +16,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val domain = MulighetsrommetTestDomain(
         tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),

@@ -17,7 +17,6 @@ import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -47,7 +46,7 @@ import java.time.LocalDate
 const val TEST_GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"
 
 class GjennomforingAvtaleServiceTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     fun createService(): GjennomforingAvtaleService = GjennomforingAvtaleService(
         config = GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),

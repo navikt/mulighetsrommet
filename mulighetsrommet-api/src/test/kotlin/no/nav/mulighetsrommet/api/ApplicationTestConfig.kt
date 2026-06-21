@@ -43,7 +43,7 @@ import java.time.LocalDate
 val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-api")
 
 fun <R> withTestApplication(
-    config: AppConfig = createTestApplicationConfig(),
+    config: AppConfig = ApplicationConfigTest,
     additionalConfiguration: (Application.() -> Unit)? = null,
     test: suspend ApplicationTestBuilder.() -> R,
 ) {
@@ -66,8 +66,6 @@ fun <R> withTestApplication(
         test()
     }
 }
-
-fun createTestApplicationConfig() = ApplicationConfigTest
 
 // Default values for 'iss' og 'aud' in tokens issued by mock-oauth2-server is 'default'.
 // These values are set as the default here so that standard tokens issued by MockOAuth2Server works with a minimal amount of setup.

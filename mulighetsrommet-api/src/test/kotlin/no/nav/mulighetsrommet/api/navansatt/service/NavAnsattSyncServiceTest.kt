@@ -5,7 +5,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
@@ -20,7 +19,7 @@ import no.nav.mulighetsrommet.notifications.NotificationTask
 import java.time.LocalDate
 
 class NavAnsattSyncServiceTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val domain = MulighetsrommetTestDomain(
         navEnheter = listOf(NavEnhetFixtures.Innlandet),

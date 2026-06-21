@@ -6,7 +6,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.sanity.SanityService
@@ -17,7 +16,7 @@ import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.UUID
 
 class InitialLoadTiltakstyperTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val sanityIdOppfolging = UUID.randomUUID()
     val sanityIdArbeidsmedStotte = UUID.randomUUID()

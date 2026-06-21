@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilte
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -29,7 +28,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class ArrangorflateServiceTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val deltaker = ArrangorflateTestUtils.createTestDeltaker()
     val tilsagn = ArrangorflateTestUtils.createTestTilsagn()

@@ -17,14 +17,13 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinRequest
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
 import no.nav.mulighetsrommet.api.createAuthConfig
-import no.nav.mulighetsrommet.api.createTestApplicationConfig
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -47,7 +46,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
 
 class TilsagnRoutesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val oauth = MockOAuth2Server()
 
@@ -94,7 +93,7 @@ class TilsagnRoutesTest : FunSpec({
         database.truncateAll()
     }
 
-    fun appConfig() = createTestApplicationConfig().copy(
+    fun appConfig() = ApplicationConfigTest.copy(
         auth = createAuthConfig(oauth, roles = setOf(okonomiLesRolle, generellRolle)),
         engine = createMockEngine {
             mockPdlEmptyResult()
@@ -121,7 +120,7 @@ class TilsagnRoutesTest : FunSpec({
                 )
             }
         },
-        tilgangsmaskin = createTestApplicationConfig().tilgangsmaskin.copy(
+        tilgangsmaskin = ApplicationConfigTest.tilgangsmaskin.copy(
             engine = MockEngine { request ->
                 if (request.url.toString().endsWith("/api/v1/bulk/obo")) {
                     val jsonString = (request.body as TextContent).text

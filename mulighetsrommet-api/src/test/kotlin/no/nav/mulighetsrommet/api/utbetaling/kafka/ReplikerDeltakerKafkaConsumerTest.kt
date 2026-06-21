@@ -14,7 +14,6 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures.createAmtDeltakerDto
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures.createAmtDeltakerStatusDto
@@ -32,7 +31,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class ReplikerDeltakerKafkaConsumerTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     fun createConsumer(
         oppdaterUtbetaling: GenererUtbetalingService = mockk(relaxed = true),

@@ -9,7 +9,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -34,7 +33,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     context("migrerte gjennomføringer") {
         val producerClient = mockk<KafkaProducerClient<ByteArray, ByteArray?>>(relaxed = true)

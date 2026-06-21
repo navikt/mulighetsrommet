@@ -6,13 +6,13 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.createAuthConfig
-import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -286,7 +286,7 @@ object ArrangorflateTestUtils {
             mockTilgangsmaskin(this)
             mockKontoregisterOrganisasjon(this)
         },
-    ) = createTestApplicationConfig().copy(
+    ) = ApplicationConfigTest.copy(
         database = databaseConfig,
         auth = createAuthConfig(oauth, roles = setOf()),
         engine = engine,

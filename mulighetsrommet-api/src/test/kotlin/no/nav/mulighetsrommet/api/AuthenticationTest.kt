@@ -23,7 +23,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
 
 class AuthenticationTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val oauth = MockOAuth2Server()
 
@@ -50,7 +50,7 @@ class AuthenticationTest : FunSpec({
             request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("NAVident", "ABC123"))).serialize())
         }
 
-        val config = createTestApplicationConfig().copy(
+        val config = ApplicationConfigTest.copy(
             auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = {
@@ -106,7 +106,7 @@ class AuthenticationTest : FunSpec({
         val requestWithoutRoles = oauth.createRequestWithAnsattClaims(NavAnsattFixture.MikkeMus, roles = setOf())
         val requestWithRoles = oauth.createRequestWithAnsattClaims(NavAnsattFixture.DonaldDuck, roles = setOf(rolle))
 
-        val config = createTestApplicationConfig().copy(
+        val config = ApplicationConfigTest.copy(
             auth = createAuthConfig(oauth, roles = setOf(rolle)),
         )
         withTestApplication(config, additionalConfiguration = {
@@ -153,7 +153,7 @@ class AuthenticationTest : FunSpec({
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
 
-        val config = createTestApplicationConfig().copy(
+        val config = ApplicationConfigTest.copy(
             auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = {
@@ -198,7 +198,7 @@ class AuthenticationTest : FunSpec({
             request.bearerAuth(oauth.issueToken(claims = claims).serialize())
         }
 
-        val config = createTestApplicationConfig().copy(
+        val config = ApplicationConfigTest.copy(
             auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = {
@@ -238,7 +238,7 @@ class AuthenticationTest : FunSpec({
             request.bearerAuth(oauth.issueToken(claims = mapOf("pid" to "21830348931")).serialize())
         }
 
-        val config = createTestApplicationConfig().copy(
+        val config = ApplicationConfigTest.copy(
             auth = createAuthConfig(oauth, roles = setOf()),
         )
         withTestApplication(config, additionalConfiguration = {

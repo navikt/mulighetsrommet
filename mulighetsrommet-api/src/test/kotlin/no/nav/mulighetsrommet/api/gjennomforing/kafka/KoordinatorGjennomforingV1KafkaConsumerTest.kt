@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -16,7 +15,7 @@ import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     fun createConsumer(): AmtKoordinatorGjennomforingV1KafkaConsumer {
         return AmtKoordinatorGjennomforingV1KafkaConsumer(

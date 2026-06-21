@@ -7,7 +7,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeDeltakerinfoRequest
@@ -27,7 +26,7 @@ import java.util.UUID
 const val TEST_TILTAKSTYPE_TOPIC = "tiltakstype-v3"
 
 class TiltakstypeDetaljerServiceTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val sanityId = UUID.randomUUID()
 

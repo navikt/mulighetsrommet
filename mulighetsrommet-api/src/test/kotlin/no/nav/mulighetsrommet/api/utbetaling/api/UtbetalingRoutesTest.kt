@@ -11,12 +11,11 @@ import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.createAuthConfig
-import no.nav.mulighetsrommet.api.createTestApplicationConfig
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -40,7 +39,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class UtbetalingRoutesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val ansatt = NavAnsattFixture.DonaldDuck
     val domain = MulighetsrommetTestDomain(
@@ -79,7 +78,7 @@ class UtbetalingRoutesTest : FunSpec({
     val saksbehandlerOkonomiRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.SAKSBEHANDLER_OKONOMI)
     val attestantUtbetalingRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
 
-    fun appConfig() = createTestApplicationConfig().copy(
+    fun appConfig() = ApplicationConfigTest.copy(
         auth = createAuthConfig(
             oauth,
             roles = setOf(generellRolle, saksbehandlerOkonomiRolle, attestantUtbetalingRolle),

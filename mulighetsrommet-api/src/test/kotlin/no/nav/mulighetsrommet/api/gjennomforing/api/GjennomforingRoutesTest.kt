@@ -13,11 +13,10 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.createAuthConfig
-import no.nav.mulighetsrommet.api.createTestApplicationConfig
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -38,7 +37,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class GjennomforingRoutesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val oauth = MockOAuth2Server()
 
@@ -53,7 +52,7 @@ class GjennomforingRoutesTest : FunSpec({
     val generellRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKADMINISTRASJON_GENERELL)
     val gjennomforingSkrivRolle = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.TILTAKSGJENNOMFORINGER_SKRIV)
 
-    fun appConfig() = createTestApplicationConfig().copy(
+    fun appConfig() = ApplicationConfigTest.copy(
         auth = createAuthConfig(oauth, roles = setOf(generellRolle, gjennomforingSkrivRolle)),
     )
 

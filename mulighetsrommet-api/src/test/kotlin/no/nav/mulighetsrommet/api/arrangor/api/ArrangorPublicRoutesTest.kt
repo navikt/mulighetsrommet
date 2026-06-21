@@ -6,8 +6,8 @@ import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.createAuthConfig
-import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
@@ -27,7 +27,7 @@ class ArrangorPublicRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    fun appConfig() = createTestApplicationConfig().copy(
+    fun appConfig() = ApplicationConfigTest.copy(
         auth = createAuthConfig(oauth, roles = setOf()),
     )
 

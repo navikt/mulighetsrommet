@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet1
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet2
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -12,7 +11,7 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.Instant
 
 class AltinnRettigheterQueriesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val norskIdent1 = NorskIdent("12345678901")
     val norskIdent2 = NorskIdent("42345678903")

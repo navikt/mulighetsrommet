@@ -7,9 +7,8 @@ import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.createAuthConfig
-import no.nav.mulighetsrommet.api.createTestApplicationConfig
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -27,7 +26,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
 
 class GjennomforingPublicRoutesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val oauth = MockOAuth2Server()
 
@@ -54,7 +53,7 @@ class GjennomforingPublicRoutesTest : FunSpec({
         oauth.shutdown()
     }
 
-    fun appConfig() = createTestApplicationConfig().copy(
+    fun appConfig() = ApplicationConfigTest.copy(
         auth = createAuthConfig(oauth, roles = setOf()),
     )
 
