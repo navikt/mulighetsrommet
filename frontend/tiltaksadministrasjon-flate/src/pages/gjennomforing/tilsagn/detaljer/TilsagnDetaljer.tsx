@@ -33,6 +33,7 @@ import { TilsagnHandlinger } from "./TilsagnHandlinger";
 import { TilsagnDeltakerCompact } from "@/components/personalia/TilsagnDeltakerCompact";
 import { aarsakTilTekst } from "@/utils/Utils";
 import { TilsagnStengtePerioder } from "@/components/tilsagn/beregning/TilsagnStengtePerioder";
+import { formaterNavEnhet } from "@/utils/nav-enhet";
 
 export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
@@ -150,7 +151,7 @@ export function TilsagnDetaljer() {
                 />
                 <MetadataVStack
                   label={tilsagnTekster.kostnadssted.label}
-                  value={`${kostnadssted.enhetsnummer} ${kostnadssted.navn}`}
+                  value={formaterNavEnhet(kostnadssted)}
                 />
                 <MetadataVStack
                   label={tilsagnTekster.periode.label}

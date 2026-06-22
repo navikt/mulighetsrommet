@@ -46,6 +46,7 @@ import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 import { AmoKategoriseringDetaljer } from "../amoKategorisering/AmoKategoriseringDetaljer";
 import { BetalingsbetingelserEnkeltplass } from "./BetalingsbetingelserEnkeltplass";
 import { GjennomforingEnkeltplassVarighet } from "@/pages/gjennomforing/GjennomforingEnkeltplassVarighet";
+import { formaterNavEnhet } from "@/utils/nav-enhet";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -113,7 +114,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
     },
     {
       key: gjennomforingTekster.ansvarligEnhet.label,
-      value: `${gjennomforing.ansvarligEnhet.navn} (${gjennomforing.ansvarligEnhet.enhetsnummer})`,
+      value: formaterNavEnhet(gjennomforing.ansvarligEnhet),
     },
   ];
 
