@@ -12,16 +12,25 @@ import {
 import { useFormContext } from "react-hook-form";
 import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { FormRadioGroup } from "@/components/skjema/FormRadioGroup";
-import { FormCheckboxGroup } from "@/components/skjema/FormCheckboxGroup";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { PersonopplysningType } from "@tiltaksadministrasjon/api-client";
+import { FormCheckboxGroup } from "../skjema/FormCheckboxGroup";
+import { FormCheckbox } from "../skjema/FormCheckbox";
+import { FormTextarea } from "../skjema/FormTextarea";
 
 export function AvtalePersonvernForm() {
   const { setValue, watch } = useFormContext<AvtaleFormValues>();
   const { data: personopplysninger } = usePersonopplysninger();
 
   const watchedPersonopplysninger = watch("personvern.personopplysninger");
+
   if (!personopplysninger) return <Loader />;
+
+  const annetChecked = watch("personvern.annetChecked");
+  const annetPersonopplysning = personopplysninger.find(
+    (p) => p.type === PersonopplysningType.ANNET,
+  );
 
   return (
     <VStack gap="space-16">
@@ -34,15 +43,40 @@ export function AvtalePersonvernForm() {
         legend="Personopplysninger om deltaker"
         description="Huk av de personopplysningene som kan behandles i denne avtalen."
       >
-        {personopplysninger.map((p) => (
-          <Checkbox key={p.type} value={p.type} size="small">
-            <HStack gap="space-8" align="center">
-              {p.title}
-              {p.helpText && <HelpText>{p.helpText}</HelpText>}
-            </HStack>
-          </Checkbox>
-        ))}
+        {personopplysninger
+          .filter((p) => p.type !== PersonopplysningType.ANNET)
+          .map((p) => {
+            return (
+              <>
+                <Checkbox key={p.type} value={p.type} size="small">
+                  <HStack gap="space-8" align="center">
+                    {p.title}
+                    {p.helpText && <HelpText>{p.helpText}</HelpText>}
+                  </HStack>
+                </Checkbox>
+              </>
+            );
+          })}
       </FormCheckboxGroup>
+      {annetPersonopplysning && (
+        <>
+          <FormCheckbox name="personvern.annetChecked" size="small">
+            <HStack gap="space-8" align="center">
+              {annetPersonopplysning.title}
+              {annetPersonopplysning.helpText && (
+                <HelpText>{annetPersonopplysning.helpText}</HelpText>
+              )}
+            </HStack>
+          </FormCheckbox>
+          {annetChecked && (
+            <FormTextarea
+              label="Beskriv nærmere hvilke personopplysninger som behandles"
+              size="small"
+              name="personvern.annetBeskrivelse"
+            />
+          )}
+        </>
+      )}
       <Checkbox
         checked={watchedPersonopplysninger.length === personopplysninger.length}
         indeterminate={
@@ -57,6 +91,7 @@ export function AvtalePersonvernForm() {
               "personvern.personopplysninger",
               personopplysninger.map(({ type }) => type),
             );
+            setValue("personvern.annetChecked", true);
           }
         }}
         size="small"

@@ -1892,7 +1892,12 @@ components:
         sortKey:
           type: integer
           format: int32
+        beskrivelse:
+          type:
+          - "null"
+          - string
       required:
+      - beskrivelse
       - helpText
       - sortKey
       - title
@@ -1925,6 +1930,7 @@ components:
       - ADRESSESPERRE
       - VERGEMAL
       - STEMME
+      - ANNET
     GjennomforingAvtale.StengtPeriode:
       type: object
       properties:

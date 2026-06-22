@@ -184,6 +184,12 @@ class AvtaleService(
         request: PersonvernRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
+        if ((request.annetChecked ?: false) && request.annetBeskrivelse.isNullOrBlank()) {
+            raise(listOf(FieldError("/personvern/annetBeskrivelse", "Beskrivelse er påkrevd når annet er valgt")))
+        }
+        if ((request.annetBeskrivelse?.length ?: 0) > 300) {
+            raise(listOf(FieldError("/personvern/annetBeskrivelse", "Beskrivelse kan maks være 300 tegn")))
+        }
         db.transaction {
             val previous = getOrError(avtaleId)
             val dbo = request.toDbo()

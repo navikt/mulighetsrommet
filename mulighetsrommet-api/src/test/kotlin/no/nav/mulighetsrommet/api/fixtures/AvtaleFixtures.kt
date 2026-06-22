@@ -51,6 +51,8 @@ object AvtaleFixtures {
         personvernBekreftet: Boolean = false,
     ): PersonvernDbo = PersonvernDbo(
         personopplysninger = personopplysninger,
+        annetChecked = false,
+        annetBeskrivelse = null,
         personvernBekreftet = personvernBekreftet,
     )
 
@@ -201,6 +203,8 @@ object AvtaleFixtures {
             personvern = PersonvernRequest(
                 personopplysninger = emptyList(),
                 personvernBekreftet = false,
+                annetChecked = false,
+                annetBeskrivelse = null,
             ),
             prismodeller = prismodell.map { prismodell ->
                 PrismodellRequest(

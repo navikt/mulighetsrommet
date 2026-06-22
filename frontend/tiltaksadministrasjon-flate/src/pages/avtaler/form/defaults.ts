@@ -3,6 +3,7 @@ import {
   AvtaleArrangorKontaktperson,
   AvtaleDto,
   NavAnsattDto,
+  PersonopplysningType,
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
@@ -52,6 +53,11 @@ export function defaultAvtaleData(
     personvern: {
       personvernBekreftet: avtale?.personvernBekreftet,
       personopplysninger: avtale?.personopplysninger?.map((p) => p.type) ?? [],
+      annetChecked:
+        avtale?.personopplysninger?.some((p) => p.type === PersonopplysningType.ANNET) ?? false,
+      annetBeskrivelse:
+        avtale?.personopplysninger?.find((p) => p.type === PersonopplysningType.ANNET)
+          ?.beskrivelse ?? undefined,
     },
     prismodeller:
       avtale?.prismodeller?.map((prismodell) => ({

@@ -172,6 +172,8 @@ export const PersonopplysningerSchema = z.object({
   personvern: z.object({
     personvernBekreftet: z.boolean({ error: "Du må ta stilling til personvern" }),
     personopplysninger: z.enum(PersonopplysningType).array(),
+    annetChecked: z.boolean(),
+    annetBeskrivelse: z.string().optional(),
   }),
 });
 

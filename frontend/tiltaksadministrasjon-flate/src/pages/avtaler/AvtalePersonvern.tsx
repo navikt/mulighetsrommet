@@ -1,7 +1,11 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { usePersonopplysninger } from "@/api/avtaler/usePersonopplysninger";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
-import { AvtaleDto, Personopplysning } from "@tiltaksadministrasjon/api-client";
+import {
+  AvtaleDto,
+  Personopplysning,
+  PersonopplysningType,
+} from "@tiltaksadministrasjon/api-client";
 import { Alert, BodyShort, Box, HelpText, HStack, List, VStack } from "@navikt/ds-react";
 import { AvtalePageLayout } from "@/pages/avtaler/AvtalePageLayout";
 
@@ -48,11 +52,25 @@ function AvtalePersonvernDetaljer({ avtale, personopplysninger }: Props) {
       <BodyShort>Følgende personopplysninger om deltager kan behandles i denne avtalen</BodyShort>
       <Box marginBlock="space-12" asChild>
         <List data-aksel-migrated-v8 size="small" as="ul">
-          {checkedPersonopplysninger.map((p: Personopplysning) => (
-            <ListWithHelpText helpText={p.helpText} key={p.type}>
-              {p.title}
-            </ListWithHelpText>
-          ))}
+          {checkedPersonopplysninger.map((p: Personopplysning) => {
+            const beskrivelse =
+              p.type === PersonopplysningType.ANNET
+                ? avtale.personopplysninger.find((ap) => ap.type === PersonopplysningType.ANNET)
+                    ?.beskrivelse
+                : null;
+            return (
+              <ListWithHelpText helpText={p.helpText} key={p.type}>
+                <VStack>
+                  {p.title}
+                  {beskrivelse && (
+                    <BodyShort className="italic mt-1" size="small">
+                      {beskrivelse}
+                    </BodyShort>
+                  )}
+                </VStack>
+              </ListWithHelpText>
+            );
+          })}
         </List>
       </Box>
     </VStack>
