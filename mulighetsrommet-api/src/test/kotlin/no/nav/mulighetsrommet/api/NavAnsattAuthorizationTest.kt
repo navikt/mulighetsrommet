@@ -22,7 +22,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
 
 class NavAnsattAuthorizationTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val oauth = MockOAuth2Server()
 
@@ -47,7 +47,7 @@ class NavAnsattAuthorizationTest : FunSpec({
     val attestantUtbetaling = EntraGroupNavAnsattRolleMapping(UUID.randomUUID(), Rolle.ATTESTANT_UTBETALING)
 
     test("user needs the correct role to access route for authorized role") {
-        val config = createTestApplicationConfig().copy(
+        val config = ApplicationConfigTest.copy(
             auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell)),
         )
 
@@ -72,7 +72,7 @@ class NavAnsattAuthorizationTest : FunSpec({
     }
 
     test("user needs all roles to access route with multiple authorized roles") {
-        val config = createTestApplicationConfig().copy(
+        val config = ApplicationConfigTest.copy(
             auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell)),
         )
 
@@ -96,7 +96,7 @@ class NavAnsattAuthorizationTest : FunSpec({
     }
 
     test("user needs at least one of roles to access route with multiple authorized roles") {
-        val config = createTestApplicationConfig().copy(
+        val config = ApplicationConfigTest.copy(
             auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell, saksbehandlerOkonomi)),
         )
 
@@ -122,7 +122,7 @@ class NavAnsattAuthorizationTest : FunSpec({
     }
 
     test("user needs all roles to access route with nested authorization blocks") {
-        val config = createTestApplicationConfig().copy(
+        val config = ApplicationConfigTest.copy(
             auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell, saksbehandlerOkonomi)),
         )
 
@@ -155,8 +155,11 @@ class NavAnsattAuthorizationTest : FunSpec({
     }
 
     test("user needs required roles to access route with nested authorization blocks") {
-        val config = createTestApplicationConfig().copy(
-            auth = createAuthConfig(oauth, roles = setOf(teamMulighetsrommet, generell, saksbehandlerOkonomi, attestantUtbetaling)),
+        val config = ApplicationConfigTest.copy(
+            auth = createAuthConfig(
+                oauth,
+                roles = setOf(teamMulighetsrommet, generell, saksbehandlerOkonomi, attestantUtbetaling),
+            ),
         )
 
         withTestApplication(config, additionalConfiguration = {

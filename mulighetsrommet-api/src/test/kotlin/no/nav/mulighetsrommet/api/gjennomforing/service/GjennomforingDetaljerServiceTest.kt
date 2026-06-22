@@ -4,11 +4,11 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFil
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
+import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -33,7 +34,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class GjennomforingDetaljerServiceTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val norskIdent = NorskIdent("12345678910")
 
@@ -42,17 +43,6 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         startDato = LocalDate.of(2025, 1, 1),
         sluttDato = LocalDate.of(2025, 2, 1),
         statusType = DeltakerStatusType.DELTAR,
-    )
-
-    val personalia = Personalia(
-        deltakerId = deltaker.id,
-        norskIdent = NorskIdent("12345678901"),
-        navn = "navn",
-        oppfolgingEnhet = null,
-        geografiskEnhet = null,
-        region = null,
-        gradering = Gradering.STRENGT_FORTROLIG_ADRESSE,
-        avvistGrunn = AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -91,7 +81,6 @@ class GjennomforingDetaljerServiceTest : FunSpec({
     }
 
     context("getGjennomforingDetaljerDto") {
-        coEvery { personaliaService.getPersonalia(any<UUID>(), any()) } returns personalia
 
         test("returnerer detaljer for en gruppetiltak-gjennomføring (AVTALE)") {
             val service = createService()
@@ -107,7 +96,13 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             gjennomforing.navn shouldBe GjennomforingFixtures.Oppfolging1.navn
         }
 
-        test("returnerer detaljer for en enkeltplass-gjennomføring") {
+        test("returnerer detaljer om deltaker for en enkeltplass-gjennomføring") {
+            coEvery { personaliaService.getPersonalia(any<UUID>(), any()) } returns getPersonalia(
+                deltaker,
+                gradering = Gradering.UGRADERT,
+                avvist = null,
+            )
+
             val service = createService()
 
             val dto = service.getGjennomforingDetaljerDto(
@@ -117,6 +112,36 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             ).shouldNotBeNull()
 
             dto.gjennomforing.shouldBeTypeOf<GjennomforingEnkeltplassDto>().id shouldBe GjennomforingFixtures.EnkelAmo.id
+
+            dto.enkeltplassDeltaker.shouldNotBeNull().should {
+                it.navn shouldBe "Test Testesen"
+                it.norskIdent shouldBe NorskIdent("12345678901")
+                it.avvistGrunn.shouldBeNull()
+            }
+        }
+
+        test("returnerer detaljer med sladdet persondata når deltaker er adressebeskyttet") {
+            coEvery { personaliaService.getPersonalia(any<UUID>(), any()) } returns getPersonalia(
+                deltaker,
+                gradering = Gradering.STRENGT_FORTROLIG_ADRESSE,
+                avvist = AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
+            )
+
+            val service = createService()
+
+            val dto = service.getGjennomforingDetaljerDto(
+                GjennomforingFixtures.EnkelAmo.id,
+                AccessType.OBO.AzureAd("X123456"),
+                NavIdent("Z123456"),
+            ).shouldNotBeNull()
+
+            dto.gjennomforing.shouldBeTypeOf<GjennomforingEnkeltplassDto>().id shouldBe GjennomforingFixtures.EnkelAmo.id
+
+            dto.enkeltplassDeltaker.shouldNotBeNull().should {
+                it.navn shouldBe "Adressebeskyttet"
+                it.norskIdent.shouldBeNull()
+                it.avvistGrunn shouldBe AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
+            }
         }
 
         test("returnerer null når gjennomføring ikke finnes") {
@@ -199,3 +224,14 @@ class GjennomforingDetaljerServiceTest : FunSpec({
         }
     }
 })
+
+private fun getPersonalia(deltaker: DeltakerDbo, gradering: Gradering, avvist: AvvistGrunn?): Personalia = Personalia(
+    deltakerId = deltaker.id,
+    norskIdent = NorskIdent("12345678901"),
+    navn = "Test Testesen",
+    oppfolgingEnhet = null,
+    geografiskEnhet = null,
+    region = null,
+    gradering = gradering,
+    avvistGrunn = avvist,
+)

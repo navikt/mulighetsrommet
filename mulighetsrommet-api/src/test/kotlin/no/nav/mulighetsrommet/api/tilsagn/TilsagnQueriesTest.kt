@@ -10,7 +10,6 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
 import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.amt.model.AmtDeltakerEksternV1Dto.InnholdDto
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -40,7 +39,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class TilsagnQueriesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val deltaker = DeltakerFixtures.createDeltakerDbo(
         gjennomforingId = GjennomforingFixtures.AFT1.id,

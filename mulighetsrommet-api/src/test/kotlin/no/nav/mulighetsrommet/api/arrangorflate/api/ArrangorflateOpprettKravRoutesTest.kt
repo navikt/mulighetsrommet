@@ -21,7 +21,6 @@ import io.ktor.http.headersOf
 import no.nav.mulighetsrommet.api.ApplicationConfigLocal
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -40,7 +39,7 @@ import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 
 class ArrangorflateOpprettKravRoutesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val identMedTilgang = ArrangorflateTestUtils.identMedTilgang
     val underenhet = ArrangorflateTestUtils.underenhet

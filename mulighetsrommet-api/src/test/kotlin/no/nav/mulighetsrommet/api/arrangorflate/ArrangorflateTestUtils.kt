@@ -6,13 +6,12 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.createAuthConfig
-import no.nav.mulighetsrommet.api.createTestApplicationConfig
 import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -22,6 +21,8 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
+import no.nav.mulighetsrommet.api.mockKontoregisterOrganisasjon
+import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -237,18 +238,6 @@ object ArrangorflateTestUtils {
         }
     }
 
-    fun mockKontoregisterOrganisasjon(builder: MockEngineBuilder) {
-        val path = Regex(""".*/kontoregister/api/v1/hent-kontonummer-for-organisasjon/.*""")
-        builder.get(path) {
-            respondJson(
-                KontonummerResponse(
-                    kontonr = "12345678901",
-                    mottaker = "asdf",
-                ),
-            )
-        }
-    }
-
     fun mockClamAvScan(builder: MockEngineBuilder) {
         builder.post("/scan") {
             respondJson(listOf(ScanResult(Filename = "filnavn", Result = Status.OK)))
@@ -281,10 +270,11 @@ object ArrangorflateTestUtils {
             mockClamAvScan(this)
             mockAmtDeltaker(this)
             mockNorg(this)
+            mockPdlEmptyResult()
             mockTilgangsmaskin(this)
-            mockKontoregisterOrganisasjon(this)
+            mockKontoregisterOrganisasjon()
         },
-    ) = createTestApplicationConfig().copy(
+    ) = ApplicationConfigTest.copy(
         database = databaseConfig,
         auth = createAuthConfig(oauth, roles = setOf()),
         engine = engine,

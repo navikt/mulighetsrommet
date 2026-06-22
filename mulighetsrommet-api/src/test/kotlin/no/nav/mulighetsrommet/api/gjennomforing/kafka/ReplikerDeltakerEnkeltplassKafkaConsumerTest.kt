@@ -5,7 +5,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -23,7 +22,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDateTime
 
 class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     fun createConsumer(
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),

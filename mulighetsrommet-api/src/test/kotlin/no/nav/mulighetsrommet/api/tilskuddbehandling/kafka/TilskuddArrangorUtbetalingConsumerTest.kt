@@ -10,7 +10,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -45,7 +44,7 @@ private const val BESTILLING_TOPIC = "bestilling-topic"
 private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
 
 class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val journalforVedtaksbrev = mockk<JournalforVedtaksbrev>()
     val arrangorService = mockk<ArrangorService>()

@@ -13,7 +13,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -61,7 +60,7 @@ private const val BESTILLING_TOPIC = "bestilling-topic"
 private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
 
 class TilsagnServiceTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val ansatt1 = NavAnsattFixture.DonaldDuck.navIdent
     val ansatt2 = NavAnsattFixture.MikkeMus.navIdent

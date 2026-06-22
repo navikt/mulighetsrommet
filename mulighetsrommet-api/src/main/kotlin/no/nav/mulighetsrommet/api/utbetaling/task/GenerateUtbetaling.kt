@@ -19,7 +19,7 @@ class GenerateUtbetaling(
 ) {
     data class Config(
         val disabled: Boolean = false,
-        val cronPattern: String?,
+        val cronPattern: String? = null,
     ) {
         fun toSchedule(): Schedule {
             return if (disabled) {

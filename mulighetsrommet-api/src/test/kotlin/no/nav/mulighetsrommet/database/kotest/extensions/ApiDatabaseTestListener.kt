@@ -7,6 +7,7 @@ import io.kotest.core.test.TestCaseOrder
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -15,7 +16,9 @@ import org.assertj.db.api.Assertions
 import org.assertj.db.api.TableAssert
 import org.assertj.db.type.AssertDbConnectionFactory
 
-class ApiDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
+class ApiDatabaseTestListener(
+    private val config: DatabaseConfig = ApplicationConfigTest.database,
+) : BeforeSpecListener, AfterSpecListener {
     private var delegate: Database? = null
 
     private val flywayMigration: FlywayMigrationManager = FlywayMigrationManager(

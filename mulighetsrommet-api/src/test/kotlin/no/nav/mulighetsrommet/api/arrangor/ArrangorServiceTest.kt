@@ -13,7 +13,6 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
@@ -26,7 +25,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 class ArrangorServiceTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     val underenhet = BrregUnderenhetDto(
         organisasjonsnummer = Organisasjonsnummer("234567891"),

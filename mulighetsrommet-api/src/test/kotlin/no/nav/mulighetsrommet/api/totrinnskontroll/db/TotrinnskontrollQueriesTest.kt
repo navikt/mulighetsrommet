@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.databaseConfig
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -13,7 +12,7 @@ import java.time.Instant
 import java.util.UUID
 
 class TotrinnskontrollQueriesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener(databaseConfig))
+    val database = extension(ApiDatabaseTestListener())
 
     test("totrinnskontroll kan besluttes to ganger") {
         database.runAndRollback {
