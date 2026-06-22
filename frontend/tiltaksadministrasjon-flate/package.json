@@ -35,7 +35,7 @@
     "@tiltaksadministrasjon/api-client": "workspace:*",
     "@unhead/react": "3.1.4",
     "dequal": "2.0.3",
-    "highcharts": "12.6.0",
+    "highcharts": "13.0.0",
     "highcharts-react-official": "3.2.3",
     "jotai": "2.20.1",
     "react": "19.2.4",
