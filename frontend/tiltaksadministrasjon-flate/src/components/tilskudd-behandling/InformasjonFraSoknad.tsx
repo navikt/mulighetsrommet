@@ -4,6 +4,7 @@ import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { DataElementStatus } from "@mr/frontend-common/components/datadriven/types";
+import { formaterNavEnhet } from "@/utils/nav-enhet";
 
 interface InformasjonFraSoknadProps {
   status: DataElementStatus | null;
@@ -37,9 +38,7 @@ export function InformasjonFraSoknad(props: InformasjonFraSoknadProps) {
             },
             {
               key: "Kostnadssted",
-              value: props.kostnadssted
-                ? `${props.kostnadssted.navn} (${props.kostnadssted.enhetsnummer})`
-                : null,
+              value: props.kostnadssted ? formaterNavEnhet(props.kostnadssted) : null,
             },
           ]}
         />
