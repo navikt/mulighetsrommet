@@ -10,12 +10,14 @@ import {
 import { FileCheckmarkIcon, PencilIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import {
   Alert,
+  BodyLong,
   BodyShort,
   Button,
   Heading,
   HStack,
   Modal,
   Spacer,
+  Textarea,
   TextField,
   VStack,
 } from "@navikt/ds-react";
@@ -23,7 +25,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
-import MindreBelopModal from "./MindreBelopModal";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
@@ -33,6 +34,8 @@ import { Handlinger } from "@/components/handlinger/Handlinger";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { extractValidationErrors } from "@/utils/Utils";
 import { applyValidationErrors } from "@/components/skjema/helpers";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -246,17 +249,50 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
           )}
         </VStack>
 
-        <MindreBelopModal
+        <VarselModal
           open={mindreBelopModalOpen}
           handleClose={() => setMindreBelopModalOpen(false)}
-          onConfirm={() => {
-            setMindreBelopModalOpen(false);
-            const formData = getValues();
-            sendTilAttestering(formData);
-          }}
-          begrunnelseOnChange={(e) => setValue("begrunnelseMindreBetalt", e.target.value)}
-          belopUtbetaling={utbetalesTotalt}
-          belopInnsendt={beregning}
+          primaryButton={
+            <Button
+              variant="primary"
+              onClick={() => {
+                setMindreBelopModalOpen(false);
+                const formData = getValues();
+                sendTilAttestering(formData);
+              }}
+            >
+              Ja, send til attestering
+            </Button>
+          }
+          headingText="Beløp til utbetaling er mindre enn innsendt beløp"
+          headingIconType="warning"
+          body={
+            <VStack gap="space-16">
+              <BodyShort>
+                Beløpet du er i ferd med å sende til attestering er mindre enn beløpet på
+                utbetalingen. Er du sikker på at du vil fortsette?
+              </BodyShort>
+              <VStack>
+                <BodyShort weight="semibold">
+                  Beløp til attestering: {formaterValutaBelop(utbetalesTotalt)}
+                </BodyShort>
+                <BodyShort weight="semibold">
+                  Innsendt beløp: {formaterValutaBelop(beregning)}
+                </BodyShort>
+              </VStack>
+              <BodyLong color="contrast">
+                Husk at for tiltakene Oppfølging, Avklaring, ARR og Digitalt jobbsøkerkurs skal
+                arrangør alltid få utbetalt for gjennomført aktivitet. Det gjelder også for
+                eventuelle andre tiltak hvor avtalt pris er basert på gjennomført aktivitet.
+              </BodyLong>
+              <Textarea
+                label="Begrunnelse"
+                onChange={(e) => setValue("begrunnelseMindreBetalt", e.target.value)}
+                description="Oppgi begrunnelse for beløpet som utbetales. Begrunnelsen vil kun være synlig for Nav."
+              />
+            </VStack>
+          }
+          secondaryButton
         />
       </form>
       <SlettUtbetalingModal
