@@ -1,14 +1,14 @@
 package no.nav.tiltak.okonomi
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.serializers.InstantOrLocalDateTimeSerializer
+import no.nav.mulighetsrommet.serializers.InstantSerializer
 import java.time.Instant
 
 @Serializable
 data class FakturaStatus(
     val fakturanummer: String,
     val status: FakturaStatusType,
-    @Serializable(with = InstantOrLocalDateTimeSerializer::class)
+    @Serializable(with = InstantSerializer::class)
     val fakturaStatusSistOppdatert: Instant,
 )
 

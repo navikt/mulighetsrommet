@@ -428,10 +428,9 @@ class AvtaleService(
     }
 
     fun exportToExcel(
-        pagination: Pagination,
         filter: AvtaleFilter,
     ): File {
-        val avtaler = getAll(pagination, filter)
+        val avtaler = getAll(Pagination.all(), filter)
 
         val workbook = buildExcelWorkbook {
             createAvtalerSheet(avtaler.data)
@@ -638,7 +637,7 @@ class AvtaleService(
 
 private fun ExcelWorkbookBuilder.createAvtalerSheet(
     result: List<AvtaleDto>,
-) = sheet("Avtaler") {
+) = table("Avtaler") {
     header(
         "Avtalenavn",
         "Tiltakstype",

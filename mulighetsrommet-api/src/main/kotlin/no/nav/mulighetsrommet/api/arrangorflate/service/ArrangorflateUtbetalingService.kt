@@ -170,7 +170,6 @@ class ArrangorflateUtbetalingService(
         }
     }.map {
         genererUtbetalingService.regenererUtbetaling(utbetaling.id)
-        Unit
     }
 
     private fun QueryContext.getOrError(id: UUID): ArrangorflateUtbetaling {

@@ -1,4 +1,4 @@
-import { describe, test, expect } from "vitest";
+import { describe, expect, test } from "vitest";
 import { compare, jsonPointerToFieldPath } from "./utils";
 
 describe("Json pointer", () => {
@@ -82,6 +82,16 @@ describe("compare", () => {
     expect(compare("a", "b")).toBe(-1);
     expect(compare("b", "a")).toBe(1);
     expect(compare("a", "a")).toBe(0);
+  });
+
+  test("strings: string are sorted naturally", () => {
+    expect(compare("A", "a")).toBe(0);
+    expect(compare("a", "a")).toBe(0);
+    expect(compare("B", "a")).toBe(1);
+    expect(compare("b", "a")).toBe(1);
+    expect(compare("æ", "ø")).toBe(-1);
+    expect(compare("AND", "ane")).toBe(-1);
+    expect(compare("ane", "AND")).toBe(1);
   });
 
   test("dates: earlier date sorts first", () => {

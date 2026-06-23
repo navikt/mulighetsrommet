@@ -457,8 +457,6 @@ fun Route.avtaleRoutes() {
             tags = setOf("Avtale")
             operationId = "lastNedAvtalerSomExcel"
             request {
-                queryParameter<Int>("page")
-                queryParameter<Int>("size")
                 body<GetAvtalerRequest>()
             }
             response {
@@ -474,10 +472,9 @@ fun Route.avtaleRoutes() {
                 }
             }
         }) {
-            val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
 
-            val file = avtaleService.exportToExcel(pagination, filter)
+            val file = avtaleService.exportToExcel(filter)
 
             call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
             call.response.header(

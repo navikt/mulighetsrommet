@@ -71,7 +71,11 @@ class GjennomforingDetaljerService(
         }
     }
 
-    suspend fun getGjennomforingDetaljerDto(id: UUID, accessType: AccessType.OBO.AzureAd, navIdent: NavIdent): GjennomforingDetaljerDto? {
+    suspend fun getGjennomforingDetaljerDto(
+        id: UUID,
+        accessType: AccessType.OBO.AzureAd,
+        navIdent: NavIdent,
+    ): GjennomforingDetaljerDto? {
         val gjennomforing = getGjennomforingTiltaksadministrasjon(id) ?: return null
         return when (gjennomforing) {
             is GjennomforingAvtale -> db.session {
@@ -82,7 +86,8 @@ class GjennomforingDetaljerService(
             is GjennomforingEnkeltplass -> db.session {
                 val okonomi = queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
                 val deltakerDto = getDeltaker(gjennomforing.id)?.let {
-                    val personalia = personaliaService.getPersonalia(it.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
+                    val personalia = personaliaService
+                        .getPersonalia(it.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
                     val norskIdent = personalia.norskIdent()
                     if (personalia.harTilgang() && norskIdent != null) {
                         auditLogVisEnkeltplass(navIdent, norskIdent)
@@ -142,10 +147,9 @@ class GjennomforingDetaljerService(
     }
 
     fun exportToExcel(
-        pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): File {
-        val result = getAllKompaktDto(pagination, filter)
+        val result = getAllKompaktDto(Pagination.all(), filter)
 
         val workbook = buildExcelWorkbook {
             createGjennomforingerSheet(result.data)
@@ -299,7 +303,7 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
 
 private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
     result: List<GjennomforingKompaktDto>,
-) = sheet("Gjennomforinger") {
+) = table("Gjennomforinger") {
     header(
         "Tiltaksnavn",
         "Tiltakstype",
