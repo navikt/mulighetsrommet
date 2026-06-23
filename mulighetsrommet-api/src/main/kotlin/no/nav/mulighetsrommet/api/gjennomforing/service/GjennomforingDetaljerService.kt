@@ -142,10 +142,9 @@ class GjennomforingDetaljerService(
     }
 
     fun exportToExcel(
-        pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
     ): File {
-        val result = getAllKompaktDto(pagination, filter)
+        val result = getAllKompaktDto(Pagination.all(), filter)
 
         val workbook = buildExcelWorkbook {
             createGjennomforingerSheet(result.data)

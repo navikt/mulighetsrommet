@@ -17,9 +17,5 @@ export function useDownloadGjennomforingerAsExcel(filter: GjennomforingFilterTyp
     publisert: getPublisertStatus(filter.publisert) ?? null,
   };
 
-  const query = { page: filter.page, size: filter.pageSize };
-
-  return useDownloadFile(() =>
-    GjennomforingService.lastNedGjennomforingerSomExcel({ body, query }),
-  );
+  return useDownloadFile(() => GjennomforingService.lastNedGjennomforingerSomExcel({ body }));
 }
