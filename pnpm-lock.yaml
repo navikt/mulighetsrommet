@@ -580,6 +580,9 @@ importers:
       '@grafana/faro-web-sdk':
         specifier: 2.7.1
         version: 2.7.1
+      '@highcharts/react':
+        specifier: ^5.1.0
+        version: 5.1.0(@types/react@19.2.14)(highcharts@13.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@hookform/resolvers':
         specifier: 5.4.0
         version: 5.4.0(react-hook-form@7.79.0(react@19.2.4))
@@ -628,9 +631,6 @@ importers:
       highcharts:
         specifier: 13.0.0
         version: 13.0.0
-      highcharts-react-official:
-        specifier: 3.2.3
-        version: 3.2.3(highcharts@13.0.0)(react@19.2.4)
       jotai:
         specifier: 2.20.1
         version: 2.20.1(@babel/core@7.29.7)(@babel/template@7.29.7)(@types/react@19.2.14)(react@19.2.4)
@@ -2058,6 +2058,17 @@ packages:
   '@hey-api/types@0.1.4':
     resolution: {integrity: sha512-thWfawrDIP7wSI9ioT13I5soaaqB5vAPIiZmgD8PbeEVKNrkonc0N/Sjj97ezl7oQgusZmaNphGdMKipPO6IBg==}
 
+  '@highcharts/react@5.1.0':
+    resolution: {integrity: sha512-oD96SBeQLaP/iy8W52oqrjA4ixxP0GHHfroLLls/4cjwW9KeUJStpGmxVouUtUS65SN57da5J5hCQX1YJNqv6w==}
+    peerDependencies:
+      '@types/react': '>=18'
+      highcharts: '>=12.0.0'
+      react: '>=18'
+      react-dom: '>=18'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
   '@hookform/resolvers@5.4.0':
     resolution: {integrity: sha512-EIsqr/t/qbinPIhGjMdtvutIN1Kk4uwbROE9/UQ93CAVGR7GkA7Y92+fX80OzXi/OB67jVFYwKGO1WzkxmkFZw==}
     peerDependencies:
@@ -2516,6 +2527,9 @@ packages:
       '@types/react': ^17.0.30 || ^18 || ^19
       react: ^17 || ^18 || ^19
       react-dom: ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   '@navikt/ds-tailwind@8.11.1':
     resolution: {integrity: sha512-/JqE4fILmM6aCwn2p++gmkCzroj4KD8Kss6tdoGXXSEzY/+H24bnt4kBdgrqNZTYJnPWQtZc/kYFg6PukoyfoA==, tarball: https://npm.pkg.github.com/download/@navikt/ds-tailwind/8.11.1/c6a24d2feb36a3b2affa9e5aa4025a1ef1123543}
@@ -2529,6 +2543,9 @@ packages:
     peerDependencies:
       html-react-parser: '>=5.x'
       react: '>=17.x'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@navikt/oasis@4.1.4':
     resolution: {integrity: sha512-v+LW8V5CTiHkfIXhceQ8RXRtrBktCK8wSFYmiR6hmzl9CJRYRLUpFC7YbLiC7jwHIuLHKUyl+Zawf8zQm6fDeQ==, tarball: https://npm.pkg.github.com/download/@navikt/oasis/4.1.4/0d9c93820b9b6d93b1bd9da134feb95461ad8a47}
@@ -5817,12 +5834,6 @@ packages:
 
   hermes-parser@0.25.1:
     resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
-
-  highcharts-react-official@3.2.3:
-    resolution: {integrity: sha512-2gL8bVGe6Pf75tSe6IB5Ucd0nIOJX7ZrpttQBZVrjN2J9StdVZ12aOinXHIOFvlc6EzP8CbN13WS8NUq+9mptA==}
-    peerDependencies:
-      highcharts: '>=6.0.0'
-      react: '>=16.8.0'
 
   highcharts@13.0.0:
     resolution: {integrity: sha512-AoFXei9hSnVXo8X5PmXzSiNXwPMgA+NzyN35uRRy0N1XwbJbRI1laTCaaFci9QB9Wyv9ZFWlgF0xzgivavJpDA==}
@@ -10382,6 +10393,14 @@ snapshots:
 
   '@hey-api/types@0.1.4': {}
 
+  '@highcharts/react@5.1.0(@types/react@19.2.14)(highcharts@13.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)':
+    dependencies:
+      highcharts: 13.0.0
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+    optionalDependencies:
+      '@types/react': 19.2.14
+
   '@hookform/resolvers@5.4.0(react-hook-form@7.79.0(react@19.2.4))':
     dependencies:
       '@standard-schema/utils': 0.3.0
@@ -10814,11 +10833,12 @@ snapshots:
       '@floating-ui/react-dom': 2.1.8(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@navikt/aksel-icons': 8.11.1
       '@navikt/ds-tokens': 8.11.1
-      '@types/react': 19.2.14
       date-fns: 4.4.0
       react: 19.2.4
       react-day-picker: 9.14.0(react@19.2.4)
       react-dom: 19.2.4(react@19.2.4)
+    optionalDependencies:
+      '@types/react': 19.2.14
 
   '@navikt/ds-tailwind@8.11.1': {}
 
@@ -10830,6 +10850,7 @@ snapshots:
       csp-header: 6.3.1
       html-react-parser: 6.1.3(@types/react@19.2.14)(react@19.2.4)
       js-cookie: 3.0.7
+    optionalDependencies:
       react: 19.2.4
 
   '@navikt/oasis@4.1.4':
@@ -14566,11 +14587,6 @@ snapshots:
   hermes-parser@0.25.1:
     dependencies:
       hermes-estree: 0.25.1
-
-  highcharts-react-official@3.2.3(highcharts@13.0.0)(react@19.2.4):
-    dependencies:
-      highcharts: 13.0.0
-      react: 19.2.4
 
   highcharts@13.0.0: {}
 

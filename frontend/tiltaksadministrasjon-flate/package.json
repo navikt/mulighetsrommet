@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@grafana/faro-web-sdk": "2.7.1",
+    "@highcharts/react": "^5.1.0",
     "@hookform/resolvers": "5.4.0",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "8.11.1",
@@ -36,7 +37,6 @@
     "@unhead/react": "3.1.4",
     "dequal": "2.0.3",
     "highcharts": "13.0.0",
-    "highcharts-react-official": "3.2.3",
     "jotai": "2.20.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
