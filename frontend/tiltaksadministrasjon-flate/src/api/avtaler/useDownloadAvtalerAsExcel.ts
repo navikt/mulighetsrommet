@@ -15,7 +15,5 @@ export function useDownloadAvtalerAsExcel(filter: AvtaleFilterType) {
     sort: filter.sortering.sortString || null,
   };
 
-  const query = { page: filter.page, size: filter.pageSize };
-
-  return useDownloadFile(() => AvtaleService.lastNedAvtalerSomExcel({ body, query }));
+  return useDownloadFile(() => AvtaleService.lastNedAvtalerSomExcel({ body }));
 }

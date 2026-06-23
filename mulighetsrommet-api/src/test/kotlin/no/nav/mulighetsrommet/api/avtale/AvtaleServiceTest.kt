@@ -46,7 +46,6 @@ import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -665,7 +664,6 @@ class AvtaleServiceTest : FunSpec({
             val avtaleService = createAvtaleService()
 
             val file = avtaleService.exportToExcel(
-                pagination = Pagination.all(),
                 filter = AvtaleFilter(),
             )
 

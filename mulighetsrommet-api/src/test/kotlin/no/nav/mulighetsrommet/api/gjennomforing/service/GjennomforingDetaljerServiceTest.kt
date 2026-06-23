@@ -206,7 +206,6 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val service = createService()
 
             val file = service.exportToExcel(
-                pagination = Pagination.all(),
                 filter = AdminTiltaksgjennomforingFilter(search = "Oppfølging"),
             )
 

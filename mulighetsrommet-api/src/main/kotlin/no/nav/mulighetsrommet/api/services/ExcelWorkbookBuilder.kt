@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.HorizontalAlignment
 import org.apache.poi.ss.usermodel.IndexedColors
+import org.apache.poi.ss.util.CellRangeAddress
 import org.apache.poi.xssf.usermodel.XSSFCellStyle
 import org.apache.poi.xssf.usermodel.XSSFSheet
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
@@ -25,7 +26,7 @@ class ExcelWorkbookBuilder {
         init: ExcelSheetBuilder.() -> Unit,
     ) {
         val sheet = workbook.createSheet(name)
-        ExcelSheetBuilder(sheet, workbook).also {
+        ExcelSheetBuilder(ExcelSheetBuilder.Type.SHEET, sheet, workbook).also {
             it.init()
 
             if (autoSizeColumns) {
@@ -34,16 +35,39 @@ class ExcelWorkbookBuilder {
         }
     }
 
+    fun table(
+        name: String,
+        autoSizeColumns: Boolean = true,
+        init: ExcelSheetBuilder.() -> Unit,
+    ) {
+        val sheet = workbook.createSheet(name)
+        ExcelSheetBuilder(ExcelSheetBuilder.Type.TABLE, sheet, workbook).also {
+            it.init()
+
+            if (autoSizeColumns) {
+                it.autoSizeAllColumns()
+            }
+
+            it.applyAutoFilter()
+        }
+    }
+
     fun build(): XSSFWorkbook = workbook
 }
 
 class ExcelSheetBuilder(
+    private val type: Type = Type.SHEET,
     private val sheet: XSSFSheet,
     private val workbook: XSSFWorkbook,
 ) {
     private var currentRow = 0
 
     private val styleCache = mutableMapOf<IndexedColors, XSSFCellStyle>()
+
+    enum class Type {
+        SHEET,
+        TABLE,
+    }
 
     private fun getStyle(color: IndexedColors): XSSFCellStyle {
         return styleCache.getOrPut(color) {
@@ -60,10 +84,15 @@ class ExcelSheetBuilder(
             alignment = HorizontalAlignment.CENTER
             borderBottom = BorderStyle.THIN
         }
+
         titles.forEachIndexed { idx, title ->
             val cell = row.createCell(idx, CellType.STRING)
             cell.setCellValue(title)
             cell.cellStyle = style
+        }
+
+        if (type == Type.TABLE) {
+            sheet.createFreezePane(0, currentRow)
         }
     }
 
@@ -99,6 +128,15 @@ class ExcelSheetBuilder(
                 cell.cellStyle = getStyle(it)
             }
         }
+    }
+
+    fun applyAutoFilter() {
+        val lastRow = sheet.lastRowNum
+        val lastCol = (0..lastRow)
+            .mapNotNull { sheet.getRow(it)?.lastCellNum?.toInt() }
+            .maxOrNull()
+            ?.minus(1) ?: return
+        sheet.setAutoFilter(CellRangeAddress(0, lastRow, 0, lastCol))
     }
 
     fun autoSizeAllColumns() {

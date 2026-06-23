@@ -560,8 +560,6 @@ fun Route.gjennomforingRoutes() {
             tags = setOf("Gjennomforing")
             operationId = "lastNedGjennomforingerSomExcel"
             request {
-                queryParameter<Int>("page")
-                queryParameter<Int>("size")
                 body<GetGjennomforingerRequest>()
             }
             response {
@@ -577,10 +575,9 @@ fun Route.gjennomforingRoutes() {
                 }
             }
         }) {
-            val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingFilter()
 
-            val file = gjennomforinger.exportToExcel(pagination, filter)
+            val file = gjennomforinger.exportToExcel(filter)
 
             call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
             call.response.header(
