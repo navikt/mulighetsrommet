@@ -70,6 +70,8 @@ export function compare<T>(aValue: T, bValue: T): number {
 
   if (typeof aValue === "number" && typeof bValue === "number") {
     return aValue - bValue;
+  } else if (typeof aValue === "string" && typeof bValue === "string") {
+    return aValue.localeCompare(bValue, undefined, { sensitivity: "accent" });
   }
 
   if (aValue < bValue) {

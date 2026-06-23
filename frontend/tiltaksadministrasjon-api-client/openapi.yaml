@@ -695,23 +695,7 @@ paths:
       tags:
       - Avtale
       operationId: lastNedAvtalerSomExcel
-      parameters:
-      - name: page
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: size
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
+      parameters: []
       requestBody:
         content:
           application/json:
@@ -1491,23 +1475,7 @@ paths:
       tags:
       - Gjennomforing
       operationId: lastNedGjennomforingerSomExcel
-      parameters:
-      - name: page
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
-      - name: size
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: integer
-          format: int32
+      parameters: []
       requestBody:
         content:
           application/json:
@@ -3692,7 +3660,7 @@ components:
       - OPPFOLGING
       - ARBEIDSFORBEREDENDE_TRENING
       - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-      - VARIG_TILRETTELAGT_ARBEID_ORDINAER
+      - TILRETTELAGT_ARBEID_ORDINAER
       - ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
       - ENKELTPLASS_FAG_OG_YRKESOPPLAERING

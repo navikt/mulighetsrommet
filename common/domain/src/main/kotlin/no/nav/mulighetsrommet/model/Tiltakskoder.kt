@@ -68,7 +68,7 @@ enum class Tiltakskode(
             TiltakstypeEgenskap.STOTTER_TILSKUDD_FOR_INVESTERINGER,
         ),
     ),
-    VARIG_TILRETTELAGT_ARBEID_ORDINAER(
+    TILRETTELAGT_ARBEID_ORDINAER(
         system = TiltakstypeSystem.TILTAKSADMINISTRASJON,
         arenakode = null,
         egenskaper = setOf(
@@ -311,7 +311,7 @@ object Tiltakskoder {
         Tiltakskode.OPPFOLGING,
         Tiltakskode.JOBBKLUBB,
         Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
-        Tiltakskode.VARIG_TILRETTELAGT_ARBEID_ORDINAER,
+        Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER,
         // TODO: disse tiltakskodene er egentlig ikke bare for "gruppetiltak", men foreløpig er det OK.
         //  Vi burde komme oss vekk fra disse tiltaskode-listene og evt. erstatte med egenskaper direkte på Tiltalkskode-enumen
         Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
