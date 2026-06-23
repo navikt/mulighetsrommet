@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.env.NaisEnv
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -53,6 +54,7 @@ class BrukerUtbetalingService(
             personIdent = NorskIdent("21528416400"), // Gjørme, Proaktiv
             periode = HelVedUtbetaling.Periode(LocalDate.of(2026, 4, 1), LocalDate.of(2026, 4, 30)),
             belop = 1234,
+            kostnadssted = NavEnhetNummer("1234"),
             tilskuddstype = HelVedUtbetaling.Tilskuddstype.EKSAMENSGEBYR,
             saksbehandler = NavIdent("Z990279"), // Test NavIdent
             beslutter = NavIdent("Z993433"), // Test NavIdent

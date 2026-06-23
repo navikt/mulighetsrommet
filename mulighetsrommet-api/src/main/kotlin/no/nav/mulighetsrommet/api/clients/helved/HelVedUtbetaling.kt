@@ -1,9 +1,7 @@
 package no.nav.mulighetsrommet.api.clients.helved
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Periode
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Tilskuddstype
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Tiltakskode
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.InstantSerializer
@@ -38,6 +36,8 @@ data class HelVedUtbetaling(
     val periode: Periode,
     /** NOK beløp til utbetaling */
     val belop: Int,
+    /** NORG enhetsnummer */
+    val kostnadssted: NavEnhetNummer,
     /** Type tilskudd som utbetalingen gjelder for */
     val tilskuddstype: Tilskuddstype,
     /** Type tiltak som utbetalingen gjelder for */

@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TilskuddFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import java.time.Instant
@@ -46,6 +47,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
             tom = LocalDate.of(2025, 1, 31),
         ),
         belop = 10000,
+        kostnadssted = NavEnhetNummer("1234"),
         tilskuddstype = HelVedUtbetaling.Tilskuddstype.SKOLEPENGER,
         tiltakskode = HelVedUtbetaling.Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         saksbehandler = NavAnsattFixture.DonaldDuck.navIdent,

@@ -87,9 +87,10 @@ class TilskuddBrukerUtbetalingConsumer(
                             "Norsk ident var null"
                         },
                         periode = Periode(behandling.periode.start, behandling.periode.getLastInclusiveDate()),
-                        belop = requireNotNull(t.utbetalingBelop) {
+                        belop = requireNotNull(t.utbetalingBelop?.belop) {
                             "utbetalingBelop var null"
-                        }.belop,
+                        },
+                        kostnadssted = behandling.kostnadssted.enhetsnummer,
                         tilskuddstype = t.tilskuddOpplaeringType.toHelVedTilskuddstype(),
                         saksbehandler = NavIdent(saksbehandler),
                         beslutter = NavIdent(beslutter),
