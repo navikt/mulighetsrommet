@@ -1,14 +1,8 @@
 import { Heading } from "@navikt/ds-react";
 import { useRef } from "react";
 import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
-import Highcharts from "highcharts";
-import HighchartsReactModule from "highcharts-react-official";
-import type HighchartsReactType from "highcharts-react-official";
-
-import "highcharts/modules/accessibility";
-
-// Handle CJS/ESM interop
-const HighchartsReact = (HighchartsReactModule as any).default ?? HighchartsReactModule;
+import { Chart, HighchartsReactRefObject, ChartOptions } from "@highcharts/react";
+import { Accessibility } from "@highcharts/react/modules/Accessibility";
 
 interface Props {
   gjennomforingId: string;
@@ -16,7 +10,7 @@ interface Props {
 
 export function NokkeltallDeltakere({ gjennomforingId }: Props) {
   const { data: deltakerSummary } = useGjennomforingDeltakerSummary(gjennomforingId);
-  const chartComponentRef = useRef<HighchartsReactType.RefObject>(null);
+  const chartComponentRef = useRef<HighchartsReactRefObject>(null);
 
   const dataArray = deltakerSummary.deltakereByStatus.map(({ status, count }) => ({
     name: status,
@@ -25,7 +19,7 @@ export function NokkeltallDeltakere({ gjennomforingId }: Props) {
 
   const blaafarge = "#66CBEC";
   const oransjeFarge = "#FFC166";
-  const options: Highcharts.Options = {
+  const options: ChartOptions = {
     chart: {
       type: "bar",
       height: 250,
@@ -57,6 +51,7 @@ export function NokkeltallDeltakere({ gjennomforingId }: Props) {
         showInLegend: false,
       },
     ],
+    palette: { colorScheme: "light" },
     plotOptions: {
       bar: {
         colorByPoint: true,
@@ -87,7 +82,9 @@ export function NokkeltallDeltakere({ gjennomforingId }: Props) {
       {deltakerSummary.antallDeltakere > 0 ? (
         <>
           <hr />
-          <HighchartsReact highcharts={Highcharts} options={options} ref={chartComponentRef} />
+          <Chart options={options} ref={chartComponentRef}>
+            <Accessibility />
+          </Chart>
         </>
       ) : null}
     </div>
