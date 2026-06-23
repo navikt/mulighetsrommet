@@ -631,7 +631,7 @@ class AvtaleService(
 
 private fun ExcelWorkbookBuilder.createAvtalerSheet(
     result: List<AvtaleDto>,
-) = sheet("Avtaler") {
+) = table("Avtaler") {
     header(
         "Avtalenavn",
         "Tiltakstype",
