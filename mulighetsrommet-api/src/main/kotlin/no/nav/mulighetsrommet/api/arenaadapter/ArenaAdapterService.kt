@@ -12,18 +12,15 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaServic
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.OpprettGjennomforingArena
-import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
-import no.nav.mulighetsrommet.arena.ArenaMigrering
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -67,42 +64,22 @@ class ArenaAdapterService(
         val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
             ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
 
-        val sluttDato = arenaGjennomforing.sluttDato
-        if (sluttDato == null || sluttDato >= ArenaMigrering.EnkeltplassSluttDatoCutoffDate) {
-            val upsert = UpsertGjennomforingEnkeltplass(
-                id = arenaGjennomforing.id,
-                tiltakskode = checkNotNull(tiltakstype.tiltakskode),
-                arrangorId = arrangor.id,
-                navn = arenaGjennomforing.navn,
-                startDato = arenaGjennomforing.startDato,
-                sluttDato = arenaGjennomforing.sluttDato,
-                prismodell = UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = null),
-                status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
-                deltidsprosent = arenaGjennomforing.deltidsprosent,
-                antallPlasser = arenaGjennomforing.antallPlasser,
-                ansvarligEnhet = NavEnhetNummer(arenaGjennomforing.arenaAnsvarligEnhet),
-                arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
-                arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
-            )
-            gjennomforingEnkeltplassService.synkroniserFraArena(upsert)
-        } else {
-            val upsert = OpprettGjennomforingArena(
-                id = arenaGjennomforing.id,
-                tiltakstypeId = tiltakstype.id,
-                arrangorId = arrangor.id,
-                navn = arenaGjennomforing.navn,
-                startDato = arenaGjennomforing.startDato,
-                sluttDato = arenaGjennomforing.sluttDato,
-                status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
-                deltidsprosent = arenaGjennomforing.deltidsprosent,
-                antallPlasser = arenaGjennomforing.antallPlasser,
-                arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
-                arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
-                oppstart = GjennomforingOppstartstype.ENKELTPLASS,
-                pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
-            )
-            gjennomforingArenaService.upsert(upsert)
-        }
+        val upsert = OpprettGjennomforingArena(
+            id = arenaGjennomforing.id,
+            tiltakstypeId = tiltakstype.id,
+            arrangorId = arrangor.id,
+            navn = arenaGjennomforing.navn,
+            startDato = arenaGjennomforing.startDato,
+            sluttDato = arenaGjennomforing.sluttDato,
+            status = mapAvslutningsstatus(arenaGjennomforing.avslutningsstatus),
+            deltidsprosent = arenaGjennomforing.deltidsprosent,
+            antallPlasser = arenaGjennomforing.antallPlasser,
+            arenaTiltaksnummer = Tiltaksnummer(arenaGjennomforing.tiltaksnummer),
+            arenaAnsvarligEnhet = arenaGjennomforing.arenaAnsvarligEnhet,
+            oppstart = GjennomforingOppstartstype.ENKELTPLASS,
+            pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
+        )
+        gjennomforingArenaService.upsert(upsert)
 
         return null
     }

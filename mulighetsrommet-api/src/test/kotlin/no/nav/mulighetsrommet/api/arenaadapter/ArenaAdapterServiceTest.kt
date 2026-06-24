@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -336,71 +335,7 @@ class ArenaAdapterServiceTest : FunSpec({
             deltidsprosent = 100.0,
         )
 
-        test("oppretter og endrer enkeltplasser fra Arena") {
-            val service = createArenaAdapterService()
-
-            service.upsertTiltaksgjennomforing(arenaGjennomforing)
-
-            database.run {
-                queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
-                    it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
-                    it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
-                    it.navn shouldBe "En enkeltplass"
-                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
-                    it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
-                }
-            }
-
-            service.upsertTiltaksgjennomforing(
-                arenaGjennomforing.copy(
-                    arenaAnsvarligEnhet = "0300",
-                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                ),
-            )
-
-            database.run {
-                queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
-                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
-                    it.arena?.ansvarligNavEnhet shouldBe "0300"
-                    it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0300")
-                }
-            }
-        }
-
-        test("konverterer Arena-gjennomføring til enkeltplass når sluttdato endres til etter EnkeltplassSluttDatoCutoffDate") {
-            val service = createArenaAdapterService()
-
-            service.upsertTiltaksgjennomforing(
-                arenaGjennomforing.copy(
-                    startDato = LocalDate.of(2023, 1, 1),
-                    sluttDato = LocalDate.of(2024, 1, 1),
-                    avslutningsstatus = Avslutningsstatus.AVSLUTTET,
-                ),
-            )
-
-            database.run {
-                queries.gjennomforing.getGjennomforingArenaOrError(arenaGjennomforing.id).should {
-                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
-                }
-            }
-
-            service.upsertTiltaksgjennomforing(
-                arenaGjennomforing.copy(
-                    startDato = LocalDate.of(2023, 1, 1),
-                    sluttDato = LocalDate.of(2026, 6, 1),
-                    avslutningsstatus = Avslutningsstatus.IKKE_AVSLUTTET,
-                ),
-            )
-
-            database.run {
-                queries.gjennomforing.getGjennomforingEnkeltplassOrError(arenaGjennomforing.id).should {
-                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
-                    it.sluttDato shouldBe LocalDate.of(2026, 6, 1)
-                }
-            }
-        }
-
-        test("oppretter enkeltplass som Arena-gjennomføring når sluttdato er før EnkeltplassSluttDatoCutoffDate") {
+        test("oppretter enkeltplass som Arena-gjennomføring") {
             val service = createArenaAdapterService()
 
             service.upsertTiltaksgjennomforing(

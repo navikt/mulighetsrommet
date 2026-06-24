@@ -149,6 +149,13 @@ class GjennomforingEnkeltplassService(
         settOkonomiTilGodkjenning(soktInn.id, opprettetAv).right()
     }
 
+    /**
+     * TODO: kan denne slettes?
+     * Ila. høsten 2026 skal enkeltplassene (ENKELAMO, ENKFAGYRKE, HOYEREUTD) migreres fra Arena og de aktive
+     * gjennomføringene må bli tilgjengelige i Tiltadm.
+     * Det er fortsatt litt uklart hvordan vi gjør dette (f.eks. basert på status vs. cutoff-dato), så foreløpig
+     * står denne rutinen ubrukt.
+     */
     fun synkroniserFraArena(
         upsert: UpsertGjennomforingEnkeltplass,
     ): Validated<GjennomforingEnkeltplass> = db.transaction {
