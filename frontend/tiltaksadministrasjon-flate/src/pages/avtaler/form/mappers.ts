@@ -37,7 +37,10 @@ export function toPrismodellRequest(data: PrismodellValues): PrismodellRequest[]
 }
 
 export function toPersonvernRequest(data: PersonopplysningerOutputValues): PersonvernRequest {
-  return { ...data.personvern };
+  return {
+    ...data.personvern,
+    annetBeskrivelse: data.personvern.annetBeskrivelse ?? null,
+  };
 }
 
 export function toDetaljerRequest(data: AvtaleDetaljerOutputValues): DetaljerRequest {

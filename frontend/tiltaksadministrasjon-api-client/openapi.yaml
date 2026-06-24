@@ -4223,9 +4223,19 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Personopplysning.Type"
+        annetChecked:
+          type:
+          - "null"
+          - boolean
+        annetBeskrivelse:
+          type:
+          - "null"
+          - string
         personvernBekreftet:
           type: boolean
       required:
+      - annetBeskrivelse
+      - annetChecked
       - personopplysninger
       - personvernBekreftet
     Personopplysning.Type:
@@ -4256,6 +4266,7 @@ components:
       - ADRESSESPERRE
       - VERGEMAL
       - STEMME
+      - ANNET
     VeilederinfoRequest:
       type: object
       properties:
@@ -4552,7 +4563,12 @@ components:
         sortKey:
           type: integer
           format: int32
+        beskrivelse:
+          type:
+          - "null"
+          - string
       required:
+      - beskrivelse
       - helpText
       - sortKey
       - title

@@ -130,8 +130,25 @@ class AvtaleQueries(private val session: Session) {
         """.trimIndent()
         batchPreparedStatement(
             updatePersonopplysninger,
-            personvernDbo.personopplysninger.map { listOf<Any>(avtaleId, it.name) },
+            personvernDbo.personopplysninger.map { listOf(avtaleId, it.name) },
         )
+
+        @Language("PostgreSQL")
+        val updatePersonopplysningAnnet = """
+            insert into avtale_personopplysning (avtale_id, personopplysning, beskrivelse)
+            values (?::uuid, ?, ?)
+            on conflict (avtale_id, personopplysning) do update set beskrivelse = excluded.beskrivelse
+        """.trimIndent()
+        if (personvernDbo.annetChecked) {
+            execute(
+                queryOf(
+                    updatePersonopplysningAnnet,
+                    avtaleId,
+                    Personopplysning.Type.ANNET.name,
+                    personvernDbo.annetBeskrivelse,
+                ),
+            )
+        }
 
         @Language("PostgreSQL")
         val deletePersonopplysninger = """
@@ -142,7 +159,17 @@ class AvtaleQueries(private val session: Session) {
             queryOf(
                 deletePersonopplysninger,
                 avtaleId,
-                createTextArray(personvernDbo.personopplysninger),
+                createTextArray(
+                    personvernDbo.personopplysninger
+                        .plus(
+                            if (personvernDbo.annetChecked) {
+                                Personopplysning.Type.ANNET
+                            } else {
+                                null
+                            },
+                        )
+                        .mapNotNull { it?.name },
+                ),
             ),
         )
     }

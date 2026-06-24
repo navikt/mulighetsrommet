@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.model.AvtaleStatusType
+import no.nav.mulighetsrommet.model.Personopplysning
 import java.util.UUID
 
 object AvtaleDboMapper {
@@ -48,7 +49,11 @@ object AvtaleDboMapper {
             administratorer = avtale.administratorer.map { it.navIdent },
         ),
         personvernDbo = PersonvernDbo(
-            personopplysninger = avtale.personopplysninger.map { it.type },
+            personopplysninger = avtale.personopplysninger
+                .filter { it.type != Personopplysning.Type.ANNET }
+                .map { it.type },
+            annetChecked = avtale.personopplysninger.any { it.type == Personopplysning.Type.ANNET },
+            annetBeskrivelse = avtale.personopplysninger.find { it.type == Personopplysning.Type.ANNET }?.beskrivelse,
             personvernBekreftet = avtale.personvernBekreftet,
         ),
         veilederinformasjonDbo = VeilederinformasjonDbo(
@@ -130,6 +135,8 @@ fun DetaljerRequest.toDbo(
 fun PersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(
     personvernBekreftet = personvernBekreftet,
     personopplysninger = personopplysninger,
+    annetChecked = annetChecked ?: false,
+    annetBeskrivelse = annetBeskrivelse,
 )
 
 fun AmoKategoriseringRequest.toDbo(): AmoKategorisering {

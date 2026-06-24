@@ -8,6 +8,7 @@ data class Personopplysning(
     val title: String,
     val helpText: String?,
     val sortKey: Int,
+    val beskrivelse: String? = null,
 ) {
     enum class Type {
         NAVN,
@@ -35,5 +36,6 @@ data class Personopplysning(
         ADRESSESPERRE,
         VERGEMAL,
         STEMME,
+        ANNET,
     }
 }
