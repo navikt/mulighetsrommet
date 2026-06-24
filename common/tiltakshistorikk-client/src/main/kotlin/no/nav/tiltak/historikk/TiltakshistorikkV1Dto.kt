@@ -90,6 +90,26 @@ sealed class TiltakshistorikkV1Dto {
     )
 
     @Serializable
+    data class Gjennomforing(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        /**
+         * Navn på tiltaksgjennomføringen, enten fra Tiltaksadministrasjon eller fra Arena.
+         *
+         * MERK: Dette feltet inneholder fritekst og for eldre tiltaksdeltakelser fra Arena så kan det være persondata
+         * i dette feltet. Vurder om dette trengs eller om f.eks. [TiltakshistorikkV1Dto.tittel] er mer egnet til
+         * formålet (som f.eks. til visning i frontend).
+         */
+        val navn: String?,
+
+        /**
+         * Deltidsprosent kan være definert på gjennomføringen og vil i så fall gjelde for alle deltakelser
+         * på tiltaket (med mindre en annen deltidsprosent er definert på deltakelsen).
+         */
+        val deltidsprosent: Float?,
+    )
+
+    @Serializable
     @SerialName("ArenaDeltakelse")
     data class ArenaDeltakelse(
         override val norskIdent: NorskIdent,
@@ -114,26 +134,6 @@ sealed class TiltakshistorikkV1Dto {
         data class Tiltakstype(
             val tiltakskode: String,
             val navn: String,
-        )
-
-        @Serializable
-        data class Gjennomforing(
-            @Serializable(with = UUIDSerializer::class)
-            val id: UUID,
-            /**
-             * Navn på tiltaksgjennomføringen, enten fra Tiltaksadministrasjon eller fra Arena.
-             *
-             * MERK: Dette feltet inneholder fritekst og for eldre tiltaksdeltakelser fra Arena så kan det være persondata
-             * i dette feltet. Vurder om dette trengs eller om f.eks. [TiltakshistorikkV1Dto.tittel] er mer egnet til
-             * formålet (som f.eks. til visning i frontend).
-             */
-            val navn: String,
-
-            /**
-             * Deltidsprosent kan være definert på gjennomføringen og vil i så fall gjelde for alle deltakelser
-             * på tiltaket (med mindre en annen deltidsprosent er definert på deltakelsen).
-             */
-            val deltidsprosent: Float?,
         )
     }
 
@@ -171,33 +171,6 @@ sealed class TiltakshistorikkV1Dto {
             @Serializable(with = LocalDateTimeSerializer::class)
             val opprettetDato: LocalDateTime,
         )
-
-        @Serializable
-        data class Gjennomforing(
-            @Serializable(with = UUIDSerializer::class)
-            val id: UUID,
-            /**
-             * Navn på tiltaksgjennomføringen, enten fra Tiltaksadministrasjon eller fra Arena.
-             *
-             * MERK: Dette feltet inneholder fritekst og for eldre tiltaksdeltakelser fra Arena så kan det være persondata
-             * i dette feltet. Vurder om dette trengs eller om f.eks. [TiltakshistorikkV1Dto.tittel] er mer egnet til
-             * formålet (som f.eks. til visning i frontend).
-             */
-            val navn: String?,
-
-            /**
-             * Deltidsprosent kan være definert på gjennomføringen og vil i så fall gjelde for alle deltakelser
-             * på tiltaket (med mindre en annen deltidsprosent er definert på deltakelsen).
-             */
-            val deltidsprosent: Float?,
-
-            val type: GjennomforingType,
-        )
-
-        enum class GjennomforingType {
-            ENKELTPLASS,
-            GRUPPE,
-        }
     }
 
     @Serializable
