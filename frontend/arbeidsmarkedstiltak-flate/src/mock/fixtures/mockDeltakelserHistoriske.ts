@@ -2,7 +2,6 @@ import {
   DataElementStatusVariant,
   Deltakelse,
   DeltakelseTilstand,
-  DeltakerStatusType,
   Tiltakskode,
 } from "@arbeidsmarkedstiltak/api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockGjennomforinger";
@@ -14,6 +13,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Oppfølging",
     },
+    tiltakskode: Tiltakskode.OPPFOLGING,
     id: window.crypto.randomUUID(),
     status: {
       type: {
@@ -50,6 +50,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Oppfølging",
     },
+    tiltakskode: Tiltakskode.OPPFOLGING,
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Ikke aktuell", variant: DataElementStatusVariant.NEUTRAL, description: null },
@@ -72,6 +73,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Oppfølging",
     },
+    tiltakskode: Tiltakskode.OPPFOLGING,
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Har sluttet", variant: DataElementStatusVariant.ALT_1, description: null },
@@ -93,6 +95,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Avklaring",
     },
+    tiltakskode: Tiltakskode.AVKLARING,
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Fullført", variant: DataElementStatusVariant.ALT_1, description: null },
@@ -114,6 +117,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Avklaring",
     },
+    tiltakskode: Tiltakskode.AVKLARING,
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Avbrutt", variant: DataElementStatusVariant.NEUTRAL, description: null },
@@ -131,6 +135,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Avklaring",
     },
+    tiltakskode: Tiltakskode.AVKLARING,
     id: window.crypto.randomUUID(),
     status: {
       type: {
@@ -153,6 +158,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tiltakstype: {
       navn: "Avklaring",
     },
+    tiltakskode: Tiltakskode.AVKLARING,
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Fullført", variant: DataElementStatusVariant.ALT_1, description: null },

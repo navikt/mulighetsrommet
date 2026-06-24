@@ -1105,6 +1105,8 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/DeltakelseStatus"
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
         innsoktDato:
           type:
           - "null"
@@ -1131,8 +1133,41 @@ components:
       - sistEndretDato
       - status
       - tilstand
+      - tiltakskode
       - tiltakstype
       - tittel
+    Tiltakskode:
+      type: string
+      enum:
+      - ARBEIDSRETTET_REHABILITERING
+      - AVKLARING
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - JOBBKLUBB
+      - OPPFOLGING
+      - ARBEIDSFORBEREDENDE_TRENING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - TILRETTELAGT_ARBEID_ORDINAER
+      - ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+      - FAG_OG_YRKESOPPLAERING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - HOYERE_UTDANNING
+      - HOYERE_YRKESFAGLIG_UTDANNING
+      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+      - STUDIESPESIALISERING
+      - INDIVIDUELL_JOBBSTOTTE
+      - INDIVIDUELL_JOBBSTOTTE_UNG
+      - ARBEID_MED_STOTTE
+      - ARBEIDSTRENING
+      - MIDLERTIDIG_LONNSTLSKUDD
+      - VARIG_LONNSTILSKUD
+      - MENTOR
+      - INKLUDERINGSTILSKUD
+      - SOMMERJOBB
+      - VTAO
+      - FIREARIG_LONNSTILSUDD
     Deltakelse.TiltaksadministrasjonDeltakelse.InfoMeldingStatus:
       type: string
       enum:
@@ -1292,38 +1327,6 @@ components:
       - arenakode
       - navn
       - tiltakskode
-    Tiltakskode:
-      type: string
-      enum:
-      - ARBEIDSRETTET_REHABILITERING
-      - AVKLARING
-      - DIGITALT_OPPFOLGINGSTILTAK
-      - JOBBKLUBB
-      - OPPFOLGING
-      - ARBEIDSFORBEREDENDE_TRENING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-      - TILRETTELAGT_ARBEID_ORDINAER
-      - ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
-      - FAG_OG_YRKESOPPLAERING
-      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-      - GRUPPE_FAG_OG_YRKESOPPLAERING
-      - HOYERE_UTDANNING
-      - HOYERE_YRKESFAGLIG_UTDANNING
-      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
-      - STUDIESPESIALISERING
-      - INDIVIDUELL_JOBBSTOTTE
-      - INDIVIDUELL_JOBBSTOTTE_UNG
-      - ARBEID_MED_STOTTE
-      - ARBEIDSTRENING
-      - MIDLERTIDIG_LONNSTLSKUDD
-      - VARIG_LONNSTILSKUD
-      - MENTOR
-      - INKLUDERINGSTILSKUD
-      - SOMMERJOBB
-      - VTAO
-      - FIREARIG_LONNSTILSUDD
     NavVeilederHovedenhet:
       type: object
       properties:

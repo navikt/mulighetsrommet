@@ -2,7 +2,6 @@ import {
   DataElementStatusVariant,
   Deltakelse,
   DeltakelseTilstand,
-  DeltakerStatusType,
   DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus,
   Tiltakskode,
 } from "@arbeidsmarkedstiltak/api-client";
@@ -26,6 +25,7 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
     },
+    tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
     tilstand: DeltakelseTilstand.KLADD,
     periode: { startDato: null, sluttDato: null },
@@ -43,8 +43,8 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tiltakstype: {
       navn: "Arbeidsmarkedsopplæring (AMO)",
-      tiltakskode: Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
     },
+    tiltakskode: Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
     tilstand: DeltakelseTilstand.KLADD,
     periode: { startDato: null, sluttDato: null },
@@ -67,6 +67,7 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstype: {
       navn: "Avklaring",
     },
+    tiltakskode: Tiltakskode.AVKLARING,
     tittel: "Avklaring hos Fretex AS",
     tilstand: DeltakelseTilstand.UTKAST,
     periode: { startDato: null, sluttDato: null },
@@ -89,6 +90,7 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstype: {
       navn: "Jobbklubb",
     },
+    tiltakskode: Tiltakskode.JOBBKLUBB,
     periode: {
       startDato: "2023-08-10",
       sluttDato: "2023-09-11",
@@ -111,6 +113,7 @@ export const deltakelserAktive: Deltakelse[] = [
     tiltakstype: {
       navn: "Jobbklubb",
     },
+    tiltakskode: Tiltakskode.JOBBKLUBB,
     periode: {
       startDato: "2023-08-10",
       sluttDato: "2023-09-11",
