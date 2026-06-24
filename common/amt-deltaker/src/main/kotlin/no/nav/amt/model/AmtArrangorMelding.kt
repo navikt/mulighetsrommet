@@ -99,6 +99,7 @@ sealed interface AmtArrangorMelding {
                 val sluttdato: LocalDate? = null,
                 val aarsak: EndringAarsak?,
                 val harDeltatt: Boolean? = null,
+                val harFullfort: Boolean? = null,
             ) : Endring
 
             @Serializable
