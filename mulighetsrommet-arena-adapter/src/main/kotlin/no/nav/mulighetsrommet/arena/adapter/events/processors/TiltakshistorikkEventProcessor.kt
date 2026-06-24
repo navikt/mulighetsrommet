@@ -60,6 +60,7 @@ class TiltakshistorikkEventProcessor(
             .getTiltakstype(tiltakstypeMapping.entityId)
             .bind()
 
+        // TODO: denne sjekken må også sørge for at enkeltplassene ikke blir overført som Arena-tiltak til tiltakhistorikken når Komet tar over eierskap for disse deltakelsene
         if (isGruppetiltak(tiltakstype.tiltakskode)) {
             return@either ProcessingResult(Handled)
         }
