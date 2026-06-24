@@ -138,11 +138,9 @@ data class TilskuddUtbetalingStatusDto(
                 null,
                 HelVedStatus.Status.MOTTATT,
                 HelVedStatus.Status.HOS_OPPDRAG,
+                HelVedStatus.Status.OK,
+                HelVedStatus.Status.FEILET,
                 -> Type.OVERFORT_TIL_UTBETALING
-
-                HelVedStatus.Status.OK -> Type.UTBETALT
-
-                HelVedStatus.Status.FEILET -> Type.FEILET
             }
 
             val status = DataElement.Status(type.beskrivelse, type.variant)
