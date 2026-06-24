@@ -432,7 +432,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { TiltakshistorikkService(get(), get(), get(), get(), get()) }
+    single { TiltakshistorikkService(get(), get(), get()) }
     single {
         VeilederflateService(
             get(),
@@ -512,7 +512,13 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { AdminUtbetalingService(get(), get(), get()) }
-    single { BrukerUtbetalingService(BrukerUtbetalingService.Config(appConfig.kafka.topics.helvedUtbetalingTopic), get(), get()) }
+    single {
+        BrukerUtbetalingService(
+            BrukerUtbetalingService.Config(appConfig.kafka.topics.helvedUtbetalingTopic),
+            get(),
+            get(),
+        )
+    }
     single { PersonaliaService(get(), get(), get(), get(), get()) }
     single<FeatureToggleService> { UnleashFeatureToggleService(appConfig.unleash) }
     single { LagretFilterService(get()) }

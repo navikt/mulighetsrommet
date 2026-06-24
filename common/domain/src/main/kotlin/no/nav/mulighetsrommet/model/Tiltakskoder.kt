@@ -333,7 +333,6 @@ object Tiltakskoder {
         Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.HOYERE_UTDANNING,
-        Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING,
     )
 
     fun isGruppetiltak(tiltakskode: Tiltakskode): Boolean {
@@ -350,9 +349,5 @@ object Tiltakskoder {
 
     fun isEnkeltplassTiltak(arenakode: String): Boolean {
         return arenakode in TiltakskoderEnkeltplasser.map { it.arenakode }
-    }
-
-    fun isEnkeltplassTiltak(tiltakskode: Tiltakskode): Boolean {
-        return tiltakskode in TiltakskoderEnkeltplasser
     }
 }

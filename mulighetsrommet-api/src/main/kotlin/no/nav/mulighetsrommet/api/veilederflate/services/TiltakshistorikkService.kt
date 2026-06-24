@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
-import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseEierskap
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePamelding
@@ -19,8 +18,6 @@ import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseStatus
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTilstand
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
-import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
-import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -35,19 +32,15 @@ import org.slf4j.LoggerFactory
 
 class TiltakshistorikkService(
     private val historiskeIdenterQuery: HentHistoriskeIdenterPdlQuery,
-    private val tiltakstypeService: TiltakstypeService,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val tiltakshistorikkClient: TiltakshistorikkClient,
-    private val features: FeatureToggleService,
 ) {
     val log: Logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun hentHistorikk(norskIdent: NorskIdent, obo: AccessType.OBO.AzureAd): Deltakelser = coroutineScope {
         val tiltakshistorikk = async { getTiltakshistorikk(norskIdent, obo) }
         val deltakelserFraKomet = async { getDeltakelserKomet(norskIdent, obo) }
-        deltakelserFraKomet.await()
-            .mergeWith(tiltakshistorikk.await())
-            .filter(::isEnabled)
+        deltakelserFraKomet.await().mergeWith(tiltakshistorikk.await())
     }
 
     private suspend fun getTiltakshistorikk(
@@ -74,7 +67,7 @@ class TiltakshistorikkService(
                     .toSet()
 
                 val (aktive, historiske) = response.historikk
-                    .map { toDeltakelse(it) }
+                    .mapNotNull { toDeltakelse(it) }
                     .partition { erAktiv(it.tilstand) }
 
                 Deltakelser(
@@ -106,20 +99,19 @@ class TiltakshistorikkService(
         })
     }
 
-    private fun toDeltakelse(it: TiltakshistorikkV1Dto): Deltakelse = when (it) {
+    private fun toDeltakelse(it: TiltakshistorikkV1Dto): Deltakelse? = when (it) {
         is TiltakshistorikkV1Dto.ArenaDeltakelse -> toDeltakelse(it)
         is TiltakshistorikkV1Dto.TeamKometDeltakelse -> toDeltakelse(it)
         is TiltakshistorikkV1Dto.TeamTiltakAvtale -> toDeltakelse(it)
     }
 
-    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse {
-        // TODO: fjerne ekstra sjekk mot tiltakstypeService etter at feature toggle for enkeltplasser er borte
-        //  `deltakelse.tiltakstype` er egentlig nok info, men foreløpig må vi gjøre et oppslag for å tiltakskoden
-        //  som feature toggle er definert for
-        val tiltakstype =
-            tiltakstypeService.getByArenaTiltakskode(deltakelse.tiltakstype.tiltakskode).singleOrNull()?.let {
-                DeltakelseTiltakstype(it.navn, it.tiltakskode)
-            } ?: DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null)
+    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse? {
+        // TODO: denne filtreringslogikken kan fjernes etter at Komet har tatt over eierskap til enkeltplassene og
+        //  ENKELAMO, ENKFAGYRKE og HOYEREUTD har blitt fjernet fra `arena_gjennomforing`-tabellen i `tiltakshistorikk`
+        if (Tiltakskoder.isEnkeltplassTiltak(deltakelse.tiltakstype.tiltakskode)) {
+            return null
+        }
+
         return Deltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
@@ -131,7 +123,7 @@ class TiltakshistorikkService(
                 aarsak = null,
             ),
             tittel = deltakelse.tittel,
-            tiltakstype = tiltakstype,
+            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn),
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.ARENA,
@@ -152,7 +144,7 @@ class TiltakshistorikkService(
                 aarsak = deltakelse.status.aarsak?.description,
             ),
             tittel = deltakelse.tittel,
-            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, deltakelse.tiltakstype.tiltakskode),
+            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn),
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.TEAM_KOMET,
@@ -174,7 +166,7 @@ class TiltakshistorikkService(
                 aarsak = null,
             ),
             tittel = deltakelse.tittel,
-            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn, null),
+            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn),
             innsoktDato = null,
             sistEndretDato = null,
             eierskap = DeltakelseEierskap.TEAM_TILTAK,
@@ -186,8 +178,6 @@ class TiltakshistorikkService(
     private fun toDeltakelse(deltakelse: DeltakelseFraKomet): Deltakelse {
         // TODO: ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
         //  `tiltakshistorikk`-appen som kilde
-        val tiltakstype = tiltakstypeService.getByTiltakskode(deltakelse.tiltakstype.tiltakskode)
-            .let { DeltakelseTiltakstype(it.navn, it.tiltakskode) }
         val tilstand = getTilstand(deltakelse.status.type)
         val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
             DeltakelsePamelding(deltakelse.deltakerlisteId, deltakelse.status.type)
@@ -203,7 +193,7 @@ class TiltakshistorikkService(
             eierskap = DeltakelseEierskap.TEAM_KOMET,
             tilstand = tilstand,
             tittel = deltakelse.tittel,
-            tiltakstype = tiltakstype,
+            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn),
             status = DeltakelseStatus(
                 type = deltakelse.status.type.toDataElement(),
                 aarsak = deltakelse.status.aarsak,
@@ -212,28 +202,6 @@ class TiltakshistorikkService(
             sistEndretDato = deltakelse.sistEndretDato,
             pamelding = pamelding,
         )
-    }
-
-    private fun isEnabled(deltakelse: Deltakelse): Boolean {
-        val tiltakskode = deltakelse.tiltakstype.tiltakskode ?: return true
-
-        if (!Tiltakskoder.isEnkeltplassTiltak(tiltakskode)) {
-            return true
-        }
-
-        return when (deltakelse.eierskap) {
-            DeltakelseEierskap.TEAM_TILTAK -> true
-
-            DeltakelseEierskap.ARENA -> !features.isEnabledForTiltakstype(
-                FeatureToggle.TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER,
-                tiltakskode,
-            )
-
-            DeltakelseEierskap.TEAM_KOMET -> features.isEnabledForTiltakstype(
-                FeatureToggle.TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER,
-                tiltakskode,
-            )
-        }
     }
 
     private fun erAktiv(tilstand: DeltakelseTilstand): Boolean = when (tilstand) {
