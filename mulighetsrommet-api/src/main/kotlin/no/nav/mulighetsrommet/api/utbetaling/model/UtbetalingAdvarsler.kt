@@ -58,49 +58,63 @@ object UtbetalingAdvarsler {
             ?.periode()
             ?: return false
         return isForslagRelevantForPeriode(
-            forslag,
+            forslag.endring,
             utbetalingPeriode = utbetalingPeriode,
             deltakelsePeriode = deltakelsePeriode,
         )
     }
 
     fun isForslagRelevantForPeriode(
-        forslag: DeltakerForslag,
+        endring: AmtArrangorMelding.Forslag.Endring,
         utbetalingPeriode: Periode,
         deltakelsePeriode: Periode,
     ): Boolean {
-        val deltakerPeriodeSluttDato = deltakelsePeriode.getLastInclusiveDate()
+        val deltakelseInclusiveSluttdato = deltakelsePeriode.getLastInclusiveDate()
 
-        return when (forslag.endring) {
+        return when (endring) {
             is AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse -> {
-                val sluttDato = forslag.endring.sluttdato
-                forslag.endring.harDeltatt == false || (sluttDato != null && sluttDato.isBefore(deltakerPeriodeSluttDato))
+                val sluttDato = endring.sluttdato
+                endring.harDeltatt == false || (sluttDato != null && sluttdatoEndringErRelevant(sluttDato, utbetalingPeriode, deltakelsePeriode))
+            }
+
+            is AmtArrangorMelding.Forslag.Endring.EndreAvslutning -> {
+                val sluttdato = endring.sluttdato
+                endring.harDeltatt == false || (sluttdato != null && sluttdatoEndringErRelevant(sluttdato, utbetalingPeriode, deltakelsePeriode))
             }
 
             is AmtArrangorMelding.Forslag.Endring.Deltakelsesmengde -> {
-                forslag.endring.gyldigFra?.isBefore(deltakerPeriodeSluttDato) ?: true
+                endring.gyldigFra?.isBefore(deltakelseInclusiveSluttdato) ?: true
             }
 
             is AmtArrangorMelding.Forslag.Endring.ForlengDeltakelse -> {
-                val sluttdato = forslag.endring.sluttdato
-                sluttdato.isAfter(deltakerPeriodeSluttDato) && sluttdato.isBefore(utbetalingPeriode.slutt)
+                sluttdatoEndringErRelevant(endring.sluttdato, utbetalingPeriode, deltakelsePeriode)
             }
 
             is AmtArrangorMelding.Forslag.Endring.Sluttdato -> {
-                forslag.endring.sluttdato.isBefore(deltakerPeriodeSluttDato)
+                sluttdatoEndringErRelevant(endring.sluttdato, utbetalingPeriode, deltakelsePeriode)
             }
 
             is AmtArrangorMelding.Forslag.Endring.Startdato -> {
-                forslag.endring.startdato.isAfter(deltakelsePeriode.start)
+                val sluttdato = endring.sluttdato
+                endring.startdato.isAfter(deltakelsePeriode.start) ||
+                    (sluttdato != null && sluttdatoEndringErRelevant(sluttdato, utbetalingPeriode, deltakelsePeriode))
             }
 
             is AmtArrangorMelding.Forslag.Endring.Sluttarsak -> false
 
             is AmtArrangorMelding.Forslag.Endring.IkkeAktuell,
             is AmtArrangorMelding.Forslag.Endring.FjernOppstartsdato,
-            is AmtArrangorMelding.Forslag.Endring.EndreAvslutning,
             -> true
         }
+    }
+
+    fun sluttdatoEndringErRelevant(
+        sluttdato: LocalDate,
+        utbetalingPeriode: Periode,
+        deltakelsePeriode: Periode,
+    ): Boolean {
+        return sluttdato.isBefore(deltakelsePeriode.getLastInclusiveDate()) ||
+            (sluttdato.isAfter(deltakelsePeriode.getLastInclusiveDate()) && deltakelsePeriode.slutt.isBefore(utbetalingPeriode.slutt))
     }
 
     fun deltakereMedFeilSluttDato(

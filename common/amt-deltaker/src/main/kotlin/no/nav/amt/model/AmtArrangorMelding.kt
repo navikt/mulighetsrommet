@@ -9,6 +9,7 @@ import kotlinx.serialization.descriptors.element
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -147,6 +148,8 @@ sealed interface AmtArrangorMelding {
                 val aarsak: EndringAarsak?,
                 val harDeltatt: Boolean?,
                 val harFullfort: Boolean?,
+                @Serializable(with = LocalDateSerializer::class)
+                val sluttdato: LocalDate? = null,
             ) : Endring
         }
 
@@ -199,10 +202,11 @@ object MeldingSerializer : KSerializer<AmtArrangorMelding?> {
         require(decoder is JsonDecoder) // This serializer works with JSON
         val jsonElement = decoder.decodeJsonElement().jsonObject
 
+        val data = JsonObject(jsonElement.filterKeys { it !in setOf("type", "navAnsatt", "sistEndret") })
         return when (jsonElement["type"]?.jsonPrimitive?.content) {
             "Forslag" -> decoder.json.decodeFromJsonElement(
                 AmtArrangorMelding.Forslag.serializer(),
-                jsonElement,
+                data,
             )
 
             else -> null
