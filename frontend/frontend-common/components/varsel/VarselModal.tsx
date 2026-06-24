@@ -1,7 +1,5 @@
-import { Button, Heading, Modal } from "@navikt/ds-react";
-import classNames from "classnames";
+import { Button, Modal } from "@navikt/ds-react";
 import React, { RefObject } from "react";
-import styles from "./VarselModal.module.scss";
 import {
   ExclamationmarkTriangleFillIcon,
   InformationSquareFillIcon,
@@ -13,12 +11,11 @@ interface Props {
   open?: boolean;
   handleClose: () => void;
   headingIconType?: "warning" | "error" | "info";
-  headingText: React.ReactNode;
+  headingText: string;
   body: React.ReactNode;
   primaryButton?: React.ReactNode;
   secondaryButton?: boolean;
   secondaryButtonHandleAction?: () => void;
-  footerClassName?: string;
 }
 
 export function VarselModal({
@@ -31,35 +28,51 @@ export function VarselModal({
   primaryButton,
   secondaryButton = false,
   secondaryButtonHandleAction,
-  footerClassName,
 }: Props) {
+  const icon = () => {
+    switch (headingIconType) {
+      case "warning":
+        return (
+          <ExclamationmarkTriangleFillIcon
+            color="var(--ax-text-warning-decoration)"
+            height="1.5rem"
+            width="1.5rem"
+          />
+        );
+      case "error":
+        return (
+          <XMarkOctagonFillIcon
+            color="var(--ax-text-error-decoration)"
+            height="1.5rem"
+            width="1.5rem"
+          />
+        );
+      case "info":
+        return (
+          <InformationSquareFillIcon
+            color="var(--ax-text-accent-decoration)"
+            height="1.5rem"
+            width="1.5rem"
+          />
+        );
+      case undefined:
+      default:
+        return null;
+    }
+  };
+
   return (
     <Modal
       ref={modalRef}
       onClose={handleClose}
+      header={{ heading: headingText, icon: icon() }}
       closeOnBackdropClick
-      aria-label="modal"
+      width="medium"
       open={open}
-      className={styles.varselmodal}
     >
-      <Modal.Header closeButton={false} className={styles.heading}>
-        {headingIconType === "warning" && (
-          <ExclamationmarkTriangleFillIcon
-            className={classNames(styles.icon, styles.icon_warning)}
-          />
-        )}
-        {headingIconType === "error" && (
-          <XMarkOctagonFillIcon className={classNames(styles.icon, styles.icon_error)} />
-        )}
-        {headingIconType === "info" && (
-          <InformationSquareFillIcon className={classNames(styles.icon, styles.icon_info)} />
-        )}
-        <Heading align="center" size="medium">
-          {headingText}
-        </Heading>
-      </Modal.Header>
-      <Modal.Body className={styles.body}>{body}</Modal.Body>
-      <Modal.Footer className={footerClassName ? footerClassName : styles.footer}>
+      <Modal.Body>{body}</Modal.Body>
+      <Modal.Footer>
+        {primaryButton}
         {secondaryButton && (
           <Button
             type="button"
@@ -69,10 +82,9 @@ export function VarselModal({
               secondaryButtonHandleAction?.();
             }}
           >
-            Nei, takk
+            Avbryt
           </Button>
         )}
-        {primaryButton} {/*Teksten i primarybutton skal være "Ja, jeg vil .."*/}
       </Modal.Footer>
     </Modal>
   );
