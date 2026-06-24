@@ -4,7 +4,7 @@ import { Button } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { kanOppretteEnkeltplass } from "@/apps/modia/features";
 import { useAktiveDeltakelser } from "@/api/queries/useDeltakelse";
-import { InfoMeldingDeltakelse } from "./PameldingDeltakelseAlert";
+import { InfoMeldingDeltakelse } from "./InfoMeldingDeltakelse";
 
 interface Props {
   tiltakstype: VeilederflateTiltakstype;

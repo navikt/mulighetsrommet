@@ -3,7 +3,8 @@ import {
   DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus as InfoMeldingStatus,
   Tiltaksadministrasjon,
 } from "@arbeidsmarkedstiltak/api-client";
-import { Alert, BodyShort, Button, Heading, VStack } from "@navikt/ds-react";
+import { Button, InfoCard } from "@navikt/ds-react";
+import { AkselColor } from "@navikt/ds-react/types/theme";
 
 interface PameldingDeltakelseAlertProps {
   deltakelse: Tiltaksadministrasjon;
@@ -20,31 +21,27 @@ export function InfoMeldingDeltakelse({ deltakelse }: PameldingDeltakelseAlertPr
 
   const tekster = utledTekster(deltakelse.infoMeldingStatus);
   return (
-    <Alert variant={tekster.variant}>
-      <Heading level={"2"} size="small">
-        {tekster.overskrift}
-      </Heading>
-      <VStack gap="space-8">
-        <BodyShort>
-          <Button
-            role="link"
-            variant="tertiary"
-            className="underline"
-            size="xsmall"
-            onClick={vedtakRoute.navigate}
-          >
-            {tekster.lenketekst}
-          </Button>
-        </BodyShort>
-      </VStack>
-    </Alert>
+    <InfoCard data-color={tekster.variant}>
+      <InfoCard.Header>{tekster.overskrift}</InfoCard.Header>
+      <InfoCard.Content>
+        <Button
+          role="link"
+          variant="tertiary"
+          className="underline"
+          size="xsmall"
+          onClick={vedtakRoute.navigate}
+        >
+          {tekster.lenketekst}
+        </Button>
+      </InfoCard.Content>
+    </InfoCard>
   );
 }
 
 interface Tekst {
   overskrift: string;
   lenketekst: string;
-  variant: "info" | "success" | "warning";
+  variant: AkselColor;
 }
 
 function utledTekster(status: InfoMeldingStatus): Tekst {

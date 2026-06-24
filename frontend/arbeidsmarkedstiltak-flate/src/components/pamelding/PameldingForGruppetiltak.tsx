@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { useAktiveDeltakelser } from "@/api/queries/useDeltakelse";
 import { Melding } from "../melding/Melding";
-import { InfoMeldingDeltakelse } from "./PameldingDeltakelseAlert";
+import { InfoMeldingDeltakelse } from "./InfoMeldingDeltakelse";
 
 interface PameldingProps {
   brukerHarRettPaaValgtTiltak: boolean;
