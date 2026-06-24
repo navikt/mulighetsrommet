@@ -16,7 +16,6 @@ import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder.consumerBuilder
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -123,11 +122,6 @@ val ApplicationConfigTest = AppConfig(
         gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
             Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
         },
-        opprettKravPrismodeller = listOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-            PrismodellType.ANNEN_AVTALT_PRIS,
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-        ),
         tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
     ),
     database = databaseConfig,

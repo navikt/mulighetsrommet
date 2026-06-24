@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api
 
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.common.kafka.util.KafkaPropertiesPreset.aivenDefaultConsumerProperties
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -95,11 +94,6 @@ val ApplicationConfigProd = AppConfig(
                 Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to Periode(LocalDate.of(2026, 1, 1), slutt),
                 Tiltakskode.STUDIESPESIALISERING to Periode(LocalDate.of(2026, 1, 1), slutt),
                 Tiltakskode.FAG_OG_YRKESOPPLAERING to Periode(LocalDate.of(2026, 1, 1), slutt),
-            ),
-            opprettKravPrismodeller = listOf(
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                PrismodellType.ANNEN_AVTALT_PRIS,
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             ),
             tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingProd,
         )

@@ -60,7 +60,6 @@ import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Status
 import no.nav.mulighetsrommet.clamav.Vedlegg
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
@@ -146,17 +145,15 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
 
         val filter = getArrangorflateGjennomforingFilter()
         val (totalCount, items) = db.session {
-            val gyldigePrismodeller = okonomiConfig.opprettKravPrismodeller
-
-            if (gyldigePrismodeller.isEmpty()) {
-                PaginatedResult(totalCount = 0, items = emptyList())
-            } else {
-                queries.arrangorflate.tiltak.getAll(
-                    organisasjonsnummer = arrangorer,
-                    prismodeller = gyldigePrismodeller,
-                    filter = filter,
-                )
-            }
+            queries.arrangorflate.tiltak.getAll(
+                organisasjonsnummer = arrangorer,
+                prismodeller = listOf(
+                    PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                    PrismodellType.ANNEN_AVTALT_PRIS,
+                    PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
+                ),
+                filter = filter,
+            )
         }
 
         call.respond(PaginatedResponse.of(filter.pagination, totalCount, items.map { it.toRadDto() }))

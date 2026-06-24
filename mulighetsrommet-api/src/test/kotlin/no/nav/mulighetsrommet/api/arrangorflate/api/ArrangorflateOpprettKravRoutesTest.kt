@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.arrangorflate.api
 
 import io.kotest.assertions.shouldFail
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -18,7 +17,6 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import no.nav.mulighetsrommet.api.ApplicationConfigLocal
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -96,23 +94,6 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
     }
 
     val tiltaksoversiktUrl = "/api/arrangorflate/tiltaksoversikt"
-
-    test("tom gjennomføringstabell hvis ingen prismodell er konfigurert") {
-        var config = ArrangorflateTestUtils.appConfig(oauth).copy(
-            okonomi = ApplicationConfigLocal.okonomi.copy(
-                opprettKravPrismodeller = emptyList(),
-            ),
-        )
-        withTestApplication(config) {
-            val response = client.get(tiltaksoversiktUrl) {
-                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-            }
-
-            response.status shouldBe HttpStatusCode.OK
-            val body = response.body<PaginatedResponse<ArrangorInnsendingRadDto>>()
-            body.data.shouldBeEmpty()
-        }
-    }
 
     test("skal kunne få gjennomføringstabellen med litt data") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
