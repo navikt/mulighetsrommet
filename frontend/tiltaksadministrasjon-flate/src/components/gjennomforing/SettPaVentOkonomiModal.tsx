@@ -46,7 +46,7 @@ export function SettPaVentOkonomiModal({ open, setOpen, gjennomforingId }: Props
             </InfoCard.Content>
           </InfoCard>
           <Textarea
-            label="Forklaring (valgfritt)"
+            label="Intern kommentar (valgfritt)"
             value={forklaring}
             onChange={(e) => setForklaring(e.target.value)}
             maxLength={500}
