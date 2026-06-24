@@ -94,11 +94,14 @@ object UtbetalingAdvarsler {
                 forslag.endring.startdato.isAfter(deltakelsePeriode.start)
             }
 
+            is AmtArrangorMelding.Forslag.Endring.EndreAvslutning -> {
+                forslag.endring.harDeltatt == false
+            }
+
             is AmtArrangorMelding.Forslag.Endring.Sluttarsak -> false
 
             is AmtArrangorMelding.Forslag.Endring.IkkeAktuell,
             is AmtArrangorMelding.Forslag.Endring.FjernOppstartsdato,
-            is AmtArrangorMelding.Forslag.Endring.EndreAvslutning,
             -> true
         }
     }
