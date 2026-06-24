@@ -8,12 +8,14 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 import {
   EndringshistorikkType,
   FieldError,
+  TilskuddBehandlingDto,
   TilskuddBehandlingHandling,
   TilskuddBehandlingStatusAarsak,
   ValidationError,
   Valuta,
+  VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
-import { Alert, BodyLong, Box, Button, HStack, VStack } from "@navikt/ds-react";
+import { Alert, BodyShort, Box, Button, HStack, List, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
@@ -253,15 +255,7 @@ export function TilskuddBehandlingDetaljerPage() {
         handleClose={() => setAttesterModalOpen(false)}
         headingText="Attester tilskuddsbehandling"
         headingIconType="info"
-        body={
-          <BodyLong>
-            <p>Du er i ferd med å attestere en innvilgelse om tilskudd til utdanning.</p>
-            <p>
-              Utbetaling direkte til brukeren vil skje automatisk og krever ikke videre behandling.
-              Vedtaksbrev vil sendes til brukeren og arkiveres i GoSys.
-            </p>
-          </BodyLong>
-        }
+        body={attesterModalInnhold(behandling)}
         secondaryButton
         primaryButton={
           <Button variant="primary" onClick={attester}>
@@ -270,5 +264,29 @@ export function TilskuddBehandlingDetaljerPage() {
         }
       />
     </TilskuddBehandlingLayout>
+  );
+}
+
+function attesterModalInnhold(behandling: TilskuddBehandlingDto) {
+  return (
+    <>
+      <BodyShort spacing>Du er i ferd med å attestere vedtak om:</BodyShort>
+      <List>
+        {behandling.tilskudd.map((t) =>
+          t.vedtakResultat.type === VedtakResultat.INNVILGELSE ? (
+            <List.Item key={t.id}>
+              {t.utbetalingBelop?.belop ?? 0} {(t.utbetalingBelop?.valuta ?? Valuta.NOK).toString()}{" "}
+              i {opplaeringTilskuddToString(t.tilskuddOpplaeringType).toLowerCase()} som{" "}
+              {tilskuddMottakerToString(t.utbetalingMottaker).toLowerCase()}
+            </List.Item>
+          ) : (
+            <List.Item key={t.id}>
+              {" "}
+              Avslag på {opplaeringTilskuddToString(t.tilskuddOpplaeringType).toLowerCase()}
+            </List.Item>
+          ),
+        )}
+      </List>
+    </>
   );
 }

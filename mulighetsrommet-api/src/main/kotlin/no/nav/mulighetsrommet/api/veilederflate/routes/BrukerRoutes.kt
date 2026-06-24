@@ -153,7 +153,7 @@ fun Route.brukerRoutes() {
                     is VeilederflateTiltakEnkeltplass,
                     ->
                         deltakelser.aktive
-                            .filter { it.tiltakstype.tiltakskode == gjennomforing.tiltakstype.tiltakskode }
+                            .filter { (it as? Deltakelse.TiltaksadministrasjonDeltakelse)?.tiltakskode == gjennomforing.tiltakstype.tiltakskode }
 
                     is VeilederflateTiltakGruppe ->
                         deltakelser.aktive

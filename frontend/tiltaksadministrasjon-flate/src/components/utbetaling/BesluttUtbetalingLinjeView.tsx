@@ -13,13 +13,14 @@ import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
-import AttesterUtbetalingLinjeModal from "./AttesterUtbetalingLinjeModal";
 import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
 import { PlusCircleIcon } from "@navikt/aksel-icons";
 import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjonModal";
 import { Handlinger } from "@/components/handlinger/Handlinger";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
+import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 
 export interface Props {
   utbetaling: UtbetalingDto;
@@ -29,6 +30,9 @@ export interface Props {
 export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
   const { data: linjer } = useUtbetalingsLinjer(utbetaling.id);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
+  const [attesterModalOpenForLinjeId, setAttesterModalOpenForLinjeId] = useState<string | null>(
+    null,
+  );
   const [opprettKorreksjonModalOpen, setOpprettKorreksjonModalOpen] = useState<boolean>(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
   const attesterUtbetalingLinjeMutation = useAttesterUtbetalingLinje();
@@ -133,12 +137,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
                       key={`attester-knapp-${linje.id}`}
                       size="small"
                       type="button"
-                      onClick={() => {
-                        const modal = document.getElementById(
-                          `godkjenn-modal-${linje.id}`,
-                        ) as HTMLDialogElement;
-                        modal.showModal();
-                      }}
+                      onClick={() => setAttesterModalOpenForLinjeId(linje.id)}
                     >
                       {utbetalingTekster.linje.handlinger.attester}
                     </Button>
@@ -158,22 +157,35 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
                       returnerUtbetalingLinje(linje.id, request);
                     }}
                   />
-                  <AttesterUtbetalingLinjeModal
-                    id={`godkjenn-modal-${linje.id}`}
+                  <VarselModal
+                    open={
+                      attesterModalOpenForLinjeId !== null &&
+                      attesterModalOpenForLinjeId === linje.id
+                    }
                     handleClose={() => {
-                      const modal = document.getElementById(
-                        `godkjenn-modal-${linje.id}`,
-                      ) as HTMLDialogElement;
-                      modal.close();
+                      setAttesterModalOpenForLinjeId(null);
                     }}
-                    onConfirm={() => {
-                      const modal = document.getElementById(
-                        `godkjenn-modal-${linje.id}`,
-                      ) as HTMLDialogElement;
-                      modal.close();
-                      attesterUtbetalingLinje(linje.id);
-                    }}
-                    linje={linje}
+                    headingText="Attester utbetaling"
+                    headingIconType="info"
+                    body={
+                      <BodyShort>
+                        Du er i ferd med å attestere utbetalingsbeløp{" "}
+                        {formaterValutaBelop(linje.pris)} for kostnadssted{" "}
+                        {linje.tilsagn.kostnadssted.navn}. Er du sikker?
+                      </BodyShort>
+                    }
+                    secondaryButton
+                    primaryButton={
+                      <Button
+                        variant="primary"
+                        onClick={() => {
+                          setAttesterModalOpenForLinjeId(null);
+                          attesterUtbetalingLinje(linje.id);
+                        }}
+                      >
+                        Ja, attester beløp
+                      </Button>
+                    }
                   />
                 </HStack>
               }

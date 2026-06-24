@@ -2,6 +2,7 @@ import {
   DataElementStatusVariant,
   Deltakelse,
   DeltakelseTilstand,
+  DeltakerStatusType,
   DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus,
   Tiltakskode,
 } from "@arbeidsmarkedstiltak/api-client";
@@ -24,7 +25,6 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tiltakstype: {
       navn: "Arbeidsforberedende trening",
-      tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
     },
     tittel: "Arbeidsforberedende trening hos Barneverns- og Helsenemnda",
     tilstand: DeltakelseTilstand.KLADD,
@@ -66,7 +66,6 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tiltakstype: {
       navn: "Avklaring",
-      tiltakskode: Tiltakskode.AVKLARING,
     },
     tittel: "Avklaring hos Fretex AS",
     tilstand: DeltakelseTilstand.UTKAST,
@@ -89,7 +88,6 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tiltakstype: {
       navn: "Jobbklubb",
-      tiltakskode: Tiltakskode.JOBBKLUBB,
     },
     periode: {
       startDato: "2023-08-10",
@@ -112,7 +110,6 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tiltakstype: {
       navn: "Jobbklubb",
-      tiltakskode: Tiltakskode.JOBBKLUBB,
     },
     periode: {
       startDato: "2023-08-10",
@@ -125,7 +122,7 @@ export const deltakelserAktive: Deltakelse[] = [
     infoMeldingStatus: DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus.DELTAR,
   },
   {
-    type: "ARENA",
+    type: "TILTAK_ARBEIDSGIVER",
     id: window.crypto.randomUUID(),
     status: {
       type: { value: "Gjennomføres", variant: DataElementStatusVariant.BLANK, description: null },
@@ -133,7 +130,6 @@ export const deltakelserAktive: Deltakelse[] = [
     },
     tiltakstype: {
       navn: "Arbeidstrening",
-      tiltakskode: null,
     },
     periode: {
       startDato: "2023-08-10",

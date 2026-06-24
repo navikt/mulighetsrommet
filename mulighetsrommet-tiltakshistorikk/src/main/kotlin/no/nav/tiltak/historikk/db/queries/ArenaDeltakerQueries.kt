@@ -149,9 +149,9 @@ private fun Row.toArenaDeltakelse(): TiltakshistorikkV1Dto.ArenaDeltakelse {
         sluttDato = localDateOrNull("slutt_dato"),
         tittel = Tiltaksnavn.hosTitleCaseVirksomhet(tiltakstype.navn, arrangor.underenhet.navn),
         tiltakstype = tiltakstype,
-        gjennomforing = TiltakshistorikkV1Dto.ArenaDeltakelse.Gjennomforing(
+        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
             id = uuid("gjennomforing_id"),
-            navn = string("gjennomforing_navn"),
+            navn = stringOrNull("gjennomforing_navn"),
             deltidsprosent = floatOrNull("gjennomforing_deltidsprosent"),
         ),
         arrangor = arrangor,

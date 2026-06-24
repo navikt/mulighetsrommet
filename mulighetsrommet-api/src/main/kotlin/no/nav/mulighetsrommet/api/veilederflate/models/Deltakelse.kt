@@ -32,6 +32,7 @@ sealed class Deltakelse {
         override val periode: DeltakelsePeriode,
         override val tittel: String,
         override val status: DeltakelseStatus,
+        val tiltakskode: Tiltakskode,
         @Serializable(with = LocalDateSerializer::class)
         val innsoktDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
@@ -79,7 +80,6 @@ sealed class Deltakelse {
 @Serializable
 data class DeltakelseTiltakstype(
     val navn: String,
-    val tiltakskode: Tiltakskode?,
 )
 
 @Serializable

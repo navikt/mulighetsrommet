@@ -113,7 +113,7 @@ export function UtbetalingLinjeRow({
       <Table.DataCell>
         {linje.status && <UtbetalingLinjeStatusTag status={linje.status} />}
       </Table.DataCell>
-      <Table.DataCell align="right">{knappeColumn}</Table.DataCell>
+      <Table.DataCell>{knappeColumn}</Table.DataCell>
     </Table.ExpandableRow>
   );
 }
