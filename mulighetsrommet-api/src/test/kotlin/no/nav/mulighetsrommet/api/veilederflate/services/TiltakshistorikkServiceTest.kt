@@ -52,11 +52,10 @@ class TiltakshistorikkServiceTest : FunSpec({
             tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
             navn = TiltakstypeFixtures.Oppfolging.navn,
         ),
-        gjennomforing = TiltakshistorikkV1Dto.TeamKometDeltakelse.Gjennomforing(
+        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
             id = gjennomforing.id,
             navn = gjennomforing.navn,
             deltidsprosent = 100f,
-            type = TiltakshistorikkV1Dto.TeamKometDeltakelse.GjennomforingType.GRUPPE,
         ),
         norskIdent = NorskIdent("12345678910"),
         status = TiltakshistorikkV1Dto.TeamKometDeltakelse.Status(
@@ -86,7 +85,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             tiltakskode = "IPSUNG",
             navn = "IPS (Individuell jobbstøtte)",
         ),
-        gjennomforing = TiltakshistorikkV1Dto.ArenaDeltakelse.Gjennomforing(
+        gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
             id = UUID.randomUUID(),
             navn = "IPS",
             deltidsprosent = 100f,
@@ -146,6 +145,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         tilstand = DeltakelseTilstand.AKTIV,
         tittel = "Oppfølging hos Fretex AS",
         tiltakstype = DeltakelseTiltakstype(TiltakstypeFixtures.Oppfolging.navn),
+        tiltakskode = Tiltakskode.OPPFOLGING,
         status = DeltakelseStatus(
             type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
             aarsak = null,
@@ -407,7 +407,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                 tiltakskode = "ENKELAMO",
                 navn = TiltakstypeFixtures.EnkelAmo.navn,
             ),
-            gjennomforing = TiltakshistorikkV1Dto.ArenaDeltakelse.Gjennomforing(
+            gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
                 id = UUID.randomUUID(),
                 navn = "Tilfeldig enkeltplass fra Arena",
                 deltidsprosent = 100f,
@@ -472,6 +472,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                         tiltakstype = DeltakelseTiltakstype(
                             TiltakstypeFixtures.EnkelAmo.navn,
                         ),
+                        tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
                         status = DeltakelseStatus(
                             type = DataElement.Status("Venteliste", DataElement.Status.Variant.ALT_1),
                             aarsak = null,
