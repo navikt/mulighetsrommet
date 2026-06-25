@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
+import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
@@ -83,18 +84,22 @@ class GjennomforingDetaljerService(
             }
 
             is GjennomforingEnkeltplass -> db.session {
-                val okonomi = queries.totrinnskontroll.getDto(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                val okonomi = queries.totrinnskontroll.getDto(
+                    gjennomforing.id,
+                    TotrinnskontrollType.ENKELTPLASS_OKONOMI,
+                )
 
-                val prisendring = queries.totrinnskontroll
-                    .get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
-                    ?.takeIf { it.kanBesluttes() }
-                    ?.let { queries.totrinnskontroll.getDtoOrError(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING) }
+                val prisendring = queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforing.id)
+                    ?.let { queries.prismodell.getOrError(it.prismodellId) }
+                    ?.let { prismodell ->
+                        val totrinnskontroll = queries.totrinnskontroll.getDtoOrError(
+                            gjennomforing.id,
+                            TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
+                        )
+                        GjennomforingDetaljerDto.Prisendring(totrinnskontroll, fromPrismodell(prismodell))
+                    }
 
-                val pendingPrismodell = prisendring
-                    ?.let { queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforing.id) }
-                    ?.let { p -> queries.prismodell.getOrError(p.prismodellId) }
-
-                val deltakerDto = getDeltaker(gjennomforing.id)?.let { deltaker ->
+                val deltaker = getDeltaker(gjennomforing.id)?.let { deltaker ->
                     val personalia = personaliaService
                         .getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
                     val norskIdent = personalia.norskIdent()
@@ -104,18 +109,18 @@ class GjennomforingDetaljerService(
                     val veilederNavn = deltaker.navVeileder?.navIdent?.let {
                         navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
                     }
-
                     DeltakerDto.from(deltaker, personalia, veilederNavn)
                 }
+
                 val opplaringKategorisering = context(session) {
                     OpplaringKategoriseringQueries.get(gjennomforing.id)
                 }
+
                 GjennomforingDtoMapper.fromEnkeltplass(
                     gjennomforing,
                     okonomi,
                     prisendring,
-                    pendingPrismodell,
-                    deltakerDto,
+                    deltaker,
                     opplaringKategorisering,
                 )
             }
