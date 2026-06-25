@@ -10,38 +10,6 @@
       "historikk": [
         {
           "norskIdent": "12345678901",
-          "startDato": "2026-01-01",
-          "sluttDato": "2026-12-31",
-          "id": "550e8400-e29b-41d4-a716-446655440000",
-          "status": {
-            "type": "DELTAR",
-            "aarsak": null,
-            "opprettetDato": "2023-01-01T00:00:00"
-          },
-          "tiltakstype": {
-            "tiltakskode": "",
-            "navn": "Jobbklubb"
-          },
-          "gjennomforing": {
-            "id": "550e8400-e29b-41d4-a716-446655440001",
-            "navn": "Jobbklubb",
-            "deltidsprosent": null
-          },
-          "arrangor": {
-            "hovedenhet": null,
-            "underenhet": {
-              "organisasjonsnummer": "123456789",
-              "navn": "Arrangør AS"
-            }
-          },
-          "deltidsprosent": null,
-          "dagerPerUke": null,
-          "opphav": "TEAM_KOMET",
-          "type": "TeamKometDeltakelse",
-          "tittel": "Jobbklubb hos Arrangør AS"
-        },
-        {
-          "norskIdent": "12345678901",
           "startDato": "2023-01-01",
           "sluttDato": "2023-12-31",
           "id": "550e8400-e29b-41d4-a716-446655440000",
