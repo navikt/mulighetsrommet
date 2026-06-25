@@ -83,7 +83,7 @@ function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
     <VStack gap="space-8">
       <HStack gap="space-40">
         <small>{tiltakstype.navn.toUpperCase()}</small>
-        {<InnsoktDato deltakelse={deltakelse} />}
+        <InnsoktDato deltakelse={deltakelse} />
       </HStack>
       {tittel ? (
         <Heading size="medium" level="4">

@@ -26,7 +26,7 @@ export function InfoMeldingDeltakelse({ deltakelse }: InfoMeldingDeltakelseProps
       <InfoCard.Header>{tekster.overskrift}</InfoCard.Header>
       <InfoCard.Content>
         {deltakelse.oppstartstype === GjennomforingOppstartstype.ENKELTPLASS && (
-          <BodyShort size="small"> Gjelder {deltakelse.tittel}</BodyShort>
+          <BodyShort size="small">Gjelder {deltakelse.tittel}</BodyShort>
         )}
         <Button
           role="link"
