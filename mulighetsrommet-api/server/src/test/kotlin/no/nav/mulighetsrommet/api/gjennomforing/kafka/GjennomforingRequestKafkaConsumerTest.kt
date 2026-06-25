@@ -185,4 +185,52 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             service.get(gjennomforingId).shouldBeNull()
         }
     }
+
+    context("EnkeltplassEndreInnhold") {
+        val service = GjennomforingEnkeltplassService(
+            GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
+            database.db,
+            mockk(),
+            TiltakstypeService(TiltakstypeService.Config(), database.db),
+            TotrinnskontrollService(""),
+        )
+
+        val gjennomforingId = UUID.randomUUID()
+        val utkastPayload = UpsertEnkeltplass(
+            tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            ansvarligEnhet = NavEnhetNummer("0400"),
+            opprettetAv = NavIdent("B123456"),
+            prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            kategorisering = null,
+        )
+
+        test("oppdaterer kategorisering på eksisterende enkeltplass") {
+            val arrangorer = mockk<ArrangorService>()
+            coEvery {
+                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
+            } returns ArrangorFixtures.underenhet1.right()
+
+            val consumer = createConsumer(service, arrangorer)
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(GjennomforingRequest.EnkeltplassUtkast(gjennomforingId, utkastPayload)))
+            service.get(gjennomforingId).shouldNotBeNull()
+
+            val endreInnholdRequest = GjennomforingRequest.EnkeltplassEndreInnhold(gjennomforingId, payload = null)
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(endreInnholdRequest))
+
+            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, _) ->
+                gjennomforing.id shouldBe gjennomforingId
+            }
+        }
+
+        test("kaster feil dersom gjennomforing ikke eksisterer") {
+            val consumer = createConsumer(service)
+            val ikkeEksisterendeId = UUID.randomUUID()
+            val request = GjennomforingRequest.EnkeltplassEndreInnhold(ikkeEksisterendeId, payload = null)
+
+            shouldThrowExactly<IllegalArgumentException> {
+                consumer.consume(ikkeEksisterendeId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+            }
+        }
+    }
 })

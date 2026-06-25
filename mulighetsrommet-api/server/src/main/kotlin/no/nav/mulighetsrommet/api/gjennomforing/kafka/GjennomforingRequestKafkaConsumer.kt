@@ -33,7 +33,7 @@ class GjennomforingRequestKafkaConsumer(
         when (val request = JsonIgnoreUnknownKeys.decodeFromJsonElement<GjennomforingRequest>(message)) {
             is GjennomforingRequest.EnkeltplassUtkast -> handterEnkeltplassUtkast(request)
             is GjennomforingRequest.EnkeltplassSoktInn -> handterEnkeltplassSoktInn(request)
-            is GjennomforingRequest.EnkeltplassEndreInnhold -> TODO("Ikke støttet enda")
+            is GjennomforingRequest.EnkeltplassEndreInnhold -> handterEnkeltplassEndreInnhold(request)
             is GjennomforingRequest.EnkeltplassEndrePrisinformasjon -> TODO("Ikke støttet enda")
         }
     }
@@ -70,6 +70,13 @@ class GjennomforingRequestKafkaConsumer(
     private suspend fun getArrangor(organisasjonsnummer: Organisasjonsnummer): Arrangor = arrangorer
         .execute(SyncArrangorIfMissing(organisasjonsnummer))
         .getOrElse { error("Klarte ikke hente arrangør fra brreg $it") }
+
+    private fun handterEnkeltplassEndreInnhold(request: GjennomforingRequest.EnkeltplassEndreInnhold) {
+        enkeltplasser.endreInnhold(
+            request.gjennomforingId,
+            request.payload?.let(KategoriseringMapper::fromKafkaPayload),
+        )
+    }
 }
 
 private fun toRequest(
