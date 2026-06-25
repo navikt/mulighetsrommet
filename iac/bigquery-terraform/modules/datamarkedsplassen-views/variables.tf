@@ -3,8 +3,7 @@ variable "gcp_project" {
   type        = map(string)
 }
 
-variable "cloud_sql_port" {
-  description = "The port exposed by the Cloud SQL instance."
+variable "mr_api_datastream_dataset_id" {
+  description = "Dataset ID created by the mr-api datastream module."
   type        = string
-  default     = "5432"
 }
