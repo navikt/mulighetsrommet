@@ -92,7 +92,11 @@ class GjennomforingDetaljerService(
                     if (personalia.harTilgang() && norskIdent != null) {
                         auditLogVisEnkeltplass(navIdent, norskIdent)
                     }
-                    DeltakerDto.from(it, personalia)
+                    val veilederNavn = it.navVeileder?.navIdent?.let {
+                        navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
+                    }
+
+                    DeltakerDto.from(it, personalia, veilederNavn)
                 }
                 val opplaringKategorisering = context(session) {
                     OpplaringKategoriseringQueries.get(gjennomforing.id)

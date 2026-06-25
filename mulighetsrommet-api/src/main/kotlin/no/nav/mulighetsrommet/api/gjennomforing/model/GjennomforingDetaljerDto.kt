@@ -186,10 +186,10 @@ data class DeltakerDto(
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val navVeileder: NavIdent?,
+    val navVeilederNavn: String?,
 ) {
     companion object {
-        fun from(deltaker: Deltaker, personalia: Personalia) = DeltakerDto(
+        fun from(deltaker: Deltaker, personalia: Personalia, navVeilederNavn: String?) = DeltakerDto(
             id = deltaker.id,
             status = deltaker.status.type.toDataElement(),
             innholdAnnet = deltaker.innholdAnnet,
@@ -199,7 +199,7 @@ data class DeltakerDto(
             avvistGrunn = personalia.avvistGrunn,
             startDato = deltaker.startDato,
             sluttDato = deltaker.sluttDato,
-            navVeileder = deltaker.navVeileder?.navIdent,
+            navVeilederNavn = navVeilederNavn,
         )
     }
 }

@@ -111,6 +111,11 @@ class NavAnsattService(
         return toNavAnsatt(ansatt, accessType)
     }
 
+    suspend fun getNavAnsattNavnFromAzure(navIdent: NavIdent, accessType: AccessType): String {
+        val ansatt = checkNotNull(microsoftGraphClient.getNavAnsattByNavIdent(navIdent, accessType))
+        return "${ansatt.etternavn}, ${ansatt.fornavn}"
+    }
+
     suspend fun getNavAnsattRoles(oid: UUID, accessType: AccessType): Set<NavAnsattRolle> {
         val groups = microsoftGraphClient.getMemberGroups(oid, accessType)
         return getNavAnsattRolesFromGroups(groups)
