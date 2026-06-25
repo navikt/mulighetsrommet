@@ -768,7 +768,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         context("endrePrisinformasjon") {
             val service = createService()
 
-            test("oppdaterer prismodell og godkjenner automatisk når OKONOMI er under behandling") {
+            test("oppdaterer prismodell og godkjenner automatisk når økonomi er TIL_BEHANDLING") {
                 val soktInn = createRequest()
                 service.soktInn(soktInn, opprettetAv).shouldBeRight()
 
@@ -789,7 +789,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
-            test("oppdaterer prismodell automatisk og setter økonomi TIL_BEHANDLING når OKONOMI er SATT_PA_VENT") {
+            test("oppdaterer prismodell automatisk og setter økonomi TIL_BEHANDLING når økonomi er SATT_PA_VENT") {
                 val soktInn = createRequest()
                 service.soktInn(soktInn, opprettetAv).shouldBeRight()
                 service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
@@ -817,7 +817,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
-            test("oppretter pending prisendring når OKONOMI er GODKJENT") {
+            test("oppretter prisendring når økonomi er GODKJENT") {
                 val soktInn = createRequest()
                 service.soktInn(soktInn, opprettetAv).shouldBeRight()
                 service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
@@ -839,7 +839,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
-            test("avviser eksisterende pending prisendring ved ny prisendring mens OKONOMI er GODKJENT") {
+            test("avviser eksisterende prisendring ved ny prisendring mens økonomi er GODKJENT") {
                 val soktInn = createRequest()
                 service.soktInn(soktInn, opprettetAv).shouldBeRight()
                 service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
@@ -866,15 +866,13 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
-            test("returnerer feil når OKONOMI er AVVIST") {
+            test("returnerer feil økonomi er RETURNERT") {
                 val soktInn = createRequest()
-                service.soktInn(soktInn, opprettetAv).shouldBeRight()
+                val enkeltplass = service.soktInn(soktInn, opprettetAv).shouldBeRight()
 
-                // Simuler ugyldig tilstand - tjenesten tillater ikke å status RETURNERT (kun SATT_PA_VENT)
+                // Simuler ugyldig tilstand - tjenesten tillater foreløpig ikke å sette status RETURNERT (kun SATT_PA_VENT)
                 database.run {
-                    val okonomi = queries.totrinnskontroll
-                        .getOrError(soktInn.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                    okonomi.returner(besluttetAv).onRight { queries.totrinnskontroll.upsert(it) }
+                    enkeltplass.okonomi!!.returner(besluttetAv).onRight { queries.totrinnskontroll.upsert(it) }
                 }
 
                 service.endrePrisinformasjon(
