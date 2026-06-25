@@ -1,9 +1,10 @@
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import {
+  GjennomforingOppstartstype,
   DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus as InfoMeldingStatus,
   Tiltaksadministrasjon,
 } from "@arbeidsmarkedstiltak/api-client";
-import { Button, InfoCard } from "@navikt/ds-react";
+import { BodyShort, Button, InfoCard } from "@navikt/ds-react";
 import { AkselColor } from "@navikt/ds-react/types/theme";
 
 interface InfoMeldingDeltakelseProps {
@@ -24,6 +25,9 @@ export function InfoMeldingDeltakelse({ deltakelse }: InfoMeldingDeltakelseProps
     <InfoCard data-color={tekster.variant}>
       <InfoCard.Header>{tekster.overskrift}</InfoCard.Header>
       <InfoCard.Content>
+        {deltakelse.oppstartstype === GjennomforingOppstartstype.ENKELTPLASS && (
+          <BodyShort size="small"> Gjelder {deltakelse.tittel}</BodyShort>
+        )}
         <Button
           role="link"
           variant="tertiary"

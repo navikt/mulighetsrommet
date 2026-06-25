@@ -3,11 +3,13 @@ import {
   Deltakelse,
   DeltakelseTilstand,
   DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus,
+  GjennomforingOppstartstype,
   Tiltakskode,
 } from "@arbeidsmarkedstiltak/api-client";
 import {
   tiltakAft,
   tiltakAvklaring,
+  enkeltplassNorskGrunnFov,
   tiltakFagOgYrke,
   tiltakJobbklubb,
 } from "./mockGjennomforinger";
@@ -31,6 +33,7 @@ export const deltakelserAktive: Deltakelse[] = [
     periode: { startDato: null, sluttDato: null },
     gjennomforingId: tiltakAft.id,
     infoMeldingStatus: DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus.KLADD,
+    oppstartstype: GjennomforingOppstartstype.FELLES,
   },
   {
     type: "TILTAKSADMINISTRASJON",
@@ -50,6 +53,68 @@ export const deltakelserAktive: Deltakelse[] = [
     periode: { startDato: null, sluttDato: null },
     gjennomforingId: tiltakFagOgYrke.sanityId,
     infoMeldingStatus: DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus.SOKT_INN,
+    oppstartstype: GjennomforingOppstartstype.FELLES,
+  },
+  {
+    type: "TILTAKSADMINISTRASJON",
+    id: window.crypto.randomUUID(),
+    innsoktDato: "2024-03-02",
+    sistEndretDato: "2024-03-27",
+    status: {
+      type: { value: "Kladden", variant: DataElementStatusVariant.WARNING, description: null },
+      aarsak: null,
+    },
+    tiltakstype: {
+      navn: "Norskopplæring, grunnleggende ferdigheter og FOV",
+    },
+    tiltakskode: Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+    tittel: "Norskopplæring, grunnleggende ferdigheter og FOV hos Barneverns- og Helsenemnda",
+    tilstand: DeltakelseTilstand.KLADD,
+    periode: { startDato: null, sluttDato: null },
+    gjennomforingId: enkeltplassNorskGrunnFov.sanityId,
+    infoMeldingStatus: DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus.KLADD,
+    oppstartstype: GjennomforingOppstartstype.ENKELTPLASS,
+  },
+  {
+    type: "TILTAKSADMINISTRASJON",
+    id: window.crypto.randomUUID(),
+    innsoktDato: "2024-03-02",
+    sistEndretDato: "2024-03-27",
+    status: {
+      type: { value: "Kladden", variant: DataElementStatusVariant.WARNING, description: null },
+      aarsak: null,
+    },
+    tiltakstype: {
+      navn: "Norskopplæring, grunnleggende ferdigheter og FOV",
+    },
+    tiltakskode: Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+    tittel: "Norskopplæring, grunnleggende ferdigheter og FOV hos Oslo",
+    tilstand: DeltakelseTilstand.KLADD,
+    periode: { startDato: null, sluttDato: null },
+    gjennomforingId: enkeltplassNorskGrunnFov.sanityId,
+    infoMeldingStatus:
+      DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus.UTKAST_TIL_PAMELDING,
+    oppstartstype: GjennomforingOppstartstype.ENKELTPLASS,
+  },
+  {
+    type: "TILTAKSADMINISTRASJON",
+    id: window.crypto.randomUUID(),
+    innsoktDato: "2024-03-02",
+    sistEndretDato: "2024-03-27",
+    status: {
+      type: { value: "Kladden", variant: DataElementStatusVariant.WARNING, description: null },
+      aarsak: null,
+    },
+    tiltakstype: {
+      navn: "Norskopplæring, grunnleggende ferdigheter og FOV",
+    },
+    tiltakskode: Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+    tittel: "Norskopplæring, grunnleggende ferdigheter og FOV hos Kulturdepartementet",
+    tilstand: DeltakelseTilstand.KLADD,
+    periode: { startDato: null, sluttDato: null },
+    gjennomforingId: enkeltplassNorskGrunnFov.sanityId,
+    infoMeldingStatus: DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus.DELTAR,
+    oppstartstype: GjennomforingOppstartstype.ENKELTPLASS,
   },
   {
     type: "TILTAKSADMINISTRASJON",
@@ -74,6 +139,7 @@ export const deltakelserAktive: Deltakelse[] = [
     gjennomforingId: tiltakAvklaring.id,
     infoMeldingStatus:
       DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus.UTKAST_TIL_PAMELDING,
+    oppstartstype: GjennomforingOppstartstype.LOPENDE,
   },
   {
     type: "TILTAKSADMINISTRASJON",
@@ -101,6 +167,7 @@ export const deltakelserAktive: Deltakelse[] = [
     gjennomforingId: tiltakJobbklubb.id,
     infoMeldingStatus:
       DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus.VENTER_PA_OPPSTART,
+    oppstartstype: GjennomforingOppstartstype.FELLES,
   },
   {
     type: "TILTAKSADMINISTRASJON",
@@ -123,6 +190,7 @@ export const deltakelserAktive: Deltakelse[] = [
     tilstand: DeltakelseTilstand.AKTIV,
     gjennomforingId: tiltakJobbklubb.id,
     infoMeldingStatus: DeltakelseTiltaksadministrasjonDeltakelseInfoMeldingStatus.DELTAR,
+    oppstartstype: GjennomforingOppstartstype.FELLES,
   },
   {
     type: "TILTAK_ARBEIDSGIVER",

@@ -1124,11 +1124,14 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Deltakelse.TiltaksadministrasjonDeltakelse.InfoMeldingStatus"
+        oppstartstype:
+          $ref: "#/components/schemas/GjennomforingOppstartstype"
       required:
       - gjennomforingId
       - id
       - infoMeldingStatus
       - innsoktDato
+      - oppstartstype
       - periode
       - sistEndretDato
       - status
@@ -1178,6 +1181,12 @@ components:
       - SOKT_INN
       - VENTELISTE
       - VURDERES
+    GjennomforingOppstartstype:
+      type: string
+      enum:
+      - LOPENDE
+      - FELLES
+      - ENKELTPLASS
     GetDeltakelserForBrukerResponse:
       type: object
       properties:
@@ -1695,12 +1704,6 @@ components:
       required:
       - enhetsnummer
       - navn
-    GjennomforingOppstartstype:
-      type: string
-      enum:
-      - LOPENDE
-      - FELLES
-      - ENKELTPLASS
     VeilederflateTiltakEnkeltplassAnskaffet:
       type: object
       properties:

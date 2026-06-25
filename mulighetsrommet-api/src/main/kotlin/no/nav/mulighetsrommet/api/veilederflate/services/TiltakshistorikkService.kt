@@ -178,6 +178,7 @@ class TiltakshistorikkService(
             sistEndretDato = deltakelse.sistEndretDato,
             gjennomforingId = deltakelse.deltakerlisteId,
             infoMeldingStatus = getInfoMeldingType(deltakelse.status.type),
+            oppstartstype = deltakelse.oppstartstype,
         )
     }
 

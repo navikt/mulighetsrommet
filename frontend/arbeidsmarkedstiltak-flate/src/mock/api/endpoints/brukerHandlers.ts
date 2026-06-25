@@ -76,18 +76,14 @@ export const brukerHandlers = [
     },
   ),
 
-  http.post<PathParams, GetAktivDeltakelseForBrukerRequest, Deltakelse>(
+  http.post<PathParams, GetAktivDeltakelseForBrukerRequest, Deltakelse[]>(
     "*/api/veilederflate/bruker/deltakelse",
     async ({ request }) => {
       const { tiltakId } = await request.json();
-      const found = deltakelserAktive.find((deltakelse) => {
+      const found = deltakelserAktive.filter((deltakelse) => {
         return "gjennomforingId" in deltakelse && deltakelse.gjennomforingId === tiltakId;
       });
-      if (found) {
-        return HttpResponse.json(found);
-      } else {
-        return HttpResponse.json(undefined, { status: 404 });
-      }
+      return HttpResponse.json(found);
     },
   ),
 ];

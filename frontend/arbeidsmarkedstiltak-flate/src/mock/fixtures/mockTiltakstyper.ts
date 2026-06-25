@@ -1,6 +1,8 @@
 import {
   Innsatsgruppe,
   Tiltakskode,
+  TiltakstypeEgenskap,
+  TiltakstypeFeature,
   TiltakstypeSystem,
   VeilederflateTiltakstype,
 } from "@arbeidsmarkedstiltak/api-client";
@@ -429,6 +431,139 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
       Innsatsgruppe.JOBBE_DELVIS,
       Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
+    ],
+    kanKombineresMed: [],
+  },
+  norskGrunnFov: {
+    id: "acc5d1e1-6c18-4a4a-a4fc-fed1bd91aea1",
+    navn: "Norskopplæring, grunnleggende ferdigheter og FOV",
+    tiltakskode: Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+    system: TiltakstypeSystem.TILTAKSADMINISTRASJON,
+    features: [
+      TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON,
+      TiltakstypeFeature.VISES_I_MODIA,
+      TiltakstypeFeature.MIGRERT,
+    ],
+    egenskaper: [
+      TiltakstypeEgenskap.STOTTER_AVTALER,
+      TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
+      TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+    ],
+    innsatsgrupper: [
+      Innsatsgruppe.TRENGER_VEILEDNING,
+      Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
+      Innsatsgruppe.JOBBE_DELVIS,
+      Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
+    ],
+    tiltaksgruppe: "Opplæringstiltak",
+    beskrivelse:
+      "§ 7-2 b omfatter tre typer opplæring: norskopplæring, kurs i grunnleggende ferdigheter og forberedende opplæring for voksne (FOV). \n\nFormålet med opplæringen skal være å kvalifisere brukeren til ledige jobber. ",
+    faneinnhold: {
+      forHvem: [
+        {
+          _type: "block",
+          _key: "890591b0e2f0",
+          level: 1,
+          style: "normal",
+          children: [
+            {
+              _key: "67a4a49ed07c",
+              text: "Brukere med behov for kvalifisering for å komme inn på arbeidsmarkedet",
+              _type: "span",
+              marks: [],
+            },
+          ],
+          listItem: "bullet",
+          markDefs: [],
+        },
+        {
+          _type: "block",
+          _key: "c82ef873ba69",
+          level: 1,
+          style: "normal",
+          children: [
+            {
+              _key: "0f6d46006bcc",
+              text: 'Brukere som minimum har innsatsgruppe "Trenger veiledning"',
+              _type: "span",
+              marks: [],
+            },
+          ],
+          listItem: "bullet",
+          markDefs: [],
+        },
+        {
+          _type: "block",
+          _key: "4452c393d182",
+          level: 1,
+          style: "normal",
+          children: [
+            {
+              _key: "8d6fbc07d76d",
+              text: "Brukere kan få opplæringstiltak i form av norskopplæring, grunnleggende ferdigheter eller FOV fra det året de fyller 19 år",
+              _type: "span",
+              marks: [],
+            },
+          ],
+          listItem: "bullet",
+          markDefs: [],
+        },
+      ],
+      forHvemInfoboks: null,
+      detaljerOgInnhold: [
+        {
+          _type: "block",
+          _key: "d6a1d3b4fcc1",
+          style: "normal",
+          children: [
+            {
+              _key: "8114ef6523e0",
+              text: "",
+              _type: "span",
+              marks: ["strong"],
+            },
+          ],
+          markDefs: [],
+        },
+      ],
+      detaljerOgInnholdInfoboks: null,
+      pameldingOgVarighet: [
+        {
+          _type: "block",
+          _key: "3dfe5f89b80c",
+          style: "normal",
+          children: [
+            {
+              _key: "1de959d0dc67",
+              text: "Tiltaket kan gis i inntil tre år, med mulighet for forlengelse i ett år dersom tiltaksdeltakeren av særlige grunner ikke kan gjennomføre utdanningen i løpet av tre år.",
+              _type: "span",
+              marks: [],
+            },
+          ],
+          markDefs: [],
+        },
+      ],
+      pameldingOgVarighetInfoboks: null,
+      kontaktinfo: null,
+      kontaktinfoInfoboks: null,
+      oppskrift: [],
+      lenker: null,
+      delMedBruker:
+        "Har du vurdert utdanning eller kurs for å få flere muligheter på arbeidsmarkedet?  \n\nDu kan lese mer om tiltaket på www.nav.no/opplaring ",
+    },
+    faglenker: [
+      {
+        id: "d62b4142-58aa-493b-b960-2dfef528b172",
+        url: "https://lovdata.no/pro/#document/SF/forskrift/2015-12-11-1598/KAPITTEL_7",
+        navn: "Forskrift",
+        beskrivelse: "Kapittel 7. Opplæring",
+      },
+      {
+        id: "1c5ece93-d9e5-4d43-ae6d-7514944b4b14",
+        url: "https://lovdata.no/pro/#document/NAV/rundskriv/r76-12-01/KAPITTEL_8",
+        navn: "Rundskriv",
+        beskrivelse: "Kapittel 7. Opplæring",
+      },
     ],
     kanKombineresMed: [],
   },

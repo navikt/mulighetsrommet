@@ -5,6 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -40,6 +41,7 @@ sealed class Deltakelse {
         @Serializable(with = UUIDSerializer::class)
         val gjennomforingId: UUID,
         val infoMeldingStatus: InfoMeldingStatus?,
+        val oppstartstype: GjennomforingOppstartstype,
     ) : Deltakelse() {
         enum class InfoMeldingStatus {
             VENTER_PA_OPPSTART,

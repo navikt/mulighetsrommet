@@ -158,6 +158,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         innsoktDato = LocalDate.of(2018, 12, 3),
         gjennomforingId = tiltakshistorikkOppfolging.gjennomforing.id,
         infoMeldingStatus = Deltakelse.TiltaksadministrasjonDeltakelse.InfoMeldingStatus.VENTELISTE,
+        oppstartstype = GjennomforingOppstartstype.LOPENDE,
     )
     val deltakelseIps = Deltakelse.ArenaDeltakelse(
         id = tiltakshistorikkIps.id,
@@ -485,6 +486,7 @@ class TiltakshistorikkServiceTest : FunSpec({
                         innsoktDato = LocalDate.of(2018, 12, 3),
                         gjennomforingId = deltakelseEnkelAmo.deltakerlisteId,
                         infoMeldingStatus = Deltakelse.TiltaksadministrasjonDeltakelse.InfoMeldingStatus.VENTELISTE,
+                        oppstartstype = GjennomforingOppstartstype.ENKELTPLASS,
                     ),
                 ),
                 historiske = emptyList(),

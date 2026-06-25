@@ -2,6 +2,7 @@ import {
   DataElementStatusVariant,
   Deltakelse,
   DeltakelseTilstand,
+  GjennomforingOppstartstype,
   Tiltakskode,
 } from "@arbeidsmarkedstiltak/api-client";
 import { tiltakAvklaring, tiltakOppfolging } from "./mockGjennomforinger";
@@ -29,6 +30,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     periode: { startDato: null, sluttDato: null },
     gjennomforingId: tiltakOppfolging.id,
     infoMeldingStatus: null,
+    oppstartstype: GjennomforingOppstartstype.LOPENDE,
   },
   {
     type: "TILTAK_ARBEIDSGIVER",
@@ -62,6 +64,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     periode: { startDato: null, sluttDato: null },
     gjennomforingId: tiltakOppfolging.id,
     infoMeldingStatus: null,
+    oppstartstype: GjennomforingOppstartstype.LOPENDE,
   },
   {
     type: "TILTAKSADMINISTRASJON",
@@ -84,6 +87,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tilstand: DeltakelseTilstand.AVSLUTTET,
     gjennomforingId: tiltakOppfolging.id,
     infoMeldingStatus: null,
+    oppstartstype: GjennomforingOppstartstype.LOPENDE,
   },
   {
     type: "TILTAKSADMINISTRASJON",
@@ -106,6 +110,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tilstand: DeltakelseTilstand.AVSLUTTET,
     gjennomforingId: tiltakAvklaring.id,
     infoMeldingStatus: null,
+    oppstartstype: GjennomforingOppstartstype.LOPENDE,
   },
   {
     type: "TILTAKSADMINISTRASJON",
@@ -128,6 +133,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     tilstand: DeltakelseTilstand.AVSLUTTET,
     gjennomforingId: tiltakAvklaring.id,
     infoMeldingStatus: null,
+    oppstartstype: GjennomforingOppstartstype.LOPENDE,
   },
   {
     type: "TILTAKSADMINISTRASJON",
@@ -151,6 +157,7 @@ export const deltakelserHistoriske: Deltakelse[] = [
     periode: { startDato: null, sluttDato: null },
     gjennomforingId: tiltakAvklaring.id,
     infoMeldingStatus: null,
+    oppstartstype: GjennomforingOppstartstype.LOPENDE,
   },
   {
     type: "TILTAKSADMINISTRASJON",
@@ -170,5 +177,6 @@ export const deltakelserHistoriske: Deltakelse[] = [
     periode: { startDato: null, sluttDato: null },
     gjennomforingId: tiltakAvklaring.id,
     infoMeldingStatus: null,
+    oppstartstype: GjennomforingOppstartstype.LOPENDE,
   },
 ];
