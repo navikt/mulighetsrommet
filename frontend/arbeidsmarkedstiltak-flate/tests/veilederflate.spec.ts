@@ -2,6 +2,8 @@ import { expect, test } from "@playwright/test";
 import { sjekkUU, clickAndExpectInnsatsgruppe } from "./playwrightUtils";
 import type { Innsatsgruppe } from "@arbeidsmarkedstiltak/api-client";
 
+const ANTALL_GJENNOMFORINGER = 6;
+
 test.beforeEach(async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1920 });
   await page.goto("/");
@@ -47,7 +49,7 @@ test.describe("Tiltaksoversikt", () => {
 
   test("Sjekk at det er 5 tiltak i oversikten", async ({ page }) => {
     const rows = page.getByTestId("oversikt_gjennomforinger").getByRole("link");
-    await expect(rows).toHaveCount(5);
+    await expect(rows).toHaveCount(ANTALL_GJENNOMFORINGER);
   });
 
   test("Sjekk UU", async ({ page }) => {
@@ -56,7 +58,7 @@ test.describe("Tiltaksoversikt", () => {
 
   test("Filtrer på søkefelt", async ({ page }) => {
     const rows = page.getByTestId("oversikt_gjennomforinger").getByRole("link");
-    await expect(rows).toHaveCount(5);
+    await expect(rows).toHaveCount(ANTALL_GJENNOMFORINGER);
     await page.getByTestId("filter_sokefelt").fill("Mentor");
     await expect(rows).toHaveCount(1);
     await expect(page.getByTestId("gjennomforing_mentor")).toContainText("Mentor");
@@ -71,12 +73,12 @@ test.describe("Tiltaksoversikt", () => {
 
   test("'Nullstill filter'-knappen fungerer", async ({ page }) => {
     const rows = page.getByTestId("oversikt_gjennomforinger").getByRole("link");
-    await expect(rows).toHaveCount(5);
+    await expect(rows).toHaveCount(ANTALL_GJENNOMFORINGER);
     await clickAndExpectInnsatsgruppe(page, "GODE_MULIGHETER" as Innsatsgruppe);
     await expect(page.getByTestId("knapp_nullstill-filter")).toBeVisible();
     await expect(rows).toHaveCount(1);
     await page.getByTestId("knapp_nullstill-filter").click();
-    await expect(rows).toHaveCount(5);
+    await expect(rows).toHaveCount(ANTALL_GJENNOMFORINGER);
   });
 
   test("Skal vise korrekt feilmelding dersom ingen tiltak blir funnet", async ({ page }) => {
