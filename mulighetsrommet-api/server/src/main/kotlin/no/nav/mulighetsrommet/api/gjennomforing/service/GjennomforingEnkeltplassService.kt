@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
+import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
@@ -20,6 +21,7 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassPrisendringDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
@@ -149,6 +151,76 @@ class GjennomforingEnkeltplassService(
         logEndring("Innhold endret", gjennomforingId, Tiltaksadministrasjon)
     }
 
+    fun endrePrisinformasjon(
+        gjennomforingId: UUID,
+        totrinnskontrollId: UUID,
+        endretAv: NavIdent,
+        prisinformasjon: UpsertGjennomforingEnkeltplass.Prismodell,
+    ) = db.transaction {
+        val enkeltplass = getAndAquireLock(gjennomforingId)
+
+        val okonomi = enkeltplass.okonomi
+            ?.takeIf { it.status != TotrinnskontrollStatus.RETURNERT }
+            ?: error("Kan ikke endre prismodell på en enkeltplass med returnert økonomi")
+
+        if (okonomi.kanBesluttes()) {
+            upsertPrismodell(gjennomforingId, prisinformasjon)
+            val oppdatert = queries.gjennomforing.getGjennomforingEnkeltplassOrError(gjennomforingId)
+            publishTiltaksgjennomforingV2ToKafka(oppdatert)
+
+            val prisendring = Totrinnskontroll.opprett(
+                totrinnskontrollId,
+                gjennomforingId,
+                TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
+                endretAv,
+            )
+            queries.totrinnskontroll.upsert(prisendring)
+            outbox.publish(prisendring)
+
+            val godkjentPrisendring = prisendring.godkjenn(Tiltaksadministrasjon)
+                .getOrElse { error("Kunne ikke godkjenne prisendring") }
+            queries.totrinnskontroll.upsert(godkjentPrisendring)
+            outbox.publish(prisendring)
+
+            logEndring("Pris- og betalingsbetingelser endret", gjennomforingId, endretAv)
+        } else {
+            val prisendring = queries.totrinnskontroll.get(gjennomforingId, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
+            if (prisendring?.kanBesluttes() == true) {
+                val returnert = prisendring.returner(Tiltaksadministrasjon)
+                    .getOrElse { error("Klarte ikke returnere prisendring") }
+                queries.totrinnskontroll.upsert(returnert)
+                outbox.publish(returnert)
+
+                queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforingId)?.let { pending ->
+                    queries.prismodell.deletePrismodell(pending.prismodellId)
+                    queries.enkeltplassPrisendring.deleteByTotrinnskontrollId(pending.totrinnskontrollId)
+                }
+            }
+
+            val nyPrismodellId = UUID.randomUUID()
+            queries.prismodell.upsert(toPrismodellDbo(nyPrismodellId, prisinformasjon))
+
+            val prisendring2 = Totrinnskontroll.opprett(
+                totrinnskontrollId,
+                gjennomforingId,
+                TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
+                endretAv,
+            )
+            queries.totrinnskontroll.upsert(prisendring2)
+            outbox.publish(prisendring2)
+
+            queries.enkeltplassPrisendring.insert(
+                EnkeltplassPrisendringDbo(
+                    totrinnskontrollId = totrinnskontrollId,
+                    gjennomforingId = gjennomforingId,
+                    prismodellId = nyPrismodellId,
+                ),
+            )
+
+            logEndring("Prisendring sendt til godkjenning", gjennomforingId, endretAv)
+        }
+    }
+
     /**
      * TODO: kan denne slettes?
      * Ila. høsten 2026 skal enkeltplassene (ENKELAMO, ENKFAGYRKE, HOYEREUTD) migreres fra Arena og de aktive
@@ -240,6 +312,11 @@ class GjennomforingEnkeltplassService(
     ): Validated<Enkeltplass> = db.transaction {
         val gjennomforing = getAndAquireLock(id)
 
+        val prisendring = queries.totrinnskontroll.get(id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
+        if (prisendring != null && prisendring.kanBesluttes()) {
+            return godkjennPrisendring(id, prisendring, agent)
+        }
+
         val okonomi = gjennomforing.okonomi
             ?: return FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel().left()
 
@@ -252,6 +329,11 @@ class GjennomforingEnkeltplassService(
         forklaring: String?,
     ): Validated<Enkeltplass> = db.transaction {
         val gjennomforing = getAndAquireLock(id)
+
+        val prisendring = queries.totrinnskontroll.get(id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
+        if (prisendring != null && prisendring.kanBesluttes()) {
+            return settPrisendringPaVent(id, prisendring, navIdent, forklaring)
+        }
 
         val okonomi = gjennomforing.okonomi
             ?: return FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel().left()
@@ -362,34 +444,36 @@ class GjennomforingEnkeltplassService(
         prismodell: UpsertGjennomforingEnkeltplass.Prismodell,
     ): UUID {
         val prismodellId = queries.gjennomforing.getPrismodell(gjennomforingId)?.id ?: UUID.randomUUID()
-        val dbo = when (prismodell) {
-            is UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse -> PrismodellDbo(
-                id = prismodellId,
-                type = PrismodellType.ANNEN_AVTALT_PRIS,
-                valuta = Valuta.NOK,
-                prisbetingelser = null,
-                tilsagnPerDeltaker = true,
-                totalbelop = prismodell.totalbelop,
-            )
-
-            is UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering -> PrismodellDbo(
-                id = prismodellId,
-                type = PrismodellType.TILSKUDD_TIL_OPPLAERING,
-                valuta = Valuta.NOK,
-                prisbetingelser = prismodell.tilleggsopplysninger,
-                tilskudd = prismodell.tilskudd,
-            )
-
-            is UpsertGjennomforingEnkeltplass.Prismodell.IngenKostnader -> PrismodellDbo(
-                id = prismodellId,
-                type = PrismodellType.INGEN_KOSTNADER,
-                valuta = Valuta.NOK,
-                prisbetingelser = prismodell.tilleggsopplysninger,
-                aarsak = prismodell.aarsak.name,
-            )
-        }
+        val dbo = toPrismodellDbo(prismodellId, prismodell)
         queries.prismodell.upsert(dbo)
         return dbo.id
+    }
+
+    private fun toPrismodellDbo(id: UUID, prismodell: UpsertGjennomforingEnkeltplass.Prismodell): PrismodellDbo = when (prismodell) {
+        is UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse -> PrismodellDbo(
+            id = id,
+            type = PrismodellType.ANNEN_AVTALT_PRIS,
+            valuta = Valuta.NOK,
+            prisbetingelser = null,
+            tilsagnPerDeltaker = true,
+            totalbelop = prismodell.totalbelop,
+        )
+
+        is UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering -> PrismodellDbo(
+            id = id,
+            type = PrismodellType.TILSKUDD_TIL_OPPLAERING,
+            valuta = Valuta.NOK,
+            prisbetingelser = prismodell.tilleggsopplysninger,
+            tilskudd = prismodell.tilskudd,
+        )
+
+        is UpsertGjennomforingEnkeltplass.Prismodell.IngenKostnader -> PrismodellDbo(
+            id = id,
+            type = PrismodellType.INGEN_KOSTNADER,
+            valuta = Valuta.NOK,
+            prisbetingelser = prismodell.tilleggsopplysninger,
+            aarsak = prismodell.aarsak.name,
+        )
     }
 
     private fun TransactionalQueryContext.upsertKategorisering(
@@ -397,7 +481,7 @@ class GjennomforingEnkeltplassService(
         tiltakskode: Tiltakskode,
         kategorisering: OpplaringKategoriseringRequest?,
     ) {
-        val kurstyper = context(this.session) { OpplaringKategoriseringQueries.getKurstyper() }
+        val kurstyper = context(session) { OpplaringKategoriseringQueries.getKurstyper() }
         val kurstypeId = when (tiltakskode) {
             Tiltakskode.STUDIESPESIALISERING,
             -> kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }?.id
@@ -424,7 +508,7 @@ class GjennomforingEnkeltplassService(
                 )
             },
         )
-        context(this.session) {
+        context(session) {
             OpplaringKategoriseringQueries.upsert(id, opplaringKategoriseringDbo)
         }
     }
@@ -470,6 +554,42 @@ class GjennomforingEnkeltplassService(
             queries.totrinnskontroll.upsert(paVent)
             outbox.publish(paVent)
             logEndring("Godkjenning ble satt på vent", id, agent)
+        }
+    }
+
+    private fun TransactionalQueryContext.godkjennPrisendring(
+        gjennomforingId: UUID,
+        prisendring: Totrinnskontroll,
+        agent: Agent,
+    ): Validated<Enkeltplass> {
+        return prisendring.godkjenn(agent).mapLeft { it.toFieldErrors() }.map { godkjent ->
+            queries.totrinnskontroll.upsert(godkjent)
+            outbox.publish(godkjent)
+
+            val pending = requireNotNull(queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforingId)) {
+                "Fant ikke prisendring for gjennomforing $gjennomforingId"
+            }
+            val gammelPrismodellId = queries.gjennomforing.getPrismodell(gjennomforingId)?.id
+            queries.gjennomforing.setPrismodellId(gjennomforingId, pending.prismodellId)
+            gammelPrismodellId?.let { queries.prismodell.deletePrismodell(it) }
+            queries.enkeltplassPrisendring.deleteByTotrinnskontrollId(pending.totrinnskontrollId)
+
+            val oppdatert = queries.gjennomforing.getGjennomforingEnkeltplassOrError(gjennomforingId)
+            publishTiltaksgjennomforingV2ToKafka(oppdatert)
+            logEndring("Prisendring ble godkjent", gjennomforingId, agent)
+        }
+    }
+
+    private fun TransactionalQueryContext.settPrisendringPaVent(
+        gjennomforingId: UUID,
+        prisendring: Totrinnskontroll,
+        agent: Agent,
+        forklaring: String?,
+    ): Validated<Enkeltplass> {
+        return prisendring.settPaVent(agent, forklaring = forklaring).mapLeft { it.toFieldErrors() }.map { paVent ->
+            queries.totrinnskontroll.upsert(paVent)
+            outbox.publish(paVent)
+            logEndring("Prisendring ble satt på vent", gjennomforingId, agent)
         }
     }
 }

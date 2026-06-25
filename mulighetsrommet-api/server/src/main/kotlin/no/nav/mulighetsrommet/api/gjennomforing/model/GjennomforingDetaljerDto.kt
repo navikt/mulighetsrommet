@@ -35,6 +35,8 @@ data class GjennomforingDetaljerDto(
     val prismodell: PrismodellDto,
     val opplaring: OpplaringKategorisering?,
     val okonomi: TotrinnskontrollDto?,
+    val prisendring: TotrinnskontrollDto?,
+    val pendingPrismodell: PrismodellDto?,
     val enkeltplassDeltaker: DeltakerDto?,
 )
 

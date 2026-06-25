@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.ForerkortFixtures
@@ -759,6 +760,188 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 database.run {
                     queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
+                }
+            }
+        }
+
+        context("endrePrisinformasjon") {
+            val service = createService()
+
+            test("oppdaterer prismodell og godkjenner automatisk når OKONOMI er under behandling") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, opprettetAv).shouldBeRight()
+
+                database.run {
+                    queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
+                }
+
+                val nyPrismodell = UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000)
+                service.endrePrisinformasjon(soktInn.id, UUID.randomUUID(), opprettetAv, nyPrismodell)
+
+                service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
+                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                }
+
+                database.run {
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+                    queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(2)
+                }
+            }
+
+            test("oppdaterer prismodell automatisk og beholder OKONOMI i PA_VENT når OKONOMI er satt på vent") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, opprettetAv).shouldBeRight()
+                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+
+                database.run {
+                    queries.kafkaProducerRecord.getRecords(100, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
+                }
+
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UUID.randomUUID(),
+                    opprettetAv,
+                    UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
+                )
+
+                service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, okonomi) ->
+                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                    okonomi.shouldNotBeNull().status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
+                }
+
+                database.run {
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+                    queries.kafkaProducerRecord.getRecords(100, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(2)
+                }
+            }
+
+            test("oppretter pending prisendring når OKONOMI er GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, opprettetAv).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val totrinnskontrollId = UUID.randomUUID()
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    totrinnskontrollId,
+                    opprettetAv,
+                    UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 3000),
+                )
+
+                service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
+                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 1000
+                }
+
+                database.run {
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldNotBeNull()
+                }
+            }
+
+            test("avviser eksisterende pending prisendring ved ny prisendring mens OKONOMI er GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, opprettetAv).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val forsteTotrinnskontrollId = UUID.randomUUID()
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    forsteTotrinnskontrollId,
+                    opprettetAv,
+                    UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 3000),
+                )
+
+                val andreTotrinnskontrollId = UUID.randomUUID()
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    andreTotrinnskontrollId,
+                    opprettetAv,
+                    UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 4000),
+                )
+
+                database.run {
+                    val pending = queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldNotBeNull()
+                    pending.totrinnskontrollId shouldBe andreTotrinnskontrollId
+                }
+            }
+
+            test("kaster feil når OKONOMI er AVVIST") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, opprettetAv).shouldBeRight()
+
+                // Simuler ugyldig tilstand - tjenesten tillater ikke å status RETURNERT (kun SATT_PA_VENT)
+                database.run {
+                    val okonomi = queries.totrinnskontroll.getOrError(soktInn.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                    okonomi.returner(besluttetAv).onRight { queries.totrinnskontroll.upsert(it) }
+                }
+
+                val exception = shouldThrow<IllegalStateException> {
+                    service.endrePrisinformasjon(
+                        soktInn.id,
+                        UUID.randomUUID(),
+                        opprettetAv,
+                        UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
+                    )
+                }
+                exception.message shouldBe "Kan ikke endre prismodell på en enkeltplass med returnert økonomi"
+            }
+        }
+
+        context("behandling av prisendring for enkeltplasser") {
+            val service = createService()
+
+            test("settOkonomiGodkjent godkjenner prisendring og oppdaterer prismodell") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, opprettetAv).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UUID.randomUUID(),
+                    opprettetAv,
+                    UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
+                )
+
+                database.run {
+                    queries.kafkaProducerRecord.getRecords(100, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
+                }
+
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
+                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                }
+
+                database.run {
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+
+                    queries.kafkaProducerRecord.getRecords(100, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(2)
+                }
+            }
+
+            test("settOkonomiPaVent setter prisendring på vent") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, opprettetAv).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UUID.randomUUID(),
+                    opprettetAv,
+                    UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
+                )
+
+                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+
+                database.run {
+                    val pending = queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldNotBeNull()
+
+                    queries.totrinnskontroll.getOrError(
+                        soktInn.id,
+                        TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
+                    ).should {
+                        it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
+                        it.id shouldBe pending.totrinnskontrollId
+                    }
                 }
             }
         }

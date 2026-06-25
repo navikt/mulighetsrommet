@@ -84,6 +84,16 @@ class GjennomforingDetaljerService(
 
             is GjennomforingEnkeltplass -> db.session {
                 val okonomi = queries.totrinnskontroll.getDto(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+
+                val prisendring = queries.totrinnskontroll
+                    .get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
+                    ?.takeIf { it.kanBesluttes() }
+                    ?.let { queries.totrinnskontroll.getDtoOrError(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING) }
+
+                val pendingPrismodell = prisendring
+                    ?.let { queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforing.id) }
+                    ?.let { p -> queries.prismodell.getOrError(p.prismodellId) }
+
                 val deltakerDto = getDeltaker(gjennomforing.id)?.let { deltaker ->
                     val personalia = personaliaService
                         .getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
@@ -100,7 +110,14 @@ class GjennomforingDetaljerService(
                 val opplaringKategorisering = context(session) {
                     OpplaringKategoriseringQueries.get(gjennomforing.id)
                 }
-                GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerDto, opplaringKategorisering)
+                GjennomforingDtoMapper.fromEnkeltplass(
+                    gjennomforing,
+                    okonomi,
+                    prisendring,
+                    pendingPrismodell,
+                    deltakerDto,
+                    opplaringKategorisering,
+                )
             }
         }
     }
@@ -215,17 +232,26 @@ class GjennomforingDetaljerService(
         gjennomforing: GjennomforingEnkeltplass,
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
-        val totrinnskontroll = db.session {
+        val okonomi = db.session {
             queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+        }
+        val prisendring = db.session {
+            queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
         }
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
-                totrinnskontroll?.kanSettesPaVent() == true
+                okonomi?.kanSettesPaVent() == true
             },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
-                totrinnskontroll?.kanBesluttes() == true
+                okonomi?.kanBesluttes() == true
+            },
+            GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING.takeIf {
+                prisendring?.kanSettesPaVent() == true
+            },
+            GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING.takeIf {
+                prisendring?.kanBesluttes() == true
             },
         )
             .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
@@ -266,6 +292,8 @@ class GjennomforingDetaljerService(
 
                 GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
                 GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+                GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING,
+                GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING,
                 -> ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, enheter)
             }
         }
