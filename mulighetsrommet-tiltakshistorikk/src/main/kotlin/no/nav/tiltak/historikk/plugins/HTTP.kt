@@ -6,14 +6,28 @@ import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.defaultheaders.DefaultHeaders
+import no.nav.mulighetsrommet.env.NaisEnv
 
 fun Application.configureHTTP() {
     install(DefaultHeaders) {
-        header("X-Engine", "Ktor") // will send this header with each response
+        header("X-Content-Type-Options", "nosniff") // hindrer MIME-type sniffing
+        header("X-Frame-Options", "DENY") // hindrer clickjacking via iframe
+        header("Referrer-Policy", "strict-origin-when-cross-origin") // begrenser referrer-lekkasje
     }
 
     install(CORS) {
-        anyHost()
+        when (NaisEnv.current()) {
+            NaisEnv.Local -> anyHost()
+
+            NaisEnv.DevGCP -> {
+                allowHost("*.dev.nav.no", schemes = listOf("https"))
+            }
+
+            NaisEnv.ProdGCP -> {
+                allowHost("*.nav.no", schemes = listOf("https"))
+                allowHost("nav.no", schemes = listOf("https"))
+            }
+        }
 
         allowMethod(HttpMethod.Options)
         allowMethod(HttpMethod.Put)
