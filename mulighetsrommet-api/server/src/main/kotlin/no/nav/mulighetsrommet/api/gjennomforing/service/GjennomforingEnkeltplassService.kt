@@ -156,17 +156,26 @@ class GjennomforingEnkeltplassService(
         totrinnskontrollId: UUID,
         endretAv: NavIdent,
         prisinformasjon: UpsertGjennomforingEnkeltplass.Prismodell,
-    ) = db.transaction {
+    ): Validated<Enkeltplass> = db.transaction {
         val enkeltplass = getAndAquireLock(gjennomforingId)
 
-        val okonomi = enkeltplass.okonomi
-            ?.takeIf { it.status != TotrinnskontrollStatus.RETURNERT }
-            ?: error("Kan ikke endre prismodell på en enkeltplass med returnert økonomi")
+        val okonomi = enkeltplass.okonomi ?: error("Kan ikke endre prismodell før deltaker er søkt inn")
+
+        if (okonomi.status == TotrinnskontrollStatus.RETURNERT) {
+            return FieldError.of("Kan ikke endre prismodell på en enkeltplass med returnert økonomi").nel().left()
+        }
 
         if (okonomi.kanBesluttes()) {
             upsertPrismodell(gjennomforingId, prisinformasjon)
             val oppdatert = queries.gjennomforing.getGjennomforingEnkeltplassOrError(gjennomforingId)
             publishTiltaksgjennomforingV2ToKafka(oppdatert)
+
+            if (okonomi.status == TotrinnskontrollStatus.SATT_PA_VENT) {
+                okonomi.tilbakestill(endretAv).fold({ return it.toFieldErrors().left() }, { tilbakestilt ->
+                    queries.totrinnskontroll.upsert(tilbakestilt)
+                    outbox.publish(tilbakestilt)
+                })
+            }
 
             val prisendring = Totrinnskontroll.opprett(
                 totrinnskontrollId,
@@ -180,9 +189,9 @@ class GjennomforingEnkeltplassService(
             val godkjentPrisendring = prisendring.godkjenn(Tiltaksadministrasjon)
                 .getOrElse { error("Kunne ikke godkjenne prisendring") }
             queries.totrinnskontroll.upsert(godkjentPrisendring)
-            outbox.publish(prisendring)
+            outbox.publish(godkjentPrisendring)
 
-            logEndring("Pris- og betalingsbetingelser endret", gjennomforingId, endretAv)
+            logEndring("Pris- og betalingsbetingelser endret", gjennomforingId, endretAv).right()
         } else {
             val prisendring = queries.totrinnskontroll.get(gjennomforingId, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
             if (prisendring?.kanBesluttes() == true) {
@@ -217,7 +226,7 @@ class GjennomforingEnkeltplassService(
                 ),
             )
 
-            logEndring("Prisendring sendt til godkjenning", gjennomforingId, endretAv)
+            logEndring("Prisendring sendt til godkjenning", gjennomforingId, endretAv).right()
         }
     }
 

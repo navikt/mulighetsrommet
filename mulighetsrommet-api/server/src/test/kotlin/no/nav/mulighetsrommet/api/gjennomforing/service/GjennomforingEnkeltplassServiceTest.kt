@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -776,7 +777,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
 
                 val nyPrismodell = UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000)
-                service.endrePrisinformasjon(soktInn.id, UUID.randomUUID(), opprettetAv, nyPrismodell)
+                service.endrePrisinformasjon(soktInn.id, UUID.randomUUID(), opprettetAv, nyPrismodell).shouldBeRight()
 
                 service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
                     gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
@@ -788,7 +789,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
-            test("oppdaterer prismodell automatisk og beholder OKONOMI i PA_VENT når OKONOMI er satt på vent") {
+            test("oppdaterer prismodell automatisk og setter økonomi TIL_BEHANDLING når OKONOMI er SATT_PA_VENT") {
                 val soktInn = createRequest()
                 service.soktInn(soktInn, opprettetAv).shouldBeRight()
                 service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
@@ -797,16 +798,17 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     queries.kafkaProducerRecord.getRecords(100, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
                 }
 
-                service.endrePrisinformasjon(
+                val enkeltplass = service.endrePrisinformasjon(
                     soktInn.id,
                     UUID.randomUUID(),
                     opprettetAv,
                     UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
-                )
+                ).shouldBeRight()
 
-                service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, okonomi) ->
-                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
-                    okonomi.shouldNotBeNull().status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
+                enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                enkeltplass.okonomi.shouldNotBeNull().should {
+                    it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                    it.behandletAv shouldBe opprettetAv
                 }
 
                 database.run {
@@ -826,7 +828,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     totrinnskontrollId,
                     opprettetAv,
                     UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 3000),
-                )
+                ).shouldBeRight()
 
                 service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
                     gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 1000
@@ -848,7 +850,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     forsteTotrinnskontrollId,
                     opprettetAv,
                     UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 3000),
-                )
+                ).shouldBeRight()
 
                 val andreTotrinnskontrollId = UUID.randomUUID()
                 service.endrePrisinformasjon(
@@ -856,7 +858,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     andreTotrinnskontrollId,
                     opprettetAv,
                     UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 4000),
-                )
+                ).shouldBeRight()
 
                 database.run {
                     val pending = queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldNotBeNull()
@@ -864,25 +866,23 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
-            test("kaster feil når OKONOMI er AVVIST") {
+            test("returnerer feil når OKONOMI er AVVIST") {
                 val soktInn = createRequest()
                 service.soktInn(soktInn, opprettetAv).shouldBeRight()
 
                 // Simuler ugyldig tilstand - tjenesten tillater ikke å status RETURNERT (kun SATT_PA_VENT)
                 database.run {
-                    val okonomi = queries.totrinnskontroll.getOrError(soktInn.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                    val okonomi = queries.totrinnskontroll
+                        .getOrError(soktInn.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
                     okonomi.returner(besluttetAv).onRight { queries.totrinnskontroll.upsert(it) }
                 }
 
-                val exception = shouldThrow<IllegalStateException> {
-                    service.endrePrisinformasjon(
-                        soktInn.id,
-                        UUID.randomUUID(),
-                        opprettetAv,
-                        UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
-                    )
-                }
-                exception.message shouldBe "Kan ikke endre prismodell på en enkeltplass med returnert økonomi"
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UUID.randomUUID(),
+                    opprettetAv,
+                    UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
+                ) shouldBeLeft listOf(FieldError.of("Kan ikke endre prismodell på en enkeltplass med returnert økonomi"))
             }
         }
 
@@ -899,7 +899,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     UUID.randomUUID(),
                     opprettetAv,
                     UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
-                )
+                ).shouldBeRight()
 
                 database.run {
                     queries.kafkaProducerRecord.getRecords(100, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
@@ -928,7 +928,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     UUID.randomUUID(),
                     opprettetAv,
                     UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
-                )
+                ).shouldBeRight()
 
                 service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
 
