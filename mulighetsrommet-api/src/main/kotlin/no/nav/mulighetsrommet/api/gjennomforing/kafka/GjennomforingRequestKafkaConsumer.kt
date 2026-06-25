@@ -83,7 +83,7 @@ class GjennomforingRequestKafkaConsumer(
             totrinnskontrollId = request.totrinnskontrollId,
             endretAv = request.endretAv,
             prisinformasjon = toPrismodell(request.payload),
-        )
+        ).getOrElse { errors -> error("Klarte ikke håndtere endring av prisinformasjon: $errors") }
     }
 }
 

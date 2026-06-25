@@ -68,6 +68,30 @@ class TotrinnskontrollService(private val topic: String) {
     }
 
     context(tx: TransactionalQueryContext)
+    fun tilbakestill(
+        existing: Totrinnskontroll,
+        nyBehandletAv: Agent,
+    ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
+        if (existing.besluttelse != TotrinnskontrollBesluttelse.PA_VENT) {
+            return FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent").nel().left()
+        }
+        val dbo = TotrinnskontrollDbo(
+            id = existing.id,
+            entityId = existing.entityId,
+            type = existing.type,
+            behandletAv = nyBehandletAv,
+            behandletTidspunkt = instantAsMicros(),
+            besluttetAv = null,
+            besluttetTidspunkt = null,
+            besluttelse = null,
+            aarsaker = existing.aarsaker,
+            forklaring = null,
+        )
+        upsert(dbo)
+        return dbo.right()
+    }
+
+    context(tx: TransactionalQueryContext)
     fun godkjent(
         existing: Totrinnskontroll,
         besluttetAv: Agent,

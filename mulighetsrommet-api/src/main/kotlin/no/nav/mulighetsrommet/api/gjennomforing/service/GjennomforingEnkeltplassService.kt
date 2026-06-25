@@ -169,19 +169,23 @@ class GjennomforingEnkeltplassService(
         totrinnskontrollId: UUID,
         endretAv: NavIdent,
         prisinformasjon: UpsertGjennomforingEnkeltplass.Prismodell,
-    ) = db.transaction {
+    ): Validated<Enkeltplass> = db.transaction {
         getAndAquireLock(gjennomforingId)
 
         val okonomi = totrinnskontroll.getOrError(gjennomforingId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
 
-        require(okonomi.besluttelse != TotrinnskontrollBesluttelse.AVVIST) {
-            "Kan ikke endre prismodell på en enkeltplass med avvist økonomi"
+        if (okonomi.besluttelse == TotrinnskontrollBesluttelse.AVVIST) {
+            return FieldError.of("Kan ikke endre prismodell på en enkeltplass med avvist økonomi").nel().left()
         }
 
         if (okonomi.besluttelse == null || okonomi.besluttelse == TotrinnskontrollBesluttelse.PA_VENT) {
             upsertPrismodell(gjennomforingId, prisinformasjon)
             val oppdatert = queries.gjennomforing.getGjennomforingEnkeltplassOrError(gjennomforingId)
             publishTiltaksgjennomforingV2ToKafka(oppdatert)
+
+            if (okonomi.besluttelse == TotrinnskontrollBesluttelse.PA_VENT) {
+                totrinnskontroll.tilbakestill(okonomi, endretAv).fold({ return it.left() }, {})
+            }
 
             totrinnskontroll.opprett(
                 totrinnskontrollId,
@@ -192,7 +196,7 @@ class GjennomforingEnkeltplassService(
             val prisendring = totrinnskontroll.getOrError(gjennomforingId, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
             totrinnskontroll.godkjent(prisendring, Tiltaksadministrasjon)
 
-            logEndring("Pris- og betalingsbetingelser endret", gjennomforingId, endretAv)
+            logEndring("Pris- og betalingsbetingelser endret", gjennomforingId, endretAv).right()
         } else {
             val pendingPrisendring = totrinnskontroll.get(gjennomforingId, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
             if (pendingPrisendring != null && (pendingPrisendring.besluttelse == null || pendingPrisendring.besluttelse == TotrinnskontrollBesluttelse.PA_VENT)) {
@@ -220,7 +224,7 @@ class GjennomforingEnkeltplassService(
                 ),
             )
 
-            logEndring("Prisendring sendt til godkjenning", gjennomforingId, endretAv)
+            logEndring("Prisendring sendt til godkjenning", gjennomforingId, endretAv).right()
         }
     }
 
