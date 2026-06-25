@@ -5,7 +5,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.veilederflate.models.EstimertVentetid
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
@@ -16,7 +15,6 @@ import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateNavEnhet
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppeStatus
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
-import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -81,21 +79,6 @@ class VeilederflateTiltakQueries(private val session: Session) {
 
         return list(queryOf(query, parameters)) { it.toTiltaksgjennomforing() }
     }
-
-    fun getFilteredAvtaleGjennomforingIds(gjennomforingIds: Set<UUID>): Set<UUID> = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select gjennomforing.id
-            from gjennomforing
-            where (gjennomforing_type = 'AVTALE')
-            and gjennomforing.id = any(:gjennomforing_ids)
-        """.trimIndent()
-
-        val params = mapOf(
-            "gjennomforing_ids" to createUuidArray(gjennomforingIds),
-        )
-        return list(queryOf(query, params)) { it.uuid("id") }.toSet()
-    }
 }
 
 private fun Row.toTiltaksgjennomforing(): Tiltaksgjennomforing {
@@ -155,13 +138,5 @@ private fun Row.toTiltaksgjennomforing(): Tiltaksgjennomforing {
         ),
         lopenummer = string("lopenummer"),
         stengt = stengt,
-    )
-}
-
-fun Row.toDeltakelseTiltaksgjennomforing(): Pair<UUID, DeltakelseTiltaksgjennomforing> {
-    return uuid("deltakelse_id") to DeltakelseTiltaksgjennomforing(
-        id = uuid("gjennomforing_id"),
-        type = GjennomforingType.valueOf(string("gjennomforing_type")),
-        status = GjennomforingStatusType.valueOf(string("gjennomforing_status")),
     )
 }
