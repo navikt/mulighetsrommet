@@ -11,8 +11,7 @@ import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.PdlError
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseEierskap
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePamelding
+import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse.TiltaksadministrasjonDeltakelse.InfoMeldingStatus
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseStatus
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTilstand
@@ -79,6 +78,11 @@ class TiltakshistorikkService(
         )
     }
 
+    /**
+     * TODO: Ideelt sett hadde dette endepunktet kun delt `KLADD` deltakelser,
+     * slik at vi kunne sydd dem inn i historikken uten å måtte filtere vekk duplikater
+     * som returneres både fra dette endepunktet og tiltakshistorikken
+     */
     suspend fun getDeltakelserKomet(
         norskIdent: NorskIdent,
         obo: AccessType.OBO.AzureAd,
@@ -93,15 +97,24 @@ class TiltakshistorikkService(
         }, { response ->
             Deltakelser(
                 meldinger = setOf(),
-                aktive = response.aktive.map { toDeltakelse(it) },
-                historiske = response.historikk.map { toDeltakelse(it) },
+                aktive = response.aktive.map {
+                    toDeltakelse(it)
+                },
+                historiske = response.historikk.map {
+                    toDeltakelse(it)
+                },
             )
         })
     }
 
+    /**
+     * TODO: Vi henter alle komet deltakelser synkront, siden de ikke deler 'KLADD' status via kafka
+     * Ideelt sett hadde vi bare mappet disse komet deltakelsene fra tiltakshistorikken
+     * Se [TiltakshistorikkService.getDeltakelserKomet]
+     */
     private fun toDeltakelse(it: TiltakshistorikkV1Dto): Deltakelse? = when (it) {
         is TiltakshistorikkV1Dto.ArenaDeltakelse -> toDeltakelse(it)
-        is TiltakshistorikkV1Dto.TeamKometDeltakelse -> toDeltakelse(it)
+        is TiltakshistorikkV1Dto.TeamKometDeltakelse -> null
         is TiltakshistorikkV1Dto.TeamTiltakAvtale -> toDeltakelse(it)
     }
 
@@ -112,7 +125,7 @@ class TiltakshistorikkService(
             return null
         }
 
-        return Deltakelse(
+        return Deltakelse.ArenaDeltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
                 startDato = deltakelse.startDato,
@@ -124,38 +137,12 @@ class TiltakshistorikkService(
             ),
             tittel = deltakelse.tittel,
             tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn),
-            innsoktDato = null,
-            sistEndretDato = null,
-            eierskap = DeltakelseEierskap.ARENA,
             tilstand = getTilstand(deltakelse.status),
-            pamelding = null,
-        )
-    }
-
-    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.TeamKometDeltakelse): Deltakelse {
-        return Deltakelse(
-            id = deltakelse.id,
-            periode = DeltakelsePeriode(
-                startDato = deltakelse.startDato,
-                sluttDato = deltakelse.sluttDato,
-            ),
-            status = DeltakelseStatus(
-                type = deltakelse.status.type.toDataElement(),
-                aarsak = deltakelse.status.aarsak?.description,
-            ),
-            tittel = deltakelse.tittel,
-            tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn),
-            innsoktDato = null,
-            sistEndretDato = null,
-            eierskap = DeltakelseEierskap.TEAM_KOMET,
-            tilstand = getTilstand(deltakelse.status.type),
-            // Vi inkluderer ikke info om påmelding før deltakelsen er tilgjengelig fra [AmtDeltakerClient.hentDeltakelser]
-            pamelding = null,
         )
     }
 
     private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.TeamTiltakAvtale): Deltakelse {
-        return Deltakelse(
+        return Deltakelse.TiltakArbeidsgiverDeltakelse(
             id = deltakelse.id,
             periode = DeltakelsePeriode(
                 startDato = deltakelse.startDato,
@@ -167,40 +154,31 @@ class TiltakshistorikkService(
             ),
             tittel = deltakelse.tittel,
             tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn),
-            innsoktDato = null,
-            sistEndretDato = null,
-            eierskap = DeltakelseEierskap.TEAM_TILTAK,
             tilstand = getTilstand(deltakelse.status),
-            pamelding = null,
         )
     }
 
     private fun toDeltakelse(deltakelse: DeltakelseFraKomet): Deltakelse {
-        // TODO: ideelt sett hadde vi ikke trengt å kalle på dette endepunktet i det hele tatt, men kun benyttet
-        //  `tiltakshistorikk`-appen som kilde
         val tilstand = getTilstand(deltakelse.status.type)
-        val pamelding = if (erAktiv(tilstand) && Tiltakskoder.isGruppetiltak(deltakelse.tiltakstype.tiltakskode)) {
-            DeltakelsePamelding(deltakelse.deltakerlisteId, deltakelse.status.type)
-        } else {
-            null
-        }
-        return Deltakelse(
+        return Deltakelse.TiltaksadministrasjonDeltakelse(
             id = deltakelse.deltakerId,
             periode = DeltakelsePeriode(
                 startDato = deltakelse.periode?.startdato,
                 sluttDato = deltakelse.periode?.sluttdato,
             ),
-            eierskap = DeltakelseEierskap.TEAM_KOMET,
             tilstand = tilstand,
             tittel = deltakelse.tittel,
             tiltakstype = DeltakelseTiltakstype(deltakelse.tiltakstype.navn),
+            tiltakskode = deltakelse.tiltakstype.tiltakskode,
             status = DeltakelseStatus(
                 type = deltakelse.status.type.toDataElement(),
                 aarsak = deltakelse.status.aarsak,
             ),
             innsoktDato = deltakelse.innsoktDato,
             sistEndretDato = deltakelse.sistEndretDato,
-            pamelding = pamelding,
+            gjennomforingId = deltakelse.deltakerlisteId,
+            infoMeldingStatus = getInfoMeldingType(deltakelse.status.type),
+            oppstartstype = deltakelse.oppstartstype,
         )
     }
 
@@ -231,6 +209,31 @@ class TiltakshistorikkService(
                 }
             }
     }
+}
+
+private fun getInfoMeldingType(status: DeltakerStatusType): InfoMeldingStatus? = when (status) {
+    DeltakerStatusType.VENTER_PA_OPPSTART -> InfoMeldingStatus.VENTER_PA_OPPSTART
+
+    DeltakerStatusType.DELTAR -> InfoMeldingStatus.DELTAR
+
+    DeltakerStatusType.UTKAST_TIL_PAMELDING -> InfoMeldingStatus.UTKAST_TIL_PAMELDING
+
+    DeltakerStatusType.KLADD -> InfoMeldingStatus.KLADD
+
+    DeltakerStatusType.SOKT_INN -> InfoMeldingStatus.SOKT_INN
+
+    DeltakerStatusType.VENTELISTE -> InfoMeldingStatus.VENTELISTE
+
+    DeltakerStatusType.VURDERES -> InfoMeldingStatus.VURDERES
+
+    DeltakerStatusType.AVBRUTT,
+    DeltakerStatusType.AVBRUTT_UTKAST,
+    DeltakerStatusType.FEILREGISTRERT,
+    DeltakerStatusType.FULLFORT,
+    DeltakerStatusType.HAR_SLUTTET,
+    DeltakerStatusType.IKKE_AKTUELL,
+    DeltakerStatusType.PABEGYNT_REGISTRERING,
+    -> null
 }
 
 private fun getTilstand(type: ArenaDeltakerStatus): DeltakelseTilstand = when (type) {

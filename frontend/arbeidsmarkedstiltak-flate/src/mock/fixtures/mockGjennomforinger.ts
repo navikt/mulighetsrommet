@@ -568,6 +568,68 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltak & VeilederflateTilta
   tiltaksnummer: null,
 };
 
+export const tiltakFagOgYrke: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
+  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
+  sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
+  navn: "Opplæring Fag og Yrke",
+  oppmoteSted: null,
+  tiltakstype: mockTiltakstyper.OpplarinFagOgYrke,
+  oppstart: GjennomforingOppstartstype.LOPENDE,
+  kontaktinfo: {
+    tiltaksansvarlige: [
+      {
+        navn: "Truls Svendsen",
+        epost: "test@example.com",
+        telefon: null,
+        enhet: null,
+        beskrivelse: null,
+      },
+    ],
+  },
+  fylker: [],
+  enheter: [],
+  beskrivelse: null,
+  faneinnhold: null,
+  tiltaksnummer: null,
+};
+
+export const enkeltplassNorskGrunnFov: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
+  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
+  tiltakstype: mockTiltakstyper.norskGrunnFov,
+  navn: "Norskopplæring - Oslo",
+  beskrivelse: null,
+  faneinnhold: {
+    forHvem: null,
+    forHvemInfoboks: "Veldig bra kura",
+    detaljerOgInnhold: null,
+    detaljerOgInnholdInfoboks: null,
+    pameldingOgVarighet: null,
+    pameldingOgVarighetInfoboks: null,
+    kontaktinfo: null,
+    kontaktinfoInfoboks: null,
+    oppskrift: null,
+    lenker: null,
+    delMedBruker: null,
+  },
+  kontaktinfo: {
+    tiltaksansvarlige: [
+      {
+        navn: "F_Z994662 E_Z994662",
+        telefon: null,
+        enhet: { navn: "IT-avdelingen", enhetsnummer: "2970" },
+        epost: "F_Z994662.E_Z994662@trygdeetaten.no",
+        beskrivelse: null,
+      },
+    ],
+  },
+  oppstart: GjennomforingOppstartstype.LOPENDE,
+  oppmoteSted: null,
+  fylker: ["0300"],
+  enheter: [],
+  sanityId: "95536a45-05d0-44cd-8b91-6da11af36dc1",
+  tiltaksnummer: null,
+};
+
 export const mockGjennomforinger: VeilederflateTiltak[] = [
   tiltakAvklaring,
   tiltakMentor,
@@ -576,4 +638,5 @@ export const mockGjennomforinger: VeilederflateTiltak[] = [
   tiltakJobbklubb,
   tiltakAft,
   tiltakEnkelplassFagOgYrke,
+  enkeltplassNorskGrunnFov,
 ];

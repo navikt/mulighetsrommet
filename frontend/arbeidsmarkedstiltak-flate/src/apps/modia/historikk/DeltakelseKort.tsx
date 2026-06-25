@@ -1,8 +1,4 @@
-import {
-  Deltakelse,
-  DeltakelseEierskap,
-  DeltakelseTilstand,
-} from "@arbeidsmarkedstiltak/api-client";
+import { Deltakelse, DeltakelseTilstand } from "@arbeidsmarkedstiltak/api-client";
 import { BodyShort, Box, Button, Heading, HGrid, HStack, VStack, Link } from "@navikt/ds-react";
 import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
@@ -31,10 +27,8 @@ export function DeltakelseKort({ deltakelse }: Props) {
 }
 
 function Knapper({ deltakelse }: Props) {
-  switch (deltakelse.eierskap) {
-    case DeltakelseEierskap.ARENA:
-      return null;
-    case DeltakelseEierskap.TEAM_KOMET: {
+  switch (deltakelse.type) {
+    case "TILTAKSADMINISTRASJON": {
       const deltakelseRoute = resolveModiaRoute({
         route: ModiaRoute.ARBEIDSMARKEDSTILTAK_DELTAKELSE,
         deltakerId: deltakelse.id,
@@ -44,10 +38,10 @@ function Knapper({ deltakelse }: Props) {
           <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
             Gå til deltakelse
           </Button>
-          {deltakelse.pamelding && (
+          {deltakelse.infoMeldingStatus && (
             <Link
               as={ReactRouterLink}
-              to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.pamelding.gjennomforingId}`}
+              to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.gjennomforingId}`}
             >
               <BodyShort size="small">Gå til tiltak</BodyShort>
             </Link>
@@ -55,7 +49,7 @@ function Knapper({ deltakelse }: Props) {
         </VStack>
       );
     }
-    case DeltakelseEierskap.TEAM_TILTAK: {
+    case "TILTAK_ARBEIDSGIVER": {
       const link = `${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}/avtale/${deltakelse.id}?part=VEILEDER`;
       return (
         <Button as="a" variant="secondary" href={link} size="small">
@@ -63,6 +57,10 @@ function Knapper({ deltakelse }: Props) {
         </Button>
       );
     }
+    case "ARENA":
+    case undefined:
+    default:
+      return null;
   }
 }
 
@@ -79,13 +77,13 @@ function getDeltakelseKortBorder(tilstand: DeltakelseTilstand) {
 }
 
 function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
-  const { tiltakstype, status, periode, tittel, innsoktDato } = deltakelse;
+  const { tiltakstype, status, periode, tittel } = deltakelse;
   const aarsak = "aarsak" in status ? status.aarsak : null;
   return (
     <VStack gap="space-8">
       <HStack gap="space-40">
         <small>{tiltakstype.navn.toUpperCase()}</small>
-        {innsoktDato ? <small>Søkt inn: {formaterDato(innsoktDato)}</small> : null}
+        <InnsoktDato deltakelse={deltakelse} />
       </HStack>
       {tittel ? (
         <Heading size="medium" level="4">
@@ -105,10 +103,42 @@ function Innhold({ deltakelse }: { deltakelse: Deltakelse }) {
                   .join(" - ")}
           </BodyShort>
         ) : null}
-        {deltakelse.sistEndretDato ? (
-          <BodyShort size="small">Sist endret: {formaterDato(deltakelse.sistEndretDato)}</BodyShort>
-        ) : null}
+        <SistEndretDato deltakelse={deltakelse} />
       </HStack>
     </VStack>
   );
+}
+
+function InnsoktDato({ deltakelse }: { deltakelse: Deltakelse }) {
+  switch (deltakelse.type) {
+    case "TILTAKSADMINISTRASJON": {
+      if (deltakelse.innsoktDato) {
+        return <small>Søkt inn: {formaterDato(deltakelse.innsoktDato)}</small>;
+      }
+      return null;
+    }
+    case "TILTAK_ARBEIDSGIVER":
+    case "ARENA":
+    case undefined:
+    default:
+      return null;
+  }
+}
+
+function SistEndretDato({ deltakelse }: { deltakelse: Deltakelse }) {
+  switch (deltakelse.type) {
+    case "TILTAKSADMINISTRASJON": {
+      if (deltakelse.sistEndretDato) {
+        return (
+          <BodyShort size="small">Sist endret: {formaterDato(deltakelse.sistEndretDato)}</BodyShort>
+        );
+      }
+      return null;
+    }
+    case "TILTAK_ARBEIDSGIVER":
+    case "ARENA":
+    case undefined:
+    default:
+      return null;
+  }
 }
