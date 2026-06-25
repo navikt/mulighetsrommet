@@ -20,6 +20,7 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -149,8 +150,8 @@ data class DeltakelseFraKomet(
     @Serializable(with = LocalDateSerializer::class)
     val sistEndretDato: LocalDate? = null,
     val periode: Periode? = null,
+    val oppstartstype: GjennomforingOppstartstype,
 ) {
-
     @Serializable
     data class Status(
         val type: DeltakerStatusType,

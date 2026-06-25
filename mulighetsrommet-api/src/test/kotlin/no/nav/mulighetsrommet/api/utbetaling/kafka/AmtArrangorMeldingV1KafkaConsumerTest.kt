@@ -97,6 +97,31 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
             ),
         )
 
+        arrangorMeldingConsumer.consume(
+            "26b2ef7f-2c33-4468-b9cd-98e935d747cc".toUUID(),
+            Json.parseToJsonElement(
+                """
+                    {
+                      "type": "Forslag",
+                      "id": "cb566346-1eaa-45c9-8837-5cc33a8a4202",
+                      "deltakerId": "f00e3945-7125-4a48-98c8-0ac55070885a",
+                      "opprettetAvArrangorAnsattId": "fff9a665-cbde-4dbc-9ef9-deb8681a0d6f",
+                      "opprettet": "2026-01-21T13:43:07.583803862",
+                      "begrunnelse": "asdffff",
+                      "endring": {
+                        "type": "ForlengDeltakelse",
+                        "sluttdato": "2026-02-20"
+                      },
+                      "status": {
+                        "type": "VenterPaSvar"
+                      },
+                      "navAnsatt": null,
+                      "sistEndret": "2026-01-21T13:43:07.583803862"
+                    }
+                """.trimIndent(),
+            ),
+        )
+
         // Håndterer andre typer meldinger som ikke er relevante for oss
         arrangorMeldingConsumer.consume(
             "26b2ef7f-2c33-4468-b9cd-98e935d747cc".toUUID(),

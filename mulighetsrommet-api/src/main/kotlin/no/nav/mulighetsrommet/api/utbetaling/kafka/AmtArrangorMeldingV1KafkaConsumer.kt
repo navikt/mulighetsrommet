@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.utbetaling.kafka
 
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.amt.model.AmtArrangorMelding
@@ -9,7 +10,6 @@ import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.util.UUID
 
@@ -25,7 +25,7 @@ class AmtArrangorMeldingV1KafkaConsumer(
     override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
         logger.info("Konsumerer arrangor-melding med id=$key")
 
-        val gjennomforingId = when (val melding = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtArrangorMelding?>(message)) {
+        val gjennomforingId = when (val melding = Json.decodeFromJsonElement<AmtArrangorMelding?>(message)) {
             is AmtArrangorMelding.Forslag -> {
                 when (melding.status) {
                     is AmtArrangorMelding.Forslag.Status.Avvist,

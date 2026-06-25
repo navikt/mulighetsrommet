@@ -66,7 +66,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
         />
         {fields.map((field, index) => (
           <FormGroup key={field.id}>
-            <HStack align="center" justify="space-between">
+            <HStack align="center" justify="space-between" wrap={false}>
               <VStack gap="space-8">
                 <HStack gap="space-24" align="start">
                   <FormSelect

@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -137,6 +138,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         innsoktDato = LocalDate.of(2018, 12, 3),
         sistEndretDato = LocalDate.of(2018, 12, 5),
+        oppstartstype = GjennomforingOppstartstype.LOPENDE,
     )
 
     val deltakelseOppfolging = Deltakelse.TiltaksadministrasjonDeltakelse(
@@ -437,6 +439,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
             innsoktDato = LocalDate.of(2018, 12, 3),
             sistEndretDato = LocalDate.of(2018, 12, 5),
+            oppstartstype = GjennomforingOppstartstype.ENKELTPLASS,
         )
 
         test("viser enkeltplasser fra komet og ikke fra Arena") {
