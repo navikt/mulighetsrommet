@@ -139,6 +139,8 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
     utdanningslop: null,
     prismodell: prismodellAnnenAvtaltPris,
     okonomi: null,
+    prisendring: null,
+    pendingPrismodell: null,
   },
   {
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.ARBFORB),
@@ -176,6 +178,8 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
     utdanningslop: null,
     prismodell: prismodellAnnenAvtaltPris,
     okonomi: null,
+    prisendring: null,
+    pendingPrismodell: null,
     enkeltplassDeltaker: null,
   },
   {
@@ -214,6 +218,8 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
     utdanningslop: null,
     prismodell: prismodellAnnenAvtaltPris,
     okonomi: null,
+    prisendring: null,
+    pendingPrismodell: null,
   },
   {
     enkeltplassDeltaker: null,
@@ -251,6 +257,8 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
     utdanningslop: null,
     prismodell: prismodellAnnenAvtaltPris,
     okonomi: null,
+    prisendring: null,
+    pendingPrismodell: null,
   },
 ];
 
