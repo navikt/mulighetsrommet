@@ -12,6 +12,8 @@ object TiltakstypeFixtures {
         arenakode = "ARBFORB",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val VTA = Tiltakstype(
@@ -21,6 +23,8 @@ object TiltakstypeFixtures {
         arenakode = "VASV",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val ArbeidsrettetRehabilitering = Tiltakstype(
@@ -30,6 +34,8 @@ object TiltakstypeFixtures {
         arenakode = "ARBRRHDAG",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val GruppeAmo = Tiltakstype(
@@ -39,6 +45,8 @@ object TiltakstypeFixtures {
         arenakode = "GRUPPEAMO",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val Oppfolging = Tiltakstype(
@@ -48,6 +56,8 @@ object TiltakstypeFixtures {
         arenakode = "INDOPPFAG",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val VTAO = Tiltakstype(
@@ -57,6 +67,8 @@ object TiltakstypeFixtures {
         arenakode = null,
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val Jobbklubb = Tiltakstype(
@@ -66,6 +78,8 @@ object TiltakstypeFixtures {
         arenakode = "JOBBK",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val DigitalOppfolging = Tiltakstype(
@@ -75,6 +89,8 @@ object TiltakstypeFixtures {
         arenakode = "DIGIOPPARB",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val Avklaring = Tiltakstype(
@@ -84,6 +100,8 @@ object TiltakstypeFixtures {
         arenakode = "AVKLARAG",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val GruppeFagOgYrkesopplaering = Tiltakstype(
@@ -93,6 +111,8 @@ object TiltakstypeFixtures {
         arenakode = "GRUFAGYRKE",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val Arbeidstrening = Tiltakstype(
@@ -102,6 +122,8 @@ object TiltakstypeFixtures {
         arenakode = "ARBTREN",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val Amo = Tiltakstype(
@@ -111,6 +133,8 @@ object TiltakstypeFixtures {
         arenakode = "GRUPPEAMO",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val NorskGrunnFOV = Tiltakstype(
@@ -120,6 +144,8 @@ object TiltakstypeFixtures {
         arenakode = "GRUPPEAMO",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val EnkelAmo = Tiltakstype(
@@ -129,6 +155,8 @@ object TiltakstypeFixtures {
         arenakode = "ENKELAMO",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val EnkelFagOgYrke = Tiltakstype(
@@ -138,6 +166,8 @@ object TiltakstypeFixtures {
         arenakode = "ENKFAGYRKE",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 
     val IPS = Tiltakstype(
@@ -147,5 +177,7 @@ object TiltakstypeFixtures {
         arenakode = "INDJOBSTOT",
         innsatsgrupper = emptySet(),
         sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
     )
 }

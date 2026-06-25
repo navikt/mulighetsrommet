@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.model.toAgentHendelse
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
-import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import org.apache.kafka.common.header.internals.RecordHeaders
 import java.time.Instant
@@ -61,16 +60,6 @@ class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
             key.toByteArray(),
             Json.encodeToString(melding).toByteArray(),
             headers,
-        )
-        kpr.storeRecord(record)
-    }
-
-    fun publish(ekstern: TiltakstypeV3Dto) {
-        val record = StoredProducerRecord(
-            topics.sisteTiltakstyperTopic,
-            ekstern.id.toString().toByteArray(),
-            Json.encodeToString(ekstern).toByteArray(),
-            null,
         )
         kpr.storeRecord(record)
     }

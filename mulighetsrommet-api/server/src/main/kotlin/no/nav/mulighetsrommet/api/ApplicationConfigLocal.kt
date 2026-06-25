@@ -14,6 +14,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder.consumerBuilder
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
@@ -26,7 +27,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
-import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.service.tidligstTidspunktForUtbetalingDev
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.database.DatabaseConfig

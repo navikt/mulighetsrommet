@@ -11,6 +11,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -25,7 +26,6 @@ import no.nav.mulighetsrommet.api.sanity.SanityArrangorKontaktperson
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
-import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe
@@ -112,11 +112,11 @@ class VeilederflateServiceTest : FunSpec({
             Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
         )
 
-        repository.tiltakstype.upsert(TiltakstypeFixtures.EnkelAmo.copy(sanityId = tiltakstypeEnkelAmo._id.toUUID(), innsatsgrupper = innsatsgrupper))
+        repository.tiltakstype.save(TiltakstypeFixtures.EnkelAmo.copy(sanityId = tiltakstypeEnkelAmo._id.toUUID(), innsatsgrupper = innsatsgrupper))
 
-        repository.tiltakstype.upsert(TiltakstypeFixtures.Arbeidstrening.copy(sanityId = tiltakstypeArbeidstrening._id.toUUID(), innsatsgrupper = innsatsgrupper))
+        repository.tiltakstype.save(TiltakstypeFixtures.Arbeidstrening.copy(sanityId = tiltakstypeArbeidstrening._id.toUUID(), innsatsgrupper = innsatsgrupper))
 
-        repository.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging.copy(sanityId = tiltakstypeOppfolging._id.toUUID(), innsatsgrupper = innsatsgrupper))
+        repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging.copy(sanityId = tiltakstypeOppfolging._id.toUUID(), innsatsgrupper = innsatsgrupper))
         queries.gjennomforing.setPublisert(GjennomforingFixtures.Oppfolging1.id, true)
         queries.gjennomforing.setNavEnheter(
             GjennomforingFixtures.Oppfolging1.id,

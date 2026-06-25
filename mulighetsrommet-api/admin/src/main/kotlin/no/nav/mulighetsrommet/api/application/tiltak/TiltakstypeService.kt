@@ -1,12 +1,13 @@
-package no.nav.mulighetsrommet.api.tiltakstype.service
+package no.nav.mulighetsrommet.api.application.tiltak
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.api.application.ApiDatabase
+import no.nav.mulighetsrommet.api.domain.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeSortField
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -60,12 +61,6 @@ class TiltakstypeService(
         }
     }
 
-    fun getByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype {
-        return CacheUtils.tryCacheFirstNotNull(cacheByTiltakskode, tiltakskode.name) {
-            db.session { queries.tiltakstype.getByTiltakskode(tiltakskode) }
-        }
-    }
-
     fun getIdsByTiltakskoder(tiltakskoder: List<Tiltakskode>): List<UUID> {
         if (tiltakskoder.isEmpty()) {
             return emptyList()
@@ -76,10 +71,28 @@ class TiltakstypeService(
         }
     }
 
+    fun getByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype {
+        return cacheByTiltakskode.get(tiltakskode.name) {
+            db.session { repository.tiltakstype.getByTiltakskode(tiltakskode) }
+        }
+    }
+
+    fun getAll(
+        tiltakskoder: Set<Tiltakskode> = emptySet(),
+        sortField: TiltakstypeSortField = TiltakstypeSortField.NAVN,
+        sortDirection: SortDirection = SortDirection.ASC,
+    ): List<Tiltakstype> = db.session {
+        repository.tiltakstype.getAll(
+            tiltakskoder = tiltakskoder,
+            sortField = sortField,
+            sortDirection = sortDirection,
+        )
+    }
+
     fun getAllByArenaTiltakskode(arenaTiltakskode: String): List<Tiltakstype> {
-        return CacheUtils.tryCacheFirstNotNull(cacheByArenakode, arenaTiltakskode) {
+        return cacheByArenakode.get(arenaTiltakskode) {
             val tiltakskoder = Tiltakskode.entries.filter { it.arenakode == arenaTiltakskode }
-            db.session { queries.tiltakstype.getAll(tiltakskoder = tiltakskoder.toSet()) }
+            db.session { repository.tiltakstype.getAll(tiltakskoder = tiltakskoder.toSet()) }
         }
     }
 }

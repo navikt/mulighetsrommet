@@ -17,6 +17,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
@@ -40,7 +41,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto

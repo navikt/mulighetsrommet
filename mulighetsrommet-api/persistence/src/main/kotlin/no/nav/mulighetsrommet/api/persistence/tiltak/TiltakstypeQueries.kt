@@ -4,15 +4,16 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.application.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeKombinasjon
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeQueryHandler
-import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeSortField
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
+import no.nav.mulighetsrommet.api.domain.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeSortField
 import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innholdselement
@@ -24,7 +25,23 @@ import java.util.UUID
 
 class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, TiltakstypeQueryHandler {
 
-    override fun upsert(tiltakstype: Tiltakstype): Tiltakstype = with(session) {
+    override fun save(tiltakstype: Tiltakstype) {
+        upsert(tiltakstype)
+        upsertRedaksjoneltInnhold(
+            tiltakstype.id,
+            tiltakstype.veilederinfo?.beskrivelse,
+            tiltakstype.veilederinfo?.faneinnhold,
+        )
+        setFaglenker(tiltakstype.id, tiltakstype.veilederinfo?.faglenker ?: listOf())
+        setKanKombineresMed(tiltakstype.id, tiltakstype.veilederinfo?.kanKombineresMed ?: listOf())
+        upsertDeltakerRegistreringInnhold(
+            tiltakstype.id,
+            tiltakstype.deltakerinfo?.ledetekst,
+            tiltakstype.deltakerinfo?.innholdskoder ?: listOf(),
+        )
+    }
+
+    private fun upsert(tiltakstype: Tiltakstype): Tiltakstype = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into tiltakstype (
@@ -74,23 +91,7 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
         return single(queryOf(query, id)) { it.toTiltakstype() }
     }
 
-    override fun getAll(tiltakskoder: Set<Tiltakskode>): List<Tiltakstype> = with(session) {
-        val parameters = mapOf(
-            "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { createTextArray(it) },
-        )
-
-        @Language("PostgreSQL")
-        val query = """
-            select id, navn, tiltakskode, arena_kode, sanity_id, innsatsgrupper
-            from view_tiltakstype
-            where (:tiltakskoder::text[] is null or tiltakskode = any(:tiltakskoder))
-            order by navn asc
-        """.trimIndent()
-
-        return list(queryOf(query, parameters)) { it.toTiltakstype() }
-    }
-
-    override fun getByKode(kode: Tiltakskode): Tiltakstype? = with(session) {
+    override fun getByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -98,18 +99,7 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
             where tiltakskode = ?
         """.trimIndent()
 
-        return single(queryOf(query, kode.name)) { it.toTiltakstype() }
-    }
-
-    override fun delete(id: UUID): Unit = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            delete
-            from tiltakstype
-            where id = ?::uuid
-        """.trimIndent()
-
-        update(queryOf(query, id))
+        return requireSingle(queryOf(query, tiltakskode.name)) { it.toTiltakstype() }
     }
 
     override fun getAll(
@@ -129,7 +119,7 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
 
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, arena_kode, sanity_id, innsatsgrupper
+            select *
             from view_tiltakstype
             where (:tiltakskoder::text[] is null or tiltakskode = any(:tiltakskoder))
             order by $order
@@ -138,23 +128,23 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
         return list(queryOf(query, parameters)) { it.toTiltakstype() }
     }
 
-    override fun getByTiltakskode(tiltakskode: Tiltakskode): Tiltakstype = with(session) {
-        return requireNotNull(getByKode(tiltakskode)) {
-            "Det finnes ingen tiltakstype for tiltakskode $tiltakskode"
-        }
-    }
-
     override fun getEksternTiltakstype(id: UUID): TiltakstypeV3Dto? = with(session) {
         @Language("PostgreSQL")
         val query = """
-            select id, navn, tiltakskode, arena_kode, innsatsgrupper, created_at, updated_at
-            from tiltakstype
+            select *
+            from view_tiltakstype
             where id = ?::uuid
         """.trimIndent()
 
-        val deltakerRegistreringInnhold = getDeltakerregistreringInnhold(id)
-
-        return single(queryOf(query, id)) { it.tiltakstypeEksternDto(deltakerRegistreringInnhold) }
+        return single(queryOf(query, id)) { row ->
+            val innholdselementer = row.stringOrNull("deltaker_registrering_innholdselementer")
+                ?.let { Json.decodeFromString<List<Innholdselement>>(it) }
+                ?: emptyList()
+            val deltakerRegistreringInnhold = row.stringOrNull("deltaker_registrering_ledetekst")?.let {
+                DeltakerRegistreringInnholdDto(ledetekst = it, innholdselementer = innholdselementer)
+            }
+            row.tiltakstypeEksternDto(deltakerRegistreringInnhold)
+        }
     }
 
     override fun getVeilederinfo(id: UUID): TiltakstypeVeilderinfo? = with(session) {
@@ -181,7 +171,7 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
         }
     }
 
-    override fun upsertDeltakerRegistreringInnhold(id: UUID, ledetekst: String?, innholdskoder: List<String>) = with(session) {
+    fun upsertDeltakerRegistreringInnhold(id: UUID, ledetekst: String?, innholdskoder: List<String>) = with(session) {
         @Language("PostgreSQL")
         val updateLedetekstQuery = """
             update tiltakstype
@@ -216,35 +206,21 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
     override fun getDeltakerregistreringInnhold(id: UUID): DeltakerRegistreringInnholdDto? = with(session) {
         @Language("PostgreSQL")
         val query = """
-           select tiltakstype.deltaker_registrering_ledetekst, element.innholdskode, element.tekst
-           from tiltakstype
-               left join tiltakstype_deltaker_registrering_innholdselement tiltakstype_innholdselement on tiltakstype_innholdselement.tiltakstype_id = tiltakstype.id
-               left join deltaker_registrering_innholdselement element on tiltakstype_innholdselement.innholdskode = element.innholdskode
-           where tiltakstype.id = ?::uuid and tiltakstype.deltaker_registrering_ledetekst is not null;
+            select deltaker_registrering_ledetekst, deltaker_registrering_innholdselementer
+            from view_tiltakstype
+            where id = ?::uuid
         """.trimIndent()
 
-        val result = list(queryOf(query, id)) {
-            val ledetekst = it.string("deltaker_registrering_ledetekst")
-            val tekst = it.stringOrNull("tekst")
-            val innholdskode = it.stringOrNull("innholdskode")
-            val innholdselement = if (tekst != null && innholdskode != null) {
-                Innholdselement(tekst = tekst, innholdskode = innholdskode)
-            } else {
-                null
-            }
-            Pair(ledetekst, innholdselement)
+        return single(queryOf(query, id)) { row ->
+            val ledetekst = row.stringOrNull("deltaker_registrering_ledetekst") ?: return@single null
+            val innholdselementer = row.stringOrNull("deltaker_registrering_innholdselementer")
+                ?.let { Json.decodeFromString<List<Innholdselement>>(it) }
+                ?: emptyList()
+            DeltakerRegistreringInnholdDto(ledetekst = ledetekst, innholdselementer = innholdselementer)
         }
-
-        if (result.isEmpty()) return null
-
-        val innholdselementer = result.mapNotNull { it.second }
-        return DeltakerRegistreringInnholdDto(
-            ledetekst = result[0].first,
-            innholdselementer = innholdselementer,
-        )
     }
 
-    override fun upsertRedaksjoneltInnhold(
+    fun upsertRedaksjoneltInnhold(
         id: UUID,
         beskrivelse: String?,
         faneinnhold: Faneinnhold?,
@@ -265,7 +241,7 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
         session.execute(queryOf(updateQuery, params))
     }
 
-    override fun setFaglenker(id: UUID, lenker: List<UUID>) {
+    fun setFaglenker(id: UUID, lenker: List<UUID>) {
         @Language("PostgreSQL")
         val deleteLinksQuery = """
             delete
@@ -293,7 +269,7 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
         }
     }
 
-    override fun setKanKombineresMed(id: UUID, kombineresmedIds: List<UUID>) = with(session) {
+    fun setKanKombineresMed(id: UUID, kombineresmedIds: List<UUID>) = with(session) {
         @Language("PostgreSQL")
         val deleteQuery = """
             delete from tiltakstype_kombinasjon where tiltakstype_id = ?::uuid
@@ -329,6 +305,20 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
             ?.toSet()
             ?: emptySet()
 
+        val faglenker = stringOrNull("faglenker")
+            ?.let { Json.decodeFromString<List<RedaksjoneltInnholdLenke>>(it) }
+            ?.map { it.id }
+            ?: emptyList()
+
+        val kanKombineresMed = stringOrNull("kan_kombineres_med")
+            ?.let { Json.decodeFromString<List<TiltakstypeKombinasjon>>(it) }
+            ?.map { it.id }
+            ?: emptyList()
+
+        val deltakerinnhold = stringOrNull("deltaker_registrering_innholdselementer")
+            ?.let { Json.decodeFromString<List<Innholdselement>>(it) }
+            ?: emptyList()
+
         return Tiltakstype(
             id = uuid("id"),
             navn = string("navn"),
@@ -336,6 +326,17 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
             arenakode = stringOrNull("arena_kode"),
             tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
             sanityId = uuidOrNull("sanity_id"),
+            veilederinfo = Tiltakstype.Veilederinfo(
+                beskrivelse = stringOrNull("beskrivelse"),
+                faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+                faglenker = faglenker,
+                kanKombineresMed = kanKombineresMed,
+            ),
+            deltakerinfo = Tiltakstype.Deltakerinfo(
+                ledetekst = stringOrNull("deltaker_registrering_ledetekst"),
+                innholdskoder = deltakerinnhold.map { it.innholdskode },
+            ),
+
         )
     }
 

@@ -1,24 +1,37 @@
 package no.nav.mulighetsrommet.api.tiltakstype.api
 
+import arrow.core.flatMap
+import arrow.core.left
+import arrow.core.right
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
-import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
-import no.nav.mulighetsrommet.api.application.tiltak.SortDirection
-import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeSortField
+import no.nav.mulighetsrommet.api.application.ApiDatabase
+import no.nav.mulighetsrommet.api.application.tiltak.GetTiltakstepeDto
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeDto
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeDtoQuery
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeHandling
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeKompaktDto
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeKompaktQuery
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeUseCase
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeUseCaseError
+import no.nav.mulighetsrommet.api.application.tiltak.UpsertDeltakerinfoCommand
+import no.nav.mulighetsrommet.api.application.tiltak.UpsertVeilederinfoCommand
+import no.nav.mulighetsrommet.api.domain.tiltak.SortDirection
+import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeSortField
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeDto
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeHandling
-import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeKompaktDto
-import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
+import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
@@ -26,7 +39,11 @@ import org.koin.ktor.ext.inject
 import java.util.UUID
 
 fun Route.tiltakstypeRoutes() {
-    val tiltakstypeDetaljerService: TiltakstypeDetaljerService by inject()
+    val db: ApiDatabase by inject()
+    val tiltakstypeKompaktQuery: TiltakstypeKompaktQuery by inject()
+    val tiltakstypeDtoQuery: TiltakstypeDtoQuery by inject()
+    val tiltakstypeUseCase: TiltakstypeUseCase by inject()
+    val navAnsattService: NavAnsattService by inject()
 
     route("tiltakstyper") {
         get({
@@ -50,11 +67,11 @@ fun Route.tiltakstypeRoutes() {
                 }
             }
         }) {
-            val filter = getTiltakstypeFilter()
+            val query = getTiltakstypeKompaktQuery()
 
-            val tiltakstyper = tiltakstypeDetaljerService.getAll(filter)
+            val result = tiltakstypeKompaktQuery.execute(query)
 
-            call.respond(tiltakstyper)
+            call.respond(result)
         }
 
         get("{id}", {
@@ -76,10 +93,8 @@ fun Route.tiltakstypeRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            val tiltakstype = tiltakstypeDetaljerService.getById(id) ?: return@get call.respondText(
-                "Det finnes ikke noe tiltakstype med id $id",
-                status = HttpStatusCode.NotFound,
-            )
+            val tiltakstype = tiltakstypeDtoQuery.execute(GetTiltakstepeDto(id))
+                ?: return@get call.respondWithProblemDetail(tiltakstypeNotFound(id))
 
             call.respond(tiltakstype)
         }
@@ -101,10 +116,13 @@ fun Route.tiltakstypeRoutes() {
                 }
             }
         }) {
-            val id: UUID by call.parameters
             val navIdent = getNavIdent()
 
-            val handlinger = tiltakstypeDetaljerService.getHandlinger(id, navIdent)
+            val ansatt = navAnsattService.getNavAnsattByNavIdent(navIdent)
+            val handlinger = setOfNotNull(
+                TiltakstypeHandling.REDIGER_VEILEDERINFO.takeIf { ansatt?.hasGenerellRolle(Rolle.TILTAKSTYPER_SKRIV) == true },
+                TiltakstypeHandling.REDIGER_DELTAKERINFO.takeIf { ansatt?.hasGenerellRolle(Rolle.TILTAKSTYPER_REDIGER_DELTAKERINFO) == true },
+            )
 
             call.respond(handlinger)
         }
@@ -123,7 +141,11 @@ fun Route.tiltakstypeRoutes() {
                 }
             }
         }) {
-            call.respond(tiltakstypeDetaljerService.getAllInnholdselementer())
+            val innholdselementer = db.session {
+                queries.tiltakstype.getAllInnholdselementer()
+            }
+
+            call.respond(innholdselementer)
         }
 
         authorize(Rolle.TILTAKSTYPER_SKRIV) {
@@ -152,13 +174,27 @@ fun Route.tiltakstypeRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<TiltakstypeVeilederinfoRequest>()
 
-                val result = tiltakstypeDetaljerService.upsertVeilederinfo(id, request, navIdent)
-                    ?: return@post call.respondText(
-                        "Det finnes ikke noe tiltakstype med id $id",
-                        status = HttpStatusCode.NotFound,
-                    )
+                val command = UpsertVeilederinfoCommand(
+                    id = id,
+                    veilederinfo = Tiltakstype.Veilederinfo(
+                        beskrivelse = request.beskrivelse,
+                        faneinnhold = request.faneinnhold,
+                        faglenker = request.faglenker,
+                        kanKombineresMed = request.kanKombineresMed,
+                    ),
+                    endretAv = navIdent,
+                )
+                val result = tiltakstypeUseCase.execute(command)
+                    .mapLeft { error ->
+                        when (error) {
+                            is TiltakstypeUseCaseError.NotFound -> tiltakstypeNotFound(error.id)
+                        }
+                    }
+                    .flatMap {
+                        tiltakstypeDtoQuery.execute(GetTiltakstepeDto(id))?.right() ?: tiltakstypeNotFound(id).left()
+                    }
 
-                call.respond(result)
+                call.respondWithStatusResponse(result)
             }
         }
 
@@ -188,13 +224,25 @@ fun Route.tiltakstypeRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<TiltakstypeDeltakerinfoRequest>()
 
-                val result = tiltakstypeDetaljerService.upsertDeltakerinfo(id, request, navIdent)
-                    ?: return@post call.respondText(
-                        "Det finnes ikke noe tiltakstype med id $id",
-                        status = HttpStatusCode.NotFound,
-                    )
+                val command = UpsertDeltakerinfoCommand(
+                    id = id,
+                    deltakerinfo = Tiltakstype.Deltakerinfo(
+                        ledetekst = request.ledetekst,
+                        innholdskoder = request.innholdskoder,
+                    ),
+                    endretAv = navIdent,
+                )
+                val result = tiltakstypeUseCase.execute(command)
+                    .mapLeft { error ->
+                        when (error) {
+                            is TiltakstypeUseCaseError.NotFound -> tiltakstypeNotFound(error.id)
+                        }
+                    }
+                    .flatMap {
+                        tiltakstypeDtoQuery.execute(GetTiltakstepeDto(id))?.right() ?: tiltakstypeNotFound(id).left()
+                    }
 
-                call.respond(result)
+                call.respondWithStatusResponse(result)
             }
         }
     }

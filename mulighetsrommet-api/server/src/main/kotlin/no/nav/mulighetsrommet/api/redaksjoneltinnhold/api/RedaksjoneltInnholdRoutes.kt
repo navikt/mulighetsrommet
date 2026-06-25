@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.tiltakstype.api
+package no.nav.mulighetsrommet.api.redaksjoneltinnhold.api
 
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get

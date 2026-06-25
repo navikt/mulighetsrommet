@@ -10,6 +10,7 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -22,7 +23,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaServic
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus

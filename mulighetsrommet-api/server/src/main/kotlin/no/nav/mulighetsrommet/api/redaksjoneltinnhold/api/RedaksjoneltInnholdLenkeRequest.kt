@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.tiltakstype.api
+package no.nav.mulighetsrommet.api.redaksjoneltinnhold.api
 
 import kotlinx.serialization.Serializable
 

@@ -4,6 +4,7 @@ import arrow.core.getOrElse
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
@@ -11,7 +12,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.mapper.KategoriseringMapper
 import no.nav.mulighetsrommet.api.gjennomforing.service.EnkeltplassRequest
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer

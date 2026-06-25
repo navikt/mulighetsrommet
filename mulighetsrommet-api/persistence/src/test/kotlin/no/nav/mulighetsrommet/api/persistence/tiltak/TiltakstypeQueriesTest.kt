@@ -7,6 +7,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
+import no.nav.mulighetsrommet.api.domain.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.persistence.SqlApiDatabaseTestListener
@@ -20,24 +21,24 @@ class TiltakstypeQueriesTest : FunSpec({
     context("CRUD") {
         test("upsert and get") {
             database.runAndRollback {
-                repository.tiltakstype.upsert(TiltakstypeFixtures.Arbeidstrening)
-                repository.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
-                repository.tiltakstype.upsert(TiltakstypeFixtures.VTAO)
+                repository.tiltakstype.save(TiltakstypeFixtures.Arbeidstrening)
+                repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
+                repository.tiltakstype.save(TiltakstypeFixtures.VTAO)
 
-                queries.tiltakstype.getAll().size shouldBe 3
+                repository.tiltakstype.getAll().size shouldBe 3
             }
         }
     }
 
-    context("filtrering") {
+    context("getAll") {
         test("filtrering på tiltakskode") {
             database.runAndRollback {
-                repository.tiltakstype.upsert(TiltakstypeFixtures.AFT)
-                repository.tiltakstype.upsert(TiltakstypeFixtures.Jobbklubb)
-                repository.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
-                repository.tiltakstype.upsert(TiltakstypeFixtures.EnkelAmo)
+                repository.tiltakstype.save(TiltakstypeFixtures.AFT)
+                repository.tiltakstype.save(TiltakstypeFixtures.Jobbklubb)
+                repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
+                repository.tiltakstype.save(TiltakstypeFixtures.EnkelAmo)
 
-                queries.tiltakstype.getAll(
+                repository.tiltakstype.getAll(
                     tiltakskoder = setOf(
                         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                         Tiltakskode.JOBBKLUBB,
@@ -50,16 +51,34 @@ class TiltakstypeQueriesTest : FunSpec({
                 )
             }
         }
+
+        test("sortering på navn") {
+            database.runAndRollback {
+                repository.tiltakstype.save(TiltakstypeFixtures.AFT)
+                repository.tiltakstype.save(TiltakstypeFixtures.Jobbklubb)
+                repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
+                repository.tiltakstype.save(TiltakstypeFixtures.EnkelAmo)
+
+                repository.tiltakstype.getAll(sortDirection = SortDirection.DESC) shouldContainExactlyIds listOf(
+                    TiltakstypeFixtures.Oppfolging.id,
+                    TiltakstypeFixtures.Jobbklubb.id,
+                    TiltakstypeFixtures.EnkelAmo.id,
+                    TiltakstypeFixtures.AFT.id,
+                )
+            }
+        }
     }
 
     context("Strukturert innhold for deltakerregistrering") {
         test("Skal hente ut korrekt strukturert innhold for tiltakstype som har strukturert innhold") {
             database.runAndRollback {
-                repository.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
-                queries.tiltakstype.upsertDeltakerRegistreringInnhold(
-                    TiltakstypeFixtures.Oppfolging.id,
-                    "Oppfølging er et bra tiltak",
-                    listOf("jobbsoking", "arbeidsutproving"),
+                repository.tiltakstype.save(
+                    TiltakstypeFixtures.Oppfolging.copy(
+                        deltakerinfo = Tiltakstype.Deltakerinfo(
+                            "Oppfølging er et bra tiltak",
+                            listOf("jobbsoking", "arbeidsutproving"),
+                        ),
+                    ),
                 )
 
                 queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).shouldNotBeNull().should {
@@ -75,24 +94,26 @@ class TiltakstypeQueriesTest : FunSpec({
 
         test("Skal støtte å hente tiltaktype som bare har ledetekst, men ingen innholdselementer") {
             database.runAndRollback {
-                repository.tiltakstype.upsert(TiltakstypeFixtures.VTA)
-                queries.tiltakstype.upsertDeltakerRegistreringInnhold(
-                    TiltakstypeFixtures.VTA.id,
-                    "VTA er kjempebra",
-                    listOf(),
+                repository.tiltakstype.save(
+                    TiltakstypeFixtures.VTA.copy(
+                        deltakerinfo = Tiltakstype.Deltakerinfo(
+                            "VTA er kjempebra",
+                            listOf(),
+                        ),
+                    ),
                 )
 
                 queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).shouldNotBeNull().should {
                     it.navn shouldBe "Varig tilrettelagt arbeid i skjermet virksomhet"
                     it.deltakerRegistreringInnhold?.ledetekst shouldBe "VTA er kjempebra"
-                    it.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 0
+                    it.deltakerRegistreringInnhold?.innholdselementer.shouldBeEmpty()
                 }
             }
         }
 
         test("Skal kunne hente tiltakstype uten strukturert innhold for deltakerregistrering") {
             database.runAndRollback {
-                repository.tiltakstype.upsert(TiltakstypeFixtures.AFT)
+                repository.tiltakstype.save(TiltakstypeFixtures.AFT)
 
                 queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.AFT.id).shouldNotBeNull().should {
                     it.deltakerRegistreringInnhold shouldBe null
@@ -115,10 +136,16 @@ class TiltakstypeQueriesTest : FunSpec({
             database.runAndRollback {
                 val lenke = RedaksjoneltInnholdLenke(id = UUID.randomUUID(), url = "https://nav.no", navn = null)
                 repository.redaksjoneltInnholdLenke.upsert(lenke)
-                repository.tiltakstype.upsert(TiltakstypeFixtures.AFT)
-                repository.tiltakstype.upsert(TiltakstypeFixtures.VTA)
-                queries.tiltakstype.setFaglenker(TiltakstypeFixtures.AFT.id, listOf(lenke.id))
-                queries.tiltakstype.setFaglenker(TiltakstypeFixtures.VTA.id, listOf(lenke.id))
+
+                val veilederinfo = Tiltakstype.Veilederinfo(
+                    faglenker = listOf(lenke.id),
+                )
+                repository.tiltakstype.save(
+                    TiltakstypeFixtures.AFT.copy(veilederinfo = veilederinfo),
+                )
+                repository.tiltakstype.save(
+                    TiltakstypeFixtures.VTA.copy(veilederinfo = veilederinfo),
+                )
 
                 queries.tiltakstype.getNamesReferencingLenke(lenke.id) shouldBe listOf(
                     "Arbeidsforberedende trening",

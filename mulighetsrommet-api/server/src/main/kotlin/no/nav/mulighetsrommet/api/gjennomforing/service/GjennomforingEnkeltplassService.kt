@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
@@ -26,7 +27,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
-import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType

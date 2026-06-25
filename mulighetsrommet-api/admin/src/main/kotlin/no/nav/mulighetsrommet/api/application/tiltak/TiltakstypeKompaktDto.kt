@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.tiltakstype.model
+package no.nav.mulighetsrommet.api.application.tiltak
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature

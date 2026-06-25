@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -16,7 +17,6 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
-import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering

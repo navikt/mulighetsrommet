@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.application.tiltak
+package no.nav.mulighetsrommet.api.domain.tiltak
 
 enum class TiltakstypeSortField { NAVN, TILTAKSKODE }
 
