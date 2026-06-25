@@ -14,7 +14,6 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder.consumerBuilder
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
@@ -99,11 +98,6 @@ val ApplicationConfigLocal = AppConfig(
         gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
             Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
         },
-        opprettKravPrismodeller = listOf(
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-            PrismodellType.ANNEN_AVTALT_PRIS,
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-        ),
         tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
     ),
     database = DatabaseConfig(
