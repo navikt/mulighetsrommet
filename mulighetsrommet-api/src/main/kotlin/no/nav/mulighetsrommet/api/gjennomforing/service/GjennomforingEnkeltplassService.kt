@@ -121,7 +121,7 @@ class GjennomforingEnkeltplassService(
         }
 
         upsert(utkast.toUpsert())
-            .also { upsertKategorisering(utkast) }
+            .also { upsertKategorisering(utkast.id, utkast.tiltakskode, utkast.kategorisering) }
             .also { updateFreeTextSearch(it, norskIdent = null) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
             .let { logEndring("Opprettet utkast", it.id, opprettetAv) }
@@ -137,16 +137,30 @@ class GjennomforingEnkeltplassService(
 
         when (existing) {
             null -> upsert(soktInn.toUpsert())
-                .also { upsertKategorisering(soktInn) }
+                .also { upsertKategorisering(soktInn.id, soktInn.tiltakskode, soktInn.kategorisering) }
                 .also { updateFreeTextSearch(it, norskIdent = null) }
                 .also { publishTiltaksgjennomforingV2ToKafka(it) }
 
             else -> upsert(soktInn.toUpsert(existing.gjennomforing))
-                .also { upsertKategorisering(soktInn) }
+                .also { upsertKategorisering(soktInn.id, soktInn.tiltakskode, soktInn.kategorisering) }
                 .also { publishTiltaksgjennomforingV2ToKafka(it) }
         }
 
         settOkonomiTilGodkjenning(soktInn.id, opprettetAv).right()
+    }
+
+    fun endreInnhold(
+        gjennomforingId: UUID,
+        kategorisering: OpplaringKategoriseringRequest?,
+    ): Enkeltplass = db.transaction {
+        val enkeltplass = getAndAquireLock(gjennomforingId)
+        upsertKategorisering(
+            gjennomforingId,
+            enkeltplass.gjennomforing.tiltakstype.tiltakskode,
+            kategorisering,
+        )
+        publishTiltaksgjennomforingV2ToKafka(enkeltplass.gjennomforing)
+        logEndring("Innhold endret", gjennomforingId, Tiltaksadministrasjon)
     }
 
     /**
@@ -389,10 +403,12 @@ class GjennomforingEnkeltplassService(
     }
 
     private fun TransactionalQueryContext.upsertKategorisering(
-        request: EnkeltplassRequest,
+        id: UUID,
+        tiltakskode: Tiltakskode,
+        kategorisering: OpplaringKategoriseringRequest?,
     ) {
         val kurstyper = context(this.session) { OpplaringKategoriseringQueries.getKurstyper() }
-        val kurstypeId = when (request.tiltakskode) {
+        val kurstypeId = when (tiltakskode) {
             Tiltakskode.STUDIESPESIALISERING,
             -> kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }?.id
 
@@ -402,27 +418,24 @@ class GjennomforingEnkeltplassService(
 
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-            -> request.kategorisering?.kurstypeId
+            -> kategorisering?.kurstypeId
 
             else -> null
         }
         val opplaringKategoriseringDbo = OpplaringKategoriseringDbo(
             kurstypeId = kurstypeId,
-            bransjeId = request.kategorisering?.bransjeId,
-            forerkort = request.kategorisering?.forerkort?.toSet() ?: emptySet(),
-            sertifiseringer = request.kategorisering?.sertifiseringer ?: emptySet(),
-            utdanningslop = request.kategorisering?.utdanningsprogramId?.let { programId ->
+            bransjeId = kategorisering?.bransjeId,
+            forerkort = kategorisering?.forerkort?.toSet() ?: emptySet(),
+            sertifiseringer = kategorisering?.sertifiseringer ?: emptySet(),
+            utdanningslop = kategorisering?.utdanningsprogramId?.let { programId ->
                 UtdanningslopDbo(
                     utdanningsprogram = programId,
-                    utdanninger = request.kategorisering.larefag?.toSet() ?: emptySet(),
+                    utdanninger = kategorisering.larefag?.toSet() ?: emptySet(),
                 )
             },
         )
         context(this.session) {
-            OpplaringKategoriseringQueries.upsert(
-                request.id,
-                opplaringKategoriseringDbo,
-            )
+            OpplaringKategoriseringQueries.upsert(id, opplaringKategoriseringDbo)
         }
     }
 
