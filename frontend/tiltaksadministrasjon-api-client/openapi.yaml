@@ -5939,7 +5939,7 @@ components:
           - "null"
           - string
           format: date
-        navVeileder:
+        navVeilederNavn:
           type:
           - "null"
           - string
@@ -5947,7 +5947,7 @@ components:
       - avvistGrunn
       - id
       - innholdAnnet
-      - navVeileder
+      - navVeilederNavn
       - navn
       - norskIdent
       - oppfolgingEnhet
