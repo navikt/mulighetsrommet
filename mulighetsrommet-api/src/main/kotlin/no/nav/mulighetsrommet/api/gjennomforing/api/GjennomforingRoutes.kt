@@ -3,13 +3,11 @@ package no.nav.mulighetsrommet.api.gjennomforing.api
 import arrow.core.Either
 import arrow.core.NonEmptyList
 import arrow.core.flatMap
-import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.raise.ensureNotNull
 import arrow.core.raise.zipOrAccumulate
-import arrow.core.right
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -35,9 +33,7 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
@@ -55,7 +51,6 @@ import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -386,7 +381,6 @@ fun Route.gjennomforingRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Perioden ble slettet"
-                        body<GjennomforingDetaljerDto>()
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
@@ -401,17 +395,12 @@ fun Route.gjennomforingRoutes() {
                 val id: UUID by call.pathParameters
                 val navIdent = getNavIdent()
                 val request = call.receive<SetStengtHosArrangorRequest>()
-                val accessType = call.getAccessType().requireAzureAd()
 
                 val result = request.validate()
                     .flatMap { (periode, beskrivelse) ->
                         avtaleGjennomforinger.setStengtHosArrangor(id, periode, beskrivelse, navIdent)
                     }
                     .mapLeft { ValidationError(errors = it) }
-                    .flatMap {
-                        gjennomforinger.getGjennomforingDetaljerDto(id, accessType, navIdent)?.right()
-                            ?: InternalServerError("Klarte ikke hente detaljer om gjennomforing=$id").left()
-                    }
 
                 call.respondWithStatusResponse(result)
             }
@@ -636,18 +625,12 @@ fun Route.gjennomforingRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            val accessType = call.getAccessType().requireAzureAd()
-            gjennomforinger.getGjennomforingDetaljerDto(id, accessType, getNavIdent())
-                ?.let { detaljer ->
-                    val tiltaksnummer = when (detaljer.gjennomforing) {
-                        is GjennomforingAvtaleDto -> detaljer.gjennomforing.tiltaksnummer
-                        is GjennomforingEnkeltplassDto -> detaljer.gjennomforing.tiltaksnummer
-                    }
-                    tiltaksnummer
-                        ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it.value)) }
-                        ?: call.respond(HttpStatusCode.NoContent)
-                }
-                ?: call.respondUkjentGjennomforing(id)
+            val gjennomforing = gjennomforinger.getGjennomforingTiltaksadministrasjon(id)
+                ?: return@get call.respondUkjentGjennomforing(id)
+
+            gjennomforing.arena?.tiltaksnummer
+                ?.let { call.respond(TiltaksnummerResponse(tiltaksnummer = it.value)) }
+                ?: call.respond(HttpStatusCode.NoContent)
         }
 
         get("{id}/deltaker-summary", {

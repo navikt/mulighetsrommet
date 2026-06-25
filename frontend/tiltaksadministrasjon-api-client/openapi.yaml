@@ -1325,10 +1325,6 @@ paths:
         "200":
           description: Perioden ble slettet
           headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GjennomforingDetaljerDto"
         "400":
           description: Valideringsfeil
           headers: {}
@@ -5347,6 +5343,178 @@ components:
       - beskrivelse
       - periodeSlutt
       - periodeStart
+    SettPaVentOkonomiRequest:
+      type: object
+      properties:
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - forklaring
+    GjennomforingStatusType:
+      type: string
+      enum:
+      - GJENNOMFORES
+      - AVSLUTTET
+      - AVBRUTT
+      - AVLYST
+    GjennomforingType:
+      type: string
+      enum:
+      - ARENA
+      - AVTALE
+      - ENKELTPLASS
+    GetGjennomforingerRequest:
+      type: object
+      properties:
+        search:
+          type:
+          - "null"
+          - string
+        navEnheter:
+          type: array
+          items:
+            type: string
+        tiltakstyper:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltakskode"
+        statuser:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingStatusType"
+        sort:
+          type:
+          - "null"
+          - string
+        avtaleId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        arrangorer:
+          type: array
+          items:
+            type: string
+            format: uuid
+        publisert:
+          type:
+          - "null"
+          - boolean
+        visMineGjennomforinger:
+          type: boolean
+        gjennomforingTyper:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingType"
+      required:
+      - arrangorer
+      - avtaleId
+      - gjennomforingTyper
+      - navEnheter
+      - publisert
+      - search
+      - sort
+      - statuser
+      - tiltakstyper
+      - visMineGjennomforinger
+    GjennomforingKompaktDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        lopenummer:
+          type: string
+        startDato:
+          type:
+          - "null"
+          - string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        status:
+          $ref: "#/components/schemas/GjennomforingDto.Status"
+        publisert:
+          type: boolean
+        kontorstruktur:
+          type: array
+          items:
+            $ref: "#/components/schemas/Kontorstruktur"
+        arrangor:
+          $ref: "#/components/schemas/GjennomforingKompakt.ArrangorUnderenhet"
+        tiltakstype:
+          $ref: "#/components/schemas/GjennomforingKompakt.Tiltakstype"
+        type:
+          $ref: "#/components/schemas/GjennomforingType"
+      required:
+      - arrangor
+      - id
+      - kontorstruktur
+      - lopenummer
+      - navn
+      - publisert
+      - sluttDato
+      - startDato
+      - status
+      - tiltakstype
+      - type
+    GjennomforingDto.Status:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/GjennomforingStatusType"
+        status:
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
+      required:
+      - status
+      - type
+    GjennomforingKompakt.ArrangorUnderenhet:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
+    GjennomforingKompakt.Tiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - id
+      - navn
+      - tiltakskode
+    PaginatedResponse_GjennomforingKompaktDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/GjennomforingKompaktDto"
+      required:
+      - data
+      - pagination
     Gjennomforing.Tiltakstype:
       type: object
       properties:
@@ -5493,23 +5661,6 @@ components:
       - id
       - navn
       - telefon
-    GjennomforingDto.Status:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/GjennomforingStatusType"
-        status:
-          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
-      required:
-      - status
-      - type
-    GjennomforingStatusType:
-      type: string
-      enum:
-      - GJENNOMFORES
-      - AVSLUTTET
-      - AVBRUTT
-      - AVLYST
     GjennomforingDto.Administrator:
       type: object
       properties:
@@ -5906,161 +6057,6 @@ components:
       - tiltakstype
       - utdanningslop
       - veilederinfo
-    SettPaVentOkonomiRequest:
-      type: object
-      properties:
-        forklaring:
-          type:
-          - "null"
-          - string
-      required:
-      - forklaring
-    GjennomforingType:
-      type: string
-      enum:
-      - ARENA
-      - AVTALE
-      - ENKELTPLASS
-    GetGjennomforingerRequest:
-      type: object
-      properties:
-        search:
-          type:
-          - "null"
-          - string
-        navEnheter:
-          type: array
-          items:
-            type: string
-        tiltakstyper:
-          type: array
-          items:
-            $ref: "#/components/schemas/Tiltakskode"
-        statuser:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingStatusType"
-        sort:
-          type:
-          - "null"
-          - string
-        avtaleId:
-          type:
-          - "null"
-          - string
-          format: uuid
-        arrangorer:
-          type: array
-          items:
-            type: string
-            format: uuid
-        publisert:
-          type:
-          - "null"
-          - boolean
-        visMineGjennomforinger:
-          type: boolean
-        gjennomforingTyper:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingType"
-      required:
-      - arrangorer
-      - avtaleId
-      - gjennomforingTyper
-      - navEnheter
-      - publisert
-      - search
-      - sort
-      - statuser
-      - tiltakstyper
-      - visMineGjennomforinger
-    GjennomforingKompaktDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        lopenummer:
-          type: string
-        startDato:
-          type:
-          - "null"
-          - string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        status:
-          $ref: "#/components/schemas/GjennomforingDto.Status"
-        publisert:
-          type: boolean
-        kontorstruktur:
-          type: array
-          items:
-            $ref: "#/components/schemas/Kontorstruktur"
-        arrangor:
-          $ref: "#/components/schemas/GjennomforingKompakt.ArrangorUnderenhet"
-        tiltakstype:
-          $ref: "#/components/schemas/GjennomforingKompakt.Tiltakstype"
-        type:
-          $ref: "#/components/schemas/GjennomforingType"
-      required:
-      - arrangor
-      - id
-      - kontorstruktur
-      - lopenummer
-      - navn
-      - publisert
-      - sluttDato
-      - startDato
-      - status
-      - tiltakstype
-      - type
-    GjennomforingKompakt.ArrangorUnderenhet:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        organisasjonsnummer:
-          type: string
-        navn:
-          type: string
-      required:
-      - id
-      - navn
-      - organisasjonsnummer
-    GjennomforingKompakt.Tiltakstype:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-      required:
-      - id
-      - navn
-      - tiltakskode
-    PaginatedResponse_GjennomforingKompaktDto:
-      type: object
-      properties:
-        pagination:
-          $ref: "#/components/schemas/PaginationSummary"
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingKompaktDto"
-      required:
-      - data
-      - pagination
     TiltaksnummerResponse:
       type: object
       properties:
