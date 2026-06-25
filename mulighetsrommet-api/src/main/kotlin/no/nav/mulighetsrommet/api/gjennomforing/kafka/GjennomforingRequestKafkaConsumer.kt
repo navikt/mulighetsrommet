@@ -33,7 +33,7 @@ class GjennomforingRequestKafkaConsumer(
             is GjennomforingRequest.EnkeltplassUtkast -> handterEnkeltplassUtkast(request)
             is GjennomforingRequest.EnkeltplassSoktInn -> handterEnkeltplassSoktInn(request)
             is GjennomforingRequest.EnkeltplassEndreInnhold -> handterEnkeltplassEndreInnhold(request)
-            is GjennomforingRequest.EnkeltplassEndrePrisinformasjon -> TODO("Ikke støttet enda")
+            is GjennomforingRequest.EnkeltplassEndrePrisinformasjon -> handterEnkeltplassEndrePrisinformasjon(request)
         }
     }
 
@@ -74,6 +74,15 @@ class GjennomforingRequestKafkaConsumer(
         enkeltplasser.endreInnhold(
             request.gjennomforingId,
             request.payload?.let(KategoriseringMapper::fromKafkaPayload),
+        )
+    }
+
+    private fun handterEnkeltplassEndrePrisinformasjon(request: GjennomforingRequest.EnkeltplassEndrePrisinformasjon) {
+        enkeltplasser.endrePrisinformasjon(
+            gjennomforingId = request.gjennomforingId,
+            totrinnskontrollId = request.totrinnskontrollId,
+            endretAv = request.endretAv,
+            prisinformasjon = toPrismodell(request.payload),
         )
     }
 }

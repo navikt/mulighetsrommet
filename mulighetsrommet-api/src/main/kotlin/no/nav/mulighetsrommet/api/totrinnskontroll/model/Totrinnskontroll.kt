@@ -36,6 +36,7 @@ enum class TotrinnskontrollType {
     TILSAGN_OPPGJOR,
     UTBETALING_LINJE_OPPRETTELSE,
     ENKELTPLASS_OKONOMI,
+    ENKELTPLASS_PRISENDRING,
     TILSKUDD_OPPRETTELSE,
 }
 
@@ -43,4 +44,5 @@ enum class TotrinnskontrollType {
 enum class TotrinnskontrollBesluttelse {
     GODKJENT,
     AVVIST,
+    PA_VENT,
 }

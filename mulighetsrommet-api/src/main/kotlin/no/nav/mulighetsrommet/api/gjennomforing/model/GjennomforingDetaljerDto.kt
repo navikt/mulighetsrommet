@@ -37,6 +37,8 @@ data class GjennomforingDetaljerDto(
     val amoKategorisering: AmoKategoriseringDto?,
     val utdanningslop: UtdanningslopDto?,
     val okonomi: TotrinnskontrollDto?,
+    val prisendring: TotrinnskontrollDto?,
+    val pendingPrismodell: PrismodellDto?,
     val enkeltplassDeltaker: DeltakerDto?,
 )
 

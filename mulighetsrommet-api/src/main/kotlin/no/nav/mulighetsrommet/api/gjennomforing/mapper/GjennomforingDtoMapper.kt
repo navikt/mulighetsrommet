@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.toAmoKategoriseringDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytelseDto
@@ -61,12 +62,16 @@ object GjennomforingDtoMapper {
         amoKategorisering = detaljer.opplaringKategorisering?.toAmoKategoriseringDto(gjennomforing.tiltakstype.tiltakskode),
         utdanningslop = detaljer.utdanningslop,
         okonomi = null,
+        prisendring = null,
+        pendingPrismodell = null,
         enkeltplassDeltaker = null,
     )
 
     fun fromEnkeltplass(
         gjennomforing: GjennomforingEnkeltplass,
         okonomi: Totrinnskontroll?,
+        prisendring: Totrinnskontroll?,
+        pendingPrismodell: Prismodell?,
         deltakerDto: DeltakerDto?,
         kategorisering: OpplaringKategorisering?,
     ) = GjennomforingDetaljerDto(
@@ -94,6 +99,8 @@ object GjennomforingDtoMapper {
         veilederinfo = null,
         prismodell = fromPrismodell(gjennomforing.prismodell),
         okonomi = okonomi?.toDto(),
+        prisendring = prisendring?.toDto(),
+        pendingPrismodell = pendingPrismodell?.let { fromPrismodell(it) },
         amoKategorisering = kategorisering?.toAmoKategoriseringDto(gjennomforing.tiltakstype.tiltakskode),
         utdanningslop = kategorisering?.utdanningslop,
         enkeltplassDeltaker = deltakerDto,

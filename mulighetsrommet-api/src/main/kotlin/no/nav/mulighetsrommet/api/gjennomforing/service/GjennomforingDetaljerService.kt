@@ -85,6 +85,15 @@ class GjennomforingDetaljerService(
 
             is GjennomforingEnkeltplass -> db.session {
                 val okonomi = queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+
+                val prisendring = queries.totrinnskontroll
+                    .get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
+                    ?.takeIf { it.besluttelse == null || it.besluttelse == TotrinnskontrollBesluttelse.PA_VENT }
+
+                val pendingPrismodell = prisendring
+                    ?.let { queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforing.id) }
+                    ?.let { p -> queries.prismodell.getOrError(p.prismodellId) }
+
                 val deltakerDto = getDeltaker(gjennomforing.id)?.let {
                     val personalia = personaliaService
                         .getPersonalia(it.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
@@ -97,7 +106,14 @@ class GjennomforingDetaljerService(
                 val opplaringKategorisering = context(session) {
                     OpplaringKategoriseringQueries.get(gjennomforing.id)
                 }
-                GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerDto, opplaringKategorisering)
+                GjennomforingDtoMapper.fromEnkeltplass(
+                    gjennomforing,
+                    okonomi,
+                    prisendring,
+                    pendingPrismodell,
+                    deltakerDto,
+                    opplaringKategorisering,
+                )
             }
         }
     }
@@ -212,17 +228,28 @@ class GjennomforingDetaljerService(
         gjennomforing: GjennomforingEnkeltplass,
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
-        val totrinnskontroll = db.session {
+        val okonomi = db.session {
             queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+        }
+        val prisendring = db.session {
+            queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)?.takeIf {
+                it.besluttelse == null || it.besluttelse == TotrinnskontrollBesluttelse.PA_VENT
+            }
         }
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
-                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.besluttelse == null
+                prisendring == null && okonomi != null && okonomi.behandletAv != ansatt.navIdent && okonomi.besluttelse == null
             },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
-                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.besluttelse != TotrinnskontrollBesluttelse.GODKJENT
+                prisendring == null && okonomi != null && okonomi.behandletAv != ansatt.navIdent && okonomi.besluttelse != TotrinnskontrollBesluttelse.GODKJENT
+            },
+            GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING.takeIf {
+                prisendring != null && prisendring.behandletAv != ansatt.navIdent && prisendring.besluttelse == null
+            },
+            GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING.takeIf {
+                prisendring != null && prisendring.behandletAv != ansatt.navIdent && prisendring.besluttelse != TotrinnskontrollBesluttelse.GODKJENT
             },
         )
             .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
@@ -263,6 +290,8 @@ class GjennomforingDetaljerService(
 
                 GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
                 GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+                GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING,
+                GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING,
                 -> ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, enheter)
             }
         }
