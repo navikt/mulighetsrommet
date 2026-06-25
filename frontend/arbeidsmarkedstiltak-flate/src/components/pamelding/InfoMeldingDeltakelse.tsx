@@ -6,11 +6,11 @@ import {
 import { Button, InfoCard } from "@navikt/ds-react";
 import { AkselColor } from "@navikt/ds-react/types/theme";
 
-interface PameldingDeltakelseAlertProps {
+interface InfoMeldingDeltakelseProps {
   deltakelse: Tiltaksadministrasjon;
 }
 
-export function InfoMeldingDeltakelse({ deltakelse }: PameldingDeltakelseAlertProps) {
+export function InfoMeldingDeltakelse({ deltakelse }: InfoMeldingDeltakelseProps) {
   if (!deltakelse.infoMeldingStatus) {
     return null;
   }
