@@ -8,22 +8,22 @@ import {
   useDecoratorButton,
   useToolbarSchema,
 } from "@portabletext/toolbar";
-import { FormEvent, RefObject, useRef } from "react";
+import { SubmitEvent, RefObject, useRef } from "react";
 import { SupportedDecorator, SupportedList } from "./helper";
 
 export function PortableTextEditorToolbar() {
   const ref = useRef<HTMLDialogElement>(null);
   const toolBarSchema = useToolbarSchema({});
 
-  const decoratorButtons = toolBarSchema.decorators?.map((decorator) => (
+  const decoratorButtons = toolBarSchema.decorators.map((decorator) => (
     <DecoratorButton key={decorator.name} schemaType={decorator} />
   ));
 
-  const annotationButtons = toolBarSchema.annotations?.map((annotation) => (
+  const annotationButtons = toolBarSchema.annotations.map((annotation) => (
     <AnnotationButton key={annotation.name} modalRef={ref} schemaType={annotation} />
   ));
 
-  const listButtons = toolBarSchema.lists?.map((list) => (
+  const listButtons = toolBarSchema.lists.map((list) => (
     <ListButton key={list.name} schemaType={list} />
   ));
 
@@ -162,7 +162,7 @@ function LinkModal({ modalRef }: { modalRef: RefObject<HTMLDialogElement | null>
         <form
           method="dialog"
           id="skjema"
-          onSubmit={(e: FormEvent<HTMLFormElement>) => {
+          onSubmit={(e: SubmitEvent<HTMLFormElement>) => {
             e.preventDefault();
             e.stopPropagation();
             clickHandler(new FormData(e.currentTarget));
