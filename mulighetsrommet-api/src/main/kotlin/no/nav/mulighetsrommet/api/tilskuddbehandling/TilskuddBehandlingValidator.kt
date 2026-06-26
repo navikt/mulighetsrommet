@@ -41,7 +41,7 @@ object TilskuddBehandlingValidator {
             validateTilskuddRequest(v, index).bind()
         }
         requireValid(request.soknadDato != null && request.soknadJournalpostId != null && request.kostnadssted != null && periodeStart != null && periodeSlutt != null)
-        requireValid(periodeStart.isBefore(periodeSlutt)) {
+        requireValid(!periodeStart.isAfter(periodeSlutt)) {
             FieldError.of("Periodestart må være før slutt", TilskuddBehandlingRequest::periodeStart)
         }
         validate(gjennomforing.sluttDato == null || !periodeSlutt.isAfter(gjennomforing.sluttDato)) {
@@ -56,7 +56,7 @@ object TilskuddBehandlingValidator {
             gjennomforingId = request.gjennomforingId,
             soknadJournalpostId = request.soknadJournalpostId,
             soknadDato = request.soknadDato,
-            periode = Periode(periodeStart, periodeSlutt),
+            periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt),
             kostnadssted = request.kostnadssted,
             tilskudd = tilskudd,
             status = TilskuddBehandlingStatus.TIL_ATTESTERING,
