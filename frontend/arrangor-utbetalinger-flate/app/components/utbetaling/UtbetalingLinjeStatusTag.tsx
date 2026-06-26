@@ -28,5 +28,11 @@ export function UtbetalingLinjeStatusTag({ status }: Props): ReactNode {
           Behandles av Nav
         </Tag>
       );
+    case UtbetalingLinjeStatus.AVBRUTT:
+      return (
+        <Tag data-color="danger" variant="outline" size="small">
+          Avbrutt
+        </Tag>
+      );
   }
 }
