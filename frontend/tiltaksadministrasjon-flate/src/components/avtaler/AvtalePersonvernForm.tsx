@@ -59,7 +59,7 @@ export function AvtalePersonvernForm() {
           })}
       </FormCheckboxGroup>
       {annetPersonopplysning && (
-        <>
+        <VStack gap="space-8" className="-mt-5">
           <FormCheckbox name="personvern.annetChecked" size="small">
             <HStack gap="space-8" align="center">
               {annetPersonopplysning.title}
@@ -75,17 +75,18 @@ export function AvtalePersonvernForm() {
               name="personvern.annetBeskrivelse"
             />
           )}
-        </>
+        </VStack>
       )}
       <Checkbox
-        checked={watchedPersonopplysninger.length === personopplysninger.length}
+        checked={watchedPersonopplysninger.length === personopplysninger.length && annetChecked}
         indeterminate={
           watchedPersonopplysninger.length > 0 &&
-          watchedPersonopplysninger.length !== personopplysninger.length
+          (watchedPersonopplysninger.length !== personopplysninger.length || !annetChecked)
         }
         onChange={() => {
           if (watchedPersonopplysninger.length === personopplysninger.length) {
             setValue("personvern.personopplysninger", []);
+            setValue("personvern.annetChecked", false);
           } else {
             setValue(
               "personvern.personopplysninger",

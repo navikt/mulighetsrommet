@@ -9,6 +9,7 @@ import {
   Modal,
   VStack,
   Box,
+  BodyShort,
 } from "@navikt/ds-react";
 import { ModalBody, ModalHeader } from "@navikt/ds-react/Modal";
 import { Personopplysning, VeilederflateTiltakGruppe } from "@arbeidsmarkedstiltak/api-client";
@@ -120,12 +121,19 @@ function ListeOverPersonopplysninger({
           {personopplysninger.map((personopplysning) => (
             <List.Item key={personopplysning.type} className="max-w-[75ch]">
               <HStack align={"end"} gap="space-4">
-                <div className="flex items-baseline gap-2">
-                  {personopplysning.title}{" "}
-                  {personopplysning.helpText ? (
-                    <HelpText>{personopplysning.helpText}</HelpText>
-                  ) : null}
-                </div>
+                <VStack>
+                  <HStack gap="space-4" align="center">
+                    {personopplysning.title}{" "}
+                    {personopplysning.helpText ? (
+                      <HelpText>{personopplysning.helpText}</HelpText>
+                    ) : null}
+                  </HStack>
+                  {personopplysning.beskrivelse && (
+                    <BodyShort className="italic mt-1" size="small">
+                      {personopplysning.beskrivelse}
+                    </BodyShort>
+                  )}
+                </VStack>
               </HStack>
             </List.Item>
           ))}
