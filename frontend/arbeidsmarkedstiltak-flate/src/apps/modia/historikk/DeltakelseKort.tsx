@@ -1,4 +1,8 @@
-import { Deltakelse, DeltakelseTilstand } from "@arbeidsmarkedstiltak/api-client";
+import {
+  Deltakelse,
+  DeltakelseTilstand,
+  GjennomforingOppstartstype,
+} from "@arbeidsmarkedstiltak/api-client";
 import { BodyShort, Box, Button, Heading, HGrid, HStack, VStack, Link } from "@navikt/ds-react";
 import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, resolveModiaRoute } from "../ModiaRoute";
@@ -38,7 +42,7 @@ function Knapper({ deltakelse }: Props) {
           <Button variant="secondary" onClick={deltakelseRoute.navigate} size="small">
             Gå til deltakelse
           </Button>
-          {deltakelse.infoMeldingStatus && (
+          {deltakelse.oppstartstype !== GjennomforingOppstartstype.ENKELTPLASS && (
             <Link
               as={ReactRouterLink}
               to={`/arbeidsmarkedstiltak/tiltak/${deltakelse.gjennomforingId}`}
