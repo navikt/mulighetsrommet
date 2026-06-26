@@ -15,6 +15,8 @@ export function GjennomforingDetaljer() {
     amoKategorisering,
     prismodell,
     okonomi,
+    prisendring,
+    pendingPrismodell,
     enkeltplassDeltaker,
   } = detaljer;
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
@@ -39,6 +41,8 @@ export function GjennomforingDetaljer() {
         prismodell={prismodell}
         enkeltplassDeltaker={enkeltplassDeltaker}
         okonomi={okonomi}
+        prisendring={prisendring}
+        pendingPrismodell={pendingPrismodell}
         amoKategorisering={amoKategorisering}
         utdanningslop={utdanningslop}
       />

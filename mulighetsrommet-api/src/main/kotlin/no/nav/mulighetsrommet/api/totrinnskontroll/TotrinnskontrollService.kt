@@ -41,9 +41,19 @@ class TotrinnskontrollService(private val topic: String) {
         behandletAv: Agent,
         aarsaker: List<String> = emptyList(),
         forklaring: String? = null,
+    ) = opprett(UUID.randomUUID(), entityId, type, behandletAv, aarsaker, forklaring)
+
+    context(tx: TransactionalQueryContext)
+    fun opprett(
+        id: UUID,
+        entityId: UUID,
+        type: TotrinnskontrollType,
+        behandletAv: Agent,
+        aarsaker: List<String> = emptyList(),
+        forklaring: String? = null,
     ) {
         val dbo = TotrinnskontrollDbo(
-            id = UUID.randomUUID(),
+            id = id,
             entityId = entityId,
             type = type,
             behandletAv = behandletAv,
@@ -55,6 +65,30 @@ class TotrinnskontrollService(private val topic: String) {
             forklaring = forklaring,
         )
         upsert(dbo)
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun tilbakestill(
+        existing: Totrinnskontroll,
+        nyBehandletAv: Agent,
+    ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
+        if (existing.besluttelse != TotrinnskontrollBesluttelse.PA_VENT) {
+            return FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent").nel().left()
+        }
+        val dbo = TotrinnskontrollDbo(
+            id = existing.id,
+            entityId = existing.entityId,
+            type = existing.type,
+            behandletAv = nyBehandletAv,
+            behandletTidspunkt = instantAsMicros(),
+            besluttetAv = null,
+            besluttetTidspunkt = null,
+            besluttelse = null,
+            aarsaker = existing.aarsaker,
+            forklaring = null,
+        )
+        upsert(dbo)
+        return dbo.right()
     }
 
     context(tx: TransactionalQueryContext)
@@ -111,6 +145,32 @@ class TotrinnskontrollService(private val topic: String) {
     }
 
     context(tx: TransactionalQueryContext)
+    fun paVent(
+        existing: Totrinnskontroll,
+        besluttetAv: Agent,
+        aarsaker: List<String> = emptyList(),
+        forklaring: String? = null,
+    ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
+        if (existing.besluttelse != null && besluttetAv is NavIdent) {
+            return alleredeBesluttetError(existing.besluttelse)
+        }
+        val dbo = TotrinnskontrollDbo(
+            id = existing.id,
+            entityId = existing.entityId,
+            type = existing.type,
+            behandletAv = existing.behandletAv,
+            behandletTidspunkt = existing.behandletTidspunkt,
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = instantAsMicros(),
+            besluttelse = TotrinnskontrollBesluttelse.PA_VENT,
+            aarsaker = aarsaker.ifEmpty { existing.aarsaker },
+            forklaring = forklaring ?: existing.forklaring,
+        )
+        upsert(dbo)
+        return dbo.right()
+    }
+
+    context(tx: TransactionalQueryContext)
     private fun upsert(dbo: TotrinnskontrollDbo) {
         tx.queries.totrinnskontroll.upsert(dbo)
         val hendelse = TotrinnskontrollHendelse(
@@ -142,6 +202,7 @@ private fun alleredeBesluttetError(besluttelse: TotrinnskontrollBesluttelse): Ei
     val besluttelse = when (besluttelse) {
         TotrinnskontrollBesluttelse.AVVIST -> "avvist"
         TotrinnskontrollBesluttelse.GODKJENT -> "godkjent"
+        TotrinnskontrollBesluttelse.PA_VENT -> "satt på vent"
     }
     return FieldError.of("Totrinnskontrollen er allerede $besluttelse").nel().left()
 }

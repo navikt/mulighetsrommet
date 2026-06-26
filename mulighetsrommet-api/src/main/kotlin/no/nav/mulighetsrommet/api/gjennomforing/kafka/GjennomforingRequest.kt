@@ -36,6 +36,9 @@ sealed interface GjennomforingRequest {
     data class EnkeltplassEndrePrisinformasjon(
         @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
+        @Serializable(with = UUIDSerializer::class)
+        val totrinnskontrollId: UUID,
+        val endretAv: NavIdent,
         val payload: EnkeltplassPrisinformasjon,
     ) : GjennomforingRequest
 

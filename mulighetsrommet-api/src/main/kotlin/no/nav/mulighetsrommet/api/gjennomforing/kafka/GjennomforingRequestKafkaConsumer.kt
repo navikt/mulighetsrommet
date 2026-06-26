@@ -32,8 +32,8 @@ class GjennomforingRequestKafkaConsumer(
         when (val request = JsonIgnoreUnknownKeys.decodeFromJsonElement<GjennomforingRequest>(message)) {
             is GjennomforingRequest.EnkeltplassUtkast -> handterEnkeltplassUtkast(request)
             is GjennomforingRequest.EnkeltplassSoktInn -> handterEnkeltplassSoktInn(request)
-            is GjennomforingRequest.EnkeltplassEndreInnhold -> TODO("Ikke støttet enda")
-            is GjennomforingRequest.EnkeltplassEndrePrisinformasjon -> TODO("Ikke støttet enda")
+            is GjennomforingRequest.EnkeltplassEndreInnhold -> handterEnkeltplassEndreInnhold(request)
+            is GjennomforingRequest.EnkeltplassEndrePrisinformasjon -> handterEnkeltplassEndrePrisinformasjon(request)
         }
     }
 
@@ -69,6 +69,22 @@ class GjennomforingRequestKafkaConsumer(
     private suspend fun getArrangor(organisasjonsnummer: Organisasjonsnummer): ArrangorDto = arrangorer
         .getArrangorOrSyncFromBrreg(organisasjonsnummer)
         .getOrElse { error("Klarte ikke hente arrangør fra brreg $it") }
+
+    private fun handterEnkeltplassEndreInnhold(request: GjennomforingRequest.EnkeltplassEndreInnhold) {
+        enkeltplasser.endreInnhold(
+            request.gjennomforingId,
+            request.payload?.let(KategoriseringMapper::fromKafkaPayload),
+        )
+    }
+
+    private fun handterEnkeltplassEndrePrisinformasjon(request: GjennomforingRequest.EnkeltplassEndrePrisinformasjon) {
+        enkeltplasser.endrePrisinformasjon(
+            gjennomforingId = request.gjennomforingId,
+            totrinnskontrollId = request.totrinnskontrollId,
+            endretAv = request.endretAv,
+            prisinformasjon = toPrismodell(request.payload),
+        ).getOrElse { errors -> error("Klarte ikke håndtere endring av prisinformasjon: $errors") }
+    }
 }
 
 private fun toRequest(

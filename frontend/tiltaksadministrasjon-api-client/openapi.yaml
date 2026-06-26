@@ -5880,6 +5880,7 @@ components:
       enum:
       - GODKJENT
       - AVVIST
+      - PA_VENT
     TotrinnskontrollDto.TilBeslutning:
       type: object
       properties:
@@ -6044,6 +6045,14 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/TotrinnskontrollDto"
+        prisendring:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
+        pendingPrismodell:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/PrismodellDto"
         enkeltplassDeltaker:
           oneOf:
           - type: "null"
@@ -6053,6 +6062,8 @@ components:
       - enkeltplassDeltaker
       - gjennomforing
       - okonomi
+      - pendingPrismodell
+      - prisendring
       - prismodell
       - tiltakstype
       - utdanningslop
@@ -6107,6 +6118,8 @@ components:
       - OPPRETT_UTBETALING
       - GODKJENN_ENKELTPLASS_OKONOMI
       - SETT_PA_VENT_ENKELTPLASS_OKONOMI
+      - GODKJENN_ENKELTPLASS_PRISENDRING
+      - SETT_PA_VENT_ENKELTPLASS_PRISENDRING
     AvtaletypeInfo:
       type: object
       properties:

@@ -8,12 +8,15 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorError
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -60,14 +63,18 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         )
     }
 
-    context("EnkeltplassUtkast") {
-        val service = GjennomforingEnkeltplassService(
+    fun createService(): GjennomforingEnkeltplassService {
+        return GjennomforingEnkeltplassService(
             GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
             mockk(),
             TiltakstypeService(TiltakstypeService.Config(), database.db),
-            TotrinnskontrollService(""),
+            TotrinnskontrollService(ApplicationConfigTest.kafka.topics.totrinnskontrollTopic),
         )
+    }
+
+    context("EnkeltplassUtkast") {
+        val service = createService()
 
         val gjennomforingId = UUID.randomUUID()
         val payload = UpsertEnkeltplass(
@@ -126,13 +133,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
     }
 
     context("EnkeltplassSoktInn") {
-        val service = GjennomforingEnkeltplassService(
-            GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
-            database.db,
-            mockk(),
-            TiltakstypeService(TiltakstypeService.Config(), database.db),
-            TotrinnskontrollService(""),
-        )
+        val service = createService()
 
         val gjennomforingId = UUID.randomUUID()
         val payload = UpsertEnkeltplass(
@@ -187,6 +188,104 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             }
 
             service.get(gjennomforingId).shouldBeNull()
+        }
+    }
+
+    context("EnkeltplassEndreInnhold") {
+        val service = createService()
+
+        val arrangorer = mockk<ArrangorService>()
+        coEvery {
+            arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
+        } returns ArrangorFixtures.underenhet1.right()
+
+        val consumer = createConsumer(service, arrangorer)
+
+        val gjennomforingId = UUID.randomUUID()
+        val utkastPayload = UpsertEnkeltplass(
+            tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            ansvarligEnhet = NavEnhetNummer("0400"),
+            opprettetAv = NavIdent("B123456"),
+            prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            kategorisering = null,
+        )
+
+        test("oppdaterer kategorisering på eksisterende enkeltplass") {
+            val utkast = GjennomforingRequest.EnkeltplassUtkast(gjennomforingId, utkastPayload)
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(utkast))
+            service.get(gjennomforingId).shouldNotBeNull()
+
+            val endreInnholdRequest = GjennomforingRequest.EnkeltplassEndreInnhold(gjennomforingId, payload = null)
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(endreInnholdRequest))
+
+            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, _) ->
+                gjennomforing.id shouldBe gjennomforingId
+            }
+        }
+
+        test("kaster feil dersom gjennomforing ikke eksisterer") {
+            val ikkeEksisterendeId = UUID.randomUUID()
+            val request = GjennomforingRequest.EnkeltplassEndreInnhold(ikkeEksisterendeId, payload = null)
+
+            shouldThrowExactly<IllegalArgumentException> {
+                consumer.consume(ikkeEksisterendeId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+            }
+        }
+    }
+
+    context("EnkeltplassEndrePrisinformasjon") {
+        val service = createService()
+
+        val arrangorer = mockk<ArrangorService>()
+        coEvery {
+            arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
+        } returns ArrangorFixtures.underenhet1.right()
+
+        val consumer = createConsumer(service, arrangorer)
+
+        val gjennomforingId = UUID.randomUUID()
+        val utkastPayload = UpsertEnkeltplass(
+            tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            ansvarligEnhet = NavEnhetNummer("0400"),
+            opprettetAv = NavIdent("B123456"),
+            prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            kategorisering = null,
+        )
+
+        beforeEach {
+            val soktInn = GjennomforingRequest.EnkeltplassSoktInn(gjennomforingId, utkastPayload)
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(soktInn))
+        }
+
+        test("oppdaterer prismodell automatisk når økonomi ikke er godkjent") {
+            val request = GjennomforingRequest.EnkeltplassEndrePrisinformasjon(
+                gjennomforingId = gjennomforingId,
+                totrinnskontrollId = UUID.randomUUID(),
+                endretAv = NavIdent("B123456"),
+                payload = EnkeltplassPrisinformasjon.Anskaffelse(pris = 20000),
+            )
+
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+
+            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, _) ->
+                gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 20000
+            }
+        }
+
+        test("kaster feil dersom gjennomforing ikke eksisterer") {
+            val ikkeEksisterendeId = UUID.randomUUID()
+            val request = GjennomforingRequest.EnkeltplassEndrePrisinformasjon(
+                gjennomforingId = ikkeEksisterendeId,
+                totrinnskontrollId = UUID.randomUUID(),
+                endretAv = NavIdent("B123456"),
+                payload = EnkeltplassPrisinformasjon.Anskaffelse(pris = 5000),
+            )
+
+            shouldThrowExactly<IllegalArgumentException> {
+                consumer.consume(ikkeEksisterendeId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+            }
         }
     }
 })
