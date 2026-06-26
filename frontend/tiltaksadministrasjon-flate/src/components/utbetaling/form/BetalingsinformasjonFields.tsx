@@ -1,4 +1,4 @@
-import { Heading, Link, LocalAlert, TextField, VStack } from "@navikt/ds-react";
+import { BodyShort, Heading, Link, Loader, LocalAlert, TextField, VStack } from "@navikt/ds-react";
 import { useArrangorBetalingsinformasjon } from "@/api/arrangor/useArrangorBetalingsinformasjon";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FieldValues, Path } from "react-hook-form";
@@ -10,9 +10,11 @@ export function BetalingsinformasjonFields<T extends FieldValues>({
   arrangorId: string;
   kidNummerName: Path<T>;
 }) {
-  const { data: betalingsinformasjon } = useArrangorBetalingsinformasjon(arrangorId);
+  const { data: betalingsinformasjon, isPending } = useArrangorBetalingsinformasjon(arrangorId);
 
-  if (!betalingsinformasjon) {
+  if (isPending) return <Loader />;
+
+  if (!betalingsinformasjon?.type) {
     return (
       <LocalAlert status="warning">
         <LocalAlert.Header>
@@ -29,21 +31,18 @@ export function BetalingsinformasjonFields<T extends FieldValues>({
   switch (betalingsinformasjon.type) {
     case "BBan":
       return (
-        <VStack gap="space-8">
-          <VStack align="start">
-            <TextField
-              className="w"
-              size="small"
-              label="Kontonummer til arrangør"
-              readOnly
-              value={betalingsinformasjon.kontonummer}
-              description="Kontonummer hentes automatisk fra Altinn"
-            />
-          </VStack>
-          <small className="text-balance">
-            Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Les mer her om{" "}
-            <EndreKontonummerLink />.
-          </small>
+        <VStack gap="space-8" align="start">
+          <TextField
+            size="small"
+            label="Kontonummer til arrangør"
+            readOnly
+            value={betalingsinformasjon.kontonummer}
+            description="Kontonummer hentes automatisk fra Altinn"
+          />
+          <BodyShort size="small">
+            Dersom kontonummer er feil må arrangør oppdatere kontonummer i Altinn. Her kan du lese
+            om <EndreKontonummerLink />.
+          </BodyShort>
           <FormTextField<T> label="Valgfritt KID-nummer" name={kidNummerName} />
         </VStack>
       );
@@ -60,13 +59,11 @@ export function BetalingsinformasjonFields<T extends FieldValues>({
             readOnly
             value={betalingsinformasjon.bankLandKode}
           />
-          <small className="text-balance">
+          <BodyShort size="small">
             Dersom informasjonen må oppdateres ta kontakt med utviklingsteamet.
-          </small>
+          </BodyShort>
         </VStack>
       );
-    case undefined:
-      throw Error("unreachable");
   }
 }
 
