@@ -56,21 +56,37 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-data class EnkeltplassRequest(
+data class UpsertEnkeltplass(
     val id: UUID,
     val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
     val ansvarligEnhet: NavEnhetNummer,
     val kategorisering: OpplaringKategoriseringRequest?,
-    val prismodell: UpsertGjennomforingEnkeltplass.Prismodell,
-)
+    val prismodell: Prismodell,
+) {
+    sealed interface Prismodell {
+        data class Anskaffelse(
+            val totalbelop: Int?,
+        ) : UpsertEnkeltplass.Prismodell
 
-data class UpsertGjennomforingEnkeltplass(
+        data class TilskuddTilOpplaering(
+            val tilskudd: Map<Opplaeringtilskudd.Kode, Int>,
+            val tilleggsopplysninger: String?,
+        ) : UpsertEnkeltplass.Prismodell
+
+        data class IngenKostnader(
+            val aarsak: Prismodell.IngenKostnader.Aarsak,
+            val tilleggsopplysninger: String?,
+        ) : UpsertEnkeltplass.Prismodell
+    }
+}
+
+data class UpsertArenaEnkeltplass(
     val id: UUID,
     val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
     val status: GjennomforingStatusType,
-    val prismodell: UpsertGjennomforingEnkeltplass.Prismodell,
+    val prismodell: UpsertEnkeltplass.Prismodell,
     val ansvarligEnhet: NavEnhetNummer,
     // TODO: fjerne fra modell når feltene ikke lengre trengs for å deles med arena
     val startDato: LocalDate? = null,
@@ -80,30 +96,19 @@ data class UpsertGjennomforingEnkeltplass(
     val antallPlasser: Int = 1,
     val arenaTiltaksnummer: Tiltaksnummer? = null,
     val arenaAnsvarligEnhet: String? = null,
-) {
-    sealed interface Prismodell {
-        data class Anskaffelse(
-            val totalbelop: Int?,
-        ) : UpsertGjennomforingEnkeltplass.Prismodell
+)
 
-        data class TilskuddTilOpplaering(
-            val tilskudd: Map<Opplaeringtilskudd.Kode, Int>,
-            val tilleggsopplysninger: String?,
-        ) : UpsertGjennomforingEnkeltplass.Prismodell
-
-        data class IngenKostnader(
-            val aarsak: Prismodell.IngenKostnader.Aarsak,
-            val tilleggsopplysninger: String?,
-        ) : UpsertGjennomforingEnkeltplass.Prismodell
-    }
-}
+data class TotrinnskontrollBehandling(
+    val id: UUID,
+    val behandletAv: NavIdent,
+)
 
 class GjennomforingEnkeltplassService(
     private val db: ApiDatabase,
     private val personaliaService: PersonaliaService,
     private val tiltakstyper: TiltakstypeService,
 ) {
-    fun opprettUtkast(utkast: EnkeltplassRequest, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
+    fun opprettUtkast(utkast: UpsertEnkeltplass, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
         val enkeltplass = getEnkeltplass(utkast.id)
         if (enkeltplass != null) {
             return enkeltplass.right()
@@ -117,7 +122,7 @@ class GjennomforingEnkeltplassService(
             .right()
     }
 
-    fun soktInn(soktInn: EnkeltplassRequest, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
+    fun soktInn(soktInn: UpsertEnkeltplass, behandling: TotrinnskontrollBehandling): Validated<Enkeltplass> = db.transaction {
         val enkeltplass = getEnkeltplass(soktInn.id)
 
         if (enkeltplass?.okonomi?.status == TotrinnskontrollStatus.GODKJENT) {
@@ -135,7 +140,7 @@ class GjennomforingEnkeltplassService(
                 .also { publishTiltaksgjennomforingV2ToKafka(it) }
         }
 
-        settOkonomiTilGodkjenning(soktInn.id, opprettetAv).right()
+        settOkonomiTilGodkjenning(soktInn.id, behandling).right()
     }
 
     fun endreInnhold(
@@ -154,34 +159,36 @@ class GjennomforingEnkeltplassService(
 
     fun endrePrisinformasjon(
         gjennomforingId: UUID,
-        totrinnskontrollId: UUID,
-        endretAv: NavIdent,
-        prisinformasjon: UpsertGjennomforingEnkeltplass.Prismodell,
+        prisinformasjon: UpsertEnkeltplass.Prismodell,
+        behandling: TotrinnskontrollBehandling,
     ): Validated<Enkeltplass> = db.transaction {
         val enkeltplass = getAndAquireLock(gjennomforingId)
 
         val okonomi = enkeltplass.okonomi ?: error("Kan ikke endre prismodell før deltaker er søkt inn")
 
         when (okonomi.status) {
-            TotrinnskontrollStatus.RETURNERT,
-            -> return FieldError.of("Kan ikke endre prismodell på en enkeltplass med returnert økonomi").nel().left()
-
-            TotrinnskontrollStatus.TIL_BEHANDLING,
-            -> endrePrismodell(gjennomforingId, totrinnskontrollId, prisinformasjon, endretAv)
+            TotrinnskontrollStatus.TIL_BEHANDLING -> endrePrismodell(gjennomforingId, prisinformasjon, behandling)
 
             TotrinnskontrollStatus.SATT_PA_VENT -> {
-                okonomi.tilbakestill(endretAv).fold({ return it.toFieldErrors().left() }, { tilbakestilt ->
+                okonomi.tilbakestill(behandling.behandletAv).fold({
+                    return it.toFieldErrors().left()
+                }, { tilbakestilt ->
                     queries.totrinnskontroll.upsert(tilbakestilt)
                     outbox.publish(tilbakestilt)
                 })
-                endrePrismodell(gjennomforingId, totrinnskontrollId, prisinformasjon, endretAv)
+                endrePrismodell(gjennomforingId, prisinformasjon, behandling)
             }
 
             TotrinnskontrollStatus.GODKJENT -> {
                 slettEksisterendePrisendring(gjennomforingId)
-                upsertPrisendring(gjennomforingId, totrinnskontrollId, prisinformasjon, endretAv)
-                logEndring("Prisendring sendt til godkjenning", gjennomforingId, endretAv).right()
+                upsertPrisendring(gjennomforingId, prisinformasjon, behandling)
+                logEndring("Prisendring sendt til godkjenning", gjennomforingId, behandling.behandletAv).right()
             }
+
+            TotrinnskontrollStatus.RETURNERT,
+            -> return FieldError.of("Kan ikke endre prismodell på en enkeltplass med returnert økonomi")
+                .nel()
+                .left()
         }
     }
 
@@ -193,7 +200,7 @@ class GjennomforingEnkeltplassService(
      * står denne rutinen ubrukt.
      */
     fun synkroniserFraArena(
-        upsert: UpsertGjennomforingEnkeltplass,
+        upsert: UpsertArenaEnkeltplass,
     ): Validated<GjennomforingEnkeltplass> = db.transaction {
         return when (val gjennomforing = queries.gjennomforing.getGjennomforing(upsert.id)) {
             is GjennomforingAvtale -> FieldError.of("Gjennomføring er ikke av typen enkeltplass").nel().left()
@@ -322,7 +329,7 @@ class GjennomforingEnkeltplassService(
         return deltakelser.firstOrNull()
     }
 
-    private fun TransactionalQueryContext.upsert(upsert: UpsertGjennomforingEnkeltplass): GjennomforingEnkeltplass {
+    private fun TransactionalQueryContext.upsert(upsert: UpsertArenaEnkeltplass): GjennomforingEnkeltplass {
         val tiltakstype = tiltakstyper.getByTiltakskode(upsert.tiltakskode)
 
         val prismodellId = upsertPrismodell(upsert.id, upsert.prismodell)
@@ -365,9 +372,8 @@ class GjennomforingEnkeltplassService(
 
     private fun TransactionalQueryContext.endrePrismodell(
         gjennomforingId: UUID,
-        totrinnskontrollId: UUID,
-        prisinformasjon: UpsertGjennomforingEnkeltplass.Prismodell,
-        endretAv: NavIdent,
+        prisinformasjon: UpsertEnkeltplass.Prismodell,
+        behandling: TotrinnskontrollBehandling,
     ): Either<Nothing, Enkeltplass> {
         upsertPrismodell(gjennomforingId, prisinformasjon)
 
@@ -375,10 +381,10 @@ class GjennomforingEnkeltplassService(
         publishTiltaksgjennomforingV2ToKafka(oppdatert)
 
         val prisendring = Totrinnskontroll.opprett(
-            totrinnskontrollId,
+            behandling.id,
             gjennomforingId,
             TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
-            endretAv,
+            behandling.behandletAv,
         )
         queries.totrinnskontroll.upsert(prisendring)
         outbox.publish(prisendring)
@@ -389,7 +395,7 @@ class GjennomforingEnkeltplassService(
         queries.totrinnskontroll.upsert(godkjentPrisendring)
         outbox.publish(godkjentPrisendring)
 
-        return logEndring("Pris- og betalingsbetingelser endret", gjennomforingId, endretAv).right()
+        return logEndring("Pris- og betalingsbetingelser endret", gjennomforingId, behandling.behandletAv).right()
     }
 
     private fun TransactionalQueryContext.slettEksisterendePrisendring(gjennomforingId: UUID) {
@@ -410,25 +416,24 @@ class GjennomforingEnkeltplassService(
 
     private fun TransactionalQueryContext.upsertPrisendring(
         gjennomforingId: UUID,
-        totrinnskontrollId: UUID,
-        prisinformasjon: UpsertGjennomforingEnkeltplass.Prismodell,
-        endretAv: NavIdent,
+        prisinformasjon: UpsertEnkeltplass.Prismodell,
+        behandling: TotrinnskontrollBehandling,
     ) {
         val prismodellId = UUID.randomUUID()
         queries.prismodell.upsert(toPrismodellDbo(prismodellId, prisinformasjon))
 
         val prisendring = Totrinnskontroll.opprett(
-            totrinnskontrollId,
+            behandling.id,
             gjennomforingId,
             TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
-            endretAv,
+            behandling.behandletAv,
         )
         queries.totrinnskontroll.upsert(prisendring)
         outbox.publish(prisendring)
 
         queries.enkeltplassPrisendring.insert(
             EnkeltplassPrisendringDbo(
-                totrinnskontrollId = totrinnskontrollId,
+                totrinnskontrollId = behandling.id,
                 gjennomforingId = gjennomforingId,
                 prismodellId = prismodellId,
             ),
@@ -477,7 +482,7 @@ class GjennomforingEnkeltplassService(
 
     private fun QueryContext.upsertPrismodell(
         gjennomforingId: UUID,
-        prismodell: UpsertGjennomforingEnkeltplass.Prismodell,
+        prismodell: UpsertEnkeltplass.Prismodell,
     ): UUID {
         val prismodellId = queries.gjennomforing.getPrismodell(gjennomforingId)?.id ?: UUID.randomUUID()
         val dbo = toPrismodellDbo(prismodellId, prismodell)
@@ -485,8 +490,8 @@ class GjennomforingEnkeltplassService(
         return dbo.id
     }
 
-    private fun toPrismodellDbo(id: UUID, prismodell: UpsertGjennomforingEnkeltplass.Prismodell): PrismodellDbo = when (prismodell) {
-        is UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse -> PrismodellDbo(
+    private fun toPrismodellDbo(id: UUID, prismodell: UpsertEnkeltplass.Prismodell): PrismodellDbo = when (prismodell) {
+        is UpsertEnkeltplass.Prismodell.Anskaffelse -> PrismodellDbo(
             id = id,
             type = PrismodellType.ANNEN_AVTALT_PRIS,
             valuta = Valuta.NOK,
@@ -495,7 +500,7 @@ class GjennomforingEnkeltplassService(
             totalbelop = prismodell.totalbelop,
         )
 
-        is UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering -> PrismodellDbo(
+        is UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering -> PrismodellDbo(
             id = id,
             type = PrismodellType.TILSKUDD_TIL_OPPLAERING,
             valuta = Valuta.NOK,
@@ -503,7 +508,7 @@ class GjennomforingEnkeltplassService(
             tilskudd = prismodell.tilskudd,
         )
 
-        is UpsertGjennomforingEnkeltplass.Prismodell.IngenKostnader -> PrismodellDbo(
+        is UpsertEnkeltplass.Prismodell.IngenKostnader -> PrismodellDbo(
             id = id,
             type = PrismodellType.INGEN_KOSTNADER,
             valuta = Valuta.NOK,
@@ -555,17 +560,17 @@ class GjennomforingEnkeltplassService(
 
     private fun TransactionalQueryContext.settOkonomiTilGodkjenning(
         id: UUID,
-        agent: Agent,
+        behandling: TotrinnskontrollBehandling,
     ): Enkeltplass {
         val totrinnskontroll = Totrinnskontroll.opprett(
             id = UUID.randomUUID(),
             entityId = id,
             type = TotrinnskontrollType.ENKELTPLASS_OKONOMI,
-            behandletAv = agent,
+            behandletAv = behandling.behandletAv,
         )
         queries.totrinnskontroll.upsert(totrinnskontroll)
         outbox.publish(totrinnskontroll)
-        return logEndring("Deltaker søkt inn", id, agent)
+        return logEndring("Deltaker søkt inn", id, behandling.behandletAv)
     }
 
     private fun TransactionalQueryContext.settOkonomiGodkjent(
@@ -630,7 +635,7 @@ class GjennomforingEnkeltplassService(
     }
 }
 
-private fun EnkeltplassRequest.toUpsert(gjennomforing: GjennomforingEnkeltplass? = null) = UpsertGjennomforingEnkeltplass(
+private fun UpsertEnkeltplass.toUpsert(gjennomforing: GjennomforingEnkeltplass? = null) = UpsertArenaEnkeltplass(
     id = id,
     tiltakskode = tiltakskode,
     arrangorId = arrangorId,
@@ -648,7 +653,7 @@ private fun EnkeltplassRequest.toUpsert(gjennomforing: GjennomforingEnkeltplass?
 
 private fun Deltaker.toUpsert(
     gjennomforing: GjennomforingEnkeltplass,
-): UpsertGjennomforingEnkeltplass = UpsertGjennomforingEnkeltplass(
+): UpsertArenaEnkeltplass = UpsertArenaEnkeltplass(
     id = gjennomforing.id,
     tiltakskode = gjennomforing.tiltakstype.tiltakskode,
     arrangorId = gjennomforing.arrangor.id,
@@ -665,15 +670,15 @@ private fun Deltaker.toUpsert(
     deltidsprosent = deltakelsesmengder.lastOrNull()?.deltakelsesprosent ?: 100.0,
 )
 
-private fun toUpsertPrismodell(prismodell: Prismodell): UpsertGjennomforingEnkeltplass.Prismodell = when (prismodell) {
-    is Prismodell.AnnenAvtaltPris -> UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(prismodell.totalbelop)
+private fun toUpsertPrismodell(prismodell: Prismodell): UpsertEnkeltplass.Prismodell = when (prismodell) {
+    is Prismodell.AnnenAvtaltPris -> UpsertEnkeltplass.Prismodell.Anskaffelse(prismodell.totalbelop)
 
-    is Prismodell.IngenKostnader -> UpsertGjennomforingEnkeltplass.Prismodell.IngenKostnader(
+    is Prismodell.IngenKostnader -> UpsertEnkeltplass.Prismodell.IngenKostnader(
         prismodell.aarsak,
         prismodell.tilleggsopplysninger,
     )
 
-    is Prismodell.TilskuddTilOpplaering -> UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering(
+    is Prismodell.TilskuddTilOpplaering -> UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
         prismodell.tilskudd,
         prismodell.tilleggsopplysninger,
     )
@@ -710,9 +715,9 @@ private fun toGjennomforingStatusType(deltaker: Deltaker): GjennomforingStatusTy
 }
 
 private fun harEnkeltplassEndringer(
-    opprett: UpsertGjennomforingEnkeltplass,
+    opprett: UpsertArenaEnkeltplass,
     gjennomforing: GjennomforingEnkeltplass,
-): Boolean = opprett != UpsertGjennomforingEnkeltplass(
+): Boolean = opprett != UpsertArenaEnkeltplass(
     id = gjennomforing.id,
     tiltakskode = gjennomforing.tiltakstype.tiltakskode,
     arrangorId = gjennomforing.arrangor.id,

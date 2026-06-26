@@ -79,12 +79,12 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         val service = createService()
 
         val gjennomforingId = UUID.randomUUID()
-        val payload = UpsertEnkeltplass(
+        val payload = GjennomforingRequest.UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
             opprettetAv = NavIdent("B123456"),
-            prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
         )
         val request = GjennomforingRequest.EnkeltplassUtkast(gjennomforingId, payload)
@@ -135,12 +135,12 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         val service = createService()
 
         val gjennomforingId = UUID.randomUUID()
-        val payload = UpsertEnkeltplass(
+        val payload = GjennomforingRequest.UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
             opprettetAv = NavIdent("B123456"),
-            prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
         )
         val totrinnskontroll = GjennomforingRequest.Totrinnskontroll(UUID.randomUUID(), NavIdent("B123456"))
@@ -193,12 +193,12 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         val consumer = createConsumer(service)
 
         val gjennomforingId = UUID.randomUUID()
-        val utkastPayload = UpsertEnkeltplass(
+        val utkastPayload = GjennomforingRequest.UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
             opprettetAv = NavIdent("B123456"),
-            prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
         )
 
@@ -231,12 +231,12 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         val consumer = createConsumer(service)
 
         val gjennomforingId = UUID.randomUUID()
-        val utkastPayload = UpsertEnkeltplass(
+        val utkastPayload = GjennomforingRequest.UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
             opprettetAv = NavIdent("B123456"),
-            prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
         )
         val totrinnskontroll = GjennomforingRequest.Totrinnskontroll(UUID.randomUUID(), NavIdent("B123456"))
@@ -250,7 +250,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             val request = GjennomforingRequest.EnkeltplassEndrePrisinformasjon(
                 gjennomforingId = gjennomforingId,
                 totrinnskontroll = GjennomforingRequest.Totrinnskontroll(UUID.randomUUID(), NavIdent("B123456")),
-                payload = EnkeltplassPrisinformasjon.Anskaffelse(pris = 20000),
+                payload = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 20000),
             )
 
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
@@ -265,7 +265,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             val request = GjennomforingRequest.EnkeltplassEndrePrisinformasjon(
                 gjennomforingId = ikkeEksisterendeId,
                 totrinnskontroll = GjennomforingRequest.Totrinnskontroll(UUID.randomUUID(), NavIdent("B123456")),
-                payload = EnkeltplassPrisinformasjon.Anskaffelse(pris = 5000),
+                payload = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 5000),
             )
 
             shouldThrowExactly<IllegalStateException> {
