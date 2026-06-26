@@ -105,13 +105,19 @@ class GjennomforingArenaService(
 }
 
 private fun harGjennomforingEndringer(opprett: OpprettGjennomforingArena, gjennomforing: Gjennomforing): Boolean {
-    return opprett.arrangorId != gjennomforing.arrangor.id ||
-        opprett.navn != gjennomforing.navn ||
-        opprett.startDato != gjennomforing.startDato ||
-        opprett.sluttDato != gjennomforing.sluttDato ||
-        opprett.deltidsprosent != gjennomforing.deltidsprosent ||
-        opprett.antallPlasser != gjennomforing.antallPlasser ||
-        opprett.status != gjennomforing.status ||
-        opprett.arenaTiltaksnummer?.value != gjennomforing.arena?.tiltaksnummer?.value ||
-        opprett.arenaAnsvarligEnhet != gjennomforing.arena?.ansvarligNavEnhet
+    return gjennomforing !is GjennomforingArena || opprett != OpprettGjennomforingArena(
+        id = gjennomforing.id,
+        tiltakstypeId = gjennomforing.tiltakstype.id,
+        arrangorId = gjennomforing.arrangor.id,
+        navn = gjennomforing.navn,
+        startDato = gjennomforing.startDato,
+        sluttDato = gjennomforing.sluttDato,
+        status = gjennomforing.status,
+        deltidsprosent = gjennomforing.deltidsprosent,
+        antallPlasser = gjennomforing.antallPlasser,
+        arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+        arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
+        oppstart = gjennomforing.oppstart,
+        pameldingType = gjennomforing.pameldingType,
+    )
 }
