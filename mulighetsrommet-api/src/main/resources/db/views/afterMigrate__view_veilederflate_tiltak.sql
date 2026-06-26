@@ -38,7 +38,8 @@ from gjennomforing
                      'type', ap.personopplysning,
                      'title', p.title,
                      'helpText', p.help_text,
-                     'sortKey', p.sort_key
+                     'sortKey', p.sort_key,
+                     'beskrivelse', ap.beskrivelse
                  ) order by p.sort_key
              ) as personopplysninger_json
              from avtale_personopplysning ap
