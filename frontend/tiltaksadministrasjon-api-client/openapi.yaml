@@ -7529,6 +7529,7 @@ components:
       - RETURNERT
       - UTBETALT
       - OVERFORT_TIL_UTBETALING
+      - AVBRUTT
     UtbetalingLinjeHandling:
       type: string
       enum:

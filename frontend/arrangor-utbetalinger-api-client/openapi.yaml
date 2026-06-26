@@ -1657,6 +1657,7 @@ components:
       - RETURNERT
       - UTBETALT
       - OVERFORT_TIL_UTBETALING
+      - AVBRUTT
     DeltakerAdvarselDto:
       type: object
       properties:
