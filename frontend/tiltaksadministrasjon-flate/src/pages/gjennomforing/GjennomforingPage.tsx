@@ -12,6 +12,7 @@ import {
   GjennomforingDto,
   PrismodellDto,
   PrismodellType,
+  TotrinnskontrollDto,
 } from "@tiltaksadministrasjon/api-client";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
@@ -19,15 +20,22 @@ import { DeltakerHeader } from "@/components/gjennomforing/DeltakerHeader";
 import { GjennomforingEnkeltplassIkon } from "@/components/ikoner/GjennomforingEnkeltplassIkon";
 import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
+import { isGodkjent } from "@/utils/totrinnskontroll";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { gjennomforing, enkeltplassDeltaker, prismodell } = useGjennomforing(gjennomforingId);
+  const { gjennomforing, enkeltplassDeltaker, prismodell, okonomi } =
+    useGjennomforing(gjennomforingId);
 
   const { data: enableTilskuddsbehandling } = useFeatureToggle(
     FeatureToggle.TILTAKSADMINISTRASJON_VIS_TILSKUDDSBEHANDLING,
   );
-  const [currentTab, tabs] = useTabs(gjennomforing, prismodell, !!enableTilskuddsbehandling);
+  const [currentTab, tabs] = useTabs(
+    gjennomforing,
+    prismodell,
+    okonomi,
+    !!enableTilskuddsbehandling,
+  );
 
   const brodsmuler: (Brodsmule | undefined)[] = [
     {
@@ -140,7 +148,14 @@ function getCurrentTab(pathname: string): string {
   return tabKey || "detaljer";
 }
 
-function enkeltplassTabs(prismodell: PrismodellType): TabConfig[] {
+function enkeltplassTabs(
+  prismodell: PrismodellType,
+  okonomi: TotrinnskontrollDto | null,
+): TabConfig[] {
+  // Ingen tabs før økonomi er godkjent
+  if (!okonomi || !isGodkjent(okonomi)) {
+    return ENKELTPLASS_INGEN_KOSTNADER_TABS;
+  }
   switch (prismodell) {
     case PrismodellType.TILSKUDD_TIL_OPPLAERING:
       return ENKELTPLASS_TILSKUDD_TABS;
@@ -160,6 +175,7 @@ function enkeltplassTabs(prismodell: PrismodellType): TabConfig[] {
 function useTabs(
   gjennomforing: GjennomforingDto,
   prismodell: PrismodellDto,
+  okonomi: TotrinnskontrollDto | null,
   enableTilskuddsbehandling: boolean,
 ): [string, Tab[]] {
   const { pathname } = useLocation();
@@ -168,7 +184,7 @@ function useTabs(
 
   const tabConfigs = isGruppetiltak(gjennomforing)
     ? GRUPPETILTAK_TABS
-    : enkeltplassTabs(prismodell.type);
+    : enkeltplassTabs(prismodell.type, okonomi);
 
   const filteredTabConfigs = enableTilskuddsbehandling
     ? tabConfigs
