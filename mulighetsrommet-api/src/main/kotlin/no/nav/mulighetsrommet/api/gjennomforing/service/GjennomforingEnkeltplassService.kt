@@ -461,7 +461,7 @@ class GjennomforingEnkeltplassService(
         agent: Agent,
         forklaring: String?,
     ): Either<NonEmptyList<FieldError>, Enkeltplass> {
-        return totrinnskontroll.avvist(okonomi, agent, forklaring = forklaring).map {
+        return totrinnskontroll.paVent(okonomi, agent, forklaring = forklaring).map {
             logEndring("Godkjenning ble satt på vent", id, agent)
         }
     }

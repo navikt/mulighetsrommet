@@ -19,7 +19,12 @@ data class TotrinnskontrollHendelse(
     val besluttetAv: TotrinnskontrollAgent?,
     @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant?,
-    val besluttelse: TotrinnskontrollBesluttelse?,
+    val besluttelse: Besluttelse?,
     val aarsaker: List<String>,
     val forklaring: String?,
-)
+) {
+    enum class Besluttelse {
+        GODKJENT,
+        AVVIST,
+    }
+}

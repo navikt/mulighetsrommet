@@ -465,7 +465,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val (_, okonomi) = service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Feil").shouldBeRight()
 
             okonomi.shouldNotBeNull().should {
-                it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                it.besluttelse shouldBe TotrinnskontrollBesluttelse.SATT_PA_VENT
                 it.besluttetAv shouldBe besluttetAv
                 it.forklaring shouldBe "Feil"
             }

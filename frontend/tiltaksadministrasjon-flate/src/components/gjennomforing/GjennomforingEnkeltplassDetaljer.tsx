@@ -26,7 +26,7 @@ import {
   TotrinnskontrollDtoBesluttet,
   UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
-import { isAvvist } from "@/utils/totrinnskontroll";
+import { isSattPaVent } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { useState } from "react";
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
@@ -139,7 +139,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
           <DetaljerLayout>
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
             {enkeltplassDeltaker && <BetalingsbetingelserEnkeltplass prismodell={prismodell} />}
-            {isAvvist(okonomi) && <OkonomiStatusSattPaVent okonomi={okonomi} />}
+            {isSattPaVent(okonomi) && <OkonomiStatusSattPaVent okonomi={okonomi} />}
           </DetaljerLayout>
         </TwoColumnGrid>
         <Separator />
@@ -179,22 +179,20 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
 
 function OkonomiStatusSattPaVent({ okonomi }: { okonomi: TotrinnskontrollDtoBesluttet }) {
   return (
-    <>
-      <InfoCard data-color="warning">
-        <InfoCard.Header>
-          <InfoCard.Title>Enkeltplass satt på vent</InfoCard.Title>
-        </InfoCard.Header>
-        <InfoCard.Content>
-          <BodyShort spacing>
-            {okonomi.besluttetAv.navn} satte godkjenning av enkeltplass på vent den{" "}
-            {formaterDato(okonomi.besluttetTidspunkt)}.
-          </BodyShort>
-          {okonomi.forklaring && (
-            <MetadataFritekstfelt label="Forklaring" value={okonomi.forklaring} />
-          )}
-        </InfoCard.Content>
-      </InfoCard>
-    </>
+    <InfoCard data-color="warning">
+      <InfoCard.Header>
+        <InfoCard.Title>Enkeltplass satt på vent</InfoCard.Title>
+      </InfoCard.Header>
+      <InfoCard.Content>
+        <BodyShort spacing>
+          {okonomi.besluttetAv.navn} satte godkjenning av enkeltplass på vent den{" "}
+          {formaterDato(okonomi.besluttetTidspunkt)}.
+        </BodyShort>
+        {okonomi.forklaring && (
+          <MetadataFritekstfelt label="Forklaring" value={okonomi.forklaring} />
+        )}
+      </InfoCard.Content>
+    </InfoCard>
   );
 }
 

@@ -39,8 +39,8 @@ enum class TotrinnskontrollType {
     TILSKUDD_OPPRETTELSE,
 }
 
-@Serializable
 enum class TotrinnskontrollBesluttelse {
     GODKJENT,
     AVVIST,
+    SATT_PA_VENT,
 }

@@ -37,7 +37,7 @@ class TotrinnskontrollQueries(private val session: Session) {
                 :type,
                 :besluttet_av,
                 :besluttet_tidspunkt,
-                :besluttelse::besluttelse
+                :besluttelse
             ) on conflict (id) do update set
                 behandlet_av = excluded.behandlet_av,
                 behandlet_tidspunkt = excluded.behandlet_tidspunkt,

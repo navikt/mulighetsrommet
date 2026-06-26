@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
@@ -99,7 +98,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         behandletTidspunkt = Instant.now(),
         besluttetAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.MikkeMus.navIdent.value),
         besluttetTidspunkt = Instant.now(),
-        besluttelse = TotrinnskontrollBesluttelse.GODKJENT,
+        besluttelse = TotrinnskontrollHendelse.Besluttelse.GODKJENT,
         aarsaker = emptyList(),
         forklaring = null,
     )

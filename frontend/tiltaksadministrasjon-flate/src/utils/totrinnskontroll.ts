@@ -32,6 +32,15 @@ export function isBesluttet(
   );
 }
 
+export function isSattPaVent(
+  totrinnskontroll: TotrinnskontrollDto | null,
+): totrinnskontroll is TotrinnskontrollDtoBesluttet {
+  return (
+    isBesluttet(totrinnskontroll) &&
+    totrinnskontroll.besluttelse === TotrinnskontrollBesluttelse.SATT_PA_VENT
+  );
+}
+
 export function isTilBeslutning(
   totrinnskontroll: TotrinnskontrollDto | null,
 ): totrinnskontroll is TotrinnskontrollDtoTilBeslutning {

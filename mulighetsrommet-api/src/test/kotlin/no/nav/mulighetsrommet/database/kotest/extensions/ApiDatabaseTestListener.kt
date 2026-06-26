@@ -85,6 +85,7 @@ class ApiDatabaseTestListener(
             "tilskudd_opplaering",
             "tilskudd_behandling_status",
             "totrinnskontroll_type",
+            "totrinnskontroll_besluttelse_type",
             "personopplysning",
         )
 
