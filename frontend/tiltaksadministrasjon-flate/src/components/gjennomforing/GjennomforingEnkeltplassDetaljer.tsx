@@ -1,21 +1,10 @@
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
-import { usePollTiltaksnummer } from "@/api/gjennomforing/usePollTiltaksnummer";
 import { GodkjennOkonomiModal } from "@/components/gjennomforing/GodkjennOkonomiModal";
 import { SettPaVentOkonomiModal } from "@/components/gjennomforing/SettPaVentOkonomiModal";
-import { Laster } from "@/components/laster/Laster";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
-import {
-  BodyShort,
-  Button,
-  Heading,
-  HelpText,
-  HStack,
-  InfoCard,
-  Tag,
-  VStack,
-} from "@navikt/ds-react";
+import { BodyShort, Button, Heading, HelpText, HStack, InfoCard, VStack } from "@navikt/ds-react";
 import {
   Definisjonsliste,
   Definition,
@@ -86,10 +75,6 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
     {
       key: gjennomforingTekster.innholdAnnet.label,
       value: enkeltplassDeltaker?.innholdAnnet,
-    },
-    {
-      key: gjennomforingTekster.tiltaksnummerLabel,
-      value: gjennomforing.tiltaksnummer ?? <HentTiltaksnummer id={gjennomforing.id} />,
     },
     {
       key: gjennomforingTekster.lopenummerLabel,
@@ -189,22 +174,6 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
         gjennomforingId={gjennomforing.id}
       />
     </VStack>
-  );
-}
-
-function HentTiltaksnummer({ id }: { id: string }) {
-  const { isError, isLoading, data } = usePollTiltaksnummer(id);
-  return isError ? (
-    <Tag data-color="danger" variant="outline">
-      Klarte ikke hente tiltaksnummer
-    </Tag>
-  ) : isLoading ? (
-    <HStack align={"center"} gap="space-4">
-      <Laster />
-      <span>Henter tiltaksnummer i Arena</span>
-    </HStack>
-  ) : (
-    data?.tiltaksnummer
   );
 }
 
