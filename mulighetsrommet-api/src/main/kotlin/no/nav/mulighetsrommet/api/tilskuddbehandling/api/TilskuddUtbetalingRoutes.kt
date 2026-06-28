@@ -70,14 +70,16 @@ fun Route.tilskuddUtbetalingRoutes() {
                                 vedtakResultat = tilskudd.vedtakResultat,
                             )
                         } else {
-                            queries.helvedUtbetaling.getByTilskudd(tilskudd.id)?.let { utbetaling ->
+                            queries.brukerUtbetaling.getByTilskudd(tilskudd.id)?.let { utbetaling ->
                                 TilskuddUtbetalingKompaktDto(
                                     id = utbetaling.id,
                                     tilskuddBehandlingId = behandling.id,
                                     status = TilskuddUtbetalingStatusDto.from(utbetaling.helVedStatus),
                                     periode = utbetaling.periode,
                                     type = tilskudd.tilskuddOpplaeringType,
-                                    kostnadssted = null,
+                                    kostnadssted = utbetaling.kostnadssted.let {
+                                        KostnadsstedDto(it.navn, it.enhetsnummer)
+                                    },
                                     belopUtbetalt = utbetaling.belop.withValuta(Valuta.NOK),
                                     mottaker = TilskuddMottaker.BRUKER,
                                     vedtakResultat = tilskudd.vedtakResultat,

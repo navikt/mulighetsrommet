@@ -125,7 +125,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
         createConsumer().consume(behandlingId, Json.encodeToJsonElement(godkjentHendelse))
 
-        val result = database.db.session { queries.helvedUtbetaling.getByTilskudd(tilskuddId) }
+        val result = database.db.session { queries.brukerUtbetaling.getByTilskudd(tilskuddId) }
 
         result.shouldNotBeNull()
         result.belop shouldBe 5000

@@ -28,7 +28,7 @@ class BrukerUtbetalingService(
 
     fun handleHelvedStatus(id: UUID, statusMelding: HelVedStatus) {
         logger.info("Melding fra hel ved: {}", Json.encodeToString(statusMelding))
-        db.session { queries.helvedUtbetaling.setHelVedStatus(id, statusMelding) }
+        db.session { queries.brukerUtbetaling.setHelVedStatus(id, statusMelding) }
     }
 
     fun produceTilskuddUtbetaling(utbetaling: HelVedUtbetaling) {

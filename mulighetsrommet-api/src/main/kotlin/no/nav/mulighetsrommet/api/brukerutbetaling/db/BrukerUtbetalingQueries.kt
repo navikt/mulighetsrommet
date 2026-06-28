@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import org.intellij.lang.annotations.Language
@@ -27,7 +28,13 @@ data class BrukerUtbetalingDbo(
     val besluttetTidspunkt: Instant,
     val helVedStatus: HelVedStatus.Status?,
     val helVedStatusError: HelVedStatus.StatusError?,
-)
+    val kostnadssted: Kostnadssted,
+) {
+    data class Kostnadssted(
+        val navn: String,
+        val enhetsnummer: NavEnhetNummer,
+    )
+}
 
 class BrukerUtbetalingQueries(private val session: Session) {
     fun insert(utbetaling: HelVedUtbetaling) {
@@ -77,12 +84,18 @@ class BrukerUtbetalingQueries(private val session: Session) {
     fun getByTilskudd(tilskuddId: UUID): BrukerUtbetalingDbo? {
         @Language("PostgreSQL")
         val query = """
-            select bruker_utbetaling.* from bruker_utbetaling
-            inner join tilskudd on tilskudd.bruker_utbetaling_id = bruker_utbetaling.id
+            select
+                bruker_utbetaling.*,
+                nav_enhet.enhetsnummer as kostnadssted_enhetsnummer,
+                nav_enhet.navn as kostnadssted_navn
+            from bruker_utbetaling
+                inner join tilskudd on tilskudd.bruker_utbetaling_id = bruker_utbetaling.id
+                inner join tilskudd_behandling on tilskudd.tilskudd_behandling_id = tilskudd_behandling.id
+                inner join nav_enhet on nav_enhet.enhetsnummer = tilskudd_behandling.kostnadssted
             where tilskudd.id = :id::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, mapOf("id" to tilskuddId))) { it.toHelVedUtbetalingDbo() }
+        return session.single(queryOf(query, mapOf("id" to tilskuddId))) { it.toBrukerUtbetalingDbo() }
     }
 
     fun setHelVedStatus(id: UUID, status: HelVedStatus) {
@@ -107,7 +120,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
     }
 }
 
-private fun Row.toHelVedUtbetalingDbo() = BrukerUtbetalingDbo(
+private fun Row.toBrukerUtbetalingDbo() = BrukerUtbetalingDbo(
     id = uuid("id"),
     sakId = string("sak_id"),
     behandlingId = string("behandling_id"),
@@ -120,4 +133,8 @@ private fun Row.toHelVedUtbetalingDbo() = BrukerUtbetalingDbo(
     besluttetTidspunkt = instant("besluttet_tidspunkt"),
     helVedStatus = stringOrNull("hel_ved_status")?.let { HelVedStatus.Status.valueOf(it) },
     helVedStatusError = stringOrNull("hel_ved_status_error")?.let { Json.decodeFromString(it) },
+    kostnadssted = BrukerUtbetalingDbo.Kostnadssted(
+        navn = string("kostnadssted_navn"),
+        enhetsnummer = NavEnhetNummer(string("kostnadssted_enhetsnummer")),
+    ),
 )

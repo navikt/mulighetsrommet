@@ -76,7 +76,7 @@ class TilskuddBrukerUtbetalingConsumer(
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
             .filter { it.utbetalingMottaker == TilskuddMottaker.BRUKER }
             // Idempotency check
-            .filter { db.session { queries.helvedUtbetaling.getByTilskudd(it.id) } == null }
+            .filter { db.session { queries.brukerUtbetaling.getByTilskudd(it.id) } == null }
             .forEach { t ->
                 db.transaction {
                     val utbetaling = HelVedUtbetaling(
@@ -98,7 +98,7 @@ class TilskuddBrukerUtbetalingConsumer(
                         tiltakskode = gjennomforing.tiltakstype.tiltakskode.toHelVedTiltakskode(),
                         dryrun = false,
                     )
-                    queries.helvedUtbetaling.insert(utbetaling)
+                    queries.brukerUtbetaling.insert(utbetaling)
 
                     queries.tilskuddBehandling.setBrukerUtbetaling(t.id, utbetaling.id)
 
