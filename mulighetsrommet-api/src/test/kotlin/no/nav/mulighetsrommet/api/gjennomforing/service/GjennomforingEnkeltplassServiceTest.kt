@@ -663,18 +663,6 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
             }
 
-            test("bruker gjennomføringens startdato når deltaker ikke har startdato") {
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.VENTER_PA_OPPSTART,
-                    startDato = null,
-                )
-
-                val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
-
-                gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
-            }
-
             test("setter status AVBRUTT når deltaker er FEILREGISTRERT") {
                 val deltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,

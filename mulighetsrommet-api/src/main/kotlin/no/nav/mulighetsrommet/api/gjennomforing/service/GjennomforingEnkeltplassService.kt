@@ -495,7 +495,7 @@ private fun Deltaker.toUpsert(
     arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
     arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
     antallPlasser = gjennomforing.antallPlasser,
-    startDato = startDato ?: gjennomforing.startDato,
+    startDato = startDato,
     sluttDato = sluttDato,
     status = toGjennomforingStatusType(this),
     // TODO: nullable i stedet for default 100
