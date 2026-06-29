@@ -40,7 +40,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
@@ -693,7 +693,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     utbetalingLinje1.id,
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
-                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                    it.status shouldBe TotrinnskontrollStatus.AVVIST
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                 }
 
@@ -702,7 +702,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     utbetalingLinje2.id,
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
-                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                    it.status shouldBe TotrinnskontrollStatus.AVVIST
                     it.besluttetAv shouldBe NavAnsattFixture.DonaldDuck.navIdent
                 }
             }
@@ -897,7 +897,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
                     it.besluttetAv shouldBe Tiltaksadministrasjon
-                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                    it.status shouldBe TotrinnskontrollStatus.AVVIST
                 }
 
                 queries.totrinnskontroll.getOrError(
@@ -905,7 +905,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
                     it.besluttetAv shouldBe Tiltaksadministrasjon
-                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                    it.status shouldBe TotrinnskontrollStatus.AVVIST
                 }
 
                 queries.kafkaProducerRecord.getRecords(10, listOf(BESTILLING_TOPIC)).shouldBeEmpty()

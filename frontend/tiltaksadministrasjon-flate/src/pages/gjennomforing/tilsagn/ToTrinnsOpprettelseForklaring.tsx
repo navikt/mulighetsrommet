@@ -1,6 +1,6 @@
 import {
   TilsagnStatusAarsak,
-  TotrinnskontrollBesluttelse,
+  TotrinnskontrollStatus,
   TilskuddBehandlingStatusAarsak,
   TotrinnskontrollDto,
 } from "@tiltaksadministrasjon/api-client";
@@ -15,7 +15,7 @@ type Props = {
 };
 
 export function ToTrinnsOpprettelsesForklaring({ heading, opprettelse }: Props) {
-  if (!isBesluttet(opprettelse) || opprettelse.besluttelse !== TotrinnskontrollBesluttelse.AVVIST) {
+  if (!isBesluttet(opprettelse) || opprettelse.besluttelse !== TotrinnskontrollStatus.AVVIST) {
     return null;
   }
 

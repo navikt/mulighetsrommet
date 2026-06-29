@@ -31,7 +31,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -131,7 +131,7 @@ class GjennomforingEnkeltplassService(
     fun soktInn(soktInn: EnkeltplassRequest, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
         val existing = getEnkeltplass(soktInn.id)
 
-        if (existing?.okonomi?.besluttelse == TotrinnskontrollBesluttelse.GODKJENT) {
+        if (existing?.okonomi?.status == TotrinnskontrollStatus.GODKJENT) {
             return existing.right()
         }
 

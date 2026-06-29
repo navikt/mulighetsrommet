@@ -13,8 +13,8 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
@@ -50,7 +50,7 @@ class TotrinnskontrollServiceTest : FunSpec({
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 stored.entityId shouldBe entityId
                 stored.behandletAv shouldBe behandletAv
-                stored.besluttelse shouldBe null
+                stored.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                 stored.besluttetAv shouldBe null
 
                 val records = queries.kafkaProducerRecord.getRecords(10, listOf(TOPIC))
@@ -99,7 +99,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
             database.run {
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                stored.status shouldBe TotrinnskontrollStatus.GODKJENT
                 stored.besluttetAv shouldBe besluttetAv
                 stored.besluttetTidspunkt shouldNotBe null
 
@@ -126,7 +126,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
             database.run {
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                stored.status shouldBe TotrinnskontrollStatus.AVVIST
                 stored.besluttetAv shouldBe besluttetAv
                 stored.besluttetTidspunkt shouldNotBe null
 
@@ -167,7 +167,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
             database.run {
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                stored.status shouldBe TotrinnskontrollStatus.AVVIST
                 stored.besluttetAv shouldBe behandletAv
             }
         }
@@ -218,7 +218,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
             database.run {
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                stored.status shouldBe TotrinnskontrollStatus.GODKJENT
             }
         }
 
@@ -275,7 +275,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
                 val stored = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
                 stored.behandletAv shouldBe NavIdent("DD3")
-                stored.besluttelse shouldBe null
+                stored.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                 stored.besluttetAv shouldBe null
                 stored.besluttetTidspunkt shouldBe null
                 stored.forklaring shouldBe null

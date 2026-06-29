@@ -1,5 +1,5 @@
 import {
-  TotrinnskontrollBesluttelse,
+  TotrinnskontrollStatus,
   DataElementStatusVariant,
   UtbetalingLinjeStatus,
   LabeledDataElementType,
@@ -333,7 +333,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
       besluttetTidspunkt: "2024-01-02T10:00:00",
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil. Du må justere antall deltakere",
-      besluttelse: TotrinnskontrollBesluttelse.AVVIST,
+      besluttelse: TotrinnskontrollStatus.AVVIST,
     },
   },
   {
@@ -380,7 +380,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
       besluttetTidspunkt: "2024-01-02T10:00:00",
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil, og bør fikses ved å endre antall deltakere",
-      besluttelse: TotrinnskontrollBesluttelse.AVVIST,
+      besluttelse: TotrinnskontrollStatus.AVVIST,
     },
   },
   {
@@ -479,7 +479,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
         navn: "Per Haraldsen",
       },
       besluttetTidspunkt: "2025-01-01T10:00:00",
-      besluttelse: TotrinnskontrollBesluttelse.GODKJENT,
+      besluttelse: TotrinnskontrollStatus.GODKJENT,
     },
   },
 ];

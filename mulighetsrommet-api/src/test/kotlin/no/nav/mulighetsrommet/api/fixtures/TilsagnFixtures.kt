@@ -179,7 +179,7 @@ fun QueryContext.setTilsagnStatus(
 
     when (status) {
         TilsagnStatus.TIL_GODKJENNING -> {
-            setTilGodkjenning(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
+            setTilBehandling(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
         }
 
         TilsagnStatus.GODKJENT -> {
@@ -188,7 +188,7 @@ fun QueryContext.setTilsagnStatus(
 
         TilsagnStatus.TIL_OPPGJOR -> {
             setGodkjent(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
-            setTilGodkjenning(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPGJOR, behandletAv)
+            setTilBehandling(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPGJOR, behandletAv)
         }
 
         TilsagnStatus.OPPGJORT -> {
@@ -202,7 +202,7 @@ fun QueryContext.setTilsagnStatus(
 
         TilsagnStatus.TIL_ANNULLERING -> {
             setGodkjent(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
-            setTilGodkjenning(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_ANNULLERING, behandletAv)
+            setTilBehandling(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_ANNULLERING, behandletAv)
         }
 
         TilsagnStatus.ANNULLERT -> {

@@ -36,7 +36,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
@@ -442,7 +442,7 @@ class TilsagnServiceTest : FunSpec({
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
-                    it.besluttelse shouldBe null
+                    it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                 }
             }
 
@@ -457,7 +457,7 @@ class TilsagnServiceTest : FunSpec({
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                    it.status shouldBe TotrinnskontrollStatus.AVVIST
                 }
             }
 
@@ -468,7 +468,7 @@ class TilsagnServiceTest : FunSpec({
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe NavIdent("T888888")
                     it.besluttetAv shouldBe null
-                    it.besluttelse shouldBe null
+                    it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                 }
             }
 
@@ -481,7 +481,7 @@ class TilsagnServiceTest : FunSpec({
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe NavIdent("T888888")
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                    it.status shouldBe TotrinnskontrollStatus.GODKJENT
                 }
 
                 queries.totrinnskontroll.getAll(requestId).shouldHaveSize(2)
@@ -625,7 +625,7 @@ class TilsagnServiceTest : FunSpec({
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_ANNULLERING).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
-                    it.besluttelse shouldBe null
+                    it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                     it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
                     it.forklaring shouldBe "Velg et annet beløp"
                 }
@@ -640,7 +640,7 @@ class TilsagnServiceTest : FunSpec({
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_ANNULLERING).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                    it.status shouldBe TotrinnskontrollStatus.GODKJENT
                     it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
                     it.forklaring shouldBe "Velg et annet beløp"
                 }
@@ -866,7 +866,7 @@ class TilsagnServiceTest : FunSpec({
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPGJOR).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe null
-                    it.besluttelse shouldBe null
+                    it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                 }
             }
 
@@ -879,7 +879,7 @@ class TilsagnServiceTest : FunSpec({
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPGJOR).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
-                    it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                    it.status shouldBe TotrinnskontrollStatus.GODKJENT
                 }
             }
 
