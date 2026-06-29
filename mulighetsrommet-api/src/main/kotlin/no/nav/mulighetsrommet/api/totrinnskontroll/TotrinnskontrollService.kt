@@ -145,7 +145,7 @@ class TotrinnskontrollService(private val topic: String) {
     }
 
     context(tx: TransactionalQueryContext)
-    fun paVent(
+    fun sattPaVent(
         existing: Totrinnskontroll,
         besluttetAv: Agent,
         aarsaker: List<String> = emptyList(),

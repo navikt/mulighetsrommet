@@ -268,7 +268,7 @@ class TotrinnskontrollServiceTest : FunSpec({
             database.run {
                 service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
                 val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                service.paVent(existing, besluttetAv, forklaring = "Trenger mer info")
+                service.sattPaVent(existing, besluttetAv, forklaring = "Trenger mer info")
 
                 val paVent = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
                 service.tilbakestill(paVent, NavIdent("DD3")).shouldBeRight()
@@ -299,7 +299,7 @@ class TotrinnskontrollServiceTest : FunSpec({
                     aarsaker = listOf("FEIL_BELOP"),
                 )
                 val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                service.paVent(existing, besluttetAv, aarsaker = listOf("FEIL_BELOP"), forklaring = "Feil beløp")
+                service.sattPaVent(existing, besluttetAv, aarsaker = listOf("FEIL_BELOP"), forklaring = "Feil beløp")
 
                 val paVent = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
                 service.tilbakestill(paVent, behandletAv).shouldBeRight()
@@ -316,7 +316,7 @@ class TotrinnskontrollServiceTest : FunSpec({
                 val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
                 val originalTidspunkt = existing.behandletTidspunkt
 
-                service.paVent(existing, besluttetAv)
+                service.sattPaVent(existing, besluttetAv)
                 val paVent = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
                 service.tilbakestill(paVent, behandletAv).shouldBeRight()
 
