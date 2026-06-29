@@ -16,11 +16,11 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
-import { DeltakerHeader } from "@/components/gjennomforing/DeltakerHeader";
 import { GjennomforingEnkeltplassIkon } from "@/components/ikoner/GjennomforingEnkeltplassIkon";
 import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { isGodkjent } from "@/utils/totrinnskontroll";
+import { DeltakerHeader } from "@/components/gjennomforing/DeltakerHeader";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -69,7 +69,7 @@ export function GjennomforingPage() {
         heading={gjennomforing.navn}
         status={gjennomforing.status.status}
       />
-      {enkeltplassDeltaker && <DeltakerHeader deltaker={enkeltplassDeltaker} compact />}
+      {enkeltplassDeltaker && <DeltakerHeader deltaker={enkeltplassDeltaker} />}
       <Tabs value={currentTab}>
         <Box background="default">
           <Tabs.List>

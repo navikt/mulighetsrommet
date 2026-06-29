@@ -1,7 +1,7 @@
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { GjennomforingAvtaleHeader } from "@/components/gjennomforing/GjennomforingAvtaleHeader";
-import { DeltakerHeader } from "@/components/gjennomforing/DeltakerHeader";
+import { GjennomforingEnkeltplassHeader } from "@/components/gjennomforing/GjennomforingEnkeltplassHeader";
 
 interface Props {
   gjennomforingId: string;
@@ -14,7 +14,10 @@ export function GjennomforingHeader({ gjennomforingId }: Props) {
     return <GjennomforingAvtaleHeader gjennomforing={gjennomforing} />;
   } else if (enkeltplassDeltaker) {
     return (
-      <DeltakerHeader deltaker={enkeltplassDeltaker} arrangorNavn={gjennomforing.arrangor.navn} />
+      <GjennomforingEnkeltplassHeader
+        gjennomforing={gjennomforing}
+        deltaker={enkeltplassDeltaker}
+      />
     );
   } else {
     return null;

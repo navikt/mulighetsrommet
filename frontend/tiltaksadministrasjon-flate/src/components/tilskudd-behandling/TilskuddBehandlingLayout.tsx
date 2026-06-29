@@ -2,7 +2,7 @@ import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjenn
 import { Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import React from "react";
-import { DeltakerHeader } from "../gjennomforing/DeltakerHeader";
+import { GjennomforingEnkeltplassHeader } from "../gjennomforing/GjennomforingEnkeltplassHeader";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { TilskuddIkon } from "@/components/ikoner/TilskuddIkon";
 
@@ -36,7 +36,10 @@ export function TilskuddBehandlingLayout({ gjennomforingId, children }: Props) {
         heading={`Tilskuddsbehandling for ${tiltakstype.navn}`}
       />
       {enkeltplassDeltaker && (
-        <DeltakerHeader deltaker={enkeltplassDeltaker} arrangorNavn={gjennomforing.arrangor.navn} />
+        <GjennomforingEnkeltplassHeader
+          gjennomforing={gjennomforing}
+          deltaker={enkeltplassDeltaker}
+        />
       )}
       <WhitePaddedBox>{children}</WhitePaddedBox>
     </>
