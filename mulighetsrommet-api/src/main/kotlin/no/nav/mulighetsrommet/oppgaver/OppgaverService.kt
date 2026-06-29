@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import java.util.UUID
 
 class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleService) {
     fun getOppgavetyper(ansatt: NavAnsatt): List<OppgaveTypeDto> {
@@ -42,6 +43,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
         oppgavetyper: Set<OppgaveType>,
         tiltakskoder: Set<Tiltakskode>,
         regioner: Set<NavEnhetNummer>,
+        arrangorer: Set<UUID>,
         ansatt: NavAnsatt,
     ): List<Oppgave> = db.transaction {
         val navEnheterForRegioner = if (regioner.isEmpty()) {
@@ -56,6 +58,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                     tilsagnOppgaver(
                         tiltakskoder = tiltakskoder,
                         kostnadssteder = navEnheterForRegioner,
+                        arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
                 )
@@ -65,6 +68,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                     utbetalingLinjeOppgaver(
                         tiltakskoder = tiltakskoder,
                         kostnadssteder = navEnheterForRegioner,
+                        arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
                 )
@@ -74,6 +78,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                     utbetalingOppgaver(
                         tiltakskoder = tiltakskoder,
                         kostnadssteder = navEnheterForRegioner,
+                        arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
                 )
@@ -83,6 +88,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                     avtaleOppgaver(
                         tiltakskoder = tiltakskoder,
                         regioner = regioner,
+                        arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
                 )
@@ -92,6 +98,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                     gjennomforingOppgaver(
                         tiltakskoder = tiltakskoder,
                         navEnheter = navEnheterForRegioner,
+                        arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
                 )
@@ -101,6 +108,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                     enkeltplassOppgaver(
                         tiltakskoder = tiltakskoder,
                         navEnheter = navEnheterForRegioner,
+                        arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
                 )
@@ -110,6 +118,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                     tilskuddBehandlingOppgaver(
                         tiltakskoder = tiltakskoder,
                         kostnadssteder = navEnheterForRegioner,
+                        arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
                 )
@@ -124,10 +133,11 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
     private fun QueryContext.tilsagnOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
+        arrangorer: Set<UUID>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
-            .getTilsagnOppgaveData()
+            .getTilsagnOppgaveData(arrangorer = arrangorer.ifEmpty { null })
             .asSequence()
             .filter { oppgave ->
                 kostnadssteder.isEmpty() || oppgave.kostnadssted.nummer in kostnadssteder
@@ -140,12 +150,14 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
     private fun QueryContext.utbetalingLinjeOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
+        arrangorer: Set<UUID>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
             .getUtbetalingLinjeOppgaveData(
                 kostnadssteder = kostnadssteder.ifEmpty { null },
                 tiltakskoder = tiltakskoder.ifEmpty { null },
+                arrangorer = arrangorer.ifEmpty { null },
             )
             .asSequence()
             .mapNotNull { toOppgave(it, ansatt) }
@@ -155,10 +167,14 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
     private fun QueryContext.utbetalingOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
+        arrangorer: Set<UUID>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
-            .getUtbetalingOppgaveData(tiltakskoder = tiltakskoder.ifEmpty { null })
+            .getUtbetalingOppgaveData(
+                tiltakskoder = tiltakskoder.ifEmpty { null },
+                arrangorer = arrangorer.ifEmpty { null },
+            )
             .asSequence()
             .filter { utbetaling -> byKostnadssted(utbetaling, kostnadssteder) }
             .mapNotNull { toOppgave(it, ansatt) }
@@ -168,32 +184,36 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
     private fun QueryContext.avtaleOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         regioner: Set<NavEnhetNummer>,
+        arrangorer: Set<UUID>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
-            .getAvtaleManglerAdministratorOppgaveData(tiltakskoder, regioner)
+            .getAvtaleManglerAdministratorOppgaveData(tiltakskoder, regioner, arrangorer.ifEmpty { null })
             .mapNotNull { it.toOppgave(ansatt) }
     }
 
     private fun QueryContext.gjennomforingOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         navEnheter: Set<NavEnhetNummer>,
+        arrangorer: Set<UUID>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
-            .getGjennomforingManglerAdministratorOppgaveData(tiltakskoder, navEnheter)
+            .getGjennomforingManglerAdministratorOppgaveData(tiltakskoder, navEnheter, arrangorer.ifEmpty { null })
             .mapNotNull { it.toOppgave(ansatt) }
     }
 
     private fun QueryContext.enkeltplassOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         navEnheter: Set<NavEnhetNummer>,
+        arrangorer: Set<UUID>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         val tilGodkjenning = queries.oppgave
             .getEnkeltplassOppgaveData(
                 tiltakskoder = tiltakskoder.ifEmpty { null },
                 navEnheter = navEnheter.ifEmpty { null },
+                arrangorer = arrangorer.ifEmpty { null },
             )
             .mapNotNull { it.toOppgave(ansatt) }
 
@@ -201,6 +221,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
             .getEnkeltplassSattPaVentOppgaveData(
                 tiltakskoder = tiltakskoder.ifEmpty { null },
                 navEnheter = navEnheter.ifEmpty { null },
+                arrangorer = arrangorer.ifEmpty { null },
             )
             .mapNotNull { it.toOppgave(ansatt) }
 
@@ -210,12 +231,14 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
     private fun QueryContext.tilskuddBehandlingOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
+        arrangorer: Set<UUID>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
             .getTilskuddBehandlingOppgaveData(
                 tiltakskoder = tiltakskoder.ifEmpty { null },
                 kostnadssteder = kostnadssteder.ifEmpty { null },
+                arrangorer = arrangorer.ifEmpty { null },
             )
             .mapNotNull { toTilskuddBehandlingOppgave(it, ansatt) }
     }

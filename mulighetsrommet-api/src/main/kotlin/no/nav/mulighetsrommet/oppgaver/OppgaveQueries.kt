@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -31,6 +32,7 @@ class OppgaveQueries(private val session: Session) {
     fun getEnkeltplassOppgaveData(
         tiltakskoder: Set<Tiltakskode>?,
         navEnheter: Set<NavEnhetNummer>?,
+        arrangorer: Set<UUID>?,
     ): List<EnkeltplassOppgaveData> {
         @Language("PostgreSQL")
         val query = """
@@ -45,6 +47,7 @@ class OppgaveQueries(private val session: Session) {
                 tk.behandlet_av,
                 tk.behandlet_tidspunkt,
                 arrangor.navn as arrangor_navn,
+                arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             FROM gjennomforing
             INNER JOIN arrangor on gjennomforing.arrangor_id = arrangor.id
@@ -60,11 +63,13 @@ class OppgaveQueries(private val session: Session) {
                 AND tk.besluttelse IS NULL
                 AND (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
                 AND (:nav_enheter::text[] IS NULL OR gjennomforing.ansvarlig_enhet = ANY(:nav_enheter))
+                AND (:arrangorer::uuid[] IS NULL OR arrangor.id = ANY(:arrangorer))
         """.trimIndent()
 
         val params = mapOf(
             "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
             "nav_enheter" to navEnheter?.let { session.createArrayOfValue(it) { it.value } },
+            "arrangorer" to arrangorer?.let { session.createUuidArray(it) },
         )
 
         return session.list(queryOf(query, params)) { row ->
@@ -83,6 +88,7 @@ class OppgaveQueries(private val session: Session) {
                 arrangor = OppgaveArrangor(
                     Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
                     row.string("arrangor_navn"),
+                    row.uuid("arrangor_id"),
                 ),
             )
         }
@@ -91,6 +97,7 @@ class OppgaveQueries(private val session: Session) {
     fun getEnkeltplassSattPaVentOppgaveData(
         tiltakskoder: Set<Tiltakskode>?,
         navEnheter: Set<NavEnhetNummer>?,
+        arrangorer: Set<UUID>?,
     ): List<EnkeltplassSattPaVentOppgaveData> {
         @Language("PostgreSQL")
         val query = """
@@ -104,6 +111,7 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype.navn AS tiltakstype_navn,
                 tk.besluttet_tidspunkt,
                 arrangor.navn as arrangor_navn,
+                arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             FROM gjennomforing
             INNER JOIN arrangor on gjennomforing.arrangor_id = arrangor.id
@@ -119,11 +127,13 @@ class OppgaveQueries(private val session: Session) {
                 AND tk.besluttelse = 'AVVIST'
                 AND (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
                 AND (:nav_enheter::text[] IS NULL OR gjennomforing.ansvarlig_enhet = ANY(:nav_enheter))
+                AND (:arrangorer::uuid[] IS NULL OR arrangor.id = ANY(:arrangorer))
         """.trimIndent()
 
         val params = mapOf(
             "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
             "nav_enheter" to navEnheter?.let { session.createArrayOfValue(it) { it.value } },
+            "arrangorer" to arrangorer?.let { session.createUuidArray(it) },
         )
         return session.list(queryOf(query, params)) { row ->
             EnkeltplassSattPaVentOppgaveData(
@@ -140,6 +150,7 @@ class OppgaveQueries(private val session: Session) {
                 arrangor = OppgaveArrangor(
                     Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
                     row.string("arrangor_navn"),
+                    row.uuid("arrangor_id"),
                 ),
             )
         }
@@ -148,6 +159,7 @@ class OppgaveQueries(private val session: Session) {
     fun getGjennomforingManglerAdministratorOppgaveData(
         tiltakskoder: Set<Tiltakskode>,
         navEnheter: Set<NavEnhetNummer>,
+        arrangorer: Set<UUID>?,
     ): List<GjennomforingManglerAdministratorOppgaveData> {
         @Language("PostgreSQL")
         val query = """
@@ -159,7 +171,8 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype_navn,
                 nav_enheter_json,
                 arrangor_organisasjonsnummer,
-                arrangor_navn
+                arrangor_navn,
+                arrangor_id
             from view_gjennomforing
             where (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any(:tiltakskoder))
                 and gjennomforing_type = 'AVTALE'
@@ -169,11 +182,13 @@ class OppgaveQueries(private val session: Session) {
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)))
                 and jsonb_array_length(coalesce(administratorer_json, '[]')) = 0
+                and (:arrangorer::uuid[] is null or arrangor_id = any(:arrangorer))
         """.trimIndent()
 
         val params = mapOf(
             "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { session.createTextArray(it) },
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { session.createArrayOfValue(it) { it.value } },
+            "arrangorer" to arrangorer?.let { session.createUuidArray(it) },
         )
 
         return session.list(queryOf(query, params)) { row ->
@@ -189,6 +204,7 @@ class OppgaveQueries(private val session: Session) {
                 arrangor = OppgaveArrangor(
                     Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
                     row.string("arrangor_navn"),
+                    row.uuid("arrangor_id"),
                 ),
             )
         }
@@ -197,6 +213,7 @@ class OppgaveQueries(private val session: Session) {
     fun getUtbetalingLinjeOppgaveData(
         kostnadssteder: Set<NavEnhetNummer>?,
         tiltakskoder: Set<Tiltakskode>?,
+        arrangorer: Set<UUID>?,
     ): List<UtbetalingLinjeOppgaveData> {
         @Language("PostgreSQL")
         val query = """
@@ -223,6 +240,7 @@ class OppgaveQueries(private val session: Session) {
                 tk.behandlet_tidspunkt,
                 tk.behandlet_av,
                 arrangor.navn as arrangor_navn,
+                arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             FROM utbetaling_linje
             INNER JOIN tilsagn ON tilsagn.id = utbetaling_linje.tilsagn_id
@@ -239,11 +257,13 @@ class OppgaveQueries(private val session: Session) {
             WHERE
                 (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
                 AND (:kostnadssteder::text[] IS NULL OR tilsagn.kostnadssted = ANY(:kostnadssteder))
+                AND (:arrangorer::uuid[] IS NULL OR arrangor.id = ANY(:arrangorer))
         """.trimIndent()
 
         val params = mapOf(
             "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
             "kostnadssteder" to kostnadssteder?.let { session.createArrayOfValue(it) { it.value } },
+            "arrangorer" to arrangorer?.let { session.createUuidArray(it) },
         )
 
         return session.list(queryOf(query, params)) { row ->
@@ -267,12 +287,13 @@ class OppgaveQueries(private val session: Session) {
                 arrangor = OppgaveArrangor(
                     Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
                     row.string("arrangor_navn"),
+                    row.uuid("arrangor_id"),
                 ),
             )
         }
     }
 
-    fun getTilsagnOppgaveData(): List<TilsagnOppgaveData> {
+    fun getTilsagnOppgaveData(arrangorer: Set<UUID>?): List<TilsagnOppgaveData> {
         @Language("PostgreSQL")
         val query = """
             select
@@ -290,6 +311,7 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype.tiltakskode           as tiltakstype_tiltakskode,
                 tiltakstype.navn                  as tiltakstype_navn,
                 arrangor.navn as arrangor_navn,
+                arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             from tilsagn
                 inner join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
@@ -298,6 +320,7 @@ class OppgaveQueries(private val session: Session) {
                 inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
             where
                 (:statuser::text[] is null or tilsagn.status = any(:statuser))
+                and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer))
             order by tilsagn.created_at desc
         """.trimIndent()
 
@@ -308,6 +331,7 @@ class OppgaveQueries(private val session: Session) {
                 TilsagnStatus.TIL_OPPGJOR,
                 TilsagnStatus.RETURNERT,
             ).let { session.createTextArray(it) },
+            "arrangorer" to arrangorer?.let { session.createUuidArray(it) },
         )
 
         return session.list(queryOf(query, params)) { row ->
@@ -325,12 +349,13 @@ class OppgaveQueries(private val session: Session) {
                 arrangor = OppgaveArrangor(
                     Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
                     row.string("arrangor_navn"),
+                    row.uuid("arrangor_id"),
                 ),
             )
         }
     }
 
-    fun getUtbetalingOppgaveData(tiltakskoder: Set<Tiltakskode>?): List<UtbetalingOppgaveData> {
+    fun getUtbetalingOppgaveData(tiltakskoder: Set<Tiltakskode>?, arrangorer: Set<UUID>?): List<UtbetalingOppgaveData> {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select
@@ -347,6 +372,7 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype.tiltakskode as tiltakstype_tiltakskode,
                 ks.kostnadssteder,
                 arrangor.navn as arrangor_navn,
+                arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             from utbetaling
                 join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
@@ -359,11 +385,13 @@ class OppgaveQueries(private val session: Session) {
                       and tilsagn.periode && utbetaling.periode
                 ) ks on true
             where
-                (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder));
+                (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
+                and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer));
         """.trimIndent()
 
         val params = mapOf(
             "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
+            "arrangorer" to arrangorer?.let { session.createUuidArray(it) },
         )
 
         return session.list(queryOf(utbetalingQuery, params)) { row ->
@@ -379,6 +407,7 @@ class OppgaveQueries(private val session: Session) {
                 arrangor = OppgaveArrangor(
                     Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
                     row.string("arrangor_navn"),
+                    row.uuid("arrangor_id"),
                 ),
             )
         }
@@ -387,6 +416,7 @@ class OppgaveQueries(private val session: Session) {
     fun getAvtaleManglerAdministratorOppgaveData(
         tiltakskoder: Set<Tiltakskode>,
         navRegioner: Set<NavEnhetNummer>,
+        arrangorer: Set<UUID>?,
     ): List<AvtaleManglerAdministratorOppgaveData> = with(session) {
         val statuser = listOf(AvtaleStatusType.UTKAST, AvtaleStatusType.AKTIV)
 
@@ -394,6 +424,7 @@ class OppgaveQueries(private val session: Session) {
             "nav_enheter" to navRegioner.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
             "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { session.createTextArray(it) },
             "statuser" to statuser.ifEmpty { null }?.let { createArrayOfAvtaleStatus(statuser) },
+            "arrangorer" to arrangorer?.let { session.createUuidArray(it) },
         )
 
         @Language("PostgreSQL")
@@ -406,7 +437,8 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype_tiltakskode,
                 nav_enheter_json,
                 arrangor_hovedenhet_organisasjonsnummer,
-                arrangor_hovedenhet_navn
+                arrangor_hovedenhet_navn,
+                arrangor_hovedenhet_id
             from view_avtale
             where
                 (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any(:tiltakskoder))
@@ -416,6 +448,7 @@ class OppgaveQueries(private val session: Session) {
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)))
                 and jsonb_array_length(coalesce(administratorer_json, '[]')) = 0
+                and (:arrangorer::uuid[] is null or arrangor_hovedenhet_id = any(:arrangorer))
         """.trimIndent()
         return session.list(queryOf(query, parameters)) {
             val navEnheter = it.stringOrNull("nav_enheter_json")
@@ -428,7 +461,7 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype = it.toOppgaveTiltakstype(),
                 oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
                 arrangor = it.stringOrNull("arrangor_hovedenhet_organisasjonsnummer")?.let { orgnr ->
-                    OppgaveArrangor(Organisasjonsnummer(orgnr), it.string("arrangor_hovedenhet_navn"))
+                    OppgaveArrangor(Organisasjonsnummer(orgnr), it.string("arrangor_hovedenhet_navn"), it.uuid("arrangor_hovedenhet_id"))
                 },
             )
         }
@@ -437,6 +470,7 @@ class OppgaveQueries(private val session: Session) {
     fun getTilskuddBehandlingOppgaveData(
         tiltakskoder: Set<Tiltakskode>?,
         kostnadssteder: Set<NavEnhetNummer>?,
+        arrangorer: Set<UUID>?,
     ): List<TilskuddBehandlingOppgaveData> {
         @Language("PostgreSQL")
         val query = """
@@ -456,6 +490,7 @@ class OppgaveQueries(private val session: Session) {
                 tk.behandlet_tidspunkt,
                 tk.besluttet_tidspunkt,
                 arrangor.navn as arrangor_navn,
+                arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             from tilskudd_behandling tb
                 inner join gjennomforing on gjennomforing.id = tb.gjennomforing_id
@@ -472,11 +507,13 @@ class OppgaveQueries(private val session: Session) {
                 tb.status in ('TIL_ATTESTERING', 'RETURNERT')
                 and (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
                 and (:kostnadssteder::text[] is null or tb.kostnadssted = any(:kostnadssteder))
+                and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer))
         """.trimIndent()
 
         val params = mapOf(
             "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
             "kostnadssteder" to kostnadssteder?.let { session.createArrayOfValue(it) { it.value } },
+            "arrangorer" to arrangorer?.let { session.createUuidArray(it) },
         )
 
         return session.list(queryOf(query, params)) { row ->
@@ -498,6 +535,7 @@ class OppgaveQueries(private val session: Session) {
                 arrangor = OppgaveArrangor(
                     Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
                     row.string("arrangor_navn"),
+                    row.uuid("arrangor_id"),
                 ),
             )
         }

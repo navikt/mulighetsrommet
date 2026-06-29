@@ -7748,7 +7748,14 @@ components:
           items:
             type: string
           uniqueItems: true
+        arrangorer:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
       required:
+      - arrangorer
       - oppgavetyper
       - regioner
       - tiltakskoder
@@ -7831,7 +7838,11 @@ components:
           type: string
         navn:
           type: string
+        id:
+          type: string
+          format: uuid
       required:
+      - id
       - navn
       - organisasjonsnummer
     OppgaveTypeDto:

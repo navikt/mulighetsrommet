@@ -29,6 +29,8 @@ data class Oppgave(
 data class OppgaveArrangor(
     val organisasjonsnummer: Organisasjonsnummer,
     val navn: String,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
 )
 
 @Serializable

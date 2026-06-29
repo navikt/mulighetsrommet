@@ -184,6 +184,26 @@ object GjennomforingFixtures {
         arenaAnsvarligEnhet = null,
     )
 
+    val EnkelFagOgYrke = GjennomforingDbo(
+        id = UUID.randomUUID(),
+        tiltakstypeId = TiltakstypeFixtures.EnkelFagOgYrke.id,
+        type = GjennomforingType.ENKELTPLASS,
+        oppstart = GjennomforingOppstartstype.ENKELTPLASS,
+        pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
+        arrangorId = ArrangorFixtures.underenhet2.id,
+        navn = "Enkelfag og yrke 1",
+        startDato = LocalDate.of(2025, 1, 1),
+        sluttDato = LocalDate.of(2025, 12, 31),
+        status = GjennomforingStatusType.GJENNOMFORES,
+        deltidsprosent = 100.0,
+        antallPlasser = 1,
+        prismodellId = PrismodellFixtures.AnnenAvtaltPris.id,
+        ansvarligEnhet = NavEnhetNummer("0400"),
+        avtaleId = null,
+        arenaTiltaksnummer = null,
+        arenaAnsvarligEnhet = null,
+    )
+
     val ArenaEnkelAmo = GjennomforingDbo(
         id = UUID.randomUUID(),
         tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
