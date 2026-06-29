@@ -1,7 +1,6 @@
 # This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
-# To regenerate this file, run: ./gradlew :common:ktor-clients:dependencies --write-locks
 ch.qos.logback:logback-classic:1.3.16=ktlint
 ch.qos.logback:logback-core:1.3.16=ktlint
 com.github.ajalt.clikt:clikt-jvm:5.0.3=ktlint
@@ -23,7 +22,6 @@ com.pinterest.ktlint:ktlint-rule-engine:1.8.0=ktlint
 com.pinterest.ktlint:ktlint-ruleset-standard:1.8.0=ktlint,ktlintRuleset
 dev.drewhamilton.poko:poko-annotations-jvm:0.20.1=ktlint,ktlintBaselineReporter,ktlintRuleset
 dev.drewhamilton.poko:poko-annotations:0.20.1=ktlint,ktlintBaselineReporter,ktlintRuleset
-io.github.classgraph:classgraph:4.8.184=testRuntimeClasspath
 io.github.detekt.sarif4k:sarif4k-jvm:0.6.0=ktlint,ktlintReporter
 io.github.detekt.sarif4k:sarif4k:0.6.0=ktlint,ktlintReporter
 io.github.java-diff-utils:java-diff-utils:4.12=kotlinInternalAbiValidation
@@ -34,20 +32,20 @@ io.github.pdvrieze.xmlutil:core-jvmcommon:0.91.3=testRuntimeClasspath
 io.github.pdvrieze.xmlutil:core:0.91.3=testRuntimeClasspath
 io.github.pdvrieze.xmlutil:serialization-jvm:0.91.3=testRuntimeClasspath
 io.github.pdvrieze.xmlutil:serialization:0.91.3=testRuntimeClasspath
-io.kotest:kotest-assertions-core-jvm:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-assertions-core:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-assertions-shared-jvm:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-assertions-shared:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-common-jvm:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-common:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-extensions-jvm:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-extensions:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-framework-engine-jvm:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-framework-engine:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-runner-junit-platform-jvm:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-runner-junit-platform:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-runner-junit5-jvm:6.2.1=testCompileClasspath,testRuntimeClasspath
-io.kotest:kotest-runner-junit5:6.2.1=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-assertions-core-jvm:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-assertions-core:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-assertions-shared-jvm:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-assertions-shared:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-common-jvm:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-common:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-extensions-jvm:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-extensions:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-framework-engine-jvm:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-framework-engine:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-runner-junit-platform-jvm:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-runner-junit-platform:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-runner-junit5-jvm:6.1.11=testCompileClasspath,testRuntimeClasspath
+io.kotest:kotest-runner-junit5:6.1.11=testCompileClasspath,testRuntimeClasspath
 io.ktor:ktor-client-cio-jvm:3.4.3=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 io.ktor:ktor-client-cio:3.4.3=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 io.ktor:ktor-client-content-negotiation-jvm:3.4.3=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath

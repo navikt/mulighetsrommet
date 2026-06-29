@@ -1,8 +1,8 @@
 [versions]
 common-java-modules = "3.2026.04.08_08.37-229807cc181a"
-flyway = "12.9.0"
-koin-bom = "4.2.2"
-kotest = "6.2.1"
+flyway = "12.8.1"
+koin-bom = "4.2.1"
+kotest = "6.1.11"
 kotlin = "2.4.0"
 ktor = "3.4.3"
 netty = "4.2.15.Final"
@@ -128,7 +128,7 @@ mockk = "io.mockk:mockk:1.14.11"
 
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
-nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:4.0.1"
+nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:4.0.0"
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.11.03_13.40-18456d0598be"
 
 netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty" }
