@@ -40,9 +40,9 @@
     "jotai": "2.20.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-hook-form": "7.79.0",
+    "react-hook-form": "7.80.0",
     "react-router": "7.17.0",
-    "uuid": "14.0.0",
+    "uuid": "14.0.1",
     "zod": "4.4.3"
   },
   "devDependencies": {
@@ -64,7 +64,7 @@
     "tailwindcss": "4.3.1",
     "typescript": "6.0.3",
     "vite": "8.0.16",
-    "vitest": "4.1.8"
+    "vitest": "4.1.9"
   },
   "msw": {
     "workerDirectory": [

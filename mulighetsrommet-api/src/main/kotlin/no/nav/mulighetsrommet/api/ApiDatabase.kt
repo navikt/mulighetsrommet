@@ -94,7 +94,7 @@ open class QueryContext(open val session: Session) {
         val kafkaConsumerRecords = KafkaConsumerRecordQueries(session)
         val opplaeringtilskudd = OpplaeringtilskuddQueries(session)
         val tilskuddBehandling = TilskuddBehandlingQueries(session)
-        val helvedUtbetaling = BrukerUtbetalingQueries(session)
+        val brukerUtbetaling = BrukerUtbetalingQueries(session)
     }
 }
 
