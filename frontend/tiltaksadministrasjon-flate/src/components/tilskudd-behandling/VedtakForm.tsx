@@ -49,7 +49,6 @@ export function VedtakForm() {
       <VStack gap="space-20">
         <VStack gap="space-8">
           <InformasjonFraSoknad
-            status={null}
             journalpostId={watch("soknadJournalpostId")}
             soknadsdato={watch("soknadDato")}
             periode={periode}

@@ -114,9 +114,14 @@ export function TilskuddBehandlingDetaljerPage() {
         </HStack>
         <TwoColumnGrid separator>
           <>
+            <Definisjonsliste
+              definitions={[
+                { key: "Status", value: <DataElementStatusTag {...behandling.status.status} /> },
+              ]}
+            />
+            <Separator />
             <VStack gap="space-16">
               <InformasjonFraSoknad
-                status={behandling.status.status}
                 journalpostId={behandling.soknadJournalpostId}
                 soknadsdato={behandling.soknadDato}
                 periode={behandling.periode}
