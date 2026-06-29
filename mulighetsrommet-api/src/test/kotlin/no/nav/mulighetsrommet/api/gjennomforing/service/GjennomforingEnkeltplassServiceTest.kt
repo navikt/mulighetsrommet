@@ -440,7 +440,20 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 .first().detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
         }
 
-        test("kan godkjenne enkeltplass etter avvisning") {
+        test("kan sette økonomi på vent") {
+            val soktInn = createRequest()
+            service.soktInn(soktInn, opprettetAv).shouldBeRight()
+
+            val (_, okonomi) = service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Feil").shouldBeRight()
+
+            okonomi.shouldNotBeNull().should {
+                it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
+                it.besluttetAv shouldBe besluttetAv
+                it.forklaring shouldBe "Feil"
+            }
+        }
+
+        test("kan godkjenne enkeltplass når den er satt på vent") {
             val soktInn = createRequest()
             service.soktInn(soktInn, opprettetAv).shouldBeRight()
 
@@ -455,19 +468,6 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
                 it.forklaring shouldBe null
-            }
-        }
-
-        test("setter økonomi på vent og setter besluttelse til AVVIST") {
-            val soktInn = createRequest()
-            service.soktInn(soktInn, opprettetAv).shouldBeRight()
-
-            val (_, okonomi) = service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Feil").shouldBeRight()
-
-            okonomi.shouldNotBeNull().should {
-                it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
-                it.besluttetAv shouldBe besluttetAv
-                it.forklaring shouldBe "Feil"
             }
         }
 

@@ -119,7 +119,7 @@ class TotrinnskontrollService(private val topic: String) {
     }
 
     context(tx: TransactionalQueryContext)
-    fun avvist(
+    fun returnert(
         existing: Totrinnskontroll,
         besluttetAv: Agent,
         aarsaker: List<String> = emptyList(),
@@ -136,7 +136,7 @@ class TotrinnskontrollService(private val topic: String) {
             behandletTidspunkt = existing.behandletTidspunkt,
             besluttetAv = besluttetAv,
             besluttetTidspunkt = instantAsMicros(),
-            status = TotrinnskontrollStatus.AVVIST,
+            status = TotrinnskontrollStatus.RETURNERT,
             aarsaker = aarsaker.ifEmpty { existing.aarsaker },
             forklaring = forklaring ?: existing.forklaring,
         )
@@ -185,7 +185,7 @@ class TotrinnskontrollService(private val topic: String) {
             besluttelse = when (dbo.status) {
                 TotrinnskontrollStatus.TIL_BEHANDLING -> null
                 TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollHendelse.Besluttelse.GODKJENT
-                TotrinnskontrollStatus.AVVIST -> TotrinnskontrollHendelse.Besluttelse.AVVIST
+                TotrinnskontrollStatus.RETURNERT -> TotrinnskontrollHendelse.Besluttelse.AVVIST
                 TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollHendelse.Besluttelse.AVVIST
             },
             aarsaker = dbo.aarsaker,
@@ -206,7 +206,7 @@ private fun instantAsMicros(): Instant = Instant.now().truncatedTo(ChronoUnit.MI
 
 private fun alleredeBesluttetError(status: TotrinnskontrollStatus): Either<NonEmptyList<FieldError>, Nothing> {
     val besluttelse = when (status) {
-        TotrinnskontrollStatus.AVVIST -> "avvist"
+        TotrinnskontrollStatus.RETURNERT -> "returnert"
         TotrinnskontrollStatus.GODKJENT -> "godkjent"
         TotrinnskontrollStatus.SATT_PA_VENT -> "satt på vent"
         TotrinnskontrollStatus.TIL_BEHANDLING -> error("Totrinnskontroll er til behandling")

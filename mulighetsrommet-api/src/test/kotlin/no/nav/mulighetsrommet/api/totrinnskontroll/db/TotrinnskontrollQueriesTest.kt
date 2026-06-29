@@ -70,7 +70,7 @@ class TotrinnskontrollQueriesTest : FunSpec({
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
                     behandletAv = Tiltaksadministrasjon,
                     behandletTidspunkt = Instant.now(),
-                    status = TotrinnskontrollStatus.AVVIST,
+                    status = TotrinnskontrollStatus.RETURNERT,
                     besluttetAv = Arena,
                     besluttetTidspunkt = Instant.now(),
                     aarsaker = emptyList(),
@@ -80,7 +80,7 @@ class TotrinnskontrollQueriesTest : FunSpec({
 
             queries.totrinnskontroll.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                 it.besluttetAv shouldBe Arena
-                it.status shouldBe TotrinnskontrollStatus.AVVIST
+                it.status shouldBe TotrinnskontrollStatus.RETURNERT
             }
         }
     }

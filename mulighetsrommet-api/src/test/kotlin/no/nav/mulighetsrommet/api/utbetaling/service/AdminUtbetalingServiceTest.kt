@@ -630,7 +630,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             utbetalingLinjer[0].id shouldBe utbetalingLinje1.id
         }
 
-        test("alle utbetalingLinjer (selv godkjente) blir returnert når saksbehandler avviser en utbetalingslinje") {
+        test("alle utbetalingLinjer (selv godkjente) blir returnert når saksbehandler returnerer en utbetalingslinje") {
             val tilsagn1 = Tilsagn1.copy(
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             )
@@ -693,7 +693,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     utbetalingLinje1.id,
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
-                    it.status shouldBe TotrinnskontrollStatus.AVVIST
+                    it.status shouldBe TotrinnskontrollStatus.RETURNERT
                     it.besluttetAv shouldBe Tiltaksadministrasjon
                 }
 
@@ -702,7 +702,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     utbetalingLinje2.id,
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
-                    it.status shouldBe TotrinnskontrollStatus.AVVIST
+                    it.status shouldBe TotrinnskontrollStatus.RETURNERT
                     it.besluttetAv shouldBe NavAnsattFixture.DonaldDuck.navIdent
                 }
             }
@@ -897,7 +897,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
                     it.besluttetAv shouldBe Tiltaksadministrasjon
-                    it.status shouldBe TotrinnskontrollStatus.AVVIST
+                    it.status shouldBe TotrinnskontrollStatus.RETURNERT
                 }
 
                 queries.totrinnskontroll.getOrError(
@@ -905,7 +905,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 ).should {
                     it.besluttetAv shouldBe Tiltaksadministrasjon
-                    it.status shouldBe TotrinnskontrollStatus.AVVIST
+                    it.status shouldBe TotrinnskontrollStatus.RETURNERT
                 }
 
                 queries.kafkaProducerRecord.getRecords(10, listOf(BESTILLING_TOPIC)).shouldBeEmpty()

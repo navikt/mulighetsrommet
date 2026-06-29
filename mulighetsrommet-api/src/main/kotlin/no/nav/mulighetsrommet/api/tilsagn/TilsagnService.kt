@@ -416,7 +416,7 @@ class TilsagnService(
         }
 
         val opprettelse = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        return totrinnskontroll.avvist(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring).map {
+        return totrinnskontroll.returnert(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring).map {
             queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
             logEndring("Tilsagn returnert", tilsagn.id, besluttetAv)
         }
@@ -473,13 +473,13 @@ class TilsagnService(
         forklaring: String?,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_ANNULLERING) {
-            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_ANNULLERING} for at annullering skal avvises")
+            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_ANNULLERING} for at annullering kan returneres")
                 .nel()
                 .left()
         }
 
         val annullering = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
-        return totrinnskontroll.avvist(annullering, besluttetAv, aarsaker.map { it.name }, forklaring).map {
+        return totrinnskontroll.returnert(annullering, besluttetAv, aarsaker.map { it.name }, forklaring).map {
             queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
             if (annullering.behandletAv is NavIdent) {
@@ -540,13 +540,13 @@ class TilsagnService(
         forklaring: String?,
     ): Either<List<FieldError>, Tilsagn> {
         if (tilsagn.status != TilsagnStatus.TIL_OPPGJOR) {
-            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør skal avvises")
+            return FieldError.of("Tilsagnet må ha status ${TilsagnStatus.TIL_OPPGJOR} for at oppgjør kan returneres")
                 .nel()
                 .left()
         }
 
         val oppgjor = totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
-        return totrinnskontroll.avvist(oppgjor, besluttetAv, aarsaker.map { it.name }, forklaring).map {
+        return totrinnskontroll.returnert(oppgjor, besluttetAv, aarsaker.map { it.name }, forklaring).map {
             queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
             if (oppgjor.behandletAv is NavIdent) {

@@ -115,18 +115,18 @@ class TotrinnskontrollServiceTest : FunSpec({
             }
         }
 
-        test("avviser eksisterende totrinnskontroll og publiserer ny Kafka-melding") {
+        test("returnerer eksisterende totrinnskontroll og publiserer ny Kafka-melding") {
             database.run {
                 service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
                 val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
 
-                service.avvist(existing, besluttetAv, listOf("FEIL_BELOP"), "Beløp er feil").shouldBeRight()
+                service.returnert(existing, besluttetAv, listOf("FEIL_BELOP"), "Beløp er feil").shouldBeRight()
             }
 
             database.run {
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                stored.status shouldBe TotrinnskontrollStatus.AVVIST
+                stored.status shouldBe TotrinnskontrollStatus.RETURNERT
                 stored.besluttetAv shouldBe besluttetAv
                 stored.besluttetTidspunkt shouldNotBe null
 
@@ -156,18 +156,18 @@ class TotrinnskontrollServiceTest : FunSpec({
             }
         }
 
-        test("avvisning kan gjøres av samme NavIdent som behandletAv") {
+        test("retur kan gjøres av samme NavIdent som behandletAv") {
             database.run {
                 service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
                 val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
 
-                service.avvist(existing, behandletAv, listOf("FEIL_BELOP"), "Beløp er feil").shouldBeRight()
+                service.returnert(existing, behandletAv, listOf("FEIL_BELOP"), "Beløp er feil").shouldBeRight()
             }
 
             database.run {
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                stored.status shouldBe TotrinnskontrollStatus.AVVIST
+                stored.status shouldBe TotrinnskontrollStatus.RETURNERT
                 stored.besluttetAv shouldBe behandletAv
             }
         }
@@ -206,11 +206,11 @@ class TotrinnskontrollServiceTest : FunSpec({
             }
         }
 
-        test("godkjenning er tillatt etter avvisning") {
+        test("godkjenning er tillatt etter retur") {
             database.run {
                 service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
                 val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.avvist(existing, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
+                service.returnert(existing, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
 
                 val afterAvvist = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.godkjent(afterAvvist, besluttetAv).shouldBeRight()
@@ -222,7 +222,7 @@ class TotrinnskontrollServiceTest : FunSpec({
             }
         }
 
-        test("avvisning feiler når totrinnskontroll allerede er godkjent") {
+        test("retur feiler når totrinnskontroll allerede er godkjent") {
             database.run {
                 service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
@@ -230,22 +230,22 @@ class TotrinnskontrollServiceTest : FunSpec({
                 service.godkjent(existing, besluttetAv).shouldBeRight()
 
                 val afterGodkjent = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.avvist(afterGodkjent, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
+                service.returnert(afterGodkjent, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
                     FieldError.of("Totrinnskontrollen er allerede godkjent"),
                 )
             }
         }
 
-        test("avvisning feiler når totrinnskontroll allerede er avvist") {
+        test("retur feiler når totrinnskontroll allerede er returnert") {
             database.run {
                 service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
                 val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.avvist(existing, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
+                service.returnert(existing, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
 
                 val afterAvvist = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.avvist(afterAvvist, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
-                    FieldError.of("Totrinnskontrollen er allerede avvist"),
+                service.returnert(afterAvvist, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
+                    FieldError.of("Totrinnskontrollen er allerede returnert"),
                 )
             }
         }
@@ -258,7 +258,7 @@ class TotrinnskontrollServiceTest : FunSpec({
                 service.godkjent(existing, besluttetAv).shouldBeRight()
 
                 val afterGodkjent = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.avvist(afterGodkjent, Tiltaksadministrasjon, listOf("PROPAGERT_RETUR")).shouldBeRight()
+                service.returnert(afterGodkjent, Tiltaksadministrasjon, listOf("PROPAGERT_RETUR")).shouldBeRight()
             }
         }
     }
@@ -353,7 +353,7 @@ class TotrinnskontrollServiceTest : FunSpec({
             database.run {
                 service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
                 val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                service.avvist(existing, besluttetAv).shouldBeRight()
+                service.returnert(existing, besluttetAv).shouldBeRight()
 
                 val avvist = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
                 service.tilbakestill(avvist, behandletAv) shouldBeLeft listOf(

@@ -15,7 +15,7 @@ import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useTilsagn } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { isAvvist, isTilBeslutning } from "@/utils/totrinnskontroll";
+import { erReturnert, erTilBeslutning } from "@/utils/totrinnskontroll";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { TilsagnRegnestykke } from "@/components/tilsagn/beregning/TilsagnRegnestykke";
 import { tilsagnTekster } from "@/components/tilsagn/TilsagnTekster";
@@ -76,7 +76,7 @@ export function TilsagnDetaljer() {
   return (
     <>
       <ToTrinnsOpprettelsesForklaring heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
-      {isTilBeslutning(annullering) && (
+      {erTilBeslutning(annullering) && (
         <AarsakerOgForklaring
           heading="Tilsagnet annulleres"
           tekster={[
@@ -90,7 +90,7 @@ export function TilsagnDetaljer() {
           forklaring={annullering.forklaring}
         />
       )}
-      {isAvvist(annullering) && !tilOppgjor && (
+      {erReturnert(annullering) && !tilOppgjor && (
         <AarsakerOgForklaring
           heading="Annullering avvist"
           tekster={[
@@ -104,7 +104,7 @@ export function TilsagnDetaljer() {
           forklaring={annullering.forklaring}
         />
       )}
-      {isTilBeslutning(tilOppgjor) && (
+      {erTilBeslutning(tilOppgjor) && (
         <AarsakerOgForklaring
           heading="Tilsagnet gjøres opp"
           ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
@@ -119,7 +119,7 @@ export function TilsagnDetaljer() {
           forklaring={tilOppgjor.forklaring}
         />
       )}
-      {isAvvist(tilOppgjor) && (
+      {erReturnert(tilOppgjor) && (
         <AarsakerOgForklaring
           heading="Oppgjør avvist"
           tekster={[

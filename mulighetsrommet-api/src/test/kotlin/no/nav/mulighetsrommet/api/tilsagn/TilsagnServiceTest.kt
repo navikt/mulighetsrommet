@@ -457,7 +457,7 @@ class TilsagnServiceTest : FunSpec({
                 queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
                     it.behandletAv shouldBe ansatt1
                     it.besluttetAv shouldBe ansatt2
-                    it.status shouldBe TotrinnskontrollStatus.AVVIST
+                    it.status shouldBe TotrinnskontrollStatus.RETURNERT
                 }
             }
 
@@ -766,7 +766,7 @@ class TilsagnServiceTest : FunSpec({
             ) shouldBeLeft listOf(FieldError.of("Tilsagnet kan ikke annulleres fordi det har blitt brukt i utbetalinger"))
         }
 
-        test("returnering av tilsagn til annullering avviser annulleringen og setter tilsagnet tilbake til godkjent") {
+        test("returnering av tilsagn når tilsagnet har status TIL_ANNULLERING setter annulleringen til RETURNERT og tilsagnet tilbake til godkjent") {
             service.upsert(
                 request = request,
                 agent = ansatt1,
@@ -792,6 +792,15 @@ class TilsagnServiceTest : FunSpec({
                 aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                 forklaring = null,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
+
+            database.run {
+                queries.totrinnskontroll.getOrError(requestId, TotrinnskontrollType.TILSAGN_ANNULLERING).should {
+                    it.behandletAv shouldBe ansatt1
+                    it.besluttetAv shouldBe ansatt2
+                    it.status shouldBe TotrinnskontrollStatus.RETURNERT
+                    it.aarsaker shouldBe listOf(TilsagnStatusAarsak.FEIL_BELOP.name)
+                }
+            }
         }
     }
 

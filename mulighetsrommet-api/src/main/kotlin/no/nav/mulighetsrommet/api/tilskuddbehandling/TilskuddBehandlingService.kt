@@ -139,7 +139,7 @@ class TilskuddBehandlingService(
         }
 
         val opprettelse = totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-        totrinnskontroll.avvist(opprettelse, navIdent, aarsaker.map { it.name }, forklaring).map {
+        totrinnskontroll.returnert(opprettelse, navIdent, aarsaker.map { it.name }, forklaring).map {
             queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
             logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
         }

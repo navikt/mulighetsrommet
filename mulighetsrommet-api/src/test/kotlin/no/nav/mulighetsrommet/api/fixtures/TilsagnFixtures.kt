@@ -197,7 +197,7 @@ fun QueryContext.setTilsagnStatus(
         }
 
         TilsagnStatus.RETURNERT -> {
-            setAvvist(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
+            setReturnert(tilsagnDbo.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv, besluttetAv)
         }
 
         TilsagnStatus.TIL_ANNULLERING -> {

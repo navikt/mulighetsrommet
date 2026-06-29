@@ -333,7 +333,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
       besluttetTidspunkt: "2024-01-02T10:00:00",
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil. Du må justere antall deltakere",
-      besluttelse: TotrinnskontrollStatus.AVVIST,
+      besluttelse: TotrinnskontrollStatus.RETURNERT,
     },
   },
   {
@@ -380,7 +380,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
       besluttetTidspunkt: "2024-01-02T10:00:00",
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil, og bør fikses ved å endre antall deltakere",
-      besluttelse: TotrinnskontrollStatus.AVVIST,
+      besluttelse: TotrinnskontrollStatus.RETURNERT,
     },
   },
   {

@@ -50,7 +50,7 @@ fun QueryContext.setGodkjent(
     ),
 )
 
-fun QueryContext.setAvvist(
+fun QueryContext.setReturnert(
     uuid: UUID,
     type: TotrinnskontrollType,
     behandletAv: NavIdent,
@@ -66,7 +66,7 @@ fun QueryContext.setAvvist(
         behandletTidspunkt = behandletTidspunkt,
         besluttetAv = besluttetAv,
         besluttetTidspunkt = besluttetTidspunkt,
-        status = TotrinnskontrollStatus.AVVIST,
+        status = TotrinnskontrollStatus.RETURNERT,
         aarsaker = listOf("Årsak 1"),
         forklaring = null,
     ),
