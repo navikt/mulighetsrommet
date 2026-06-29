@@ -5880,6 +5880,7 @@ components:
       enum:
       - GODKJENT
       - AVVIST
+      - SATT_PA_VENT
     TotrinnskontrollDto.TilBeslutning:
       type: object
       properties:

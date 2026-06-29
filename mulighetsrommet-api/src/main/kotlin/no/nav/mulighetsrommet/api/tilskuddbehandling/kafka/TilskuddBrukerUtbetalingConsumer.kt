@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
@@ -46,7 +45,7 @@ class TilskuddBrukerUtbetalingConsumer(
         if (totrinnskontrollHendelse.type != TotrinnskontrollType.TILSKUDD_OPPRETTELSE) {
             return
         }
-        if (totrinnskontrollHendelse.besluttelse != TotrinnskontrollBesluttelse.GODKJENT) {
+        if (totrinnskontrollHendelse.besluttelse != TotrinnskontrollHendelse.Besluttelse.GODKJENT) {
             return
         }
 
