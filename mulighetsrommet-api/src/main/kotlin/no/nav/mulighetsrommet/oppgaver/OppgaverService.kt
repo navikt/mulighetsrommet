@@ -270,6 +270,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.behandletTidspunkt.tilNorskLocalDateTime(),
+                arrangor = data.arrangor,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN,
@@ -294,6 +295,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = opprettelse.besluttetTidspunkt.tilNorskLocalDateTime(),
+                arrangor = data.arrangor,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.REDIGER,
@@ -318,6 +320,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = annullering.behandletTidspunkt.tilNorskLocalDateTime(),
+                arrangor = data.arrangor,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN_ANNULLERING,
@@ -342,6 +345,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 tiltakstype = tiltakstype,
                 link = link,
                 createdAt = tilOppgjor.behandletTidspunkt.tilNorskLocalDateTime(),
+                arrangor = data.arrangor,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(
                     TilsagnHandling.GODKJENN_OPPGJOR,
@@ -376,6 +380,7 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = data.opprettelse.behandletTidspunkt,
+                arrangor = data.arrangor,
             ).takeIf {
                 AdminUtbetalingService.tilgangTilHandling(
                     handling = UtbetalingLinjeHandling.ATTESTER,
@@ -397,6 +402,7 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = requireNotNull(data.opprettelse.besluttetTidspunkt),
+                arrangor = data.arrangor,
             ).takeIf {
                 AdminUtbetalingService.tilgangTilHandling(
                     handling = UtbetalingLinjeHandling.SEND_TIL_ATTESTERING,
@@ -436,6 +442,7 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
                     link = "/gjennomforinger/${data.gjennomforing.id}/utbetalinger/${data.id}",
                 ),
                 createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
+                arrangor = data.arrangor,
             ).takeIf { AdminUtbetalingService.tilgangTilHandling(UtbetalingHandling.SEND_TIL_ATTESTERING, ansatt) }
     }
 }
@@ -458,6 +465,7 @@ private fun AvtaleManglerAdministratorOppgaveData.toOppgave(ansatt: NavAnsatt) =
         link = "/avtaler/$id",
     ),
     createdAt = oppdatertTidspunkt,
+    arrangor = arrangor,
 ).takeIf {
     AvtaleService.tilgangTilHandling(AvtaleHandling.REDIGER, ansatt)
 }
@@ -480,6 +488,7 @@ private fun GjennomforingManglerAdministratorOppgaveData.toOppgave(ansatt: NavAn
         link = "/gjennomforinger/$id",
     ),
     createdAt = oppdatertTidspunkt,
+    arrangor = arrangor,
 ).takeIf {
     GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.REDIGER)
 }
@@ -498,6 +507,7 @@ private fun EnkeltplassOppgaveData.toOppgave(ansatt: NavAnsatt): Oppgave? {
             link = "/gjennomforinger/${gjennomforing.id}",
         ),
         createdAt = behandletTidspunkt,
+        arrangor = arrangor,
     ).takeIf {
         behandletAv != ansatt.navIdent && GjennomforingDetaljerService.tilgangTilHandling(
             ansatt,
@@ -521,6 +531,7 @@ private fun EnkeltplassSattPaVentOppgaveData.toOppgave(ansatt: NavAnsatt): Oppga
             link = "/gjennomforinger/${gjennomforing.id}",
         ),
         createdAt = besluttetTidspunkt,
+        arrangor = arrangor,
     ).takeIf {
         GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.OPPRETT_UTBETALING)
     }
@@ -546,6 +557,7 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = data.opprettelse.behandletTidspunkt,
+                arrangor = data.arrangor,
             ).takeIf {
                 data.opprettelse.behandletAv != ansatt.navIdent
             }
@@ -563,6 +575,7 @@ private fun toTilskuddBehandlingOppgave(data: TilskuddBehandlingOppgaveData, ans
                 tiltakstype = data.tiltakstype,
                 link = link,
                 createdAt = data.opprettelse.besluttetTidspunkt,
+                arrangor = data.arrangor,
             )
         }
 

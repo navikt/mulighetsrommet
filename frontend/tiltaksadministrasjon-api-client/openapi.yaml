@@ -7779,7 +7779,12 @@ components:
         createdAt:
           type: string
           format: date-time
+        arrangor:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/OppgaveArrangor"
       required:
+      - arrangor
       - createdAt
       - description
       - enhet
@@ -7819,6 +7824,16 @@ components:
       required:
       - link
       - linkText
+    OppgaveArrangor:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+      - navn
+      - organisasjonsnummer
     OppgaveTypeDto:
       type: object
       properties:

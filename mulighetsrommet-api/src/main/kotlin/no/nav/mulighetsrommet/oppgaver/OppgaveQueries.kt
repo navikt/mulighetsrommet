@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -42,8 +43,11 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype.tiltakskode AS tiltakstype_tiltakskode,
                 tiltakstype.navn AS tiltakstype_navn,
                 tk.behandlet_av,
-                tk.behandlet_tidspunkt
+                tk.behandlet_tidspunkt,
+                arrangor.navn as arrangor_navn,
+                arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             FROM gjennomforing
+            INNER JOIN arrangor on gjennomforing.arrangor_id = arrangor.id
             INNER JOIN tiltakstype ON tiltakstype.id = gjennomforing.tiltakstype_id
             INNER JOIN nav_enhet ON nav_enhet.enhetsnummer = gjennomforing.ansvarlig_enhet
             INNER JOIN (
@@ -76,6 +80,10 @@ class OppgaveQueries(private val session: Session) {
                     id = row.uuid("id"),
                     lopenummer = Tiltaksnummer(row.string("lopenummer")),
                 ),
+                arrangor = OppgaveArrangor(
+                    Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
+                    row.string("arrangor_navn"),
+                ),
             )
         }
     }
@@ -94,8 +102,11 @@ class OppgaveQueries(private val session: Session) {
                 nav_enhet.navn AS ansvarlig_enhet_navn,
                 tiltakstype.tiltakskode AS tiltakstype_tiltakskode,
                 tiltakstype.navn AS tiltakstype_navn,
-                tk.besluttet_tidspunkt
+                tk.besluttet_tidspunkt,
+                arrangor.navn as arrangor_navn,
+                arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             FROM gjennomforing
+            INNER JOIN arrangor on gjennomforing.arrangor_id = arrangor.id
             INNER JOIN tiltakstype ON tiltakstype.id = gjennomforing.tiltakstype_id
             INNER JOIN nav_enhet ON nav_enhet.enhetsnummer = gjennomforing.ansvarlig_enhet
             INNER JOIN (
@@ -114,7 +125,6 @@ class OppgaveQueries(private val session: Session) {
             "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
             "nav_enheter" to navEnheter?.let { session.createArrayOfValue(it) { it.value } },
         )
-
         return session.list(queryOf(query, params)) { row ->
             EnkeltplassSattPaVentOppgaveData(
                 ansvarligEnhet = OppgaveEnhet(
@@ -126,6 +136,10 @@ class OppgaveQueries(private val session: Session) {
                 gjennomforing = OppgaveGjennomforing.Enkeltplass(
                     id = row.uuid("id"),
                     lopenummer = Tiltaksnummer(row.string("lopenummer")),
+                ),
+                arrangor = OppgaveArrangor(
+                    Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
+                    row.string("arrangor_navn"),
                 ),
             )
         }
@@ -143,7 +157,9 @@ class OppgaveQueries(private val session: Session) {
                 oppdatert_tidspunkt,
                 tiltakstype_tiltakskode,
                 tiltakstype_navn,
-                nav_enheter_json
+                nav_enheter_json,
+                arrangor_organisasjonsnummer,
+                arrangor_navn
             from view_gjennomforing
             where (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any(:tiltakskoder))
                 and gjennomforing_type = 'AVTALE'
@@ -170,6 +186,10 @@ class OppgaveQueries(private val session: Session) {
                 oppdatertTidspunkt = row.localDateTime("oppdatert_tidspunkt"),
                 kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
                 tiltakstype = row.toOppgaveTiltakstype(),
+                arrangor = OppgaveArrangor(
+                    Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
+                    row.string("arrangor_navn"),
+                ),
             )
         }
     }
@@ -201,11 +221,14 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype.navn AS tiltakstype_navn,
                 tk.besluttet_tidspunkt,
                 tk.behandlet_tidspunkt,
-                tk.behandlet_av
+                tk.behandlet_av,
+                arrangor.navn as arrangor_navn,
+                arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             FROM utbetaling_linje
             INNER JOIN tilsagn ON tilsagn.id = utbetaling_linje.tilsagn_id
             INNER JOIN nav_enhet ON tilsagn.kostnadssted = nav_enhet.enhetsnummer
             INNER JOIN gjennomforing ON gjennomforing.id = tilsagn.gjennomforing_id
+            LEFT JOIN arrangor on gjennomforing.arrangor_id = arrangor.id
             INNER JOIN tiltakstype ON tiltakstype.id = gjennomforing.tiltakstype_id
             INNER JOIN (
                 SELECT DISTINCT ON (entity_id) *
@@ -241,6 +264,10 @@ class OppgaveQueries(private val session: Session) {
                 ),
                 tiltakstype = row.toOppgaveTiltakstype(),
                 gjennomforing = row.toOppgaveGjennomforing(),
+                arrangor = OppgaveArrangor(
+                    Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
+                    row.string("arrangor_navn"),
+                ),
             )
         }
     }
@@ -261,10 +288,13 @@ class OppgaveQueries(private val session: Session) {
                 gjennomforing.navn                as gjennomforing_navn,
                 gjennomforing.gjennomforing_type,
                 tiltakstype.tiltakskode           as tiltakstype_tiltakskode,
-                tiltakstype.navn                  as tiltakstype_navn
+                tiltakstype.navn                  as tiltakstype_navn,
+                arrangor.navn as arrangor_navn,
+                arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             from tilsagn
                 inner join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
                 inner join gjennomforing on gjennomforing.id = tilsagn.gjennomforing_id
+                inner join arrangor on gjennomforing.arrangor_id = arrangor.id
                 inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
             where
                 (:statuser::text[] is null or tilsagn.status = any(:statuser))
@@ -292,6 +322,10 @@ class OppgaveQueries(private val session: Session) {
                 bestillingsnummer = row.string("bestillingsnummer"),
                 tiltakstype = row.toOppgaveTiltakstype(),
                 gjennomforing = row.toOppgaveGjennomforing(),
+                arrangor = OppgaveArrangor(
+                    Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
+                    row.string("arrangor_navn"),
+                ),
             )
         }
     }
@@ -311,9 +345,12 @@ class OppgaveQueries(private val session: Session) {
                 gjennomforing.gjennomforing_type,
                 tiltakstype.navn as tiltakstype_navn,
                 tiltakstype.tiltakskode as tiltakstype_tiltakskode,
-                ks.kostnadssteder
+                ks.kostnadssteder,
+                arrangor.navn as arrangor_navn,
+                arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             from utbetaling
                 join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
+                inner join arrangor on gjennomforing.arrangor_id = arrangor.id
                 join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
                 left join lateral (
                     select array_agg(tilsagn.kostnadssted) as kostnadssteder
@@ -339,6 +376,10 @@ class OppgaveQueries(private val session: Session) {
                 kostnadssteder = row.arrayOrNull<String>("kostnadssteder")?.map { NavEnhetNummer(it) } ?: emptyList(),
                 tiltakstype = row.toOppgaveTiltakstype(),
                 gjennomforing = row.toOppgaveGjennomforing(),
+                arrangor = OppgaveArrangor(
+                    Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
+                    row.string("arrangor_navn"),
+                ),
             )
         }
     }
@@ -363,7 +404,9 @@ class OppgaveQueries(private val session: Session) {
                 navn,
                 tiltakstype_navn,
                 tiltakstype_tiltakskode,
-                nav_enheter_json
+                nav_enheter_json,
+                arrangor_hovedenhet_organisasjonsnummer,
+                arrangor_hovedenhet_navn
             from view_avtale
             where
                 (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any(:tiltakskoder))
@@ -374,7 +417,6 @@ class OppgaveQueries(private val session: Session) {
                           where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)))
                 and jsonb_array_length(coalesce(administratorer_json, '[]')) = 0
         """.trimIndent()
-
         return session.list(queryOf(query, parameters)) {
             val navEnheter = it.stringOrNull("nav_enheter_json")
                 ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
@@ -385,6 +427,9 @@ class OppgaveQueries(private val session: Session) {
                 kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
                 tiltakstype = it.toOppgaveTiltakstype(),
                 oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
+                arrangor = it.stringOrNull("arrangor_hovedenhet_organisasjonsnummer")?.let { orgnr ->
+                    OppgaveArrangor(Organisasjonsnummer(orgnr), it.string("arrangor_hovedenhet_navn"))
+                },
             )
         }
     }
@@ -409,9 +454,12 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype.navn as tiltakstype_navn,
                 tk.behandlet_av,
                 tk.behandlet_tidspunkt,
-                tk.besluttet_tidspunkt
+                tk.besluttet_tidspunkt,
+                arrangor.navn as arrangor_navn,
+                arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             from tilskudd_behandling tb
                 inner join gjennomforing on gjennomforing.id = tb.gjennomforing_id
+                inner join arrangor on gjennomforing.arrangor_id = arrangor.id
                 inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
                 inner join nav_enhet on nav_enhet.enhetsnummer = tb.kostnadssted
                 inner join (
@@ -447,6 +495,10 @@ class OppgaveQueries(private val session: Session) {
                 ),
                 tiltakstype = row.toOppgaveTiltakstype(),
                 gjennomforing = row.toOppgaveGjennomforing(),
+                arrangor = OppgaveArrangor(
+                    Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
+                    row.string("arrangor_navn"),
+                ),
             )
         }
     }
@@ -463,6 +515,7 @@ data class GjennomforingManglerAdministratorOppgaveData(
     val kontorstruktur: List<Kontorstruktur>,
     val oppdatertTidspunkt: LocalDateTime,
     val tiltakstype: OppgaveTiltakstype,
+    val arrangor: OppgaveArrangor,
 )
 
 data class UtbetalingLinjeOppgaveData(
@@ -475,6 +528,7 @@ data class UtbetalingLinjeOppgaveData(
     val opprettelse: Opprettelse,
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing,
+    val arrangor: OppgaveArrangor,
 ) {
     data class Opprettelse(
         val behandletTidspunkt: LocalDateTime,
@@ -491,6 +545,7 @@ data class TilsagnOppgaveData(
     val bestillingsnummer: String,
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing,
+    val arrangor: OppgaveArrangor,
 )
 
 data class UtbetalingOppgaveData(
@@ -502,6 +557,7 @@ data class UtbetalingOppgaveData(
     val kostnadssteder: List<NavEnhetNummer>,
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing,
+    val arrangor: OppgaveArrangor,
 )
 
 data class AvtaleManglerAdministratorOppgaveData(
@@ -510,6 +566,7 @@ data class AvtaleManglerAdministratorOppgaveData(
     val oppdatertTidspunkt: LocalDateTime,
     val kontorstruktur: List<Kontorstruktur>,
     val tiltakstype: OppgaveTiltakstype,
+    val arrangor: OppgaveArrangor?,
 )
 
 data class EnkeltplassOppgaveData(
@@ -518,6 +575,7 @@ data class EnkeltplassOppgaveData(
     val behandletTidspunkt: LocalDateTime,
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing.Enkeltplass,
+    val arrangor: OppgaveArrangor,
 )
 
 data class EnkeltplassSattPaVentOppgaveData(
@@ -525,6 +583,7 @@ data class EnkeltplassSattPaVentOppgaveData(
     val besluttetTidspunkt: LocalDateTime,
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing.Enkeltplass,
+    val arrangor: OppgaveArrangor,
 )
 
 data class TilskuddBehandlingOppgaveData(
@@ -535,6 +594,7 @@ data class TilskuddBehandlingOppgaveData(
     val opprettelse: Opprettelse,
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing,
+    val arrangor: OppgaveArrangor,
 ) {
     data class Opprettelse(
         val behandletAv: Agent,
