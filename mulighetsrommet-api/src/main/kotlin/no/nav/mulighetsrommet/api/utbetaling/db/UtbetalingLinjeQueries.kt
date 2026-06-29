@@ -127,6 +127,22 @@ class UtbetalingLinjeQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
+    fun setStatusForLinjer(utbetalingId: UUID, status: UtbetalingLinjeStatus) {
+        @Language("PostgreSQL")
+        val query = """
+            update utbetaling_linje
+            set status = :status
+            where utbetaling_id = :utbetaling_id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "utbetaling_id" to utbetalingId,
+            "status" to status.name,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
     fun setFakturaSendtTidspunk(id: UUID, tidspunkt: Instant) {
         @Language("PostgreSQL")
         val query = """

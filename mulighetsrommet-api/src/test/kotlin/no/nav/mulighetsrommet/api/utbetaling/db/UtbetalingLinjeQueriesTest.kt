@@ -24,7 +24,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
         ansatte = listOf(NavAnsattFixture.DonaldDuck),
         avtaler = listOf(AvtaleFixtures.AFT),
         gjennomforinger = listOf(AFT1),
-        tilsagn = listOf(TilsagnFixtures.Tilsagn1),
+        tilsagn = listOf(TilsagnFixtures.Tilsagn1, TilsagnFixtures.Tilsagn2),
         utbetalinger = listOf(UtbetalingFixtures.utbetaling1, UtbetalingFixtures.utbetaling2),
     )
 
@@ -39,6 +39,20 @@ class UtbetalingLinjeQueriesTest : FunSpec({
         periode = UtbetalingFixtures.utbetaling1.periode,
         lopenummer = 1,
         fakturanummer = "1",
+        fakturaStatus = null,
+    )
+
+    val linje2 = UtbetalingLinjeDbo(
+        id = UUID.randomUUID(),
+        tilsagnId = TilsagnFixtures.Tilsagn2.id,
+        utbetalingId = UtbetalingFixtures.utbetaling1.id,
+        status = UtbetalingLinjeStatus.TIL_ATTESTERING,
+        fakturaStatusEndretTidspunkt = Instant.parse("2025-01-01T12:00:00Z"),
+        pris = 200.NOK,
+        gjorOppTilsagn = false,
+        periode = UtbetalingFixtures.utbetaling1.periode,
+        lopenummer = 2,
+        fakturanummer = "2",
         fakturaStatus = null,
     )
 
@@ -111,6 +125,25 @@ class UtbetalingLinjeQueriesTest : FunSpec({
                 it.sendtTidspunkt shouldBe sendtTidspunkt
                 it.statusEndretTidspunkt shouldBe endretTidspunkt
                 it.status shouldBe FakturaStatusType.FULLT_BETALT
+            }
+        }
+    }
+
+    test("set status basert på utbetaling") {
+        database.runAndRollback { session ->
+            domain.setup(session)
+
+            queries.utbetalingLinje.upsert(linje)
+            queries.utbetalingLinje.upsert(linje2)
+
+            queries.utbetalingLinje.getByUtbetalingId(linje.utbetalingId).forEach {
+                it.status shouldBe UtbetalingLinjeStatus.TIL_ATTESTERING
+            }
+
+            queries.utbetalingLinje.setStatusForLinjer(linje.utbetalingId, UtbetalingLinjeStatus.AVBRUTT)
+
+            queries.utbetalingLinje.getByUtbetalingId(linje.utbetalingId).forEach {
+                it.status shouldBe UtbetalingLinjeStatus.AVBRUTT
             }
         }
     }
