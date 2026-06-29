@@ -1,5 +1,5 @@
 import {
-  TotrinnskontrollBesluttelse,
+  TotrinnskontrollStatus,
   TotrinnskontrollDto,
   TotrinnskontrollDtoBesluttet,
   TotrinnskontrollDtoTilBeslutning,
@@ -10,7 +10,7 @@ export function isGodkjent(
 ): totrinnskontroll is TotrinnskontrollDtoBesluttet {
   return (
     isBesluttet(totrinnskontroll) &&
-    totrinnskontroll.besluttelse === TotrinnskontrollBesluttelse.GODKJENT
+    totrinnskontroll.besluttelse === TotrinnskontrollStatus.GODKJENT
   );
 }
 
@@ -18,8 +18,7 @@ export function isAvvist(
   totrinnskontroll: TotrinnskontrollDto | null,
 ): totrinnskontroll is TotrinnskontrollDtoBesluttet {
   return (
-    isBesluttet(totrinnskontroll) &&
-    totrinnskontroll.besluttelse === TotrinnskontrollBesluttelse.AVVIST
+    isBesluttet(totrinnskontroll) && totrinnskontroll.besluttelse === TotrinnskontrollStatus.AVVIST
   );
 }
 
@@ -37,7 +36,7 @@ export function isSattPaVent(
 ): totrinnskontroll is TotrinnskontrollDtoBesluttet {
   return (
     isBesluttet(totrinnskontroll) &&
-    totrinnskontroll.besluttelse === TotrinnskontrollBesluttelse.SATT_PA_VENT
+    totrinnskontroll.besluttelse === TotrinnskontrollStatus.SATT_PA_VENT
   );
 }
 

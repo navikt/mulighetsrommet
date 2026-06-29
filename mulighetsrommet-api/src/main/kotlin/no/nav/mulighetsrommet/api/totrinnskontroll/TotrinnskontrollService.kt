@@ -12,8 +12,8 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.toAgentHendelse
 import no.nav.mulighetsrommet.model.Agent
@@ -56,11 +56,11 @@ class TotrinnskontrollService(private val topic: String) {
             id = id,
             entityId = entityId,
             type = type,
+            status = TotrinnskontrollStatus.TIL_BEHANDLING,
             behandletAv = behandletAv,
             behandletTidspunkt = instantAsMicros(),
             besluttetAv = null,
             besluttetTidspunkt = null,
-            besluttelse = null,
             aarsaker = aarsaker,
             forklaring = forklaring,
         )
@@ -72,18 +72,18 @@ class TotrinnskontrollService(private val topic: String) {
         existing: Totrinnskontroll,
         nyBehandletAv: Agent,
     ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
-        if (existing.besluttelse != TotrinnskontrollBesluttelse.SATT_PA_VENT) {
+        if (existing.status != TotrinnskontrollStatus.SATT_PA_VENT) {
             return FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent").nel().left()
         }
         val dbo = TotrinnskontrollDbo(
             id = existing.id,
             entityId = existing.entityId,
             type = existing.type,
+            status = TotrinnskontrollStatus.TIL_BEHANDLING,
             behandletAv = nyBehandletAv,
             behandletTidspunkt = instantAsMicros(),
             besluttetAv = null,
             besluttetTidspunkt = null,
-            besluttelse = null,
             aarsaker = existing.aarsaker,
             forklaring = null,
         )
@@ -96,8 +96,8 @@ class TotrinnskontrollService(private val topic: String) {
         existing: Totrinnskontroll,
         besluttetAv: Agent,
     ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
-        if (existing.besluttelse == TotrinnskontrollBesluttelse.GODKJENT) {
-            return alleredeBesluttetError(existing.besluttelse)
+        if (existing.status == TotrinnskontrollStatus.GODKJENT) {
+            return alleredeBesluttetError(existing.status)
         }
         if (besluttetAv is NavIdent && besluttetAv == existing.behandletAv) {
             return FieldError.of("Du kan ikke beslutte noe du selv har behandlet").nel().left()
@@ -110,7 +110,7 @@ class TotrinnskontrollService(private val topic: String) {
             behandletTidspunkt = existing.behandletTidspunkt,
             besluttetAv = besluttetAv,
             besluttetTidspunkt = instantAsMicros(),
-            besluttelse = TotrinnskontrollBesluttelse.GODKJENT,
+            status = TotrinnskontrollStatus.GODKJENT,
             aarsaker = existing.aarsaker,
             forklaring = existing.forklaring,
         )
@@ -125,8 +125,8 @@ class TotrinnskontrollService(private val topic: String) {
         aarsaker: List<String> = emptyList(),
         forklaring: String? = null,
     ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
-        if (existing.besluttelse != null && besluttetAv is NavIdent) {
-            return alleredeBesluttetError(existing.besluttelse)
+        if (existing.status != TotrinnskontrollStatus.TIL_BEHANDLING && besluttetAv is NavIdent) {
+            return alleredeBesluttetError(existing.status)
         }
         val dbo = TotrinnskontrollDbo(
             id = existing.id,
@@ -136,7 +136,7 @@ class TotrinnskontrollService(private val topic: String) {
             behandletTidspunkt = existing.behandletTidspunkt,
             besluttetAv = besluttetAv,
             besluttetTidspunkt = instantAsMicros(),
-            besluttelse = TotrinnskontrollBesluttelse.AVVIST,
+            status = TotrinnskontrollStatus.AVVIST,
             aarsaker = aarsaker.ifEmpty { existing.aarsaker },
             forklaring = forklaring ?: existing.forklaring,
         )
@@ -145,14 +145,14 @@ class TotrinnskontrollService(private val topic: String) {
     }
 
     context(tx: TransactionalQueryContext)
-    fun paVent(
+    fun sattPaVent(
         existing: Totrinnskontroll,
         besluttetAv: Agent,
         aarsaker: List<String> = emptyList(),
         forklaring: String? = null,
     ): Either<NonEmptyList<FieldError>, TotrinnskontrollDbo> {
-        if (existing.besluttelse != null && besluttetAv is NavIdent) {
-            return alleredeBesluttetError(existing.besluttelse)
+        if (existing.status != TotrinnskontrollStatus.TIL_BEHANDLING && besluttetAv is NavIdent) {
+            return alleredeBesluttetError(existing.status)
         }
         val dbo = TotrinnskontrollDbo(
             id = existing.id,
@@ -162,7 +162,7 @@ class TotrinnskontrollService(private val topic: String) {
             behandletTidspunkt = existing.behandletTidspunkt,
             besluttetAv = besluttetAv,
             besluttetTidspunkt = instantAsMicros(),
-            besluttelse = TotrinnskontrollBesluttelse.SATT_PA_VENT,
+            status = TotrinnskontrollStatus.SATT_PA_VENT,
             aarsaker = aarsaker.ifEmpty { existing.aarsaker },
             forklaring = forklaring ?: existing.forklaring,
         )
@@ -181,15 +181,12 @@ class TotrinnskontrollService(private val topic: String) {
             behandletTidspunkt = dbo.behandletTidspunkt,
             besluttetAv = dbo.besluttetAv?.toAgentHendelse(),
             besluttetTidspunkt = dbo.besluttetTidspunkt,
-            besluttelse = when (dbo.besluttelse) {
-                TotrinnskontrollBesluttelse.GODKJENT -> TotrinnskontrollHendelse.Besluttelse.GODKJENT
-
-                TotrinnskontrollBesluttelse.AVVIST -> TotrinnskontrollHendelse.Besluttelse.AVVIST
-
-                // TODO: introdusere ny tilstand på topic når komet er klar for mottakelse
-                TotrinnskontrollBesluttelse.SATT_PA_VENT -> TotrinnskontrollHendelse.Besluttelse.AVVIST
-
-                null -> null
+            // TODO: introdusere ny tilstand på topic når komet er klar for mottakelse
+            besluttelse = when (dbo.status) {
+                TotrinnskontrollStatus.TIL_BEHANDLING -> null
+                TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollHendelse.Besluttelse.GODKJENT
+                TotrinnskontrollStatus.AVVIST -> TotrinnskontrollHendelse.Besluttelse.AVVIST
+                TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollHendelse.Besluttelse.AVVIST
             },
             aarsaker = dbo.aarsaker,
             forklaring = dbo.forklaring,
@@ -207,11 +204,12 @@ class TotrinnskontrollService(private val topic: String) {
 
 private fun instantAsMicros(): Instant = Instant.now().truncatedTo(ChronoUnit.MICROS)
 
-private fun alleredeBesluttetError(besluttelse: TotrinnskontrollBesluttelse): Either<NonEmptyList<FieldError>, Nothing> {
-    val besluttelse = when (besluttelse) {
-        TotrinnskontrollBesluttelse.AVVIST -> "avvist"
-        TotrinnskontrollBesluttelse.GODKJENT -> "godkjent"
-        TotrinnskontrollBesluttelse.SATT_PA_VENT -> "satt på vent"
+private fun alleredeBesluttetError(status: TotrinnskontrollStatus): Either<NonEmptyList<FieldError>, Nothing> {
+    val besluttelse = when (status) {
+        TotrinnskontrollStatus.AVVIST -> "avvist"
+        TotrinnskontrollStatus.GODKJENT -> "godkjent"
+        TotrinnskontrollStatus.SATT_PA_VENT -> "satt på vent"
+        TotrinnskontrollStatus.TIL_BEHANDLING -> error("Totrinnskontroll er til behandling")
     }
     return FieldError.of("Totrinnskontrollen er allerede $besluttelse").nel().left()
 }

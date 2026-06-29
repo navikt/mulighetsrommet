@@ -5859,7 +5859,7 @@ components:
           type: string
           format: date-time
         besluttelse:
-          $ref: "#/components/schemas/TotrinnskontrollBesluttelse"
+          $ref: "#/components/schemas/TotrinnskontrollStatus"
       required:
       - aarsaker
       - behandletAv
@@ -5875,12 +5875,13 @@ components:
           type: string
       required:
       - navn
-    TotrinnskontrollBesluttelse:
+    TotrinnskontrollStatus:
       type: string
       enum:
+      - TIL_BEHANDLING
+      - SATT_PA_VENT
       - GODKJENT
       - AVVIST
-      - SATT_PA_VENT
     TotrinnskontrollDto.TilBeslutning:
       type: object
       properties:

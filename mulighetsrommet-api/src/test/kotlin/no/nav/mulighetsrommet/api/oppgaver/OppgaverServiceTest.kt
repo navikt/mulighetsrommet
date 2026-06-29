@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.fixtures.setAvvist
 import no.nav.mulighetsrommet.api.fixtures.setGodkjent
-import no.nav.mulighetsrommet.api.fixtures.setTilGodkjenning
+import no.nav.mulighetsrommet.api.fixtures.setTilBehandling
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.fixtures.toNavAnsatt
@@ -665,7 +665,7 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                setTilGodkjenning(
+                setTilBehandling(
                     GjennomforingFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
@@ -690,7 +690,7 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                setTilGodkjenning(
+                setTilBehandling(
                     GjennomforingFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
@@ -713,7 +713,7 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                setTilGodkjenning(
+                setTilBehandling(
                     GjennomforingFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
@@ -832,7 +832,7 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                setTilGodkjenning(
+                setTilBehandling(
                     GjennomforingFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
@@ -864,12 +864,12 @@ class OppgaverServiceTest : FunSpec({
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 gjennomforinger = listOf(enkeltplassInnlandet, enkeltplassOslo),
             ) {
-                setTilGodkjenning(
+                setTilBehandling(
                     enkeltplassInnlandet.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-                setTilGodkjenning(
+                setTilBehandling(
                     enkeltplassOslo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
@@ -898,7 +898,7 @@ class OppgaverServiceTest : FunSpec({
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
                 queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
-                setTilGodkjenning(
+                setTilBehandling(
                     TilskuddFixtures.Behandling.id,
                     TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
@@ -924,7 +924,7 @@ class OppgaverServiceTest : FunSpec({
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
                 queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
-                setTilGodkjenning(
+                setTilBehandling(
                     TilskuddFixtures.Behandling.id,
                     TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
@@ -1034,13 +1034,13 @@ class OppgaverServiceTest : FunSpec({
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
                 queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
-                setTilGodkjenning(
+                setTilBehandling(
                     TilskuddFixtures.Behandling.id,
                     TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
                 queries.tilskuddBehandling.upsert(behandlingOslo)
-                setTilGodkjenning(
+                setTilBehandling(
                     behandlingOslo.id,
                     TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,

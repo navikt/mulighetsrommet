@@ -31,7 +31,7 @@ import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
 import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -223,10 +223,10 @@ class GjennomforingDetaljerService(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
-                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.besluttelse == null
+                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.status == TotrinnskontrollStatus.TIL_BEHANDLING
             },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
-                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.besluttelse != TotrinnskontrollBesluttelse.GODKJENT
+                totrinnskontroll != null && totrinnskontroll.behandletAv != ansatt.navIdent && totrinnskontroll.status != TotrinnskontrollStatus.GODKJENT
             },
         )
             .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }

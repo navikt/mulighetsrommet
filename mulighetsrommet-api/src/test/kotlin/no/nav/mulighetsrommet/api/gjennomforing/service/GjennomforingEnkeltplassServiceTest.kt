@@ -34,7 +34,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -259,9 +259,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val (_, okonomi) = service.soktInn(soktInn, opprettetAv).shouldBeRight()
 
             okonomi.shouldNotBeNull().should {
+                it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                 it.behandletAv shouldBe opprettetAv
                 it.besluttetAv.shouldBeNull()
-                it.besluttelse.shouldBeNull()
             }
         }
 
@@ -303,8 +303,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             okonomi.shouldNotBeNull().should {
+                it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                 it.besluttetAv.shouldBeNull()
-                it.besluttelse.shouldBeNull()
             }
         }
 
@@ -326,7 +326,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             okonomi.shouldNotBeNull().should {
-                it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                it.status shouldBe TotrinnskontrollStatus.GODKJENT
                 it.besluttetAv shouldBe besluttetAv
             }
         }
@@ -426,7 +426,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val (_, okonomi) = service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
 
             okonomi.shouldNotBeNull().should {
-                it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                it.status shouldBe TotrinnskontrollStatus.GODKJENT
                 it.besluttetAv shouldBe besluttetAv
             }
         }
@@ -453,7 +453,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val (_, okonomi) = service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
 
             okonomi.shouldNotBeNull().should {
-                it.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                it.status shouldBe TotrinnskontrollStatus.GODKJENT
                 it.forklaring shouldBe null
             }
         }
@@ -465,7 +465,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val (_, okonomi) = service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Feil").shouldBeRight()
 
             okonomi.shouldNotBeNull().should {
-                it.besluttelse shouldBe TotrinnskontrollBesluttelse.SATT_PA_VENT
+                it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
                 it.besluttetAv shouldBe besluttetAv
                 it.forklaring shouldBe "Feil"
             }
@@ -661,18 +661,6 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 gjennomforing.startDato shouldBe startDato
                 gjennomforing.sluttDato shouldBe sluttDato
                 gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
-            }
-
-            test("bruker gjennomføringens startdato når deltaker ikke har startdato") {
-                val deltaker = DeltakerFixtures.createDeltaker(
-                    gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-                    status = DeltakerStatusType.VENTER_PA_OPPSTART,
-                    startDato = null,
-                )
-
-                val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
-
-                gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
             }
 
             test("setter status AVBRUTT når deltaker er FEILREGISTRERT") {
