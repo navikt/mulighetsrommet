@@ -105,7 +105,7 @@ class OppgaveQueries(private val session: Session) {
                 ORDER BY entity_id, behandlet_tidspunkt DESC
             ) tk ON tk.entity_id = gjennomforing.id
             WHERE gjennomforing.gjennomforing_type = 'ENKELTPLASS'
-                AND tk.status = 'AVVIST'
+                AND tk.status = 'SATT_PA_VENT'
                 AND (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
                 AND (:nav_enheter::text[] IS NULL OR gjennomforing.ansvarlig_enhet = ANY(:nav_enheter))
         """.trimIndent()
