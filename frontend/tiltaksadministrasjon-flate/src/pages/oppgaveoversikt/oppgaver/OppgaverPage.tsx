@@ -10,7 +10,6 @@ import { OppgaverFilter } from "@/components/filter/OppgaverFilter";
 import { OppgaveFilterTags } from "@/components/filter/OppgaverFilterTags";
 import { ContentBox } from "@/layouts/ContentBox";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { OppgaverFilterSchema } from "@/pages/oppgaveoversikt/oppgaver/filter";
 import { useOppgaverSavedFilterState } from "@/filter/useSavedFiltersState";
 import OppgaverList from "@/components/oppgaver/OppgaveList";
 
@@ -49,9 +48,6 @@ export function OppgaverPage() {
             onSelectFilterId={selectFilter}
             onDeleteFilter={deleteFilter}
             onSetDefaultFilter={setDefaultFilter}
-            validateFilterStructure={(filter) => {
-              return OppgaverFilterSchema.safeParse(filter).success;
-            }}
           />
         }
         tags={

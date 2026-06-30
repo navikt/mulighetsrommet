@@ -7,7 +7,7 @@ import { useMemo, useCallback, memo, useState, useRef } from "react";
 interface Props {
   filter: string[];
   updateFilter: (s: string[]) => void;
-  arrangorKobling: ArrangorKobling;
+  arrangorKobling?: ArrangorKobling;
 }
 
 export const ArrangorerFilter = memo(function ArrangorerFilter({

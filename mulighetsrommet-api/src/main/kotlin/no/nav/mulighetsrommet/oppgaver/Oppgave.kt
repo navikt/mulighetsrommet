@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.oppgaver
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -21,6 +22,15 @@ data class Oppgave(
     val link: OppgaveLink,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
+    val arrangor: OppgaveArrangor?,
+)
+
+@Serializable
+data class OppgaveArrangor(
+    val organisasjonsnummer: Organisasjonsnummer,
+    val navn: String,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
 )
 
 @Serializable

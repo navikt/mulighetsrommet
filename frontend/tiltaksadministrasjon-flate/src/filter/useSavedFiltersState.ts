@@ -24,12 +24,15 @@ function useSavedFiltersState<T extends object>(
 
   const [{ filter, defaultFilter }, dispatch] = useAtom(filterStateAtom);
 
+  const parsedFilters = useMemo(
+    () => filters.map((f) => ({ ...f, values: parser(f.filter) })),
+    [filters, parser],
+  );
+
   const savedDefaultFilter = useMemo(() => {
-    const defaultFilter = filters.find((f) => f.isDefault);
-    return defaultFilter
-      ? { id: defaultFilter.id, values: parser(defaultFilter.filter) }
-      : undefined;
-  }, [filters, parser]);
+    const def = parsedFilters.find((f) => f.isDefault);
+    return def ? { id: def.id, values: def.values } : undefined;
+  }, [parsedFilters]);
 
   useEffect(() => {
     dispatch({ type: "UPDATE_DEFAULT", payload: savedDefaultFilter });
@@ -48,18 +51,15 @@ function useSavedFiltersState<T extends object>(
 
   const selectFilter = useCallback(
     (filterId: string) => {
-      const savedFilter = filters.find((f) => f.id === filterId);
+      const savedFilter = parsedFilters.find((f) => f.id === filterId);
       if (savedFilter) {
         dispatch({
           type: "SELECT_FILTER",
-          payload: {
-            id: filterId,
-            values: parser(savedFilter.filter),
-          },
+          payload: { id: savedFilter.id, values: savedFilter.values },
         });
       }
     },
-    [filters, dispatch, parser],
+    [parsedFilters, dispatch],
   );
 
   const hasChanged = useMemo(
@@ -73,7 +73,7 @@ function useSavedFiltersState<T extends object>(
     resetFilterToDefault,
     selectFilter,
     hasChanged,
-    filters,
+    filters: parsedFilters,
     saveFilter,
     deleteFilter,
     setDefaultFilter,

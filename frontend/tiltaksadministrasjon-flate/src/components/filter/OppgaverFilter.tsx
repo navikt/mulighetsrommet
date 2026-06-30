@@ -10,6 +10,7 @@ import { OppgaveType } from "@tiltaksadministrasjon/api-client";
 import { OppgaveTypeFilter } from "@/components/filter/OppgaveTypeFilter";
 import { NavRegionFilter } from "@/components/filter/NavRegionFilter";
 import { GjennomforingTiltakstypeFilter } from "./GjennomforingTiltakstypeFilter";
+import { ArrangorerFilter } from "./ArrangorerFilter";
 
 interface Props {
   filter: OppgaverFilterType;
@@ -67,6 +68,24 @@ export function OppgaverFilter({ filter, updateFilter }: Props) {
             <GjennomforingTiltakstypeFilter
               value={filter.tiltakstyper}
               onChange={(tiltakstyper) => updateFilter({ tiltakstyper })}
+            />
+          </Accordion.Content>
+        </Accordion.Item>
+        <Accordion.Item open={accordionsOpen.includes("arrangor")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "arrangor")]);
+            }}
+          >
+            <FilterAccordionHeader
+              tittel="Arrangør"
+              antallValgteFilter={filter.arrangorer.length}
+            />
+          </Accordion.Header>
+          <Accordion.Content>
+            <ArrangorerFilter
+              filter={filter.arrangorer}
+              updateFilter={(arrangorer) => updateFilter({ arrangorer })}
             />
           </Accordion.Content>
         </Accordion.Item>
