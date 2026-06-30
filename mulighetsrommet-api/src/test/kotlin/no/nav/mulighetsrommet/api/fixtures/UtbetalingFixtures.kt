@@ -226,5 +226,8 @@ fun QueryContext.setUtbetalingLinjeStatus(
                 besluttetTidspunkt = besluttetTidspunkt,
             )
         }
+
+        UtbetalingLinjeStatus.AVBRUTT ->
+            Unit
     }
 }

@@ -549,6 +549,48 @@ class OppgaverServiceTest : FunSpec({
                 ) shouldMatchAllOppgaver expectedOppgaver
             }
         }
+
+        test("skal ikke se utbetalingslinje oppgaver for avbrutte utbetalinger") {
+            val service = OppgaverService(database.db, features())
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                navEnheter = listOf(
+                    NavEnhetFixtures.Innlandet,
+                    NavEnhetFixtures.Gjovik,
+                    NavEnhetFixtures.Oslo,
+                    NavEnhetFixtures.TiltakOslo,
+                ),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                tilsagn = listOf(
+                    TilsagnFixtures.Tilsagn1,
+                    TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                ),
+                utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
+                utbetalingLinjer = listOf(
+                    UtbetalingFixtures.utbetalingLinje1,
+                    UtbetalingFixtures.utbetalingLinje2,
+                ),
+            ) {
+                setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
+                setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
+                setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje1, UtbetalingLinjeStatus.RETURNERT)
+                setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje2, UtbetalingLinjeStatus.AVBRUTT)
+            }.initialize(database.db)
+
+            // Skal se utbetaling til godkjenning når ansatt har attestant-rolle
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.UTBETALING_RETURNERT),
+                tiltakskoder = setOf(),
+                regioner = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(UtbetalingFixtures.utbetalingLinje1.id, OppgaveType.UTBETALING_RETURNERT),
+            )
+        }
     }
 
     context("utbetalinger") {

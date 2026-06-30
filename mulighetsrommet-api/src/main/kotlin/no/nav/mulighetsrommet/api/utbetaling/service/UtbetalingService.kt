@@ -298,6 +298,7 @@ class UtbetalingService(
         }
 
         queries.utbetaling.avbrytUtbetaling(utbetalingId, begrunnelse, Instant.now())
+        queries.utbetalingLinje.setStatusForLinjer(utbetalingId, UtbetalingLinjeStatus.AVBRUTT)
 
         logEndring("Utbetaling avbrutt", utbetaling.id, agent).right()
     }
