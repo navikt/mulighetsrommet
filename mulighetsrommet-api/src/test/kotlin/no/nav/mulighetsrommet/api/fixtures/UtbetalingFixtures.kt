@@ -228,12 +228,6 @@ fun QueryContext.setUtbetalingLinjeStatus(
         }
 
         UtbetalingLinjeStatus.AVBRUTT ->
-            setAvbrutt(
-                dto.id,
-                TotrinnskontrollType.UTBETALING_AVBRUTT,
-                behandletAv,
-                besluttetAv,
-                besluttetTidspunkt = besluttetTidspunkt,
-            )
+            Unit
     }
 }

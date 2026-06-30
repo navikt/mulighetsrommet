@@ -71,25 +71,3 @@ fun QueryContext.setAvvist(
         forklaring = null,
     ),
 )
-
-fun QueryContext.setAvbrutt(
-    uuid: UUID,
-    type: TotrinnskontrollType,
-    behandletAv: NavIdent,
-    besluttetAv: NavIdent,
-    behandletTidspunkt: Instant = Instant.now(),
-    besluttetTidspunkt: Instant = Instant.now(),
-) = queries.totrinnskontroll.upsert(
-    TotrinnskontrollDbo(
-        id = UUID.randomUUID(),
-        entityId = uuid,
-        type = type,
-        behandletAv = behandletAv,
-        behandletTidspunkt = behandletTidspunkt,
-        besluttetAv = besluttetAv,
-        besluttetTidspunkt = besluttetTidspunkt,
-        besluttelse = TotrinnskontrollBesluttelse.AVVIST,
-        aarsaker = listOf("Årsak 1"),
-        forklaring = null,
-    ),
-)
