@@ -477,6 +477,11 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Stengt periode",
+              "value": "07.01.2025 - 13.01.2025"
+            },
+            {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Sats",
               "value": "1000",
@@ -692,6 +697,11 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
               "type": "description-list",
               "entries": [
                 {
+                  "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+                  "label": "Stengt periode",
+                  "value": "07.01.2025 - 13.01.2025"
+                },
+                {
                   "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
                   "label": "Avtalt pris per time oppfølging",
                   "value": "34",
@@ -901,6 +911,11 @@ private val expectedJournalpostFastSatsContent = """
         {
           "type": "description-list",
           "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Stengt periode",
+              "value": "07.01.2025 - 13.01.2025"
+            },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Sats",
@@ -1331,6 +1346,11 @@ private val expectedJournalpostTimesPrisContent = """
         {
           "type": "description-list",
           "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Stengt periode",
+              "value": "07.01.2025 - 13.01.2025"
+            },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Avtalt pris per time oppfølging",

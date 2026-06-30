@@ -577,13 +577,14 @@ data class OpprettKravDeltakere(
                         )
                     },
                 ),
-                tabellFooter = tableFooter(satser, deltakelsePerioder.size),
+                tabellFooter = tableFooter(satser, deltakelsePerioder.size, stengtHosArrangor),
             ).right()
         }
 
         fun tableFooter(
             satser: Set<SatsPeriode>,
             antallDeltakere: Int,
+            stengtHosArrangor: Set<StengtPeriode>,
         ): List<DataDetails> {
             return listOf(
                 DataDetails(
@@ -595,7 +596,7 @@ data class OpprettKravDeltakere(
                     ),
                 ),
             ) +
-                beregningSatsPeriodeDetaljerUtenFaktor(satser.toList(), "Avtalt pris per time oppfølging")
+                beregningSatsPeriodeDetaljerUtenFaktor(satser.toList(), "Avtalt pris per time oppfølging", stengtHosArrangor)
         }
     }
 
