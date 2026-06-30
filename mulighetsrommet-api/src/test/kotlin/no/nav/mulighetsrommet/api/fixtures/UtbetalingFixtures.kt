@@ -218,7 +218,7 @@ fun QueryContext.setUtbetalingLinjeStatus(
         }
 
         UtbetalingLinjeStatus.RETURNERT -> {
-            setAvvist(
+            setReturnert(
                 dto.id,
                 TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
                 behandletAv,

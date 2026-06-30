@@ -725,7 +725,7 @@ class UtbetalingService(
     ) {
         queries.utbetalingLinje.setStatus(utbetalingLinjeId, UtbetalingLinjeStatus.RETURNERT)
         val opprettelse = getTotrinnskontroll(utbetalingLinjeId)
-        totrinnskontroll.avvist(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring).onLeft {
+        totrinnskontroll.returnert(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring).onLeft {
             throw UtbetalingException(it)
         }
     }

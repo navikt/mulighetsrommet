@@ -3538,7 +3538,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 19
+        - 20
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -5881,7 +5881,7 @@ components:
       - TIL_BEHANDLING
       - SATT_PA_VENT
       - GODKJENT
-      - AVVIST
+      - RETURNERT
     TotrinnskontrollDto.TilBeslutning:
       type: object
       properties:

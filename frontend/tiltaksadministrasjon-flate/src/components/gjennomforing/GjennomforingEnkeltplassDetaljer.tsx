@@ -26,7 +26,7 @@ import {
   TotrinnskontrollDtoBesluttet,
   UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
-import { isSattPaVent } from "@/utils/totrinnskontroll";
+import { erSattPaVent } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { useState } from "react";
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
@@ -139,7 +139,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
           <DetaljerLayout>
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
             {enkeltplassDeltaker && <BetalingsbetingelserEnkeltplass prismodell={prismodell} />}
-            {isSattPaVent(okonomi) && <OkonomiStatusSattPaVent okonomi={okonomi} />}
+            {erSattPaVent(okonomi) && <OkonomiStatusSattPaVent okonomi={okonomi} />}
           </DetaljerLayout>
         </TwoColumnGrid>
         <Separator />

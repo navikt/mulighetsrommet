@@ -21,9 +21,9 @@ import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.TilskuddFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
-import no.nav.mulighetsrommet.api.fixtures.setAvvist
 import no.nav.mulighetsrommet.api.fixtures.setGodkjent
 import no.nav.mulighetsrommet.api.fixtures.setPaVent
+import no.nav.mulighetsrommet.api.fixtures.setReturnert
 import no.nav.mulighetsrommet.api.fixtures.setTilBehandling
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
@@ -888,7 +888,7 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                setAvvist(
+                setReturnert(
                     GjennomforingFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
@@ -913,7 +913,7 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-                setAvvist(
+                setReturnert(
                     GjennomforingFixtures.EnkelAmo.id,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
@@ -1059,7 +1059,7 @@ class OppgaverServiceTest : FunSpec({
                         status = TilskuddBehandlingStatus.RETURNERT,
                     ),
                 )
-                setAvvist(
+                setReturnert(
                     TilskuddFixtures.Behandling.id,
                     TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,

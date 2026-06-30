@@ -16,7 +16,7 @@ import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { UtbetalingLinjeStatusTag } from "./UtbetalingLinjeStatusTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
-import { isAvvist, isBesluttet } from "@/utils/totrinnskontroll";
+import { erReturnert, erBesluttet } from "@/utils/totrinnskontroll";
 
 interface Props {
   gjennomforingId: string;
@@ -36,9 +36,9 @@ export function UtbetalingLinjeRow({
   checkboxInput = null,
   errors = [],
 }: Props) {
-  const [opened, setOpened] = useState(isBesluttet(linje.opprettelse) || errors.length > 0);
+  const [opened, setOpened] = useState(erBesluttet(linje.opprettelse) || errors.length > 0);
 
-  const openRow = opened || isBesluttet(linje.opprettelse) || errors.length > 0;
+  const openRow = opened || erBesluttet(linje.opprettelse) || errors.length > 0;
 
   return (
     <Table.ExpandableRow
@@ -49,7 +49,7 @@ export function UtbetalingLinjeRow({
       className={`[&>td:nth-of-type(-n+5)]:bg-ax-neutral-200`}
       content={
         <VStack gap="space-16">
-          {isAvvist(linje.opprettelse) ? (
+          {erReturnert(linje.opprettelse) ? (
             <VStack>
               {linje.opprettelse.aarsaker.includes(
                 UtbetalingLinjeReturnertAarsak.PROPAGERT_RETUR,

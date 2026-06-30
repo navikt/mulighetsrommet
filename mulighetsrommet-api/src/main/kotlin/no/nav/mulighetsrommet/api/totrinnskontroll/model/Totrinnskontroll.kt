@@ -44,5 +44,5 @@ enum class TotrinnskontrollStatus {
     TIL_BEHANDLING,
     SATT_PA_VENT,
     GODKJENT,
-    AVVIST,
+    RETURNERT,
 }

@@ -30,7 +30,7 @@ import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import { Handlinger } from "@/components/handlinger/Handlinger";
-import { isAvvist } from "@/utils/totrinnskontroll";
+import { erReturnert } from "@/utils/totrinnskontroll";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { TotaltBelopBox } from "@/components/tilskudd-behandling/TotaltBelopBox";
@@ -87,7 +87,7 @@ export function TilskuddBehandlingDetaljerPage() {
   const kanAttesteres = handlinger.includes(TilskuddBehandlingHandling.ATTESTER);
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
-      {isAvvist(opprettelse) && (
+      {erReturnert(opprettelse) && (
         <ToTrinnsOpprettelsesForklaring
           heading="Behandlingen ble returnert"
           opprettelse={opprettelse}

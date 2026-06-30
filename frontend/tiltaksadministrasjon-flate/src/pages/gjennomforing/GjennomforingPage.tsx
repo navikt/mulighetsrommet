@@ -19,7 +19,7 @@ import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { GjennomforingEnkeltplassIkon } from "@/components/ikoner/GjennomforingEnkeltplassIkon";
 import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
-import { isGodkjent } from "@/utils/totrinnskontroll";
+import { erGodkjent } from "@/utils/totrinnskontroll";
 import { DeltakerHeader } from "@/components/gjennomforing/DeltakerHeader";
 
 export function GjennomforingPage() {
@@ -153,7 +153,7 @@ function enkeltplassTabs(
   okonomi: TotrinnskontrollDto | null,
 ): TabConfig[] {
   // Ingen tabs før økonomi er godkjent
-  if (!okonomi || !isGodkjent(okonomi)) {
+  if (!okonomi || !erGodkjent(okonomi)) {
     return ENKELTPLASS_INGEN_KOSTNADER_TABS;
   }
   switch (prismodell) {

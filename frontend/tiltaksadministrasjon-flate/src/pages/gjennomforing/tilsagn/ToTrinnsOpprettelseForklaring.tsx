@@ -1,13 +1,12 @@
 import {
   TilsagnStatusAarsak,
-  TotrinnskontrollStatus,
   TilskuddBehandlingStatusAarsak,
   TotrinnskontrollDto,
 } from "@tiltaksadministrasjon/api-client";
 import { AarsakerOgForklaring } from "./AarsakerOgForklaring";
 import { aarsakTilTekst } from "@/utils/Utils";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { isBesluttet } from "@/utils/totrinnskontroll";
+import { erReturnert, erBesluttet } from "@/utils/totrinnskontroll";
 
 type Props = {
   heading: string;
@@ -15,7 +14,7 @@ type Props = {
 };
 
 export function ToTrinnsOpprettelsesForklaring({ heading, opprettelse }: Props) {
-  if (!isBesluttet(opprettelse) || opprettelse.besluttelse !== TotrinnskontrollStatus.AVVIST) {
+  if (!erBesluttet(opprettelse) || !erReturnert(opprettelse)) {
     return null;
   }
 

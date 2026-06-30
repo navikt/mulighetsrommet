@@ -1,28 +1,38 @@
 import {
-  TotrinnskontrollStatus,
   TotrinnskontrollDto,
   TotrinnskontrollDtoBesluttet,
   TotrinnskontrollDtoTilBeslutning,
+  TotrinnskontrollStatus,
 } from "@tiltaksadministrasjon/api-client";
 
-export function isGodkjent(
+export function erSattPaVent(
   totrinnskontroll: TotrinnskontrollDto | null,
 ): totrinnskontroll is TotrinnskontrollDtoBesluttet {
   return (
-    isBesluttet(totrinnskontroll) &&
+    erBesluttet(totrinnskontroll) &&
+    totrinnskontroll.besluttelse === TotrinnskontrollStatus.SATT_PA_VENT
+  );
+}
+
+export function erGodkjent(
+  totrinnskontroll: TotrinnskontrollDto | null,
+): totrinnskontroll is TotrinnskontrollDtoBesluttet {
+  return (
+    erBesluttet(totrinnskontroll) &&
     totrinnskontroll.besluttelse === TotrinnskontrollStatus.GODKJENT
   );
 }
 
-export function isAvvist(
+export function erReturnert(
   totrinnskontroll: TotrinnskontrollDto | null,
 ): totrinnskontroll is TotrinnskontrollDtoBesluttet {
   return (
-    isBesluttet(totrinnskontroll) && totrinnskontroll.besluttelse === TotrinnskontrollStatus.AVVIST
+    erBesluttet(totrinnskontroll) &&
+    totrinnskontroll.besluttelse === TotrinnskontrollStatus.RETURNERT
   );
 }
 
-export function isBesluttet(
+export function erBesluttet(
   totrinnskontroll: TotrinnskontrollDto | null,
 ): totrinnskontroll is TotrinnskontrollDtoBesluttet {
   return (
@@ -31,16 +41,7 @@ export function isBesluttet(
   );
 }
 
-export function isSattPaVent(
-  totrinnskontroll: TotrinnskontrollDto | null,
-): totrinnskontroll is TotrinnskontrollDtoBesluttet {
-  return (
-    isBesluttet(totrinnskontroll) &&
-    totrinnskontroll.besluttelse === TotrinnskontrollStatus.SATT_PA_VENT
-  );
-}
-
-export function isTilBeslutning(
+export function erTilBeslutning(
   totrinnskontroll: TotrinnskontrollDto | null,
 ): totrinnskontroll is TotrinnskontrollDtoTilBeslutning {
   return (
