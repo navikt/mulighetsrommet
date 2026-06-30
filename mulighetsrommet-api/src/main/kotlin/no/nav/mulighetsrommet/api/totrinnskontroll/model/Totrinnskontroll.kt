@@ -1,11 +1,19 @@
 package no.nav.mulighetsrommet.api.totrinnskontroll.model
 
+import arrow.core.Either
+import arrow.core.NonEmptyList
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.right
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.AgentSerializer
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 @Serializable
@@ -28,7 +36,124 @@ data class Totrinnskontroll(
     val besluttetAvNavn: String?,
     @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant?,
-)
+) {
+
+    fun kanSettesPaVent(): Boolean {
+        return status == TotrinnskontrollStatus.TIL_BEHANDLING
+    }
+
+    fun kanTilbakestilles(): Boolean {
+        return status == TotrinnskontrollStatus.SATT_PA_VENT
+    }
+
+    fun kanBesluttes(): Boolean {
+        return status in setOf(TotrinnskontrollStatus.TIL_BEHANDLING, TotrinnskontrollStatus.SATT_PA_VENT)
+    }
+
+    fun kanBesluttesAv(agent: Agent): Boolean {
+        return !(agent is NavIdent && agent == behandletAv)
+    }
+
+    companion object {
+        fun opprett(
+            id: UUID,
+            entityId: UUID,
+            type: TotrinnskontrollType,
+            behandletAv: Agent,
+            aarsaker: List<String> = emptyList(),
+            forklaring: String? = null,
+        ) = Totrinnskontroll(
+            id = id,
+            entityId = entityId,
+            type = type,
+            status = TotrinnskontrollStatus.TIL_BEHANDLING,
+            behandletAv = behandletAv,
+            behandletAvNavn = null,
+            behandletTidspunkt = instantAsMicros(),
+            besluttetAvNavn = null,
+            besluttetAv = null,
+            besluttetTidspunkt = null,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
+        )
+    }
+
+    fun settPaVent(
+        besluttetAv: Agent,
+        aarsaker: List<String> = emptyList(),
+        forklaring: String? = null,
+    ): Either<NonEmptyList<FieldError>, Totrinnskontroll> {
+        if (!kanSettesPaVent()) {
+            return alleredeBesluttetError()
+        }
+        return copy(
+            status = TotrinnskontrollStatus.SATT_PA_VENT,
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = instantAsMicros(),
+            aarsaker = aarsaker.ifEmpty { this.aarsaker },
+            forklaring = forklaring ?: this.forklaring,
+        ).right()
+    }
+
+    fun tilbakestill(nyBehandletAv: Agent): Either<NonEmptyList<FieldError>, Totrinnskontroll> {
+        if (!kanTilbakestilles()) {
+            return FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent").nel().left()
+        }
+        return copy(
+            status = TotrinnskontrollStatus.TIL_BEHANDLING,
+            behandletAv = nyBehandletAv,
+            behandletTidspunkt = instantAsMicros(),
+            besluttetAv = null,
+            besluttetTidspunkt = null,
+            aarsaker = aarsaker,
+            forklaring = null,
+        ).right()
+    }
+
+    fun godkjenn(besluttetAv: Agent): Either<NonEmptyList<FieldError>, Totrinnskontroll> {
+        if (!kanBesluttes()) {
+            return alleredeBesluttetError()
+        }
+        if (!kanBesluttesAv(besluttetAv)) {
+            return FieldError.of("Du kan ikke beslutte noe du selv har behandlet").nel().left()
+        }
+        return copy(
+            status = TotrinnskontrollStatus.GODKJENT,
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = instantAsMicros(),
+        ).right()
+    }
+
+    fun returner(
+        besluttetAv: Agent,
+        aarsaker: List<String> = emptyList(),
+        forklaring: String? = null,
+    ): Either<NonEmptyList<FieldError>, Totrinnskontroll> {
+        // TODO: ikke tillate systemet å returnere godkjent totrinnskontroll
+        //  Vi har et tilfelle der systemet er tillatt å endre fra GODKJENT til RETURNERT, men det mer "riktige"
+        //  hadde kanskje heller vært om vi opprettet et nytt innslag i totrinnskontroll-loggen?
+        if (!kanBesluttes() && besluttetAv is NavIdent) {
+            return alleredeBesluttetError()
+        }
+        return copy(
+            status = TotrinnskontrollStatus.RETURNERT,
+            besluttetAv = besluttetAv,
+            besluttetTidspunkt = instantAsMicros(),
+            aarsaker = aarsaker.ifEmpty { this.aarsaker },
+            forklaring = forklaring ?: this.forklaring,
+        ).right()
+    }
+
+    private fun alleredeBesluttetError(): Either<NonEmptyList<FieldError>, Nothing> {
+        val beskrivelse = when (status) {
+            TotrinnskontrollStatus.RETURNERT -> "returnert"
+            TotrinnskontrollStatus.GODKJENT -> "godkjent"
+            TotrinnskontrollStatus.SATT_PA_VENT -> "satt på vent"
+            TotrinnskontrollStatus.TIL_BEHANDLING -> error("Totrinnskontroll er til behandling")
+        }
+        return FieldError.of("Totrinnskontrollen er allerede $beskrivelse").nel().left()
+    }
+}
 
 enum class TotrinnskontrollType {
     TILSAGN_OPPRETTELSE,
@@ -46,3 +171,5 @@ enum class TotrinnskontrollStatus {
     GODKJENT,
     RETURNERT,
 }
+
+private fun instantAsMicros(): Instant = Instant.now().truncatedTo(ChronoUnit.MICROS)

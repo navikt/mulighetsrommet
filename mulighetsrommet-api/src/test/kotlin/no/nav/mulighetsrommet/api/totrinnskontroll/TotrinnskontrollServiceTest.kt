@@ -7,6 +7,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.serialization.json.Json
@@ -90,11 +91,9 @@ class TotrinnskontrollServiceTest : FunSpec({
     context("besluttet") {
         test("godkjenner eksisterende totrinnskontroll og publiserer ny Kafka-melding") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-
-                service.godkjent(existing, besluttetAv).shouldBeRight()
+                service.godkjent(opprettet, besluttetAv).shouldBeRight()
             }
 
             database.run {
@@ -117,11 +116,9 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("returnerer eksisterende totrinnskontroll og publiserer ny Kafka-melding") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-
-                service.returnert(existing, besluttetAv, listOf("FEIL_BELOP"), "Beløp er feil").shouldBeRight()
+                service.returnert(opprettet, besluttetAv, listOf("FEIL_BELOP"), "Beløp er feil").shouldBeRight()
             }
 
             database.run {
@@ -146,11 +143,9 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("godkjenning feiler når behandletAv og besluttetAv er samme NavIdent") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-
-                service.godkjent(existing, behandletAv) shouldBeLeft listOf(
+                service.godkjent(opprettet, behandletAv) shouldBeLeft listOf(
                     FieldError.of("Du kan ikke beslutte noe du selv har behandlet"),
                 )
             }
@@ -158,11 +153,9 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("retur kan gjøres av samme NavIdent som behandletAv") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-
-                service.returnert(existing, behandletAv, listOf("FEIL_BELOP"), "Beløp er feil").shouldBeRight()
+                service.returnert(opprettet, behandletAv, listOf("FEIL_BELOP"), "Beløp er feil").shouldBeRight()
             }
 
             database.run {
@@ -174,63 +167,50 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("godkjenning uten årsaker-override beholder eksisterende årsaker") {
             database.run {
-                service.opprett(
+                val opprettet = service.opprett(
                     entityId,
                     TotrinnskontrollType.TILSAGN_ANNULLERING,
                     behandletAv,
                     aarsaker = listOf("FEIL_PERIODE"),
                 )
 
-                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_ANNULLERING)
-
-                service.godkjent(existing, besluttetAv).shouldBeRight()
-            }
-
-            database.run {
-                val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_ANNULLERING)
-                stored.aarsaker shouldBe listOf("FEIL_PERIODE")
+                service.godkjent(opprettet, besluttetAv).shouldBeRight().should {
+                    it.aarsaker shouldBe listOf("FEIL_PERIODE")
+                }
             }
         }
 
         test("godkjenning feiler når totrinnskontroll allerede er godkjent") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.godkjent(existing, besluttetAv).shouldBeRight()
+                val godkjent = service.godkjent(opprettet, besluttetAv).shouldBeRight()
 
-                val afterGodkjent = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.godkjent(afterGodkjent, besluttetAv) shouldBeLeft listOf(
+                service.godkjent(godkjent, besluttetAv) shouldBeLeft listOf(
                     FieldError.of("Totrinnskontrollen er allerede godkjent"),
                 )
             }
         }
 
-        test("godkjenning er tillatt etter retur") {
+        test("godkjenning er ikke tillatt etter retur") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
-                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.returnert(existing, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val afterAvvist = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.godkjent(afterAvvist, besluttetAv).shouldBeRight()
-            }
+                val returnert = service.returnert(opprettet, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
 
-            database.run {
-                val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                stored.status shouldBe TotrinnskontrollStatus.GODKJENT
+                service.godkjent(returnert, besluttetAv) shouldBeLeft listOf(
+                    FieldError.of("Totrinnskontrollen er allerede returnert"),
+                )
             }
         }
 
         test("retur feiler når totrinnskontroll allerede er godkjent") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.godkjent(existing, besluttetAv).shouldBeRight()
+                val godkjent = service.godkjent(opprettet, besluttetAv).shouldBeRight()
 
-                val afterGodkjent = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.returnert(afterGodkjent, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
+                service.returnert(godkjent, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
                     FieldError.of("Totrinnskontrollen er allerede godkjent"),
                 )
             }
@@ -238,13 +218,11 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("retur feiler når totrinnskontroll allerede er returnert") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.returnert(existing, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
+                val returnert = service.returnert(opprettet, besluttetAv, listOf("FEIL_BELOP")).shouldBeRight()
 
-                val afterAvvist = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.returnert(afterAvvist, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
+                service.returnert(returnert, besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
                     FieldError.of("Totrinnskontrollen er allerede returnert"),
                 )
             }
@@ -252,33 +230,29 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("systemet er tillatt å endre fra godkjent til avvist") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE, behandletAv)
 
-                val existing = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.godkjent(existing, besluttetAv).shouldBeRight()
+                val godkjent = service.godkjent(opprettet, besluttetAv).shouldBeRight()
 
-                val afterGodkjent = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                service.returnert(afterGodkjent, Tiltaksadministrasjon, listOf("PROPAGERT_RETUR")).shouldBeRight()
+                service.returnert(godkjent, Tiltaksadministrasjon, listOf("PROPAGERT_RETUR")).shouldBeRight()
             }
         }
     }
 
     context("tilbakestill") {
-        test("tilbakestiller til TilBeslutning med ny behandletAv og publiserer Kafka-melding") {
+        test("tilbakestiller til TIL_BEHANDLING med ny behandletAv og publiserer Kafka-melding") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
-                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                service.sattPaVent(existing, besluttetAv, forklaring = "Trenger mer info")
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
 
-                val paVent = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                service.tilbakestill(paVent, NavIdent("DD3")).shouldBeRight()
+                val paVent = service.sattPaVent(opprettet, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
 
-                val stored = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                stored.behandletAv shouldBe NavIdent("DD3")
-                stored.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
-                stored.besluttetAv shouldBe null
-                stored.besluttetTidspunkt shouldBe null
-                stored.forklaring shouldBe null
+                val tilbakestilt = service.tilbakestill(paVent, NavIdent("DD3")).shouldBeRight()
+
+                tilbakestilt.behandletAv shouldBe NavIdent("DD3")
+                tilbakestilt.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                tilbakestilt.besluttetAv shouldBe null
+                tilbakestilt.besluttetTidspunkt shouldBe null
+                tilbakestilt.forklaring shouldBe null
 
                 val records = queries.kafkaProducerRecord.getRecords(10, listOf(TOPIC))
                 records shouldHaveSize 3
@@ -292,45 +266,43 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("beholder eksisterende årsaker etter tilbakestilling") {
             database.run {
-                service.opprett(
+                val opprettet = service.opprett(
                     entityId,
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv,
                     aarsaker = listOf("FEIL_BELOP"),
                 )
-                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                service.sattPaVent(existing, besluttetAv, aarsaker = listOf("FEIL_BELOP"), forklaring = "Feil beløp")
 
-                val paVent = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                service.tilbakestill(paVent, behandletAv).shouldBeRight()
+                val paVent = service.sattPaVent(
+                    opprettet,
+                    besluttetAv,
+                    aarsaker = listOf("FEIL_BELOP"),
+                    forklaring = "Feil beløp",
+                ).shouldBeRight()
 
-                val stored = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                stored.aarsaker shouldBe listOf("FEIL_BELOP")
-                stored.forklaring shouldBe null
+                val tilbakestilt = service.tilbakestill(paVent, behandletAv).shouldBeRight()
+                tilbakestilt.aarsaker shouldBe listOf("FEIL_BELOP")
+                tilbakestilt.forklaring shouldBe null
             }
         }
 
         test("oppdaterer behandletTidspunkt til nåtid etter tilbakestilling") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
-                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                val originalTidspunkt = existing.behandletTidspunkt
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
+                val originalTidspunkt = opprettet.behandletTidspunkt
 
-                service.sattPaVent(existing, besluttetAv)
-                val paVent = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                service.tilbakestill(paVent, behandletAv).shouldBeRight()
+                val paVent = service.sattPaVent(opprettet, besluttetAv).shouldBeRight()
 
-                val stored = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                stored.behandletTidspunkt shouldNotBe originalTidspunkt
+                val tilbakestilt = service.tilbakestill(paVent, behandletAv).shouldBeRight()
+                tilbakestilt.behandletTidspunkt shouldNotBe originalTidspunkt
             }
         }
 
         test("feiler når totrinnskontroll er TilBeslutning (besluttelse er null)") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
-                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
 
-                service.tilbakestill(existing, behandletAv) shouldBeLeft listOf(
+                service.tilbakestill(opprettet, behandletAv) shouldBeLeft listOf(
                     FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent"),
                 )
             }
@@ -338,25 +310,23 @@ class TotrinnskontrollServiceTest : FunSpec({
 
         test("feiler når totrinnskontroll er GODKJENT") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
-                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                service.godkjent(existing, besluttetAv).shouldBeRight()
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
 
-                val godkjent = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                val godkjent = service.godkjent(opprettet, besluttetAv).shouldBeRight()
+
                 service.tilbakestill(godkjent, behandletAv) shouldBeLeft listOf(
                     FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent"),
                 )
             }
         }
 
-        test("feiler når totrinnskontroll er AVVIST") {
+        test("feiler når totrinnskontroll er RETURNERT") {
             database.run {
-                service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
-                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                service.returnert(existing, besluttetAv).shouldBeRight()
+                val opprettet = service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
 
-                val avvist = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                service.tilbakestill(avvist, behandletAv) shouldBeLeft listOf(
+                val returnert = service.returnert(opprettet, besluttetAv).shouldBeRight()
+
+                service.tilbakestill(returnert, behandletAv) shouldBeLeft listOf(
                     FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent"),
                 )
             }

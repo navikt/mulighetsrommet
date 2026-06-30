@@ -1,20 +1,20 @@
 import {
-  TotrinnskontrollStatus,
   DataElementStatusVariant,
-  UtbetalingLinjeStatus,
   LabeledDataElementType,
   TilsagnStatus,
   TilsagnType,
   Tilskuddstype,
+  TotrinnskontrollDtoBeslutning,
   UtbetalingBeregningDto,
+  UtbetalingBeregningType,
   UtbetalingDto,
   UtbetalingKompaktDto,
   UtbetalingLinjeDto,
   UtbetalingLinjeHandling,
+  UtbetalingLinjeStatus,
   UtbetalingStatusDtoType,
   UtbetalingTypeDto,
   Valuta,
-  UtbetalingBeregningType,
 } from "@tiltaksadministrasjon/api-client";
 import { mockEnheter } from "./mock_enheter";
 
@@ -333,7 +333,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
       besluttetTidspunkt: "2024-01-02T10:00:00",
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil. Du må justere antall deltakere",
-      besluttelse: TotrinnskontrollStatus.RETURNERT,
+      beslutning: TotrinnskontrollDtoBeslutning.RETURNERT,
     },
   },
   {
@@ -380,7 +380,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
       besluttetTidspunkt: "2024-01-02T10:00:00",
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil, og bør fikses ved å endre antall deltakere",
-      besluttelse: TotrinnskontrollStatus.RETURNERT,
+      beslutning: TotrinnskontrollDtoBeslutning.RETURNERT,
     },
   },
   {
@@ -479,7 +479,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
         navn: "Per Haraldsen",
       },
       besluttetTidspunkt: "2025-01-01T10:00:00",
-      besluttelse: TotrinnskontrollStatus.GODKJENT,
+      beslutning: TotrinnskontrollDtoBeslutning.GODKJENT,
     },
   },
 ];
