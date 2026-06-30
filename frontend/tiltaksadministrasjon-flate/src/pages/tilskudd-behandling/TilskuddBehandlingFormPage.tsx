@@ -16,7 +16,7 @@ import {
   TilskuddBehandlingTab,
 } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
 import { usePotentialTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
-import { addDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
 import { ToTrinnsOpprettelsesForklaring } from "../gjennomforing/tilsagn/ToTrinnsOpprettelseForklaring";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -56,7 +56,7 @@ export function TilskuddBehandlingFormPage() {
         gjennomforingId: behandling.gjennomforingId,
         periodeStart: yyyyMMddFormatting(behandling.periode.start) ?? null,
         periodeSlutt:
-          yyyyMMddFormatting(addDuration(behandling.periode.slutt, { days: 1 })) ?? null,
+          yyyyMMddFormatting(subDuration(behandling.periode.slutt, { days: 1 })) ?? null,
         soknadJournalpostId: behandling.soknadJournalpostId,
         kostnadssted: behandling.kostnadssted.enhetsnummer,
         soknadDato: behandling.soknadDato,
