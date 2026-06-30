@@ -15,7 +15,6 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Suspense, useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { GjennomforingFilterSchema } from "@/pages/gjennomforing/filter";
 import { useGjennomforingerSavedFilterState } from "@/filter/useSavedFiltersState";
 
 export function GjennomforingerPage() {
@@ -56,9 +55,6 @@ export function GjennomforingerPage() {
               onSelectFilterId={selectFilter}
               onDeleteFilter={deleteFilter}
               onSetDefaultFilter={setDefaultFilter}
-              validateFilterStructure={(filter) => {
-                return GjennomforingFilterSchema.safeParse(filter).success;
-              }}
             />
           }
           tags={
