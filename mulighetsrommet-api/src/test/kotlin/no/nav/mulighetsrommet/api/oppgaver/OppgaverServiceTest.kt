@@ -1140,13 +1140,13 @@ class OppgaverServiceTest : FunSpec({
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo, GjennomforingFixtures.EnkelFagOgYrke),
             ) {
                 queries.tilskuddBehandling.upsert(TilskuddFixtures.Behandling)
-                setTilGodkjenning(
+                setTilBehandling(
                     TilskuddFixtures.Behandling.id,
                     TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
                 queries.tilskuddBehandling.upsert(behandlingOslo)
-                setTilGodkjenning(
+                setTilBehandling(
                     behandlingOslo.id,
                     TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,

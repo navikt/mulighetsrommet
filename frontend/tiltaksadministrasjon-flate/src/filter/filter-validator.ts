@@ -20,8 +20,7 @@ export function createGracefulParser<T extends object>(
       return result.data as T;
     }
 
-    const g = mergeWithDefaults(schema, defaults, input as Record<string, unknown>);
-    return g;
+    return mergeWithDefaults(schema, defaults, input as Record<string, unknown>);
   };
 }
 
