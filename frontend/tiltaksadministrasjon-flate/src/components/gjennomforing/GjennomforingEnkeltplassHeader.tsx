@@ -1,13 +1,16 @@
 import { MetadataVStack, Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { formaterDato } from "@mr/frontend-common/utils/date";
 import { PersonIcon } from "@navikt/aksel-icons";
 import { CopyButton, HStack, VStack } from "@navikt/ds-react";
-import { DeltakerDto } from "@tiltaksadministrasjon/api-client";
+import { DeltakerDto, GjennomforingEnkeltplassDto } from "@tiltaksadministrasjon/api-client";
+import { DataElementStatusTag } from "@mr/frontend-common";
 
 interface Props {
+  gjennomforing: GjennomforingEnkeltplassDto;
   deltaker: DeltakerDto;
 }
 
-export function DeltakerHeader({ deltaker }: Props) {
+export function GjennomforingEnkeltplassHeader({ gjennomforing, deltaker }: Props) {
   return (
     <VStack className="px-4 bg-ax-bg-default">
       <Separator />
@@ -21,7 +24,10 @@ export function DeltakerHeader({ deltaker }: Props) {
           <CopyButton size="small" copyText={deltaker.norskIdent ?? ""} />
         </HStack>
         <MetadataVStack label="Enhet" value={deltaker.oppfolgingEnhet?.navn} />
-        <MetadataVStack label="Veileder" value={deltaker.navVeilederNavn} />
+        <MetadataVStack label="Arrangør" value={gjennomforing.arrangor.navn} />
+        <MetadataVStack label="Startdato" value={formaterDato(deltaker.startDato)} />
+        <MetadataVStack label="Sluttdato" value={formaterDato(deltaker.sluttDato)} />
+        <MetadataVStack label="Status" value={<DataElementStatusTag {...deltaker.status} />} />
       </HStack>
       <Separator />
     </VStack>

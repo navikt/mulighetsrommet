@@ -65,6 +65,7 @@ data class UtbetalingLinjeStatusDto(
                         -> DataElement.Status.Variant.INFO
 
                         UtbetalingLinjeStatus.RETURNERT,
+                        UtbetalingLinjeStatus.AVBRUTT,
                         -> DataElement.Status.Variant.ERROR
                     },
                 ),

@@ -26,7 +26,7 @@ import {
   TotrinnskontrollDtoBesluttet,
   UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
-import { isAvvist } from "@/utils/totrinnskontroll";
+import { isSattPaVent } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { useState } from "react";
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
@@ -139,7 +139,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
           <DetaljerLayout>
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
             {enkeltplassDeltaker && <BetalingsbetingelserEnkeltplass prismodell={prismodell} />}
-            {isAvvist(okonomi) && <OkonomiStatusSattPaVent okonomi={okonomi} />}
+            {isSattPaVent(okonomi) && <OkonomiStatusSattPaVent okonomi={okonomi} />}
           </DetaljerLayout>
         </TwoColumnGrid>
         <Separator />
@@ -179,87 +179,19 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
 
 function OkonomiStatusSattPaVent({ okonomi }: { okonomi: TotrinnskontrollDtoBesluttet }) {
   return (
-    <>
-      <InfoCard data-color="warning">
-        <InfoCard.Header>
-          <InfoCard.Title>Enkeltplass satt på vent</InfoCard.Title>
-        </InfoCard.Header>
-        <InfoCard.Content>
-          <BodyShort spacing>
-            {okonomi.besluttetAv.navn} satte godkjenning av enkeltplass på vent den{" "}
-            {formaterDato(okonomi.besluttetTidspunkt)}.
-          </BodyShort>
-          {okonomi.forklaring && (
-            <MetadataFritekstfelt label="Forklaring" value={okonomi.forklaring} />
-          )}
-        </InfoCard.Content>
-      </InfoCard>
-    </>
-  );
-}
-
-/*
-function FooOkonomiStatusSattPaVent({
-  okonomi,
-  gjennomforingId,
-  handlinger,
-}: {
-  okonomi: TotrinnskontrollDto;
-  gjennomforingId: string;
-  handlinger: GjennomforingHandling[];
-}) {
-  const [godkjennOpen, setGodkjennOpen] = useState(false);
-  const [settPaVentOpen, setSettPaVentOpen] = useState(false);
-
-  const kanGodkjenne = handlinger.includes(GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI);
-  const kanSettePaVent = handlinger.includes(
-    GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
-  );
-
-  const card = resolveCard(okonomi);
-  color: "warning",
-    title: "Enkeltplass satt på vent",
-      body: (
-        <>
-          <BodyShort spacing>
-            {okonomi.besluttetAv.navn} satte godkjenning av enkeltplass på vent den{" "}
-            {formaterDato(okonomi.besluttetTidspunkt)}.
-          </BodyShort>
-          {okonomi.forklaring && (
-            <MetadataFritekstfelt label="Forklaring" value={okonomi.forklaring} />
-          )}
-        </>
-      ),
-    };
-
-return (
-  <>
-    <InfoCard data-color={card.color}>
+    <InfoCard data-color="warning">
       <InfoCard.Header>
-        <InfoCard.Title>{card.title}</InfoCard.Title>
+        <InfoCard.Title>Enkeltplass satt på vent</InfoCard.Title>
       </InfoCard.Header>
       <InfoCard.Content>
-        {card.body}
-        {(kanSettePaVent || kanGodkjenne) && (
-          <HStack gap="space-4">
-            {kanSettePaVent && (
-              <Button size="small" variant="secondary" onClick={() => setSettPaVentOpen(true)}>
-                Sett på vent
-              </Button>
-            )}
-            {kanGodkjenne && (
-              <Button size="small" onClick={() => setGodkjennOpen(true)}>
-                Godkjenn enkeltplass
-              </Button>
-            )}
-          </HStack>
+        <BodyShort spacing>
+          {okonomi.besluttetAv.navn} satte godkjenning av enkeltplass på vent den{" "}
+          {formaterDato(okonomi.besluttetTidspunkt)}.
+        </BodyShort>
+        {okonomi.forklaring && (
+          <MetadataFritekstfelt label="Forklaring" value={okonomi.forklaring} />
         )}
       </InfoCard.Content>
     </InfoCard>
-
-  </>
-);
+  );
 }
-
-
-*/

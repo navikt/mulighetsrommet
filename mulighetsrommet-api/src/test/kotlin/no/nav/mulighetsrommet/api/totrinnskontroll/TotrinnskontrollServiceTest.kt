@@ -13,8 +13,8 @@ import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
@@ -50,7 +50,7 @@ class TotrinnskontrollServiceTest : FunSpec({
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 stored.entityId shouldBe entityId
                 stored.behandletAv shouldBe behandletAv
-                stored.besluttelse shouldBe null
+                stored.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                 stored.besluttetAv shouldBe null
 
                 val records = queries.kafkaProducerRecord.getRecords(10, listOf(TOPIC))
@@ -99,7 +99,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
             database.run {
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                stored.status shouldBe TotrinnskontrollStatus.GODKJENT
                 stored.besluttetAv shouldBe besluttetAv
                 stored.besluttetTidspunkt shouldNotBe null
 
@@ -108,7 +108,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
                 val record = records.last()
                 val hendelse = Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString())
-                hendelse.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                hendelse.besluttelse shouldBe TotrinnskontrollHendelse.Besluttelse.GODKJENT
                 hendelse.besluttetAv shouldBe TotrinnskontrollAgent.NavAnsatt(besluttetAv.value)
                 hendelse.behandletTidspunkt shouldBe stored.behandletTidspunkt
                 hendelse.besluttetTidspunkt shouldBe stored.besluttetTidspunkt
@@ -126,7 +126,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
             database.run {
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                stored.status shouldBe TotrinnskontrollStatus.AVVIST
                 stored.besluttetAv shouldBe besluttetAv
                 stored.besluttetTidspunkt shouldNotBe null
 
@@ -135,7 +135,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
                 val record = records.last()
                 val hendelse = Json.decodeFromString<TotrinnskontrollHendelse>(record.value.decodeToString())
-                hendelse.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                hendelse.besluttelse shouldBe TotrinnskontrollHendelse.Besluttelse.AVVIST
                 hendelse.besluttetAv shouldBe TotrinnskontrollAgent.NavAnsatt(besluttetAv.value)
                 hendelse.aarsaker shouldBe listOf("FEIL_BELOP")
                 hendelse.forklaring shouldBe "Beløp er feil"
@@ -167,7 +167,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
             database.run {
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.AVVIST
+                stored.status shouldBe TotrinnskontrollStatus.AVVIST
                 stored.besluttetAv shouldBe behandletAv
             }
         }
@@ -218,7 +218,7 @@ class TotrinnskontrollServiceTest : FunSpec({
 
             database.run {
                 val stored = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-                stored.besluttelse shouldBe TotrinnskontrollBesluttelse.GODKJENT
+                stored.status shouldBe TotrinnskontrollStatus.GODKJENT
             }
         }
 
@@ -259,6 +259,106 @@ class TotrinnskontrollServiceTest : FunSpec({
 
                 val afterGodkjent = service.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 service.avvist(afterGodkjent, Tiltaksadministrasjon, listOf("PROPAGERT_RETUR")).shouldBeRight()
+            }
+        }
+    }
+
+    context("tilbakestill") {
+        test("tilbakestiller til TilBeslutning med ny behandletAv og publiserer Kafka-melding") {
+            database.run {
+                service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                service.sattPaVent(existing, besluttetAv, forklaring = "Trenger mer info")
+
+                val paVent = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                service.tilbakestill(paVent, NavIdent("DD3")).shouldBeRight()
+
+                val stored = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                stored.behandletAv shouldBe NavIdent("DD3")
+                stored.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                stored.besluttetAv shouldBe null
+                stored.besluttetTidspunkt shouldBe null
+                stored.forklaring shouldBe null
+
+                val records = queries.kafkaProducerRecord.getRecords(10, listOf(TOPIC))
+                records shouldHaveSize 3
+
+                val hendelse = Json.decodeFromString<TotrinnskontrollHendelse>(records.last().value.decodeToString())
+                hendelse.behandletAv shouldBe TotrinnskontrollAgent.NavAnsatt("DD3")
+                hendelse.besluttelse shouldBe null
+                hendelse.besluttetAv shouldBe null
+            }
+        }
+
+        test("beholder eksisterende årsaker etter tilbakestilling") {
+            database.run {
+                service.opprett(
+                    entityId,
+                    TotrinnskontrollType.ENKELTPLASS_OKONOMI,
+                    behandletAv,
+                    aarsaker = listOf("FEIL_BELOP"),
+                )
+                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                service.sattPaVent(existing, besluttetAv, aarsaker = listOf("FEIL_BELOP"), forklaring = "Feil beløp")
+
+                val paVent = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                service.tilbakestill(paVent, behandletAv).shouldBeRight()
+
+                val stored = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                stored.aarsaker shouldBe listOf("FEIL_BELOP")
+                stored.forklaring shouldBe null
+            }
+        }
+
+        test("oppdaterer behandletTidspunkt til nåtid etter tilbakestilling") {
+            database.run {
+                service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                val originalTidspunkt = existing.behandletTidspunkt
+
+                service.sattPaVent(existing, besluttetAv)
+                val paVent = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                service.tilbakestill(paVent, behandletAv).shouldBeRight()
+
+                val stored = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                stored.behandletTidspunkt shouldNotBe originalTidspunkt
+            }
+        }
+
+        test("feiler når totrinnskontroll er TilBeslutning (besluttelse er null)") {
+            database.run {
+                service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+
+                service.tilbakestill(existing, behandletAv) shouldBeLeft listOf(
+                    FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent"),
+                )
+            }
+        }
+
+        test("feiler når totrinnskontroll er GODKJENT") {
+            database.run {
+                service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                service.godkjent(existing, besluttetAv).shouldBeRight()
+
+                val godkjent = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                service.tilbakestill(godkjent, behandletAv) shouldBeLeft listOf(
+                    FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent"),
+                )
+            }
+        }
+
+        test("feiler når totrinnskontroll er AVVIST") {
+            database.run {
+                service.opprett(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI, behandletAv)
+                val existing = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                service.avvist(existing, besluttetAv).shouldBeRight()
+
+                val avvist = service.getOrError(entityId, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                service.tilbakestill(avvist, behandletAv) shouldBeLeft listOf(
+                    FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent"),
+                )
             }
         }
     }

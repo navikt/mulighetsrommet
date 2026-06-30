@@ -15,7 +15,6 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Suspense, useState } from "react";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
-import { AvtaleFilterSchema } from "@/pages/avtaler/filter";
 import { useAvtalerSavedFilterState } from "@/filter/useSavedFiltersState";
 import { useAvtalerHandlinger } from "@/api/avtaler/useAvtaler";
 import { Button } from "@navikt/ds-react";
@@ -62,9 +61,6 @@ export function AvtalerPage() {
                 onSelectFilterId={selectFilter}
                 onDeleteFilter={deleteFilter}
                 onSetDefaultFilter={setDefaultFilter}
-                validateFilterStructure={(filter) => {
-                  return AvtaleFilterSchema.safeParse(filter).success;
-                }}
               />
             }
             tags={

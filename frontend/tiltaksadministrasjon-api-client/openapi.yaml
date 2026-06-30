@@ -5859,7 +5859,7 @@ components:
           type: string
           format: date-time
         besluttelse:
-          $ref: "#/components/schemas/TotrinnskontrollBesluttelse"
+          $ref: "#/components/schemas/TotrinnskontrollStatus"
       required:
       - aarsaker
       - behandletAv
@@ -5875,9 +5875,11 @@ components:
           type: string
       required:
       - navn
-    TotrinnskontrollBesluttelse:
+    TotrinnskontrollStatus:
       type: string
       enum:
+      - TIL_BEHANDLING
+      - SATT_PA_VENT
       - GODKJENT
       - AVVIST
     TotrinnskontrollDto.TilBeslutning:
@@ -7529,6 +7531,7 @@ components:
       - RETURNERT
       - UTBETALT
       - OVERFORT_TIL_UTBETALING
+      - AVBRUTT
     UtbetalingLinjeHandling:
       type: string
       enum:
@@ -7748,7 +7751,14 @@ components:
           items:
             type: string
           uniqueItems: true
+        arrangorer:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
       required:
+      - arrangorer
       - oppgavetyper
       - regioner
       - tiltakskoder
@@ -7779,7 +7789,12 @@ components:
         createdAt:
           type: string
           format: date-time
+        arrangor:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/OppgaveArrangor"
       required:
+      - arrangor
       - createdAt
       - description
       - enhet
@@ -7819,6 +7834,20 @@ components:
       required:
       - link
       - linkText
+    OppgaveArrangor:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        id:
+          type: string
+          format: uuid
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
     OppgaveTypeDto:
       type: object
       properties:

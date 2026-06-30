@@ -2,13 +2,13 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.Instant
 import java.util.UUID
 
-fun QueryContext.setTilGodkjenning(
+fun QueryContext.setTilBehandling(
     uuid: UUID,
     type: TotrinnskontrollType,
     behandletAv: NavIdent,
@@ -18,11 +18,11 @@ fun QueryContext.setTilGodkjenning(
         id = UUID.randomUUID(),
         entityId = uuid,
         type = type,
+        status = TotrinnskontrollStatus.TIL_BEHANDLING,
         behandletAv = behandletAv,
         behandletTidspunkt = behandletTidspunkt,
         besluttetAv = null,
         besluttetTidspunkt = null,
-        besluttelse = null,
         aarsaker = emptyList(),
         forklaring = null,
     ),
@@ -44,7 +44,7 @@ fun QueryContext.setGodkjent(
         behandletTidspunkt = behandletTidspunkt,
         besluttetAv = besluttetAv,
         besluttetTidspunkt = besluttetTidspunkt,
-        besluttelse = TotrinnskontrollBesluttelse.GODKJENT,
+        status = TotrinnskontrollStatus.GODKJENT,
         aarsaker = emptyList(),
         forklaring = null,
     ),
@@ -66,8 +66,30 @@ fun QueryContext.setAvvist(
         behandletTidspunkt = behandletTidspunkt,
         besluttetAv = besluttetAv,
         besluttetTidspunkt = besluttetTidspunkt,
-        besluttelse = TotrinnskontrollBesluttelse.AVVIST,
+        status = TotrinnskontrollStatus.AVVIST,
         aarsaker = listOf("Årsak 1"),
+        forklaring = null,
+    ),
+)
+
+fun QueryContext.setPaVent(
+    uuid: UUID,
+    type: TotrinnskontrollType,
+    behandletAv: NavIdent,
+    besluttetAv: NavIdent,
+    behandletTidspunkt: Instant = Instant.now(),
+    besluttetTidspunkt: Instant = Instant.now(),
+) = queries.totrinnskontroll.upsert(
+    TotrinnskontrollDbo(
+        id = UUID.randomUUID(),
+        entityId = uuid,
+        type = type,
+        behandletAv = behandletAv,
+        behandletTidspunkt = behandletTidspunkt,
+        besluttetAv = besluttetAv,
+        besluttetTidspunkt = besluttetTidspunkt,
+        status = TotrinnskontrollStatus.SATT_PA_VENT,
+        aarsaker = listOf(),
         forklaring = null,
     ),
 )

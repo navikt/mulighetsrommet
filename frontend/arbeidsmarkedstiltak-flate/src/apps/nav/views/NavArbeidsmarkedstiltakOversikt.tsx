@@ -5,7 +5,6 @@ import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTa
 import { ArbeidsmarkedstiltakList } from "@/components/oversikt/ArbeidsmarkedstiltakList";
 import { useNavArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
 import {
-  ArbeidsmarkedstiltakFilterSchema,
   isFilterReady,
   useArbeidsmarkedstiltakFilterUtenBrukerIKontekst,
 } from "@/hooks/useArbeidsmarkedstiltakFilter";
@@ -64,9 +63,6 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
             onSelectFilterId={selectFilter}
             onDeleteFilter={deleteFilter}
             onSetDefaultFilter={setDefaultFilter}
-            validateFilterStructure={(filter) => {
-              return ArbeidsmarkedstiltakFilterSchema.safeParse(filter).success;
-            }}
           />
         }
         table={

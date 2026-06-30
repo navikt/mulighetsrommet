@@ -6,7 +6,7 @@ import {
   HandshakeIcon,
   PiggybankIcon,
 } from "@navikt/aksel-icons";
-import { BodyShort, Box, Link, LinkCard, Spacer, Tag, TagProps } from "@navikt/ds-react";
+import { BodyShort, Box, Link, LinkCard, Spacer, Tag, TagProps, VStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { Link as ReactRouterLink } from "react-router";
 
@@ -15,7 +15,7 @@ interface OppgaveProps {
 }
 
 export function Oppgave({ oppgave }: OppgaveProps) {
-  const { title, navn, type, description, link, createdAt } = oppgave;
+  const { title, navn, type, description, link, createdAt, arrangor } = oppgave;
   return (
     <LinkCard>
       <Box asChild borderRadius="12" padding="space-8" background="neutral-moderate">
@@ -30,7 +30,16 @@ export function Oppgave({ oppgave }: OppgaveProps) {
           </Link>
         </LinkCard.Anchor>
       </LinkCard.Title>
-      <LinkCard.Description>{description}</LinkCard.Description>
+      <LinkCard.Description>
+        <VStack>
+          {arrangor && (
+            <BodyShort textColor="subtle">
+              {arrangor.navn} ({arrangor.organisasjonsnummer})
+            </BodyShort>
+          )}
+          {description}
+        </VStack>
+      </LinkCard.Description>
       <LinkCard.Footer>
         <OppgaveStatus
           variant={getOppgaveVariant(type)}

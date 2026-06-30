@@ -4,12 +4,9 @@ import { useRef, useState } from "react";
 import styles from "./LagredeFilterOversikt.module.scss";
 import { VarselModal } from "../varsel/VarselModal";
 
-type FilterValues = { [key: string]: unknown };
-
 interface LagretFilter {
   id: string;
   navn: string;
-  filter: FilterValues;
   isDefault: boolean;
 }
 
@@ -19,41 +16,23 @@ interface Props {
   onSelectFilterId: (id: string) => void;
   onDeleteFilter: (id: string) => void;
   onSetDefaultFilter: (id: string, isDefault: boolean) => void;
-  validateFilterStructure: (filter: FilterValues) => boolean;
 }
 
 export function LagredeFilterOversikt({
   filters,
   selectedFilterId,
   onSelectFilterId,
-  validateFilterStructure,
   onDeleteFilter,
   onSetDefaultFilter,
 }: Props) {
   const [filterForSletting, setFilterForSletting] = useState<LagretFilter | null>();
   const sletteFilterModalRef = useRef<HTMLDialogElement>(null);
 
-  const filterHarUgyldigStrukturModalRef = useRef<HTMLDialogElement>(null);
-  const [filterHarUgyldigStruktur, setFilterHarUgyldigStruktur] = useState<LagretFilter | null>();
-
-  function oppdaterFilter(id: string) {
-    const selectedFilter = filters.find((f) => f.id === id);
-
-    if (selectedFilter !== undefined && !validateFilterStructure(selectedFilter.filter)) {
-      setFilterHarUgyldigStruktur(selectedFilter);
-    } else {
-      onSelectFilterId(id);
-    }
-  }
-
   function slettFilter(id: string) {
     onDeleteFilter(id);
 
     setFilterForSletting(null);
     sletteFilterModalRef.current?.close();
-
-    setFilterHarUgyldigStruktur(null);
-    filterHarUgyldigStrukturModalRef.current?.close();
   }
 
   const sletteBody = (typeFilter: string) => {
@@ -87,7 +66,7 @@ export function LagredeFilterOversikt({
         <RadioGroup
           legend="Lagrede filter"
           hideLegend
-          onChange={(id) => oppdaterFilter(id)}
+          onChange={(id) => onSelectFilterId(id)}
           value={selectedFilterId || null}
         >
           <div className={styles.overflow}>
@@ -154,32 +133,6 @@ export function LagredeFilterOversikt({
           primaryButton={sletteKnapp(filterForSletting.id)}
           secondaryButton
           secondaryButtonHandleAction={() => sletteFilterModalRef.current?.close()}
-        />
-      ) : null}
-      {filterHarUgyldigStruktur ? (
-        <VarselModal
-          open={!!filterHarUgyldigStruktur}
-          headingText="Beklager, filteret fungerte ikke"
-          modalRef={filterHarUgyldigStrukturModalRef}
-          handleClose={() => {
-            setFilterForSletting(undefined);
-            filterHarUgyldigStrukturModalRef.current?.close();
-          }}
-          body={
-            <>
-              <BodyShort>
-                På grunn av nylige endringer kan ikke det lagrede filteret benyttes lenger. Filteret
-                bør derfor slettes og lagres på nytt.
-              </BodyShort>
-              {sletteBody(filterHarUgyldigStruktur.navn)}
-            </>
-          }
-          primaryButton={sletteKnapp(filterHarUgyldigStruktur.id)}
-          secondaryButton
-          secondaryButtonHandleAction={() => {
-            setFilterHarUgyldigStruktur(undefined);
-            filterHarUgyldigStrukturModalRef.current?.close();
-          }}
         />
       ) : null}
     </>

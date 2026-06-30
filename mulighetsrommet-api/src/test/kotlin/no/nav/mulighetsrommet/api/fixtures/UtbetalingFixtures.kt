@@ -204,7 +204,7 @@ fun QueryContext.setUtbetalingLinjeStatus(
 
     when (status) {
         UtbetalingLinjeStatus.TIL_ATTESTERING -> {
-            setTilGodkjenning(dto.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE, behandletAv)
+            setTilBehandling(dto.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE, behandletAv)
         }
 
         UtbetalingLinjeStatus.GODKJENT, UtbetalingLinjeStatus.UTBETALT, UtbetalingLinjeStatus.OVERFORT_TIL_UTBETALING -> {
@@ -226,5 +226,8 @@ fun QueryContext.setUtbetalingLinjeStatus(
                 besluttetTidspunkt = besluttetTidspunkt,
             )
         }
+
+        UtbetalingLinjeStatus.AVBRUTT ->
+            Unit
     }
 }

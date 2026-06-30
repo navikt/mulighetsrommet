@@ -4,7 +4,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.textRepr
@@ -26,7 +26,7 @@ class TotrinnskontrollQueries(private val session: Session) {
                 type,
                 besluttet_av,
                 besluttet_tidspunkt,
-                besluttelse
+                status
             ) values (
                 :id::uuid,
                 :entity_id::uuid,
@@ -37,7 +37,7 @@ class TotrinnskontrollQueries(private val session: Session) {
                 :type,
                 :besluttet_av,
                 :besluttet_tidspunkt,
-                :besluttelse::besluttelse
+                :status
             ) on conflict (id) do update set
                 behandlet_av = excluded.behandlet_av,
                 behandlet_tidspunkt = excluded.behandlet_tidspunkt,
@@ -46,18 +46,18 @@ class TotrinnskontrollQueries(private val session: Session) {
                 type = excluded.type,
                 besluttet_av = excluded.besluttet_av,
                 besluttet_tidspunkt = excluded.besluttet_tidspunkt,
-                besluttelse = excluded.besluttelse
+                status = excluded.status
         """.trimIndent()
 
         val params = mapOf(
             "id" to totrinnskontroll.id,
             "entity_id" to totrinnskontroll.entityId,
             "type" to totrinnskontroll.type.name,
+            "status" to totrinnskontroll.status.name,
             "behandlet_av" to totrinnskontroll.behandletAv.textRepr(),
             "behandlet_tidspunkt" to totrinnskontroll.behandletTidspunkt,
             "besluttet_av" to totrinnskontroll.besluttetAv?.textRepr(),
             "besluttet_tidspunkt" to totrinnskontroll.besluttetTidspunkt,
-            "besluttelse" to totrinnskontroll.besluttelse?.name,
             "aarsaker" to totrinnskontroll.aarsaker.let { session.createTextArray(it) },
             "forklaring" to totrinnskontroll.forklaring,
         )
@@ -126,7 +126,7 @@ class TotrinnskontrollQueries(private val session: Session) {
             forklaring = stringOrNull("forklaring"),
             besluttetAv = stringOrNull("besluttet_av")?.toAgent(),
             besluttetTidspunkt = instantOrNull("besluttet_tidspunkt"),
-            besluttelse = stringOrNull("besluttelse")?.let { TotrinnskontrollBesluttelse.valueOf(it) },
+            status = string("status").let { TotrinnskontrollStatus.valueOf(it) },
             besluttetAvNavn = stringOrNull("besluttet_av_navn"),
             behandletAvNavn = stringOrNull("behandlet_av_navn"),
         )

@@ -12,6 +12,7 @@ export function useOppgaver(filter: OppgaverFilterType) {
           tiltakskoder: filter.tiltakstyper,
           oppgavetyper: filter.type,
           regioner: filter.regioner,
+          arrangorer: filter.arrangorer,
         },
       }),
   });

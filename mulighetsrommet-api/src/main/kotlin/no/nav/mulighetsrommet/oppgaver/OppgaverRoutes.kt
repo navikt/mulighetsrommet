@@ -14,7 +14,9 @@ import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
+import java.util.UUID
 
 fun Route.oppgaverRoutes() {
     val db: ApiDatabase by inject()
@@ -48,6 +50,7 @@ fun Route.oppgaverRoutes() {
                 oppgavetyper = filter.oppgavetyper,
                 tiltakskoder = filter.tiltakskoder,
                 regioner = filter.regioner,
+                arrangorer = filter.arrangorer.toSet(),
                 ansatt = ansatt,
             )
 
@@ -84,6 +87,10 @@ data class OppgaverFilter(
     val oppgavetyper: Set<OppgaveType>,
     val tiltakskoder: Set<Tiltakskode>,
     val regioner: Set<NavEnhetNummer>,
+    val arrangorer: Set<
+        @Serializable(with = UUIDSerializer::class)
+        UUID,
+        >,
 )
 
 @Serializable

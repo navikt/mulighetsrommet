@@ -1,5 +1,5 @@
 import {
-  TotrinnskontrollBesluttelse,
+  TotrinnskontrollStatus,
   TotrinnskontrollDto,
   TotrinnskontrollDtoBesluttet,
   TotrinnskontrollDtoTilBeslutning,
@@ -10,7 +10,7 @@ export function isGodkjent(
 ): totrinnskontroll is TotrinnskontrollDtoBesluttet {
   return (
     isBesluttet(totrinnskontroll) &&
-    totrinnskontroll.besluttelse === TotrinnskontrollBesluttelse.GODKJENT
+    totrinnskontroll.besluttelse === TotrinnskontrollStatus.GODKJENT
   );
 }
 
@@ -18,8 +18,7 @@ export function isAvvist(
   totrinnskontroll: TotrinnskontrollDto | null,
 ): totrinnskontroll is TotrinnskontrollDtoBesluttet {
   return (
-    isBesluttet(totrinnskontroll) &&
-    totrinnskontroll.besluttelse === TotrinnskontrollBesluttelse.AVVIST
+    isBesluttet(totrinnskontroll) && totrinnskontroll.besluttelse === TotrinnskontrollStatus.AVVIST
   );
 }
 
@@ -29,6 +28,15 @@ export function isBesluttet(
   return (
     totrinnskontroll?.type ===
     "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet"
+  );
+}
+
+export function isSattPaVent(
+  totrinnskontroll: TotrinnskontrollDto | null,
+): totrinnskontroll is TotrinnskontrollDtoBesluttet {
+  return (
+    isBesluttet(totrinnskontroll) &&
+    totrinnskontroll.besluttelse === TotrinnskontrollStatus.SATT_PA_VENT
   );
 }
 

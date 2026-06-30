@@ -26,7 +26,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollBesluttelse
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
@@ -298,6 +298,7 @@ class UtbetalingService(
         }
 
         queries.utbetaling.avbrytUtbetaling(utbetalingId, begrunnelse, Instant.now())
+        queries.utbetalingLinje.setStatusForLinjer(utbetalingId, UtbetalingLinjeStatus.AVBRUTT)
 
         logEndring("Utbetaling avbrutt", utbetaling.id, agent).right()
     }
@@ -750,7 +751,7 @@ class UtbetalingService(
 
     private fun TransactionalQueryContext.publishOpprettFaktura(linje: UtbetalingLinje) {
         val opprettelse = getTotrinnskontroll(linje.id)
-        check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null && opprettelse.besluttelse == TotrinnskontrollBesluttelse.GODKJENT) {
+        check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null && opprettelse.status == TotrinnskontrollStatus.GODKJENT) {
             "UtbetalingLinje id=${linje.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
