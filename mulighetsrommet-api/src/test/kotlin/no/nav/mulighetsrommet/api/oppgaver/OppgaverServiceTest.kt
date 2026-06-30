@@ -584,6 +584,7 @@ class OppgaverServiceTest : FunSpec({
                 oppgavetyper = setOf(OppgaveType.UTBETALING_RETURNERT),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
+                arrangorer = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.toNavAnsatt(
                     roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 ),
