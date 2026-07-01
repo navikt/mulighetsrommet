@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.veilederflate.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -149,11 +150,13 @@ fun Route.brukerRoutes() {
             } else {
                 val deltakelser = historikkService.getDeltakelserKomet(norskIdent, obo)
                 when (gjennomforing) {
-                    is VeilederflateTiltakEnkeltplassAnskaffet,
-                    is VeilederflateTiltakEnkeltplass,
-                    ->
+                    is VeilederflateTiltakEnkeltplassAnskaffet ->
                         deltakelser.aktive
                             .filter { (it as? Deltakelse.TiltaksadministrasjonDeltakelse)?.tiltakskode == gjennomforing.tiltakstype.tiltakskode }
+
+                    is VeilederflateTiltakEnkeltplass ->
+                        deltakelser.aktive
+                            .filter { (it as? Deltakelse.TiltaksadministrasjonDeltakelse)?.tiltakskode == gjennomforing.tiltakstype.tiltakskode && it.oppstartstype == GjennomforingOppstartstype.ENKELTPLASS }
 
                     is VeilederflateTiltakGruppe ->
                         deltakelser.aktive
