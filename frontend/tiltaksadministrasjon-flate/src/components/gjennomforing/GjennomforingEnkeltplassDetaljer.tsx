@@ -3,7 +3,6 @@ import { GodkjennOkonomiModal } from "@/components/gjennomforing/GodkjennOkonomi
 import { SettPaVentOkonomiModal } from "@/components/gjennomforing/SettPaVentOkonomiModal";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
-import { ArrangorKontaktpersonDetaljer } from "@/pages/arrangor/ArrangorKontaktpersonDetaljer";
 import { BodyShort, Button, Heading, HelpText, HStack, InfoCard, VStack } from "@navikt/ds-react";
 import {
   Definisjonsliste,
@@ -108,15 +107,6 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
     {
       key: gjennomforingTekster.tiltaksarrangorUnderenhetLabel,
       value: `${arrangor.navn} - ${arrangor.organisasjonsnummer}`,
-    },
-    {
-      key: gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel,
-      value:
-        arrangor.kontaktpersoner.length > 0
-          ? arrangor.kontaktpersoner.map((kontaktperson) => (
-              <ArrangorKontaktpersonDetaljer key={kontaktperson.id} kontaktperson={kontaktperson} />
-            ))
-          : "-",
     },
   ];
 
