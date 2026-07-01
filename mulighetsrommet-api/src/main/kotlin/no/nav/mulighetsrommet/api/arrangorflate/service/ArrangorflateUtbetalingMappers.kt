@@ -388,7 +388,7 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
                 DataDetails(
                     header = "Periode $start - $slutt",
                     entries =
-                    getStengtDetails(stengtPerioder) +
+                    getStengtPerioderPerSats(satsPeriode.periode, stengtPerioder) +
                         listOf(
                             LabeledDataElement.money(satsLabel, satsPeriode.sats),
                             LabeledDataElement.number(faktorLabel, faktor),
@@ -408,7 +408,7 @@ fun beregningSatsPeriodeDetaljerUtenFaktor(
             header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${
                 satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
             }",
-            entries = getStengtDetails(stengtPerioder) + listOf(
+            entries = getStengtPerioderPerSats(satsPeriode.periode, stengtPerioder) + listOf(
                 LabeledDataElement.money(satsLabel, satsPeriode.sats),
             ),
         )
@@ -477,8 +477,8 @@ private fun beregningDeltakerTable(
     }
 }
 
-private fun getStengtDetails(stengtPeriode: Set<StengtPeriode>): List<LabeledDataElement> = if (stengtPeriode.isNotEmpty()) {
-    stengtPeriode.map { LabeledDataElement.periode("Stengt periode", it.periode) }
+private fun getStengtPerioderPerSats(satsPeriode: Periode, stengtPeriode: Set<StengtPeriode>): List<LabeledDataElement> = if (stengtPeriode.isNotEmpty()) {
+    stengtPeriode.map { LabeledDataElement.periode("Stengt periode", it.periode.intersect(satsPeriode) ?: it.periode) }
 } else {
     emptyList()
 }
