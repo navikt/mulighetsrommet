@@ -9,6 +9,8 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
@@ -67,7 +69,7 @@ class VedtaksbrevTaskTest : FunSpec({
             avvistGrunn = null,
         )
 
-        opprettTilskuddsbehandling(database.db, behandlingId, tilskuddId)
+        opprettOgAttesterTilskudd(database.db, behandlingId, tilskuddId)
     }
 
     afterEach {
@@ -77,7 +79,6 @@ class VedtaksbrevTaskTest : FunSpec({
     test("journalforing setter journalpostid") {
         val pdfGenClient = mockk<PdfGenClient>()
         val dokarkClient = mockk<DokarkClient>()
-        val totrinnskontroll = mockk<TotrinnskontrollService>(relaxed = true)
         val distribuerVedtaksbrev = mockk<DistribuerVedtaksbrev>(relaxed = true)
         val pdfPayload = byteArrayOf(1)
 
@@ -96,12 +97,12 @@ class VedtaksbrevTaskTest : FunSpec({
             personaliaService = personaliaService,
             pdf = pdfGenClient,
             distribuerVedtaksbrev = distribuerVedtaksbrev,
-            totrinnskontrollService = totrinnskontroll,
+            totrinnskontrollService = createTotrinnskontrollService(),
         )
 
         task.journalfor(behandlingId).shouldBeRight()
 
-        database.db.session {
+        database.run {
             queries.tilskuddBehandling.getOrError(behandlingId).vedtakJournalpostId shouldBe "121212"
         }
     }
@@ -118,7 +119,7 @@ class VedtaksbrevTaskTest : FunSpec({
             personaliaService = personaliaService,
             pdf = pdfGenClient,
             distribuerVedtaksbrev = mockk(relaxed = true),
-            totrinnskontrollService = mockk(relaxed = true),
+            totrinnskontrollService = createTotrinnskontrollService(),
         )
 
         task.journalfor(behandlingId).shouldBeLeft("Feil fra pdfgen: PdfGenError(statusCode=500, message=)")
@@ -177,8 +178,8 @@ class VedtaksbrevTaskTest : FunSpec({
     }
 })
 
-private fun opprettTilskuddsbehandling(
-    db: no.nav.mulighetsrommet.api.ApiDatabase,
+private fun opprettOgAttesterTilskudd(
+    db: ApiDatabase,
     behandlingId: UUID,
     tilskuddId: UUID,
 ) {
@@ -208,8 +209,13 @@ private fun opprettTilskuddsbehandling(
     val service = TilskuddBehandlingService(
         db = db,
         journalforVedtaksbrev = mockk(relaxed = true),
-        totrinnskontroll = TotrinnskontrollService(""),
+        totrinnskontroll = createTotrinnskontrollService(),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+    service.attester(request.id, NavAnsattFixture.MikkeMus.navIdent).shouldBeRight()
+}
+
+private fun createTotrinnskontrollService(): TotrinnskontrollService {
+    return TotrinnskontrollService(ApplicationConfigTest.kafka.topics.totrinnskontrollTopic)
 }

@@ -42,8 +42,14 @@ sealed class TotrinnskontrollDto {
         val besluttetAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
         val besluttetTidspunkt: LocalDateTime,
-        val besluttelse: TotrinnskontrollStatus,
+        val beslutning: Beslutning,
     ) : TotrinnskontrollDto()
+
+    enum class Beslutning {
+        SATT_PA_VENT,
+        GODKJENT,
+        RETURNERT,
+    }
 }
 
 fun Totrinnskontroll.toDto() = when {
@@ -61,7 +67,12 @@ fun Totrinnskontroll.toDto() = when {
         forklaring = forklaring,
         besluttetAv = AgentDto.fromAgent(besluttetAv, besluttetAvNavn),
         besluttetTidspunkt = checkNotNull(besluttetTidspunkt).tilNorskLocalDateTime(),
-        besluttelse = status,
+        beslutning = when (status) {
+            TotrinnskontrollStatus.TIL_BEHANDLING -> error("Status TIL_BEHANDLING kan ikke mappes til TotrinnskontrollDto.Besluttet")
+            TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollDto.Beslutning.SATT_PA_VENT
+            TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollDto.Beslutning.GODKJENT
+            TotrinnskontrollStatus.RETURNERT -> TotrinnskontrollDto.Beslutning.RETURNERT
+        },
     )
 }
 

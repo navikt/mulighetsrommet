@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -115,7 +114,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
             service.getDetaljerDto(request.id, ansatt1)?.opprettelse.shouldBeTypeOf<TotrinnskontrollDto.Besluttet>() should {
                 it.aarsaker shouldBe listOf(TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT, TilskuddBehandlingStatusAarsak.ANNET).map { it.name }
                 it.forklaring shouldBe "fordi"
-                it.besluttelse shouldBe TotrinnskontrollStatus.RETURNERT
+                it.beslutning shouldBe TotrinnskontrollDto.Beslutning.RETURNERT
                 it.besluttetAv.navn shouldBe "Mikke Mus"
             }
         }

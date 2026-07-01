@@ -3538,7 +3538,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 20
+        - 21
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -5858,13 +5858,13 @@ components:
         besluttetTidspunkt:
           type: string
           format: date-time
-        besluttelse:
-          $ref: "#/components/schemas/TotrinnskontrollStatus"
+        beslutning:
+          $ref: "#/components/schemas/TotrinnskontrollDto.Beslutning"
       required:
       - aarsaker
       - behandletAv
       - behandletTidspunkt
-      - besluttelse
+      - beslutning
       - besluttetAv
       - besluttetTidspunkt
       - forklaring
@@ -5875,10 +5875,9 @@ components:
           type: string
       required:
       - navn
-    TotrinnskontrollStatus:
+    TotrinnskontrollDto.Beslutning:
       type: string
       enum:
-      - TIL_BEHANDLING
       - SATT_PA_VENT
       - GODKJENT
       - RETURNERT

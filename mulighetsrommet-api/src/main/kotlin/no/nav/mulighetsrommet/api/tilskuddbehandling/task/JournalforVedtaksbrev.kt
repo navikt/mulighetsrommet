@@ -76,7 +76,10 @@ class JournalforVedtaksbrev(
         val fagsakId = gjennomforing.lopenummer.value
         val deltaker = queries.deltaker.getByGjennomforingId(gjennomforing.id).first()
         val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
-        val totrinnskontroll = totrinnskontrollService.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE).toDto() as TotrinnskontrollDto.Besluttet
+        val totrinnskontroll = totrinnskontrollService.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE).toDto()
+        check(totrinnskontroll is TotrinnskontrollDto.Besluttet) {
+            "Totrinnskontroll for tilskudd $id er ikke besluttet"
+        }
 
         generatePdf(tilskudd, totrinnskontroll, gjennomforing, personalia)
             .flatMap { pdf ->
