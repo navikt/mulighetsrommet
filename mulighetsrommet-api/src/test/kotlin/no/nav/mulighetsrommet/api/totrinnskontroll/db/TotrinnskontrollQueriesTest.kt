@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -15,13 +16,13 @@ import java.util.UUID
 class TotrinnskontrollQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
-    test("navn mangler når nav-ansatt ikke er lagret") {
+    test("behandletAv round-trips via domain model") {
         database.runAndRollback {
             val id = UUID.randomUUID()
             val entityId = UUID.randomUUID()
 
             queries.totrinnskontroll.upsert(
-                TotrinnskontrollDbo(
+                Totrinnskontroll(
                     id = id,
                     entityId = entityId,
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
@@ -35,10 +36,9 @@ class TotrinnskontrollQueriesTest : FunSpec({
                 ),
             )
 
-            queries.totrinnskontroll.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).should {
+            queries.totrinnskontroll.getOrError(entityId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).also {
                 it.behandletAv shouldBe NavIdent("B123456")
-                it.behandletAvNavn shouldBe null
-                it.besluttetAvNavn shouldBe null
+                it.besluttetAv shouldBe null
             }
         }
     }
@@ -49,7 +49,7 @@ class TotrinnskontrollQueriesTest : FunSpec({
             val entityId = UUID.randomUUID()
 
             queries.totrinnskontroll.upsert(
-                TotrinnskontrollDbo(
+                Totrinnskontroll(
                     id = id,
                     entityId = entityId,
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,
@@ -64,7 +64,7 @@ class TotrinnskontrollQueriesTest : FunSpec({
             )
 
             queries.totrinnskontroll.upsert(
-                TotrinnskontrollDbo(
+                Totrinnskontroll(
                     id = id,
                     entityId = entityId,
                     type = TotrinnskontrollType.TILSAGN_OPPRETTELSE,

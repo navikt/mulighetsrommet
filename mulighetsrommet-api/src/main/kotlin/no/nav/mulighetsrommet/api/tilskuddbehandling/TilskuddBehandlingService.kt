@@ -19,8 +19,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingReq
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
@@ -30,12 +28,10 @@ import no.nav.mulighetsrommet.model.NavIdent
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.String
 
 class TilskuddBehandlingService(
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
-    private val totrinnskontroll: TotrinnskontrollService,
 ) {
     fun upsert(
         request: TilskuddBehandlingRequest,
@@ -49,7 +45,14 @@ class TilskuddBehandlingService(
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
-                    totrinnskontroll.opprett(dbo.id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE, navIdent)
+                    val opprettelse = Totrinnskontroll.opprett(
+                        UUID.randomUUID(),
+                        dbo.id,
+                        TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                        navIdent,
+                    )
+                    queries.totrinnskontroll.upsert(opprettelse)
+                    outbox.publish(opprettelse)
                     logEndring("Sendt til attestering", dbo.id, navIdent)
                 }
             }
@@ -80,7 +83,7 @@ class TilskuddBehandlingService(
             behandling?.let {
                 TilskuddBehandlingDetaljerDto(
                     it,
-                    totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE).toDto(),
+                    checkNotNull(queries.totrinnskontroll.getDto(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)),
                     handlinger(it, navIdent),
                 )
             }
@@ -102,9 +105,11 @@ class TilskuddBehandlingService(
                     .left()
             }
 
-            val opprettelse = totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-            totrinnskontroll.godkjent(opprettelse, navIdent)
-                .map {
+            val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
+            opprettelse.godkjenn(navIdent)
+                .map { godkjent ->
+                    queries.totrinnskontroll.upsert(godkjent)
+                    outbox.publish(godkjent)
                     queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.FERDIG_BEHANDLET)
                     scheduleJournalforVedtak(id)
                     logEndring("Tilskuddsbehandling attestert", behandling.id, navIdent)
@@ -138,15 +143,18 @@ class TilskuddBehandlingService(
                 .left()
         }
 
-        val opprettelse = totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-        totrinnskontroll.returnert(opprettelse, navIdent, aarsaker.map { it.name }, forklaring).map {
+        val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
+        opprettelse.returner(navIdent, aarsaker.map { it.name }, forklaring).map { returnert ->
+            queries.totrinnskontroll.upsert(returnert)
+            outbox.publish(returnert)
             queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
             logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
         }
     }
 
     fun handlinger(behandling: TilskuddBehandlingDto, navIdent: NavIdent): Set<TilskuddBehandlingHandling> = db.session {
-        val opprettelse = totrinnskontroll.getOrError(behandling.id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
+        val opprettelse =
+            queries.totrinnskontroll.getOrError(behandling.id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
 
         return setOfNotNull(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },

@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -64,7 +63,6 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             database.db,
             mockk(),
             TiltakstypeService(TiltakstypeService.Config(), database.db),
-            TotrinnskontrollService(),
         )
 
         val gjennomforingId = UUID.randomUUID()
@@ -87,12 +85,12 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             val consumer = createConsumer(service, arrangorer)
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
 
-            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, okonomi) ->
-                gjennomforing.id shouldBe gjennomforingId
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
-                gjennomforing.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
-                gjennomforing.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
-                okonomi.shouldBeNull()
+            service.get(gjennomforingId).shouldNotBeNull().should {
+                it.id shouldBe gjennomforingId
+                it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                it.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
+                it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
+                it.okonomi.shouldBeNull()
             }
         }
 
@@ -128,7 +126,6 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             database.db,
             mockk(),
             TiltakstypeService(TiltakstypeService.Config(), database.db),
-            TotrinnskontrollService(),
         )
 
         val gjennomforingId = UUID.randomUUID()
@@ -151,12 +148,12 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             val consumer = createConsumer(service, arrangorer)
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
 
-            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, okonomi) ->
-                gjennomforing.id shouldBe gjennomforingId
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
-                gjennomforing.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
-                gjennomforing.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
-                okonomi.shouldNotBeNull().behandletAv shouldBe NavIdent("B123456")
+            service.get(gjennomforingId).shouldNotBeNull().should {
+                it.id shouldBe gjennomforingId
+                it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                it.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
+                it.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
+                it.okonomi.shouldNotBeNull().behandletAv shouldBe NavIdent("B123456")
             }
         }
 

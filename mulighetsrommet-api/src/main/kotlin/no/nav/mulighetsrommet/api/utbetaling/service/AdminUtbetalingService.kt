@@ -12,8 +12,6 @@ import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingDetaljerDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingDto
@@ -67,7 +65,7 @@ class AdminUtbetalingService(
             val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
 
             val opprettelse = queries.totrinnskontroll
-                .getOrError(linje.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE)
+                .getDtoOrError(linje.id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE)
 
             val personalia = personaliaService.getPersonalia(
                 tilsagn.deltakere.map { it.deltakerId },
@@ -83,10 +81,10 @@ class AdminUtbetalingService(
                 status = UtbetalingLinjeStatusDto.fromUtbetalingLinjeStatus(linje.status),
                 tilsagn = TilsagnDto.from(tilsagn),
                 deltakere = deltakere,
-                opprettelse = opprettelse.toDto(),
+                opprettelse = opprettelse,
                 handlinger = linjeHandlinger(
                     linje,
-                    opprettelse,
+                    opprettelse.behandletAv.agent,
                     tilsagn.kostnadssted.enhetsnummer,
                     ansatt,
                 ),
@@ -256,7 +254,7 @@ class AdminUtbetalingService(
 
         fun linjeHandlinger(
             linje: UtbetalingLinje,
-            opprettelse: Totrinnskontroll,
+            behandletAv: Agent,
             kostnadssted: NavEnhetNummer,
             ansatt: NavAnsatt,
         ): Set<UtbetalingLinjeHandling> {
@@ -269,7 +267,7 @@ class AdminUtbetalingService(
                         handling = it,
                         ansatt = ansatt,
                         kostnadssted = kostnadssted,
-                        behandletAv = opprettelse.behandletAv,
+                        behandletAv = behandletAv,
                     )
                 }
                 .toSet()
