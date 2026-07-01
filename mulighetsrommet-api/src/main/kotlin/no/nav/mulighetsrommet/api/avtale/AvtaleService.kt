@@ -9,7 +9,6 @@ import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import kotliquery.Session
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
@@ -451,23 +450,21 @@ class AvtaleService(
         )
     }
 
-    context(session: Session)
-    private suspend fun getValidatorCtx(
+    private suspend fun QueryContext.getValidatorCtx(
         request: DetaljerRequest,
         navEnheter: List<NavEnhetNummer>,
         previous: AvtaleValidator.Ctx.Avtale?,
     ): Either<List<FieldError>, AvtaleValidator.Ctx> = either {
-        val qctx = QueryContext(session)
-        val tiltakstype = qctx.queries.tiltakstype.getByTiltakskode(request.tiltakskode)
-        val administratorer = request.administratorer.mapNotNull { qctx.queries.ansatt.getByNavIdent(it) }
-        val navEnheter = navEnheter.mapNotNull { qctx.queries.enhet.get(it)?.toDto() }
+        val tiltakstype = queries.tiltakstype.getByTiltakskode(request.tiltakskode)
+        val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
+        val navEnheter = navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() }
 
         val arrangor = request.arrangor?.let {
             val (arrangor, underenheter) = syncArrangorerFromBrreg(it.hovedenhet, it.underenheter).bind()
             arrangor.copy(underenheter = underenheter)
         }
 
-        val systembestemtPrismodell = qctx.queries.prismodell.getBySystemId(request.tiltakskode.name)
+        val systembestemtPrismodell = queries.prismodell.getBySystemId(request.tiltakskode.name)
 
         val kategorisering = context(session) {
             AvtaleValidator.Ctx.Kategorisering(
@@ -475,7 +472,7 @@ class AvtaleService(
                 bransjer = OpplaringKategoriseringQueries.getBransjer(),
                 forerkort = OpplaringKategoriseringQueries.getForerkortKlasser(),
                 innholdElementer = OpplaringKategoriseringQueries.getInnholdElementer(),
-                utdanninger = qctx.queries.utdanning.getUtdanningsprogrammer(),
+                utdanninger = queries.utdanning.getUtdanningsprogrammer(),
             )
         }
 

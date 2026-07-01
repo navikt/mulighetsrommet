@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
-import kotlinx.serialization.json.Json
-import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
@@ -34,13 +32,8 @@ data class OpprettGjennomforingArena(
 )
 
 class GjennomforingArenaService(
-    private val config: Config,
     private val db: ApiDatabase,
 ) {
-    data class Config(
-        val gjennomforingV2Topic: String,
-    )
-
     fun upsert(opprett: OpprettGjennomforingArena): Unit = db.transaction {
         val previous = queries.gjennomforing.getGjennomforing(opprett.id)
         if (previous != null && !harGjennomforingEndringer(opprett, previous)) {
@@ -93,14 +86,7 @@ class GjennomforingArenaService(
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingArena) {
-        val dto = TiltaksgjennomforingV2Mapper.fromGjennomforingArena(gjennomforing)
-        val record = StoredProducerRecord(
-            config.gjennomforingV2Topic,
-            dto.id.toString().toByteArray(),
-            Json.encodeToString(dto).toByteArray(),
-            null,
-        )
-        queries.kafkaProducerRecord.storeRecord(record)
+        outbox.publish(TiltaksgjennomforingV2Mapper.fromGjennomforingArena(gjennomforing))
     }
 }
 

@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
-import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
@@ -28,11 +27,10 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ): ReplikerDeltakerEnkeltplassKafkaConsumer {
         val service = GjennomforingEnkeltplassService(
-            GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             database.db,
             mockk(),
             TiltakstypeService(TiltakstypeService.Config(features), database.db),
-            TotrinnskontrollService(""),
+            TotrinnskontrollService(),
         )
         return ReplikerDeltakerEnkeltplassKafkaConsumer(
             db = database.db,

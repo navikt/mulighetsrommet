@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.tiltakstype.service
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
@@ -20,20 +19,14 @@ import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.TiltakstypeSystem
-import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import java.time.LocalDateTime
 import java.util.UUID
 
 class TiltakstypeDetaljerService(
-    private val config: Config,
     private val db: ApiDatabase,
     private val tiltakstypeService: TiltakstypeService,
     private val navAnsattService: NavAnsattService,
 ) {
-    data class Config(
-        val topic: String,
-    )
-
     fun upsertVeilederinfo(
         id: UUID,
         request: TiltakstypeVeilederinfoRequest,
@@ -166,12 +159,6 @@ class TiltakstypeDetaljerService(
             return
         }
 
-        val record = StoredProducerRecord(
-            config.topic,
-            ekstern.id.toString().toByteArray(),
-            Json.encodeToString(TiltakstypeV3Dto.serializer(), ekstern).toByteArray(),
-            null,
-        )
-        queries.kafkaProducerRecord.storeRecord(record)
+        outbox.publish(ekstern)
     }
 }

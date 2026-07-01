@@ -93,8 +93,8 @@ fun Route.kodeverkRoutes() {
                     call.respond(BadRequest("Ukjent tiltakskode"))
                     return@get
                 }
-                val verk = db.session { context(this.session) { OpplaringKategoriseringMapper.from(tiltakskode) } }
-                call.respond(verk)
+                val kategorisering = db.session { OpplaringKategoriseringMapper.from(tiltakskode) }
+                call.respond(kategorisering)
             }
 
             get("/sertifiseringer/sok", {

@@ -9,6 +9,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -19,7 +20,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
-import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
@@ -54,19 +54,16 @@ class ArenaAdapterServiceTest : FunSpec({
             arrangorService = ArrangorService(database.db, mockk(), mockk()),
             tiltakstypeService = tiltakstypeService,
             gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
-                GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
                 database.db,
                 personaliaService,
                 tiltakstypeService,
-                TotrinnskontrollService(""),
+                TotrinnskontrollService(),
             ),
             gjennomforingAvtaleService = GjennomforingAvtaleService(
-                GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
                 db = database.db,
                 navAnsattService = mockk(),
             ),
             gjennomforingArenaService = GjennomforingArenaService(
-                GjennomforingArenaService.Config(TEST_GJENNOMFORING_V2_TOPIC),
                 database.db,
             ),
         )
@@ -290,7 +287,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             database.run {
                 queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).should { (first) ->
-                    first.topic shouldBe TEST_GJENNOMFORING_V2_TOPIC
+                    first.topic shouldBe ApplicationConfigTest.kafka.topics.sisteTiltaksgjennomforingerV2Topic
                     first.key shouldBe gjennomforing1.id.toString().toByteArray()
                     Json.decodeFromString<TiltaksgjennomforingV2Dto>(first.value.decodeToString()).id shouldBe gjennomforing1.id
                 }
@@ -363,7 +360,7 @@ class ArenaAdapterServiceTest : FunSpec({
 
             database.run {
                 val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
-                record.topic shouldBe TEST_GJENNOMFORING_V2_TOPIC
+                record.topic shouldBe ApplicationConfigTest.kafka.topics.sisteTiltaksgjennomforingerV2Topic
                 record.key shouldBe arenaGjennomforing.id.toString().toByteArray()
 
                 val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())

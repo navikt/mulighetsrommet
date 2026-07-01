@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 object OpplaringKategoriseringMapper {
-    context(session: Session)
+    context(tx: QueryContext)
     fun from(tiltakskode: Tiltakskode): OpplaringKategoriseringResponse = when (tiltakskode) {
         Tiltakskode.ARBEIDSTRENING,
         Tiltakskode.ARBEIDSRETTET_REHABILITERING,
@@ -37,31 +37,32 @@ object OpplaringKategoriseringMapper {
         Tiltakskode.STUDIESPESIALISERING, // Vil bli mappet med kurstype Studiespesialisering
         -> ingenValg(tiltakskode)
 
-        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> session.arenaGruppeAmo()
+        Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        -> tx.session.arenaGruppeAmo()
 
         Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
-        -> session.arbeidsmarkedsopplaring(tiltakskode)
+        -> tx.session.arbeidsmarkedsopplaring(tiltakskode)
 
-        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> session.norskOpplaringGrunnleggendeFerdigheterFov()
+        Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+        -> tx.session.norskOpplaringGrunnleggendeFerdigheterFov()
 
         Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
-        -> QueryContext(session).fagOgYrkesOpplaring(tiltakskode)
+        -> tx.fagOgYrkesOpplaring(tiltakskode)
     }
 
     private fun ingenValg(tiltakskode: Tiltakskode): OpplaringKategoriseringResponse = OpplaringKategoriseringResponse(tiltakskode = tiltakskode, alternativer = emptyList())
 
     private fun Session.norskOpplaringGrunnleggendeFerdigheterFov(): OpplaringKategoriseringResponse {
-        val kurstyper =
-            OpplaringKategoriseringQueries.getKurstyper(
-                setOf(
-                    Kurstype.Kode.NORSKOPPLAERING,
-                    Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
-                    Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-                ),
-            )
+        val kurstyper = OpplaringKategoriseringQueries.getKurstyper(
+            setOf(
+                Kurstype.Kode.NORSKOPPLAERING,
+                Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
+                Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+            ),
+        )
         return OpplaringKategoriseringResponse(
             tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
             alternativer = listOf(

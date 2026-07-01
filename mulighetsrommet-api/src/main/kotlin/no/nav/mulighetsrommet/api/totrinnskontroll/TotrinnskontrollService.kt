@@ -2,21 +2,16 @@ package no.nav.mulighetsrommet.api.totrinnskontroll
 
 import arrow.core.Either
 import arrow.core.NonEmptyList
-import kotlinx.serialization.json.Json
-import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.totrinnskontroll.db.toDbo
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.toAgentHendelse
 import no.nav.mulighetsrommet.model.Agent
 import java.util.UUID
 
-class TotrinnskontrollService(private val topic: String) {
+class TotrinnskontrollService {
 
     context(tx: QueryContext)
     fun get(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll? = with(tx) {
@@ -98,31 +93,6 @@ class TotrinnskontrollService(private val topic: String) {
     private fun upsert(totrinnskontroll: Totrinnskontroll) {
         val dbo = totrinnskontroll.toDbo()
         tx.queries.totrinnskontroll.upsert(dbo)
-        val hendelse = TotrinnskontrollHendelse(
-            id = dbo.id,
-            entityId = dbo.entityId,
-            type = dbo.type,
-            behandletAv = dbo.behandletAv.toAgentHendelse(),
-            behandletTidspunkt = dbo.behandletTidspunkt,
-            besluttetAv = dbo.besluttetAv?.toAgentHendelse(),
-            besluttetTidspunkt = dbo.besluttetTidspunkt,
-            // TODO: introdusere ny tilstand på topic når komet er klar for mottakelse
-            besluttelse = when (dbo.status) {
-                TotrinnskontrollStatus.TIL_BEHANDLING -> null
-                TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollHendelse.Besluttelse.GODKJENT
-                TotrinnskontrollStatus.RETURNERT -> TotrinnskontrollHendelse.Besluttelse.AVVIST
-                TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollHendelse.Besluttelse.AVVIST
-            },
-            aarsaker = dbo.aarsaker,
-            forklaring = dbo.forklaring,
-        )
-        tx.queries.kafkaProducerRecord.storeRecord(
-            StoredProducerRecord(
-                topic,
-                hendelse.entityId.toString().toByteArray(),
-                Json.encodeToString(hendelse).toByteArray(),
-                null,
-            ),
-        )
+        tx.outbox.publish(totrinnskontroll)
     }
 }
