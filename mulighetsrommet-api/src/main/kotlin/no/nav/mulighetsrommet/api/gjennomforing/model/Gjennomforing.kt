@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -188,6 +189,7 @@ data class GjennomforingEnkeltplass(
     override val oppstart: GjennomforingOppstartstype,
     override val pameldingType: GjennomforingPameldingType,
     val ansvarligEnhet: AnsvarligEnhet,
+    val okonomi: Totrinnskontroll? = null,
 ) : GjennomforingTiltaksadministrasjon() {
 
     init {

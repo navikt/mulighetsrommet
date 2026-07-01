@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollDbo
+import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.model.NavIdent
@@ -14,7 +14,7 @@ fun QueryContext.setTilBehandling(
     behandletAv: NavIdent,
     behandletTidspunkt: Instant = Instant.now(),
 ) = queries.totrinnskontroll.upsert(
-    TotrinnskontrollDbo(
+    Totrinnskontroll(
         id = UUID.randomUUID(),
         entityId = uuid,
         type = type,
@@ -36,7 +36,7 @@ fun QueryContext.setGodkjent(
     behandletTidspunkt: Instant = Instant.now(),
     besluttetTidspunkt: Instant = Instant.now(),
 ) = queries.totrinnskontroll.upsert(
-    TotrinnskontrollDbo(
+    Totrinnskontroll(
         id = UUID.randomUUID(),
         entityId = uuid,
         type = type,
@@ -58,7 +58,7 @@ fun QueryContext.setReturnert(
     behandletTidspunkt: Instant = Instant.now(),
     besluttetTidspunkt: Instant = Instant.now(),
 ) = queries.totrinnskontroll.upsert(
-    TotrinnskontrollDbo(
+    Totrinnskontroll(
         id = UUID.randomUUID(),
         entityId = uuid,
         type = type,
@@ -80,7 +80,7 @@ fun QueryContext.setPaVent(
     behandletTidspunkt: Instant = Instant.now(),
     besluttetTidspunkt: Instant = Instant.now(),
 ) = queries.totrinnskontroll.upsert(
-    TotrinnskontrollDbo(
+    Totrinnskontroll(
         id = UUID.randomUUID(),
         entityId = uuid,
         type = type,

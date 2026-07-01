@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
@@ -109,7 +108,6 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
                 gyldigTilsagnPeriode = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode),
             ),
             navAnsattService = mockk(relaxed = true),
-            totrinnskontroll = TotrinnskontrollService(),
         )
         val utbetalingService = UtbetalingService(
             config = UtbetalingService.Config(
@@ -117,7 +115,6 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             ),
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
-            totrinnskontroll = TotrinnskontrollService(),
         )
         return TilskuddArrangorUtbetalingConsumer(
             db = database.db,
@@ -127,7 +124,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     }
 
     test("oppretter utbetaling for innvilget tilskudd til arrangør") {
-        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService())
+        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev)
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()
@@ -143,7 +140,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     }
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
-        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService())
+        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev)
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()

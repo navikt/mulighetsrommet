@@ -5871,9 +5871,12 @@ components:
     AgentDto:
       type: object
       properties:
+        agent:
+          type: string
         navn:
           type: string
       required:
+      - agent
       - navn
     TotrinnskontrollDto.Beslutning:
       type: string
