@@ -304,6 +304,12 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single {
+        PdfGenRsClient(
+            clientEngine = appConfig.engine,
+            baseUrl = appConfig.pdfgenrs.url,
+        )
+    }
+    single {
         VeilarbvedtaksstotteClient(
             baseUrl = appConfig.veilarbvedtaksstotteConfig.url,
             tokenProvider = azureAdTokenProvider.withScope(appConfig.veilarbvedtaksstotteConfig.scope),

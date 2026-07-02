@@ -1,0 +1,255 @@
+{
+  "title": "Utbetaling",
+  "subject": "Krav om utbetaling fra Nav",
+  "description": "Krav om utbetaling fra Nav",
+  "author": "Tiltaksadministrasjon",
+  "sections": [
+    {
+      "title": {
+        "text": "Innsendt krav om utbetaling",
+        "level": 1
+      }
+    },
+    {
+      "title": {
+        "text": "Innsending",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "label": "Arrangør",
+              "value": "Nav (123456789)"
+            },
+            {
+              "label": "Dato innsendt av arrangør",
+              "value": "02.01.2025"
+            },
+            {
+              "label": "Tiltaksnavn",
+              "value": "Avklaring hos Nav"
+            },
+            {
+              "label": "Tiltakstype",
+              "value": "Avklaringer"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Utbetaling",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "label": "Utbetalingsperiode",
+              "value": "01.01.2025 - 31.01.2025"
+            },
+            {
+              "label": "Antall månedsverk",
+              "value": "1.0"
+            },
+            {
+              "label": "Beløp",
+              "value": "100",
+              "format": "NOK"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Betalingsinformasjon",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "label": "Kontonummer",
+              "value": "12345678901"
+            },
+            {
+              "label": "KID-nummer",
+              "value": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Stengt hos arrangør",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "item-list",
+          "description": "Det er registrert stengt hos arrangør i følgende perioder:",
+          "items": [
+            "07.01.2025 - 13.01.2025: Stengt for ferie"
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Deltakerperioder",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "table",
+          "table": {
+            "columns": [
+              {
+                "title": "Navn"
+              },
+              {
+                "title": "Fødselsnr.",
+                "align": "RIGHT"
+              },
+              {
+                "title": "Startdato i perioden",
+                "align": "RIGHT"
+              },
+              {
+                "title": "Sluttdato i perioden",
+                "align": "RIGHT"
+              },
+              {
+                "title": "Deltakelsesprosent",
+                "align": "RIGHT"
+              }
+            ],
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "value": "Ola Nordmann"
+                  },
+                  {
+                    "value": "01.01.1989"
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  },
+                  {
+                    "value": "100.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Kari Nordmann"
+                  },
+                  {
+                    "value": "01.01.1989"
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "14.01.2025"
+                  },
+                  {
+                    "value": "50.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Kari Nordmann"
+                  },
+                  {
+                    "value": "01.01.1989"
+                  },
+                  {
+                    "value": "15.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  },
+                  {
+                    "value": "100.0",
+                    "format": "PERCENT"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Beregnet månedsverk",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "table",
+          "table": {
+            "columns": [
+              {
+                "title": "Navn"
+              },
+              {
+                "title": "Fødselsnr.",
+                "align": "RIGHT"
+              },
+              {
+                "title": "Månedsverk",
+                "align": "RIGHT"
+              }
+            ],
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "value": "Ola Nordmann"
+                  },
+                  {
+                    "value": "01.01.1989"
+                  },
+                  {
+                    "value": "1.0"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Kari Nordmann"
+                  },
+                  {
+                    "value": "01.01.1989"
+                  },
+                  {
+                    "value": "0.75"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -209,6 +209,9 @@ val ApplicationConfigLocal = AppConfig(
     pdfgen = HttpClientConfig(
         url = "http://localhost:8888",
     ),
+    pdfgenrs = HttpClientConfig(
+        url = "http://localhost:8889",
+    ),
     tilgangsmaskin = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/tilgangsmaskin",
         scope = "default",

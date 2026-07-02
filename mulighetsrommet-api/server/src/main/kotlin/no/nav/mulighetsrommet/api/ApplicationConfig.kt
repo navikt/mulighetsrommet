@@ -48,6 +48,7 @@ data class AppConfig(
     val arenaAdapter: AuthenticatedHttpClientConfig,
     val tiltakshistorikk: AuthenticatedHttpClientConfig,
     val pdfgen: HttpClientConfig,
+    val pdfgenrs: HttpClientConfig,
     val msGraphConfig: AuthenticatedHttpClientConfig,
     val isoppfolgingstilfelleConfig: AuthenticatedHttpClientConfig,
     val norg2: HttpClientConfig,
