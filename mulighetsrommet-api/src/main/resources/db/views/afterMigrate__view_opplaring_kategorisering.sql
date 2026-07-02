@@ -54,7 +54,7 @@ select ok.id,
                                                 'konseptId', s.konsept_id
                                         )
                                 ))
-                 from amo_sertifisering s
+                 from opplaring_sertifisering s
                           join opplaring_kategorisering_sertifisering oks
                                on oks.konsept_id = s.konsept_id
                  where oks.opplaring_kategorisering_id = ok.id),
