@@ -52,7 +52,7 @@ Følgende script ble brukt til å opprette secret'en (krever `gcloud`, `kubectl`
 # Variabler avhengig av miljøet
 PROJECT=team-mulighetsrommet-dev-a2d7 # team-mulighetsrommet-prod-5492
 CLUSTER=dev-gcp # prod-gcp
-SECRET_NAME=mr-api-datastream-credential
+SECRET_NAME=mr-api-datastream-credentials
 
 # Database secrets for the datastream postgres user
 gcloud secrets create $SECRET_NAME --replication-policy user-managed --project $PROJECT --locations europe-north1
