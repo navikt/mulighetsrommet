@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
@@ -57,7 +56,6 @@ class ArenaAdapterServiceTest : FunSpec({
                 database.db,
                 personaliaService,
                 tiltakstypeService,
-                TotrinnskontrollService(),
             ),
             gjennomforingAvtaleService = GjennomforingAvtaleService(
                 db = database.db,

@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -53,9 +52,9 @@ fun Route.tilsagnRoutesGet() {
                 val ansatt = queries.ansatt.getByNavIdent(navIdent)
                     ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
 
-                val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSAGN_OPPRETTELSE).toDto()
-                val annullering = queries.totrinnskontroll.get(id, TotrinnskontrollType.TILSAGN_ANNULLERING)?.toDto()
-                val tilOppgjor = queries.totrinnskontroll.get(id, TotrinnskontrollType.TILSAGN_OPPGJOR)?.toDto()
+                val opprettelse = queries.totrinnskontroll.getDtoOrError(id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
+                val annullering = queries.totrinnskontroll.getDto(id, TotrinnskontrollType.TILSAGN_ANNULLERING)
+                val tilOppgjor = queries.totrinnskontroll.getDto(id, TotrinnskontrollType.TILSAGN_OPPGJOR)
 
                 val personalia = personaliaService.getPersonalia(
                     tilsagn.deltakere.map { it.deltakerId },

@@ -81,7 +81,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.service.RedaksjoneltInnholdLenkeSe
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
@@ -452,7 +451,6 @@ private fun services(appConfig: AppConfig) = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     single {
@@ -502,7 +500,6 @@ private fun services(appConfig: AppConfig) = module {
             ),
             get(),
             get(),
-            get(),
         )
     }
     single { AdminUtbetalingService(get(), get(), get()) }
@@ -516,7 +513,6 @@ private fun services(appConfig: AppConfig) = module {
     single { PersonaliaService(get(), get(), get(), get(), get()) }
     single<FeatureToggleService> { UnleashFeatureToggleService(appConfig.unleash) }
     single { LagretFilterService(get()) }
-    single { TotrinnskontrollService() }
     single {
         TilsagnService(
             config = TilsagnService.Config(
@@ -524,10 +520,9 @@ private fun services(appConfig: AppConfig) = module {
             ),
             db = get(),
             navAnsattService = get(),
-            totrinnskontroll = get(),
         )
     }
-    single { TilskuddBehandlingService(get(), get(), get()) }
+    single { TilskuddBehandlingService(get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }
     single { ArrangorflateService(get(), get(), get()) }
@@ -568,7 +563,7 @@ private fun tasks(config: AppConfig) = module {
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
     single { JournalforEnkeltplassTilsagnsbrev(get(), get(), get(), get(), get(), get()) }
     single { DistribuerTilsagnsbrev(get(), get()) }
-    single { JournalforVedtaksbrev(get(), get(), get(), get(), get(), get()) }
+    single { JournalforVedtaksbrev(get(), get(), get(), get(), get()) }
     single { DistribuerVedtaksbrev(get(), get()) }
     single { UpdateGjennomforingAvtaleFreeTextSearch(get(), get()) }
     single {

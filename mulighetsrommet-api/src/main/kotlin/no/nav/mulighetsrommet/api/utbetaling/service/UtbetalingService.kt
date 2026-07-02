@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
@@ -63,7 +62,6 @@ class UtbetalingService(
     private val config: Config,
     private val tilsagnService: TilsagnService,
     private val arrangorService: ArrangorService,
-    private val totrinnskontroll: TotrinnskontrollService,
 ) {
     data class Config(
         val tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator,
@@ -615,7 +613,14 @@ class UtbetalingService(
 
         queries.utbetalingLinje.upsert(dbo)
 
-        totrinnskontroll.opprett(id, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE, behandletAv)
+        val opprettelse = Totrinnskontroll.opprett(
+            UUID.randomUUID(),
+            id,
+            TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE,
+            behandletAv,
+        )
+        queries.totrinnskontroll.upsert(opprettelse)
+        outbox.publish(opprettelse)
 
         return queries.utbetalingLinje.getOrError(id)
     }
@@ -625,7 +630,10 @@ class UtbetalingService(
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
         val opprettelse = getTotrinnskontroll(utbetalingLinje.id)
-        totrinnskontroll.godkjent(opprettelse, besluttetAv).onLeft { return it.left() }
+        opprettelse.godkjenn(besluttetAv).onLeft { return it.left() }.onRight { godkjent ->
+            queries.totrinnskontroll.upsert(godkjent)
+            outbox.publish(godkjent)
+        }
         queries.utbetalingLinje.setStatus(utbetalingLinje.id, UtbetalingLinjeStatus.GODKJENT)
 
         val linjer = queries.utbetalingLinje.getByUtbetalingId(utbetalingLinje.utbetalingId)
@@ -720,8 +728,11 @@ class UtbetalingService(
     ) {
         queries.utbetalingLinje.setStatus(utbetalingLinjeId, UtbetalingLinjeStatus.RETURNERT)
         val opprettelse = getTotrinnskontroll(utbetalingLinjeId)
-        totrinnskontroll.returnert(opprettelse, besluttetAv, aarsaker.map { it.name }, forklaring).onLeft {
+        opprettelse.returner(besluttetAv, aarsaker.map { it.name }, forklaring).onLeft {
             throw UtbetalingException(it)
+        }.onRight { returnert ->
+            queries.totrinnskontroll.upsert(returnert)
+            outbox.publish(returnert)
         }
     }
 
@@ -801,7 +812,7 @@ class UtbetalingService(
     }
 
     private fun QueryContext.getTotrinnskontroll(utbetalingLinjeId: UUID): Totrinnskontroll {
-        return totrinnskontroll.getOrError(utbetalingLinjeId, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE)
+        return queries.totrinnskontroll.getOrError(utbetalingLinjeId, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE)
     }
 
     private fun QueryContext.getOrError(id: UUID): Utbetaling {

@@ -51,7 +51,6 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
@@ -97,7 +96,6 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
         TilsagnService.Config(gyldigTilsagnPeriode = mapOf()),
         db = database.db,
         navAnsattService = mockk(),
-        totrinnskontroll = TotrinnskontrollService(),
     )
 
     fun createUtbetalingService(
@@ -112,7 +110,6 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             ),
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
-            totrinnskontroll = TotrinnskontrollService(),
         )
         return ArrangorflateUtbetalingService(
             db = database.db,

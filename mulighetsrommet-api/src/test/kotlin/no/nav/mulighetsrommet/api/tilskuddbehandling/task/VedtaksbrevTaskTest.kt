@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -96,7 +95,6 @@ class VedtaksbrevTaskTest : FunSpec({
             personaliaService = personaliaService,
             pdf = pdfGenClient,
             distribuerVedtaksbrev = distribuerVedtaksbrev,
-            totrinnskontrollService = TotrinnskontrollService(),
         )
 
         task.journalfor(behandlingId).shouldBeRight()
@@ -118,7 +116,6 @@ class VedtaksbrevTaskTest : FunSpec({
             personaliaService = personaliaService,
             pdf = pdfGenClient,
             distribuerVedtaksbrev = mockk(relaxed = true),
-            totrinnskontrollService = TotrinnskontrollService(),
         )
 
         task.journalfor(behandlingId).shouldBeLeft("Feil fra pdfgen: PdfGenError(statusCode=500, message=)")
@@ -208,7 +205,6 @@ private fun opprettOgAttesterTilskudd(
     val service = TilskuddBehandlingService(
         db = db,
         journalforVedtaksbrev = mockk(relaxed = true),
-        totrinnskontroll = TotrinnskontrollService(),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()

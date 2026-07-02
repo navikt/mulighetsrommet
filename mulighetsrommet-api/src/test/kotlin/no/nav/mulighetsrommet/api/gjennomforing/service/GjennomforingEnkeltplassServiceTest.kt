@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -73,7 +72,6 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             db = database.db,
             personaliaService = mockk(),
             tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.db),
-            totrinnskontroll = TotrinnskontrollService(),
         )
     }
 
@@ -122,10 +120,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
-            service.get(utkast.id).shouldNotBeNull().should { (gjennomforing, okonomi) ->
-                gjennomforing.id shouldBe utkast.id
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
-                okonomi.shouldBeNull()
+            service.get(utkast.id).shouldNotBeNull().should {
+                it.id shouldBe utkast.id
+                it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                it.okonomi.shouldBeNull()
             }
         }
 
@@ -137,7 +135,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val oppdatertPris = UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(
                 totalbelop = 999,
             )
-            val (gjennomforing) = service.opprettUtkast(utkast.copy(prismodell = oppdatertPris), opprettetAv)
+            val gjennomforing = service.opprettUtkast(utkast.copy(prismodell = oppdatertPris), opprettetAv)
                 .shouldBeRight()
 
             gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
@@ -255,7 +253,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         test("oppretter enkeltplass og sender økonomi til godkjenning") {
             val soktInn = createRequest()
 
-            val (_, okonomi) = service.soktInn(soktInn, opprettetAv).shouldBeRight()
+            val enkeltplass = service.soktInn(soktInn, opprettetAv).shouldBeRight()
+            val okonomi = enkeltplass.okonomi
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
@@ -269,7 +268,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             val enkeltplass1 = service.soktInn(soktInn, opprettetAv).shouldBeRight()
 
-            enkeltplass1.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>()
+            enkeltplass1.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>()
 
             val prismodell = UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
@@ -279,8 +278,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 .soktInn(soktInn.copy(prismodell = prismodell), opprettetAv)
                 .shouldBeRight()
 
-            enkeltplass2.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
-                it.id shouldBe enkeltplass1.gjennomforing.prismodell.id
+            enkeltplass2.prismodell.shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
+                it.id shouldBe enkeltplass1.prismodell.id
             }
         }
 
@@ -293,7 +292,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
                 tilleggsopplysninger = null,
             )
-            val (gjennomforing, okonomi) = service
+            val gjennomforing = service
                 .soktInn(soktInn.copy(prismodell = prismodell), opprettetAv)
                 .shouldBeRight()
 
@@ -301,7 +300,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 it.tilskudd shouldBe prismodell.tilskudd
             }
 
-            okonomi.shouldNotBeNull().should {
+            gjennomforing.okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                 it.besluttetAv.shouldBeNull()
             }
@@ -316,7 +315,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
                 tilleggsopplysninger = null,
             )
-            val (gjennomforing, okonomi) = service
+            val gjennomforing = service
                 .soktInn(soktInn.copy(prismodell = prismodell), opprettetAv)
                 .shouldBeRight()
 
@@ -324,7 +323,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 it.totalbelop shouldBe 1000
             }
 
-            okonomi.shouldNotBeNull().should {
+            gjennomforing.okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
                 it.besluttetAv shouldBe besluttetAv
             }
@@ -350,10 +349,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val service = createService(migrert)
             val soktInn = createRequest()
 
-            service.soktInn(soktInn, opprettetAv).shouldBeRight().should { (gjennomforing) ->
-                gjennomforing.startDato shouldBe null
-                gjennomforing.sluttDato shouldBe null
-                gjennomforing.deltidsprosent shouldBe 100.0
+            service.soktInn(soktInn, opprettetAv).shouldBeRight().should {
+                it.startDato shouldBe null
+                it.sluttDato shouldBe null
+                it.deltidsprosent shouldBe 100.0
             }
 
             val startDato = LocalDate.of(2025, 3, 1)
@@ -367,10 +366,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             ).copy(deltakelsesmengder = listOf(Deltakelsesmengde(gyldigFra = startDato, deltakelsesprosent = 60.0)))
             service.updateFromDeltaker(deltaker, NorskIdent("12345678910"))
 
-            service.soktInn(soktInn, opprettetAv).shouldBeRight().should { (gjennomforing) ->
-                gjennomforing.startDato shouldBe startDato
-                gjennomforing.sluttDato shouldBe sluttDato
-                gjennomforing.deltidsprosent shouldBe 60.0
+            service.soktInn(soktInn, opprettetAv).shouldBeRight().should {
+                it.startDato shouldBe startDato
+                it.sluttDato shouldBe sluttDato
+                it.deltidsprosent shouldBe 60.0
             }
         }
     }
@@ -422,9 +421,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.soktInn(soktInn, NavIdent("B123456")).shouldBeRight()
 
-            val (_, okonomi) = service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+            val enkeltplass = service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
 
-            okonomi.shouldNotBeNull().should {
+            enkeltplass.okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
                 it.besluttetAv shouldBe besluttetAv
             }
@@ -443,9 +442,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val soktInn = createRequest()
             service.soktInn(soktInn, opprettetAv).shouldBeRight()
 
-            val (_, okonomi) = service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Feil").shouldBeRight()
+            val enkeltplass = service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Feil").shouldBeRight()
 
-            okonomi.shouldNotBeNull().should {
+            enkeltplass.okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
                 it.besluttetAv shouldBe besluttetAv
                 it.forklaring shouldBe "Feil"
@@ -462,9 +461,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 forklaring = "Feil prisbetingelser",
             ).shouldBeRight()
 
-            val (_, okonomi) = service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+            val enkeltplass = service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
 
-            okonomi.shouldNotBeNull().should {
+            enkeltplass.okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
                 it.forklaring shouldBe null
             }
@@ -606,7 +605,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.FEILREGISTRERT,
                 )
 
-                val (gjennomforing) = service.updateFromDeltaker(feilregistrertDeltaker, norskIdent)
+                val gjennomforing = service.updateFromDeltaker(feilregistrertDeltaker, norskIdent)
 
                 gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
                 gjennomforing.sluttDato shouldBe GjennomforingFixtures.EnkelAmo.sluttDato
@@ -622,7 +621,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     sluttDato = LocalDate.of(2026, 6, 1),
                 )
 
-                val (gjennomforing) = service.updateFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = service.updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
                 gjennomforing.sluttDato shouldBe GjennomforingFixtures.EnkelAmo.sluttDato
@@ -655,7 +654,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     sluttDato = sluttDato,
                 )
 
-                val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.startDato shouldBe startDato
                 gjennomforing.sluttDato shouldBe sluttDato
@@ -668,7 +667,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.FEILREGISTRERT,
                 )
 
-                val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.status shouldBe GjennomforingStatusType.AVBRUTT
             }
@@ -679,7 +678,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.FULLFORT,
                 )
 
-                val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.status shouldBe GjennomforingStatusType.AVSLUTTET
             }
@@ -701,7 +700,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     ),
                 )
 
-                val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.deltidsprosent shouldBe 75.0
             }
@@ -712,7 +711,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.DELTAR,
                 ).copy(deltakelsesmengder = emptyList())
 
-                val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.deltidsprosent shouldBe 100.0
             }
@@ -728,7 +727,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     sluttDato = sluttDato,
                 )
 
-                val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.startDato shouldBe startDato
                 gjennomforing.sluttDato shouldBe sluttDato
@@ -786,7 +785,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.AVBRUTT,
                     endretTidspunkt = nyereEndretTidspunkt,
                 )
-                val (gjennomforing) = service.updateFromDeltaker(deltakerAvbrutt, norskIdent)
+                val gjennomforing = service.updateFromDeltaker(deltakerAvbrutt, norskIdent)
                 gjennomforing.status shouldBe GjennomforingStatusType.AVBRUTT
 
                 val deltakerDeltar = DeltakerFixtures.createDeltaker(
@@ -795,7 +794,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     status = DeltakerStatusType.DELTAR,
                     endretTidspunkt = nyereEndretTidspunkt,
                 )
-                val (gjennomforing2) = service.updateFromDeltaker(deltakerDeltar, norskIdent)
+                val gjennomforing2 = service.updateFromDeltaker(deltakerDeltar, norskIdent)
                 gjennomforing2.status shouldBe GjennomforingStatusType.GJENNOMFORES
             }
 
@@ -815,7 +814,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     endretTidspunkt = tidligereEndretTidspunkt,
                 )
 
-                val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
+                val gjennomforing = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
                 gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
             }
