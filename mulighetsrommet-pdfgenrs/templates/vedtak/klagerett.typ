@@ -1,0 +1,21 @@
+#let render-klagerett() = [
+   #par("Du kan klage på vedtaket
+
+  Hvis du mener vedtaket er feil, kan du klage innen [antall uker fylles ut av breveieren]
+  uker fra den datoen vedtaket har kommet fram til deg. Dette følger av
+  [sett inn lovhenvisning]. Du finner skjema og informasjon på nav.no/klage.
+
+  Nav kan veilede deg på telefon om hvordan du sender en klage. Nav-kontoret ditt kan
+  også hjelpe deg med å skrive en klage. Kontakt oss på telefon 55 55 33 33.
+
+  Hvis du får medhold i klagen, kan du få dekket vesentlige utgifter som har vært
+  nødvendige for å få endret vedtaket, for eksempel hjelp fra advokat. Du kan ha krav
+  på fri rettshjelp etter rettshjelploven. Du kan få mer informasjon om denne ordningen
+  hos advokater, statsforvalteren eller Nav.
+
+  Du kan lese om saksomkostninger i forvaltningsloven § 36.
+
+  Hvis du sender klage i posten, må du signere klagen.
+
+  Mer informasjon om klagerettigheter finner du på nav.no/klagerettigheter.")
+]

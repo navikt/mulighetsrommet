@@ -119,31 +119,6 @@
     },
     {
       "title": {
-        "text": "Utbetalingsstatus",
-        "level": 2
-      },
-      "blocks": [
-        {
-          "type": "description-list",
-          "entries": [
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Status",
-              "value": "Overført til utbetaling",
-              "format": "STATUS_SUCCESS"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
-              "label": "Godkjent beløp til utbetaling",
-              "value": "100",
-              "currency": "NOK"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": {
         "text": "Tilsagn som er brukt til utbetaling",
         "level": 2
       },
@@ -161,18 +136,6 @@
               "label": "Beløp til utbetaling",
               "value": "99",
               "currency": "NOK"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Status",
-              "value": "Overført til utbetaling",
-              "format": "STATUS_SUCCESS"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Status endret",
-              "value": "2025-01-03T00:00",
-              "format": "DATE"
             }
           ]
         },
@@ -189,18 +152,6 @@
               "label": "Beløp til utbetaling",
               "value": "1",
               "currency": "NOK"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Status",
-              "value": "Overført til utbetaling",
-              "format": "STATUS_SUCCESS"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Status endret",
-              "value": "2025-01-03T00:00",
-              "format": "DATE"
             }
           ]
         }

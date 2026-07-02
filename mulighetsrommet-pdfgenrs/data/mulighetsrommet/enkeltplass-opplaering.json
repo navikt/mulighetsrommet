@@ -5,9 +5,15 @@
   "author": "Nav",
   "topSection": {
     "publicExemption": true,
-    "addressedTo": "Brev til AKSEPTABEL EMPIRISK TIGER AS",
-    "date": "2026-03-02",
-    "reference": "Ref. A-2026/9999-1"
+    "mottaker": "AKSEPTABEL EMPIRISK TIGER AS",
+    "deltaker": {
+      "fornavn": "Ola",
+      "mellomnavn": "",
+      "etternavn": "Normann",
+      "fnr": "01010199999"
+    },
+    "dato": "2026-03-02",
+    "saksnummer": "A-2026/9999-1"
   },
   "sections": [
     {
@@ -158,10 +164,7 @@
   ],
   "regards": {
     "intro": "Hilsen",
-    "subject": "Nav Arbeidsmarkedstiltak",
-    "others": [
-      "Beslutters navn",
-      "Saksbehandlers navn"
-    ]
+    "subject": "Beslutters navn",
+    "others": ["Saksbehandlers navn"]
   }
 }
