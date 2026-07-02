@@ -22,6 +22,7 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
@@ -80,8 +81,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-private const val BESTILLING_TOPIC = "bestilling-topic"
-private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
+private val BESTILLING_TOPIC = ApplicationConfigTest.kafka.topics.okonomiBestillingTopic
 
 class ArrangorflateUtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
@@ -94,10 +94,10 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
     val arrangorService: ArrangorService = mockk()
 
     fun createTilsagnService(): TilsagnService = TilsagnService(
-        TilsagnService.Config(bestillingTopic = BESTILLING_TOPIC, gyldigTilsagnPeriode = mapOf()),
+        TilsagnService.Config(gyldigTilsagnPeriode = mapOf()),
         db = database.db,
         navAnsattService = mockk(),
-        totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
+        totrinnskontroll = TotrinnskontrollService(),
     )
 
     fun createUtbetalingService(
@@ -108,12 +108,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
     ): ArrangorflateUtbetalingService {
         val utbetalingService = UtbetalingService(
             config = UtbetalingService.Config(
-                bestillingTopic = BESTILLING_TOPIC,
                 tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
             ),
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
-            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
+            totrinnskontroll = TotrinnskontrollService(),
         )
         return ArrangorflateUtbetalingService(
             db = database.db,

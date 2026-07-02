@@ -70,11 +70,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ): GjennomforingEnkeltplassService {
         return GjennomforingEnkeltplassService(
-            config = GjennomforingEnkeltplassService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             db = database.db,
             personaliaService = mockk(),
             tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.db),
-            totrinnskontroll = TotrinnskontrollService(""),
+            totrinnskontroll = TotrinnskontrollService(),
         )
     }
 

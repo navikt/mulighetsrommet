@@ -8,8 +8,6 @@ import arrow.core.nel
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
-import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
@@ -45,7 +43,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.api.validation.Validated
-import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Arrangor
@@ -58,7 +55,6 @@ import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.toOkonomiPart
-import org.apache.kafka.common.header.internals.RecordHeaders
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -70,7 +66,6 @@ class UtbetalingService(
     private val totrinnskontroll: TotrinnskontrollService,
 ) {
     data class Config(
-        val bestillingTopic: String,
         val tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator,
     )
 
@@ -802,31 +797,11 @@ class UtbetalingService(
         val tidspunktForUtbetaling = linje.faktura.utbetalesTidligstTidspunkt
             ?: config.tidligstTidspunktForUtbetaling.calculate(tilsagn.tiltakstype.tiltakskode, faktura.periode)
         val message = OkonomiBestillingMelding.Faktura(faktura)
-        storeOkonomiMelding(faktura.bestillingsnummer, message, tidspunktForUtbetaling)
+        outbox.publish(message, tidspunktForUtbetaling)
     }
 
     private fun QueryContext.getTotrinnskontroll(utbetalingLinjeId: UUID): Totrinnskontroll {
         return totrinnskontroll.getOrError(utbetalingLinjeId, TotrinnskontrollType.UTBETALING_LINJE_OPPRETTELSE)
-    }
-
-    private fun TransactionalQueryContext.storeOkonomiMelding(
-        bestillingsnummer: String,
-        message: OkonomiBestillingMelding,
-        tidspunktForUtbetaling: Instant?,
-    ) {
-        val headers = tidspunktForUtbetaling?.let {
-            RecordHeaders().add(
-                KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT,
-                it.toString().toByteArray(),
-            )
-        }
-        val record = StoredProducerRecord(
-            config.bestillingTopic,
-            bestillingsnummer.toByteArray(),
-            Json.encodeToString(message).toByteArray(),
-            KafkaUtils.headersToJson(headers),
-        )
-        queries.kafkaProducerRecord.storeRecord(record)
     }
 
     private fun QueryContext.getOrError(id: UUID): Utbetaling {

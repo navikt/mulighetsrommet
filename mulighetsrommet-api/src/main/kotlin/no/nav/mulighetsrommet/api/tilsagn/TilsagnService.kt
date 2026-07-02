@@ -7,7 +7,6 @@ import arrow.core.nonEmptyListOf
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
@@ -73,7 +72,6 @@ class TilsagnService(
     private val totrinnskontroll: TotrinnskontrollService,
 ) {
     data class Config(
-        val bestillingTopic: String,
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
     )
 
@@ -685,7 +683,7 @@ class TilsagnService(
             valuta = tilsagn.beregning.output.pris.valuta,
         )
 
-        storeOkonomiMelding(bestilling.bestillingsnummer, OkonomiBestillingMelding.Bestilling(bestilling))
+        outbox.publish(OkonomiBestillingMelding.Bestilling(bestilling))
     }
 
     private fun TransactionalQueryContext.publishAnnullerBestilling(tilsagn: Tilsagn) {
@@ -702,10 +700,7 @@ class TilsagnService(
             besluttetTidspunkt = annullering.besluttetTidspunkt,
         )
 
-        storeOkonomiMelding(
-            tilsagn.bestilling.bestillingsnummer,
-            OkonomiBestillingMelding.Annullering(annullerBestilling),
-        )
+        outbox.publish(OkonomiBestillingMelding.Annullering(annullerBestilling))
     }
 
     private fun TransactionalQueryContext.publishGjorOppBestilling(tilsagn: Tilsagn) {
@@ -722,10 +717,7 @@ class TilsagnService(
             besluttetTidspunkt = oppgjor.besluttetTidspunkt,
         )
 
-        storeOkonomiMelding(
-            tilsagn.bestilling.bestillingsnummer,
-            OkonomiBestillingMelding.GjorOppBestilling(faktura),
-        )
+        outbox.publish(OkonomiBestillingMelding.GjorOppBestilling(faktura))
     }
 
     private fun QueryContext.logEndring(
@@ -744,19 +736,6 @@ class TilsagnService(
             Json.encodeToJsonElement(tilsagn)
         }
         return tilsagn
-    }
-
-    private fun TransactionalQueryContext.storeOkonomiMelding(
-        bestillingsnummer: String,
-        message: OkonomiBestillingMelding,
-    ) {
-        val record = StoredProducerRecord(
-            config.bestillingTopic,
-            bestillingsnummer.toByteArray(),
-            Json.encodeToString(message).toByteArray(),
-            null,
-        )
-        queries.kafkaProducerRecord.storeRecord(record)
     }
 
     fun handlinger(tilsagn: Tilsagn, ansatt: NavAnsatt): Set<TilsagnHandling> = db.session {

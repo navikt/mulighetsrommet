@@ -119,7 +119,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     )
 
     test("oppretter hel ved utbetaling for innvilget tilskudd til bruker") {
-        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService(""))
+        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService())
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         createConsumer().consume(behandlingId, Json.encodeToJsonElement(godkjentHendelse))
@@ -137,7 +137,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     }
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
-        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService(""))
+        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService())
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()

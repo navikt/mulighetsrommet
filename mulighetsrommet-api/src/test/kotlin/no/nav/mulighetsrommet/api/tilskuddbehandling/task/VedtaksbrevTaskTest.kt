@@ -10,7 +10,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
@@ -97,7 +96,7 @@ class VedtaksbrevTaskTest : FunSpec({
             personaliaService = personaliaService,
             pdf = pdfGenClient,
             distribuerVedtaksbrev = distribuerVedtaksbrev,
-            totrinnskontrollService = createTotrinnskontrollService(),
+            totrinnskontrollService = TotrinnskontrollService(),
         )
 
         task.journalfor(behandlingId).shouldBeRight()
@@ -119,7 +118,7 @@ class VedtaksbrevTaskTest : FunSpec({
             personaliaService = personaliaService,
             pdf = pdfGenClient,
             distribuerVedtaksbrev = mockk(relaxed = true),
-            totrinnskontrollService = createTotrinnskontrollService(),
+            totrinnskontrollService = TotrinnskontrollService(),
         )
 
         task.journalfor(behandlingId).shouldBeLeft("Feil fra pdfgen: PdfGenError(statusCode=500, message=)")
@@ -209,13 +208,9 @@ private fun opprettOgAttesterTilskudd(
     val service = TilskuddBehandlingService(
         db = db,
         journalforVedtaksbrev = mockk(relaxed = true),
-        totrinnskontroll = createTotrinnskontrollService(),
+        totrinnskontroll = TotrinnskontrollService(),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
     service.attester(request.id, NavAnsattFixture.MikkeMus.navIdent).shouldBeRight()
-}
-
-private fun createTotrinnskontrollService(): TotrinnskontrollService {
-    return TotrinnskontrollService(ApplicationConfigTest.kafka.topics.totrinnskontrollTopic)
 }

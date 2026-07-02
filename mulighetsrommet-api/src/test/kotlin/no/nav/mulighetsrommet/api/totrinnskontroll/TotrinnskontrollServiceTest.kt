@@ -11,6 +11,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
@@ -22,12 +23,12 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import java.util.UUID
 
-private const val TOPIC = "test-totrinnskontroll-topic"
+private val TOPIC = ApplicationConfigTest.kafka.topics.totrinnskontrollTopic
 
 class TotrinnskontrollServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
-    val service = TotrinnskontrollService(TOPIC)
+    val service = TotrinnskontrollService()
 
     beforeEach {
         MulighetsrommetTestDomain().initialize(database.db)

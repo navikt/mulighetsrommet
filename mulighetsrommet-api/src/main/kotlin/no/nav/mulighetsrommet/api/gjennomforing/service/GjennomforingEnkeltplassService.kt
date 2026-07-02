@@ -7,7 +7,6 @@ import arrow.core.nel
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
@@ -104,16 +103,11 @@ data class UpsertGjennomforingEnkeltplass(
 }
 
 class GjennomforingEnkeltplassService(
-    private val config: Config,
     private val db: ApiDatabase,
     private val personaliaService: PersonaliaService,
     private val tiltakstyper: TiltakstypeService,
     private val totrinnskontroll: TotrinnskontrollService,
 ) {
-    data class Config(
-        val gjennomforingV2Topic: String,
-    )
-
     fun opprettUtkast(utkast: EnkeltplassRequest, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
         val existing = getEnkeltplass(utkast.id)
         if (existing != null) {
@@ -427,14 +421,7 @@ class GjennomforingEnkeltplassService(
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingEnkeltplass) {
-        val dto = TiltaksgjennomforingV2Mapper.fromGjennomforingEnkeltplass(gjennomforing)
-        val record = StoredProducerRecord(
-            config.gjennomforingV2Topic,
-            dto.id.toString().toByteArray(),
-            Json.encodeToString(dto).toByteArray(),
-            null,
-        )
-        queries.kafkaProducerRecord.storeRecord(record)
+        outbox.publish(TiltaksgjennomforingV2Mapper.fromGjennomforingEnkeltplass(gjennomforing))
     }
 
     private fun TransactionalQueryContext.settOkonomiTilGodkjenning(

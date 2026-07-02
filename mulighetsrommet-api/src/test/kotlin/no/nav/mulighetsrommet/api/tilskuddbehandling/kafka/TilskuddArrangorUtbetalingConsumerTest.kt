@@ -39,9 +39,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
-private const val BESTILLING_TOPIC = "bestilling-topic"
-private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
-
 class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
@@ -109,20 +106,18 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         val tilsagnService = TilsagnService(
             db = database.db,
             config = TilsagnService.Config(
-                bestillingTopic = BESTILLING_TOPIC,
                 gyldigTilsagnPeriode = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode),
             ),
             navAnsattService = mockk(relaxed = true),
-            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
+            totrinnskontroll = TotrinnskontrollService(),
         )
         val utbetalingService = UtbetalingService(
             config = UtbetalingService.Config(
-                bestillingTopic = BESTILLING_TOPIC,
                 tidligstTidspunktForUtbetaling = { _, _ -> null },
             ),
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
-            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
+            totrinnskontroll = TotrinnskontrollService(),
         )
         return TilskuddArrangorUtbetalingConsumer(
             db = database.db,
@@ -132,7 +127,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     }
 
     test("oppretter utbetaling for innvilget tilskudd til arrangør") {
-        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService(""))
+        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService())
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()
@@ -148,7 +143,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     }
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
-        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService(""))
+        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev, TotrinnskontrollService())
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()

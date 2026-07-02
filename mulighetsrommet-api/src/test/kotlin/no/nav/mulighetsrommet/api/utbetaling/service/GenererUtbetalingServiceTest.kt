@@ -88,17 +88,15 @@ class GenererUtbetalingServiceTest : FunSpec({
         },
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = TidligstTidspunktForUtbetalingCalculator { _, _ -> null },
     ): GenererUtbetalingService {
-        val totrinnskontrollTopic = ""
-        val bestillingTopic = ""
-        val totrinnskontroll = TotrinnskontrollService(totrinnskontrollTopic)
+        val totrinnskontroll = TotrinnskontrollService()
         val tilsagnService = TilsagnService(
-            config = TilsagnService.Config(bestillingTopic, gyldigTilsagnPeriode),
+            config = TilsagnService.Config(gyldigTilsagnPeriode),
             db = database.db,
             navAnsattService = mockk(),
             totrinnskontroll = totrinnskontroll,
         )
         val utbetalingService = UtbetalingService(
-            config = UtbetalingService.Config(bestillingTopic, tidligstTidspunktForUtbetaling),
+            config = UtbetalingService.Config(tidligstTidspunktForUtbetaling),
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
             totrinnskontroll = totrinnskontroll,

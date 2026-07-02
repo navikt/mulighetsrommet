@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
-import no.nav.mulighetsrommet.api.gjennomforing.service.TEST_GJENNOMFORING_V2_TOPIC
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import java.time.LocalDate
@@ -42,7 +41,6 @@ class UpdateApentForPameldingTest : FunSpec({
         }
 
         val service = GjennomforingAvtaleService(
-            config = GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
             db = database.db,
             navAnsattService = mockk(),
         )

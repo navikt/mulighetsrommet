@@ -39,6 +39,8 @@ import javax.sql.DataSource
 class ApiDatabase(
     @PublishedApi
     internal val db: Database,
+    @PublishedApi
+    internal val topics: KafkaTopics,
 ) {
 
     fun getDatasource(): DataSource = db.getDatasource()
@@ -47,7 +49,7 @@ class ApiDatabase(
         operation: QueryContext.() -> T,
     ): T {
         return db.session { session ->
-            QueryContext(session).operation()
+            QueryContext(session, topics).operation()
         }
     }
 
@@ -55,13 +57,15 @@ class ApiDatabase(
         operation: TransactionalQueryContext.() -> T,
     ): T {
         return db.transaction { session ->
-            TransactionalQueryContext(session).operation()
+            TransactionalQueryContext(session, topics).operation()
         }
     }
 }
 
-open class QueryContext(open val session: Session) {
+open class QueryContext(open val session: Session, topics: KafkaTopics) {
     val queries by lazy { Queries() }
+
+    val outbox by lazy { OutboxEventPublisher(session, topics) }
 
     inner class Queries {
         val enhet = NavEnhetQueries(session)
@@ -98,4 +102,7 @@ open class QueryContext(open val session: Session) {
     }
 }
 
-class TransactionalQueryContext(override val session: TransactionalSession) : QueryContext(session)
+class TransactionalQueryContext(
+    override val session: TransactionalSession,
+    topics: KafkaTopics,
+) : QueryContext(session, topics)
