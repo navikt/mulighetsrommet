@@ -44,7 +44,7 @@ class GjennomforingRequestKafkaConsumer(
         val arrangor = getArrangor(payload.organisasjonsnummer)
         val utkast = toRequest(gjennomforingId, arrangor.id, payload)
         enkeltplasser.opprettUtkast(utkast, payload.opprettetAv)
-            .getOrElse { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
+            .onLeft { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
 
     private suspend fun handterEnkeltplassSoktInn(request: GjennomforingRequest.EnkeltplassSoktInn) {
@@ -54,7 +54,7 @@ class GjennomforingRequestKafkaConsumer(
         val arrangor = getArrangor(payload.organisasjonsnummer)
         val soktInn = toRequest(gjennomforingId, arrangor.id, payload)
         enkeltplasser.soktInn(soktInn, totrinnskontroll?.behandletAv ?: payload.opprettetAv)
-            .getOrElse { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
+            .onLeft { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
 
     private fun validateTiltakskode(tiltakskode: Tiltakskode) {

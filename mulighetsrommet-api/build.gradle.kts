@@ -8,6 +8,12 @@ application {
     mainClass.set("no.nav.mulighetsrommet.api.ApplicationKt")
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xreturn-value-checker=check")
+    }
+}
+
 tasks.register<JavaExec>("generateOpenApi") {
     group = "documentation"
     description = "Generates all configured OpenAPI specs by running a dedicated generator."

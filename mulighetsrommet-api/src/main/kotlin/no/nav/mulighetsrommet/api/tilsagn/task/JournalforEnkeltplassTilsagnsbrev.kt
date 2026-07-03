@@ -55,7 +55,7 @@ class JournalforEnkeltplassTilsagnsbrev(
         .executeSuspend { inst, _ ->
             journalfor(inst.data.tilsagnId).onLeft { message ->
                 throw Exception("Feil ved journalføring av tilsagnsbrev med id=${inst.data.tilsagnId}: $message")
-            }.map { journalpostId ->
+            }.onRight { journalpostId ->
                 logger.info("Skedulerer distribusjon av tilsagnsbrev journapostId: $journalpostId, tilsagnId: ${inst.data.tilsagnId}")
                 distribuerTilsagnsbrev.schedule(inst.data.tilsagnId)
             }
