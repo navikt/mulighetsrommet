@@ -1,12 +1,17 @@
 package no.nav.mulighetsrommet.api.pdfgen
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Tiltaksnummer
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import java.time.LocalDate
 
 @Serializable
 data class VedtaksbrevContent(
     val deltaker: Deltaker,
-    val saksnummer: String,
-    val opprettetDato: String,
+    val saksnummer: Tiltaksnummer,
+    @Serializable(with = LocalDateSerializer::class)
+    val opprettetDato: LocalDate,
     val saksbehandler: String,
     val beslutter: String,
     val avsender: String,
@@ -17,7 +22,7 @@ data class VedtaksbrevContent(
         val fornavn: String,
         val mellomnavn: String,
         val etternavn: String,
-        val personident: String,
+        val personident: NorskIdent?,
     )
 
     @Serializable
@@ -31,8 +36,10 @@ data class VedtaksbrevContent(
     ) {
         @Serializable
         data class Periode(
-            val fradato: String,
-            val tildato: String,
+            @Serializable(with = LocalDateSerializer::class)
+            val fradato: LocalDate,
+            @Serializable(with = LocalDateSerializer::class)
+            val tildato: LocalDate,
         )
     }
 }
