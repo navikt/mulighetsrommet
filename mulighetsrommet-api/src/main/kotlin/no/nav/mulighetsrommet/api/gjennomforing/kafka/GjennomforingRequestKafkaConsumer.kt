@@ -48,12 +48,12 @@ class GjennomforingRequestKafkaConsumer(
     }
 
     private suspend fun handterEnkeltplassSoktInn(request: GjennomforingRequest.EnkeltplassSoktInn) {
-        val (gjennomforingId, payload) = request
+        val (gjennomforingId, totrinnskontroll, payload) = request
         validateTiltakskode(payload.tiltakskode)
 
         val arrangor = getArrangor(payload.organisasjonsnummer)
         val soktInn = toRequest(gjennomforingId, arrangor.id, payload)
-        enkeltplasser.soktInn(soktInn, payload.opprettetAv)
+        enkeltplasser.soktInn(soktInn, totrinnskontroll?.behandletAv ?: payload.opprettetAv)
             .getOrElse { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
 

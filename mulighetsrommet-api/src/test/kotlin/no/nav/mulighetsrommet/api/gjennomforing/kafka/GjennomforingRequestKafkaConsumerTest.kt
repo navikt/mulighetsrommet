@@ -137,7 +137,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
         )
-        val request = GjennomforingRequest.EnkeltplassSoktInn(gjennomforingId, payload)
+        val request = GjennomforingRequest.EnkeltplassSoktInn(gjennomforingId, null, payload)
 
         test("oppretter gjennomforing og sender økonomi til godkjenning") {
             val arrangorer = mockk<ArrangorService>()

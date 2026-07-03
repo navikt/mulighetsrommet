@@ -13,16 +13,25 @@ data class TotrinnskontrollHendelse(
     @Serializable(with = UUIDSerializer::class)
     val entityId: UUID,
     val type: TotrinnskontrollType,
+    val status: Status,
     val behandletAv: TotrinnskontrollAgent,
     @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
     val besluttetAv: TotrinnskontrollAgent?,
     @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant?,
+    // TODO: fjerne fra modell når komet har migrert over til å benytte status i stedet
     val besluttelse: Besluttelse?,
     val aarsaker: List<String>,
     val forklaring: String?,
 ) {
+    enum class Status {
+        TIL_BEHANDLING,
+        SATT_PA_VENT,
+        GODKJENT,
+        RETURNERT,
+    }
+
     enum class Besluttelse {
         GODKJENT,
         AVVIST,
