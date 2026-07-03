@@ -105,10 +105,11 @@ class JournalforVedtaksbrev(
         personalia: Personalia,
     ): Either<String, ByteArray> {
         val content = TilskuddVedtakToVedtaksbrevContent.toVedtakPdfContent(
-            tilskudd,
-            totrinnskontroll,
-            personalia,
-            gjennomforing,
+            tilskuddBehandling = tilskudd.toDbo(),
+            personalia = personalia,
+            gjennomforing = gjennomforing,
+            saksbehandler = totrinnskontroll.behandletAv.navn,
+            beslutter = totrinnskontroll.besluttetAv.navn,
         )
         return pdf
             .getPdfVedtaksbrev(content)

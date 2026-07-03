@@ -2,32 +2,33 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.mapper
 
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.pdfgen.VedtaksbrevContent
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
+import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
 object TilskuddVedtakToVedtaksbrevContent {
     fun toVedtakPdfContent(
-        tilskuddBehandling: TilskuddBehandlingDto,
-        totrinnskontroll: TotrinnskontrollDto.Besluttet,
+        tilskuddBehandling: TilskuddBehandlingDbo,
         personalia: Personalia,
         gjennomforing: GjennomforingEnkeltplass,
+        saksbehandler: String,
+        beslutter: String,
     ): VedtaksbrevContent {
         val navn = splitNavn(personalia.navn())
         val ident = personalia.norskIdent()?.value.orEmpty()
-        val vedtakListe = tilskuddBehandling.tilskudd.map { tilskudd ->
+        val vedtakListe = tilskuddBehandling.tilskudd.map { t ->
             VedtaksbrevContent.Vedtak(
-                utfall = tilskudd.vedtakResultat.type.beskrivelse,
-                tilskuddType = tilskudd.tilskuddOpplaeringType.toDisplayName(),
-                tilskuddBelop = tilskudd.utbetalingBelop?.belop ?: 0,
-                valuta = tilskudd.utbetalingBelop?.valuta?.name ?: tilskudd.soknadBelop.valuta.name,
+                utfall = t.vedtakResultat.beskrivelse,
+                tilskuddType = t.tilskuddOpplaeringType.toDisplayName(),
+                tilskuddBelop = t.utbetalingBelop?.belop ?: 0,
+                valuta = t.utbetalingBelop?.valuta?.name ?: t.soknadBelop.valuta.name,
                 periode = VedtaksbrevContent.Vedtak.Periode(
                     fradato = tilskuddBehandling.periode.start.toString(),
                     tildato = tilskuddBehandling.periode.getLastInclusiveDate().toString(),
                 ),
-                kommentar = tilskudd.kommentarVedtaksbrev.orEmpty(),
+                kommentar = t.kommentarVedtaksbrev.orEmpty(),
             )
         }
 
@@ -40,8 +41,8 @@ object TilskuddVedtakToVedtaksbrevContent {
             ),
             saksnummer = gjennomforing.lopenummer.value,
             opprettetDato = LocalDate.now().toString(),
-            saksbehandler = totrinnskontroll.behandletAv.navn,
-            beslutter = totrinnskontroll.besluttetAv.navn,
+            saksbehandler = saksbehandler,
+            beslutter = beslutter,
             avsender = gjennomforing.ansvarligEnhet.navn,
             vedtak = vedtakListe,
         )

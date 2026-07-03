@@ -30,7 +30,7 @@ import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import { Handlinger } from "@/components/handlinger/Handlinger";
-import { erReturnert } from "@/utils/totrinnskontroll";
+import { erReturnert, erTilBeslutning } from "@/utils/totrinnskontroll";
 import { DataElementStatusTag } from "@mr/frontend-common";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { TotaltBelopBox } from "@/components/tilskudd-behandling/TotaltBelopBox";
@@ -39,9 +39,11 @@ import {
   opplaeringTilskuddToString,
   tilskuddMottakerToString,
 } from "@/utils/Utils";
-import { PencilFillIcon } from "@navikt/aksel-icons";
+import { FilePdfIcon, PencilFillIcon } from "@navikt/aksel-icons";
 import { BetalingsbetingelserEnkeltplass } from "@/components/gjennomforing/BetalingsbetingelserEnkeltplass";
 import { InformasjonFraSoknad } from "@/components/tilskudd-behandling/InformasjonFraSoknad";
+import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
+import { useVedtaksbrevPdfBlob } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
 
 export function TilskuddBehandlingDetaljerPage() {
   const { gjennomforingId, behandlingId } = useRequiredParams(["gjennomforingId", "behandlingId"]);
@@ -50,6 +52,12 @@ export function TilskuddBehandlingDetaljerPage() {
   const {
     data: { behandling, handlinger, opprettelse },
   } = useTilskuddBehandling(behandlingId);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
+  const {
+    data: pdfBlob,
+    isLoading: pdfIsLoading,
+    isError: pdfIsError,
+  } = useVedtaksbrevPdfBlob(behandlingId, pdfPreviewOpen);
   const [returModalOpen, setReturModalOpen] = useState(false);
   const [attesterModalOpen, setAttesterModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
@@ -95,6 +103,16 @@ export function TilskuddBehandlingDetaljerPage() {
       )}
       <Box marginBlock="space-16">
         <HStack gap="space-8" justify="end">
+          {erTilBeslutning(opprettelse) && (
+            <Button
+              variant="tertiary"
+              size="small"
+              onClick={() => setPdfPreviewOpen(true)}
+              icon={<FilePdfIcon aria-hidden />}
+            >
+              Vis vedtaksbrev
+            </Button>
+          )}
           <Endringshistorikk id={behandling.id} type={EndringshistorikkType.TILSKUDD_BEHANDLING} />
           <Handlinger
             handlinger={handlinger}
@@ -267,6 +285,13 @@ export function TilskuddBehandlingDetaljerPage() {
             Ja, attester behandling
           </Button>
         }
+      />
+      <VedtaksbrevPdfModal
+        blob={pdfBlob}
+        isLoading={pdfIsLoading}
+        isError={pdfIsError}
+        open={pdfPreviewOpen}
+        onClose={() => setPdfPreviewOpen(false)}
       />
     </TilskuddBehandlingLayout>
   );

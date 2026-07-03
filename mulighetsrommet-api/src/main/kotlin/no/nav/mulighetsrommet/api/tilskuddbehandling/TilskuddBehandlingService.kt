@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
 import arrow.core.Either
+import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import kotlinx.serialization.json.Json
@@ -10,7 +11,11 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
+import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToVedtaksbrevContent
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingHandling
@@ -24,9 +29,11 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -36,6 +43,8 @@ class TilskuddBehandlingService(
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val totrinnskontroll: TotrinnskontrollService,
+    private val personaliaService: PersonaliaService,
+    private val pdf: PdfGenClient,
 ) {
     fun upsert(
         request: TilskuddBehandlingRequest,
@@ -205,5 +214,42 @@ class TilskuddBehandlingService(
             Json.encodeToJsonElement(behandling)
         }
         return behandling
+    }
+
+    suspend fun vedtaksbrevPdf(
+        request: TilskuddBehandlingRequest,
+        accessType: AccessType.OBO.AzureAd,
+    ): Either<List<FieldError>, ByteArray> = db.session {
+        val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(request.gjennomforingId) }
+            ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
+
+        return TilskuddBehandlingValidator
+            .validate(request, gjennomforing)
+            .map { dbo ->
+                vedtaksbrevPdf(dbo, accessType).getOrElse { throw IllegalStateException("Klarte ikke lage vedtaksbrev pdf") }
+            }
+    }
+
+    suspend fun vedtaksbrevPdf(id: UUID, accessType: AccessType.OBO.AzureAd): Either<PdfGenError, ByteArray> = db.session {
+        return vedtaksbrevPdf(
+            queries.tilskuddBehandling.getOrError(id).toDbo(),
+            accessType,
+        )
+    }
+
+    private suspend fun vedtaksbrevPdf(tilskuddBehandling: TilskuddBehandlingDbo, accessType: AccessType.OBO.AzureAd): Either<PdfGenError, ByteArray> = db.transaction {
+        val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
+        val deltaker = queries.deltaker.getByGjennomforingId(gjennomforing.id).first()
+        val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
+
+        val content = TilskuddVedtakToVedtaksbrevContent.toVedtakPdfContent(
+            tilskuddBehandling = tilskuddBehandling,
+            personalia = personalia,
+            gjennomforing = gjennomforing,
+            saksbehandler = "<saksbehandler-navn>",
+            beslutter = "<beslutter-navn>",
+        )
+
+        return pdf.getPdfVedtaksbrev(content)
     }
 }

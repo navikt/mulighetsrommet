@@ -3496,6 +3496,73 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling/{id}/vedtaksbrev-pdf:
+    get:
+      tags:
+      - TilskuddBehandling
+      description: Forhåndsvisning av vedtaksbrev pdf
+      operationId: getTilskuddBehandlingVedtaksbrevPdf
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Vedtaksbrev-pdf
+          headers: {}
+          content:
+            application/pdf:
+              schema:
+                type: string
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling/vedtaksbrev-pdf:
+    post:
+      tags:
+      - TilskuddBehandling
+      description: Forhåndsvisning av vedtaksbrev pdf
+      operationId: postTilskuddBehandlingVedtaksbrevPdf
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TilskuddBehandlingRequest"
+        required: false
+      responses:
+        "200":
+          description: Vedtaksbrev-pdf
+          headers: {}
+          content:
+            application/pdf:
+              schema:
+                type: string
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/historikk/{id}:
     get:
       tags:

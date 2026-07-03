@@ -1,4 +1,7 @@
-import { useOpprettTilskuddBehandling } from "@/api/tilskudd-behandling/mutations";
+import {
+  useOpprettTilskuddBehandling,
+  useVedtaksbrevPdfBlobPost,
+} from "@/api/tilskudd-behandling/mutations";
 import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { defaultTilskuddRequest } from "@/components/tilskudd-behandling/defaultTilskuddRequest";
@@ -22,8 +25,9 @@ import { ToTrinnsOpprettelsesForklaring } from "../gjennomforing/tilsagn/ToTrinn
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { applyValidationErrors } from "@/components/skjema/helpers";
-import { CalculatorIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
+import { CalculatorIcon, FilePdfIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
 import { BetalingsbetingelserEnkeltplass } from "@/components/gjennomforing/BetalingsbetingelserEnkeltplass";
+import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
 
 interface Tab {
   key: TilskuddBehandlingTab;
@@ -49,6 +53,8 @@ export function TilskuddBehandlingFormPage() {
   const [currentTab, setCurrentTab] = useState<TilskuddBehandlingTab>(tabs[0].key);
   const navigate = useNavigate();
   const mutation = useOpprettTilskuddBehandling(gjennomforingId);
+  const vedtaksbrevMutation = useVedtaksbrevPdfBlobPost();
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
 
   const defaultValues: TilskuddBehandlingRequest = behandling
     ? {
@@ -119,6 +125,13 @@ export function TilskuddBehandlingFormPage() {
     });
   });
 
+  const onVisVedtaksbrev = handleSubmit((data) => {
+    vedtaksbrevMutation.mutate(data, {
+      onSuccess: () => setPdfPreviewOpen(true),
+      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
+    });
+  });
+
   function tabHasErrors(tab: Tab): boolean {
     const vedtakFields = ["vedtakResultat", "kommentarVedtaksbrev"];
     const allVedtakErrors = Array.isArray(errors.tilskudd)
@@ -149,21 +162,37 @@ export function TilskuddBehandlingFormPage() {
                 opprettelse={data.opprettelse}
               />
             )}
+            <Box marginBlock="space-16">
+              <HStack gap="space-8" justify="end">
+                <Button
+                  variant="tertiary"
+                  size="small"
+                  type="button"
+                  onClick={onVisVedtaksbrev}
+                  disabled={vedtaksbrevMutation.isPending}
+                  icon={<FilePdfIcon aria-hidden />}
+                >
+                  Vis vedtaksbrev
+                </Button>
+              </HStack>
+            </Box>
             <Tabs
               value={currentTab}
               onChange={(value) => setCurrentTab(value as TilskuddBehandlingTab)}
             >
               <Tabs.List>
-                {tabs.map((tab) => (
-                  <TabWithErrorBorder
-                    key={tab.key}
-                    onClick={() => {}}
-                    value={tab.key}
-                    label={tab.label}
-                    hasError={tabHasErrors(tab)}
-                    icon={tab.icon}
-                  />
-                ))}
+                <HStack align="center">
+                  {tabs.map((tab) => (
+                    <TabWithErrorBorder
+                      key={tab.key}
+                      onClick={() => {}}
+                      value={tab.key}
+                      label={tab.label}
+                      hasError={tabHasErrors(tab)}
+                      icon={tab.icon}
+                    />
+                  ))}
+                </HStack>
               </Tabs.List>
               <Box marginBlock="space-16">
                 <TwoColumnGrid separator>
@@ -216,6 +245,13 @@ export function TilskuddBehandlingFormPage() {
             </HStack>
           </>
         </TilskuddBehandlingLayout>
+        <VedtaksbrevPdfModal
+          blob={vedtaksbrevMutation.data}
+          isLoading={vedtaksbrevMutation.isPending}
+          isError={vedtaksbrevMutation.isError}
+          open={pdfPreviewOpen}
+          onClose={() => setPdfPreviewOpen(false)}
+        />
       </form>
     </FormProvider>
   );

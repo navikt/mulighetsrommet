@@ -210,6 +210,8 @@ private fun opprettOgAttesterTilskudd(
         db = db,
         journalforVedtaksbrev = mockk(relaxed = true),
         totrinnskontroll = createTotrinnskontrollService(),
+        mockk(relaxed = true),
+        mockk(relaxed = true),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
