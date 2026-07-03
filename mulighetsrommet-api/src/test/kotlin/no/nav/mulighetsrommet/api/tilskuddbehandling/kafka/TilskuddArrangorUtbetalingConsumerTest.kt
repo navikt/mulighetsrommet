@@ -90,6 +90,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         id = UUID.randomUUID(),
         entityId = behandlingId,
         type = TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+        status = TotrinnskontrollHendelse.Status.GODKJENT,
         behandletAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.DonaldDuck.navIdent.value),
         behandletTidspunkt = Instant.now(),
         besluttetAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.MikkeMus.navIdent.value),

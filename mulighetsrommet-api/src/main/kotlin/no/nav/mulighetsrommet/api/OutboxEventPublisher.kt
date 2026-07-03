@@ -79,11 +79,16 @@ class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
         id = totrinnskontroll.id,
         entityId = totrinnskontroll.entityId,
         type = totrinnskontroll.type,
+        status = when (totrinnskontroll.status) {
+            TotrinnskontrollStatus.TIL_BEHANDLING -> TotrinnskontrollHendelse.Status.TIL_BEHANDLING
+            TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollHendelse.Status.SATT_PA_VENT
+            TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollHendelse.Status.GODKJENT
+            TotrinnskontrollStatus.RETURNERT -> TotrinnskontrollHendelse.Status.RETURNERT
+        },
         behandletAv = totrinnskontroll.behandletAv.toAgentHendelse(),
         behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
         besluttetAv = totrinnskontroll.besluttetAv?.toAgentHendelse(),
         besluttetTidspunkt = totrinnskontroll.besluttetTidspunkt,
-        // TODO: introdusere ny tilstand på topic når komet er klar for mottakelse
         besluttelse = when (totrinnskontroll.status) {
             TotrinnskontrollStatus.TIL_BEHANDLING -> null
             TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollHendelse.Besluttelse.GODKJENT

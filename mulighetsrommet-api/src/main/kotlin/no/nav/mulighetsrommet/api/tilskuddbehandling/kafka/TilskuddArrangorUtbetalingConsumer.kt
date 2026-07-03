@@ -56,7 +56,7 @@ class TilskuddArrangorUtbetalingConsumer(
         if (totrinnskontrollHendelse.type != TotrinnskontrollType.TILSKUDD_OPPRETTELSE) {
             return
         }
-        if (totrinnskontrollHendelse.besluttelse != TotrinnskontrollHendelse.Besluttelse.GODKJENT) {
+        if (totrinnskontrollHendelse.status != TotrinnskontrollHendelse.Status.GODKJENT) {
             return
         }
 
