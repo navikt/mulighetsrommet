@@ -27,7 +27,7 @@ function useHentData(gjennomforingId: string) {
   const periodeSlutt = searchParams.get("periodeSlutt");
   const kostnadssted = searchParams.get("kostnadssted");
 
-  const { gjennomforing, veilederinfo, prismodell } = useGjennomforing(gjennomforingId);
+  const detaljer = useGjennomforing(gjennomforingId);
   const { data: defaults } = useTilsagnDefaults({
     id: null,
     gjennomforingId,
@@ -37,7 +37,7 @@ function useHentData(gjennomforingId: string) {
     // Denne blir bestemt av backend men er påkrevd
     beregning: {
       type: TilsagnBeregningType.FRI,
-      valuta: prismodell.valuta,
+      valuta: detaljer.prismodell.valuta,
       antallPlasser: null,
       prisbetingelser: null,
       antallTimerOppfolgingPerDeltaker: null,
@@ -51,12 +51,14 @@ function useHentData(gjennomforingId: string) {
 
   const kostnadssteder = useRelevanteKostnadssteder(
     defaults.type,
-    "ansvarligEnhet" in gjennomforing ? gjennomforing.ansvarligEnhet.enhetsnummer : null,
-    veilederinfo?.kontorstruktur ?? [],
+    "ansvarligEnhet" in detaljer.gjennomforing
+      ? detaljer.gjennomforing.ansvarligEnhet.enhetsnummer
+      : null,
+    "veilederinfo" in detaljer ? detaljer.veilederinfo.kontorstruktur : [],
   );
   return {
-    gjennomforing,
-    prismodell,
+    gjennomforing: detaljer.gjennomforing,
+    prismodell: detaljer.prismodell,
     kostnadssteder,
     defaults,
   };

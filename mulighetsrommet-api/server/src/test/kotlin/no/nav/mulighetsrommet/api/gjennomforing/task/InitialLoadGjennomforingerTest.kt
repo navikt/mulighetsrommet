@@ -43,7 +43,7 @@ class InitialLoadGjennomforingerTest : FunSpec({
     ): InitialLoadGjennomforinger = InitialLoadGjennomforinger(
         InitialLoadGjennomforinger.Config(gjennomforinvV2Topic),
         database.api,
-        GjennomforingDetaljerService(database.api, TiltakstypeService(db = database.admin), mockk(), mockk()),
+        GjennomforingDetaljerService(database.api, TiltakstypeService(db = database.admin), mockk(), mockk(), mockk()),
         producerClient,
     )
 

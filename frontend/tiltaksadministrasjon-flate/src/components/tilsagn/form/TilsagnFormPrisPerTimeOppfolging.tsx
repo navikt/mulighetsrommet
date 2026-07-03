@@ -1,5 +1,5 @@
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
-import { GjennomforingDto, PrismodellDto, TilsagnRequest } from "@tiltaksadministrasjon/api-client";
+import { PrismodellDto, TilsagnRequest } from "@tiltaksadministrasjon/api-client";
 import { HGrid, Textarea, TextField, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { tilsagnTekster } from "../TilsagnTekster";
@@ -9,6 +9,7 @@ import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metada
 import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 import { NumberInput } from "@/components/skjema/NumberInput";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
+import { GjennomforingDto } from "@/api/gjennomforing/utils";
 
 interface Props {
   gjennomforing: GjennomforingDto;

@@ -1,24 +1,31 @@
 import {
-  GjennomforingDto,
+  GjennomforingAvtaleDetaljerDto,
+  GjennomforingAvtaleDto,
+  GjennomforingDetaljerDto,
+  GjennomforingEnkeltplassDetaljerDto,
+  GjennomforingEnkeltplassDto,
   GjennomforingKompaktDto,
   GjennomforingType,
 } from "@tiltaksadministrasjon/api-client";
 
-type GjennomforingAvtale = Extract<GjennomforingDto, { type: "GjennomforingAvtaleDto" }>;
-type GjennomforingEnkeltplass = Extract<GjennomforingDto, { type: "GjennomforingEnkeltplassDto" }>;
+export type GjennomforingDto = GjennomforingEnkeltplassDto | GjennomforingAvtaleDto;
 
 export function isEnkeltplassKompakt(gjennomforing: GjennomforingKompaktDto): boolean {
   return gjennomforing.type === GjennomforingType.ENKELTPLASS;
 }
 
-export function isGruppetiltak(
-  gjennomforing: GjennomforingDto,
-): gjennomforing is GjennomforingAvtale {
-  return gjennomforing.type === "GjennomforingAvtaleDto";
+export function isGjennomforingAvtaleDetaljer(
+  detaljer: GjennomforingDetaljerDto,
+): detaljer is GjennomforingAvtaleDetaljerDto & {
+  type: "GjennomforingAvtaleDetaljerDto";
+} {
+  return detaljer.type === "GjennomforingAvtaleDetaljerDto";
 }
 
-export function isEnkeltplass(
-  gjennomforing: GjennomforingDto,
-): gjennomforing is GjennomforingEnkeltplass {
-  return gjennomforing.type === "GjennomforingEnkeltplassDto";
+export function isGjennomforingEnkeltplassDetaljer(
+  detaljer: GjennomforingDetaljerDto,
+): detaljer is GjennomforingEnkeltplassDetaljerDto & {
+  type: "GjennomforingEnkeltplassDetaljerDto";
+} {
+  return detaljer.type === "GjennomforingEnkeltplassDetaljerDto";
 }

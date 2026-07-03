@@ -27,17 +27,33 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class GjennomforingDetaljerDto(
+@JsonClassDiscriminator("type")
+sealed interface GjennomforingDetaljerDto
+
+@Serializable
+@SerialName("GjennomforingAvtaleDetaljerDto")
+data class GjennomforingAvtaleDetaljerDto(
     val tiltakstype: Gjennomforing.Tiltakstype,
-    val gjennomforing: GjennomforingDto,
-    val veilederinfo: GjennomforingVeilederinfoDto?,
+    val gjennomforing: GjennomforingAvtaleDto,
+    val veilederinfo: GjennomforingVeilederinfoDto,
+    val prismodell: PrismodellDto,
+    val opplaring: OpplaringKategoriseringDetaljer?,
+) : GjennomforingDetaljerDto
+
+@Serializable
+@SerialName("GjennomforingEnkeltplassDetaljerDto")
+data class GjennomforingEnkeltplassDetaljerDto(
+    val tiltakstype: Gjennomforing.Tiltakstype,
+    val gjennomforing: GjennomforingEnkeltplassDto,
     val prismodell: PrismodellDto,
     val opplaring: OpplaringKategoriseringDetaljer?,
     val okonomi: TotrinnskontrollDto?,
     val prisendring: Prisendring?,
-    val enkeltplassDeltaker: DeltakerDto?,
-) {
+    val deltaker: DeltakerDto?,
+) : GjennomforingDetaljerDto {
+
     @Serializable
     data class Prisendring(
         val totrinnskontroll: TotrinnskontrollDto,
@@ -62,7 +78,7 @@ sealed class GjennomforingDto {
         val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
         val slettet: Boolean,
-        val kontaktpersoner: List<ArrangorKontaktperson>,
+        val kontaktpersoner: List<ArrangorKontaktperson> = listOf(),
     )
 
     @Serializable
