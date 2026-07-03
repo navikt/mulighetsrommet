@@ -41,10 +41,10 @@ import java.time.LocalDate
 
 val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-api")
 
-fun <R> withTestApplication(
+fun withTestApplication(
     config: AppConfig = ApplicationConfigTest,
     additionalConfiguration: (Application.() -> Unit)? = null,
-    test: suspend ApplicationTestBuilder.() -> R,
+    test: suspend ApplicationTestBuilder.() -> Unit,
 ) {
     testApplication {
         application {

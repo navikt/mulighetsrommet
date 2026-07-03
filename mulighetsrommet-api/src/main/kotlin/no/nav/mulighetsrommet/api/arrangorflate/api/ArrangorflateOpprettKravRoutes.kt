@@ -304,7 +304,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
             val tiltak = requireArrangorflateTiltak()
             receiveOpprettKravUtbetalingRequest()
                 .onLeft { return@post call.respondWithProblemDetail(ValidationError(errors = it)) }
-                .flatMap { request ->
+                .onRight { request ->
                     // Scan vedlegg for virus
                     if (clamAvClient.virusScanVedlegg(request.vedlegg).any { it.Result == Status.FOUND }) {
                         return@post call.respondWithProblemDetail(BadRequest("Virus funnet i minst ett vedlegg"))
