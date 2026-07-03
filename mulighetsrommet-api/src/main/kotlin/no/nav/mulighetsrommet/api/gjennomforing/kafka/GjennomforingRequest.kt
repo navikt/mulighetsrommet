@@ -28,6 +28,8 @@ sealed interface GjennomforingRequest {
     data class EnkeltplassSoktInn(
         @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
+        // TOOD: gjør required når komet har begynt å sende
+        val totrinnskontroll: Totrinnskontroll? = null,
         val payload: UpsertEnkeltplass,
     ) : GjennomforingRequest
 
@@ -36,6 +38,7 @@ sealed interface GjennomforingRequest {
     data class EnkeltplassEndrePrisinformasjon(
         @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
+        val totrinnskontroll: Totrinnskontroll,
         val payload: EnkeltplassPrisinformasjon,
     ) : GjennomforingRequest
 
@@ -46,6 +49,13 @@ sealed interface GjennomforingRequest {
         override val gjennomforingId: UUID,
         val payload: OpplaringKategorisering?,
     ) : GjennomforingRequest
+
+    @Serializable
+    data class Totrinnskontroll(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val behandletAv: NavIdent,
+    )
 }
 
 @Serializable
@@ -53,9 +63,9 @@ data class UpsertEnkeltplass(
     val tiltakskode: Tiltakskode,
     val organisasjonsnummer: Organisasjonsnummer,
     val ansvarligEnhet: NavEnhetNummer,
-    val opprettetAv: NavIdent,
     val prisinformasjon: EnkeltplassPrisinformasjon,
     val kategorisering: OpplaringKategorisering?,
+    val opprettetAv: NavIdent,
 )
 
 @Serializable
