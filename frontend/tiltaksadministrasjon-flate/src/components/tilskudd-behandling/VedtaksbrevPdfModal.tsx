@@ -1,5 +1,5 @@
 import { Button, HStack, Loader, Modal } from "@navikt/ds-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -18,33 +18,20 @@ interface Props {
 }
 
 export function VedtaksbrevPdfModal({ blob, isLoading, isError, open, onClose }: Props) {
-  const [pdfBytes, setPdfBytes] = useState<Uint8Array | undefined>();
+  const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [numPages, setNumPages] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!blob || !open) {
-      setPdfBytes(undefined);
-      setNumPages(0);
-      return;
-    }
-    let cancelled = false;
-    blob
-      .arrayBuffer()
-      .then((buffer) => {
-        if (!cancelled) setPdfBytes(new Uint8Array(buffer));
-        return undefined;
-      })
-      .catch(() => {
-        // Ignore errors reading PDF blob
-      });
+    if (!blob || !open) return;
+    const url = URL.createObjectURL(blob);
+    setBlobUrl(url);
     return () => {
-      cancelled = true;
+      URL.revokeObjectURL(url);
+      setBlobUrl(null);
+      setNumPages(0);
     };
   }, [blob, open]);
-
-  // Stable object reference — prevents react-pdf from seeing a "changed" file prop on re-render.
-  const pdfFile = useMemo(() => (pdfBytes ? { data: pdfBytes } : null), [pdfBytes]);
 
   const pageWidth = (containerRef.current?.clientWidth ?? 740) - 48;
 
@@ -62,14 +49,10 @@ export function VedtaksbrevPdfModal({ blob, isLoading, isError, open, onClose }:
               <Loader size="xlarge" title="Laster PDF..." />
             </div>
           )}
-          {isError && (
-            <p className="text-center text-red-600">
-              Kunne ikke laste vedtaksbrevet. Prøv å laste ned filen i stedet.
-            </p>
-          )}
-          {pdfFile && (
+          {isError && <p className="text-center text-red-600">Kunne ikke laste vedtaksbrevet.</p>}
+          {blobUrl && (
             <Document
-              file={pdfFile}
+              file={blobUrl}
               onLoadSuccess={({ numPages }) => setNumPages(numPages)}
               loading={
                 <div className="flex justify-center items-center h-96">
