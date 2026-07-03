@@ -79,6 +79,7 @@ export const tilsagnHandlers = [
 
 const tilBeslutning: TotrinnskontrollDtoTilBeslutning = {
   behandletAv: {
+    agent: "P123456",
     navn: "Per Haraldsen",
   },
   behandletTidspunkt: "2024-01-01T22:00:00",
