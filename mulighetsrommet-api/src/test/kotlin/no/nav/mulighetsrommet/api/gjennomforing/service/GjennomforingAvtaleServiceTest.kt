@@ -15,6 +15,7 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.endringshistorikk.EndringshistorikkType
@@ -43,13 +44,12 @@ import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
 
-const val TEST_GJENNOMFORING_V2_TOPIC = "gjennomforing-v2"
+val TEST_GJENNOMFORING_V2_TOPIC = ApplicationConfigTest.kafka.topics.sisteTiltaksgjennomforingerV2Topic
 
 class GjennomforingAvtaleServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     fun createService(): GjennomforingAvtaleService = GjennomforingAvtaleService(
-        config = GjennomforingAvtaleService.Config(TEST_GJENNOMFORING_V2_TOPIC),
         db = database.db,
         navAnsattService = mockk(relaxed = true),
     )

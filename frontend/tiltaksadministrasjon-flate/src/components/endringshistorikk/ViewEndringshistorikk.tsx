@@ -19,14 +19,12 @@ export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
   return (
     <ul>
       {historikk.entries.map(({ operation, editedAt, editedBy }) => {
-        const user = isNavAnsatt(editedBy)
-          ? `${editedBy.navn} (${editedBy.navIdent})`
-          : editedBy.navn;
+        const user = erNavAnsatt(editedBy) ? formaterNavAnsatt(editedBy) : editedBy.navn;
 
         return (
           <li
             className={
-              !isNavAnsatt(editedBy) ? "italic font-thin text-ax-text-neutral-subtle" : undefined
+              !erNavAnsatt(editedBy) ? "italic font-thin text-ax-text-neutral-subtle" : undefined
             }
             key={editedAt}
           >
@@ -38,6 +36,10 @@ export function ViewEndringshistorikk(props: ViewEndringshistorikkProps) {
   );
 }
 
-function isNavAnsatt(user: EndringshistorikkDtoUser): user is EndringshistorikkDtoNavAnsatt {
+function erNavAnsatt(user: EndringshistorikkDtoUser): user is EndringshistorikkDtoNavAnsatt {
   return "navIdent" in user;
+}
+
+function formaterNavAnsatt(editedBy: EndringshistorikkDtoNavAnsatt) {
+  return editedBy.navn ? `${editedBy.navn} (${editedBy.navIdent})` : editedBy.navIdent;
 }

@@ -16,9 +16,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToVedtaksbrevContent
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.toDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -36,7 +34,6 @@ class JournalforVedtaksbrev(
     private val db: ApiDatabase,
     private val dokarkClient: DokarkClient,
     private val personaliaService: PersonaliaService,
-    private val totrinnskontrollService: TotrinnskontrollService,
     private val pdf: PdfGenClient,
     private val distribuerVedtaksbrev: DistribuerVedtaksbrev,
 ) {
@@ -76,7 +73,7 @@ class JournalforVedtaksbrev(
         val fagsakId = gjennomforing.lopenummer.value
         val deltaker = queries.deltaker.getByGjennomforingId(gjennomforing.id).first()
         val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
-        val totrinnskontroll = totrinnskontrollService.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE).toDto()
+        val totrinnskontroll = queries.totrinnskontroll.getDtoOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
         check(totrinnskontroll is TotrinnskontrollDto.Besluttet) {
             "Totrinnskontroll for tilskudd $id er ikke besluttet"
         }

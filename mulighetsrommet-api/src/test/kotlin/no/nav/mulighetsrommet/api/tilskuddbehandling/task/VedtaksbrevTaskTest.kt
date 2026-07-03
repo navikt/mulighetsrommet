@@ -10,7 +10,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
@@ -27,7 +26,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -97,7 +95,6 @@ class VedtaksbrevTaskTest : FunSpec({
             personaliaService = personaliaService,
             pdf = pdfGenClient,
             distribuerVedtaksbrev = distribuerVedtaksbrev,
-            totrinnskontrollService = createTotrinnskontrollService(),
         )
 
         task.journalfor(behandlingId).shouldBeRight()
@@ -119,7 +116,6 @@ class VedtaksbrevTaskTest : FunSpec({
             personaliaService = personaliaService,
             pdf = pdfGenClient,
             distribuerVedtaksbrev = mockk(relaxed = true),
-            totrinnskontrollService = createTotrinnskontrollService(),
         )
 
         task.journalfor(behandlingId).shouldBeLeft("Feil fra pdfgen: PdfGenError(statusCode=500, message=)")
@@ -209,15 +205,10 @@ private fun opprettOgAttesterTilskudd(
     val service = TilskuddBehandlingService(
         db = db,
         journalforVedtaksbrev = mockk(relaxed = true),
-        totrinnskontroll = createTotrinnskontrollService(),
         mockk(relaxed = true),
         mockk(relaxed = true),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
     service.attester(request.id, NavAnsattFixture.MikkeMus.navIdent).shouldBeRight()
-}
-
-private fun createTotrinnskontrollService(): TotrinnskontrollService {
-    return TotrinnskontrollService(ApplicationConfigTest.kafka.topics.totrinnskontrollTopic)
 }

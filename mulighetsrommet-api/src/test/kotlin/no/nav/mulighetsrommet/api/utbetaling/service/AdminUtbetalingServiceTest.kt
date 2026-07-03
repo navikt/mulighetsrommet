@@ -14,6 +14,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
@@ -39,7 +40,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
@@ -68,8 +68,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.UUID
 
-private const val BESTILLING_TOPIC = "bestilling-topic"
-private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
+private val BESTILLING_TOPIC = ApplicationConfigTest.kafka.topics.okonomiBestillingTopic
 
 class AdminUtbetalingServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
@@ -87,10 +86,9 @@ class AdminUtbetalingServiceTest : FunSpec({
     )
 
     fun createTilsagnService(): TilsagnService = TilsagnService(
-        TilsagnService.Config(bestillingTopic = BESTILLING_TOPIC, gyldigTilsagnPeriode = mapOf()),
+        TilsagnService.Config(gyldigTilsagnPeriode = mapOf()),
         db = database.db,
         navAnsattService = mockk(),
-        totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
     )
 
     fun createUtbetalingService(
@@ -99,12 +97,10 @@ class AdminUtbetalingServiceTest : FunSpec({
     ): AdminUtbetalingService {
         val utbetalingService = UtbetalingService(
             config = UtbetalingService.Config(
-                bestillingTopic = BESTILLING_TOPIC,
                 tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
             ),
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
-            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
         )
         return AdminUtbetalingService(
             db = database.db,

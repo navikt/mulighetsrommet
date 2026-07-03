@@ -83,19 +83,19 @@ class GjennomforingDetaljerService(
             }
 
             is GjennomforingEnkeltplass -> db.session {
-                val okonomi = queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                val deltakerDto = getDeltaker(gjennomforing.id)?.let {
+                val okonomi = queries.totrinnskontroll.getDto(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                val deltakerDto = getDeltaker(gjennomforing.id)?.let { deltaker ->
                     val personalia = personaliaService
-                        .getPersonalia(it.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
+                        .getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
                     val norskIdent = personalia.norskIdent()
                     if (personalia.harTilgang() && norskIdent != null) {
                         auditLogVisEnkeltplass(navIdent, norskIdent)
                     }
-                    val veilederNavn = it.navVeileder?.navIdent?.let {
+                    val veilederNavn = deltaker.navVeileder?.navIdent?.let {
                         navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
                     }
 
-                    DeltakerDto.from(it, personalia, veilederNavn)
+                    DeltakerDto.from(deltaker, personalia, veilederNavn)
                 }
                 val opplaringKategorisering = context(session) {
                     OpplaringKategoriseringQueries.get(gjennomforing.id)

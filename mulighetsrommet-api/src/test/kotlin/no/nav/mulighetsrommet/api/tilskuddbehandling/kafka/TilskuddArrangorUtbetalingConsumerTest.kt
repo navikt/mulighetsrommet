@@ -20,7 +20,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
@@ -38,9 +37,6 @@ import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
-
-private const val BESTILLING_TOPIC = "bestilling-topic"
-private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
 
 class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
@@ -109,20 +105,16 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         val tilsagnService = TilsagnService(
             db = database.db,
             config = TilsagnService.Config(
-                bestillingTopic = BESTILLING_TOPIC,
                 gyldigTilsagnPeriode = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode),
             ),
             navAnsattService = mockk(relaxed = true),
-            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
         )
         val utbetalingService = UtbetalingService(
             config = UtbetalingService.Config(
-                bestillingTopic = BESTILLING_TOPIC,
                 tidligstTidspunktForUtbetaling = { _, _ -> null },
             ),
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
-            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
         )
         return TilskuddArrangorUtbetalingConsumer(
             db = database.db,
@@ -135,7 +127,6 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         val service = TilskuddBehandlingService(
             database.db,
             journalforVedtaksbrev,
-            TotrinnskontrollService(""),
             mockk(relaxed = true),
             mockk(relaxed = true),
         )
@@ -157,7 +148,6 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         val service = TilskuddBehandlingService(
             database.db,
             journalforVedtaksbrev,
-            TotrinnskontrollService(""),
             mockk(relaxed = true),
             mockk(relaxed = true),
         )

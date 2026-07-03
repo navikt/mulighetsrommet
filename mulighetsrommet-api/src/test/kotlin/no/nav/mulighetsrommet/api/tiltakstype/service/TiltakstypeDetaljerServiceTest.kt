@@ -7,6 +7,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.api.TiltakstypeDeltakerinfoRequest
@@ -23,7 +24,7 @@ import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import java.util.UUID
 
-const val TEST_TILTAKSTYPE_TOPIC = "tiltakstype-v3"
+val TEST_TILTAKSTYPE_TOPIC = ApplicationConfigTest.kafka.topics.sisteTiltakstyperTopic
 
 class TiltakstypeDetaljerServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
@@ -58,7 +59,6 @@ class TiltakstypeDetaljerServiceTest : FunSpec({
             db = database.db,
         )
         return TiltakstypeDetaljerService(
-            config = TiltakstypeDetaljerService.Config(topic = TEST_TILTAKSTYPE_TOPIC),
             db = database.db,
             tiltakstypeService = tiltakstypeService,
             navAnsattService = mockk(),

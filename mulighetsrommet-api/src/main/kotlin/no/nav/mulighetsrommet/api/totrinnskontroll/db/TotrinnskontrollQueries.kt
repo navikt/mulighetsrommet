@@ -3,9 +3,12 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.AgentDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.textRepr
 import no.nav.mulighetsrommet.model.toAgent
@@ -13,7 +16,7 @@ import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class TotrinnskontrollQueries(private val session: Session) {
-    fun upsert(totrinnskontroll: TotrinnskontrollDbo) {
+    fun upsert(totrinnskontroll: Totrinnskontroll) {
         @Language("PostgreSQL")
         val query = """
             insert into totrinnskontroll (
@@ -74,6 +77,30 @@ class TotrinnskontrollQueries(private val session: Session) {
     fun get(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll? {
         @Language("PostgreSQL")
         val query = """
+            select *
+            from totrinnskontroll
+            where entity_id = :entity_id::uuid and type = :type
+            order by behandlet_tidspunkt desc
+            limit 1
+        """.trimIndent()
+
+        val params = mapOf(
+            "entity_id" to entityId,
+            "type" to type.name,
+        )
+
+        return session.single(queryOf(query, params)) { it.toTotrinnskontroll() }
+    }
+
+    fun getDtoOrError(entityId: UUID, type: TotrinnskontrollType): TotrinnskontrollDto {
+        return requireNotNull(getDto(entityId, type)) {
+            "Totrinnskontroll mangler for type $type"
+        }
+    }
+
+    fun getDto(entityId: UUID, type: TotrinnskontrollType): TotrinnskontrollDto? {
+        @Language("PostgreSQL")
+        val query = """
             select
                 totrinnskontroll.*,
                 nav_ansatt_behandlet.fornavn || ' ' || nav_ansatt_behandlet.etternavn AS behandlet_av_navn,
@@ -91,19 +118,14 @@ class TotrinnskontrollQueries(private val session: Session) {
             "type" to type.name,
         )
 
-        return session.single(queryOf(query, params)) { it.toToTrinnskontroll() }
+        return session.single(queryOf(query, params)) { it.toDto() }
     }
 
     fun getAll(entityId: UUID): List<Totrinnskontroll> {
         @Language("PostgreSQL")
         val query = """
-            select
-                totrinnskontroll.*,
-                nav_ansatt_behandlet.fornavn || ' ' || nav_ansatt_behandlet.etternavn AS behandlet_av_navn,
-                nav_ansatt_besluttet.fornavn || ' ' || nav_ansatt_besluttet.etternavn AS besluttet_av_navn
+            select totrinnskontroll.*
             from totrinnskontroll
-                left join nav_ansatt nav_ansatt_behandlet on behandlet_av = nav_ansatt_behandlet.nav_ident
-                left join nav_ansatt nav_ansatt_besluttet on besluttet_av = nav_ansatt_besluttet.nav_ident
             where entity_id = :entity_id::uuid
             order by behandlet_tidspunkt desc
         """.trimIndent()
@@ -112,10 +134,10 @@ class TotrinnskontrollQueries(private val session: Session) {
             "entity_id" to entityId,
         )
 
-        return session.list(queryOf(query, params)) { it.toToTrinnskontroll() }
+        return session.list(queryOf(query, params)) { it.toTotrinnskontroll() }
     }
 
-    private fun Row.toToTrinnskontroll(): Totrinnskontroll {
+    private fun Row.toTotrinnskontroll(): Totrinnskontroll {
         return Totrinnskontroll(
             id = uuid("id"),
             entityId = uuid("entity_id"),
@@ -127,8 +149,42 @@ class TotrinnskontrollQueries(private val session: Session) {
             besluttetAv = stringOrNull("besluttet_av")?.toAgent(),
             besluttetTidspunkt = instantOrNull("besluttet_tidspunkt"),
             status = string("status").let { TotrinnskontrollStatus.valueOf(it) },
-            besluttetAvNavn = stringOrNull("besluttet_av_navn"),
-            behandletAvNavn = stringOrNull("behandlet_av_navn"),
         )
+    }
+
+    private fun Row.toDto(): TotrinnskontrollDto {
+        val behandletAv = string("behandlet_av").toAgent()
+        val behandletAvNavn = stringOrNull("behandlet_av_navn")
+        val behandletTidspunkt = instant("behandlet_tidspunkt").tilNorskLocalDateTime()
+        val aarsaker = array<String>("aarsaker").toList()
+        val forklaring = stringOrNull("forklaring")
+        val besluttetAv = stringOrNull("besluttet_av")?.toAgent()
+        val besluttetAvNavn = stringOrNull("besluttet_av_navn")
+        val besluttetTidspunkt = instantOrNull("besluttet_tidspunkt")
+        val status = string("status").let { TotrinnskontrollStatus.valueOf(it) }
+
+        return if (besluttetAv == null) {
+            TotrinnskontrollDto.TilBeslutning(
+                behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
+                behandletTidspunkt = behandletTidspunkt,
+                aarsaker = aarsaker,
+                forklaring = forklaring,
+            )
+        } else {
+            TotrinnskontrollDto.Besluttet(
+                behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
+                behandletTidspunkt = behandletTidspunkt,
+                aarsaker = aarsaker,
+                forklaring = forklaring,
+                besluttetAv = AgentDto.fromAgent(besluttetAv, besluttetAvNavn),
+                besluttetTidspunkt = checkNotNull(besluttetTidspunkt).tilNorskLocalDateTime(),
+                beslutning = when (status) {
+                    TotrinnskontrollStatus.TIL_BEHANDLING -> error("Status TIL_BEHANDLING kan ikke mappes til TotrinnskontrollDto.Besluttet")
+                    TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollDto.Beslutning.SATT_PA_VENT
+                    TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollDto.Beslutning.GODKJENT
+                    TotrinnskontrollStatus.RETURNERT -> TotrinnskontrollDto.Beslutning.RETURNERT
+                },
+            )
+        }
     }
 }

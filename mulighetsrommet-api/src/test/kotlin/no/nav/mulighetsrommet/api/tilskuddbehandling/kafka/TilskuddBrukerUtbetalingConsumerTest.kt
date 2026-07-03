@@ -22,7 +22,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
@@ -122,7 +121,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         val service = TilskuddBehandlingService(
             database.db,
             journalforVedtaksbrev,
-            TotrinnskontrollService(""),
             mockk(relaxed = true),
             mockk(relaxed = true),
         )
@@ -146,7 +144,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         val service = TilskuddBehandlingService(
             database.db,
             journalforVedtaksbrev,
-            TotrinnskontrollService(""),
             mockk(relaxed = true),
             mockk(relaxed = true),
         )

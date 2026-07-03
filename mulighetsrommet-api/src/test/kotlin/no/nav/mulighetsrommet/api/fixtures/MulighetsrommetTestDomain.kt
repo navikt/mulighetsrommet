@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import kotliquery.Session
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
@@ -60,7 +61,7 @@ data class MulighetsrommetTestDomain(
     }
 
     fun setup(session: Session): MulighetsrommetTestDomain {
-        val context = QueryContext(session)
+        val context = QueryContext(session, ApplicationConfigTest.kafka.topics)
 
         with(context) {
             session.execute(KurstypeFixtures.query())

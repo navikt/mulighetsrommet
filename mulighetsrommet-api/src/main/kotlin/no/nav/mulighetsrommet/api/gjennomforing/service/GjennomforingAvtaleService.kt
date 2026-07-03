@@ -11,7 +11,6 @@ import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
@@ -41,7 +40,6 @@ import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import java.time.Instant
 import java.time.LocalDate
@@ -49,14 +47,9 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class GjennomforingAvtaleService(
-    private val config: Config,
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
 ) {
-    data class Config(
-        val gjennomforingV2Topic: String,
-    )
-
     suspend fun create(
         request: GjennomforingRequest,
         navIdent: NavIdent,
@@ -500,12 +493,6 @@ class GjennomforingAvtaleService(
     private fun QueryContext.publishToKafka(gjennomforing: GjennomforingAvtale) {
         val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
         val gjennomforingV2 = TiltaksgjennomforingV2Mapper.fromGjennomforingAvtale(gjennomforing, detaljer)
-        val recordV2 = StoredProducerRecord(
-            config.gjennomforingV2Topic,
-            gjennomforingV2.id.toString().toByteArray(),
-            Json.encodeToString(TiltaksgjennomforingV2Dto.serializer(), gjennomforingV2).toByteArray(),
-            null,
-        )
-        queries.kafkaProducerRecord.storeRecord(recordV2)
+        outbox.publish(gjennomforingV2)
     }
 }

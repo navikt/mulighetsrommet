@@ -81,7 +81,6 @@ import no.nav.mulighetsrommet.api.tiltakstype.service.RedaksjoneltInnholdLenkeSe
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeDetaljerService
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
@@ -110,7 +109,6 @@ import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.database.Database
-import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
@@ -142,7 +140,7 @@ fun Application.configureDependencyInjection(appConfig: AppConfig) {
 
         modules(
             applicationConfig(appConfig),
-            db(appConfig.database),
+            db(appConfig),
             kafka(appConfig),
             services(appConfig),
             tasks(appConfig),
@@ -161,12 +159,12 @@ fun slack(slack: SlackConfig): Module = module(createdAtStart = true) {
     }
 }
 
-private fun db(config: DatabaseConfig) = module {
-    val database = Database(config)
+private fun db(config: AppConfig) = module {
+    val database = Database(config.database)
     single<Database>(createdAtStart = true) {
         database
     }
-    single<ApiDatabase> { ApiDatabase(database) }
+    single<ApiDatabase> { ApiDatabase(database, config.kafka.topics) }
 }
 
 private fun kafka(appConfig: AppConfig) = module {
@@ -450,8 +448,6 @@ private fun services(appConfig: AppConfig) = module {
     single { GjennomforingDetaljerService(get(), get(), get(), get()) }
     single {
         GjennomforingEnkeltplassService(
-            GjennomforingEnkeltplassService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
-            get(),
             get(),
             get(),
             get(),
@@ -459,21 +455,18 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         GjennomforingAvtaleService(
-            GjennomforingAvtaleService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
             get(),
             get(),
         )
     }
     single {
         GjennomforingArenaService(
-            GjennomforingArenaService.Config(appConfig.kafka.topics.sisteTiltaksgjennomforingerV2Topic),
             get(),
         )
     }
     single { TiltakstypeService(appConfig.tiltakstyper, get()) }
     single {
         TiltakstypeDetaljerService(
-            TiltakstypeDetaljerService.Config(appConfig.kafka.topics.sisteTiltakstyperTopic),
             get(),
             get(),
             get(),
@@ -503,10 +496,8 @@ private fun services(appConfig: AppConfig) = module {
     single {
         UtbetalingService(
             UtbetalingService.Config(
-                bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
                 tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
-            get(),
             get(),
             get(),
         )
@@ -522,19 +513,16 @@ private fun services(appConfig: AppConfig) = module {
     single { PersonaliaService(get(), get(), get(), get(), get()) }
     single<FeatureToggleService> { UnleashFeatureToggleService(appConfig.unleash) }
     single { LagretFilterService(get()) }
-    single { TotrinnskontrollService(appConfig.kafka.topics.totrinnskontrollTopic) }
     single {
         TilsagnService(
             config = TilsagnService.Config(
-                bestillingTopic = appConfig.kafka.topics.okonomiBestillingTopic,
                 gyldigTilsagnPeriode = appConfig.okonomi.gyldigTilsagnPeriode,
             ),
             db = get(),
             navAnsattService = get(),
-            totrinnskontroll = get(),
         )
     }
-    single { TilskuddBehandlingService(get(), get(), get(), get(), get()) }
+    single { TilskuddBehandlingService(get(), get(), get(), get()) }
     single { AltinnRettigheterService(db = get(), altinnClient = get()) }
     single { OppgaverService(get(), get()) }
     single { ArrangorflateService(get(), get(), get()) }
@@ -575,7 +563,7 @@ private fun tasks(config: AppConfig) = module {
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
     single { JournalforEnkeltplassTilsagnsbrev(get(), get(), get(), get(), get(), get()) }
     single { DistribuerTilsagnsbrev(get(), get()) }
-    single { JournalforVedtaksbrev(get(), get(), get(), get(), get(), get()) }
+    single { JournalforVedtaksbrev(get(), get(), get(), get(), get()) }
     single { DistribuerVedtaksbrev(get(), get()) }
     single { UpdateGjennomforingAvtaleFreeTextSearch(get(), get()) }
     single {

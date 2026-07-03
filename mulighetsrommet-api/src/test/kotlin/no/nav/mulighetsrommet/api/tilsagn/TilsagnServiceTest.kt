@@ -12,6 +12,7 @@ import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -35,7 +36,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
@@ -56,8 +56,7 @@ import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
 import java.util.UUID
 
-private const val BESTILLING_TOPIC = "bestilling-topic"
-private const val TOTRINNSKONTROLL_TOPIC = "totrinnskontroll-topic"
+private val BESTILLING_TOPIC = ApplicationConfigTest.kafka.topics.okonomiBestillingTopic
 
 class TilsagnServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
@@ -128,7 +127,6 @@ class TilsagnServiceTest : FunSpec({
         return TilsagnService(
             db = database.db,
             config = TilsagnService.Config(
-                bestillingTopic = BESTILLING_TOPIC,
                 gyldigTilsagnPeriode = mapOf(
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
                     Tiltakskode.ARBEIDSRETTET_REHABILITERING to gyldigTilsagnPeriode,
@@ -136,7 +134,6 @@ class TilsagnServiceTest : FunSpec({
                 ),
             ),
             navAnsattService = navAnsattService,
-            totrinnskontroll = TotrinnskontrollService(TOTRINNSKONTROLL_TOPIC),
         )
     }
 

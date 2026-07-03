@@ -93,6 +93,7 @@ data class UtbetalingBeregningDto(
                             satsLabel = "Sats",
                             deltakelser = beregning.output.deltakelser(),
                             faktorLabel = "Antall månedsverk",
+                            stengtPerioder = beregning.input.stengt,
                         ),
                         advarsler = advarsler,
                     )
@@ -123,6 +124,7 @@ data class UtbetalingBeregningDto(
                             satsLabel = "Avtalt månedspris per tiltaksplass",
                             deltakelser = beregning.output.deltakelser(),
                             faktorLabel = "Antall månedsverk",
+                            stengtPerioder = beregning.input.stengt,
                         ),
                         advarsler = advarsler,
                     )
@@ -153,6 +155,7 @@ data class UtbetalingBeregningDto(
                             satsLabel = "Avtalt ukespris per tiltaksplass",
                             deltakelser = beregning.output.deltakelser(),
                             faktorLabel = "Antall ukesverk",
+                            stengtPerioder = beregning.input.stengt,
                         ),
                         advarsler = advarsler,
                     )
@@ -183,6 +186,7 @@ data class UtbetalingBeregningDto(
                             satsLabel = "Avtalt ukespris per tiltaksplass",
                             deltakelser = beregning.output.deltakelser(),
                             faktorLabel = "Antall ukesverk",
+                            stengtPerioder = beregning.input.stengt,
                         ),
                         advarsler = advarsler,
                     )
@@ -200,6 +204,7 @@ data class UtbetalingBeregningDto(
                         satsDetaljer = beregningSatsPeriodeDetaljerUtenFaktor(
                             satser,
                             "Avtalt pris per time oppfølging",
+                            stengtPerioder = beregning.input.stengt,
                         ),
                         advarsler = advarsler,
                     )

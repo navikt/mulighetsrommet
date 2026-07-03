@@ -3,14 +3,12 @@ package no.nav.mulighetsrommet.api.totrinnskontroll.api
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
-import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
+import no.nav.mulighetsrommet.serializers.AgentSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
 
@@ -52,40 +50,18 @@ sealed class TotrinnskontrollDto {
     }
 }
 
-fun Totrinnskontroll.toDto() = when {
-    besluttetAv == null -> TotrinnskontrollDto.TilBeslutning(
-        behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
-        behandletTidspunkt = behandletTidspunkt.tilNorskLocalDateTime(),
-        aarsaker = aarsaker,
-        forklaring = forklaring,
-    )
-
-    else -> TotrinnskontrollDto.Besluttet(
-        behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
-        behandletTidspunkt = behandletTidspunkt.tilNorskLocalDateTime(),
-        aarsaker = aarsaker,
-        forklaring = forklaring,
-        besluttetAv = AgentDto.fromAgent(besluttetAv, besluttetAvNavn),
-        besluttetTidspunkt = checkNotNull(besluttetTidspunkt).tilNorskLocalDateTime(),
-        beslutning = when (status) {
-            TotrinnskontrollStatus.TIL_BEHANDLING -> error("Status TIL_BEHANDLING kan ikke mappes til TotrinnskontrollDto.Besluttet")
-            TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollDto.Beslutning.SATT_PA_VENT
-            TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollDto.Beslutning.GODKJENT
-            TotrinnskontrollStatus.RETURNERT -> TotrinnskontrollDto.Beslutning.RETURNERT
-        },
-    )
-}
-
 @Serializable
 data class AgentDto(
+    @Serializable(with = AgentSerializer::class)
+    val agent: Agent,
     val navn: String,
 ) {
     companion object {
         fun fromAgent(agent: Agent, navAnsattNavn: String?) = when (agent) {
-            is Arrangor -> AgentDto("Arrangør")
-            is Tiltaksadministrasjon -> AgentDto("Tiltaksadministrasjon")
-            is Arena -> AgentDto("Arena")
-            is NavIdent -> AgentDto(navAnsattNavn ?: agent.value)
+            is Arrangor -> AgentDto(agent, "Arrangør")
+            is Tiltaksadministrasjon -> AgentDto(agent, "Tiltaksadministrasjon")
+            is Arena -> AgentDto(agent, "Arena")
+            is NavIdent -> AgentDto(agent, navAnsattNavn ?: agent.value)
         }
     }
 }

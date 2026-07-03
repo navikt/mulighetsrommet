@@ -314,6 +314,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
                 satsLabel = "Sats",
                 deltakelser = beregning.output.deltakelser(),
                 faktorLabel = "Antall månedsverk",
+                stengtPerioder = beregning.input.stengt,
             )
         }
 
@@ -324,6 +325,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
                 satsLabel = "Avtalt månedspris per tiltaksplass",
                 deltakelser = beregning.output.deltakelser(),
                 faktorLabel = "Antall månedsverk",
+                stengtPerioder = beregning.input.stengt,
             )
         }
 
@@ -334,6 +336,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
                 satsLabel = "Avtalt ukespris per tiltaksplass",
                 deltakelser = beregning.output.deltakelser(),
                 faktorLabel = "Antall ukesverk",
+                stengtPerioder = beregning.input.stengt,
             )
         }
 
@@ -344,12 +347,17 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
                 satsLabel = "Avtalt ukespris per tiltaksplass",
                 deltakelser = beregning.output.deltakelser(),
                 faktorLabel = "Antall ukesverk",
+                stengtPerioder = beregning.input.stengt,
             )
         }
 
         is UtbetalingBeregningPrisPerTimeOppfolging -> {
             val satser = beregning.input.satser.sortedBy { it.periode.start }
-            beregningSatsPeriodeDetaljerUtenFaktor(satser, "Avtalt pris per time oppfølging")
+            beregningSatsPeriodeDetaljerUtenFaktor(
+                satser = satser,
+                satsLabel = "Avtalt pris per time oppfølging",
+                stengtPerioder = beregning.input.stengt,
+            )
         }
 
         is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
@@ -363,6 +371,7 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
     deltakelser: Set<UtbetalingBeregningOutputDeltakelse>,
     satsLabel: String,
     faktorLabel: String,
+    stengtPerioder: Set<StengtPeriode>,
 ): List<DataDetails> {
     return satser.mapNotNull { satsPeriode ->
         deltakelser
@@ -378,10 +387,12 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
                 val slutt = satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
                 DataDetails(
                     header = "Periode $start - $slutt",
-                    entries = listOf(
-                        LabeledDataElement.money(satsLabel, satsPeriode.sats),
-                        LabeledDataElement.number(faktorLabel, faktor),
-                    ),
+                    entries =
+                    getStengtPerioderPerSats(satsPeriode.periode, stengtPerioder) +
+                        listOf(
+                            LabeledDataElement.money(satsLabel, satsPeriode.sats),
+                            LabeledDataElement.number(faktorLabel, faktor),
+                        ),
                 )
             }
     }
@@ -390,13 +401,14 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
 fun beregningSatsPeriodeDetaljerUtenFaktor(
     satser: List<SatsPeriode>,
     satsLabel: String,
+    stengtPerioder: Set<StengtPeriode>,
 ): List<DataDetails> {
     return satser.map { satsPeriode ->
         DataDetails(
             header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${
                 satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
             }",
-            entries = listOf(
+            entries = getStengtPerioderPerSats(satsPeriode.periode, stengtPerioder) + listOf(
                 LabeledDataElement.money(satsLabel, satsPeriode.sats),
             ),
         )
@@ -463,6 +475,12 @@ private fun beregningDeltakerTable(
         is UtbetalingBeregningFri,
         -> null
     }
+}
+
+private fun getStengtPerioderPerSats(satsPeriode: Periode, stengtPeriode: Set<StengtPeriode>): List<LabeledDataElement> = if (stengtPeriode.isNotEmpty()) {
+    stengtPeriode.map { LabeledDataElement.periode("Stengt periode", it.periode.intersect(satsPeriode) ?: it.periode) }
+} else {
+    emptyList()
 }
 
 private fun getArrangorflateBeregningDeltakelse(

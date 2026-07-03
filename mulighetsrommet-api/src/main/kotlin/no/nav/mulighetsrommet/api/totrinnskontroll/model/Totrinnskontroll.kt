@@ -26,14 +26,12 @@ data class Totrinnskontroll(
     val status: TotrinnskontrollStatus,
     @Serializable(with = AgentSerializer::class)
     val behandletAv: Agent,
-    val behandletAvNavn: String?,
     @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
     val aarsaker: List<String>,
     val forklaring: String?,
     @Serializable(with = AgentSerializer::class)
     val besluttetAv: Agent?,
-    val besluttetAvNavn: String?,
     @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant?,
 ) {
@@ -62,15 +60,13 @@ data class Totrinnskontroll(
             behandletAv: Agent,
             aarsaker: List<String> = emptyList(),
             forklaring: String? = null,
-        ) = Totrinnskontroll(
+        ): Totrinnskontroll = Totrinnskontroll(
             id = id,
             entityId = entityId,
             type = type,
             status = TotrinnskontrollStatus.TIL_BEHANDLING,
             behandletAv = behandletAv,
-            behandletAvNavn = null,
             behandletTidspunkt = instantAsMicros(),
-            besluttetAvNavn = null,
             besluttetAv = null,
             besluttetTidspunkt = null,
             aarsaker = aarsaker,
@@ -105,7 +101,7 @@ data class Totrinnskontroll(
             behandletTidspunkt = instantAsMicros(),
             besluttetAv = null,
             besluttetTidspunkt = null,
-            aarsaker = aarsaker,
+            aarsaker = listOf(),
             forklaring = null,
         ).right()
     }
