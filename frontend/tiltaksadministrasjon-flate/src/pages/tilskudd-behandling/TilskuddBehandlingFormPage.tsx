@@ -151,6 +151,13 @@ export function TilskuddBehandlingFormPage() {
 
   return (
     <FormProvider {...form}>
+      <VedtaksbrevPdfModal
+        blob={vedtaksbrevMutation.data}
+        isLoading={vedtaksbrevMutation.isPending}
+        isError={vedtaksbrevMutation.isError}
+        open={pdfPreviewOpen}
+        onClose={() => setPdfPreviewOpen(false)}
+      />
       <form onSubmit={onSubmit}>
         <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
           <>
@@ -160,37 +167,34 @@ export function TilskuddBehandlingFormPage() {
                 opprettelse={data.opprettelse}
               />
             )}
-            <Box marginBlock="space-16">
-              <HStack gap="space-8" justify="end">
-                <Button
-                  variant="tertiary"
-                  size="small"
-                  type="button"
-                  onClick={onVisVedtaksbrev}
-                  disabled={vedtaksbrevMutation.isPending}
-                  icon={<FilePdfIcon aria-hidden />}
-                >
-                  Vis vedtaksbrev
-                </Button>
-              </HStack>
-            </Box>
             <Tabs
               value={currentTab}
               onChange={(value) => setCurrentTab(value as TilskuddBehandlingTab)}
             >
               <Tabs.List>
-                <HStack align="center">
-                  {tabs.map((tab) => (
-                    <TabWithErrorBorder
-                      key={tab.key}
-                      onClick={() => {}}
-                      value={tab.key}
-                      label={tab.label}
-                      hasError={tabHasErrors(tab)}
-                      icon={tab.icon}
-                    />
-                  ))}
-                </HStack>
+                {tabs.map((tab) => (
+                  <TabWithErrorBorder
+                    key={tab.key}
+                    onClick={() => {}}
+                    value={tab.key}
+                    label={tab.label}
+                    hasError={tabHasErrors(tab)}
+                    icon={tab.icon}
+                  />
+                ))}
+                {currentTab === "vedtak" && (
+                  <Button
+                    className="ml-auto"
+                    variant="tertiary"
+                    size="small"
+                    type="button"
+                    onClick={onVisVedtaksbrev}
+                    disabled={vedtaksbrevMutation.isPending}
+                    icon={<FilePdfIcon aria-hidden />}
+                  >
+                    Vis vedtaksbrev
+                  </Button>
+                )}
               </Tabs.List>
               <Box marginBlock="space-16">
                 <TwoColumnGrid separator>
@@ -243,13 +247,6 @@ export function TilskuddBehandlingFormPage() {
             </HStack>
           </>
         </TilskuddBehandlingLayout>
-        <VedtaksbrevPdfModal
-          blob={vedtaksbrevMutation.data}
-          isLoading={vedtaksbrevMutation.isPending}
-          isError={vedtaksbrevMutation.isError}
-          open={pdfPreviewOpen}
-          onClose={() => setPdfPreviewOpen(false)}
-        />
       </form>
     </FormProvider>
   );
