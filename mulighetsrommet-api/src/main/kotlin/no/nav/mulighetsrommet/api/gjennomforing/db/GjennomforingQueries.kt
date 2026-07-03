@@ -7,7 +7,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
@@ -838,10 +837,6 @@ private fun Row.toAdministratorer(): List<GjennomforingAvtaleDetaljer.Administra
     return stringOrNull("administratorer_json")
         ?.let { Json.decodeFromString<List<GjennomforingAvtaleDetaljer.Administrator>>(it) }
         ?: emptyList()
-}
-
-private fun Row.toUtdanningslopDto(): UtdanningslopDto? {
-    return stringOrNull("utdanningslop_json")?.let { Json.decodeFromString<UtdanningslopDto>(it) }
 }
 
 private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
