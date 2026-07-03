@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerAvtaltTiltaksplassPerManedBeregning
@@ -88,18 +87,15 @@ class GenererUtbetalingServiceTest : FunSpec({
         },
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = TidligstTidspunktForUtbetalingCalculator { _, _ -> null },
     ): GenererUtbetalingService {
-        val totrinnskontroll = TotrinnskontrollService()
         val tilsagnService = TilsagnService(
             config = TilsagnService.Config(gyldigTilsagnPeriode),
             db = database.db,
             navAnsattService = mockk(),
-            totrinnskontroll = totrinnskontroll,
         )
         val utbetalingService = UtbetalingService(
             config = UtbetalingService.Config(tidligstTidspunktForUtbetaling),
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
-            totrinnskontroll = totrinnskontroll,
         )
         return GenererUtbetalingService(
             config = GenererUtbetalingService.Config(gyldigTilsagnPeriode),

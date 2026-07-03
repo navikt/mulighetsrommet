@@ -40,7 +40,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
@@ -90,7 +89,6 @@ class AdminUtbetalingServiceTest : FunSpec({
         TilsagnService.Config(gyldigTilsagnPeriode = mapOf()),
         db = database.db,
         navAnsattService = mockk(),
-        totrinnskontroll = TotrinnskontrollService(),
     )
 
     fun createUtbetalingService(
@@ -103,7 +101,6 @@ class AdminUtbetalingServiceTest : FunSpec({
             ),
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
-            totrinnskontroll = TotrinnskontrollService(),
         )
         return AdminUtbetalingService(
             db = database.db,
