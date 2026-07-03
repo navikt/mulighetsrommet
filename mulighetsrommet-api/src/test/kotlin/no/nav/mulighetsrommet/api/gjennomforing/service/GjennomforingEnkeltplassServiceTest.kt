@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tiltakstype.model.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.tiltakstype.service.TiltakstypeService
-import no.nav.mulighetsrommet.api.totrinnskontroll.TotrinnskontrollService
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -73,7 +72,6 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             db = database.db,
             personaliaService = mockk(),
             tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.db),
-            totrinnskontroll = TotrinnskontrollService(),
         )
     }
 

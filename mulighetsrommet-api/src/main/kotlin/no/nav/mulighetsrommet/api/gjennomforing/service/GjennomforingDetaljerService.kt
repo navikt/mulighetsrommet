@@ -83,7 +83,7 @@ class GjennomforingDetaljerService(
             }
 
             is GjennomforingEnkeltplass -> db.session {
-                val okonomi = queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+                val okonomi = queries.totrinnskontroll.getDto(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
                 val deltakerDto = getDeltaker(gjennomforing.id)?.let { deltaker ->
                     val personalia = personaliaService
                         .getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
