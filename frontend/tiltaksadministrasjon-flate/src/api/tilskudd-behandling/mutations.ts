@@ -21,15 +21,6 @@ export function useOpprettTilskuddBehandling(gjennomforingId: string) {
   });
 }
 
-export function useVedtaksbrevPdfBlobPost() {
-  return useApiMutation<Blob, ProblemDetail, TilskuddBehandlingRequest>({
-    mutationFn: async (body) => {
-      const result = await TilskuddBehandlingService.postTilskuddBehandlingVedtaksbrevPdf({ body });
-      return result.data as Blob;
-    },
-  });
-}
-
 export function useGodkjennTilskuddBehandling(gjennomforingId: string) {
   const queryClient = useQueryClient();
 

@@ -6,7 +6,6 @@ import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.log
-import io.ktor.server.http.content.default
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytes
@@ -203,7 +202,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 val id: UUID by call.parameters
                 val accessType = call.getAccessType().requireAzureAd()
 
-                service.vedtaksbrevPdf(id, accessType)
+                service.vedtaksbrevForhandsvisPdf(id, accessType)
                     .onRight { pdfContent ->
                         call.response.headers.append(
                             "Content-Disposition",
@@ -244,7 +243,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 val request = call.receive<TilskuddBehandlingRequest>()
                 val accessType = call.getAccessType().requireAzureAd()
 
-                service.vedtaksbrevPdf(request, accessType)
+                service.vedtaksbrevForhandsvisPdf(request, accessType)
                     .onRight { pdfContent ->
                         call.response.headers.append(
                             "Content-Disposition",

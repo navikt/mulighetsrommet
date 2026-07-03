@@ -1,5 +1,10 @@
+import { useApiMutation } from "@/hooks/useApiMutation";
 import { useQuery } from "@tanstack/react-query";
-import { TilskuddBehandlingService } from "@tiltaksadministrasjon/api-client";
+import {
+  ProblemDetail,
+  TilskuddBehandlingRequest,
+  TilskuddBehandlingService,
+} from "@tiltaksadministrasjon/api-client";
 
 export async function fetchVedtaksbrevPdfBlob(behandlingId: string): Promise<Blob> {
   const result = await TilskuddBehandlingService.getTilskuddBehandlingVedtaksbrevPdf({
@@ -15,5 +20,14 @@ export function useVedtaksbrevPdfBlob(behandlingId: string, enabled: boolean) {
     enabled,
     staleTime: Infinity,
     gcTime: 0,
+  });
+}
+
+export function useVedtaksbrevPdfBlobPost() {
+  return useApiMutation<Blob, ProblemDetail, TilskuddBehandlingRequest>({
+    mutationFn: async (body) => {
+      const result = await TilskuddBehandlingService.postTilskuddBehandlingVedtaksbrevPdf({ body });
+      return result.data as Blob;
+    },
   });
 }

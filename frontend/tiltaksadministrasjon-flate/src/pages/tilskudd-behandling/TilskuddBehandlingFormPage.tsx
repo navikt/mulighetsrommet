@@ -1,7 +1,4 @@
-import {
-  useOpprettTilskuddBehandling,
-  useVedtaksbrevPdfBlobPost,
-} from "@/api/tilskudd-behandling/mutations";
+import { useOpprettTilskuddBehandling } from "@/api/tilskudd-behandling/mutations";
 import { TabWithErrorBorder } from "@/components/skjema/TabWithErrorBorder";
 import { ValideringsfeilOppsummering } from "@/components/skjema/ValideringsfeilOppsummering";
 import { defaultTilskuddRequest } from "@/components/tilskudd-behandling/defaultTilskuddRequest";
@@ -28,6 +25,7 @@ import { applyValidationErrors } from "@/components/skjema/helpers";
 import { CalculatorIcon, FilePdfIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
 import { BetalingsbetingelserEnkeltplass } from "@/components/gjennomforing/BetalingsbetingelserEnkeltplass";
 import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
+import { useVedtaksbrevPdfBlobPost } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
 
 interface Tab {
   key: TilskuddBehandlingTab;

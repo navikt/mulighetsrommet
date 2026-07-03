@@ -224,7 +224,7 @@ class TilskuddBehandlingService(
         return behandling
     }
 
-    suspend fun vedtaksbrevPdf(
+    suspend fun vedtaksbrevForhandsvisPdf(
         request: TilskuddBehandlingRequest,
         accessType: AccessType.OBO.AzureAd,
     ): Either<List<FieldError>, ByteArray> = db.session {
@@ -234,18 +234,18 @@ class TilskuddBehandlingService(
         return TilskuddBehandlingValidator
             .validate(request, gjennomforing)
             .map { dbo ->
-                vedtaksbrevPdf(dbo, accessType).getOrElse { throw IllegalStateException("Klarte ikke lage vedtaksbrev pdf") }
+                vedtaksbrevForhandsvisPdf(dbo, accessType).getOrElse { throw IllegalStateException("Klarte ikke lage vedtaksbrev pdf") }
             }
     }
 
-    suspend fun vedtaksbrevPdf(id: UUID, accessType: AccessType.OBO.AzureAd): Either<PdfGenError, ByteArray> = db.session {
-        return vedtaksbrevPdf(
+    suspend fun vedtaksbrevForhandsvisPdf(id: UUID, accessType: AccessType.OBO.AzureAd): Either<PdfGenError, ByteArray> = db.session {
+        return vedtaksbrevForhandsvisPdf(
             queries.tilskuddBehandling.getOrError(id).toDbo(),
             accessType,
         )
     }
 
-    private suspend fun vedtaksbrevPdf(tilskuddBehandling: TilskuddBehandlingDbo, accessType: AccessType.OBO.AzureAd): Either<PdfGenError, ByteArray> = db.transaction {
+    private suspend fun vedtaksbrevForhandsvisPdf(tilskuddBehandling: TilskuddBehandlingDbo, accessType: AccessType.OBO.AzureAd): Either<PdfGenError, ByteArray> = db.transaction {
         val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
         val deltaker = queries.deltaker.getByGjennomforingId(gjennomforing.id).first()
         val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
