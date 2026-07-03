@@ -2,6 +2,9 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Periode
@@ -27,7 +30,30 @@ data class TilskuddBehandlingDto(
     val kommentarIntern: String?,
     val samletVedtakResultat: SamletVedtakResultat,
     val vedtakJournalpostId: String?,
-)
+) {
+    fun toDbo() = TilskuddBehandlingDbo(
+        id = this.id,
+        gjennomforingId = this.gjennomforingId,
+        soknadJournalpostId = this.soknadJournalpostId,
+        soknadDato = this.soknadDato,
+        periode = this.periode,
+        tilskudd = this.tilskudd.map {
+            TilskuddDbo(
+                id = it.id,
+                tilskuddOpplaeringType = it.tilskuddOpplaeringType,
+                soknadBelop = it.soknadBelop,
+                vedtakResultat = it.vedtakResultat.type,
+                kommentarVedtaksbrev = it.kommentarVedtaksbrev,
+                utbetalingMottaker = it.utbetalingMottaker,
+                kid = it.kid,
+                utbetalingBelop = it.utbetalingBelop,
+            )
+        },
+        kostnadssted = this.kostnadssted.enhetsnummer,
+        status = this.status.type,
+        kommentarIntern = this.kommentarIntern,
+    )
+}
 
 @Serializable
 data class TilskuddBehandlingDetaljerDto(

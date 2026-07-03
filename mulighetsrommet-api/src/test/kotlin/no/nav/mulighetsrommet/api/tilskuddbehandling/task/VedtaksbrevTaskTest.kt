@@ -205,6 +205,8 @@ private fun opprettOgAttesterTilskudd(
     val service = TilskuddBehandlingService(
         db = db,
         journalforVedtaksbrev = mockk(relaxed = true),
+        mockk(relaxed = true),
+        mockk(relaxed = true),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()

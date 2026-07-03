@@ -22,8 +22,10 @@ import { ToTrinnsOpprettelsesForklaring } from "../gjennomforing/tilsagn/ToTrinn
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { applyValidationErrors } from "@/components/skjema/helpers";
-import { CalculatorIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
+import { CalculatorIcon, FilePdfIcon, PersonRectangleIcon } from "@navikt/aksel-icons";
 import { BetalingsbetingelserEnkeltplass } from "@/components/gjennomforing/BetalingsbetingelserEnkeltplass";
+import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
+import { useVedtaksbrevPdfBlobPost } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
 
 interface Tab {
   key: TilskuddBehandlingTab;
@@ -49,6 +51,8 @@ export function TilskuddBehandlingFormPage() {
   const [currentTab, setCurrentTab] = useState<TilskuddBehandlingTab>(tabs[0].key);
   const navigate = useNavigate();
   const mutation = useOpprettTilskuddBehandling(gjennomforingId);
+  const vedtaksbrevMutation = useVedtaksbrevPdfBlobPost();
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
 
   const defaultValues: TilskuddBehandlingRequest = behandling
     ? {
@@ -119,6 +123,13 @@ export function TilskuddBehandlingFormPage() {
     });
   });
 
+  const onVisVedtaksbrev = handleSubmit((data) => {
+    vedtaksbrevMutation.mutate(data, {
+      onSuccess: () => setPdfPreviewOpen(true),
+      onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
+    });
+  });
+
   function tabHasErrors(tab: Tab): boolean {
     const vedtakFields = ["vedtakResultat", "kommentarVedtaksbrev"];
     const allVedtakErrors = Array.isArray(errors.tilskudd)
@@ -140,6 +151,13 @@ export function TilskuddBehandlingFormPage() {
 
   return (
     <FormProvider {...form}>
+      <VedtaksbrevPdfModal
+        blob={vedtaksbrevMutation.data}
+        isLoading={vedtaksbrevMutation.isPending}
+        isError={vedtaksbrevMutation.isError}
+        open={pdfPreviewOpen}
+        onClose={() => setPdfPreviewOpen(false)}
+      />
       <form onSubmit={onSubmit}>
         <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
           <>
@@ -164,6 +182,19 @@ export function TilskuddBehandlingFormPage() {
                     icon={tab.icon}
                   />
                 ))}
+                {currentTab === "vedtak" && (
+                  <Button
+                    className="ml-auto"
+                    variant="tertiary"
+                    size="small"
+                    type="button"
+                    onClick={onVisVedtaksbrev}
+                    disabled={vedtaksbrevMutation.isPending}
+                    icon={<FilePdfIcon aria-hidden />}
+                  >
+                    Vis vedtaksbrev
+                  </Button>
+                )}
               </Tabs.List>
               <Box marginBlock="space-16">
                 <TwoColumnGrid separator>

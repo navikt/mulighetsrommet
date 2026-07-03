@@ -124,7 +124,12 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     }
 
     test("oppretter utbetaling for innvilget tilskudd til arrangør") {
-        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev)
+        val service = TilskuddBehandlingService(
+            database.db,
+            journalforVedtaksbrev,
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+        )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()
@@ -140,7 +145,12 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     }
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
-        val service = TilskuddBehandlingService(database.db, journalforVedtaksbrev)
+        val service = TilskuddBehandlingService(
+            database.db,
+            journalforVedtaksbrev,
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+        )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()

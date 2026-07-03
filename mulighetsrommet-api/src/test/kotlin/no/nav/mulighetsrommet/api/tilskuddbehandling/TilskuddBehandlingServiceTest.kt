@@ -73,6 +73,8 @@ class TilskuddBehandlingServiceTest : FunSpec({
     fun createService() = TilskuddBehandlingService(
         database.db,
         mockk(relaxed = true),
+        mockk(relaxed = true),
+        mockk(relaxed = true),
     )
 
     context("attester og returner") {

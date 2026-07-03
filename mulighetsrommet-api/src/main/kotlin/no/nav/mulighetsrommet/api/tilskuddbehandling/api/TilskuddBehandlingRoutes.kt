@@ -3,16 +3,21 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.api
 import arrow.core.flatMap
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
+import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.application.log
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
+import io.ktor.server.routing.application
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
@@ -24,7 +29,10 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompakt
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
+import no.nav.mulighetsrommet.ktor.exception.InternalServerError
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -169,6 +177,83 @@ fun Route.tilskuddBehandlingRoutes() {
                     .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
+            }
+
+            get("/{id}/vedtaksbrev-pdf", {
+                description = "Forhåndsvisning av vedtaksbrev pdf"
+                tags = setOf("TilskuddBehandling")
+                operationId = "getTilskuddBehandlingVedtaksbrevPdf"
+                request {
+                    pathParameterUuid("id")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Vedtaksbrev-pdf"
+                        body<String> {
+                            mediaTypes(ContentType.Application.Pdf)
+                        }
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val accessType = call.getAccessType().requireAzureAd()
+
+                service.vedtaksbrevForhandsvisPdf(id, accessType)
+                    .onRight { pdfContent ->
+                        call.response.headers.append(
+                            "Content-Disposition",
+                            "attachment; filename=\"vedtaksbrev.pdf\"",
+                        )
+                        call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
+                    }
+                    .onLeft { error ->
+                        application.log.warn("Klarte ikke lage PDF. Response fra pdfgen: $error")
+                        call.respondWithProblemDetail(InternalServerError("Klarte ikke lage PDF"))
+                    }
+            }
+
+            post("vedtaksbrev-pdf", {
+                description = "Forhåndsvisning av vedtaksbrev pdf"
+                tags = setOf("TilskuddBehandling")
+                operationId = "postTilskuddBehandlingVedtaksbrevPdf"
+                request {
+                    body<TilskuddBehandlingRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Vedtaksbrev-pdf"
+                        body<String> {
+                            mediaTypes(ContentType.Application.Pdf)
+                        }
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val request = call.receive<TilskuddBehandlingRequest>()
+                val accessType = call.getAccessType().requireAzureAd()
+
+                service.vedtaksbrevForhandsvisPdf(request, accessType)
+                    .onRight { pdfContent ->
+                        call.response.headers.append(
+                            "Content-Disposition",
+                            "attachment; filename=\"vedtaksbrev.pdf\"",
+                        )
+                        call.respondBytes(pdfContent, contentType = ContentType.Application.Pdf)
+                    }
+                    .onLeft {
+                        call.respondWithProblemDetail(ValidationError(errors = it))
+                    }
             }
         }
     }
