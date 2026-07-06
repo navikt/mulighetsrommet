@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetType
+import no.nav.mulighetsrommet.api.veilederflate.models.Brukerdata
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerResponse
 import no.nav.mulighetsrommet.ktor.exception.StatusException
