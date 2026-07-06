@@ -13,6 +13,7 @@ import io.ktor.server.routing.routing
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.historikk.plugins.AuthProvider
 import no.nav.tiltak.historikk.plugins.authenticate
+import java.util.UUID
 
 class AuthenticationTest : FunSpec({
     val oauth = MockOAuth2Server()
@@ -34,14 +35,14 @@ class AuthenticationTest : FunSpec({
             request.bearerAuth(oauth.issueToken(issuerId = "skatteetaten").serialize())
         }
         val requestWithRoles = { request: HttpRequestBuilder ->
-            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("roles", ""))).serialize())
+            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("roles", emptyList<String>()))).serialize())
         }
         val requestWithGroups = { request: HttpRequestBuilder ->
-            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("groups", "a"))).serialize())
+            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("groups", listOf(UUID.randomUUID(), UUID.randomUUID())))).serialize())
         }
 
         val requestWithTeamMulighetsrommetClaim = { request: HttpRequestBuilder ->
-            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("groups",teamMulighetsrommetTestEntraAdGroupId ))).serialize())
+            request.bearerAuth(oauth.issueToken(claims = mapOf(Pair("groups", listOf(teamMulighetsrommetTestEntraAdGroupId)))).serialize())
         }
 
         val testRoute = "MAAM_ROUTE"
@@ -54,7 +55,6 @@ class AuthenticationTest : FunSpec({
                     }
                 }
             }) {
-
 
                 val resp = client.get(testRoute) {
                     requestWithoutBearerToken(this)
@@ -96,7 +96,7 @@ class AuthenticationTest : FunSpec({
             }
         }
 
-        test("no groups claims -> unauthorized") {
+        test("only roles claims -> unauthorized") {
             withTestApplication<Unit>(oauth = oauth, additionalConfiguration = {
                 routing {
                     authenticate(AuthProvider.TEAM_MULIGHETSROMMET) {
