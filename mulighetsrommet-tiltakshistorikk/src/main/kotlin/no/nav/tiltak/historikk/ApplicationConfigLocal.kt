@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.tokenprovider.TokenReponse
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
+import java.util.UUID
 
 private val consumerProperties = KafkaPropertiesBuilder.consumerBuilder()
     .withBaseProperties()
@@ -53,6 +54,7 @@ val ApplicationConfigLocal = AppConfig(
                 )
             },
         ),
+        teamMulighetsrommetEntraAdGroupId = UUID.fromString("639e2806-4cc2-484c-a72a-51b4308c52a1"),
     ),
     kafka = KafkaConfig(
         consumers = KafkaConsumers(

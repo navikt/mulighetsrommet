@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.historikk.clients.Avtale
 import java.time.LocalDate
+import java.util.UUID
 
 val ApplicationConfigDev = AppConfig(
     database = DatabaseConfig(
@@ -25,6 +26,7 @@ val ApplicationConfigDev = AppConfig(
             tokenExchangeEndpoint = System.getenv("NAIS_TOKEN_EXCHANGE_ENDPOINT"),
             tokenIntrospectionEndpoint = System.getenv("NAIS_TOKEN_INTROSPECTION_ENDPOINT"),
         ),
+        teamMulighetsrommetEntraAdGroupId = UUID.fromString("639e2806-4cc2-484c-a72a-51b4308c52a1"),
     ),
     kafka = KafkaConfig(
         consumers = KafkaConsumers(),

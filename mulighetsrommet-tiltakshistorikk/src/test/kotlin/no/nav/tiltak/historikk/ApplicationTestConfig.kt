@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.kotest.extensions.createRandomDatabaseConfig
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.security.mock.oauth2.MockOAuth2Server
+import java.util.UUID
 
 val databaseConfig: DatabaseConfig = createRandomDatabaseConfig("mr-tiltakshistorikk")
 
@@ -56,5 +57,6 @@ fun createAuthConfig(
             privateJwk = privateJwk,
         ),
         texas = ApplicationConfigLocal.auth.texas,
+        teamMulighetsrommetEntraAdGroupId = UUID.fromString("00000000-0000-0000-0000-000000000000"),
     )
 }
