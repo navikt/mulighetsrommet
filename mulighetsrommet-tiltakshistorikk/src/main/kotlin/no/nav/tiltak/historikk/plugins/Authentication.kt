@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
 enum class AuthProvider {
     TILTAKSHISTORIKK_READ,
     TILTAKSHISTORIKK_WRITE,
-    MULIGETSROMMET_ADMIN,
+    TEAM_MULIGHETSROMMET,
 }
 
 val TiltakshistorikkReadRoles = listOf(ACCESS_AS_APPLICATION, "tiltakshistorikk-read")
@@ -87,6 +87,6 @@ fun Application.configureAuthentication(
     install(Authentication) {
         jwtWithRoles(AuthProvider.TILTAKSHISTORIKK_READ, TiltakshistorikkReadRoles)
         jwtWithRoles(AuthProvider.TILTAKSHISTORIKK_WRITE, TiltakshistorikkWriteRoles)
-        jwtWithGroups(AuthProvider.MULIGETSROMMET_ADMIN, listOf(auth.teamMulighetsrommetEntraAdGroupId))
+        jwtWithGroups(AuthProvider.TEAM_MULIGHETSROMMET, listOf(auth.teamMulighetsrommetEntraAdGroupId))
     }
 }

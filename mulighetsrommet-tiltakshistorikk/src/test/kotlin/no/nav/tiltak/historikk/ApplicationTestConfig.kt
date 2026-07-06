@@ -3,6 +3,7 @@ package no.nav.tiltak.historikk
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.server.application.Application
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
 import no.nav.mulighetsrommet.database.DatabaseConfig
@@ -17,11 +18,14 @@ fun <R> withTestApplication(
     oauth: MockOAuth2Server = MockOAuth2Server(),
     httpClientEngine: HttpClientEngine = createMockEngine(),
     config: AppConfig = createTestApplicationConfig(oauth, httpClientEngine),
+    additionalConfiguration: (Application.() -> Unit)? = null,
     test: suspend ApplicationTestBuilder.() -> R,
 ) {
     testApplication {
         application {
             configure(config)
+
+            additionalConfiguration?.invoke(this)
         }
 
         client = createClient {
@@ -33,6 +37,7 @@ fun <R> withTestApplication(
         test()
     }
 }
+val teamMulighetsrommetTestEntraAdGroupId = UUID.fromString("a0000000-0000-0000-0000-000000000000")
 
 fun createTestApplicationConfig(oauth: MockOAuth2Server, engine: HttpClientEngine) = ApplicationConfigLocal.copy(
     httpClientEngine = engine,
@@ -57,6 +62,6 @@ fun createAuthConfig(
             privateJwk = privateJwk,
         ),
         texas = ApplicationConfigLocal.auth.texas,
-        teamMulighetsrommetEntraAdGroupId = UUID.fromString("00000000-0000-0000-0000-000000000000"),
+        teamMulighetsrommetEntraAdGroupId = teamMulighetsrommetTestEntraAdGroupId,
     )
 }

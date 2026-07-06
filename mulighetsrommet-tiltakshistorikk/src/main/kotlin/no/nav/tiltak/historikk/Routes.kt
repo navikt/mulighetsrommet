@@ -81,7 +81,7 @@ fun Route.tiltakshistorikkRoutes(
         }
     }
 
-    authenticate(AuthProvider.MULIGETSROMMET_ADMIN) {
+    authenticate(AuthProvider.TEAM_MULIGHETSROMMET) {
         route("/maam") {
             route("/topics") {
                 get {
