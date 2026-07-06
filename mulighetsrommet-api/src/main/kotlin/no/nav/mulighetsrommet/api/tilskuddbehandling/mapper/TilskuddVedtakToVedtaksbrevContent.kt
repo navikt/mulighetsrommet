@@ -17,7 +17,7 @@ object TilskuddVedtakToVedtaksbrevContent {
         beslutter: String,
     ): VedtaksbrevContent {
         val navn = splitNavn(personalia.navn())
-        val ident = personalia.norskIdent()?.value.orEmpty()
+        val ident = personalia.norskIdent()
         val vedtakListe = tilskuddBehandling.tilskudd.map { t ->
             VedtaksbrevContent.Vedtak(
                 utfall = t.vedtakResultat.beskrivelse,
@@ -25,8 +25,8 @@ object TilskuddVedtakToVedtaksbrevContent {
                 tilskuddBelop = t.utbetalingBelop?.belop ?: 0,
                 valuta = t.utbetalingBelop?.valuta?.name ?: t.soknadBelop.valuta.name,
                 periode = VedtaksbrevContent.Vedtak.Periode(
-                    fradato = tilskuddBehandling.periode.start.toString(),
-                    tildato = tilskuddBehandling.periode.getLastInclusiveDate().toString(),
+                    fradato = tilskuddBehandling.periode.start,
+                    tildato = tilskuddBehandling.periode.getLastInclusiveDate(),
                 ),
                 kommentar = t.kommentarVedtaksbrev.orEmpty(),
             )
@@ -39,8 +39,8 @@ object TilskuddVedtakToVedtaksbrevContent {
                 etternavn = navn.etternavn,
                 personident = ident,
             ),
-            saksnummer = gjennomforing.lopenummer.value,
-            opprettetDato = LocalDate.now().toString(),
+            saksnummer = gjennomforing.lopenummer,
+            opprettetDato = LocalDate.now(),
             saksbehandler = saksbehandler,
             beslutter = beslutter,
             avsender = gjennomforing.ansvarligEnhet.navn,
