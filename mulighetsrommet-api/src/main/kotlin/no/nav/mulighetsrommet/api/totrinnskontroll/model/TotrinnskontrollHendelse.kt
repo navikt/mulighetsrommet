@@ -20,8 +20,6 @@ data class TotrinnskontrollHendelse(
     val besluttetAv: TotrinnskontrollAgent?,
     @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant?,
-    // TODO: fjerne fra modell når komet har migrert over til å benytte status i stedet
-    val besluttelse: Besluttelse?,
     val aarsaker: List<String>,
     val forklaring: String?,
 ) {
@@ -30,10 +28,5 @@ data class TotrinnskontrollHendelse(
         SATT_PA_VENT,
         GODKJENT,
         RETURNERT,
-    }
-
-    enum class Besluttelse {
-        GODKJENT,
-        AVVIST,
     }
 }

@@ -28,8 +28,7 @@ sealed interface GjennomforingRequest {
     data class EnkeltplassSoktInn(
         @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
-        // TOOD: gjør required når komet har begynt å sende
-        val totrinnskontroll: Totrinnskontroll? = null,
+        val totrinnskontroll: Totrinnskontroll,
         val payload: UpsertEnkeltplass,
     ) : GjennomforingRequest
 

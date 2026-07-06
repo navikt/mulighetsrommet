@@ -53,7 +53,7 @@ class GjennomforingRequestKafkaConsumer(
 
         val arrangor = getArrangor(payload.organisasjonsnummer)
         val soktInn = toRequest(gjennomforingId, arrangor.id, payload)
-        enkeltplasser.soktInn(soktInn, totrinnskontroll?.behandletAv ?: payload.opprettetAv)
+        enkeltplasser.soktInn(soktInn, totrinnskontroll.behandletAv)
             .onLeft { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
 
