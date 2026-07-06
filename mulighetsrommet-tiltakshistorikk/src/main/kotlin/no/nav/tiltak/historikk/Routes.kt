@@ -13,9 +13,7 @@ import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.Topic
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import no.nav.tiltak.historikk.plugins.TiltakshistorikkAdmin
-import no.nav.tiltak.historikk.plugins.TiltakshistorikkRead
-import no.nav.tiltak.historikk.plugins.TiltakshistorikkWrite
+import no.nav.tiltak.historikk.plugins.AuthProvider
 import no.nav.tiltak.historikk.plugins.authenticate
 import no.nav.tiltak.historikk.service.TiltakshistorikkService
 import no.nav.tiltak.historikk.service.VirksomhetService
@@ -27,7 +25,7 @@ fun Route.tiltakshistorikkRoutes(
     tiltakshistorikk: TiltakshistorikkService,
     virksomheter: VirksomhetService,
 ) {
-    authenticate(TiltakshistorikkRead) {
+    authenticate(AuthProvider.TILTAKSHISTORIKK_READ) {
         route("/api/v1/historikk") {
             post {
                 val request = call.receive<TiltakshistorikkV1Request>()
@@ -39,7 +37,7 @@ fun Route.tiltakshistorikkRoutes(
         }
     }
 
-    authenticate(TiltakshistorikkWrite) {
+    authenticate(AuthProvider.TILTAKSHISTORIKK_WRITE) {
         route("/api/v1/intern/arena") {
             put("/gjennomforing") {
                 val dbo = call.receive<TiltakshistorikkArenaGjennomforing>()
@@ -83,7 +81,7 @@ fun Route.tiltakshistorikkRoutes(
         }
     }
 
-    authenticate(TiltakshistorikkAdmin) {
+    authenticate(AuthProvider.TEAM_MULIGHETSROMMET) {
         route("/maam") {
             route("/topics") {
                 get {
