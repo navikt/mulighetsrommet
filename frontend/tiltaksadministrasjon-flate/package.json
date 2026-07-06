@@ -49,7 +49,7 @@
   "devDependencies": {
     "@axe-core/playwright": "4.11.3",
     "@mr/eslint-config-react-app": "workspace:*",
-    "@playwright/test": "1.60.0",
+    "@playwright/test": "1.61.1",
     "@tailwindcss/postcss": "4.3.1",
     "@tailwindcss/typography": "0.5.20",
     "@types/node": "25.9.3",
@@ -60,7 +60,7 @@
     "cross-env": "10.1.0",
     "eslint": "10.5.0",
     "msw": "2.14.6",
-    "playwright": "1.60.0",
+    "playwright": "1.61.1",
     "postcss": "8.5.15",
     "tailwindcss": "4.3.1",
     "typescript": "6.0.3",
