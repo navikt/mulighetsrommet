@@ -39,7 +39,7 @@ class ArenaAdapterService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     suspend fun upsertTiltaksgjennomforing(arenaGjennomforing: ArenaGjennomforingDbo): UUID? {
-        val erTiltakMigrert = tiltakstypeService.getByArenaTiltakskode(arenaGjennomforing.arenaKode).any {
+        val erTiltakMigrert = tiltakstypeService.getAllByArenaTiltakskode(arenaGjennomforing.arenaKode).any {
             tiltakstypeService.erMigrert(it.tiltakskode)
         }
         if (erTiltakMigrert) {
@@ -61,7 +61,7 @@ class ArenaAdapterService(
 
         val arrangor = syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
 
-        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
+        val tiltakstype = tiltakstypeService.getAllByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
             ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
 
         val upsert = OpprettGjennomforingArena(
@@ -95,7 +95,7 @@ class ArenaAdapterService(
             "Gjennomføring for tiltakstype ${arenaGjennomforing.arenaKode} skal ikke skrives til Sanity"
         }
 
-        val tiltakstype = tiltakstypeService.getByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
+        val tiltakstype = tiltakstypeService.getAllByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
             ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
 
         val sluttDato = arenaGjennomforing.sluttDato

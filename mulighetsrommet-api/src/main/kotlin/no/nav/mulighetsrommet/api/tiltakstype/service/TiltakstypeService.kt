@@ -21,13 +21,13 @@ class TiltakstypeService(
 
     private val cacheByTiltakskode: Cache<String, Tiltakstype> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)
-        .maximumSize(200)
+        .maximumSize(100)
         .recordStats()
         .build()
 
     private val cacheByArenakode: Cache<String, List<Tiltakstype>> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)
-        .maximumSize(20)
+        .maximumSize(100)
         .recordStats()
         .build()
 
@@ -76,9 +76,10 @@ class TiltakstypeService(
         }
     }
 
-    fun getByArenaTiltakskode(arenaKode: String): List<Tiltakstype> {
-        return CacheUtils.tryCacheFirstNotNull(cacheByArenakode, arenaKode) {
-            db.session { queries.tiltakstype.getByArenaTiltakskode(arenaKode) }
+    fun getAllByArenaTiltakskode(arenaTiltakskode: String): List<Tiltakstype> {
+        return CacheUtils.tryCacheFirstNotNull(cacheByArenakode, arenaTiltakskode) {
+            val tiltakskoder = Tiltakskode.entries.filter { it.arenakode == arenaTiltakskode }
+            db.session { queries.tiltakstype.getAll(tiltakskoder = tiltakskoder.toSet()) }
         }
     }
 }

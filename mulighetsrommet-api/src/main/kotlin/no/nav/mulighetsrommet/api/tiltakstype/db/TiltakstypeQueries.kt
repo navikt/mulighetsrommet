@@ -117,17 +117,6 @@ class TiltakstypeQueries(private val session: Session) {
         }
     }
 
-    fun getByArenaTiltakskode(arenaTiltakskode: String): List<Tiltakstype> = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from view_tiltakstype
-            where arena_kode = ?
-        """.trimIndent()
-
-        return list(queryOf(query, arenaTiltakskode)) { it.toTiltakstype() }
-    }
-
     fun getAll(
         tiltakskoder: Set<Tiltakskode> = setOf(),
         sortField: TiltakstypeSortField = TiltakstypeSortField.NAVN,
