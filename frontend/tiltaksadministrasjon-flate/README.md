@@ -32,6 +32,7 @@ For å generere dette gjør du følgende:
    ```json
    {
      "NAVident": "B123456",
+     "aud": ["mulighetsrommet-api"],
      "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
      "uti": "0bab029e-e84e-4842-8a27-d153b29782cf",
      "groups": [
