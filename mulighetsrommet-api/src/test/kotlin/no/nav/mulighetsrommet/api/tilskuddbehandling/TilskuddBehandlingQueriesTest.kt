@@ -90,8 +90,8 @@ class TilskuddBehandlingQueriesTest : FunSpec({
 
     context("insert and get") {
         test("insert og get returnerer behandling med tilskudd") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.tilskuddBehandling.upsert(behandling)
 
@@ -142,8 +142,8 @@ class TilskuddBehandlingQueriesTest : FunSpec({
     }
 
     test("utbetaling_id kan settes") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             val tilskudd = behandling.tilskudd[0]
             queries.tilskuddBehandling.upsert(behandling)

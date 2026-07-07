@@ -74,8 +74,8 @@ class EndringshistorikkQueriesTest : FunSpec({
         val ansatt2 = NavAnsattFixture.MikkeMus
         val domain = MulighetsrommetTestDomain(ansatte = listOf(ansatt1, ansatt2))
 
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             val id = UUID.randomUUID()
 

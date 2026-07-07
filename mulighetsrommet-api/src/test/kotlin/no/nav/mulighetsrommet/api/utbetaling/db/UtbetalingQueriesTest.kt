@@ -88,8 +88,8 @@ class UtbetalingQueriesTest : FunSpec({
     )
 
     test("upsert and get utbetaling med fri beregning") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.utbetaling.upsert(utbetaling)
 
@@ -123,8 +123,8 @@ class UtbetalingQueriesTest : FunSpec({
     }
 
     test("opprett utbetaling som korreksjon") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.utbetaling.upsert(utbetaling)
 
@@ -143,8 +143,8 @@ class UtbetalingQueriesTest : FunSpec({
     }
 
     test("set godkjent av arrangør") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.utbetaling.upsert(utbetaling)
 
@@ -160,8 +160,8 @@ class UtbetalingQueriesTest : FunSpec({
     }
 
     test("set journalpost id") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.utbetaling.upsert(utbetaling)
 
@@ -173,8 +173,8 @@ class UtbetalingQueriesTest : FunSpec({
 
     context("utbetaling med beregning for månedsverk med fast sats per tiltaksplass") {
         test("upsert and get beregning") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
@@ -250,8 +250,8 @@ class UtbetalingQueriesTest : FunSpec({
         }
 
         test("tillater lagring av overlappende deltakelsesperioder") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val deltakelsePeriode = DeltakelsesprosentPeriode(
                     periode = Periode(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 1, 2)),
@@ -285,8 +285,8 @@ class UtbetalingQueriesTest : FunSpec({
 
     context("utbetaling med beregning for månedsverk") {
         test("upsert and get beregning") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
@@ -355,8 +355,8 @@ class UtbetalingQueriesTest : FunSpec({
 
     context("utbetaling med beregning for ukesverk") {
         test("upsert and get beregning") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
@@ -416,8 +416,8 @@ class UtbetalingQueriesTest : FunSpec({
 
     context("utbetaling med beregning for hele ukesverk") {
         test("upsert and get beregning") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
@@ -477,8 +477,8 @@ class UtbetalingQueriesTest : FunSpec({
 
     context("utbetaling med beregning for pris per time oppfølging") {
         test("upsert and get beregning") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val deltakelse1Id = UUID.randomUUID()
                 val deltakelse2Id = UUID.randomUUID()
@@ -520,8 +520,8 @@ class UtbetalingQueriesTest : FunSpec({
 
     context("Filter for manglende innsendinger") {
         test("Henter kun innsendinger som venter på arrangor") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val utbetaling1 = utbetaling1.copy(
                     status = UtbetalingStatusType.GENERERT,
@@ -555,7 +555,7 @@ class UtbetalingQueriesTest : FunSpec({
         test("Utleder kostnadssteder fra tilsagn") {
             var periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
 
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 domain.copy(
                     tilsagn = listOf(
                         Tilsagn1.copy(
@@ -571,7 +571,7 @@ class UtbetalingQueriesTest : FunSpec({
                             kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
                         ),
                     ),
-                ).setup(session)
+                ).initialize()
 
                 val utbetalingQueries = UtbetalingQueries(session)
 
@@ -599,8 +599,8 @@ class UtbetalingQueriesTest : FunSpec({
         }
 
         test("Filtrer på tiltakstype") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val utbetaling1 = utbetaling1.copy(
                     status = UtbetalingStatusType.GENERERT,
@@ -623,8 +623,8 @@ class UtbetalingQueriesTest : FunSpec({
         }
 
         test("Filtrer på kostnadssted") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val utbetalingQueries = UtbetalingQueries(session)
 
@@ -659,8 +659,8 @@ class UtbetalingQueriesTest : FunSpec({
 
     context("utbetaling med beregning for fast sats per avtalt tiltaksplass per måned") {
         test("upsert and get beregning") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val tilsagnId = Tilsagn1.id
                 val beregning = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed(
@@ -694,8 +694,8 @@ class UtbetalingQueriesTest : FunSpec({
     }
 
     test("avbryt utbetaling") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.utbetaling.upsert(utbetaling)
             queries.utbetaling.avbrytUtbetaling(utbetaling.id, "min begrunnelse", Instant.now())

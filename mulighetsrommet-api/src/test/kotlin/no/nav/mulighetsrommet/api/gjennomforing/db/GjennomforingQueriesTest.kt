@@ -135,10 +135,10 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("navEnheter crud") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 MulighetsrommetTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel, Oslo),
-                ).setup(session)
+                ).initialize()
 
                 queries.gjennomforing.upsert(Oppfolging1)
                 queries.gjennomforing.setNavEnheter(
@@ -277,10 +277,10 @@ class GjennomforingQueriesTest : FunSpec({
                 ansvarligFor = listOf(),
             )
 
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 MulighetsrommetTestDomain(
                     arrangorKontaktpersoner = listOf(thomas, jens),
-                ).setup(session)
+                ).initialize()
 
                 queries.gjennomforing.upsert(Oppfolging1)
                 queries.gjennomforing.setArrangorKontaktpersoner(Oppfolging1.id, setOf(thomas.id))
@@ -608,10 +608,10 @@ class GjennomforingQueriesTest : FunSpec({
 
     context("free text search") {
         test("kan søke med fritekst") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 MulighetsrommetTestDomain(
                     gjennomforinger = listOf(Oppfolging1),
-                ).setup(session)
+                ).initialize()
 
                 queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("foo", "foobar"))
 
@@ -628,13 +628,13 @@ class GjennomforingQueriesTest : FunSpec({
 
     context("filtrering av tiltaksgjennomføringer") {
         test("filtrering på arrangør") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 val domain = MulighetsrommetTestDomain(
                     gjennomforinger = listOf(
                         Oppfolging1.copy(arrangorId = ArrangorFixtures.underenhet1.id),
                         Oppfolging1.copy(id = UUID.randomUUID(), arrangorId = ArrangorFixtures.underenhet2.id),
                     ),
-                ).setup(session)
+                ).initialize()
 
                 queries.gjennomforing.getAll(
                     arrangorOrgnr = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
@@ -653,10 +653,10 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("filtrering på avtale") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 MulighetsrommetTestDomain(
                     gjennomforinger = listOf(Oppfolging1, AFT1),
-                ).setup(session)
+                ).initialize()
 
                 queries.gjennomforing.getAll(avtaleId = AvtaleFixtures.oppfolging.id).items
                     .shouldHaveSize(1).first().id.shouldBe(Oppfolging1.id)
@@ -671,7 +671,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("filtrer vekk gjennomføringer basert på sluttdato") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 MulighetsrommetTestDomain(
                     gjennomforinger = listOf(
                         Oppfolging1.copy(sluttDato = LocalDate.of(2023, 12, 31)),
@@ -679,7 +679,7 @@ class GjennomforingQueriesTest : FunSpec({
                         Oppfolging1.copy(id = UUID.randomUUID(), sluttDato = LocalDate.of(2022, 12, 31)),
                         Oppfolging1.copy(id = UUID.randomUUID(), sluttDato = null),
                     ),
-                ).setup(session)
+                ).initialize()
 
                 queries.gjennomforing.getAll(sluttDatoGreaterThanOrEqualTo = LocalDate.of(2023, 1, 1))
                     .should { (totalCount, gjennomforinger) ->
@@ -694,7 +694,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("kan filtrere på enten administrator eller koordinator") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 val id0 = UUID.randomUUID()
                 val id1 = UUID.randomUUID()
                 val domain = MulighetsrommetTestDomain(
@@ -708,7 +708,7 @@ class GjennomforingQueriesTest : FunSpec({
                         id1,
                         setOf(NavAnsattFixture.DonaldDuck.navIdent, NavAnsattFixture.MikkeMus.navIdent),
                     )
-                }.setup(session)
+                }.initialize()
 
                 queries.gjennomforing.getAll(
                     administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent,
@@ -736,10 +736,10 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("filtrering på tiltakstype") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 MulighetsrommetTestDomain(
                     gjennomforinger = listOf(Oppfolging1, VTA1, AFT1),
-                ).setup(session)
+                ).initialize()
 
                 queries.gjennomforing.getAll(tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.id))
                     .should { (totalCount, gjennomforinger) ->
@@ -757,7 +757,7 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("filtrering på Nav-enhet") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 MulighetsrommetTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Lillehammer, Sel),
                     gjennomforinger = listOf(Oppfolging1, VTA1, AFT1),
@@ -774,7 +774,7 @@ class GjennomforingQueriesTest : FunSpec({
                         AFT1.id,
                         setOf(Innlandet.enhetsnummer, Sel.enhetsnummer, Gjovik.enhetsnummer),
                     )
-                }.setup(session)
+                }.initialize()
 
                 queries.gjennomforing.getAll(navEnheter = listOf(Gjovik.enhetsnummer))
                     .should { (totalCount, gjennomforinger) ->
@@ -801,10 +801,10 @@ class GjennomforingQueriesTest : FunSpec({
         }
 
         test("filtrering på type gjennomføring") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 MulighetsrommetTestDomain(
                     gjennomforinger = listOf(Oppfolging1, AFT1, EnkelAmo, ArenaEnkelAmo),
-                ).setup(session)
+                ).initialize()
 
                 queries.gjennomforing.getAll().should {
                     it.totalCount shouldBe 4
@@ -837,7 +837,7 @@ class GjennomforingQueriesTest : FunSpec({
     }
 
     test("pagination") {
-        database.runAndRollback { _ ->
+        database.runAndRollback {
             (1..10).forEach {
                 queries.gjennomforing.upsert(
                     Oppfolging1.copy(id = UUID.randomUUID(), navn = "$it".padStart(2, '0')),

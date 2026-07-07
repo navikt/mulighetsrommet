@@ -53,8 +53,8 @@ class NotificationQueriesTest : FunSpec({
     }
 
     test("CRUD") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.notifications.insert(notification1)
             queries.notifications.insert(notification2)
@@ -75,8 +75,8 @@ class NotificationQueriesTest : FunSpec({
     }
 
     test("get notifications for specified user") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.notifications.insert(notification1)
             queries.notifications.insert(notification2)
@@ -95,8 +95,8 @@ class NotificationQueriesTest : FunSpec({
     val readAtTime = LocalDateTime.of(2023, 1, 1, 0, 0, 0)
 
     test("should only set read_at for the specific user") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.notifications.insert(notification1)
             queries.notifications.insert(notification2)
@@ -112,8 +112,8 @@ class NotificationQueriesTest : FunSpec({
     }
 
     test("filter on notification status") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             val notifications = NotificationQueries(session)
 
@@ -143,8 +143,8 @@ class NotificationQueriesTest : FunSpec({
     }
 
     test("should not be able to set notification status for another user's notification") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.notifications.insert(notification2)
 
@@ -158,8 +158,8 @@ class NotificationQueriesTest : FunSpec({
     }
 
     test("get notification summary for user") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.notifications.insert(notification1)
             queries.notifications.insert(notification2)

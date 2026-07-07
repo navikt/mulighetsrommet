@@ -25,7 +25,7 @@ class ArrangorQueriesTest : FunSpec({
 
     context("crud") {
         test("søk og filtrering på arrangører") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 val overordnet = ArrangorDto(
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
@@ -170,7 +170,7 @@ class ArrangorQueriesTest : FunSpec({
             )
 
             database.runAndRollback {
-                domain.setup(session)
+                domain.initialize()
 
                 queries.arrangor.getAll().items shouldContainExactlyInAnyOrder listOf(hovedenhet, underenhet)
                 queries.arrangor.getAll(kobling = ArrangorKobling.AVTALE).should {
@@ -193,8 +193,8 @@ class ArrangorQueriesTest : FunSpec({
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.arrangor.getHovedenhetById(hovedenhet.id).should {
                     it.underenheter.shouldNotBeNull() shouldContainExactlyIds listOf(underenhet.id)
@@ -233,7 +233,7 @@ class ArrangorQueriesTest : FunSpec({
             )
 
             database.runAndRollback {
-                domain.setup(session)
+                domain.initialize()
 
                 queries.arrangor.getKontaktpersoner(arrangorId) shouldContainExactlyInAnyOrder listOf(
                     kontaktperson1,

@@ -56,8 +56,8 @@ class DeltakerQueriesTest : FunSpec({
     )
 
     test("CRUD") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.deltaker.upsert(deltaker1)
             queries.deltaker.upsert(deltaker2)
@@ -82,8 +82,8 @@ class DeltakerQueriesTest : FunSpec({
     }
 
     test("deltakelsesmengder blir overskrevet og hentet i riktig rekkefølge") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.deltaker.upsert(
                 deltaker1.copy(
@@ -127,8 +127,8 @@ class DeltakerQueriesTest : FunSpec({
     }
 
     test("get by gjennomforing") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.deltaker.upsert(deltaker1)
             queries.deltaker.upsert(deltaker2)
