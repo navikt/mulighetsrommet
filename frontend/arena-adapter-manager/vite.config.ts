@@ -24,18 +24,18 @@ export default defineConfig(({ mode }) => {
             Authorization: `Bearer ${env.VITE_AUTH_TOKEN}`,
           },
         },
-        "^/tiltakshistorikk-api": {
+        "^/tiltakshistorikk": {
           target: "http://0.0.0.0:8070",
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/tiltakshistorikk-api/, ""),
+          rewrite: (path) => path.replace(/^\/tiltakshistorikk/, ""),
           headers: {
             Authorization: `Bearer ${env.VITE_AUTH_TOKEN}`,
           },
         },
-        "^/tiltaksokonomi-api": {
+        "^/tiltaksokonomi": {
           target: "http://0.0.0.0:8074",
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/tiltaksokonomi-api/, ""),
+          rewrite: (path) => path.replace(/^\/tiltaksokonomi/, ""),
           headers: {
             Authorization: `Bearer ${env.VITE_AUTH_TOKEN}`,
           },

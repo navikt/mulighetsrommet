@@ -78,7 +78,7 @@ spec:
               }
             },
             {
-              "fromPath": "/tiltakshistorikk-api",
+              "fromPath": "/tiltakshistorikk",
               "toUrl": "http://tiltakshistorikk",
               "preserveFromPath": false,
               "toApp": {
@@ -88,7 +88,7 @@ spec:
               }
             },
             {
-              "fromPath": "/tiltaksokonomi-api",
+              "fromPath": "/tiltaksokonomi",
               "toUrl": "http://tiltaksokonomi",
               "preserveFromPath": false,
               "toApp": {
