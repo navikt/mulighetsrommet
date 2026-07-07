@@ -95,7 +95,6 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         behandletTidspunkt = Instant.now(),
         besluttetAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.MikkeMus.navIdent.value),
         besluttetTidspunkt = Instant.now(),
-        besluttelse = TotrinnskontrollHendelse.Besluttelse.GODKJENT,
         aarsaker = emptyList(),
         forklaring = null,
     )

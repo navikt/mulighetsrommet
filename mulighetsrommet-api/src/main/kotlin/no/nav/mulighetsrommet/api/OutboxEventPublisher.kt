@@ -89,12 +89,6 @@ class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
         behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
         besluttetAv = totrinnskontroll.besluttetAv?.toAgentHendelse(),
         besluttetTidspunkt = totrinnskontroll.besluttetTidspunkt,
-        besluttelse = when (totrinnskontroll.status) {
-            TotrinnskontrollStatus.TIL_BEHANDLING -> null
-            TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollHendelse.Besluttelse.GODKJENT
-            TotrinnskontrollStatus.RETURNERT -> TotrinnskontrollHendelse.Besluttelse.AVVIST
-            TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollHendelse.Besluttelse.AVVIST
-        },
         aarsaker = totrinnskontroll.aarsaker,
         forklaring = totrinnskontroll.forklaring,
     )
