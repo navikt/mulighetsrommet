@@ -1,5 +1,5 @@
 import { Lenke as LenkeComponent } from "@mr/frontend-common/components/lenke/Lenke";
-import { Box, GuidePanel, Heading, List } from "@navikt/ds-react";
+import { GuidePanel, Heading, List } from "@navikt/ds-react";
 import { DokumentIkon } from "@/ikoner/DokumentIkon";
 import { VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 
@@ -18,26 +18,27 @@ export function SidemenyLenker({ tiltak, skjulKunForVeileder }: Props) {
   }
 
   return (
-    <GuidePanel illustration={<DokumentIkon aria-label="Ikon for dokumenter" />}>
+    <GuidePanel
+      illustration={<DokumentIkon aria-label="Ikon for dokumenter" />}
+      className="wrap-anywhere"
+    >
       <Heading level="4" size="small">
         Lenker
       </Heading>
-      <Box marginBlock="space-16" asChild>
-        <List data-aksel-migrated-v8 as="ul">
-          {lenker.map(({ lenke, apneINyFane, lenkenavn }, index) => (
-            <List.Item key={index}>
-              <LenkeComponent
-                to={lenke}
-                target={apneINyFane ? "_blank" : undefined}
-                rel={apneINyFane ? "noopener noreferrer" : undefined}
-                isExternal={apneINyFane}
-              >
-                {lenkenavn}
-              </LenkeComponent>
-            </List.Item>
-          ))}
-        </List>
-      </Box>
+      <List as="ul">
+        {lenker.map(({ lenke, apneINyFane, lenkenavn }, index) => (
+          <List.Item key={index}>
+            <LenkeComponent
+              to={lenke}
+              target={apneINyFane ? "_blank" : undefined}
+              rel={apneINyFane ? "noopener noreferrer" : undefined}
+              isExternal={apneINyFane}
+            >
+              {lenkenavn}
+            </LenkeComponent>
+          </List.Item>
+        ))}
+      </List>
     </GuidePanel>
   );
 }
