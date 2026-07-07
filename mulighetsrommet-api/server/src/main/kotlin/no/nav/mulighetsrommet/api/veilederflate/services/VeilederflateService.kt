@@ -3,8 +3,8 @@ package no.nav.mulighetsrommet.api.veilederflate.services
 import arrow.core.NonEmptyList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService

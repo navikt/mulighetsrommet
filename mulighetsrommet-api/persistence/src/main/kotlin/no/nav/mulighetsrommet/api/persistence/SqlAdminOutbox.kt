@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.persistence
 import kotlinx.serialization.json.Json
 import kotliquery.Session
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
-import no.nav.mulighetsrommet.api.application.QueryContext
+import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 

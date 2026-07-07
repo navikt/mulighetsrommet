@@ -5,6 +5,8 @@ import arrow.core.nel
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
@@ -12,8 +14,6 @@ import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
-import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkType
-import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType

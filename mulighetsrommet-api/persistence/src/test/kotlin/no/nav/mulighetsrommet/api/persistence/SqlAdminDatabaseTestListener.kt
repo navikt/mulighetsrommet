@@ -6,8 +6,8 @@ import io.kotest.core.spec.Spec
 import io.kotest.core.test.TestCaseOrder
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.application.AdminDatabase
-import no.nav.mulighetsrommet.api.application.QueryContext
+import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import org.assertj.db.api.Assertions

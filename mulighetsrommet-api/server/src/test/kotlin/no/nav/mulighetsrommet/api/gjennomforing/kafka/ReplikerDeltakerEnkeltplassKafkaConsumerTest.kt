@@ -5,7 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeService
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures

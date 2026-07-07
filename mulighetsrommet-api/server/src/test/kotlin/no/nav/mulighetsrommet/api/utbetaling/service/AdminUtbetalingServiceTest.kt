@@ -14,9 +14,9 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
+import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures

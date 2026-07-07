@@ -4,9 +4,9 @@ import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeKombinasjon
-import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeQueryHandler
-import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeVeilderinfo
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKombinasjon
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeVeilderinfo
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.domain.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype

@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.tiltakstype.api
 
 import io.ktor.server.routing.RoutingContext
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.application.tiltak.GetAllTiltakstypeKompakt
+import no.nav.mulighetsrommet.admin.tiltak.GetAllTiltakstypeKompakt
 import no.nav.mulighetsrommet.api.domain.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeSortField
 import no.nav.mulighetsrommet.model.Faneinnhold

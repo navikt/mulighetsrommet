@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.persistence
 
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.runBlocking
-import no.nav.mulighetsrommet.api.application.AdminDatabase
-import no.nav.mulighetsrommet.api.application.QueryContext
+import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.database.Database
 
 class SqlAdminDatabase(

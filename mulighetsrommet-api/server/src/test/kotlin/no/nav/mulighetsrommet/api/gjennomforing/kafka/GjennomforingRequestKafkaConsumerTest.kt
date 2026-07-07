@@ -12,7 +12,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeService
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.arrangor.ArrangorError
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature

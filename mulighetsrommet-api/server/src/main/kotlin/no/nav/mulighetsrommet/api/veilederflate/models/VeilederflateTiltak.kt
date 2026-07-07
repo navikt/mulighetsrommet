@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.veilederflate.models
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
-import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeKombinasjon
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKombinasjon
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature

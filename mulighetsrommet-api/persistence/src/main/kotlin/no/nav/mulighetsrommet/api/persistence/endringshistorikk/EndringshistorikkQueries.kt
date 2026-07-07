@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.api.persistence.endringshistorikk
 import kotlinx.serialization.json.JsonElement
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkDto
-import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkQueryHandler
-import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkDto
+import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHandler
+import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.textRepr
 import no.nav.mulighetsrommet.model.toAgent

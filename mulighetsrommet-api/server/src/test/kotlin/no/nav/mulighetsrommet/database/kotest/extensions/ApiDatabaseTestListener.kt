@@ -6,11 +6,11 @@ import io.kotest.core.spec.Spec
 import io.kotest.core.test.TestCaseOrder
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.KafkaTopics
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.application.AdminDatabase
 import no.nav.mulighetsrommet.api.persistence.OutboxTopics
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabase
 import no.nav.mulighetsrommet.database.Database
