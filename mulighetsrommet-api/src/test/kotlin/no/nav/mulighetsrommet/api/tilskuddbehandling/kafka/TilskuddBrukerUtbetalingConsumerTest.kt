@@ -122,7 +122,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.db,
             journalforVedtaksbrev,
             mockk(relaxed = true),
-            mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -144,7 +143,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         val service = TilskuddBehandlingService(
             database.db,
             journalforVedtaksbrev,
-            mockk(relaxed = true),
             mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()

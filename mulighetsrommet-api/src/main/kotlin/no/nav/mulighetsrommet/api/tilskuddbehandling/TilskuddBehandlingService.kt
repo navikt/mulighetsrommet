@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToVedtaksbrevContent
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
@@ -27,11 +27,9 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
-import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -39,7 +37,6 @@ import java.util.UUID
 class TilskuddBehandlingService(
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
-    private val personaliaService: PersonaliaService,
     private val pdf: PdfGenClient,
 ) {
     fun upsert(
@@ -226,7 +223,6 @@ class TilskuddBehandlingService(
 
     suspend fun vedtaksbrevForhandsvisPdf(
         request: TilskuddBehandlingRequest,
-        accessType: AccessType.OBO.AzureAd,
     ): Either<List<FieldError>, ByteArray> = db.session {
         val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(request.gjennomforingId) }
             ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
@@ -234,25 +230,21 @@ class TilskuddBehandlingService(
         return TilskuddBehandlingValidator
             .validate(request, gjennomforing)
             .map { dbo ->
-                vedtaksbrevForhandsvisPdf(dbo, accessType).getOrElse { throw IllegalStateException("Klarte ikke lage vedtaksbrev pdf") }
+                vedtaksbrevForhandsvisPdf(dbo).getOrElse { throw IllegalStateException("Klarte ikke lage vedtaksbrev pdf") }
             }
     }
 
-    suspend fun vedtaksbrevForhandsvisPdf(id: UUID, accessType: AccessType.OBO.AzureAd): Either<PdfGenError, ByteArray> = db.session {
-        return vedtaksbrevForhandsvisPdf(
-            queries.tilskuddBehandling.getOrError(id).toDbo(),
-            accessType,
-        )
+    suspend fun vedtaksbrevForhandsvisPdf(id: UUID): Either<PdfGenError, ByteArray> = db.session {
+        return vedtaksbrevForhandsvisPdf(queries.tilskuddBehandling.getOrError(id).toDbo())
     }
 
-    private suspend fun vedtaksbrevForhandsvisPdf(tilskuddBehandling: TilskuddBehandlingDbo, accessType: AccessType.OBO.AzureAd): Either<PdfGenError, ByteArray> = db.transaction {
+    private suspend fun vedtaksbrevForhandsvisPdf(tilskuddBehandling: TilskuddBehandling): Either<PdfGenError, ByteArray> = db.transaction {
         val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
-        val deltaker = queries.deltaker.getByGjennomforingId(gjennomforing.id).first()
-        val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
 
         val content = TilskuddVedtakToVedtaksbrevContent.toVedtakPdfContent(
             tilskuddBehandling = tilskuddBehandling,
-            personalia = personalia,
+            navn = "<navn>",
+            norskIdent = null,
             gjennomforing = gjennomforing,
             saksbehandler = "<saksbehandler-navn>",
             beslutter = "<beslutter-navn>",

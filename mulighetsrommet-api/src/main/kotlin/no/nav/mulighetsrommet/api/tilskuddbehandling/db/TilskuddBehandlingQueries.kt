@@ -18,7 +18,7 @@ import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class TilskuddBehandlingQueries(private val session: Session) {
-    fun upsert(dbo: TilskuddBehandlingDbo): Unit = withTransaction(session) {
+    fun upsert(dbo: TilskuddBehandling): Unit = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into tilskudd_behandling (

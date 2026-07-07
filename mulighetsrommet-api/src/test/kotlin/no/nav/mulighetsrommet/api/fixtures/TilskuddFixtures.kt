@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
@@ -15,7 +15,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 object TilskuddFixtures {
-    val Behandling = TilskuddBehandlingDbo(
+    val Behandling = TilskuddBehandling(
         id = UUID.randomUUID(),
         gjennomforingId = EnkelAmo.id,
         soknadJournalpostId = "J-2024-001",

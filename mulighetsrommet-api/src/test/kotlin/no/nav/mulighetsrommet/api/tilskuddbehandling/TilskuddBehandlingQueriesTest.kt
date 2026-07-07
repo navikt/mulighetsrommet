@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
@@ -30,7 +30,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
         gjennomforinger = listOf(GjennomforingFixtures.AFT1),
     )
 
-    val behandling = TilskuddBehandlingDbo(
+    val behandling = TilskuddBehandling(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         soknadJournalpostId = "J-2024-001",

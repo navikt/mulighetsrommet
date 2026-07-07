@@ -74,7 +74,6 @@ class TilskuddBehandlingServiceTest : FunSpec({
         database.db,
         mockk(relaxed = true),
         mockk(relaxed = true),
-        mockk(relaxed = true),
     )
 
     context("attester og returner") {
