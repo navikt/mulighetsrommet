@@ -58,8 +58,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal filtrere basert på om tiltaket er publisert") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val veilederflateTiltakQueries = VeilederflateTiltakQueries(session)
 
@@ -85,8 +85,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal filtrere basert på innsatsgruppe") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.tiltakstype.setInnsatsgrupper(
                     TiltakstypeFixtures.Oppfolging.id,
@@ -113,8 +113,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal filtrere på brukers enheter") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.gjennomforing.setNavEnheter(
                     Oppfolging1.id,
@@ -149,8 +149,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal filtrere basert på tiltakskode") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.veilderTiltak.getAll(
                     tiltakskoder = null,
@@ -177,8 +177,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal filtrere basert på fritekst som er satt på gjennomføring") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.gjennomforing.setFreeTextSearch(Oppfolging1.id, listOf("Oppfølging hos Erik"))
                 queries.gjennomforing.setFreeTextSearch(AFT1.id, listOf("AFT hos Frank"))
@@ -210,8 +210,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal filtrere basert på apent_for_pamelding") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.gjennomforing.setApentForPamelding(AFT1.id, false)
 
@@ -261,8 +261,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("skal ta med ARR hvis sykmeldt med TRENGER_VEILEDNING") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 // Riktig innsatsgruppe
                 queries.veilderTiltak.getAll(
@@ -303,8 +303,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("henter tiltaksansvarlige som er koblet til tiltaket") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.veilderTiltak.get(Oppfolging1.id).shouldNotBeNull().should {
                     it.kontaktinfo.tiltaksansvarlige shouldBe listOf(
@@ -347,8 +347,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("hentes ikke fra getAll-spørring selv om tiltaket er publisert") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 listOf(arenatiltak.id, enkeltplass.id).forEach { id ->
                     queries.gjennomforing.setNavEnheter(id, setOf(NavEnhetNummer("0502")))
@@ -363,8 +363,8 @@ class VeilederflateTiltakQueriesTest : FunSpec({
         }
 
         test("hentes ikke fra get-spørring") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.veilderTiltak.get(arenatiltak.id).shouldBeNull()
 

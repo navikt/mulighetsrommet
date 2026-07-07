@@ -72,7 +72,7 @@ class TiltakstypeQueriesTest : FunSpec({
         }
 
         test("Skal støtte å hente tiltaktype som bare har ledetekst, men ingen innholdselementer") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 queries.tiltakstype.upsert(TiltakstypeFixtures.VTA)
                 queries.tiltakstype.upsertDeltakerRegistreringInnhold(
                     TiltakstypeFixtures.VTA.id,

@@ -57,8 +57,8 @@ class UtbetalingLinjeQueriesTest : FunSpec({
     )
 
     test("opprett utbetalingslinje") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.utbetalingLinje.upsert(linje)
 
@@ -75,8 +75,8 @@ class UtbetalingLinjeQueriesTest : FunSpec({
     }
 
     test("delete utbetalingslinje") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.utbetalingLinje.upsert(linje)
             queries.utbetalingLinje.delete(linje.id)
@@ -86,8 +86,8 @@ class UtbetalingLinjeQueriesTest : FunSpec({
     }
 
     test("set sendt til okonomi") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.utbetalingLinje.upsert(linje)
 
@@ -101,8 +101,8 @@ class UtbetalingLinjeQueriesTest : FunSpec({
     }
 
     test("set faktura_status") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.utbetalingLinje.upsert(linje)
             val sendtTidspunkt = Instant.parse("2025-12-01T00:00:00Z")
@@ -130,8 +130,8 @@ class UtbetalingLinjeQueriesTest : FunSpec({
     }
 
     test("set status basert på utbetaling") {
-        database.runAndRollback { session ->
-            domain.setup(session)
+        database.runAndRollback {
+            domain.initialize()
 
             queries.utbetalingLinje.upsert(linje)
             queries.utbetalingLinje.upsert(linje2)

@@ -6,7 +6,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
@@ -31,6 +30,7 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -53,8 +53,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
             )
 
-            val tiltak = database.runAndRollback { session ->
-                domain.setup(session)
+            val tiltak = database.runAndRollback {
+                domain.initialize()
 
                 queries.dvh.getDatavarehusTiltak(AFT1.id)
             }
@@ -90,8 +90,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
             )
 
-            val tiltak = database.runAndRollback { session ->
-                domain.setup(session)
+            val tiltak = database.runAndRollback {
+                domain.initialize()
 
                 queries.gjennomforing.setArenaData(
                     GjennomforingArenaDataDbo(AFT1.id, tiltaksnummer = Tiltaksnummer("2020#1234")),
@@ -146,22 +146,26 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
             test("studiepserialisering") {
                 database.runAndRollback {
-                    domain.setup(it)
-                    context(this.session) {
+                    domain.initialize()
+
+                    context(session) {
                         OpplaringKategoriseringQueries.upsert(
                             amoGjennomforing.id,
                             studiespesialisering.toDbo(),
                         )
                     }
+
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.Studiespesialisering)
                 }
             }
             test("fov") {
-                database.runAndRollback { session ->
-                    domain.setup(session)
-                    context(this.session) { OpplaringKategoriseringQueries.upsert(amoGjennomforing.id, fov.toDbo()) }
+                database.runAndRollback {
+                    domain.initialize()
+
+                    context(session) { OpplaringKategoriseringQueries.upsert(amoGjennomforing.id, fov.toDbo()) }
+
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
@@ -172,14 +176,16 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 }
             }
             test("grunnleggende ferdigheter") {
-                database.runAndRollback { session ->
-                    domain.setup(session)
-                    context(this.session) {
+                database.runAndRollback {
+                    domain.initialize()
+
+                    context(session) {
                         OpplaringKategoriseringQueries.upsert(
                             amoGjennomforing.id,
                             grunnleggende.toDbo(),
                         )
                     }
+
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull()
@@ -187,14 +193,16 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 }
             }
             test("norskopplaering") {
-                database.runAndRollback { session ->
-                    domain.setup(session)
-                    context(this.session) {
+                database.runAndRollback {
+                    domain.initialize()
+
+                    context(session) {
                         OpplaringKategoriseringQueries.upsert(
                             amoGjennomforing.id,
                             norskopplaering.toDbo(),
                         )
                     }
+
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
@@ -206,10 +214,16 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 }
             }
             test("Bransje og yrke") {
-                database.runAndRollback { session ->
-                    domain.setup(session)
-                    val dbo = bransje.toDbo()
-                    context(this.session) { OpplaringKategoriseringQueries.upsert(amoGjennomforing.id, dbo) }
+                database.runAndRollback {
+                    domain.initialize()
+
+                    context(session) {
+                        OpplaringKategoriseringQueries.upsert(
+                            amoGjennomforing.id,
+                            bransje.toDbo(),
+                        )
+                    }
+
                     val bransjeOgYrkesrettet = queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull()
@@ -276,7 +290,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                         queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann"),
                     ),
                 )
-                context(this.session as TransactionalSession) {
+                withTransaction(session) {
                     OpplaringKategoriseringQueries.upsert(
                         GruppeFagYrke1.id,
                         OpplaringKategoriseringDbo(utdanningslop = utdanningslop),
@@ -284,8 +298,9 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 }
             }
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
+
                 val idForUtdanningsprogram = queries.utdanning.getIdForUtdanningsprogram("BABAN3----")
                 val idForSveisefag = queries.utdanning.getIdForUtdanning("u_sveisefag")
                 val idForSveisefagUnderVann = queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann")
@@ -306,8 +321,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 gjennomforinger = listOf(GruppeFagYrke1),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val gjennomforing = queries.dvh.getDatavarehusTiltak(GruppeFagYrke1.id)
 
@@ -323,28 +338,28 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             )
 
-            val tiltak = database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
-                DatavarehusTiltakQueries(session).getDatavarehusTiltak(GjennomforingFixtures.EnkelAmo.id)
-            }
+                val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingFixtures.EnkelAmo.id)
 
-            tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
-                it.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-                it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
-                it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
-                it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
-                it.gjennomforing.arrangor shouldBe DatavarehusTiltakV1.Arrangor(
-                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                )
-                it.gjennomforing.arena.shouldBeNull()
-                it.gjennomforing.navn.shouldBeNull()
-                it.gjennomforing.oppstartstype shouldBe GjennomforingOppstartstype.ENKELTPLASS
-                it.gjennomforing.pameldingstype shouldBe GjennomforingPameldingType.TRENGER_GODKJENNING
-                it.gjennomforing.startDato.shouldBeNull()
-                it.gjennomforing.sluttDato.shouldBeNull()
-                it.gjennomforing.status.shouldBeNull()
-                it.avtale.shouldBeNull()
+                tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
+                    it.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+                    it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
+                    it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
+                    it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
+                    it.gjennomforing.arrangor shouldBe DatavarehusTiltakV1.Arrangor(
+                        organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+                    )
+                    it.gjennomforing.arena.shouldBeNull()
+                    it.gjennomforing.navn.shouldBeNull()
+                    it.gjennomforing.oppstartstype shouldBe GjennomforingOppstartstype.ENKELTPLASS
+                    it.gjennomforing.pameldingstype shouldBe GjennomforingPameldingType.TRENGER_GODKJENNING
+                    it.gjennomforing.startDato.shouldBeNull()
+                    it.gjennomforing.sluttDato.shouldBeNull()
+                    it.gjennomforing.status.shouldBeNull()
+                    it.avtale.shouldBeNull()
+                }
             }
         }
 
@@ -354,8 +369,9 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             )
 
-            val tiltak = database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
+
                 queries.gjennomforing.setArenaData(
                     GjennomforingArenaDataDbo(
                         id = GjennomforingFixtures.EnkelAmo.id,
@@ -364,21 +380,21 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     ),
                 )
 
-                DatavarehusTiltakQueries(session).getDatavarehusTiltak(GjennomforingFixtures.EnkelAmo.id)
-            }
+                val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingFixtures.EnkelAmo.id)
 
-            tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
-                it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
-                it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
-                it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
-                it.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(
-                    aar = 2024,
-                    lopenummer = 456,
-                )
-                it.gjennomforing.navn.shouldBeNull()
-                it.gjennomforing.startDato.shouldBeNull()
-                it.gjennomforing.sluttDato.shouldBeNull()
-                it.gjennomforing.status.shouldBeNull()
+                tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
+                    it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
+                    it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
+                    it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
+                    it.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(
+                        aar = 2024,
+                        lopenummer = 456,
+                    )
+                    it.gjennomforing.navn.shouldBeNull()
+                    it.gjennomforing.startDato.shouldBeNull()
+                    it.gjennomforing.sluttDato.shouldBeNull()
+                    it.gjennomforing.status.shouldBeNull()
+                }
             }
         }
     }
