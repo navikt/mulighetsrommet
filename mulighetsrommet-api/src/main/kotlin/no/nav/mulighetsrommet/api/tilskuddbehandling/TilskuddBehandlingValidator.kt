@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
@@ -19,7 +19,7 @@ import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
 object TilskuddBehandlingValidator {
-    fun validate(request: TilskuddBehandlingRequest, gjennomforing: Gjennomforing): Validated<TilskuddBehandlingDbo> = validation {
+    fun validate(request: TilskuddBehandlingRequest, gjennomforing: Gjennomforing): Validated<TilskuddBehandling> = validation {
         validateNotNull(request.kostnadssted) {
             FieldError.of("Kostnadssted er påkrevd", TilskuddBehandlingRequest::kostnadssted)
         }
@@ -51,7 +51,7 @@ object TilskuddBehandlingValidator {
             )
         }
 
-        TilskuddBehandlingDbo(
+        TilskuddBehandling(
             id = request.id,
             gjennomforingId = request.gjennomforingId,
             soknadJournalpostId = request.soknadJournalpostId,

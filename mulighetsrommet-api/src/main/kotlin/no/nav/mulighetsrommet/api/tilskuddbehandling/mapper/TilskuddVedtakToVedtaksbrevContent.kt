@@ -2,22 +2,20 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.mapper
 
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.pdfgen.VedtaksbrevContent
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
-import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
 object TilskuddVedtakToVedtaksbrevContent {
     fun toVedtakPdfContent(
-        tilskuddBehandling: TilskuddBehandlingDbo,
-        personalia: Personalia,
+        tilskuddBehandling: TilskuddBehandling,
+        navn: String,
+        norskIdentString: String,
         gjennomforing: GjennomforingEnkeltplass,
         saksbehandler: String,
         beslutter: String,
     ): VedtaksbrevContent {
-        val navn = splitNavn(personalia.navn())
-        val ident = personalia.norskIdent()?.value.orEmpty()
+        val navn = splitNavn(navn)
         val vedtakListe = tilskuddBehandling.tilskudd.map { t ->
             VedtaksbrevContent.Vedtak(
                 utfall = t.vedtakResultat.beskrivelse,
@@ -37,7 +35,7 @@ object TilskuddVedtakToVedtaksbrevContent {
                 fornavn = navn.fornavn,
                 mellomnavn = navn.mellomnavn,
                 etternavn = navn.etternavn,
-                personident = ident,
+                personident = norskIdentString,
             ),
             saksnummer = gjennomforing.lopenummer.value,
             opprettetDato = LocalDate.now().toString(),

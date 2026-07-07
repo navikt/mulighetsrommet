@@ -17,7 +17,6 @@ import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
@@ -32,7 +31,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
-import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -200,9 +198,8 @@ fun Route.tilskuddBehandlingRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
-                val accessType = call.getAccessType().requireAzureAd()
 
-                service.vedtaksbrevForhandsvisPdf(id, accessType)
+                service.vedtaksbrevForhandsvisPdf(id)
                     .onRight { pdfContent ->
                         call.response.headers.append(
                             "Content-Disposition",
@@ -241,9 +238,8 @@ fun Route.tilskuddBehandlingRoutes() {
                 }
             }) {
                 val request = call.receive<TilskuddBehandlingRequest>()
-                val accessType = call.getAccessType().requireAzureAd()
 
-                service.vedtaksbrevForhandsvisPdf(request, accessType)
+                service.vedtaksbrevForhandsvisPdf(request)
                     .onRight { pdfContent ->
                         call.response.headers.append(
                             "Content-Disposition",

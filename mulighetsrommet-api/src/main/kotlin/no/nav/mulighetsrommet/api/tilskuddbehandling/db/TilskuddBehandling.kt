@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 import java.util.UUID
 
-data class TilskuddBehandlingDbo(
+data class TilskuddBehandling(
     val id: UUID,
     val gjennomforingId: UUID,
     val soknadJournalpostId: String,

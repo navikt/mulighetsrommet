@@ -103,7 +103,8 @@ class JournalforVedtaksbrev(
     ): Either<String, ByteArray> {
         val content = TilskuddVedtakToVedtaksbrevContent.toVedtakPdfContent(
             tilskuddBehandling = tilskudd.toDbo(),
-            personalia = personalia,
+            navn = personalia.navn(),
+            norskIdentString = personalia.norskIdent()?.value.orEmpty(),
             gjennomforing = gjennomforing,
             saksbehandler = totrinnskontroll.behandletAv.navn,
             beslutter = totrinnskontroll.besluttetAv.navn,
