@@ -40,11 +40,21 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT),
             gjennomforinger = listOf(Oppfolging1, AFT1),
         ) {
-            repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging.copy(sanityId = oppfolgingSanityId, innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE)))
+            repository.tiltakstype.save(
+                TiltakstypeFixtures.Oppfolging.copy(
+                    sanityId = oppfolgingSanityId,
+                    innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
+                ),
+            )
             queries.gjennomforing.setNavEnheter(Oppfolging1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")))
             queries.gjennomforing.setPublisert(Oppfolging1.id, true)
 
-            repository.tiltakstype.save(TiltakstypeFixtures.AFT.copy(sanityId = aftSanityId, innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE)))
+            repository.tiltakstype.save(
+                TiltakstypeFixtures.AFT.copy(
+                    sanityId = aftSanityId,
+                    innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
+                ),
+            )
             queries.gjennomforing.setNavEnheter(AFT1.id, setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")))
             queries.gjennomforing.setPublisert(AFT1.id, true)
         }
@@ -82,7 +92,14 @@ class VeilederflateTiltakQueriesTest : FunSpec({
 
                 repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging.copy(innsatsgrupper = setOf(Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE)))
 
-                repository.tiltakstype.save(TiltakstypeFixtures.AFT.copy(innsatsgrupper = setOf(Innsatsgruppe.GODE_MULIGHETER, Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE)))
+                repository.tiltakstype.save(
+                    TiltakstypeFixtures.AFT.copy(
+                        innsatsgrupper = setOf(
+                            Innsatsgruppe.GODE_MULIGHETER,
+                            Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
+                        ),
+                    ),
+                )
 
                 queries.veilderTiltak.getAll(
                     innsatsgruppe = Innsatsgruppe.GODE_MULIGHETER,
@@ -233,7 +250,12 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.ARR),
             gjennomforinger = listOf(ArbeidsrettetRehabilitering),
         ) {
-            repository.tiltakstype.save(TiltakstypeFixtures.ArbeidsrettetRehabilitering.copy(sanityId = UUID.randomUUID(), innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE)))
+            repository.tiltakstype.save(
+                TiltakstypeFixtures.ArbeidsrettetRehabilitering.copy(
+                    sanityId = UUID.randomUUID(),
+                    innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
+                ),
+            )
 
             queries.gjennomforing.setPublisert(ArbeidsrettetRehabilitering.id, true)
             queries.gjennomforing.setNavEnheter(
@@ -315,9 +337,19 @@ class VeilederflateTiltakQueriesTest : FunSpec({
             tiltakstyper = listOf(TiltakstypeFixtures.ArbeidsrettetRehabilitering, TiltakstypeFixtures.EnkelAmo),
             gjennomforinger = listOf(arenatiltak, enkeltplass),
         ) {
-            repository.tiltakstype.save(TiltakstypeFixtures.ArbeidsrettetRehabilitering.copy(sanityId = UUID.randomUUID(), innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE)))
+            repository.tiltakstype.save(
+                TiltakstypeFixtures.ArbeidsrettetRehabilitering.copy(
+                    sanityId = UUID.randomUUID(),
+                    innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
+                ),
+            )
 
-            repository.tiltakstype.save(TiltakstypeFixtures.EnkelAmo.copy(sanityId = UUID.randomUUID(), innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE)))
+            repository.tiltakstype.save(
+                TiltakstypeFixtures.EnkelAmo.copy(
+                    sanityId = UUID.randomUUID(),
+                    innsatsgrupper = setOf(Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE),
+                ),
+            )
         }
 
         test("hentes ikke fra getAll-spørring selv om tiltaket er publisert") {

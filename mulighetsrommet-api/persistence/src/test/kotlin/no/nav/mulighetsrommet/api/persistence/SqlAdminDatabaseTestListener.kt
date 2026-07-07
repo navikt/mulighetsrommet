@@ -5,7 +5,6 @@ import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
 import io.kotest.core.test.TestCaseOrder
 import kotliquery.TransactionalSession
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.database.Database
@@ -62,31 +61,6 @@ class SqlAdminDatabaseTestListener : BeforeSpecListener, AfterSpecListener {
     }
 
     fun truncateAll(): Unit = delegate!!.session { session ->
-        val excludedTables = setOf(
-            "flyway_schema_history",
-            "kostnadssted",
-            "endringshistorikk_type",
-            "nav_ansatt_rolle_type",
-            "utbetaling_blokkering_type",
-            "utbetaling_status_type",
-            "utbetaling_linje_status_type",
-            "tilsagn_type",
-            "tilsagn_status_type",
-            "vedtak_resultat",
-            "tilskudd_opplaering",
-            "tilskudd_behandling_status",
-            "totrinnskontroll_type",
-            "personopplysning",
-        )
-
-        val tableNames = session.list(
-            queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'"),
-        ) {
-            it.string("table_name")
-        }
-
-        tableNames.filter { it !in excludedTables }.forEach {
-            session.execute(queryOf("truncate table $it restart identity cascade"))
-        }
+        truncateTablesWithDynamicData(session)
     }
 }

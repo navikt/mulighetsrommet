@@ -41,6 +41,7 @@ dependencies {
     implementation(projects.mulighetsrommetApi.admin)
     implementation(projects.mulighetsrommetApi.domain)
     implementation(projects.mulighetsrommetApi.persistence)
+    testImplementation(testFixtures(projects.mulighetsrommetApi.persistence))
 
     implementation(projects.common.nais)
     implementation(projects.common.database)

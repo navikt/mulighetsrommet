@@ -5,7 +5,6 @@ import io.kotest.core.listeners.BeforeSpecListener
 import io.kotest.core.spec.Spec
 import io.kotest.core.test.TestCaseOrder
 import kotliquery.TransactionalSession
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
@@ -13,6 +12,7 @@ import no.nav.mulighetsrommet.api.KafkaTopics
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.persistence.OutboxTopics
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabase
+import no.nav.mulighetsrommet.api.persistence.truncateTablesWithDynamicData
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -84,34 +84,7 @@ class ApiDatabaseTestListener(
     }
 
     fun truncateAll(): Unit = db.db.session { session ->
-        val excludedTables = setOf(
-            "flyway_schema_history",
-            "deltaker_registrering_innholdselement",
-            "kostnadssted",
-            "endringshistorikk_type",
-            "nav_ansatt_rolle_type",
-            "utbetaling_blokkering_type",
-            "utbetaling_status_type",
-            "utbetaling_linje_status_type",
-            "tilsagn_type",
-            "tilsagn_status_type",
-            "vedtak_resultat",
-            "tilskudd_opplaering",
-            "tilskudd_behandling_status",
-            "totrinnskontroll_type",
-            "totrinnskontroll_status_type",
-            "personopplysning",
-        )
-
-        val tableNames = session
-            .list(queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")) {
-                it.string("table_name")
-            }
-        tableNames
-            .filter { it !in excludedTables }
-            .forEach {
-                session.execute(queryOf("truncate table $it restart identity cascade"))
-            }
+        truncateTablesWithDynamicData(session)
     }
 }
 
