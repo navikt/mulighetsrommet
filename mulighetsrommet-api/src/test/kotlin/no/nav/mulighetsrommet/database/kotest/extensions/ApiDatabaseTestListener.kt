@@ -75,6 +75,7 @@ class ApiDatabaseTestListener(
     fun truncateAll(): Unit = db.db.session { session ->
         val excludedTables = setOf(
             "flyway_schema_history",
+            "deltaker_registrering_innholdselement",
             "kostnadssted",
             "endringshistorikk_type",
             "nav_ansatt_rolle_type",
