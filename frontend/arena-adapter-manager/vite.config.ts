@@ -8,34 +8,34 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       proxy: {
-        "^/mulighetsrommet-arena-adapter": {
+        "^/api/mulighetsrommet-arena-adapter": {
           target: "http://0.0.0.0:8084",
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/mulighetsrommet-arena-adapter/, ""),
+          rewrite: (path) => path.replace(/^\/api\/mulighetsrommet-arena-adapter/, ""),
           headers: {
             Authorization: `Bearer ${env.VITE_AUTH_TOKEN}`,
           },
         },
-        "^/mulighetsrommet-api": {
+        "^/api/mulighetsrommet-api": {
           target: "http://0.0.0.0:8080",
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/mulighetsrommet-api/, ""),
+          rewrite: (path) => path.replace(/^\/api\/mulighetsrommet-api/, ""),
           headers: {
             Authorization: `Bearer ${env.VITE_AUTH_TOKEN}`,
           },
         },
-        "^/tiltakshistorikk": {
+        "^/api/tiltakshistorikk": {
           target: "http://0.0.0.0:8070",
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/tiltakshistorikk/, ""),
+          rewrite: (path) => path.replace(/^\/api\/tiltakshistorikk/, ""),
           headers: {
             Authorization: `Bearer ${env.VITE_AUTH_TOKEN}`,
           },
         },
-        "^/tiltaksokonomi": {
+        "^/api/tiltaksokonomi": {
           target: "http://0.0.0.0:8074",
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/tiltaksokonomi/, ""),
+          rewrite: (path) => path.replace(/^\/api\/tiltaksokonomi/, ""),
           headers: {
             Authorization: `Bearer ${env.VITE_AUTH_TOKEN}`,
           },
