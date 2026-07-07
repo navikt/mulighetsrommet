@@ -5,12 +5,11 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.tiltakstype.model.Tiltakstype
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.Tiltakskode
-import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class TiltakstypeQueriesTest : FunSpec({
@@ -53,36 +52,27 @@ class TiltakstypeQueriesTest : FunSpec({
 
     context("Strukturert innhold for deltakerregistrering") {
         test("Skal hente ut korrekt strukturert innhold for tiltakstype som har strukturert innhold") {
-            database.runAndRollback { session ->
-                @Language("PostgreSQL")
-                val query = """
-                    insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                    values('jobbsoking', 'Jobbsøking')
-                    on conflict do nothing;
-
-                    insert into deltaker_registrering_innholdselement(innholdskode, tekst)
-                    values('kartlegge-helse', 'Kartlegge helse')
-                    on conflict do nothing;
-                """.trimIndent()
-                session.execute(queryOf(query))
-
+            database.runAndRollback {
                 queries.tiltakstype.upsert(TiltakstypeFixtures.Oppfolging)
                 queries.tiltakstype.upsertDeltakerRegistreringInnhold(
                     TiltakstypeFixtures.Oppfolging.id,
                     "Oppfølging er et bra tiltak",
-                    listOf("jobbsoking", "kartlegge-helse"),
+                    listOf("jobbsoking", "arbeidsutproving"),
                 )
 
                 queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).shouldNotBeNull().should {
                     it.navn shouldBe "Oppfølging"
                     it.deltakerRegistreringInnhold?.ledetekst shouldBe "Oppfølging er et bra tiltak"
-                    it.deltakerRegistreringInnhold?.innholdselementer?.size shouldBe 2
+                    it.deltakerRegistreringInnhold?.innholdselementer shouldContainExactlyInAnyOrder listOf(
+                        Innholdselement(tekst = "Støtte til å søke jobber", innholdskode = "jobbsoking"),
+                        Innholdselement(tekst = "Arbeidsutprøving", innholdskode = "arbeidsutproving"),
+                    )
                 }
             }
         }
 
         test("Skal støtte å hente tiltaktype som bare har ledetekst, men ingen innholdselementer") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 queries.tiltakstype.upsert(TiltakstypeFixtures.VTA)
                 queries.tiltakstype.upsertDeltakerRegistreringInnhold(
                     TiltakstypeFixtures.VTA.id,

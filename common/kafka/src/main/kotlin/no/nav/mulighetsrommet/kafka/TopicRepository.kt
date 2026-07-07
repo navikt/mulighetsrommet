@@ -13,28 +13,25 @@ enum class TopicType {
 
 class TopicRepository(private val db: Database) {
 
-    fun getAll(): List<Topic> {
+    fun getAll(): List<Topic> = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             select id, topic, type, running from topics order by id
         """.trimIndent()
-        val queryResult = queryOf(query).map { it.toTopic() }.asList
-        return db.run(queryResult)
+        return session.list(queryOf(query)) { it.toTopic() }
     }
 
-    fun updateRunning(topics: List<Topic>) {
+    fun updateRunning(topics: List<Topic>) = db.transaction { tx ->
         @Language("PostgreSQL")
         val query = """
             update topics set running = ? where id = ?
         """.trimIndent()
-        db.transaction { tx ->
-            topics.forEach {
-                tx.run(queryOf(query, it.running, it.id).asExecute)
-            }
+        topics.forEach {
+            tx.run(queryOf(query, it.running, it.id).asExecute)
         }
     }
 
-    fun setAll(topics: List<Topic>) {
+    fun setAll(topics: List<Topic>) = db.transaction { tx ->
         @Language("PostgreSQL")
         val upsert = """
             insert into topics (id, topic, type, running)
@@ -51,18 +48,12 @@ class TopicRepository(private val db: Database) {
             delete from topics where not(id = any(?))
         """.trimIndent()
 
-        db.transaction { tx ->
-            topics.forEach { topic ->
-                queryOf(upsert, topic.toSqlParameters())
-                    .asExecute
-                    .let { tx.run(it) }
-            }
-
-            val ids = tx.createArrayOfValue(topics) { it.id }
-            queryOf(delete, ids)
-                .asExecute
-                .let { tx.run(it) }
+        topics.forEach { topic ->
+            tx.execute(queryOf(upsert, topic.toSqlParameters()))
         }
+
+        val ids = tx.createArrayOfValue(topics) { it.id }
+        tx.execute(queryOf(delete, ids))
     }
 
     private fun Topic.toSqlParameters() = mapOf(

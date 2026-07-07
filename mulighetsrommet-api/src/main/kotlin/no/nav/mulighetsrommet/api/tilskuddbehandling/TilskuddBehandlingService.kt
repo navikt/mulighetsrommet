@@ -244,7 +244,7 @@ class TilskuddBehandlingService(
         val content = TilskuddVedtakToVedtaksbrevContent.toVedtakPdfContent(
             tilskuddBehandling = tilskuddBehandling,
             navn = "<navn>",
-            norskIdentString = "<fnr>",
+            norskIdent = null,
             gjennomforing = gjennomforing,
             saksbehandler = "<saksbehandler-navn>",
             beslutter = "<beslutter-navn>",

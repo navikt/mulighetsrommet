@@ -4,19 +4,14 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.arena.adapter.models.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class TiltaksgjennomforingRepository(private val db: Database) {
-    private val logger: Logger = LoggerFactory.getLogger(javaClass)
-
     fun upsert(tiltak: Tiltaksgjennomforing) = query {
-        logger.info("Lagrer tiltaksgjennomføring id=${tiltak.id}, tiltakskode=${tiltak.tiltakskode}, sakId=${tiltak.sakId}")
-
         @Language("PostgreSQL")
         val query = """
             insert into tiltaksgjennomforing (id, sanity_id, tiltaksgjennomforing_id, sak_id, tiltakskode, arrangor_id, navn, fra_dato, til_dato, apent_for_innsok, antall_plasser, status, avtale_id, deltidsprosent)
@@ -38,21 +33,19 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        queryOf(query, tiltak.toSqlParameters())
-            .map { it.toTiltaksgjennomforing() }
-            .asSingle
-            .let { db.run(it)!! }
+        db.session { session ->
+            session.requireSingle(queryOf(query, tiltak.toSqlParameters())) { it.toTiltaksgjennomforing() }
+        }
     }
 
     fun upsertSanityId(id: UUID, sanityId: UUID) = query {
-        logger.info("Lagrer sanityId for tiltaksgjennomføring id=$id, sanityId=$sanityId")
-
         @Language("PostgreSQL")
-        val query = """ update tiltaksgjennomforing set sanity_id = :sanity_id::uuid where id = :id::uuid """.trimIndent()
+        val query =
+            """ update tiltaksgjennomforing set sanity_id = :sanity_id::uuid where id = :id::uuid """.trimIndent()
 
-        queryOf(query, mapOf("id" to id, "sanity_id" to sanityId))
-            .asExecute
-            .let { db.run(it) }
+        db.session { session ->
+            session.execute(queryOf(query, mapOf("id" to id, "sanity_id" to sanityId)))
+        }
     }
 
     fun delete(id: UUID): QueryResult<Unit> = query {
@@ -62,14 +55,12 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        queryOf(query, id)
-            .asExecute
-            .let { db.run(it) }
+        db.session { session ->
+            session.execute(queryOf(query, id))
+        }
     }
 
-    fun get(id: UUID): Tiltaksgjennomforing? {
-        logger.info("Henter tiltaksgjennomføring id=$id")
-
+    fun get(id: UUID): Tiltaksgjennomforing? = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             select
@@ -91,10 +82,7 @@ class TiltaksgjennomforingRepository(private val db: Database) {
             where id = ?::uuid
         """.trimIndent()
 
-        return queryOf(query, id)
-            .map { it.toTiltaksgjennomforing() }
-            .asSingle
-            .let { db.run(it) }
+        return session.single(queryOf(query, id)) { it.toTiltaksgjennomforing() }
     }
 
     private fun Tiltaksgjennomforing.toSqlParameters() = mapOf(

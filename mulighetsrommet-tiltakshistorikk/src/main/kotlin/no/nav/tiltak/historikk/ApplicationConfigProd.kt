@@ -3,6 +3,7 @@ package no.nav.tiltak.historikk
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
+import java.util.UUID
 
 val ApplicationConfigProd = AppConfig(
     database = DatabaseConfig(
@@ -23,6 +24,7 @@ val ApplicationConfigProd = AppConfig(
             tokenExchangeEndpoint = System.getenv("NAIS_TOKEN_EXCHANGE_ENDPOINT"),
             tokenIntrospectionEndpoint = System.getenv("NAIS_TOKEN_INTROSPECTION_ENDPOINT"),
         ),
+        teamMulighetsrommetEntraAdGroupId = UUID.fromString("debefa6e-1865-446d-b22b-9579fc735de3"),
     ),
     kafka = KafkaConfig(
         consumers = KafkaConsumers(),

@@ -66,8 +66,8 @@ class AvtaleQueriesTest : FunSpec({
         )
 
         test("upsert genererer nye løpenummer") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val avtale1 = AvtaleFixtures.oppfolging
                 val avtale2 = AvtaleFixtures.oppfolging.copy(id = UUID.randomUUID())
@@ -86,8 +86,8 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("upsert avtale uten arrangør") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val avtaleId = AvtaleFixtures.oppfolging.id
 
@@ -102,8 +102,8 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("oppdater status") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val id = AvtaleFixtures.oppfolging.id
                 queries.avtale.create(AvtaleFixtures.oppfolging)
@@ -147,8 +147,8 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("administrator for avtale") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val ansatt1 = NavAnsattFixture.DonaldDuck
                 val ansatt2 = NavAnsattFixture.MikkeMus
@@ -193,12 +193,12 @@ class AvtaleQueriesTest : FunSpec({
                 ),
             )
 
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 MulighetsrommetTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Sel),
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                     avtaler = listOf(avtale),
-                ).setup(session)
+                ).initialize()
 
                 queries.avtale.getOrError(avtale.id).kontorstruktur.shouldHaveSize(1).first().should {
                     it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
@@ -221,12 +221,12 @@ class AvtaleQueriesTest : FunSpec({
                 ),
             )
 
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 MulighetsrommetTestDomain(
                     navEnheter = listOf(Innlandet, Oslo, Gjovik),
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                     avtaler = listOf(avtale),
-                ).setup(session)
+                ).initialize()
 
                 queries.avtale.getOrError(avtale.id).kontorstruktur.should { (first, second) ->
                     first.region.enhetsnummer shouldBe Innlandet.enhetsnummer
@@ -266,11 +266,11 @@ class AvtaleQueriesTest : FunSpec({
                 ),
             )
 
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 MulighetsrommetTestDomain(
                     arrangorKontaktpersoner = listOf(p1, p2, p3),
                     avtaler = listOf(avtale),
-                ).setup(session)
+                ).initialize()
 
                 queries.avtale.getOrError(avtale.id).should {
                     it.arrangor?.kontaktpersoner shouldContainExactly listOf(toAvtaleArrangorKontaktperson(p1))
@@ -308,8 +308,8 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Personopplysninger") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 var avtale = AvtaleFixtures.oppfolging.copy(
                     personvernDbo = AvtaleFixtures.personvernDbo(
@@ -355,8 +355,8 @@ class AvtaleQueriesTest : FunSpec({
                 ),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.avtale.create(avtale)
 
@@ -371,7 +371,7 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Underenheter and kontaktpersoner are deleted when arrangor is removed from avtale") {
-            database.runAndRollback { session ->
+            database.runAndRollback {
                 // Set up initial state
                 val p1 = ArrangorKontaktperson(
                     id = UUID.randomUUID(),
@@ -403,7 +403,7 @@ class AvtaleQueriesTest : FunSpec({
                 MulighetsrommetTestDomain(
                     arrangorKontaktpersoner = listOf(p1, p2),
                     avtaler = listOf(avtale),
-                ).setup(session)
+                ).initialize()
 
                 queries.avtale.getOrError(avtale.id).should {
                     it.arrangor?.underenheter.shouldNotBeEmpty()
@@ -422,8 +422,8 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("gruppe amo kategorier") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val kategorisering = OpplaringKategorisering(
                     kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
@@ -464,7 +464,10 @@ class AvtaleQueriesTest : FunSpec({
                     it.opplaringKategorisering shouldBe amoEndring
                 }
 
-                queries.avtale.updateDetaljer(avtale.id, AvtaleFixtures.detaljerDbo().copy(opplaringKategorisering = null))
+                queries.avtale.updateDetaljer(
+                    avtale.id,
+                    AvtaleFixtures.detaljerDbo().copy(opplaringKategorisering = null),
+                )
                 queries.avtale.getOrError(avtale.id).should {
                     it.opplaringKategorisering shouldBe null
                 }
@@ -496,8 +499,8 @@ class AvtaleQueriesTest : FunSpec({
                 ),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
                 queries.prismodell.upsert(prismodell1Dbo)
                 queries.prismodell.upsert(prismodell2Dbo)
 
@@ -557,8 +560,8 @@ class AvtaleQueriesTest : FunSpec({
         )
 
         test("fritekstsøk på avtalenavn og avtalenummer") {
-            database.runAndRollback { session ->
-                oppfolgingDomain.setup(session)
+            database.runAndRollback {
+                oppfolgingDomain.initialize()
 
                 val avtalenummer1 = "2024#1000"
                 val avtalenummer2 = "2024#2000"
@@ -616,8 +619,8 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("administrator") {
-            database.runAndRollback { session ->
-                oppfolgingDomain.setup(session)
+            database.runAndRollback {
+                oppfolgingDomain.initialize()
 
                 val a1 = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
@@ -649,8 +652,8 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("filtrering på AvtaleStatus") {
-            database.runAndRollback { session ->
-                oppfolgingDomain.setup(session)
+            database.runAndRollback {
+                oppfolgingDomain.initialize()
 
                 val avtaleAktiv = AvtaleFixtures.oppfolging.copy(
                     id = UUID.randomUUID(),
@@ -723,8 +726,8 @@ class AvtaleQueriesTest : FunSpec({
                 ),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0300' where id = '${AvtaleFixtures.oppfolging.id}'"))
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0400' where id = '${AvtaleFixtures.AFT.id}'"))
@@ -777,8 +780,8 @@ class AvtaleQueriesTest : FunSpec({
                 ),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.avtale.getAll(
                     navEnheter = listOf(Innlandet.enhetsnummer),
@@ -823,8 +826,8 @@ class AvtaleQueriesTest : FunSpec({
                 avtaler = listOf(avtale1, avtale2, avtale3),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.avtale.getAll(avtaletyper = listOf(Avtaletype.AVTALE)).should {
                     it.totalCount shouldBe 1
@@ -852,8 +855,8 @@ class AvtaleQueriesTest : FunSpec({
                 ),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.avtale.getAll(
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.id),
@@ -911,8 +914,8 @@ class AvtaleQueriesTest : FunSpec({
                 ),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.avtale.getAll(search = "enhet").totalCount shouldBe 2
                 queries.avtale.getAll(search = "annen").totalCount shouldBe 1
@@ -934,8 +937,8 @@ class AvtaleQueriesTest : FunSpec({
                 ),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.avtale.getAll(personvernBekreftet = true).totalCount shouldBe 2
                 queries.avtale.getAll(personvernBekreftet = false).totalCount shouldBe 1
@@ -1017,8 +1020,8 @@ class AvtaleQueriesTest : FunSpec({
         )
 
         test("Sortering på navn fra a-å sorterer korrekt med æøå til slutt") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val result = queries.avtale.getAll(sortering = "navn-ascending")
 
@@ -1032,8 +1035,8 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Sortering på navn fra å-a sorterer korrekt") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val result = queries.avtale.getAll(sortering = "navn-descending")
 
@@ -1072,8 +1075,8 @@ class AvtaleQueriesTest : FunSpec({
                 kontaktpersoner = emptyList(),
             )
 
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val ascending = queries.avtale.getAll(sortering = "arrangor-ascending")
 
@@ -1093,8 +1096,8 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Sortering på sluttdato fra a-å sorterer korrekt") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val result = queries.avtale.getAll(sortering = "sluttdato-descending")
                 result.items[0].navn shouldBe "Avtale hos Ærfuglen Ærle"
@@ -1106,8 +1109,8 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Sortering på sluttdato fra å-a sorterer korrekt") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val result = queries.avtale.getAll(sortering = "sluttdato-ascending")
                 result.items[0].navn shouldBe "Avtale hos Åse"

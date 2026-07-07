@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.ktor.ServerConfig
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.historikk.clients.Avtale
 import java.time.LocalDate
+import java.util.UUID
 
 data class AppConfig(
     val server: ServerConfig = ServerConfig(),
@@ -37,6 +38,7 @@ data class ClientConfig(
 data class AuthConfig(
     val azure: AuthProvider,
     val texas: TexasClient.Config,
+    val teamMulighetsrommetEntraAdGroupId: UUID,
 )
 
 data class AuthProvider(

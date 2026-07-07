@@ -4,13 +4,14 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.pdfgen.VedtaksbrevContent
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
+import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.LocalDate
 
 object TilskuddVedtakToVedtaksbrevContent {
     fun toVedtakPdfContent(
         tilskuddBehandling: TilskuddBehandling,
         navn: String,
-        norskIdentString: String,
+        norskIdent: NorskIdent?,
         gjennomforing: GjennomforingEnkeltplass,
         saksbehandler: String,
         beslutter: String,
@@ -23,8 +24,8 @@ object TilskuddVedtakToVedtaksbrevContent {
                 tilskuddBelop = t.utbetalingBelop?.belop ?: 0,
                 valuta = t.utbetalingBelop?.valuta?.name ?: t.soknadBelop.valuta.name,
                 periode = VedtaksbrevContent.Vedtak.Periode(
-                    fradato = tilskuddBehandling.periode.start.toString(),
-                    tildato = tilskuddBehandling.periode.getLastInclusiveDate().toString(),
+                    fradato = tilskuddBehandling.periode.start,
+                    tildato = tilskuddBehandling.periode.getLastInclusiveDate(),
                 ),
                 kommentar = t.kommentarVedtaksbrev.orEmpty(),
             )
@@ -35,10 +36,10 @@ object TilskuddVedtakToVedtaksbrevContent {
                 fornavn = navn.fornavn,
                 mellomnavn = navn.mellomnavn,
                 etternavn = navn.etternavn,
-                personident = norskIdentString,
+                personident = norskIdent,
             ),
-            saksnummer = gjennomforing.lopenummer.value,
-            opprettetDato = LocalDate.now().toString(),
+            saksnummer = gjennomforing.lopenummer,
+            opprettetDato = LocalDate.now(),
             saksbehandler = saksbehandler,
             beslutter = beslutter,
             avsender = gjennomforing.ansvarligEnhet.navn,

@@ -51,7 +51,7 @@ class JournalforVedtaksbrev(
         .executeSuspend { inst, _ ->
             journalfor(inst.data.vedtakId).onLeft { message ->
                 throw Exception("Feil ved journalføring av vedtak med id=${inst.data.vedtakId}: $message")
-            }.map { response ->
+            }.onRight { response ->
                 logger.info("Skedulerer distribusjon av vedtaksbrev journalpostId: ${response.journalpostId}, vedtakId: ${inst.data.vedtakId}")
                 distribuerVedtaksbrev.schedule(inst.data.vedtakId)
             }
@@ -104,7 +104,7 @@ class JournalforVedtaksbrev(
         val content = TilskuddVedtakToVedtaksbrevContent.toVedtakPdfContent(
             tilskuddBehandling = tilskudd.toDbo(),
             navn = personalia.navn(),
-            norskIdentString = personalia.norskIdent()?.value.orEmpty(),
+            norskIdent = personalia.norskIdent(),
             gjennomforing = gjennomforing,
             saksbehandler = totrinnskontroll.behandletAv.navn,
             beslutter = totrinnskontroll.besluttetAv.navn,

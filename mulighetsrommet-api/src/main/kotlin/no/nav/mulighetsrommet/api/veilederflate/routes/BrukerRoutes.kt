@@ -16,12 +16,12 @@ import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
+import no.nav.mulighetsrommet.api.veilederflate.models.Brukerdata
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
-import no.nav.mulighetsrommet.api.veilederflate.services.Brukerdata
 import no.nav.mulighetsrommet.api.veilederflate.services.DeltakelserMelding
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService

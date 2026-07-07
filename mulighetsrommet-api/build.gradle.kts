@@ -8,6 +8,12 @@ application {
     mainClass.set("no.nav.mulighetsrommet.api.ApplicationKt")
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xreturn-value-checker=check")
+    }
+}
+
 tasks.register<JavaExec>("generateOpenApi") {
     group = "documentation"
     description = "Generates all configured OpenAPI specs by running a dedicated generator."
@@ -21,13 +27,13 @@ tasks.register<JavaExec>("generateOpenApi") {
         "src/main/resources/web/openapi-public.yaml",
 
         "tiltaksadministrasjon",
-        "../frontend/tiltaksadministrasjon-api-client/openapi.yaml",
+        "$rootDir/frontend/tiltaksadministrasjon-api-client/openapi.yaml",
 
         "arbeidsmarkedstiltak",
-        "../frontend/arbeidsmarkedstiltak-api-client/openapi.yaml",
+        "$rootDir/frontend/arbeidsmarkedstiltak-api-client/openapi.yaml",
 
         "arrangor-utbetalinger",
-        "../frontend/arrangor-utbetalinger-api-client/openapi.yaml",
+        "$rootDir/frontend/arrangor-utbetalinger-api-client/openapi.yaml",
     )
 }
 

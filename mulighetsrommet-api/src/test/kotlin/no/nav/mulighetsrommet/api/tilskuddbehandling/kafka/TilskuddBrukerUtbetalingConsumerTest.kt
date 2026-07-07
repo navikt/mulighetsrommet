@@ -102,11 +102,11 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         id = UUID.randomUUID(),
         entityId = behandlingId,
         type = TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+        status = TotrinnskontrollHendelse.Status.GODKJENT,
         behandletAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.DonaldDuck.navIdent.value),
         behandletTidspunkt = Instant.now(),
         besluttetAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.MikkeMus.navIdent.value),
         besluttetTidspunkt = Instant.now(),
-        besluttelse = TotrinnskontrollHendelse.Besluttelse.GODKJENT,
         aarsaker = emptyList(),
         forklaring = null,
     )

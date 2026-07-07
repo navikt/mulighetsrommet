@@ -30,7 +30,7 @@ import no.nav.tiltak.historikk.clients.GraphqlResponse
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.consumers.toGjennomforingDbo
 import no.nav.tiltak.historikk.plugins.ACCESS_AS_APPLICATION
-import no.nav.tiltak.historikk.plugins.TiltakshistorikkRead
+import no.nav.tiltak.historikk.plugins.TiltakshistorikkReadRoles
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -358,7 +358,7 @@ class TiltakshistorikkTest : FunSpec({
 })
 
 private fun tiltakshistorikkReadClaims(): Map<String, List<String>> {
-    return mapOf("roles" to TiltakshistorikkRead.requiredRoles)
+    return mapOf("roles" to TiltakshistorikkReadRoles)
 }
 
 private fun mockTiltakDatadeling(

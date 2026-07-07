@@ -4,18 +4,13 @@ import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.arena.adapter.models.db.Sak
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.QueryResult
 import no.nav.mulighetsrommet.database.utils.query
 import org.intellij.lang.annotations.Language
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 class SakRepository(private val db: Database) {
-    private val logger: Logger = LoggerFactory.getLogger(javaClass)
-
     fun upsert(sak: Sak): QueryResult<Sak> = query {
-        logger.info("Lagrer sak id=${sak.sakId}")
-
         @Language("PostgreSQL")
         val query = """
             insert into sak(sak_id, lopenummer, aar, enhet)
@@ -27,10 +22,9 @@ class SakRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        queryOf(query, sak.toSqlParameters())
-            .map { it.toSak() }
-            .asSingle
-            .let { db.run(it)!! }
+        db.session { session ->
+            session.requireSingle(queryOf(query, sak.toSqlParameters())) { it.toSak() }
+        }
     }
 
     fun delete(id: Int): QueryResult<Unit> = query {
@@ -40,14 +34,12 @@ class SakRepository(private val db: Database) {
             where sak_id = ?
         """.trimIndent()
 
-        queryOf(query, id)
-            .asExecute
-            .let { db.run(it) }
+        db.session { session ->
+            session.execute(queryOf(query, id))
+        }
     }
 
-    fun get(id: Int): Sak? {
-        logger.info("Henter sak id=$id")
-
+    fun get(id: Int): Sak? = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             select sak_id, lopenummer, aar, enhet
@@ -55,10 +47,7 @@ class SakRepository(private val db: Database) {
             where sak_id = ?
         """.trimIndent()
 
-        return queryOf(query, id)
-            .map { it.toSak() }
-            .asSingle
-            .let { db.run(it) }
+        return session.single(queryOf(query, id)) { it.toSak() }
     }
 
     private fun Sak.toSqlParameters() = mapOf(

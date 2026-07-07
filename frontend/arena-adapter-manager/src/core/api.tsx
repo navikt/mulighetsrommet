@@ -59,7 +59,7 @@ export const putRetryFailedKafkaRecord = (base: ApiBase, payload: RetryFailedKaf
     .catch((error) => toastError("Klarte ikke oppdatere topics", error));
 
 export const getArenaTables = () =>
-  fetch("/mulighetsrommet-arena-adapter/arena-tables", {
+  fetch(`${ApiBase.ARENA_ADAPTER}/arena-tables`, {
     method: "GET",
     headers: getDefaultHeaders(),
   })
@@ -110,7 +110,7 @@ export const putRetryScheduledTask = (base: ApiBase, payload: RetryScheduledTask
     .catch((error) => toastError("Klarte ikke oppdatere skedulert tid", error));
 
 export const replayEvents = (arenaTable: string | null, status: string | null) =>
-  fetch("/mulighetsrommet-arena-adapter/events/replay", {
+  fetch(`${ApiBase.ARENA_ADAPTER}/events/replay`, {
     method: "PUT",
     headers: {
       ...getDefaultHeaders(),
@@ -126,7 +126,7 @@ export const replayEvents = (arenaTable: string | null, status: string | null) =
     .catch((error) => toastError("Klarte ikke starte gjenspilling av events", error));
 
 export const replayEvent = (arenaTable: string, arenaId: string) =>
-  fetch("/mulighetsrommet-arena-adapter/event/replay", {
+  fetch(`${ApiBase.ARENA_ADAPTER}/event/replay`, {
     method: "PUT",
     headers: {
       ...getDefaultHeaders(),
@@ -152,7 +152,7 @@ export const deleteEvents = async (arenaTable: string, arenaIds: string) => {
     .map((id) => id.trim())
     .filter((id) => id.length);
 
-  return fetch(`/mulighetsrommet-arena-adapter/events`, {
+  return fetch(`${ApiBase.ARENA_ADAPTER}/events`, {
     method: "DELETE",
     headers: {
       ...getDefaultHeaders(),

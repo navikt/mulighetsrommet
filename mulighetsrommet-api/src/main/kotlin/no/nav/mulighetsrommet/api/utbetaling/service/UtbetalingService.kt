@@ -396,10 +396,10 @@ class UtbetalingService(
                 gjorOppTilsagn = false,
             )
         }
-        sendTilAttestering(utbetaling.id, linjer, Tiltaksadministrasjon).getOrElse { throw UtbetalingException(it) }
+        sendTilAttestering(utbetaling.id, linjer, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
 
         linjer.forEach { linje ->
-            attesterUtbetalingLinje(linje.id, Tiltaksadministrasjon).getOrElse { throw UtbetalingException(it) }
+            attesterUtbetalingLinje(linje.id, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
         }
 
         AutomatisertUtbetalingResult.GODKJENT

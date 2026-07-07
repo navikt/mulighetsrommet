@@ -102,8 +102,8 @@ class TilsagnQueriesTest : FunSpec({
 
     context("CRUD") {
         test("upsert, get, delete") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.tilsagn.upsert(tilsagn)
 
@@ -150,8 +150,8 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("upsert beregning - fri") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val beregning = TilsagnBeregningFri(
                     input = TilsagnBeregningFri.Input(
@@ -182,8 +182,8 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("upsert beregning - Fast sats per benyttet tiltaksplass per måned") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val beregning = TilsagnBeregningFastSatsPerTiltaksplassPerManed(
                     input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
@@ -208,8 +208,8 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("upsert beregning - pris per månedsverk") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val beregning = TilsagnBeregningPrisPerManedsverk(
                     input = TilsagnBeregningPrisPerManedsverk.Input(
@@ -235,8 +235,8 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("upsert beregning - pris per ukesverk") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val beregning = TilsagnBeregningPrisPerUkesverk(
                     input = TilsagnBeregningPrisPerUkesverk.Input(
@@ -262,8 +262,8 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("upsert beregning - Avtalt pris per uke med påbegynt oppfølging per deltaker") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val beregning = TilsagnBeregningPrisPerHeleUkesverk(
                     input = TilsagnBeregningPrisPerHeleUkesverk.Input(
@@ -289,8 +289,8 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("upsert beregning - pris per time oppfølging") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 val beregning = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker(
                     input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
@@ -313,13 +313,11 @@ class TilsagnQueriesTest : FunSpec({
         test("løpenummer er unikt per gjennomføring") {
             val aft2 = GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID())
 
-            val domain2 = MulighetsrommetTestDomain(
-                avtaler = listOf(AvtaleFixtures.AFT),
-                gjennomforinger = listOf(GjennomforingFixtures.AFT1, aft2),
-            )
-
-            database.runAndRollback { session ->
-                domain2.setup(session)
+            database.runAndRollback {
+                MulighetsrommetTestDomain(
+                    avtaler = listOf(AvtaleFixtures.AFT),
+                    gjennomforinger = listOf(GjennomforingFixtures.AFT1, aft2),
+                ).initialize()
 
                 queries.tilsagn.upsert(
                     tilsagn.copy(
@@ -356,8 +354,8 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("bestillingsnummer er unikt per tilsagn") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.tilsagn.upsert(
                     tilsagn.copy(
@@ -380,8 +378,8 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("get all") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.tilsagn.upsert(tilsagn)
 
@@ -397,8 +395,8 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("set status") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.tilsagn.upsert(tilsagn)
 
@@ -411,8 +409,8 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("set bestilling-status") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.tilsagn.upsert(tilsagn.copy(bestillingStatus = BestillingStatusType.SENDT))
 
@@ -425,8 +423,8 @@ class TilsagnQueriesTest : FunSpec({
         }
 
         test("med deltakere") {
-            database.runAndRollback { session ->
-                domain.setup(session)
+            database.runAndRollback {
+                domain.initialize()
 
                 queries.tilsagn.upsert(
                     tilsagn.copy(

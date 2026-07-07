@@ -18,12 +18,12 @@ const apps = [
   },
   {
     name: "tiltakshistorikk",
-    path: "/tiltakshistorikk",
+    path: "/tiltakshistorikk-app",
     page: <Tiltakshistorikk />,
   },
   {
     name: "tiltaksøkonomi",
-    path: "/tiltaksokonomi",
+    path: "/tiltaksokonomi-app",
     page: <Tiltaksokonomi />,
   },
 ];

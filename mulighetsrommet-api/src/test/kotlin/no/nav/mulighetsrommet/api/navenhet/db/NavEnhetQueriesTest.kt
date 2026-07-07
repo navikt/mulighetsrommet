@@ -23,7 +23,7 @@ class NavEnhetQueriesTest : FunSpec({
     )
 
     test("CRUD") {
-        database.runAndRollback { session ->
+        database.runAndRollback {
             val overordnetEnhet = createEnhet(NavEnhetNummer("1200"), null, Norg2Type.FYLKE)
             val underenhet1 = createEnhet(NavEnhetNummer("1111"), overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
             val underenhet2 = createEnhet(NavEnhetNummer("2222"), overordnetEnhet.enhetsnummer, Norg2Type.LOKAL)
