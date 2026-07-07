@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.arena.adapter.utils.ArenaUtils
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Tiltakskoder.isGruppetiltak
+import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
 import no.nav.tiltak.historikk.TiltakshistorikkClient
 
@@ -60,8 +60,9 @@ class TiltakshistorikkEventProcessor(
             .getTiltakstype(tiltakstypeMapping.entityId)
             .bind()
 
-        // TODO: denne sjekken må også sørge for at enkeltplassene ikke blir overført som Arena-tiltak til tiltakhistorikken når Komet tar over eierskap for disse deltakelsene
-        if (isGruppetiltak(tiltakstype.tiltakskode)) {
+        // TODO: denne sjekken må også sørge for at enkeltplassene (ENKELAMO, ENKFAGYRKE, HOYEREUTD) ikke blir
+        //  overført som Arena-tiltak til tiltakhistorikken når Komet tar over eierskap for disse deltakelsene
+        if (Tiltakskoder.isGruppetiltak(tiltakstype.tiltakskode)) {
             return@either ProcessingResult(Handled)
         }
 
