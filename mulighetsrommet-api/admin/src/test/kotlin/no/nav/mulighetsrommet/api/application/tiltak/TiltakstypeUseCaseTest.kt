@@ -6,7 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.verify
-import no.nav.mulighetsrommet.api.application.testing.TestApiDatabase
+import no.nav.mulighetsrommet.api.application.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.model.NavIdent
@@ -28,7 +28,7 @@ class TiltakstypeUseCaseTest : FunSpec({
         oppdatertTidspunkt = LocalDateTime.now(),
     )
 
-    fun mockGetEksternTiltakstype(db: TestApiDatabase, dto: TiltakstypeV3Dto) {
+    fun mockGetEksternTiltakstype(db: TestAdminDatabase, dto: TiltakstypeV3Dto) {
         every { db.queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.AFT.id) } returns dto
     }
 
@@ -41,13 +41,13 @@ class TiltakstypeUseCaseTest : FunSpec({
                 veilederinfo = Tiltakstype.Veilederinfo(),
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(TestApiDatabase())
+            TiltakstypeUseCase(TestAdminDatabase())
                 .execute(command)
                 .shouldBeLeft(TiltakstypeUseCaseError.NotFound(unknownId))
         }
 
         test("lagrer oppdatert veilederinfo") {
-            val db = TestApiDatabase()
+            val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
             mockGetEksternTiltakstype(db, tiltakstypeV3)
 
@@ -64,7 +64,7 @@ class TiltakstypeUseCaseTest : FunSpec({
         }
 
         test("loggfører endring") {
-            val db = TestApiDatabase()
+            val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
             mockGetEksternTiltakstype(db, tiltakstypeV3)
 
@@ -79,7 +79,7 @@ class TiltakstypeUseCaseTest : FunSpec({
         }
 
         test("publiserer til kafka for tiltakstyper med system TILTAKSADMINISTRASJON") {
-            val db = TestApiDatabase()
+            val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
             mockGetEksternTiltakstype(db, tiltakstypeV3)
 
@@ -96,7 +96,7 @@ class TiltakstypeUseCaseTest : FunSpec({
         }
 
         test("publiserer ikke til kafka for tiltakstyper med system ARENA") {
-            val db = TestApiDatabase()
+            val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.IPS)
 
             val command = UpsertVeilederinfoCommand(
@@ -121,13 +121,13 @@ class TiltakstypeUseCaseTest : FunSpec({
                 deltakerinfo = Tiltakstype.Deltakerinfo(ledetekst = null, innholdskoder = emptyList()),
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(TestApiDatabase())
+            TiltakstypeUseCase(TestAdminDatabase())
                 .execute(command)
                 .shouldBeLeft(TiltakstypeUseCaseError.NotFound(unknownId))
         }
 
         test("lagrer oppdatert deltakerinfo") {
-            val db = TestApiDatabase()
+            val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
             mockGetEksternTiltakstype(db, tiltakstypeV3)
 
@@ -146,7 +146,7 @@ class TiltakstypeUseCaseTest : FunSpec({
         }
 
         test("loggfører endring") {
-            val db = TestApiDatabase()
+            val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
             mockGetEksternTiltakstype(db, tiltakstypeV3)
 
@@ -163,7 +163,7 @@ class TiltakstypeUseCaseTest : FunSpec({
         }
 
         test("publiserer til kafka for tiltakstyper med system TILTAKSADMINISTRASJON") {
-            val db = TestApiDatabase()
+            val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
             mockGetEksternTiltakstype(db, tiltakstypeV3)
 
@@ -180,7 +180,7 @@ class TiltakstypeUseCaseTest : FunSpec({
         }
 
         test("publiserer ikke til kafka for tiltakstyper med system ARENA") {
-            val db = TestApiDatabase()
+            val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.IPS)
 
             val command = UpsertDeltakerinfoCommand(

@@ -6,7 +6,7 @@ import io.kotest.core.spec.Spec
 import io.kotest.core.test.TestCaseOrder
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.application.ApiDatabase
+import no.nav.mulighetsrommet.api.application.AdminDatabase
 import no.nav.mulighetsrommet.api.application.QueryContext
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
@@ -14,7 +14,7 @@ import org.assertj.db.api.Assertions
 import org.assertj.db.api.TableAssert
 import org.assertj.db.type.AssertDbConnectionFactory
 
-class SqlApiDatabaseTestListener : BeforeSpecListener, AfterSpecListener {
+class SqlAdminDatabaseTestListener : BeforeSpecListener, AfterSpecListener {
 
     private var delegate: Database? = null
 
@@ -23,8 +23,8 @@ class SqlApiDatabaseTestListener : BeforeSpecListener, AfterSpecListener {
         slackNotifier = null,
     )
 
-    val db: ApiDatabase
-        get() = delegate?.let { SqlApiDatabase(it, outboxConfig) }
+    val db: AdminDatabase
+        get() = delegate?.let { SqlAdminDatabase(it, outboxConfig) }
             ?: throw RuntimeException("Database has not yet been initialized")
 
     override suspend fun beforeSpec(spec: Spec) {

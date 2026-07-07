@@ -10,13 +10,13 @@ import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnhold
 import no.nav.mulighetsrommet.api.domain.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.persistence.SqlApiDatabaseTestListener
+import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
 class TiltakstypeQueriesTest : FunSpec({
-    val database = extension(SqlApiDatabaseTestListener())
+    val database = extension(SqlAdminDatabaseTestListener())
 
     context("CRUD") {
         test("upsert and get") {

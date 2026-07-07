@@ -11,7 +11,7 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
-import no.nav.mulighetsrommet.api.application.ApiDatabase
+import no.nav.mulighetsrommet.api.application.AdminDatabase
 import no.nav.mulighetsrommet.api.application.tiltak.GetTiltakstepeDto
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeDto
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeDtoQuery
@@ -39,7 +39,7 @@ import org.koin.ktor.ext.inject
 import java.util.UUID
 
 fun Route.tiltakstypeRoutes() {
-    val db: ApiDatabase by inject()
+    val db: AdminDatabase by inject()
     val tiltakstypeKompaktQuery: TiltakstypeKompaktQuery by inject()
     val tiltakstypeDtoQuery: TiltakstypeDtoQuery by inject()
     val tiltakstypeUseCase: TiltakstypeUseCase by inject()

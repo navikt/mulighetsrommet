@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.application.tiltak
 
-import no.nav.mulighetsrommet.api.application.ApiDatabase
+import no.nav.mulighetsrommet.api.application.AdminDatabase
 import java.util.UUID
 
 data class GetTiltakstepeDto(
@@ -8,7 +8,7 @@ data class GetTiltakstepeDto(
 )
 
 class TiltakstypeDtoQuery(
-    private val db: ApiDatabase,
+    private val db: AdminDatabase,
     private val tiltakstypeService: TiltakstypeService,
 ) {
     fun execute(query: GetTiltakstepeDto): TiltakstypeDto? = db.session {

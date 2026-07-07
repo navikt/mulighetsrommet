@@ -3,12 +3,12 @@ package no.nav.mulighetsrommet.api.application.redaksjoneltinnhold
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import no.nav.mulighetsrommet.api.application.ApiDatabase
+import no.nav.mulighetsrommet.api.application.AdminDatabase
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import java.util.UUID
 
 class RedaksjoneltInnholdLenkeService(
-    private val db: ApiDatabase,
+    private val db: AdminDatabase,
 ) {
     fun getAll(): List<RedaksjoneltInnholdLenke> = db.session {
         repository.redaksjoneltInnholdLenke.getAll()

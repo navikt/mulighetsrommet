@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.application.testing
 
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.application.Outbox
 import no.nav.mulighetsrommet.api.application.QueryContext
 import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkQueryHandler
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeQueryHandler

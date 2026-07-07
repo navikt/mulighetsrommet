@@ -4,14 +4,14 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.application.testing.TestApiDatabase
+import no.nav.mulighetsrommet.api.application.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 
 class TiltakstypeKompaktDtoQueryTest : FunSpec({
-    val db = TestApiDatabase()
+    val db = TestAdminDatabase()
 
     beforeSpec {
         db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)

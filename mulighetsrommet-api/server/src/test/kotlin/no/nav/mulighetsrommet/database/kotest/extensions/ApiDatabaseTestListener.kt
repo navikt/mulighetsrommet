@@ -6,19 +6,19 @@ import io.kotest.core.spec.Spec
 import io.kotest.core.test.TestCaseOrder
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.KafkaTopics
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.application.ApiDatabase
+import no.nav.mulighetsrommet.api.application.AdminDatabase
 import no.nav.mulighetsrommet.api.persistence.OutboxTopics
-import no.nav.mulighetsrommet.api.persistence.SqlApiDatabase
+import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabase
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import org.assertj.db.api.Assertions
 import org.assertj.db.api.TableAssert
 import org.assertj.db.type.AssertDbConnectionFactory
-import no.nav.mulighetsrommet.api.ApiDatabase as LegacyApiDatabase
 
 class ApiDatabaseTestListener(
     private val config: DatabaseConfig = ApplicationConfigTest.database,
@@ -30,17 +30,17 @@ class ApiDatabaseTestListener(
         slackNotifier = null,
     )
 
-    val db: LegacyApiDatabase
+    val db: ApiDatabase
         get() {
             return delegate
-                ?.let { LegacyApiDatabase(it, ApplicationConfigTest.kafka.topics) }
+                ?.let { ApiDatabase(it, ApplicationConfigTest.kafka.topics) }
                 ?: throw RuntimeException("Database has not yet been initialized")
         }
 
-    val newDb: ApiDatabase
+    val newDb: AdminDatabase
         get() {
             return delegate
-                ?.let { SqlApiDatabase(it, ApplicationConfigTest.kafka.topics.toOutboxTopics()) }
+                ?.let { SqlAdminDatabase(it, ApplicationConfigTest.kafka.topics.toOutboxTopics()) }
                 ?: throw RuntimeException("Database has not yet been initialized")
         }
 

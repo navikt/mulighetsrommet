@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.application.tiltak
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import no.nav.mulighetsrommet.api.application.ApiDatabase
+import no.nav.mulighetsrommet.api.application.AdminDatabase
 import no.nav.mulighetsrommet.api.domain.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 
 class TiltakstypeService(
     private val config: Config = Config(),
-    private val db: ApiDatabase,
+    private val db: AdminDatabase,
 ) {
 
     data class Config(

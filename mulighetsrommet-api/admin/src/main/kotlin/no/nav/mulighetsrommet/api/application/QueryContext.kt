@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.application.endringshistorikk.Endringshistorik
 import no.nav.mulighetsrommet.api.application.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
+import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 
 abstract class QueryContext {
     abstract val repository: Repositories
@@ -18,5 +19,9 @@ abstract class QueryContext {
     abstract class Queries {
         abstract val tiltakstype: TiltakstypeQueryHandler
         abstract val endringshistorikk: EndringshistorikkQueryHandler
+    }
+
+    interface Outbox {
+        fun publish(ekstern: TiltakstypeV3Dto)
     }
 }

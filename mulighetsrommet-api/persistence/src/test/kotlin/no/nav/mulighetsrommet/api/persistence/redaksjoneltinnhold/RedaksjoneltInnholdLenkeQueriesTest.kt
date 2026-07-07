@@ -7,11 +7,11 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
-import no.nav.mulighetsrommet.api.persistence.SqlApiDatabaseTestListener
+import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 import java.util.UUID
 
 class RedaksjoneltInnholdLenkeQueriesTest : FunSpec({
-    val database = extension(SqlApiDatabaseTestListener())
+    val database = extension(SqlAdminDatabaseTestListener())
 
     beforeEach {
         database.truncateAll()

@@ -1,13 +1,12 @@
 package no.nav.mulighetsrommet.api.application.testing
 
-import no.nav.mulighetsrommet.api.application.ApiDatabase
-import no.nav.mulighetsrommet.api.application.Outbox
+import no.nav.mulighetsrommet.api.application.AdminDatabase
 import no.nav.mulighetsrommet.api.application.QueryContext
 
-class TestApiDatabase(private val ctx: TestQueryContext = TestQueryContext()) : ApiDatabase {
+class TestAdminDatabase(private val ctx: TestQueryContext = TestQueryContext()) : AdminDatabase {
     val queries: QueryContext.Queries = ctx.queries
     val repository: QueryContext.Repositories = ctx.repository
-    val outbox: Outbox = ctx.outbox
+    val outbox: QueryContext.Outbox = ctx.outbox
 
     override fun <T> session(block: QueryContext.() -> T): T = block(ctx)
 

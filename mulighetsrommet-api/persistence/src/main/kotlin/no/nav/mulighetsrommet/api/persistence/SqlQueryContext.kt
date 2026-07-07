@@ -25,5 +25,5 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val endringshistorikk: EndringshistorikkQueryHandler = endringshistorikkDao
     }
 
-    override val outbox = SqlOutbox(session, topics)
+    override val outbox = SqlAdminOutbox(session, topics)
 }

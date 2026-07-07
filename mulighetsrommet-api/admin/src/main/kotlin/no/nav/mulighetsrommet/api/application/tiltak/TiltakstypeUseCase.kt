@@ -5,7 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.application.ApiDatabase
+import no.nav.mulighetsrommet.api.application.AdminDatabase
 import no.nav.mulighetsrommet.api.application.QueryContext
 import no.nav.mulighetsrommet.api.application.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
@@ -27,7 +27,7 @@ data class UpsertDeltakerinfoCommand(
 )
 
 class TiltakstypeUseCase(
-    private val db: ApiDatabase,
+    private val db: AdminDatabase,
 ) {
     fun execute(command: UpsertVeilederinfoCommand): Either<TiltakstypeUseCaseError, Unit> = db.transaction {
         val tiltakstype = repository.tiltakstype.get(command.id)
