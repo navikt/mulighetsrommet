@@ -58,7 +58,7 @@ spec:
           },
           "proxies": [
             {
-              "fromPath": "/api/mulighetsrommet-arena-adapter",
+              "fromPath": "/mulighetsrommet-arena-adapter",
               "toUrl": "http://mulighetsrommet-arena-adapter",
               "preserveFromPath": false,
               "toApp": {
@@ -68,7 +68,7 @@ spec:
               }
             },
             {
-              "fromPath": "/api/mulighetsrommet-api",
+              "fromPath": "/mulighetsrommet-api",
               "toUrl": "http://mulighetsrommet-api",
               "preserveFromPath": false,
               "toApp": {
@@ -78,7 +78,7 @@ spec:
               }
             },
             {
-              "fromPath": "/api/tiltakshistorikk",
+              "fromPath": "/tiltakshistorikk-api",
               "toUrl": "http://tiltakshistorikk",
               "preserveFromPath": false,
               "toApp": {
@@ -88,7 +88,7 @@ spec:
               }
             },
             {
-              "fromPath": "/api/tiltaksokonomi",
+              "fromPath": "/tiltaksokonomi-api",
               "toUrl": "http://tiltaksokonomi",
               "preserveFromPath": false,
               "toApp": {

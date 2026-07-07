@@ -13,10 +13,10 @@ export class ApiError extends Error {
 }
 
 export enum ApiBase {
-  ARENA_ADAPTER = "/api/mulighetsrommet-arena-adapter",
-  MR_API = "/api/mulighetsrommet-api/api/intern/maam",
-  TILTAKSHISTORIKK = "/api/tiltakshistorikk/maam",
-  TILTAKSOKONOMI = "/api/tiltaksokonomi/maam",
+  ARENA_ADAPTER = "/mulighetsrommet-arena-adapter",
+  MR_API = "/mulighetsrommet-api/api/intern/maam",
+  TILTAKSHISTORIKK = "/tiltakshistorikk-api/maam",
+  TILTAKSOKONOMI = "/tiltaksokonomi-api/maam",
 }
 
 export const getTopics = (base: ApiBase) =>
