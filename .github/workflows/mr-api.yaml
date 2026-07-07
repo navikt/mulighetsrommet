@@ -45,7 +45,7 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew :mulighetsrommet-api:check :mulighetsrommet-api:installDist --no-daemon --no-configuration-cache
       - name: Build and push Docker image
-        uses: nais/docker-build-push@05dbb6091b30bd84279c6d64a45ef8782fd410a5 # v0
+        uses: nais/docker-build-push@31c3a7321909bcb20799fdf46153fec721fd9512 # v0
         id: docker-build-push
         if: github.event_name == 'push' && github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
         with:
