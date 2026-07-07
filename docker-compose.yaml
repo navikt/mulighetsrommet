@@ -85,9 +85,7 @@ services:
       - dev
     volumes:
       - ./mulighetsrommet-pdfgenrs/templates:/app/templates
-      - ./mulighetsrommet-pdfgenrs/lib:/app/lib
       - ./mulighetsrommet-pdfgenrs/data:/app/data
-      - ./mulighetsrommet-pdfgenrs/block-content:/app/block-content
       - ./mulighetsrommet-pdfgenrs/resources:/app/resources
 
   # ZooKeeper is used to track the status of nodes in the Kafka cluster and maintain a list of Kafka topics and messages.
