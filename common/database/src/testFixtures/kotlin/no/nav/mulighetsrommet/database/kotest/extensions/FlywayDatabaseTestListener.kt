@@ -72,14 +72,13 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpe
         }
     }
 
-    fun truncateAll() {
-        val tableNames =
-            queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")
-                .map { it.string("table_name") }
-                .asList
-                .let { db.run(it) }
+    fun truncateAll(): Unit = db.session { session ->
+        val tableNames = session
+            .list(queryOf("SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'")) {
+                it.string("table_name")
+            }
         tableNames.forEach {
-            db.run(queryOf("truncate table $it restart identity cascade").asExecute)
+            session.execute(queryOf("truncate table $it restart identity cascade"))
         }
     }
 }

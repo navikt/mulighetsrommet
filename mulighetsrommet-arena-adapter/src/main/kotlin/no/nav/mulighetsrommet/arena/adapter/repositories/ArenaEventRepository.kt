@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.arena.ArenaTable
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.database.Database
+import no.nav.mulighetsrommet.database.requireSingle
 import org.intellij.lang.annotations.Language
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory
 class ArenaEventRepository(private val db: Database) {
     private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    fun upsert(event: ArenaEvent): ArenaEvent {
+    fun upsert(event: ArenaEvent): ArenaEvent = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             insert into arena_events(arena_table, arena_id, operation, payload, processing_status, message, retries)
@@ -29,17 +30,14 @@ class ArenaEventRepository(private val db: Database) {
             returning *
         """.trimIndent()
 
-        return queryOf(query, event.toParameters())
-            .map { it.toEvent() }
-            .asSingle
-            .let { db.run(it)!! }
+        return session.requireSingle(queryOf(query, event.toParameters())) { it.toEvent() }
     }
 
     fun updateProcessingStatusFromEntityStatus(
         table: ArenaTable,
         entityStatus: ArenaEntityMapping.Status,
         processingStatus: ArenaEvent.ProcessingStatus,
-    ) {
+    ): Unit = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             with mappings as (select arena_table, arena_id
@@ -54,21 +52,15 @@ class ArenaEventRepository(private val db: Database) {
               and e.arena_id = m.arena_id;
         """.trimIndent()
 
-        return queryOf(
-            query,
-            mapOf(
-                "table" to table.table,
-                "entity_status" to entityStatus.name,
-                "processing_status" to processingStatus.name,
-            ),
+        val params = mapOf(
+            "table" to table.table,
+            "entity_status" to entityStatus.name,
+            "processing_status" to processingStatus.name,
         )
-            .asUpdate
-            .let { db.run(it) }
+        session.update(queryOf(query, params))
     }
 
-    fun get(table: ArenaTable, id: String): ArenaEvent? {
-        logger.info("Getting event table=$table, id=$id")
-
+    fun get(table: ArenaTable, id: String): ArenaEvent? = db.session { session ->
         @Language("PostgreSQL")
         val query = """
             select arena_table, arena_id, operation, payload, processing_status, message, retries
@@ -76,10 +68,9 @@ class ArenaEventRepository(private val db: Database) {
             where arena_table = :arena_table and arena_id = :arena_id
         """.trimIndent()
 
-        return queryOf(query, mapOf("arena_table" to table.table, "arena_id" to id))
-            .map { it.toEvent() }
-            .asSingle
-            .let { db.run(it) }
+        val params = mapOf("arena_table" to table.table, "arena_id" to id)
+
+        return session.single(queryOf(query, params)) { it.toEvent() }
     }
 
     fun getAll(
@@ -89,7 +80,7 @@ class ArenaEventRepository(private val db: Database) {
         retriesLessThan: Int? = null,
         retriesGreaterThanOrEqual: Int? = null,
         limit: Int = 1000,
-    ): List<ArenaEvent> {
+    ): List<ArenaEvent> = db.session { session ->
         logger.info("Getting events table=$table, idGreaterThan=$idGreaterThan, status=$status, maxRetries=$retriesLessThan, retriesGreaterThanOrEqual=$retriesGreaterThanOrEqual, limit=$limit")
 
         val where = andWhereParameterNotNull(
@@ -109,20 +100,16 @@ class ArenaEventRepository(private val db: Database) {
             limit :limit
         """.trimIndent()
 
-        return queryOf(
-            query,
-            mapOf(
-                "arena_table" to table?.table,
-                "arena_id" to idGreaterThan,
-                "status" to status?.name,
-                "max_retries" to retriesLessThan,
-                "retriesGreaterThanOrEqual" to retriesGreaterThanOrEqual,
-                "limit" to limit,
-            ),
+        val params = mapOf(
+            "arena_table" to table?.table,
+            "arena_id" to idGreaterThan,
+            "status" to status?.name,
+            "max_retries" to retriesLessThan,
+            "retriesGreaterThanOrEqual" to retriesGreaterThanOrEqual,
+            "limit" to limit,
         )
-            .map { it.toEvent() }
-            .asList
-            .let { db.run(it) }
+
+        return session.list(queryOf(query, params)) { it.toEvent() }
     }
 
     private fun andWhereParameterNotNull(vararg parts: Pair<Any?, String>): String = parts
