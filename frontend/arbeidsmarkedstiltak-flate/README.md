@@ -55,14 +55,15 @@ via [vite](https://vite.dev/guide/env-and-mode.html#env-files)
 eller [mise](https://mise.jdx.dev/environments/#using-environment-variables).
 For å generere dette gjør du følgende:
 
-1. Naviger til lokal [Mock Oauth2 Server](http://localhost:8081/azure/debugger)
+1. Naviger til lokal [Mock Oauth2 Server (azure)](http://localhost:8081/azure/debugger)
 2. Trykk på knappen `Get a token`
 3. Skriv inn hva som helst som `user/subject`
 4. Legg inn dette i optional claims:
    ```json
    {
      "NAVident": "B123456",
-     "oid": "37ba79a1-c36d-4f45-8608-d582df321ecc"
+     "aud": ["mulighetsrommet-api"],
+     "oid": "37ba79a1-c36d-4f45-8608-d582df321ecc",
    }
    ```
 5. Trykk `Sign in`
