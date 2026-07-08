@@ -125,7 +125,6 @@ module "mr_api_datastream" {
           ]
         },
         { table = "gjennomforing_nav_enhet" },
-        { table = "gjennomforing_utdanningsprogram" },
         { table = "utdanningsprogram" },
         { table = "utdanning" },
         {
