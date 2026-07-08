@@ -11,6 +11,8 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -24,8 +26,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingReq
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -113,6 +114,7 @@ class TilskuddBehandlingService(
 
             val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
             opprettelse.godkjenn(navIdent)
+                .mapLeft { it.toFieldErrors() }
                 .map { godkjent ->
                     queries.totrinnskontroll.upsert(godkjent)
                     outbox.publish(godkjent)
@@ -150,7 +152,7 @@ class TilskuddBehandlingService(
         }
 
         val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-        opprettelse.returner(navIdent, aarsaker.map { it.name }, forklaring).map { returnert ->
+        opprettelse.returner(navIdent, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
             queries.totrinnskontroll.upsert(returnert)
             outbox.publish(returnert)
             queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)

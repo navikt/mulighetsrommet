@@ -23,6 +23,7 @@ include(
     "mulighetsrommet-api:server",
     "mulighetsrommet-api:domain",
     "mulighetsrommet-api:persistence",
+    "mulighetsrommet-api:contracts",
     "mulighetsrommet-arena-adapter",
     "mulighetsrommet-tiltakshistorikk",
     "mulighetsrommet-tiltaksokonomi",

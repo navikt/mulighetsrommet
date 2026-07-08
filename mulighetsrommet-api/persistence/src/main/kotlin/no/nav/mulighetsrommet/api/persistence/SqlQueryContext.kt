@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
@@ -17,6 +18,7 @@ import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
+import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 
 class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     private val tiltakstypeDao = TiltakstypeQueries(session)
@@ -26,6 +28,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     private val navAnsattDao = NavAnsattQueries(session)
     private val kostnadsstedDao = KostnadsstedQueries(session)
     private val navAnsattDtoDao = NavAnsattDtoQueries(session)
+    private val totrinnskontrollDao = TotrinnskontrollQueries(session)
 
     override val repository = object : Repositories() {
         override val tiltakstype: TiltakstypeRepository = tiltakstypeDao
@@ -39,6 +42,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val endringshistorikk: EndringshistorikkQueryHandler = endringshistorikkDao
         override val kostnadssted: KostnadsstedQueryHandler = kostnadsstedDao
         override val navAnsattDto: NavAnsattDtoQueryHandler = navAnsattDtoDao
+        override val totrinnskontroll: TotrinnskontrollQueryHandler = totrinnskontrollDao
     }
 
     override val outbox = SqlAdminOutbox(session, topics)

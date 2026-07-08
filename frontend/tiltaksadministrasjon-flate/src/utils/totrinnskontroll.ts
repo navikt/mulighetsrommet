@@ -5,13 +5,13 @@ import {
 
 type TotrinnskontrollBesluttet = Extract<
   TotrinnskontrollDto,
-  { type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet" }
+  { type: "TotrinnskontrollDto.Besluttet" }
 >;
 
 type TotrinnskontrollTilBeslutning = Extract<
   TotrinnskontrollDto,
   {
-    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning";
+    type: "TotrinnskontrollDto.TilBeslutning";
   }
 >;
 
@@ -57,17 +57,11 @@ export function erReturnert(
 export function erBesluttet(
   totrinnskontroll: TotrinnskontrollDto | null,
 ): totrinnskontroll is TotrinnskontrollBesluttet {
-  return (
-    totrinnskontroll?.type ===
-    "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet"
-  );
+  return totrinnskontroll?.type === "TotrinnskontrollDto.Besluttet";
 }
 
 export function erTilBeslutning(
   totrinnskontroll: TotrinnskontrollDto | null,
 ): totrinnskontroll is TotrinnskontrollTilBeslutning {
-  return (
-    totrinnskontroll?.type ===
-    "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning"
-  );
+  return totrinnskontroll?.type === "TotrinnskontrollDto.TilBeslutning";
 }

@@ -5902,8 +5902,8 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet: "#/components/schemas/TotrinnskontrollDto.Besluttet"
-          no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
+          TotrinnskontrollDto.Besluttet: "#/components/schemas/TotrinnskontrollDto.Besluttet"
+          TotrinnskontrollDto.TilBeslutning: "#/components/schemas/TotrinnskontrollDto.TilBeslutning"
     TotrinnskontrollDto.Besluttet:
       type: object
       properties:

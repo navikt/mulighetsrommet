@@ -89,5 +89,5 @@ class ApiDatabaseTestListener(
 }
 
 private fun KafkaTopics.toOutboxTopics(): OutboxTopics {
-    return OutboxTopics(sisteTiltakstyperTopic)
+    return OutboxTopics(sisteTiltakstyperTopic, totrinnskontrollTopic)
 }

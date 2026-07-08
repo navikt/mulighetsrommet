@@ -108,7 +108,7 @@ class UpdateTiltakstypeTest : FunSpec({
                 .execute(command)
                 .shouldBeRight()
 
-            verify(exactly = 0) { db.outbox.publish(any()) }
+            verify(exactly = 0) { db.outbox.publish(any<TiltakstypeV3Dto>()) }
         }
     }
 
@@ -192,7 +192,7 @@ class UpdateTiltakstypeTest : FunSpec({
                 .execute(command)
                 .shouldBeRight()
 
-            verify(exactly = 0) { db.outbox.publish(any()) }
+            verify(exactly = 0) { db.outbox.publish(any<TiltakstypeV3Dto>()) }
         }
     }
 })

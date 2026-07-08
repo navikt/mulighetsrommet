@@ -4,10 +4,12 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 
 abstract class QueryContext {
@@ -27,9 +29,12 @@ abstract class QueryContext {
         abstract val endringshistorikk: EndringshistorikkQueryHandler
         abstract val kostnadssted: KostnadsstedQueryHandler
         abstract val navAnsattDto: NavAnsattDtoQueryHandler
+        abstract val totrinnskontroll: TotrinnskontrollQueryHandler
     }
 
     interface Outbox {
         fun publish(ekstern: TiltakstypeV3Dto)
+
+        fun publish(totrinnskontroll: Totrinnskontroll)
     }
 }

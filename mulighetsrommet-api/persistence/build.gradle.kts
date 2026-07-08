@@ -11,6 +11,7 @@ base {
 dependencies {
     implementation(projects.mulighetsrommetApi.admin)
     implementation(projects.mulighetsrommetApi.domain)
+    implementation(projects.mulighetsrommetApi.contracts)
     implementation(projects.common.domain)
     implementation(projects.common.database)
     implementation(projects.common.databaseHelpers)
