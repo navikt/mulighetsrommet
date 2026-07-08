@@ -494,11 +494,12 @@ module "mr_api_gjennomforing_utdanningsprogram_view" {
     ]
   )
   view_query = <<EOF
-SELECT
-  gjennomforing_id,
-  utdanningsprogram_id,
-  utdanning_id
-FROM
-  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing_utdanningsprogram`
+select
+    g.id as gjennomforing_id,
+    ok.utdanningsprogram_id,
+    oku.utdanning_id
+from `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_opplaring_kategorisering` ok
+inner join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_opplaring_kategorisering_utdanning` oku on ok.id = oku.opplaring_kategorisering_id
+inner join `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing` g on g.id = ok.id;
 EOF
 }
