@@ -148,7 +148,9 @@ $$
 $$;
 ```
 
-Legg deretter til ønsket tabell under `postgresql_include_schemas` i datastream konfigurasjonen.
+Tabellen må eksistere i `ds_publication` for at datastream skal kunne plukke den opp. Gjør derfor migreringen i et eget endringsett.
+
+I påfølgende endringsett legger en til ønsket tabell under `postgresql_include_schemas` i datastream konfigurasjonen.
 
 ### La brukere/service kontoer få tilgang til BigQuery datasett
 
