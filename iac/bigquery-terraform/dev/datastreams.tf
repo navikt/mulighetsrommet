@@ -221,6 +221,23 @@ module "mr_api_datastream" {
             "created_at",
           ]
         },
+        { table = "opplaring_kategorisering",
+          columns = [
+            "id",
+            "kurstype_id",
+            "bransje_id",
+            "utdanningsprogram_id",
+            "norskprove",
+            "created_at",
+            "updated_at"
+          ]
+        },
+        { table = "opplaring_kategorisering_utdanning",
+          columns = [
+            "opplaring_kategorisering_id",
+            "utdanning_id"
+          ]
+        }
       ]
     }
   ]
