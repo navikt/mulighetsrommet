@@ -40,7 +40,7 @@ data class TilsagnDto(
             pris = tilsagn.beregning.output.pris,
             belopBrukt = tilsagn.belopBrukt,
             belopGjenstaende = tilsagn.gjenstaendeBelop(),
-            kostnadssted = KostnadsstedDto.fromNavEnhetDbo(tilsagn.kostnadssted),
+            kostnadssted = KostnadsstedDto.fromNavEnhet(tilsagn.kostnadssted),
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             status = TilsagnStatusDto(tilsagn.status),
             kommentar = tilsagn.kommentar,

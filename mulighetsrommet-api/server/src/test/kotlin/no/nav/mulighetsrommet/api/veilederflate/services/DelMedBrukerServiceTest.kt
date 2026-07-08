@@ -25,7 +25,7 @@ class DelMedBrukerServiceTest : FunSpec({
     val sanityService: SanityService = mockk(relaxed = true)
 
     context("DelMedBrukerService") {
-        val service = DelMedBrukerService(database.db, sanityService, NavEnhetService(database.db))
+        val service = DelMedBrukerService(database.db, sanityService, NavEnhetService(database.newDb))
 
         beforeEach {
             MulighetsrommetTestDomain(

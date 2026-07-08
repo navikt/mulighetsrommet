@@ -1,17 +1,20 @@
-package no.nav.mulighetsrommet.api.navenhet.db
+package no.nav.mulighetsrommet.api.persistence.navenhet.db
 
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.intellij.lang.annotations.Language
 
-class NavEnhetQueries(private val session: Session) {
+class NavEnhetQueries(private val session: Session) : NavEnhetRepository {
 
-    fun upsert(enhet: NavEnhetDbo) {
+    override fun save(navEnhet: NavEnhet) {
         @Language("PostgreSQL")
         val query = """
             insert into nav_enhet(navn, enhetsnummer, status, type, overordnet_enhet)
@@ -25,21 +28,21 @@ class NavEnhetQueries(private val session: Session) {
         """.trimIndent()
 
         val params = mapOf(
-            "navn" to enhet.navn,
-            "enhetsnummer" to enhet.enhetsnummer.value,
-            "status" to enhet.status.name,
-            "type" to enhet.type.name,
-            "overordnet_enhet" to enhet.overordnetEnhet?.value,
+            "navn" to navEnhet.navn,
+            "enhetsnummer" to navEnhet.enhetsnummer.value,
+            "status" to navEnhet.status.name,
+            "type" to navEnhet.type.name,
+            "overordnet_enhet" to navEnhet.overordnetEnhet?.value,
         )
 
         session.execute(queryOf(query, params))
     }
 
-    fun getAll(
-        statuser: List<NavEnhetStatus>? = null,
-        typer: List<Norg2Type>? = null,
-        overordnetEnhet: NavEnhetNummer? = null,
-    ): List<NavEnhetDbo> {
+    override fun getAll(
+        statuser: List<NavEnhetStatus>?,
+        typer: List<NavEnhetType>?,
+        overordnetEnhet: NavEnhetNummer?,
+    ): List<NavEnhet> {
         val parameters = mapOf(
             "statuser" to statuser?.let { session.createTextArray(it) },
             "typer" to typer?.let { session.createTextArray(it) },
@@ -56,10 +59,10 @@ class NavEnhetQueries(private val session: Session) {
             order by e.navn
         """.trimIndent()
 
-        return session.list(queryOf(query, parameters)) { it.toEnhetDbo() }
+        return session.list(queryOf(query, parameters)) { it.toNavEnhet() }
     }
 
-    fun get(enhet: NavEnhetNummer): NavEnhetDbo? {
+    override fun get(enhetsnummer: NavEnhetNummer): NavEnhet? {
         @Language("PostgreSQL")
         val query = """
             select navn, enhetsnummer, status, type, overordnet_enhet
@@ -67,10 +70,10 @@ class NavEnhetQueries(private val session: Session) {
             where enhetsnummer = ?
         """.trimIndent()
 
-        return session.single(queryOf(query, enhet.value)) { it.toEnhetDbo() }
+        return session.single(queryOf(query, enhetsnummer.value)) { it.toNavEnhet() }
     }
 
-    fun deleteWhereEnhetsnummer(enhetsnummerForSletting: List<NavEnhetNummer>) {
+    override fun deleteWhereEnhetsnummer(enhetsnummerForSletting: List<NavEnhetNummer>) {
         val parameters = mapOf(
             "ider" to session.createArrayOfValue(enhetsnummerForSletting) { it.value },
         )
@@ -84,10 +87,10 @@ class NavEnhetQueries(private val session: Session) {
     }
 }
 
-private fun Row.toEnhetDbo() = NavEnhetDbo(
+private fun Row.toNavEnhet() = NavEnhet(
     navn = string("navn"),
     enhetsnummer = NavEnhetNummer(string("enhetsnummer")),
     status = NavEnhetStatus.valueOf(string("status")),
-    type = Norg2Type.valueOf(string("type")),
+    type = NavEnhetType.valueOf(string("type")),
     overordnetEnhet = stringOrNull("overordnet_enhet")?.let { NavEnhetNummer(it) },
 )

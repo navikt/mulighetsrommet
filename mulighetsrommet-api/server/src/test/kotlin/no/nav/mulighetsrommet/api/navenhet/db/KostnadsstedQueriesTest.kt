@@ -3,7 +3,9 @@ package no.nav.mulighetsrommet.api.navenhet.db
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.kostnadssted.Kostnadssted
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -15,9 +17,9 @@ class KostnadsstedQueriesTest : FunSpec({
     fun createEnhet(
         enhet: NavEnhetNummer,
         overordnetEnhet: NavEnhetNummer?,
-        type: Norg2Type,
+        type: NavEnhetType,
         status: NavEnhetStatus = NavEnhetStatus.AKTIV,
-    ) = NavEnhetDbo(
+    ) = NavEnhet(
         enhetsnummer = enhet,
         navn = "Enhet $enhet",
         status = status,
@@ -27,31 +29,31 @@ class KostnadsstedQueriesTest : FunSpec({
 
     test("kostnadssteder utledes fra eget kodeverk og henter navn fra registrerte nav-enheter") {
         database.runAndRollback {
-            queries.enhet.upsert(
+            queries.enhet.save(
                 createEnhet(
                     enhet = NavEnhetNummer("0200"),
-                    type = Norg2Type.FYLKE,
+                    type = NavEnhetType.FYLKE,
                     overordnetEnhet = null,
                 ),
             )
-            queries.enhet.upsert(
+            queries.enhet.save(
                 createEnhet(
                     enhet = NavEnhetNummer("0106"),
-                    type = Norg2Type.LOKAL,
+                    type = NavEnhetType.LOKAL,
                     overordnetEnhet = NavEnhetNummer("0200"),
                 ),
             )
-            queries.enhet.upsert(
+            queries.enhet.save(
                 createEnhet(
                     enhet = NavEnhetNummer("0101"),
-                    type = Norg2Type.LOKAL,
+                    type = NavEnhetType.LOKAL,
                     overordnetEnhet = NavEnhetNummer("0200"),
                 ),
             )
-            queries.enhet.upsert(
+            queries.enhet.save(
                 createEnhet(
                     enhet = NavEnhetNummer("0128"),
-                    type = Norg2Type.LOKAL,
+                    type = NavEnhetType.LOKAL,
                     overordnetEnhet = NavEnhetNummer("0200"),
                 ),
             )

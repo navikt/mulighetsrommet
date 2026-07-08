@@ -151,7 +151,7 @@ class VeilederflateServiceTest : FunSpec({
             db = database.db,
             tiltakstypeService = tiltakstypeService,
             sanityService = sanityService,
-            navEnhetService = NavEnhetService(database.db),
+            navEnhetService = NavEnhetService(database.newDb),
         )
     }
 

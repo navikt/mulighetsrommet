@@ -4,10 +4,10 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -90,10 +90,10 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
             bestillingsnummer = "A-2026/9999-1",
             status = BestillingStatusType.AKTIV,
         ),
-        kostnadssted = NavEnhetDbo(
+        kostnadssted = NavEnhet(
             enhetsnummer = NavEnhetNummer("0387"),
             navn = "Nav tiltak Oslo",
-            type = Norg2Type.TILTAK,
+            type = NavEnhetType.TILTAK,
             overordnetEnhet = null,
             status = NavEnhetStatus.AKTIV,
         ),

@@ -1,14 +1,15 @@
 package no.nav.mulighetsrommet.api.navenhet
 
 import io.ktor.http.HttpStatusCode
-import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Response
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.api.clients.norg2.toNavEnhetStatus
+import no.nav.mulighetsrommet.api.clients.norg2.toNavEnhetType
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.sanity.EnhetSlug
 import no.nav.mulighetsrommet.api.sanity.FylkeRef
 import no.nav.mulighetsrommet.api.sanity.SanityEnhet
@@ -18,7 +19,7 @@ import no.nav.mulighetsrommet.slack.SlackNotifier
 import org.slf4j.LoggerFactory
 
 class NavEnheterSyncService(
-    private val db: ApiDatabase,
+    private val db: AdminDatabase,
     private val norg2Client: Norg2Client,
     private val sanityService: SanityService,
     private val slackNotifier: SlackNotifier,
@@ -41,16 +42,16 @@ class NavEnheterSyncService(
         }
     }
 
-    private fun lagreEnheter(enheter: List<Norg2Response>) = db.session {
+    private fun lagreEnheter(enheter: List<Norg2Response>) = db.transaction {
         logger.info("Lagrer ${enheter.size} enheter til database")
 
         enheter.forEach { (enhet, overordnetEnhet) ->
-            queries.enhet.upsert(
-                NavEnhetDbo(
+            repository.navEnhet.save(
+                NavEnhet(
                     navn = enhet.navn,
                     enhetsnummer = enhet.enhetNr,
-                    status = NavEnhetStatus.valueOf(enhet.status.name),
-                    type = enhet.type,
+                    status = enhet.status.toNavEnhetStatus(),
+                    type = enhet.type.toNavEnhetType(),
                     overordnetEnhet = overordnetEnhet ?: tryResolveOverordnetEnhet(enhet),
                 ),
             )

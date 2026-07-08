@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -22,7 +22,7 @@ data class Tilsagn(
     val type: TilsagnType,
     val periode: Periode,
     val belopBrukt: ValutaBelop,
-    val kostnadssted: NavEnhetDbo,
+    val kostnadssted: NavEnhet,
     val beregning: TilsagnBeregning,
     val lopenummer: Int,
     val bestilling: Bestilling,

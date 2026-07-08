@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.navenhet
 
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 object NavEnhetHelpers {

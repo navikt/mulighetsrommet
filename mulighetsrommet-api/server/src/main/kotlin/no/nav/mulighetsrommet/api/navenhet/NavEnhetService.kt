@@ -2,17 +2,15 @@ package no.nav.mulighetsrommet.api.navenhet
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
-import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.utils.CacheUtils
 import java.util.concurrent.TimeUnit
 
 class NavEnhetService(
-    private val db: ApiDatabase,
+    private val db: AdminDatabase,
 ) {
     val cache: Cache<NavEnhetNummer, NavEnhetDto> = Caffeine.newBuilder()
         .expireAfterWrite(12, TimeUnit.HOURS)
@@ -22,7 +20,7 @@ class NavEnhetService(
 
     fun hentEnhet(enhetsnummer: NavEnhetNummer): NavEnhetDto? = db.session {
         CacheUtils.tryCacheFirstNullable(cache, enhetsnummer) {
-            getNavEnhetDto(enhetsnummer)
+            repository.navEnhet.get(enhetsnummer)?.toDto()
         }
     }
 
@@ -41,10 +39,8 @@ class NavEnhetService(
     }
 
     fun hentAlleEnheter(filter: EnhetFilter): List<NavEnhetDto> = db.session {
-        val typer = filter.typer?.map { Norg2Type.valueOf(it.name) }
-
-        queries.enhet
-            .getAll(filter.statuser, typer, filter.overordnetEnhet)
+        repository.navEnhet
+            .getAll(filter.statuser, filter.typer, filter.overordnetEnhet)
             .map { it.toDto() }
     }
 
@@ -62,9 +58,5 @@ class NavEnhetService(
             .filter { NavEnhetHelpers.erGeografiskEnhet(it.type) || NavEnhetHelpers.erSpesialenhetSomKanVelgesIModia(it.enhetsnummer) }
 
         return Kontorstruktur.fromNavEnheter(enheter)
-    }
-
-    private fun QueryContext.getNavEnhetDto(enhetsnummer: NavEnhetNummer): NavEnhetDto? {
-        return queries.enhet.get(enhetsnummer)?.toDto()
     }
 }

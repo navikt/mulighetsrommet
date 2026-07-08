@@ -158,7 +158,7 @@ class TotrinnskontrollQueriesTest : FunSpec({
 
     test("getDto returnerer navn for NavIdent behandletAv og besluttetAv") {
         database.runAndRollback {
-            queries.enhet.upsert(NavEnhetFixtures.Innlandet)
+            queries.enhet.save(NavEnhetFixtures.Innlandet)
             queries.ansatt.upsert(NavAnsattFixture.DonaldDuck)
             queries.ansatt.upsert(NavAnsattFixture.MikkeMus)
 

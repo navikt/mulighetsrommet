@@ -1,41 +1,9 @@
 package no.nav.mulighetsrommet.api.navenhet
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-
-enum class NavEnhetType {
-    KO,
-    FYLKE,
-    TILTAK,
-    AAREG,
-    ALS,
-    ARK,
-    DIR,
-    DOKSENTER,
-    EKSTERN,
-    FORVALTNING,
-    FPY,
-    HELFO,
-    HMS,
-    INNKREV,
-    INTRO,
-    IT,
-    KLAGE,
-    KONTAKT,
-    KONTROLL,
-    LOKAL,
-    OKONOMI,
-    OTENESTE,
-    OPPFUTLAND,
-    OTENESE,
-    RIKSREV,
-    ROBOT,
-    ROL,
-    TILLIT,
-    UTLAND,
-    YTA,
-}
 
 @Serializable
 data class NavEnhetDto(
@@ -45,9 +13,9 @@ data class NavEnhetDto(
     val overordnetEnhet: NavEnhetNummer?,
 )
 
-fun NavEnhetDbo.toDto() = NavEnhetDto(
+fun NavEnhet.toDto() = NavEnhetDto(
     navn = navn,
     enhetsnummer = enhetsnummer,
-    type = NavEnhetType.valueOf(type.name),
+    type = type,
     overordnetEnhet = overordnetEnhet,
 )

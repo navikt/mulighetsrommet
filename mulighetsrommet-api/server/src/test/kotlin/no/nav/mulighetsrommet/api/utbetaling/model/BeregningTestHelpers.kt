@@ -2,11 +2,11 @@ package no.nav.mulighetsrommet.api.utbetaling.model
 
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -125,11 +125,11 @@ object BeregningTestHelpers {
         type = TilsagnType.TILSAGN,
         periode = periode,
         belopBrukt = 0.withValuta(belop.valuta),
-        kostnadssted = NavEnhetDbo(
+        kostnadssted = NavEnhet(
             navn = "Test enhet",
             enhetsnummer = NavEnhetNummer("0300"),
             status = NavEnhetStatus.AKTIV,
-            type = Norg2Type.FYLKE,
+            type = NavEnhetType.FYLKE,
         ),
         beregning = TilsagnBeregningFri(
             input = TilsagnBeregningFri.Input(

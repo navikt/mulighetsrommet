@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 class TestQueryContext : QueryContext() {
     private val redaksjoneltInnholdLenkeRepository = FakeRedaksjoneltInnholdLenkeRepository()
     private val tiltakstypeRepository = FakeTiltakstypeRepository()
+    private val navEnhetRepository = FakeNavEnhetRepository()
 
     private var tiltakstype: TiltakstypeQueryHandler = mockk(relaxed = true)
     private var endringshistorikk: EndringshistorikkQueryHandler = mockk(relaxed = true)
@@ -15,6 +16,7 @@ class TestQueryContext : QueryContext() {
     override val repository = object : Repositories() {
         override val tiltakstype get() = tiltakstypeRepository
         override val redaksjoneltInnholdLenke get() = redaksjoneltInnholdLenkeRepository
+        override val navEnhet get() = navEnhetRepository
     }
 
     override val queries = object : Queries() {

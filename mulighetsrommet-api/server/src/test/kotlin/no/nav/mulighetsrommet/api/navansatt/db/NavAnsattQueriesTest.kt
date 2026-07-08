@@ -4,13 +4,13 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -20,19 +20,19 @@ class NavAnsattQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     context("NavAnsattQueries") {
-        val enhet1 = NavEnhetDbo(
+        val enhet1 = NavEnhet(
             enhetsnummer = NavEnhetNummer("1000"),
             navn = "Andeby",
             status = NavEnhetStatus.AKTIV,
-            type = Norg2Type.LOKAL,
+            type = NavEnhetType.LOKAL,
             overordnetEnhet = null,
         )
 
-        val enhet2 = NavEnhetDbo(
+        val enhet2 = NavEnhet(
             enhetsnummer = NavEnhetNummer("2000"),
             navn = "Gåseby",
             status = NavEnhetStatus.AKTIV,
-            type = Norg2Type.LOKAL,
+            type = NavEnhetType.LOKAL,
             overordnetEnhet = null,
         )
 
@@ -42,7 +42,7 @@ class NavAnsattQueriesTest : FunSpec({
             arrangorer = listOf(),
         ).initialize(database.db)
 
-        fun toDto(ansatt: NavAnsattDbo, enhet: NavEnhetDbo, roller: Set<NavAnsattRolle>) = ansatt.run {
+        fun toDto(ansatt: NavAnsattDbo, enhet: NavEnhet, roller: Set<NavAnsattRolle>) = ansatt.run {
             NavAnsatt(
                 entraObjectId = entraObjectId,
                 navIdent = navIdent,
