@@ -253,24 +253,28 @@ fun Route.utbetalingRoutes() {
             }
 
             put("/avbryt", {
-                description = "Slett korreksjon"
+                description = "Avbryt utbetaling"
                 tags = setOf("Utbetaling")
-                operationId = "slettKorreksjon"
+                operationId = "avbrytUtbetaling"
                 request {
                     pathParameterUuid("id")
                     body<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
                 }
                 response {
-                    code(HttpStatusCode.OK) {}
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetaling ble sendt til avbrytning (totrinnskontroll)"
+                    }
                     default {
                         description = "Problem details"
                         body<ProblemDetail>()
                     }
                 }
             }) {
-                val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
-                val navIdent = getNavIdent()
+                //val id = call.parameters.getOrFail<UUID>("id")
+                //val request = call.receive<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
+                //val navIdent = getNavIdent()
+
+                call.respond(HttpStatusCode.OK)
             }
         }
 

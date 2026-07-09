@@ -10,6 +10,8 @@ import {
   TilsagnType,
   UtbetalingLinjeDto,
   OpprettUtbetalingLinjerRequest,
+  ValidationError,
+  AarsakerOgForklaringRequestUtbetalingStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import {
@@ -63,7 +65,7 @@ import {
 } from "@navikt/aksel-icons";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjonModal";
-import { useSlettKorreksjon } from "@/api/utbetaling/mutations";
+import { useAvbrytUtbetaling, useSlettKorreksjon } from "@/api/utbetaling/mutations";
 import { useForm, UseFormReturn } from "react-hook-form";
 
 function useUtbetalingDetaljerData() {
@@ -315,42 +317,6 @@ export function UtbetalingDetaljerPage() {
   );
 }
 
-interface UtbetalingAvbrytModalProps {
-  utbetalingId: string;
-  open: boolean;
-  onClose: () => void;
-}
-
-function UtbetalingAvbrytModal({ utbetalingId, open, onClose }: UtbetalingAvbrytModalProps) {
-  const errors: FieldError[] = [];
-
-  const avbrytUtbetaling = () => {
-    alert(`Avbryt utbetaling ${utbetalingId}`);
-  };
-
-  const avbrytUtbetalingAarsakValg = [
-    UtbetalingStatusAarsak.TILSAGN_GJORT_OPP,
-    UtbetalingStatusAarsak.ANNET,
-  ].map((val) => {
-    return {
-      value: val,
-      label: utbetalingTekster.avbrutt.aarsak.fraAarsak(val),
-    };
-  });
-  return (
-    <AarsakerOgForklaringModal<UtbetalingStatusAarsak>
-      open={open}
-      onClose={onClose}
-      header={utbetalingTekster.avbrutt.aarsak.modal.header}
-      ingress={<BodyShort>{utbetalingTekster.avbrutt.aarsak.modal.ingress}</BodyShort>}
-      aarsaker={avbrytUtbetalingAarsakValg}
-      buttonLabel={utbetalingTekster.avbrutt.aarsak.modal.button.label}
-      errors={errors}
-      onConfirm={avbrytUtbetaling}
-    />
-  );
-}
-
 interface UtbetalingLinjeViewProps {
   utbetaling: UtbetalingDto;
   utbetalingLinjer: UtbetalingLinjeDto[];
@@ -399,15 +365,60 @@ function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
   }
 }
 
-function SlettKorreksjonModal({
-  utbetalingId,
-  open,
-  onClose,
-}: {
+interface UtbetalingAvbrytModalProps {
   utbetalingId: string;
   open: boolean;
   onClose: () => void;
-}) {
+}
+
+function UtbetalingAvbrytModal({ utbetalingId, open, onClose }: UtbetalingAvbrytModalProps) {
+  const [errors, setErrors] = useState<FieldError[]>([]);
+  const avbrytUtbetalingMutation = useAvbrytUtbetaling();
+
+  function avbrytUtbetaling(body: AarsakerOgForklaringRequestUtbetalingStatusAarsak) {
+    avbrytUtbetalingMutation.mutate(
+      { id: utbetalingId, body },
+      {
+        onValidationError: (error: ValidationError) => {
+          setErrors(error.errors);
+        },
+        onSuccess: () => {
+          onClose();
+        },
+      },
+    );
+  }
+
+  const avbrytUtbetalingAarsakValg = [
+    UtbetalingStatusAarsak.TILSAGN_GJORT_OPP,
+    UtbetalingStatusAarsak.ANNET,
+  ].map((val) => {
+    return {
+      value: val,
+      label: utbetalingTekster.avbrutt.aarsak.fraAarsak(val),
+    };
+  });
+  return (
+    <AarsakerOgForklaringModal<UtbetalingStatusAarsak>
+      open={open}
+      onClose={onClose}
+      header={utbetalingTekster.avbrutt.aarsak.modal.header}
+      ingress={<BodyShort>{utbetalingTekster.avbrutt.aarsak.modal.ingress}</BodyShort>}
+      aarsaker={avbrytUtbetalingAarsakValg}
+      buttonLabel={utbetalingTekster.avbrutt.aarsak.modal.button.label}
+      errors={errors}
+      onConfirm={(request) => avbrytUtbetaling(request)}
+    />
+  );
+}
+
+interface SlettKorreksjonModalProps {
+  utbetalingId: string;
+  open: boolean;
+  onClose: () => void;
+}
+
+function SlettKorreksjonModal({ utbetalingId, open, onClose }: SlettKorreksjonModalProps) {
   const navigate = useNavigate();
   const slettKorreksjonMutation = useSlettKorreksjon();
 

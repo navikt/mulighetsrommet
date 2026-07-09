@@ -2312,8 +2312,8 @@ paths:
     put:
       tags:
       - Utbetaling
-      description: Slett korreksjon
-      operationId: slettKorreksjon
+      description: Avbryt utbetaling
+      operationId: avbrytUtbetaling
       parameters:
       - name: id
         in: path
@@ -2331,6 +2331,7 @@ paths:
         required: false
       responses:
         "200":
+          description: Utbetaling ble avbrutt
           headers: {}
         default:
           description: Problem details
