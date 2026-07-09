@@ -1,7 +1,8 @@
-package no.nav.mulighetsrommet.api.navenhet
+package no.nav.mulighetsrommet.admin.navenhet
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 class KontorstrukturTest : FunSpec({

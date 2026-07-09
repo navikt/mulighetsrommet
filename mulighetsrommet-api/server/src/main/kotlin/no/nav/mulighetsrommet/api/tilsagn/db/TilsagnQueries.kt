@@ -5,9 +5,9 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetDbo
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
@@ -495,10 +495,10 @@ class TilsagnQueries(private val session: Session) {
                 bestillingsnummer = string("bestillingsnummer"),
                 status = stringOrNull("bestilling_status")?.let { BestillingStatusType.valueOf(it) },
             ),
-            kostnadssted = NavEnhetDbo(
+            kostnadssted = NavEnhet(
                 enhetsnummer = NavEnhetNummer(string("kostnadssted")),
                 navn = string("kostnadssted_navn"),
-                type = Norg2Type.valueOf(string("kostnadssted_type")),
+                type = NavEnhetType.valueOf(string("kostnadssted_type")),
                 overordnetEnhet = stringOrNull("kostnadssted_overordnet_enhet")?.let { NavEnhetNummer(it) },
                 status = NavEnhetStatus.valueOf(string("kostnadssted_status")),
             ),

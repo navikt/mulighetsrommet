@@ -1,30 +1,30 @@
-package no.nav.mulighetsrommet.api.navenhet
+package no.nav.mulighetsrommet.api.navenhet.service
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.server.plugins.BadRequestException
 
-class NavEnhetUtilsTest : FunSpec({
+class SanityNavEnhetUtilsTest : FunSpec({
     context("SanityUtils") {
         test("toType skal returnere typer med stor forbokstav") {
-            NavEnhetUtils.toType("FYLKE") shouldBe "Fylke"
-            NavEnhetUtils.toType("LOKAL") shouldBe "Lokal"
-            NavEnhetUtils.toType("TILTAK") shouldBe "Tiltak"
-            NavEnhetUtils.toType("ALS") shouldBe "Als"
+            SanityNavEnhetUtils.toType("FYLKE") shouldBe "Fylke"
+            SanityNavEnhetUtils.toType("LOKAL") shouldBe "Lokal"
+            SanityNavEnhetUtils.toType("TILTAK") shouldBe "Tiltak"
+            SanityNavEnhetUtils.toType("ALS") shouldBe "Als"
             val exception = shouldThrow<BadRequestException> {
-                NavEnhetUtils.toType("Ukjent type")
+                SanityNavEnhetUtils.toType("Ukjent type")
             }
             exception.localizedMessage shouldBe "'Ukjent type' er ikke en gyldig type for enhet. Gyldige typer er 'FYLKE', 'LOKAL', 'ALS', 'TILTAK'."
         }
 
         test("toStatus skal returnere status med stor forbokstav") {
-            NavEnhetUtils.toStatus("AKTIV") shouldBe "Aktiv"
-            NavEnhetUtils.toStatus("NEDLAGT") shouldBe "Nedlagt"
-            NavEnhetUtils.toStatus("UNDER_ETABLERING") shouldBe "Under_etablering"
-            NavEnhetUtils.toStatus("UNDER_AVVIKLING") shouldBe "Under_avvikling"
+            SanityNavEnhetUtils.toStatus("AKTIV") shouldBe "Aktiv"
+            SanityNavEnhetUtils.toStatus("NEDLAGT") shouldBe "Nedlagt"
+            SanityNavEnhetUtils.toStatus("UNDER_ETABLERING") shouldBe "Under_etablering"
+            SanityNavEnhetUtils.toStatus("UNDER_AVVIKLING") shouldBe "Under_avvikling"
             val exception = shouldThrow<BadRequestException> {
-                NavEnhetUtils.toStatus("Ukjent status")
+                SanityNavEnhetUtils.toStatus("Ukjent status")
             }
             exception.localizedMessage shouldBe "'Ukjent status' er ikke en gyldig status. Gyldige statuser er 'AKTIV', 'NEDLAGT', 'UNDER_ETABLERING', 'UNDER_AVVIKLING'"
         }

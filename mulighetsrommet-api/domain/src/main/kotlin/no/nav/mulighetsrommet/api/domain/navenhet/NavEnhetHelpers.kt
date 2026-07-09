@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navenhet
+package no.nav.mulighetsrommet.api.domain.navenhet
 
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
@@ -9,6 +9,14 @@ object NavEnhetHelpers {
 
     fun erSpesialenhetSomKanVelgesIModia(enhetsnummer: NavEnhetNummer): Boolean {
         return enhetsnummer.value in SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP.keys
+    }
+
+    /**
+     * Spesialenheter mangler som regel en overordnet enhet fra NORG2, men skal likevel "høre til"
+     * et fylke, blant annet for at de skal kunne vises riktig i filter i frontend.
+     */
+    fun finnOverordnetFylkeForSpesialenhet(enhetsnummer: NavEnhetNummer): NavEnhetNummer? {
+        return SPESIALENHET_SOM_KAN_VELGES_I_MODIA_TIL_FYLKE_MAP[enhetsnummer.value]?.let { NavEnhetNummer(it) }
     }
 }
 

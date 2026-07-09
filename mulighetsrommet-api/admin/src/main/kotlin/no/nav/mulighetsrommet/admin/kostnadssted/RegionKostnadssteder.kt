@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.kostnadssted
+package no.nav.mulighetsrommet.admin.kostnadssted
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.NavEnhetNummer

@@ -1,11 +1,11 @@
-package no.nav.mulighetsrommet.api.navenhet
+package no.nav.mulighetsrommet.api.navenhet.service
 
 import io.ktor.server.plugins.BadRequestException
-import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 
-object NavEnhetUtils {
-    fun toEnhetId(enhet: Norg2EnhetDto): String {
-        return "enhet.${enhet.type.name.lowercase()}.${enhet.enhetNr}"
+object SanityNavEnhetUtils {
+    fun toEnhetId(enhet: NavEnhet): String {
+        return "enhet.${enhet.type.name.lowercase()}.${enhet.enhetsnummer}"
     }
 
     fun toType(type: String?): String {

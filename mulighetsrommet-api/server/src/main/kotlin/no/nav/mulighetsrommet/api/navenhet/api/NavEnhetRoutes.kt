@@ -1,21 +1,20 @@
-package no.nav.mulighetsrommet.api.navenhet
+package no.nav.mulighetsrommet.api.navenhet.api
 
 import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
-import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
-import no.nav.mulighetsrommet.api.kostnadssted.RegionKostnadssteder
-import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
-import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
+import no.nav.mulighetsrommet.admin.kostnadssted.RegionKostnadssteder
+import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
 fun Route.navEnhetRoutes() {
-    val kostnadsstedService: KostnadsstedService by inject()
-    val navEnhetService: NavEnhetService by inject()
+    val kostnadsstedQuery: KostnadsstedQuery by inject()
+    val kontorstrukturQuery: KontorstrukturQuery by inject()
 
     route("kodeverk") {
         get("kontorstruktur", {
@@ -32,7 +31,7 @@ fun Route.navEnhetRoutes() {
                 }
             }
         }) {
-            call.respond(navEnhetService.hentKontorstruktur())
+            call.respond(kontorstrukturQuery.execute())
         }
 
         get("kostnadssteder", {
@@ -49,13 +48,7 @@ fun Route.navEnhetRoutes() {
                 }
             }
         }) {
-            call.respond(kostnadsstedService.hentKostnadssteder())
+            call.respond(kostnadsstedQuery.execute())
         }
     }
 }
-
-data class EnhetFilter(
-    val statuser: List<NavEnhetStatus>? = null,
-    val typer: List<NavEnhetType>? = null,
-    val overordnetEnhet: NavEnhetNummer? = null,
-)

@@ -3,23 +3,28 @@ package no.nav.mulighetsrommet.admin.testing
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHandler
+import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 
 class TestQueryContext : QueryContext() {
     private val redaksjoneltInnholdLenkeRepository = FakeRedaksjoneltInnholdLenkeRepository()
     private val tiltakstypeRepository = FakeTiltakstypeRepository()
+    private val navEnhetRepository = FakeNavEnhetRepository()
 
     private var tiltakstype: TiltakstypeQueryHandler = mockk(relaxed = true)
     private var endringshistorikk: EndringshistorikkQueryHandler = mockk(relaxed = true)
+    private var kostnadssted: KostnadsstedQueryHandler = mockk(relaxed = true)
 
     override val repository = object : Repositories() {
         override val tiltakstype get() = tiltakstypeRepository
         override val redaksjoneltInnholdLenke get() = redaksjoneltInnholdLenkeRepository
+        override val navEnhet get() = navEnhetRepository
     }
 
     override val queries = object : Queries() {
         override val tiltakstype get() = this@TestQueryContext.tiltakstype
         override val endringshistorikk get() = this@TestQueryContext.endringshistorikk
+        override val kostnadssted get() = this@TestQueryContext.kostnadssted
     }
 
     override val outbox: Outbox = mockk(relaxed = true)

@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
+import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -40,7 +40,7 @@ data class TilsagnDto(
             pris = tilsagn.beregning.output.pris,
             belopBrukt = tilsagn.belopBrukt,
             belopGjenstaende = tilsagn.gjenstaendeBelop(),
-            kostnadssted = KostnadsstedDto.fromNavEnhetDbo(tilsagn.kostnadssted),
+            kostnadssted = KostnadsstedDto.fromNavEnhet(tilsagn.kostnadssted),
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             status = TilsagnStatusDto(tilsagn.status),
             kommentar = tilsagn.kommentar,

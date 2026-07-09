@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.veilederflate.models
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.oppfolging.ManuellStatusDto
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NorskIdent
 

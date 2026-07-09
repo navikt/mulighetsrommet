@@ -7,6 +7,9 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.admin.navenhet.GetNavEnhet
+import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
+import no.nav.mulighetsrommet.admin.navenhet.toDto
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -19,8 +22,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResult
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.navenhet.toDto
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -42,7 +43,7 @@ class PersonaliaServiceTest : FunSpec({
     val hentPersonOgGeografiskTilknytningQuery = mockk<HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery>()
     val norg2Client = mockk<Norg2Client>()
     val amtDeltakerClient = mockk<AmtDeltakerClient>()
-    val navEnhetService = mockk<NavEnhetService>()
+    val navEnhetDtoQuery = mockk<NavEnhetDtoQuery>()
     val tilgansmaskinClient = mockk<TilgangsmaskinClient>()
 
     fun createPersonaliaService(): PersonaliaService = PersonaliaService(
@@ -50,12 +51,12 @@ class PersonaliaServiceTest : FunSpec({
         norg2Client,
         amtDeltakerClient,
         tilgansmaskinClient,
-        navEnhetService,
+        navEnhetDtoQuery,
     )
 
     context("skjermet og adressebeskyttet") {
-        coEvery { navEnhetService.hentEnhet(oppfolgingEnhet.enhetsnummer) } returns oppfolgingEnhet.toDto()
-        coEvery { navEnhetService.hentEnhet(oppfolgingEnhet.overordnetEnhet!!) } returns oppfolgingEnhet.toDto()
+        coEvery { navEnhetDtoQuery.execute(GetNavEnhet(oppfolgingEnhet.enhetsnummer)) } returns oppfolgingEnhet.toDto()
+        coEvery { navEnhetDtoQuery.execute(GetNavEnhet(oppfolgingEnhet.overordnetEnhet!!)) } returns oppfolgingEnhet.toDto()
 
         test("skjermet skjules") {
             val service = createPersonaliaService()

@@ -64,7 +64,7 @@ fun Route.tilskuddUtbetalingRoutes() {
                                 status = TilskuddUtbetalingStatusDto.from(arrangorUtbetaling.status),
                                 periode = arrangorUtbetaling.periode,
                                 type = tilskudd.tilskuddOpplaeringType,
-                                kostnadssted = kostnadssted?.let { KostnadsstedDto.fromNavEnhetDbo(it) },
+                                kostnadssted = kostnadssted?.let { KostnadsstedDto.fromNavEnhet(it) },
                                 belopUtbetalt = belopUtbetalt,
                                 mottaker = TilskuddMottaker.ARRANGOR,
                                 vedtakResultat = tilskudd.vedtakResultat,
