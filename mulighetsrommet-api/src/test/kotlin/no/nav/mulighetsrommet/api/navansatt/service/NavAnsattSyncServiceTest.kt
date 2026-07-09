@@ -12,10 +12,8 @@ import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle.TILTAKADMINISTRASJON_GENERELL
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.notifications.NotificationTask
 import java.time.LocalDate
 
 class NavAnsattSyncServiceTest : FunSpec({
@@ -44,7 +42,6 @@ class NavAnsattSyncServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    val notificationTask: NotificationTask = mockk()
     val sanityService: SanityService = mockk(relaxed = true)
     val navAnsattService: NavAnsattService = mockk()
 
@@ -52,8 +49,6 @@ class NavAnsattSyncServiceTest : FunSpec({
         db = database.db,
         navAnsattService = navAnsattService,
         sanityService = sanityService,
-        navEnhetService = NavEnhetService(database.db),
-        notificationTask = notificationTask,
     )
 
     val ansatt1 =
