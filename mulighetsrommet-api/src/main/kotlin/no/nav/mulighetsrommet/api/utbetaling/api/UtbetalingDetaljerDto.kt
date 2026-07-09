@@ -23,6 +23,8 @@ enum class UtbetalingHandling {
     SEND_TIL_ATTESTERING,
     SLETT,
     AVBRYT,
+    HENT_GODKJENTE_TILSAGN,
+    OPPRETT_TILSAGN,
 }
 
 @Serializable

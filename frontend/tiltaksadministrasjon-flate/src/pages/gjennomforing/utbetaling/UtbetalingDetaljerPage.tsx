@@ -135,17 +135,19 @@ export function UtbetalingDetaljerPage() {
                   icon: <XMarkIcon />,
                 },
                 {
+                  handling: UtbetalingHandling.REDIGER,
                   label: "Rediger utbetaling",
                   href: "rediger-utbetaling",
                   icon: <PencilIcon />,
-                  handling: UtbetalingHandling.REDIGER,
                 },
                 {
+                  handling: UtbetalingHandling.OPPRETT_TILSAGN,
                   label: utbetalingTekster.linje.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd),
                   onClick: opprettEkstraTilsagn,
                   icon: <PiggybankIcon />,
                 },
                 {
+                  handling: UtbetalingHandling.HENT_GODKJENTE_TILSAGN,
                   label: utbetalingTekster.linje.handlinger.hentGodkjenteTilsagn,
                   onClick: () =>
                     form.setValue(
@@ -160,10 +162,10 @@ export function UtbetalingDetaljerPage() {
                   icon: <FileCheckmarkIcon />,
                 },
                 {
+                  handling: UtbetalingHandling.SLETT,
                   label: "Slett utbetaling",
                   onClick: () => setModalVariant(UtbetalingHandling.SLETT),
                   icon: <TrashFillIcon />,
-                  handling: UtbetalingHandling.SLETT,
                 },
               ],
             },
@@ -313,17 +315,13 @@ export function UtbetalingDetaljerPage() {
   );
 }
 
-interface UtbetalingAvbrytButtonProps {
+interface UtbetalingAvbrytModalProps {
   utbetalingId: string;
   open: boolean;
   onClose: () => void;
 }
 
-function UtbetalingAvbrytModal({ utbetalingId, open, onClose }: UtbetalingAvbrytButtonProps) {
-  if (!open) {
-    return null;
-  }
-
+function UtbetalingAvbrytModal({ utbetalingId, open, onClose }: UtbetalingAvbrytModalProps) {
   const errors: FieldError[] = [];
 
   const avbrytUtbetaling = () => {

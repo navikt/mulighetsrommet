@@ -251,6 +251,8 @@ class AdminUtbetalingService(
             UtbetalingHandling.AVBRYT.takeIf { avbrytHandlingEnabled && utbetaling.kanAvbrytes() },
             UtbetalingHandling.OPPRETT_KORREKSJON.takeIf { utbetaling.erFerdigBehandlet() && !utbetaling.erKorreksjon() },
             UtbetalingHandling.REDIGER.takeIf { kanRedigeres(utbetaling) },
+            UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { utbetaling.erTilBehandling() },
+            UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
         )
             .filter { handling ->
                 tilgangTilHandling(handling, ansatt)
@@ -286,6 +288,8 @@ class AdminUtbetalingService(
                 UtbetalingHandling.SEND_TIL_ATTESTERING -> saksbehandlerOkonomi
                 UtbetalingHandling.SLETT -> saksbehandlerOkonomi
                 UtbetalingHandling.AVBRYT -> saksbehandlerOkonomi
+                UtbetalingHandling.HENT_GODKJENTE_TILSAGN -> saksbehandlerOkonomi
+                UtbetalingHandling.OPPRETT_TILSAGN -> saksbehandlerOkonomi
             }
         }
 

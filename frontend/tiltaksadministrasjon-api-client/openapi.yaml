@@ -7456,6 +7456,8 @@ components:
       - SEND_TIL_ATTESTERING
       - SLETT
       - AVBRYT
+      - HENT_GODKJENTE_TILSAGN
+      - OPPRETT_TILSAGN
     UtbetalingDetaljerDto:
       type: object
       properties:
