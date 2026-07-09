@@ -1,0 +1,200 @@
+package no.nav.mulighetsrommet.api.veilederflate.models
+
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKombinasjon
+import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale.StengtPeriode
+import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Innsatsgruppe
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Personopplysning
+import no.nav.mulighetsrommet.model.PortableTextTypedObject
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
+import no.nav.mulighetsrommet.model.TiltakstypeSystem
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.LocalDate
+import java.util.UUID
+
+@Serializable
+data class VeilederflateInnsatsgruppe(
+    val tittel: String,
+    val nokkel: Innsatsgruppe,
+    val order: Int,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonClassDiscriminator("type")
+sealed class VeilederflateTiltak {
+    abstract val tiltakstype: VeilederflateTiltakstype
+    abstract val navn: String
+    abstract val beskrivelse: String?
+    abstract val faneinnhold: Faneinnhold?
+    abstract val kontaktinfo: VeilederflateKontaktinfo
+    abstract val oppstart: GjennomforingOppstartstype
+    abstract val oppmoteSted: String?
+    abstract val fylker: List<NavEnhetNummer>
+    abstract val enheter: List<NavEnhetNummer>
+}
+
+@Serializable
+data class VeilederflateTiltakGruppe(
+    override val tiltakstype: VeilederflateTiltakstype,
+    override val navn: String,
+    override val beskrivelse: String?,
+    override val faneinnhold: Faneinnhold?,
+    override val kontaktinfo: VeilederflateKontaktinfo,
+    override val oppstart: GjennomforingOppstartstype,
+    override val oppmoteSted: String?,
+    override val fylker: List<NavEnhetNummer>,
+    override val enheter: List<NavEnhetNummer>,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val status: VeilederflateTiltakGruppeStatus,
+    val apentForPamelding: Boolean,
+    val lopenummer: String,
+    @Serializable(with = LocalDateSerializer::class)
+    val oppstartsdato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttdato: LocalDate?,
+    val arrangor: VeilederflateArrangor,
+    val estimertVentetid: EstimertVentetid?,
+    val personvernBekreftet: Boolean,
+    val personopplysningerSomKanBehandles: List<Personopplysning>,
+    val stengtPerioder: List<StengtPeriode>,
+) : VeilederflateTiltak()
+
+@Serializable
+data class VeilederflateTiltakGruppeStatus(
+    val type: GjennomforingStatusType,
+    val beskrivelse: String,
+)
+
+@Serializable
+data class VeilederflateTiltakEnkeltplassAnskaffet(
+    override val tiltakstype: VeilederflateTiltakstype,
+    override val navn: String,
+    override val beskrivelse: String?,
+    override val faneinnhold: Faneinnhold?,
+    override val kontaktinfo: VeilederflateKontaktinfo,
+    override val oppstart: GjennomforingOppstartstype,
+    override val oppmoteSted: String?,
+    override val fylker: List<NavEnhetNummer>,
+    override val enheter: List<NavEnhetNummer>,
+    val sanityId: String,
+    val tiltaksnummer: String?,
+    val arrangor: VeilederflateArrangor,
+) : VeilederflateTiltak()
+
+@Serializable
+data class VeilederflateTiltakEnkeltplass(
+    override val tiltakstype: VeilederflateTiltakstype,
+    override val navn: String,
+    override val beskrivelse: String?,
+    override val faneinnhold: Faneinnhold?,
+    override val kontaktinfo: VeilederflateKontaktinfo,
+    override val oppstart: GjennomforingOppstartstype,
+    override val oppmoteSted: String?,
+    override val fylker: List<NavEnhetNummer>,
+    override val enheter: List<NavEnhetNummer>,
+    val sanityId: String,
+    val tiltaksnummer: String?,
+) : VeilederflateTiltak()
+
+@Serializable
+data class VeilederflateKontaktinfoTiltaksansvarlig(
+    val navn: String? = null,
+    val telefon: String? = null,
+    val enhet: VeilederflateTiltaksansvarligHovedenhet? = null,
+    val epost: String? = null,
+    val beskrivelse: String? = null,
+)
+
+@Serializable
+data class VeilederflateTiltaksansvarligHovedenhet(
+    val navn: String,
+    val enhetsnummer: NavEnhetNummer,
+)
+
+@Serializable
+data class VeilederflateKontaktinfo(
+    val tiltaksansvarlige: List<VeilederflateKontaktinfoTiltaksansvarlig>,
+)
+
+@Serializable
+data class VeilederflateTiltakstype(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @kotlinx.serialization.Transient
+    val sanityId: String? = null,
+    val navn: String,
+    val tiltakskode: Tiltakskode,
+    val system: TiltakstypeSystem,
+    val features: Set<TiltakstypeFeature>,
+    val egenskaper: Set<TiltakstypeEgenskap>,
+    val innsatsgrupper: Set<Innsatsgruppe>?,
+    val tiltaksgruppe: String?,
+    val beskrivelse: String?,
+    val faneinnhold: Faneinnhold?,
+    val faglenker: List<RedaksjoneltInnholdLenke>?,
+    val kanKombineresMed: List<TiltakstypeKombinasjon>,
+)
+
+@Serializable
+data class VeilederflateArrangor(
+    val selskapsnavn: String?,
+    val organisasjonsnummer: String?,
+    val kontaktpersoner: List<VeilederflateArrangorKontaktperson>,
+)
+
+@Serializable
+data class VeilederflateArrangorKontaktperson(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val navn: String,
+    val epost: String,
+    val telefon: String?,
+    val beskrivelse: String?,
+)
+
+@Serializable
+data class Oppskrifter(
+    val data: List<Oppskrift>,
+)
+
+@Serializable
+data class Oppskrift(
+    val _id: String,
+    val navn: String,
+    val beskrivelse: String,
+    val steg: List<OppskriftSteg>,
+    val _updatedAt: String,
+)
+
+@Serializable
+data class OppskriftSteg(
+    val _type: String,
+    val _key: String,
+    val navn: String,
+    val innhold: List<PortableTextTypedObject>,
+)
+
+@Serializable
+data class EstimertVentetid(
+    val verdi: Int,
+    val enhet: String,
+)
+
+@Serializable
+data class VeilederflateNavEnhet(
+    val enhetsnummer: NavEnhetNummer,
+    val type: Norg2Type,
+)

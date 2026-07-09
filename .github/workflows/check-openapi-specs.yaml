@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - .github/workflows/check-openapi-specs.yaml
-      - mulighetsrommet-api/src/**
+      - mulighetsrommet-api/server/src/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -26,12 +26,12 @@ jobs:
         uses: ./.github/actions/setup-backend
 
       - name: Generate OpenAPI Specs
-        run: ./gradlew :mulighetsrommet-api:generateOpenApi
+        run: ./gradlew :mulighetsrommet-api:server:generateOpenApi
 
       - name: Check for uncommitted changes
         run: |
           if [ -n "$(git status --porcelain)" ]; then
-            echo "::error::OpenAPI specs are not up to date! Please run './gradlew :mulighetsrommet-api:generateOpenApi' locally and commit the changes."
+            echo "::error::OpenAPI specs are not up to date! Please run './gradlew :mulighetsrommet-api:server:generateOpenApi' locally and commit the changes."
             echo "The following files need to be committed:"
             git status --porcelain
             exit 1
