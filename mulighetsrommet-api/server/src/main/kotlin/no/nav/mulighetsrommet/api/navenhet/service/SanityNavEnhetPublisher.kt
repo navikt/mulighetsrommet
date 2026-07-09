@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navenhet
+package no.nav.mulighetsrommet.api.navenhet.service
 
 import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet

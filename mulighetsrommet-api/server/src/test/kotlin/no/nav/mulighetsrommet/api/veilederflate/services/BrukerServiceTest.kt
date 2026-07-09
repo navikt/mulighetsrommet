@@ -9,6 +9,7 @@ import io.kotest.matchers.collections.shouldContainInOrder
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -27,9 +28,8 @@ import no.nav.mulighetsrommet.api.clients.vedtak.HovedmalMedOkeDeltakelse
 import no.nav.mulighetsrommet.api.clients.vedtak.InnsatsgruppeV2
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.veilederflate.models.Brukerdata
+import no.nav.mulighetsrommet.api.veilederflate.models.NavEnhetDto
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerResponse
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -119,7 +119,7 @@ class BrukerServiceTest : FunSpec({
             fattetDato = ZonedDateTime.now(),
         ).right()
 
-        coEvery { navEnhetService.hentEnhet(NavEnhetNummer("0106")) } returns NavEnhetDto(
+        every { navEnhetService.hentEnhet(NavEnhetNummer("0106")) } returns NavEnhetDto(
             navn = "Nav Fredrikstad",
             enhetsnummer = NavEnhetNummer("0106"),
             type = NavEnhetType.LOKAL,

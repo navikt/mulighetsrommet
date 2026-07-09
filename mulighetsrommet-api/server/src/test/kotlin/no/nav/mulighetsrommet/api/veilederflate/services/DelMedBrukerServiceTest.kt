@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
+import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
@@ -25,7 +25,7 @@ class DelMedBrukerServiceTest : FunSpec({
     val sanityService: SanityService = mockk(relaxed = true)
 
     context("DelMedBrukerService") {
-        val service = DelMedBrukerService(database.db, sanityService, NavEnhetService(database.newDb))
+        val service = DelMedBrukerService(database.db, sanityService, NavEnhetService(SqlNavEnhetRepository(database.db.db)))
 
         beforeEach {
             MulighetsrommetTestDomain(

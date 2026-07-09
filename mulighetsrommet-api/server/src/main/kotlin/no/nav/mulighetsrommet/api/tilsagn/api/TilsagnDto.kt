@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
+import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType

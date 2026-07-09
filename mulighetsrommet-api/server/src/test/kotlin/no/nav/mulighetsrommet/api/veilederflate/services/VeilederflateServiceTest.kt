@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
+import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityArrangor
 import no.nav.mulighetsrommet.api.sanity.SanityArrangorKontaktperson
@@ -151,7 +151,7 @@ class VeilederflateServiceTest : FunSpec({
             db = database.db,
             tiltakstypeService = tiltakstypeService,
             sanityService = sanityService,
-            navEnhetService = NavEnhetService(database.newDb),
+            navEnhetService = NavEnhetService(SqlNavEnhetRepository(database.db.db)),
         )
     }
 

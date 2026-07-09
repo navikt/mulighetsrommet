@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navenhet.db
+package no.nav.mulighetsrommet.api.kostnadssted
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -6,7 +6,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
-import no.nav.mulighetsrommet.api.kostnadssted.Kostnadssted
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.intellij.lang.annotations.Language

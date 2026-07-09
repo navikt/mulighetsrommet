@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navenhet
+package no.nav.mulighetsrommet.api.veilederflate.models
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet

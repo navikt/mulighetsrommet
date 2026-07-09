@@ -3,6 +3,9 @@ package no.nav.mulighetsrommet.api.utbetaling.service
 import arrow.core.getOrElse
 import arrow.core.toNonEmptySetOrNull
 import io.ktor.http.HttpStatusCode
+import no.nav.mulighetsrommet.admin.navenhet.GetNavEnhet
+import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
+import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
@@ -12,8 +15,6 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResult
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import no.nav.mulighetsrommet.ktor.exception.StatusException
@@ -27,7 +28,7 @@ class PersonaliaService(
     private val norg2Client: Norg2Client,
     private val amtDeltakerClient: AmtDeltakerClient,
     private val tilgangsmaskinClient: TilgangsmaskinClient,
-    private val navEnhetService: NavEnhetService,
+    private val navEnhetDtoQuery: NavEnhetDtoQuery,
 ) {
     sealed class OnBehalfOf {
         data object Arrangor : OnBehalfOf()
@@ -60,11 +61,11 @@ class PersonaliaService(
             val norskIdent = p.norskIdent
 
             val geografiskEnhet = pdlData[norskIdent]?.second?.navEnhetNummer()?.let {
-                navEnhetService.hentEnhet(it)
+                navEnhetDtoQuery.execute(GetNavEnhet(it))
             }
-            val oppfolgingEnhet = p.oppfolgingEnhet?.let { navEnhetService.hentEnhet(it) }
+            val oppfolgingEnhet = p.oppfolgingEnhet?.let { navEnhetDtoQuery.execute(GetNavEnhet(it)) }
             val region = oppfolgingEnhet?.overordnetEnhet?.let {
-                navEnhetService.hentEnhet(it)
+                navEnhetDtoQuery.execute(GetNavEnhet(it))
             }
             val avvistGrunn = tilgangerByDeltakerId[p.deltakerId]
 

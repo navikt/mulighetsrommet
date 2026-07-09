@@ -4,13 +4,13 @@ import io.github.smiley4.ktoropenapi.get
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
-import no.nav.mulighetsrommet.api.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
+import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
 fun Route.regionRoutes() {
-    val navEnhetService: NavEnhetService by inject()
+    val kontorstrukturQuery: KontorstrukturQuery by inject()
 
     get("nav-enheter/kontorstruktur", {
         tags = setOf("NavEnheter")
@@ -26,6 +26,6 @@ fun Route.regionRoutes() {
             }
         }
     }) {
-        call.respond(navEnhetService.hentKontorstruktur())
+        call.respond(kontorstrukturQuery.execute())
     }
 }

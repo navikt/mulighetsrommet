@@ -13,6 +13,8 @@ import no.nav.common.kafka.producer.feilhandtering.publisher.QueuedKafkaProducer
 import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
+import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
 import no.nav.mulighetsrommet.admin.navenhet.SynkroniserNavEnheterUseCase
 import no.nav.mulighetsrommet.admin.redaksjoneltinnhold.RedaksjoneltInnholdLenkeService
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeDtoQuery
@@ -48,6 +50,7 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.GjennomforingRequestKafkaConsumer
@@ -69,12 +72,12 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.navenhet.SanityNavEnhetPublisher
+import no.nav.mulighetsrommet.api.navenhet.service.SanityNavEnhetPublisher
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.persistence.OutboxTopics
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabase
+import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -110,6 +113,7 @@ import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
+import no.nav.mulighetsrommet.api.veilederflate.services.NavEnhetService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
 import no.nav.mulighetsrommet.brreg.BrregClient
@@ -481,6 +485,9 @@ private fun services(appConfig: AppConfig) = module {
     single { RedaksjoneltInnholdLenkeService(get()) }
     single { SanityNavEnhetPublisher(get(), get()) }
     single { SynkroniserNavEnheterUseCase(get()) }
+    single { NavEnhetDtoQuery(get()) }
+    single { KontorstrukturQuery(get()) }
+    single<NavEnhetRepository> { SqlNavEnhetRepository(get()) }
     single { NavEnhetService(get()) }
     single { KostnadsstedService(get()) }
     single { ArrangorService(get(), get(), get()) }

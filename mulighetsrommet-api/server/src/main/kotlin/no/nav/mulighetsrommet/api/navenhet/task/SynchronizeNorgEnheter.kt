@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.toNavEnhetStatus
 import no.nav.mulighetsrommet.api.clients.norg2.toNavEnhetType
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
-import no.nav.mulighetsrommet.api.navenhet.SanityNavEnhetPublisher
+import no.nav.mulighetsrommet.api.navenhet.service.SanityNavEnhetPublisher
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.slf4j.LoggerFactory
 

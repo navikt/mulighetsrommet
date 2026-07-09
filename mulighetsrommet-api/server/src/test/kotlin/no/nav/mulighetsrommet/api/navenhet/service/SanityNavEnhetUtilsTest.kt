@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navenhet
+package no.nav.mulighetsrommet.api.navenhet.service
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
