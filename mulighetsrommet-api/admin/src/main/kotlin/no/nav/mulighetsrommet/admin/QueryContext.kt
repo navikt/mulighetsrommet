@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.admin
 
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHandler
+import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
@@ -21,6 +22,7 @@ abstract class QueryContext {
     abstract class Queries {
         abstract val tiltakstype: TiltakstypeQueryHandler
         abstract val endringshistorikk: EndringshistorikkQueryHandler
+        abstract val kostnadssted: KostnadsstedQueryHandler
     }
 
     interface Outbox {

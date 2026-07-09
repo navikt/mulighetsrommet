@@ -1,14 +1,16 @@
-package no.nav.mulighetsrommet.api.kostnadssted
+package no.nav.mulighetsrommet.api.persistence.kostnadssted.db
 
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.admin.kostnadssted.Kostnadssted
+import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.intellij.lang.annotations.Language
 
-class KostnadsstedQueries(private val session: Session) {
-    fun getAll(regioner: List<NavEnhetNummer> = listOf()): List<Kostnadssted> {
+class KostnadsstedQueries(private val session: Session) : KostnadsstedQueryHandler {
+    override fun getAll(regioner: List<NavEnhetNummer>): List<Kostnadssted> {
         @Language("PostgreSQL")
         val query = """
             select nav_enhet.enhetsnummer as kostnadssted_enhetsnummer,

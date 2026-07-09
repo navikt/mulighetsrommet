@@ -13,6 +13,7 @@ import no.nav.common.kafka.producer.feilhandtering.publisher.QueuedKafkaProducer
 import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
 import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
 import no.nav.mulighetsrommet.admin.navenhet.SynkroniserNavEnheterUseCase
@@ -66,7 +67,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFr
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
 import no.nav.mulighetsrommet.api.janzz.PamOntologiService
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
-import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
 import no.nav.mulighetsrommet.api.lagretfilter.LagretFilterService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -489,7 +489,7 @@ private fun services(appConfig: AppConfig) = module {
     single { KontorstrukturQuery(get()) }
     single<NavEnhetRepository> { SqlNavEnhetRepository(get()) }
     single { NavEnhetService(get()) }
-    single { KostnadsstedService(get()) }
+    single { KostnadsstedQuery(get()) }
     single { ArrangorService(get(), get(), get()) }
     single {
         GenererUtbetalingService(

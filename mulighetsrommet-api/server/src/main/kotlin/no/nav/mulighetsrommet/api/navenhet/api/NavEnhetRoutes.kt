@@ -5,15 +5,15 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
+import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
+import no.nav.mulighetsrommet.admin.kostnadssted.RegionKostnadssteder
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
-import no.nav.mulighetsrommet.api.kostnadssted.KostnadsstedService
-import no.nav.mulighetsrommet.api.kostnadssted.RegionKostnadssteder
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
 fun Route.navEnhetRoutes() {
-    val kostnadsstedService: KostnadsstedService by inject()
+    val kostnadsstedQuery: KostnadsstedQuery by inject()
     val kontorstrukturQuery: KontorstrukturQuery by inject()
 
     route("kodeverk") {
@@ -48,7 +48,7 @@ fun Route.navEnhetRoutes() {
                 }
             }
         }) {
-            call.respond(kostnadsstedService.hentKostnadssteder())
+            call.respond(kostnadsstedQuery.execute())
         }
     }
 }

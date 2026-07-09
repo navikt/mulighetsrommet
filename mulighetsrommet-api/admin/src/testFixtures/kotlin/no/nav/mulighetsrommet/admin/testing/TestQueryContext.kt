@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.admin.testing
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHandler
+import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 
 class TestQueryContext : QueryContext() {
@@ -12,6 +13,7 @@ class TestQueryContext : QueryContext() {
 
     private var tiltakstype: TiltakstypeQueryHandler = mockk(relaxed = true)
     private var endringshistorikk: EndringshistorikkQueryHandler = mockk(relaxed = true)
+    private var kostnadssted: KostnadsstedQueryHandler = mockk(relaxed = true)
 
     override val repository = object : Repositories() {
         override val tiltakstype get() = tiltakstypeRepository
@@ -22,6 +24,7 @@ class TestQueryContext : QueryContext() {
     override val queries = object : Queries() {
         override val tiltakstype get() = this@TestQueryContext.tiltakstype
         override val endringshistorikk get() = this@TestQueryContext.endringshistorikk
+        override val kostnadssted get() = this@TestQueryContext.kostnadssted
     }
 
     override val outbox: Outbox = mockk(relaxed = true)
