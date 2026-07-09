@@ -4,9 +4,21 @@ import {
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingStatusDtoType,
+  UtbetalingStatusAarsak,
+  FieldError,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { Box, CopyButton, Heading, HelpText, HGrid, HStack, Link, VStack } from "@navikt/ds-react";
+import {
+  BodyShort,
+  Box,
+  CopyButton,
+  Heading,
+  HelpText,
+  HGrid,
+  HStack,
+  Link,
+  VStack,
+} from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
@@ -27,6 +39,10 @@ import {
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { BetalingsinformasjonDetaljer } from "@/components/utbetaling/BetalingsinformasjonDetaljer";
+import { useState } from "react";
+import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
+import { XMarkIcon } from "@navikt/aksel-icons";
+import { Handlinger } from "@/components/handlinger/Handlinger";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
@@ -36,6 +52,7 @@ function useUtbetalingDetaljerData() {
 }
 
 export function UtbetalingDetaljerPage() {
+  const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
   const { utbetaling, handlinger, beregning } = useUtbetalingDetaljerData();
 
   return (
@@ -153,11 +170,76 @@ export function UtbetalingDetaljerPage() {
             </VStack>
           </Box>
         </TwoColumnGrid>
+        {handlinger.includes(UtbetalingHandling.AVBRYT) && (
+          <Handlinger
+            handlinger={handlinger}
+            grupper={[
+              {
+                items: [
+                  {
+                    handling: UtbetalingHandling.AVBRYT,
+                    label: utbetalingTekster.avbrutt.handling.button.label,
+                    onClick: () => setAvbrytModalOpen(true),
+                    variant: "danger",
+                    icon: <XMarkIcon />,
+                  },
+                ],
+              },
+            ]}
+          />
+        )}
+        <UtbetalingAvbrytModal
+          utbetalingId={utbetaling.id}
+          open={avbrytModalOpen}
+          onClose={() => setAvbrytModalOpen(false)}
+        />
         <Endringshistorikk id={utbetaling.id} type={EndringshistorikkType.UTBETALING} />
       </HGrid>
       <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
       <UtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />
     </VStack>
+  );
+}
+
+interface UtbetalingAvbrytButtonProps {
+  utbetalingId: string;
+  open: boolean;
+  onClose: () => void;
+}
+
+function UtbetalingAvbrytModal({ utbetalingId, open, onClose }: UtbetalingAvbrytButtonProps) {
+  if (!open) {
+    return null;
+  }
+
+  const errors: FieldError[] = [];
+
+  const avbrytUtbetaling = () => {
+    alert(`Her kommer ${utbetalingId}`);
+  };
+
+  const avbrytUtbetalingAarsakValg = [
+    UtbetalingStatusAarsak.TILSAGN_GJORT_OPP,
+    UtbetalingStatusAarsak.ANNET,
+  ].map((val) => {
+    return {
+      value: val,
+      label: utbetalingTekster.avbrutt.aarsak.fraAarsak(val),
+    };
+  });
+  return (
+    <>
+      <AarsakerOgForklaringModal<UtbetalingStatusAarsak>
+        open={open}
+        onClose={onClose}
+        header={utbetalingTekster.avbrutt.aarsak.modal.header}
+        ingress={<BodyShort>{utbetalingTekster.avbrutt.aarsak.modal.ingress}</BodyShort>}
+        aarsaker={avbrytUtbetalingAarsakValg}
+        buttonLabel={utbetalingTekster.avbrutt.aarsak.modal.button.label}
+        errors={errors}
+        onConfirm={avbrytUtbetaling}
+      />
+    </>
   );
 }
 

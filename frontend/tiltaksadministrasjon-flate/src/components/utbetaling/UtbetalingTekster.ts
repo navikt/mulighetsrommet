@@ -1,4 +1,8 @@
-import { UtbetalingLinjeReturnertAarsak, TilsagnType } from "@tiltaksadministrasjon/api-client";
+import {
+  UtbetalingLinjeReturnertAarsak,
+  TilsagnType,
+  UtbetalingStatusAarsak,
+} from "@tiltaksadministrasjon/api-client";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 
 export const utbetalingTekster = {
@@ -40,6 +44,30 @@ export const utbetalingTekster = {
   },
   utbetalt: {
     label: "Utbetalt",
+  },
+  avbrutt: {
+    handling: {
+      button: {
+        label: "Avbryt utbetalingskrav",
+      },
+    },
+    aarsak: {
+      modal: {
+        header: "Du er i ferd med å avbryte et utbetalingskrav",
+        ingress: "Arrangør vil ikke få noen utbetaling for perioden.",
+        button: {
+          label: "Avbryt utbetaling",
+        },
+      },
+      fraAarsak: (aarsak: UtbetalingStatusAarsak): string => {
+        switch (aarsak) {
+          case UtbetalingStatusAarsak.TILSAGN_GJORT_OPP:
+            return "Feil beløp";
+          case UtbetalingStatusAarsak.ANNET:
+            return "Annet";
+        }
+      },
+    },
   },
   linje: {
     header: "Utbetalingslinjer",
