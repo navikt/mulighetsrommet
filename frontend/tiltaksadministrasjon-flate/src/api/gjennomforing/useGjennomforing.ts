@@ -1,23 +1,27 @@
 import { QueryKeys } from "@/api/QueryKeys";
-import {
-  GjennomforingDetaljerDto,
-  GjennomforingEnkeltplassDto,
-  GjennomforingService,
-} from "@tiltaksadministrasjon/api-client";
+import { GjennomforingDetaljerDto, GjennomforingService } from "@tiltaksadministrasjon/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { isEnkeltplass } from "@/api/gjennomforing/utils";
 
-export function useEnkeltplassGjennomforingOrError(
-  id: string,
-): GjennomforingDetaljerDto & { gjennomforing: GjennomforingEnkeltplassDto } {
-  const data = useGjennomforing(id);
+type EnkeltplassGjennomforing = Extract<
+  GjennomforingDetaljerDto["gjennomforing"],
+  { type: "GjennomforingEnkeltplassDto" }
+>;
 
-  if (!isEnkeltplass(data.gjennomforing)) {
+type EnkeltplassGjennomforingDetaljer = Omit<GjennomforingDetaljerDto, "gjennomforing"> & {
+  gjennomforing: EnkeltplassGjennomforing;
+};
+
+export function useEnkeltplassGjennomforingOrError(id: string): EnkeltplassGjennomforingDetaljer {
+  const data = useGjennomforing(id);
+  const { gjennomforing } = data;
+
+  if (!isEnkeltplass(gjennomforing)) {
     throw `Gjennomføring med id=${id} er ikke en enkeltplass`;
   }
 
-  return data as GjennomforingDetaljerDto & { gjennomforing: GjennomforingEnkeltplassDto };
+  return { ...data, gjennomforing };
 }
 
 export function useGjennomforing(id: string) {

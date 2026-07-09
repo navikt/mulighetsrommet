@@ -1,5 +1,5 @@
 import { GjennomforingOppstartstype, VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
-import { isTiltakEnkeltplass } from "@/api/queries/useArbeidsmarkedstiltakById";
+import { isTiltakEnkeltplass, isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 export function inneholderUrl(string: string) {
   return window.location.href.indexOf(string) > -1;
@@ -39,7 +39,7 @@ export function utledOppstart(tiltak: VeilederflateTiltak) {
 
   switch (tiltak.oppstart) {
     case GjennomforingOppstartstype.FELLES:
-      return formaterDato(tiltak.oppstartsdato);
+      return isTiltakGruppe(tiltak) ? formaterDato(tiltak.oppstartsdato) : null;
     case GjennomforingOppstartstype.LOPENDE:
       return "Løpende oppstart";
     case GjennomforingOppstartstype.ENKELTPLASS:

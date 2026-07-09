@@ -1,13 +1,35 @@
 import {
   TotrinnskontrollDto,
   TotrinnskontrollDtoBeslutning,
-  TotrinnskontrollDtoBesluttet,
-  TotrinnskontrollDtoTilBeslutning,
 } from "@tiltaksadministrasjon/api-client";
+
+type TotrinnskontrollBesluttet = Extract<
+  TotrinnskontrollDto,
+  { type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet" }
+>;
+
+type TotrinnskontrollTilBeslutning = Extract<
+  TotrinnskontrollDto,
+  {
+    type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning";
+  }
+>;
+
+type TotrinnskontrollSattPaVent = TotrinnskontrollBesluttet & {
+  beslutning: TotrinnskontrollDtoBeslutning.SATT_PA_VENT;
+};
+
+type TotrinnskontrollGodkjent = TotrinnskontrollBesluttet & {
+  beslutning: TotrinnskontrollDtoBeslutning.GODKJENT;
+};
+
+type TotrinnskontrollReturnert = TotrinnskontrollBesluttet & {
+  beslutning: TotrinnskontrollDtoBeslutning.RETURNERT;
+};
 
 export function erSattPaVent(
   totrinnskontroll: TotrinnskontrollDto | null,
-): totrinnskontroll is TotrinnskontrollDtoBesluttet {
+): totrinnskontroll is TotrinnskontrollSattPaVent {
   return (
     erBesluttet(totrinnskontroll) &&
     totrinnskontroll.beslutning === TotrinnskontrollDtoBeslutning.SATT_PA_VENT
@@ -16,7 +38,7 @@ export function erSattPaVent(
 
 export function erGodkjent(
   totrinnskontroll: TotrinnskontrollDto | null,
-): totrinnskontroll is TotrinnskontrollDtoBesluttet {
+): totrinnskontroll is TotrinnskontrollGodkjent {
   return (
     erBesluttet(totrinnskontroll) &&
     totrinnskontroll.beslutning === TotrinnskontrollDtoBeslutning.GODKJENT
@@ -25,7 +47,7 @@ export function erGodkjent(
 
 export function erReturnert(
   totrinnskontroll: TotrinnskontrollDto | null,
-): totrinnskontroll is TotrinnskontrollDtoBesluttet {
+): totrinnskontroll is TotrinnskontrollReturnert {
   return (
     erBesluttet(totrinnskontroll) &&
     totrinnskontroll.beslutning === TotrinnskontrollDtoBeslutning.RETURNERT
@@ -34,7 +56,7 @@ export function erReturnert(
 
 export function erBesluttet(
   totrinnskontroll: TotrinnskontrollDto | null,
-): totrinnskontroll is TotrinnskontrollDtoBesluttet {
+): totrinnskontroll is TotrinnskontrollBesluttet {
   return (
     totrinnskontroll?.type ===
     "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet"
@@ -43,7 +65,7 @@ export function erBesluttet(
 
 export function erTilBeslutning(
   totrinnskontroll: TotrinnskontrollDto | null,
-): totrinnskontroll is TotrinnskontrollDtoTilBeslutning {
+): totrinnskontroll is TotrinnskontrollTilBeslutning {
   return (
     totrinnskontroll?.type ===
     "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning"
