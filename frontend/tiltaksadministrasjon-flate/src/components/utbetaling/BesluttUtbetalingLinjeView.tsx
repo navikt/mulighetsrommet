@@ -4,11 +4,10 @@ import {
   UtbetalingLinjeReturnertAarsak,
   FieldError,
   UtbetalingDto,
-  UtbetalingHandling,
   UtbetalingLinjeHandling,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { BodyShort, Button, Heading, HStack, Spacer, TextField, VStack } from "@navikt/ds-react";
+import { BodyShort, Button, Heading, HStack, TextField, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { AarsakerOgForklaringModal } from "../modal/AarsakerOgForklaringModal";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
@@ -16,24 +15,19 @@ import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { useUtbetalingsLinjer } from "@/pages/gjennomforing/utbetaling/utbetalingPageLoader";
 import { utbetalingTekster } from "./UtbetalingTekster";
 import { GjorOppTilsagnCheckbox } from "./GjorOppTilsagnCheckbox";
-import { PlusCircleIcon } from "@navikt/aksel-icons";
-import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjonModal";
-import { Handlinger } from "@/components/handlinger/Handlinger";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 
 export interface Props {
   utbetaling: UtbetalingDto;
-  handlinger: UtbetalingHandling[];
 }
 
-export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
+export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
   const { data: linjer } = useUtbetalingsLinjer(utbetaling.id);
   const [avvisModalOpen, setAvvisModalOpen] = useState(false);
   const [attesterModalOpenForLinjeId, setAttesterModalOpenForLinjeId] = useState<string | null>(
     null,
   );
-  const [opprettKorreksjonModalOpen, setOpprettKorreksjonModalOpen] = useState<boolean>(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
   const attesterUtbetalingLinjeMutation = useAttesterUtbetalingLinje();
   const returnerUtbetalingLinjeMutation = useReturnerUtbetalingLinje();
@@ -82,22 +76,6 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
         <Heading spacing size="medium" level="2">
           {utbetalingTekster.linje.header}
         </Heading>
-        <Spacer />
-        <Handlinger
-          handlinger={handlinger}
-          grupper={[
-            {
-              items: [
-                {
-                  label: "Opprett korreksjon",
-                  onClick: () => setOpprettKorreksjonModalOpen(true),
-                  icon: <PlusCircleIcon />,
-                  handling: UtbetalingHandling.OPPRETT_KORREKSJON,
-                },
-              ],
-            },
-          ]}
-        />
       </HStack>
       <UtbetalingLinjeTable
         linjer={linjer.filter((l) => l.status !== null)}
@@ -192,11 +170,6 @@ export function BesluttUtbetalingLinjeView({ utbetaling, handlinger }: Props) {
             />
           );
         }}
-      />
-      <OpprettKorreksjonModal
-        utbetaling={utbetaling}
-        open={opprettKorreksjonModalOpen}
-        close={() => setOpprettKorreksjonModalOpen(false)}
       />
     </VStack>
   );

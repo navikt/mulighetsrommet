@@ -6,24 +6,35 @@ import {
   UtbetalingStatusDtoType,
   UtbetalingStatusAarsak,
   FieldError,
+  Tilskuddstype,
+  TilsagnType,
+  UtbetalingLinjeDto,
+  OpprettUtbetalingLinjerRequest,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import {
   BodyShort,
   Box,
+  Button,
   CopyButton,
   Heading,
   HelpText,
   HGrid,
   HStack,
   Link,
+  Modal,
   VStack,
 } from "@navikt/ds-react";
-import { Link as ReactRouterLink } from "react-router";
+import { Link as ReactRouterLink, useNavigate } from "react-router";
 import { UtbetalingStatusTag } from "@/components/utbetaling/UtbetalingStatusTag";
 import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 import UtbetalingBeregningView from "@/components/utbetaling/beregning/UtbetalingBeregningView";
-import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
+import {
+  formaterDato,
+  formaterPeriode,
+  subDuration,
+  yyyyMMddFormatting,
+} from "@mr/frontend-common/utils/date";
 import {
   useUtbetaling,
   useUtbetalingBeregning,
@@ -42,8 +53,18 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { BetalingsinformasjonDetaljer } from "@/components/utbetaling/BetalingsinformasjonDetaljer";
 import { useState } from "react";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
-import { XMarkIcon } from "@navikt/aksel-icons";
+import {
+  FileCheckmarkIcon,
+  PencilIcon,
+  PiggybankIcon,
+  PlusCircleIcon,
+  TrashFillIcon,
+  XMarkIcon,
+} from "@navikt/aksel-icons";
 import { Handlinger } from "@/components/handlinger/Handlinger";
+import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjonModal";
+import { useSlettKorreksjon } from "@/api/utbetaling/mutations";
+import { useForm, UseFormReturn } from "react-hook-form";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
@@ -53,8 +74,39 @@ function useUtbetalingDetaljerData() {
 }
 
 export function UtbetalingDetaljerPage() {
-  const [avbrytModalOpen, setAvbrytModalOpen] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const [modalVariant, setModalVariant] = useState<UtbetalingHandling | null>(null);
+
   const { utbetaling, handlinger, beregning } = useUtbetalingDetaljerData();
+  const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetaling.id);
+
+  const { gjennomforingId, periode, tilskuddstype } = utbetaling;
+
+  const tilsagnsTypeFraTilskudd = tilsagnType(tilskuddstype);
+
+  function opprettEkstraTilsagn() {
+    const defaultTilsagn = utbetalingLinjer.length === 1 ? utbetalingLinjer[0].tilsagn : undefined;
+    return navigate(
+      `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
+        `?type=${tilsagnsTypeFraTilskudd}` +
+        `&periodeStart=${periode.start}` +
+        `&periodeSlutt=${yyyyMMddFormatting(subDuration(periode.slutt, { days: 1 }))}` +
+        `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer || ""}`,
+    );
+  }
+
+  const form: UseFormReturn<OpprettUtbetalingLinjerRequest> =
+    useForm<OpprettUtbetalingLinjerRequest>({
+      defaultValues: {
+        utbetalingId: utbetaling.id,
+        utbetalingLinjer: utbetalingLinjer.map((linje) => ({
+          pris: linje.pris,
+          id: linje.id,
+          tilsagnId: linje.tilsagn.id,
+        })),
+        begrunnelseMindreBetalt: null,
+      },
+    });
 
   return (
     <VStack className="pb-6">
@@ -66,11 +118,52 @@ export function UtbetalingDetaljerPage() {
             {
               items: [
                 {
+                  label: "Opprett korreksjon",
+                  onClick: () => setModalVariant(UtbetalingHandling.OPPRETT_KORREKSJON),
+                  icon: <PlusCircleIcon />,
+                  handling: UtbetalingHandling.OPPRETT_KORREKSJON,
+                },
+              ],
+            },
+            {
+              items: [
+                {
                   handling: UtbetalingHandling.AVBRYT,
                   label: utbetalingTekster.avbrutt.handling.button.label,
-                  onClick: () => setAvbrytModalOpen(true),
+                  onClick: () => setModalVariant(UtbetalingHandling.AVBRYT),
                   variant: "danger",
                   icon: <XMarkIcon />,
+                },
+                {
+                  label: "Rediger utbetaling",
+                  href: "rediger-utbetaling",
+                  icon: <PencilIcon />,
+                  handling: UtbetalingHandling.REDIGER,
+                },
+                {
+                  label: utbetalingTekster.linje.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd),
+                  onClick: opprettEkstraTilsagn,
+                  icon: <PiggybankIcon />,
+                },
+                {
+                  label: utbetalingTekster.linje.handlinger.hentGodkjenteTilsagn,
+                  onClick: () =>
+                    form.setValue(
+                      "utbetalingLinjer",
+                      utbetalingLinjer.map((linje) => ({
+                        id: linje.id,
+                        pris: linje.pris,
+                        tilsagnId: linje.tilsagn.id,
+                        gjorOppTilsagn: linje.gjorOppTilsagn,
+                      })),
+                    ),
+                  icon: <FileCheckmarkIcon />,
+                },
+                {
+                  label: "Slett utbetaling",
+                  onClick: () => setModalVariant(UtbetalingHandling.SLETT),
+                  icon: <TrashFillIcon />,
+                  handling: UtbetalingHandling.SLETT,
                 },
               ],
             },
@@ -78,8 +171,18 @@ export function UtbetalingDetaljerPage() {
         />
         <UtbetalingAvbrytModal
           utbetalingId={utbetaling.id}
-          open={avbrytModalOpen}
-          onClose={() => setAvbrytModalOpen(false)}
+          open={modalVariant === UtbetalingHandling.AVBRYT}
+          onClose={() => setModalVariant(null)}
+        />
+        <OpprettKorreksjonModal
+          utbetaling={utbetaling}
+          open={modalVariant === UtbetalingHandling.OPPRETT_KORREKSJON}
+          close={() => setModalVariant(null)}
+        />
+        <SlettKorreksjonModal
+          utbetalingId={utbetaling.id}
+          open={modalVariant === UtbetalingHandling.SLETT}
+          onClose={() => setModalVariant(null)}
         />
       </HStack>
       <Separator />
@@ -199,7 +302,12 @@ export function UtbetalingDetaljerPage() {
           </TwoColumnGrid>
         </HGrid>
         <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
-        <UtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />
+        <UtbetalingLinjeView
+          utbetaling={utbetaling}
+          utbetalingLinjer={utbetalingLinjer}
+          handlinger={handlinger}
+          form={form}
+        />
       </VStack>
     </VStack>
   );
@@ -219,7 +327,7 @@ function UtbetalingAvbrytModal({ utbetalingId, open, onClose }: UtbetalingAvbryt
   const errors: FieldError[] = [];
 
   const avbrytUtbetaling = () => {
-    alert(`Her kommer ${utbetalingId}`);
+    alert(`Avbryt utbetaling ${utbetalingId}`);
   };
 
   const avbrytUtbetalingAarsakValg = [
@@ -232,29 +340,32 @@ function UtbetalingAvbrytModal({ utbetalingId, open, onClose }: UtbetalingAvbryt
     };
   });
   return (
-    <>
-      <AarsakerOgForklaringModal<UtbetalingStatusAarsak>
-        open={open}
-        onClose={onClose}
-        header={utbetalingTekster.avbrutt.aarsak.modal.header}
-        ingress={<BodyShort>{utbetalingTekster.avbrutt.aarsak.modal.ingress}</BodyShort>}
-        aarsaker={avbrytUtbetalingAarsakValg}
-        buttonLabel={utbetalingTekster.avbrutt.aarsak.modal.button.label}
-        errors={errors}
-        onConfirm={avbrytUtbetaling}
-      />
-    </>
+    <AarsakerOgForklaringModal<UtbetalingStatusAarsak>
+      open={open}
+      onClose={onClose}
+      header={utbetalingTekster.avbrutt.aarsak.modal.header}
+      ingress={<BodyShort>{utbetalingTekster.avbrutt.aarsak.modal.ingress}</BodyShort>}
+      aarsaker={avbrytUtbetalingAarsakValg}
+      buttonLabel={utbetalingTekster.avbrutt.aarsak.modal.button.label}
+      errors={errors}
+      onConfirm={avbrytUtbetaling}
+    />
   );
 }
 
 interface UtbetalingLinjeViewProps {
   utbetaling: UtbetalingDto;
+  utbetalingLinjer: UtbetalingLinjeDto[];
   handlinger: UtbetalingHandling[];
+  form: UseFormReturn<OpprettUtbetalingLinjerRequest>;
 }
 
-function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProps) {
-  const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetaling.id);
-
+function UtbetalingLinjeView({
+  utbetaling,
+  utbetalingLinjer,
+  handlinger,
+  form,
+}: UtbetalingLinjeViewProps) {
   switch (utbetaling.status.type) {
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
     case UtbetalingStatusDtoType.UBEHANDLET_FORSLAG:
@@ -268,6 +379,7 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
           utbetaling={utbetaling}
           handlinger={handlinger}
           utbetalingLinjer={utbetalingLinjer}
+          form={form}
         />
       );
 
@@ -275,6 +387,69 @@ function UtbetalingLinjeView({ utbetaling, handlinger }: UtbetalingLinjeViewProp
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
     case UtbetalingStatusDtoType.DELVIS_UTBETALT:
     case UtbetalingStatusDtoType.UTBETALT:
-      return <BesluttUtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />;
+      return <BesluttUtbetalingLinjeView utbetaling={utbetaling} />;
   }
+}
+
+function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
+  switch (tilskuddstype) {
+    case Tilskuddstype.TILTAK_DRIFTSTILSKUDD:
+    case Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD:
+      return TilsagnType.EKSTRATILSAGN;
+    case Tilskuddstype.TILTAK_INVESTERINGER:
+      return TilsagnType.INVESTERING;
+  }
+}
+
+function SlettKorreksjonModal({
+  utbetalingId,
+  open,
+  onClose,
+}: {
+  utbetalingId: string;
+  open: boolean;
+  onClose: () => void;
+}) {
+  const navigate = useNavigate();
+  const slettKorreksjonMutation = useSlettKorreksjon();
+
+  function slettKorreksjon() {
+    slettKorreksjonMutation.mutate(
+      { id: utbetalingId },
+      {
+        onSuccess: () => navigate("..", { replace: true }),
+      },
+    );
+  }
+
+  return (
+    <Modal onClose={onClose} closeOnBackdropClick aria-label="modal" open={open}>
+      <Modal.Header closeButton={false}>
+        <Heading align="start" size="medium">
+          Slett utbetaling
+        </Heading>
+      </Modal.Header>
+      <Modal.Body>
+        <BodyShort>
+          Du er i ferd med å slette en korrigeringsutbetaling. Dette vil fjerne den valgte
+          ubetalingen fra løsningen. Er du sikker på at du vil fortsette?
+        </BodyShort>
+      </Modal.Body>
+      <Modal.Footer>
+        <HStack gap="space-16">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Nei, takk
+          </Button>
+          <Button
+            data-color="danger"
+            title="Slett utbetaling"
+            variant="primary"
+            onClick={slettKorreksjon}
+          >
+            Ja, jeg vil slette utbetalingen
+          </Button>
+        </HStack>
+      </Modal.Footer>
+    </Modal>
+  );
 }

@@ -5,7 +5,6 @@ import arrow.core.flatMap
 import arrow.core.toNonEmptyListOrNull
 import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
-import io.github.smiley4.ktoropenapi.patch
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.HttpStatusCode
@@ -14,7 +13,6 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
-import io.ktor.server.routing.patch
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
@@ -32,7 +30,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
