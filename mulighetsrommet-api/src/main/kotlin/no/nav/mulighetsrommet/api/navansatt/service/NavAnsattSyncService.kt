@@ -1,25 +1,14 @@
 package no.nav.mulighetsrommet.api.navansatt.service
 
-import arrow.core.toNonEmptyListOrNull
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
 import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navenhet.EnhetFilter
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.navenhet.db.NavEnhetStatus
 import no.nav.mulighetsrommet.api.sanity.SanityNavKontaktperson
 import no.nav.mulighetsrommet.api.sanity.SanityRedaktor
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.sanity.Slug
-import no.nav.mulighetsrommet.notifications.NotificationMetadata
-import no.nav.mulighetsrommet.notifications.NotificationTask
-import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import org.slf4j.LoggerFactory
-import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
@@ -27,8 +16,6 @@ class NavAnsattSyncService(
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
     private val sanityService: SanityService,
-    private val navEnhetService: NavEnhetService,
-    private val notificationTask: NotificationTask,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -64,55 +51,9 @@ class NavAnsattSyncService(
     }
 
     private suspend fun deleteNavAnsatt(ansatt: NavAnsatt): Unit = db.transaction {
-        val gjennomforinger = sanityService.getTiltakByNavIdent(ansatt.navIdent)
-
         queries.ansatt.deleteByEntraObjectId(ansatt.entraObjectId)
         sanityService.removeNavIdentFromTiltaksgjennomforinger(ansatt.navIdent)
         sanityService.deleteNavIdent(ansatt.navIdent)
-
-        gjennomforinger.forEach { gjennomforing ->
-            notifyRelevantAdministratorsForSanityGjennomforing(
-                gjennomforing,
-                ansatt.hovedenhet,
-            )
-        }
-    }
-
-    private fun QueryContext.notifyRelevantAdministratorsForSanityGjennomforing(
-        tiltak: SanityTiltaksgjennomforing,
-        hovedenhet: NavAnsatt.Hovedenhet,
-    ) {
-        val region = navEnhetService.hentOverordnetFylkesenhet(hovedenhet.enhetsnummer)
-            ?: return
-
-        val potentialAdministratorHovedenheter = navEnhetService.hentAlleEnheter(
-            EnhetFilter(
-                statuser = listOf(NavEnhetStatus.AKTIV),
-                overordnetEnhet = region.enhetsnummer,
-            ),
-        )
-            .map { it.enhetsnummer }
-            .plus(region.enhetsnummer)
-
-        val administrators = queries.ansatt
-            .getAll(
-                rollerContainsAll = listOf(NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)),
-                hovedenhetIn = potentialAdministratorHovedenheter,
-            )
-            .map { it.navIdent }
-            .toNonEmptyListOrNull() ?: return
-
-        val notification = ScheduledNotification(
-            title = """Kontaktperson eller redaktør for tiltak: "${tiltak.tiltaksgjennomforingNavn}" ble fjernet i Sanity""",
-            description = "Du har blitt varslet fordi din Nav-hovedenhet er i samme fylke som den slettede kontaktpersons/redaktørs Nav-hovedenhet. Gå til tiltaksgjennomføringen i Sanity og sjekk at kontaktpersonene og redaktørene for tiltaket er korrekt.",
-            metadata = NotificationMetadata(
-                linkText = "Gå til gjennomføringen i Sanity",
-                link = "https://mulighetsrommet-sanity-studio.intern.nav.no/prod/structure/tiltaksgjennomforinger;alleTiltaksgjennomforinger;${tiltak._id}",
-            ),
-            targets = administrators,
-            createdAt = Instant.now(),
-        )
-        notificationTask.scheduleNotification(notification)
     }
 
     private suspend fun upsertSanityAnsatte(ansatte: List<NavAnsatt>) {

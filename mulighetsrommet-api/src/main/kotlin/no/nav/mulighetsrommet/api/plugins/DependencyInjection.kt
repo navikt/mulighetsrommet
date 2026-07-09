@@ -441,7 +441,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single { BrukerService(get(), get(), get(), get(), get(), get()) }
     single { NavAnsattService(appConfig.auth.roles, get(), get()) }
-    single { NavAnsattSyncService(get(), get(), get(), get(), get()) }
+    single { NavAnsattSyncService(get(), get(), get()) }
     single { NavAnsattPrincipalService(get(), get()) }
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
