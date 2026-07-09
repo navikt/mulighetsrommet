@@ -15,14 +15,25 @@ import { ArrangorerFilter } from "./ArrangorerFilter";
 interface Props {
   filter: OppgaverFilterType;
   updateFilter: (values: Partial<OppgaverFilterType>) => void;
+  lagredeFilterOversikt: React.ReactElement;
 }
 
-export function OppgaverFilter({ filter, updateFilter }: Props) {
+export function OppgaverFilter({ filter, updateFilter, lagredeFilterOversikt }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
 
   return (
     <div className="bg-ax-bg-default self-start w-80">
       <Accordion>
+        <Accordion.Item open={accordionsOpen.includes("lagrede-filter")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "lagrede-filter")]);
+            }}
+          >
+            <FilterAccordionHeader tittel="Lagrede filter" />
+          </Accordion.Header>
+          <Accordion.Content>{lagredeFilterOversikt}</Accordion.Content>
+        </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("type")}>
           <Accordion.Header
             onClick={() => {

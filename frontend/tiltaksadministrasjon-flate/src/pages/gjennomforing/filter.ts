@@ -79,4 +79,13 @@ const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
   (a, b) => a.avtale === b.avtale,
 );
 
-export const gjennomforingFilterAccordionAtom = atom<string[]>(["navEnhet"]);
+export const gjennomforingFilterAccordionAtom = atom<string[]>([
+  "gjennomforingType",
+  "status",
+  "arrangor",
+  "tiltakstype",
+  "publiserteStatuser",
+
+  "navEnhet",
+  "lagrede-filter",
+]);

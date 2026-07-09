@@ -1,7 +1,6 @@
 import { StarFillIcon, StarIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, HStack, Radio, RadioGroup, Tooltip } from "@navikt/ds-react";
 import { useRef, useState } from "react";
-import styles from "./LagredeFilterOversikt.module.scss";
 import { VarselModal } from "../varsel/VarselModal";
 
 interface LagretFilter {
@@ -69,7 +68,7 @@ export function LagredeFilterOversikt({
           onChange={(id) => onSelectFilterId(id)}
           value={selectedFilterId || null}
         >
-          <div className={styles.overflow}>
+          <div>
             {filters.map((lagretFilter) => {
               const defaultFilterLabel = lagretFilter.isDefault
                 ? "Fjern som favoritt"
@@ -86,7 +85,7 @@ export function LagredeFilterOversikt({
                   <Radio size="small" value={lagretFilter.id}>
                     {lagretFilter.navn}
                   </Radio>
-                  <div className={styles.filterActions}>
+                  <div>
                     <Tooltip content={defaultFilterLabel}>
                       <Button
                         icon={lagretFilter.isDefault ? <StarFillIcon /> : <StarIcon />}

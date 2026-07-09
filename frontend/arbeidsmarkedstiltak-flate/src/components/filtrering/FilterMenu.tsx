@@ -12,7 +12,11 @@ import Sokefelt from "./Sokefelt";
 import { TiltakstypeFilter } from "./TiltakstypeFilter";
 import { NavEnhetFilter } from "@/components/filtrering/NavEnhetFilter";
 
-export function FilterMenu() {
+interface Props {
+  lagredeFilterOversikt?: React.ReactElement;
+}
+
+export function FilterMenu({ lagredeFilterOversikt }: Props) {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
 
@@ -23,6 +27,18 @@ export function FilterMenu() {
         setSokefilter={(search: string) => setFilter({ ...filter, search })}
       />
       <Accordion>
+        {lagredeFilterOversikt && (
+          <Accordion.Item open={accordionsOpen.includes("lagrede-filter")}>
+            <Accordion.Header
+              onClick={() => {
+                setAccordionsOpen([...addOrRemove(accordionsOpen, "lagrede-filter")]);
+              }}
+            >
+              <FilterAccordionHeader tittel="Lagrede filter" />
+            </Accordion.Header>
+            <Accordion.Content>{lagredeFilterOversikt}</Accordion.Content>
+          </Accordion.Item>
+        )}
         <FilterToggle
           accordionHeader={<FilterAccordionHeader tittel="Åpent for påmelding" />}
           value={filter.apentForPamelding}

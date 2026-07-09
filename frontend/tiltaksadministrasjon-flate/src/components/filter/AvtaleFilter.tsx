@@ -13,9 +13,10 @@ import { KontorstrukturFilter } from "@/components/filter/KontorstrukturFilter";
 interface Props {
   filter: AvtaleFilterType;
   updateFilter: (values: Partial<AvtaleFilterType>) => void;
+  lagredeFilterOversikt: React.ReactElement;
 }
 
-export function AvtaleFilter({ filter, updateFilter }: Props) {
+export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(avtaleFilterAccordionAtom);
 
   const toggleAccordion = (key: string) => {
@@ -61,6 +62,16 @@ export function AvtaleFilter({ filter, updateFilter }: Props) {
         Vis kun mine avtaler
       </Switch>
       <Accordion>
+        <Accordion.Item open={accordionsOpen.includes("lagrede-filter")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "lagrede-filter")]);
+            }}
+          >
+            <FilterAccordionHeader tittel="Lagrede filter" />
+          </Accordion.Header>
+          <Accordion.Content>{lagredeFilterOversikt}</Accordion.Content>
+        </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
           <Accordion.Header onClick={() => toggleAccordion("navEnhet")}>
             <FilterAccordionHeader
