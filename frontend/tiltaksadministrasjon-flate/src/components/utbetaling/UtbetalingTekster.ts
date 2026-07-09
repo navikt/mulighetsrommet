@@ -62,7 +62,7 @@ export const utbetalingTekster = {
       fraAarsak: (aarsak: UtbetalingStatusAarsak): string => {
         switch (aarsak) {
           case UtbetalingStatusAarsak.TILSAGN_GJORT_OPP:
-            return "Feil beløp";
+            return "Tilsagnsmidler er brukt opp";
           case UtbetalingStatusAarsak.ANNET:
             return "Annet";
         }

@@ -35,6 +35,7 @@ import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbet
 import {
   MetadataFritekstfelt,
   MetadataVStack,
+  Separator,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -56,147 +57,150 @@ export function UtbetalingDetaljerPage() {
   const { utbetaling, handlinger, beregning } = useUtbetalingDetaljerData();
 
   return (
-    <VStack gap="space-12">
-      <HGrid columns="1fr auto" align="start">
-        <TwoColumnGrid separator>
-          <Box>
-            <Heading size="medium" spacing level="3" data-testid="utbetaling-til-utbetaling">
-              Detaljer
-            </Heading>
-            <VStack gap="space-16">
-              <MetadataVStack
-                label={utbetalingTekster.metadata.status}
-                value={<UtbetalingStatusTag status={utbetaling.status} />}
-              />
-              {utbetaling.avbruttBegrunnelse && (
-                <MetadataFritekstfelt
-                  label={utbetalingTekster.metadata.avbruttBegrunnelse}
-                  value={utbetaling.avbruttBegrunnelse}
-                />
-              )}
-              <MetadataVStack
-                label={utbetalingTekster.metadata.periode}
-                value={formaterPeriode(utbetaling.periode)}
-              />
-              <MetadataVStack
-                label={utbetalingTekster.beregning.belop.label}
-                value={formaterValutaBelop(utbetaling.beregning)}
-              />
-              {utbetaling.type.tagName && (
-                <HGrid columns="1fr 1fr" gap="space-24">
-                  <MetadataVStack
-                    label={utbetalingTekster.metadata.type}
-                    value={
-                      <HStack gap="space-4">
-                        {utbetaling.type.displayName}
-                        <UtbetalingTypeTag type={utbetaling.type.displayName} />
-                      </HStack>
-                    }
-                  />
-                  {utbetaling.korreksjon?.opprinneligUtbetaling && (
-                    <MetadataVStack
-                      label={utbetalingTekster.korreksjon.gjelderUtbetaling}
-                      value={
-                        <Link
-                          as={ReactRouterLink}
-                          to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
-                        >
-                          Opprinnelig utbetaling
-                        </Link>
-                      }
-                    />
-                  )}
-                </HGrid>
-              )}
-              {utbetaling.korreksjon && (
-                <MetadataFritekstfelt
-                  label={utbetalingTekster.korreksjon.begrunnelse}
-                  value={utbetaling.korreksjon.begrunnelse}
-                />
-              )}
-              {utbetaling.utbetalesTidligstDato && (
-                <MetadataVStack
-                  label={
-                    <HStack align="center" gap="space-4">
-                      {utbetalingTekster.metadata.utbetalesTidligstDato}
-                      <HelpText>
-                        {utbetalingTekster.metadata.utbetalesTidligstDatoHelpText}
-                      </HelpText>
-                    </HStack>
-                  }
-                  value={formaterDato(utbetaling.utbetalesTidligstDato)}
-                />
-              )}
-            </VStack>
-          </Box>
-          <Box>
-            <Heading size="medium" level="3" spacing>
-              Betalingsinformasjon
-            </Heading>
-            <VStack gap="space-16">
-              {utbetaling.betalingsinformasjon && (
-                <BetalingsinformasjonDetaljer
-                  betalingsinformasjon={utbetaling.betalingsinformasjon}
-                />
-              )}
-              {utbetaling.journalpostId && (
-                <MetadataVStack
-                  label="Journalpost-ID i Gosys"
-                  value={
-                    <HStack align="center">
-                      <CopyButton
-                        size="small"
-                        copyText={utbetaling.journalpostId}
-                        title="Kopier journalpost-ID"
-                      />
-                      {utbetaling.journalpostId}
-                    </HStack>
-                  }
-                />
-              )}
-
-              {utbetaling.begrunnelseMindreBetalt && (
-                <MetadataFritekstfelt
-                  label={utbetalingTekster.metadata.begrunnelseMindreBetalt}
-                  value={utbetaling.begrunnelseMindreBetalt}
-                />
-              )}
-              {utbetaling.kommentar && (
-                <MetadataFritekstfelt
-                  label={utbetalingTekster.metadata.kommentar}
-                  value={utbetaling.kommentar}
-                />
-              )}
-            </VStack>
-          </Box>
-        </TwoColumnGrid>
-        {handlinger.includes(UtbetalingHandling.AVBRYT) && (
-          <Handlinger
-            handlinger={handlinger}
-            grupper={[
-              {
-                items: [
-                  {
-                    handling: UtbetalingHandling.AVBRYT,
-                    label: utbetalingTekster.avbrutt.handling.button.label,
-                    onClick: () => setAvbrytModalOpen(true),
-                    variant: "danger",
-                    icon: <XMarkIcon />,
-                  },
-                ],
-              },
-            ]}
-          />
-        )}
+    <VStack className="pb-6">
+      <HStack justify="end">
+        <Endringshistorikk id={utbetaling.id} type={EndringshistorikkType.UTBETALING} />
+        <Handlinger
+          handlinger={handlinger}
+          grupper={[
+            {
+              items: [
+                {
+                  handling: UtbetalingHandling.AVBRYT,
+                  label: utbetalingTekster.avbrutt.handling.button.label,
+                  onClick: () => setAvbrytModalOpen(true),
+                  variant: "danger",
+                  icon: <XMarkIcon />,
+                },
+              ],
+            },
+          ]}
+        />
         <UtbetalingAvbrytModal
           utbetalingId={utbetaling.id}
           open={avbrytModalOpen}
           onClose={() => setAvbrytModalOpen(false)}
         />
-        <Endringshistorikk id={utbetaling.id} type={EndringshistorikkType.UTBETALING} />
-      </HGrid>
-      <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
-      <UtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />
+      </HStack>
+      <Separator />
+      <VStack gap="space-12">
+        <HGrid columns="1fr auto" align="start">
+          <TwoColumnGrid separator>
+            <Box>
+              <Heading size="medium" spacing level="3" data-testid="utbetaling-til-utbetaling">
+                Detaljer
+              </Heading>
+              <VStack gap="space-16">
+                <MetadataVStack
+                  label={utbetalingTekster.metadata.status}
+                  value={<UtbetalingStatusTag status={utbetaling.status} />}
+                />
+                {utbetaling.avbruttBegrunnelse && (
+                  <MetadataFritekstfelt
+                    label={utbetalingTekster.metadata.avbruttBegrunnelse}
+                    value={utbetaling.avbruttBegrunnelse}
+                  />
+                )}
+                <MetadataVStack
+                  label={utbetalingTekster.metadata.periode}
+                  value={formaterPeriode(utbetaling.periode)}
+                />
+                <MetadataVStack
+                  label={utbetalingTekster.beregning.belop.label}
+                  value={formaterValutaBelop(utbetaling.beregning)}
+                />
+                {utbetaling.type.tagName && (
+                  <HGrid columns="1fr 1fr" gap="space-24">
+                    <MetadataVStack
+                      label={utbetalingTekster.metadata.type}
+                      value={
+                        <HStack gap="space-4">
+                          {utbetaling.type.displayName}
+                          <UtbetalingTypeTag type={utbetaling.type.displayName} />
+                        </HStack>
+                      }
+                    />
+                    {utbetaling.korreksjon?.opprinneligUtbetaling && (
+                      <MetadataVStack
+                        label={utbetalingTekster.korreksjon.gjelderUtbetaling}
+                        value={
+                          <Link
+                            as={ReactRouterLink}
+                            to={`/gjennomforinger/${utbetaling.gjennomforingId}/utbetalinger/${utbetaling.korreksjon.opprinneligUtbetaling}`}
+                          >
+                            Opprinnelig utbetaling
+                          </Link>
+                        }
+                      />
+                    )}
+                  </HGrid>
+                )}
+                {utbetaling.korreksjon && (
+                  <MetadataFritekstfelt
+                    label={utbetalingTekster.korreksjon.begrunnelse}
+                    value={utbetaling.korreksjon.begrunnelse}
+                  />
+                )}
+                {utbetaling.utbetalesTidligstDato && (
+                  <MetadataVStack
+                    label={
+                      <HStack align="center" gap="space-4">
+                        {utbetalingTekster.metadata.utbetalesTidligstDato}
+                        <HelpText>
+                          {utbetalingTekster.metadata.utbetalesTidligstDatoHelpText}
+                        </HelpText>
+                      </HStack>
+                    }
+                    value={formaterDato(utbetaling.utbetalesTidligstDato)}
+                  />
+                )}
+              </VStack>
+            </Box>
+            <Box>
+              <Heading size="medium" level="3" spacing>
+                Betalingsinformasjon
+              </Heading>
+              <VStack gap="space-16">
+                {utbetaling.betalingsinformasjon && (
+                  <BetalingsinformasjonDetaljer
+                    betalingsinformasjon={utbetaling.betalingsinformasjon}
+                  />
+                )}
+                {utbetaling.journalpostId && (
+                  <MetadataVStack
+                    label="Journalpost-ID i Gosys"
+                    value={
+                      <HStack align="center">
+                        <CopyButton
+                          size="small"
+                          copyText={utbetaling.journalpostId}
+                          title="Kopier journalpost-ID"
+                        />
+                        {utbetaling.journalpostId}
+                      </HStack>
+                    }
+                  />
+                )}
+
+                {utbetaling.begrunnelseMindreBetalt && (
+                  <MetadataFritekstfelt
+                    label={utbetalingTekster.metadata.begrunnelseMindreBetalt}
+                    value={utbetaling.begrunnelseMindreBetalt}
+                  />
+                )}
+                {utbetaling.kommentar && (
+                  <MetadataFritekstfelt
+                    label={utbetalingTekster.metadata.kommentar}
+                    value={utbetaling.kommentar}
+                  />
+                )}
+              </VStack>
+            </Box>
+          </TwoColumnGrid>
+        </HGrid>
+        <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
+        <UtbetalingLinjeView utbetaling={utbetaling} handlinger={handlinger} />
+      </VStack>
     </VStack>
   );
 }

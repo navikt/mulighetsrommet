@@ -51,7 +51,8 @@ class AdminUtbetalingService(
         val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
 
         val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
-        val handlinger = utbetalingHandlinger(utbetaling, ansatt, featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING))
+        val avbrytHandlingEnabled = featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING)
+        val handlinger = utbetalingHandlinger(utbetaling, ansatt, avbrytHandlingEnabled)
 
         return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
     }

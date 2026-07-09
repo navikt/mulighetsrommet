@@ -24,6 +24,11 @@
           "strategies": []
         },
         {
+          "name": "tiltaksadministrasjon.avbryt-utbetaling-handling",
+          "enabled": true,
+          "strategies": []
+        },
+        {
           "name": "tiltakskoder.opplaering2025",
           "enabled": true,
           "strategies": []
