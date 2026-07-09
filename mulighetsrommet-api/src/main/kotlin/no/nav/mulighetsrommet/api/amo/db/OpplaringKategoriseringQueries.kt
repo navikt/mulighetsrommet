@@ -135,7 +135,7 @@ object OpplaringKategoriseringQueries {
     ) {
         @Language("PostgreSQL")
         val upsertSertifiseringer = """
-        insert into amo_sertifisering (
+        insert into opplaring_sertifisering (
             konsept_id,
             label
         )

@@ -124,10 +124,7 @@ module "mr_api_datastream" {
             "tilgjengelig_for_arrangor_dato",
           ]
         },
-        { table = "gjennomforing_amo_kategorisering" },
-        { table = "gjennomforing_amo_kategorisering_sertifisering" },
         { table = "gjennomforing_nav_enhet" },
-        { table = "gjennomforing_utdanningsprogram" },
         { table = "utdanningsprogram" },
         { table = "utdanning" },
         {
