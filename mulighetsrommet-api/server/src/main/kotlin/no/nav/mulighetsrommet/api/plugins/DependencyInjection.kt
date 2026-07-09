@@ -13,6 +13,7 @@ import no.nav.common.kafka.producer.feilhandtering.publisher.QueuedKafkaProducer
 import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.navenhet.SynkroniserNavEnheterUseCase
 import no.nav.mulighetsrommet.admin.redaksjoneltinnhold.RedaksjoneltInnholdLenkeService
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktQuery
@@ -69,7 +70,7 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
-import no.nav.mulighetsrommet.api.navenhet.NavEnheterSyncService
+import no.nav.mulighetsrommet.api.navenhet.SanityNavEnhetPublisher
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.persistence.OutboxTopics
@@ -478,7 +479,8 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeDtoQuery(get(), get()) }
     single { TiltakstypeUseCase(get()) }
     single { RedaksjoneltInnholdLenkeService(get()) }
-    single { NavEnheterSyncService(get(), get(), get(), get()) }
+    single { SanityNavEnhetPublisher(get(), get()) }
+    single { SynkroniserNavEnheterUseCase(get()) }
     single { NavEnhetService(get()) }
     single { KostnadsstedService(get()) }
     single { ArrangorService(get(), get(), get()) }
@@ -580,7 +582,7 @@ private fun tasks(config: AppConfig) = module {
             get(),
             get(),
         )
-        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(tasks.synchronizeNorgEnheter, get())
+        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(tasks.synchronizeNorgEnheter, get(), get(), get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
             tasks.notifySluttdatoForGjennomforingerNarmerSeg,
             get(),

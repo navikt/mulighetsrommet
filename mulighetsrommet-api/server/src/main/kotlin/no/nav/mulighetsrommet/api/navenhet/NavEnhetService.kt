@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.navenhet
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.model.NavEnhetNummer

@@ -17,8 +17,8 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.vedtak.InnsatsgruppeV2
 import no.nav.mulighetsrommet.api.clients.vedtak.VedtakError
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.navenhet.NavEnhetHelpers
 import no.nav.mulighetsrommet.api.navenhet.NavEnhetService
 import no.nav.mulighetsrommet.api.veilederflate.models.Brukerdata
 import no.nav.mulighetsrommet.api.veilederflate.models.BrukerdataVarsel
