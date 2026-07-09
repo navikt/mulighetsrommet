@@ -22,6 +22,7 @@ enum class UtbetalingHandling {
     REDIGER,
     SEND_TIL_ATTESTERING,
     SLETT,
+    AVBRYT,
 }
 
 @Serializable

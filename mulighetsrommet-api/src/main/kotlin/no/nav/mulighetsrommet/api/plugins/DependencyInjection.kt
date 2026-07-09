@@ -502,7 +502,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
-    single { AdminUtbetalingService(get(), get(), get()) }
+    single { AdminUtbetalingService(get(), get(), get(), get()) }
     single {
         BrukerUtbetalingService(
             BrukerUtbetalingService.Config(appConfig.kafka.topics.helvedUtbetalingTopic),

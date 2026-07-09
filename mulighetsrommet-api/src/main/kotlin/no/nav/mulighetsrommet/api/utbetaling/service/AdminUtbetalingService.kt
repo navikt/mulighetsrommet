@@ -28,6 +28,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsa
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
+import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -41,6 +43,7 @@ class AdminUtbetalingService(
     private val db: ApiDatabase,
     private val utbetalingService: UtbetalingService,
     private val personaliaService: PersonaliaService,
+    private val featureToggleService: FeatureToggleService,
 ) {
     fun getUtbetalingDetaljer(id: UUID, navIdent: NavIdent): UtbetalingDetaljerDto = db.session {
         val utbetaling = queries.utbetaling.getOrError(id)
@@ -48,7 +51,7 @@ class AdminUtbetalingService(
         val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
 
         val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
-        val handlinger = utbetalingHandlinger(utbetaling, ansatt)
+        val handlinger = utbetalingHandlinger(utbetaling, ansatt, featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING))
 
         return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
     }
@@ -241,9 +244,10 @@ class AdminUtbetalingService(
     }
 
     companion object {
-        fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt) = setOfNotNull(
+        fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt, avbrytHandlingEnabled: Boolean) = setOfNotNull(
             UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.SLETT.takeIf { utbetaling.erTilBehandling() && utbetaling.erKorreksjon() },
+            UtbetalingHandling.AVBRYT.takeIf { avbrytHandlingEnabled && utbetaling.kanAvbrytes() },
             UtbetalingHandling.OPPRETT_KORREKSJON.takeIf { utbetaling.erFerdigBehandlet() && !utbetaling.erKorreksjon() },
             UtbetalingHandling.REDIGER.takeIf { kanRedigeres(utbetaling) },
         )
@@ -280,6 +284,7 @@ class AdminUtbetalingService(
                 UtbetalingHandling.REDIGER -> saksbehandlerOkonomi
                 UtbetalingHandling.SEND_TIL_ATTESTERING -> saksbehandlerOkonomi
                 UtbetalingHandling.SLETT -> saksbehandlerOkonomi
+                UtbetalingHandling.AVBRYT -> saksbehandlerOkonomi
             }
         }
 
