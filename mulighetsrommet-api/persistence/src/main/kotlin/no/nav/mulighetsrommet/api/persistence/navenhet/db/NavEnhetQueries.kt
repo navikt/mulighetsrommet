@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
-import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import org.intellij.lang.annotations.Language
@@ -71,19 +70,6 @@ class NavEnhetQueries(private val session: Session) : NavEnhetRepository {
         """.trimIndent()
 
         return session.single(queryOf(query, enhetsnummer.value)) { it.toNavEnhet() }
-    }
-
-    override fun deleteWhereEnhetsnummer(enhetsnummerForSletting: List<NavEnhetNummer>) {
-        val parameters = mapOf(
-            "ider" to session.createArrayOfValue(enhetsnummerForSletting) { it.value },
-        )
-
-        @Language("PostgreSQL")
-        val delete = """
-            delete from nav_enhet where enhetsnummer = any(:ider::text[])
-        """.trimIndent()
-
-        session.execute(queryOf(delete, parameters))
     }
 }
 

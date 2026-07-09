@@ -24,8 +24,4 @@ class SqlNavEnhetRepository(private val db: Database) : NavEnhetRepository {
     ): List<NavEnhet> {
         return db.session { NavEnhetQueries(it).getAll(statuser, typer, overordnetEnhet) }
     }
-
-    override fun deleteWhereEnhetsnummer(enhetsnummerForSletting: List<NavEnhetNummer>) {
-        db.session { NavEnhetQueries(it).deleteWhereEnhetsnummer(enhetsnummerForSletting) }
-    }
 }

@@ -79,20 +79,6 @@ class NavEnhetQueriesTest : FunSpec({
                 underenhet4,
                 underenhet5,
             )
-
-            repository.navEnhet.deleteWhereEnhetsnummer(
-                listOf(
-                    NavEnhetNummer("1111"),
-                    NavEnhetNummer("2222"),
-                    NavEnhetNummer("3333"),
-                ),
-            )
-
-            repository.navEnhet.getAll() shouldContainExactlyInAnyOrder listOf(
-                overordnetEnhet,
-                underenhet4,
-                underenhet5,
-            )
         }
     }
 })

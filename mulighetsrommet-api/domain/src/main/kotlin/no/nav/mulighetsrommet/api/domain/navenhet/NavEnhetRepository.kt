@@ -12,6 +12,4 @@ interface NavEnhetRepository {
         typer: List<NavEnhetType>? = null,
         overordnetEnhet: NavEnhetNummer? = null,
     ): List<NavEnhet>
-
-    fun deleteWhereEnhetsnummer(enhetsnummerForSletting: List<NavEnhetNummer>)
 }

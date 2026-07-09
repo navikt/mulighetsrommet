@@ -28,8 +28,4 @@ class FakeNavEnhetRepository : NavEnhetRepository {
                 (overordnetEnhet == null || enhet.overordnetEnhet == overordnetEnhet)
         }
     }
-
-    override fun deleteWhereEnhetsnummer(enhetsnummerForSletting: List<NavEnhetNummer>) {
-        enhetsnummerForSletting.forEach { store.remove(it) }
-    }
 }
