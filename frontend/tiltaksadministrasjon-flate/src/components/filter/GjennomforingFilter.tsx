@@ -27,9 +27,15 @@ interface Props {
   updateFilter: (values: Partial<GjennomforingFilterType>) => void;
   skjulFilter?: Record<Filters, boolean>;
   avtale?: AvtaleDto;
+  lagredeFilterOversikt?: React.ReactElement;
 }
 
-export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props) {
+export function GjennomforingFilter({
+  filter,
+  updateFilter,
+  skjulFilter,
+  lagredeFilterOversikt,
+}: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(gjennomforingFilterAccordionAtom);
   const { data: enableEnkeltplassFilter } = useFeatureToggle(
     FeatureToggle.TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER,
@@ -43,38 +49,50 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
   }
   return (
     <>
-      <Search
-        label="Søk etter tiltaksgjennomføring"
-        hideLabel
-        size="small"
-        variant="simple"
-        placeholder="Navn, tiltaksnr., tiltaksarrangør"
-        onChange={(search: string) => {
-          updateFilter({
-            search,
-            page: 1,
-          });
-        }}
-        value={filter.search}
-        aria-label="Søk etter tiltaksgjennomføring"
-      />
-      <div style={{ margin: "0.8rem 0.5rem" }}>
-        <Switch
-          position="left"
+      <Accordion>
+        <Search
+          label="Søk etter tiltaksgjennomføring"
+          hideLabel
           size="small"
-          checked={filter.visMineGjennomforinger}
-          onChange={(event) => {
+          variant="simple"
+          placeholder="Navn, tiltaksnr., tiltaksarrangør"
+          onChange={(search: string) => {
             updateFilter({
-              visMineGjennomforinger: event.currentTarget.checked,
+              search,
               page: 1,
             });
           }}
-        >
-          <span style={{ fontWeight: "bold" }}>Vis kun mine gjennomføringer</span>
-        </Switch>
-      </div>
-      {enableEnkeltplassFilter && (
-        <Accordion>
+          value={filter.search}
+          aria-label="Søk etter tiltaksgjennomføring"
+        />
+        <div style={{ margin: "0.8rem 0.5rem" }}>
+          <Switch
+            position="left"
+            size="small"
+            checked={filter.visMineGjennomforinger}
+            onChange={(event) => {
+              updateFilter({
+                visMineGjennomforinger: event.currentTarget.checked,
+                page: 1,
+              });
+            }}
+          >
+            <span style={{ fontWeight: "bold" }}>Vis kun mine gjennomføringer</span>
+          </Switch>
+        </div>
+        {lagredeFilterOversikt && (
+          <Accordion.Item open={accordionsOpen.includes("lagrede-filter")}>
+            <Accordion.Header
+              onClick={() => {
+                setAccordionsOpen([...addOrRemove(accordionsOpen, "lagrede-filter")]);
+              }}
+            >
+              <FilterAccordionHeader tittel="Lagrede filter" />
+            </Accordion.Header>
+            <Accordion.Content>{lagredeFilterOversikt}</Accordion.Content>
+          </Accordion.Item>
+        )}
+        {enableEnkeltplassFilter && (
           <Accordion.Item open={accordionsOpen.includes("gjennomforingType")}>
             <Accordion.Header
               onClick={() => {
@@ -108,9 +126,7 @@ export function GjennomforingFilter({ filter, updateFilter, skjulFilter }: Props
               />
             </Accordion.Content>
           </Accordion.Item>
-        </Accordion>
-      )}
-      <Accordion>
+        )}
         <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
           <Accordion.Header
             onClick={() => {

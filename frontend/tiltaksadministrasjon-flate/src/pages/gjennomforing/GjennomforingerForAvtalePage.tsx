@@ -33,6 +33,7 @@ export function GjennomforingerForAvtalePage() {
               tiltakstype: true,
             }}
             avtale={avtale}
+            lagredeFilterOversikt={undefined}
           />
         }
         nullstillFilterButton={

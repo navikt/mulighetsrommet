@@ -14,9 +14,15 @@ interface Props {
   filter: InnsendingFilterType;
   updateFilter: (values: Partial<InnsendingFilterType>) => void;
   skjulFilter?: Record<Filters, boolean>;
+  lagredeFilterOversikt: React.ReactElement;
 }
 
-export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
+export function InnsendingFilter({
+  filter,
+  updateFilter,
+  skjulFilter,
+  lagredeFilterOversikt,
+}: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(InnsendingFilterAccordionAtom);
 
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
@@ -30,6 +36,16 @@ export function InnsendingFilter({ filter, updateFilter, skjulFilter }: Props) {
   return (
     <>
       <Accordion>
+        <Accordion.Item open={accordionsOpen.includes("lagrede-filter")}>
+          <Accordion.Header
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "lagrede-filter")]);
+            }}
+          >
+            <FilterAccordionHeader tittel="Lagrede filter" />
+          </Accordion.Header>
+          <Accordion.Content>{lagredeFilterOversikt}</Accordion.Content>
+        </Accordion.Item>
         <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
           <Accordion.Header
             onClick={() => {

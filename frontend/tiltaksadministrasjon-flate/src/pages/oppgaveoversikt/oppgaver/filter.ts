@@ -31,4 +31,4 @@ export const parseOppgaverFilter = createGracefulParser(
   defaultOppgaverFilter,
 );
 
-export const oppgaverFilterAccordionAtom = atom<string[]>(["type", "regioner"]);
+export const oppgaverFilterAccordionAtom = atom<string[]>(["type", "regioner", "lagrede-filter"]);

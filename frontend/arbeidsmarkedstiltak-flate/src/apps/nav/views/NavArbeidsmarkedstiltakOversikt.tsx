@@ -44,7 +44,17 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
         buttons={null}
         filter={
           <Suspense fallback={<div>loading...</div>}>
-            <FilterMenu />
+            <FilterMenu
+              lagredeFilterOversikt={
+                <LagredeFilterOversikt
+                  filters={savedFilters}
+                  selectedFilterId={selectedFilterId}
+                  onSelectFilterId={selectFilter}
+                  onDeleteFilter={deleteFilter}
+                  onSetDefaultFilter={setDefaultFilter}
+                />
+              }
+            />
           </Suspense>
         }
         tags={<NavFilterTags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
@@ -55,15 +65,6 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
               <LagreFilterButton onLagre={saveFilter} filter={filter} />
             </HStack>
           )
-        }
-        lagredeFilter={
-          <LagredeFilterOversikt
-            filters={savedFilters}
-            selectedFilterId={selectedFilterId}
-            onSelectFilterId={selectFilter}
-            onDeleteFilter={deleteFilter}
-            onSetDefaultFilter={setDefaultFilter}
-          />
         }
         table={
           <ArbeidsmarkedstiltakList
