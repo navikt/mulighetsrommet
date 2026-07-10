@@ -62,7 +62,6 @@ function Knapper({ deltakelse }: Props) {
       );
     }
     case "ARENA":
-    case undefined:
     default:
       return null;
   }
@@ -123,7 +122,6 @@ function InnsoktDato({ deltakelse }: { deltakelse: Deltakelse }) {
     }
     case "TILTAK_ARBEIDSGIVER":
     case "ARENA":
-    case undefined:
     default:
       return null;
   }
@@ -141,7 +139,6 @@ function SistEndretDato({ deltakelse }: { deltakelse: Deltakelse }) {
     }
     case "TILTAK_ARBEIDSGIVER":
     case "ARENA":
-    case undefined:
     default:
       return null;
   }

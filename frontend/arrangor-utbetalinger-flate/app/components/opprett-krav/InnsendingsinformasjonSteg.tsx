@@ -200,8 +200,6 @@ function PeriodeVelgerVarianter({
           errors={errors}
         />
       );
-    case undefined:
-      throw Error("Ugyldig DatoVelger variant");
   }
 }
 
@@ -375,8 +373,6 @@ function validateDatoVelger(
       }
       break;
     }
-    case undefined:
-      throw Error("undefined datoVelgerType");
   }
   return newErrors;
 }

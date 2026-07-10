@@ -7,7 +7,7 @@ import {
   TilsagnDetaljerDto,
   TilsagnRequest,
   TilsagnType,
-  TotrinnskontrollDtoTilBeslutning,
+  TotrinnskontrollDto,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
 import { http, HttpResponse, PathParams } from "msw";
@@ -77,7 +77,8 @@ export const tilsagnHandlers = [
   }),
 ];
 
-const tilBeslutning: TotrinnskontrollDtoTilBeslutning = {
+const tilBeslutning: TotrinnskontrollDto = {
+  type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning",
   behandletAv: {
     agent: "P123456",
     navn: "Per Haraldsen",

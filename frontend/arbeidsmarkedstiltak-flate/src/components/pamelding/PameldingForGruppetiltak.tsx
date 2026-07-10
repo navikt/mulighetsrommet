@@ -1,6 +1,6 @@
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
 import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
-import { Tiltaksadministrasjon, VeilederflateTiltakGruppe } from "@arbeidsmarkedstiltak/api-client";
+import { Deltakelse, VeilederflateTiltakGruppe } from "@arbeidsmarkedstiltak/api-client";
 import { Button, HStack } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
@@ -13,6 +13,8 @@ interface PameldingProps {
   tiltak: VeilederflateTiltakGruppe;
 }
 
+type TiltaksadministrasjonDeltakelse = Extract<Deltakelse, { type?: "TILTAKSADMINISTRASJON" }>;
+
 export function PameldingForGruppetiltak({
   brukerHarRettPaaValgtTiltak,
   tiltak,
@@ -24,7 +26,7 @@ export function PameldingForGruppetiltak({
     return (
       <>
         {deltakelser
-          .filter((d): d is Tiltaksadministrasjon => d.type === "TILTAKSADMINISTRASJON")
+          .filter((d): d is TiltaksadministrasjonDeltakelse => d.type === "TILTAKSADMINISTRASJON")
           .map((deltakelse) => (
             <InfoMeldingDeltakelse key={deltakelse.id} deltakelse={deltakelse} />
           ))}

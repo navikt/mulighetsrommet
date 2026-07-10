@@ -13,8 +13,6 @@ export function AvtaleRammedetaljer({ rammedetaljer }: RammedetaljerProps) {
       return <TotalRammeDetaljer detaljer={rammedetaljer} />;
     case "TOTALT_UTBETALT":
       return <TotaltUtbetaltDetaljer detaljer={rammedetaljer} />;
-    case undefined:
-      return null;
   }
 }
 

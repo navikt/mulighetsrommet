@@ -1,10 +1,12 @@
 import { ModiaRoute, resolveModiaRoute } from "@/apps/modia/ModiaRoute";
-import { VeilederflateTiltakstype, Tiltaksadministrasjon } from "@arbeidsmarkedstiltak/api-client";
+import { Deltakelse, VeilederflateTiltakstype } from "@arbeidsmarkedstiltak/api-client";
 import { Button } from "@navikt/ds-react";
 import { ReactNode } from "react";
 import { kanOppretteEnkeltplass } from "@/apps/modia/features";
 import { useAktiveDeltakelser } from "@/api/queries/useDeltakelse";
 import { InfoMeldingDeltakelse } from "./InfoMeldingDeltakelse";
+
+type TiltaksadministrasjonDeltakelse = Extract<Deltakelse, { type?: "TILTAKSADMINISTRASJON" }>;
 
 interface Props {
   tiltakstype: VeilederflateTiltakstype;
@@ -26,7 +28,7 @@ export function StartRegistreringEnkeltplass({ tiltakstype, harRettPaaTiltak }: 
   const pameldingAlerts =
     deltakelser &&
     deltakelser
-      .filter((d): d is Tiltaksadministrasjon => d.type === "TILTAKSADMINISTRASJON")
+      .filter((d): d is TiltaksadministrasjonDeltakelse => d.type === "TILTAKSADMINISTRASJON")
       .map((deltakelse) => <InfoMeldingDeltakelse key={deltakelse.id} deltakelse={deltakelse} />);
   return (
     <>

@@ -98,8 +98,9 @@ test.describe("Tiltakdetaljer", () => {
   });
 
   test("Sjekk riktig tiltak", async ({ page }) => {
-    const h1 = await page.getByRole("heading", { level: 1 }).innerText();
-    expect(h1).toContain("Sindres mentorordning med Yoda");
+    await expect(
+      page.getByRole("heading", { level: 1, name: /Sindres mentorordning med Yoda/ }),
+    ).toBeVisible();
   });
 
   test("Sjekk at kontaktinfo-fanen viser kontaktinfo", async ({ page }) => {
@@ -133,8 +134,12 @@ test.describe("Preview Mulighetsrommet", () => {
   });
 
   test("Skal vise tiltak", async ({ page }) => {
-    const h1 = await page.getByRole("heading", { level: 1 }).innerText();
-    expect(h1).toContain("Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover");
+    await expect(
+      page.getByRole("heading", {
+        level: 1,
+        name: /Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover/,
+      }),
+    ).toBeVisible();
   });
 
   test("Skal vise en warning på siden om at man er i Preview-modus", async ({ page }) => {
