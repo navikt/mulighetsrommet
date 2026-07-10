@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.admin.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeUseCase
+import no.nav.mulighetsrommet.admin.tiltak.UpdateTiltakstypeUseCase
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -481,7 +481,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(appConfig.tiltakstyper, get()) }
     single { TiltakstypeKompaktQuery(get()) }
     single { TiltakstypeDtoQuery(get(), get()) }
-    single { TiltakstypeUseCase(get()) }
+    single { UpdateTiltakstypeUseCase(get()) }
     single { RedaksjoneltInnholdLenkeService(get()) }
     single { SanityNavEnhetPublisher(get(), get()) }
     single { SynkroniserNavEnheterUseCase(get()) }

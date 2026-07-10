@@ -26,7 +26,7 @@ data class UpsertDeltakerinfoCommand(
     val endretAv: NavIdent,
 )
 
-class TiltakstypeUseCase(
+class UpdateTiltakstypeUseCase(
     private val db: AdminDatabase,
 ) {
     fun execute(command: UpsertVeilederinfoCommand): Either<TiltakstypeUseCaseError, Unit> = db.transaction {
