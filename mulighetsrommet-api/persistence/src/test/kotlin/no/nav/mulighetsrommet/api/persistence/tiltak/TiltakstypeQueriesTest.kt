@@ -69,7 +69,7 @@ class TiltakstypeQueriesTest : FunSpec({
         }
     }
 
-    context("Strukturert innhold for deltakerregistrering") {
+    context("hent TiltakstypeV3Dto") {
         test("Skal hente ut korrekt strukturert innhold for tiltakstype som har strukturert innhold") {
             database.runAndRollback {
                 repository.tiltakstype.save(
@@ -81,7 +81,9 @@ class TiltakstypeQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id).shouldNotBeNull().should {
+                val eksternTiltakstype = tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.Oppfolging.id)
+
+                eksternTiltakstype.shouldNotBeNull().should {
                     it.navn shouldBe "Oppfølging"
                     it.deltakerRegistreringInnhold?.ledetekst shouldBe "Oppfølging er et bra tiltak"
                     it.deltakerRegistreringInnhold?.innholdselementer shouldContainExactlyInAnyOrder listOf(
@@ -103,7 +105,9 @@ class TiltakstypeQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.VTA.id).shouldNotBeNull().should {
+                val eksternTiltakstype = tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.VTA.id)
+
+                eksternTiltakstype.shouldNotBeNull().should {
                     it.navn shouldBe "Varig tilrettelagt arbeid i skjermet virksomhet"
                     it.deltakerRegistreringInnhold?.ledetekst shouldBe "VTA er kjempebra"
                     it.deltakerRegistreringInnhold?.innholdselementer.shouldBeEmpty()
@@ -115,7 +119,9 @@ class TiltakstypeQueriesTest : FunSpec({
             database.runAndRollback {
                 repository.tiltakstype.save(TiltakstypeFixtures.AFT)
 
-                queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.AFT.id).shouldNotBeNull().should {
+                val eksternTiltakstype = tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.AFT.id)
+
+                eksternTiltakstype.shouldNotBeNull().should {
                     it.deltakerRegistreringInnhold shouldBe null
                 }
             }

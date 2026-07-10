@@ -4,7 +4,9 @@ import kotlinx.serialization.json.Json
 import kotliquery.Session
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.common.kafka.util.KafkaUtils
+import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
+import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.toTotrinnskontrollHendelse
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
@@ -15,6 +17,20 @@ import java.time.Instant
 
 class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
     val kpr = KafkaProducerRecordQueries(session)
+    private val tiltakstypeQueries = TiltakstypeQueries(session)
+
+    fun publish(tiltakstype: Tiltakstype) {
+        val dto = requireNotNull(tiltakstypeQueries.getEksternTiltakstype(tiltakstype.id)) {
+            "Fant ikke ekstern tiltakstype for id=${tiltakstype.id}"
+        }
+        val record = StoredProducerRecord(
+            topics.sisteTiltakstyperTopic,
+            dto.id.toString().toByteArray(),
+            Json.encodeToString(dto).toByteArray(),
+            null,
+        )
+        kpr.storeRecord(record)
+    }
 
     fun publish(totrinnskontroll: Totrinnskontroll) {
         val hendelse = totrinnskontroll.toTotrinnskontrollHendelse()

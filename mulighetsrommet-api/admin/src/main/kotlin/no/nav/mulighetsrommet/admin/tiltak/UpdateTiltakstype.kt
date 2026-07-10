@@ -29,7 +29,7 @@ data class UpsertDeltakerinfoCommand(
 class UpdateTiltakstypeUseCase(
     private val db: AdminDatabase,
 ) {
-    fun execute(command: UpsertVeilederinfoCommand): Either<TiltakstypeUseCaseError, Unit> = db.transaction {
+    fun execute(command: UpsertVeilederinfoCommand): Either<TiltakstypeUseCaseError, Tiltakstype> = db.transaction {
         val tiltakstype = repository.tiltakstype.get(command.id)
             ?: return@transaction TiltakstypeUseCaseError.NotFound(command.id).left()
 
@@ -38,10 +38,10 @@ class UpdateTiltakstypeUseCase(
 
         logEndring("Redigerte informasjon for veiledere", updated, command.endretAv)
         publishToKafka(updated)
-        Unit.right()
+        updated.right()
     }
 
-    fun execute(command: UpsertDeltakerinfoCommand): Either<TiltakstypeUseCaseError, Unit> = db.transaction {
+    fun execute(command: UpsertDeltakerinfoCommand): Either<TiltakstypeUseCaseError, Tiltakstype> = db.transaction {
         val tiltakstype = repository.tiltakstype.get(command.id)
             ?: return@transaction TiltakstypeUseCaseError.NotFound(command.id).left()
 
@@ -50,13 +50,12 @@ class UpdateTiltakstypeUseCase(
 
         logEndring("Redigerte informasjon for deltakere", tiltakstype, command.endretAv)
         publishToKafka(updated)
-        Unit.right()
+        updated.right()
     }
 
     internal fun QueryContext.publishToKafka(tiltakstype: Tiltakstype) {
         if (tiltakstype.tiltakskode.system == TiltakstypeSystem.TILTAKSADMINISTRASJON) {
-            val ekstern = checkNotNull(queries.tiltakstype.getEksternTiltakstype(tiltakstype.id))
-            outbox.publish(ekstern)
+            outbox.publish(tiltakstype)
         }
     }
 

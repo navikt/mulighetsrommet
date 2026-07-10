@@ -4,33 +4,15 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import io.mockk.every
 import io.mockk.verify
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
-import java.time.LocalDateTime
 import java.util.UUID
 
 class UpdateTiltakstypeTest : FunSpec({
     val navIdent = NavIdent("Z999999")
-
-    val tiltakstypeV3 = TiltakstypeV3Dto(
-        id = TiltakstypeFixtures.AFT.id,
-        navn = TiltakstypeFixtures.AFT.navn,
-        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
-        innsatsgrupper = TiltakstypeFixtures.AFT.innsatsgrupper,
-        arenaKode = TiltakstypeFixtures.AFT.arenakode,
-        deltakerRegistreringInnhold = null,
-        opprettetTidspunkt = LocalDateTime.now(),
-        oppdatertTidspunkt = LocalDateTime.now(),
-    )
-
-    fun mockGetEksternTiltakstype(db: TestAdminDatabase, dto: TiltakstypeV3Dto) {
-        every { db.queries.tiltakstype.getEksternTiltakstype(TiltakstypeFixtures.AFT.id) } returns dto
-    }
 
     context("upsert veilederinfo") {
         test("returnerer NotFound for ukjent id") {
@@ -49,7 +31,6 @@ class UpdateTiltakstypeTest : FunSpec({
         test("lagrer oppdatert veilederinfo") {
             val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
-            mockGetEksternTiltakstype(db, tiltakstypeV3)
 
             val veilederinfo = Tiltakstype.Veilederinfo(beskrivelse = "Ny beskrivelse")
 
@@ -66,7 +47,6 @@ class UpdateTiltakstypeTest : FunSpec({
         test("loggfører endring") {
             val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
-            mockGetEksternTiltakstype(db, tiltakstypeV3)
 
             val command = UpsertVeilederinfoCommand(
                 id = TiltakstypeFixtures.AFT.id,
@@ -81,18 +61,17 @@ class UpdateTiltakstypeTest : FunSpec({
         test("publiserer til kafka for tiltakstyper med system TILTAKSADMINISTRASJON") {
             val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
-            mockGetEksternTiltakstype(db, tiltakstypeV3)
 
             val command = UpsertVeilederinfoCommand(
                 id = TiltakstypeFixtures.AFT.id,
                 veilederinfo = Tiltakstype.Veilederinfo(),
                 endretAv = navIdent,
             )
-            UpdateTiltakstypeUseCase(db)
+            val updated = UpdateTiltakstypeUseCase(db)
                 .execute(command)
                 .shouldBeRight()
 
-            verify { db.outbox.publish(tiltakstypeV3) }
+            verify { db.outbox.publish(updated) }
         }
 
         test("publiserer ikke til kafka for tiltakstyper med system ARENA") {
@@ -108,7 +87,7 @@ class UpdateTiltakstypeTest : FunSpec({
                 .execute(command)
                 .shouldBeRight()
 
-            verify(exactly = 0) { db.outbox.publish(any<TiltakstypeV3Dto>()) }
+            verify(exactly = 0) { db.outbox.publish(any<Tiltakstype>()) }
         }
     }
 
@@ -129,7 +108,6 @@ class UpdateTiltakstypeTest : FunSpec({
         test("lagrer oppdatert deltakerinfo") {
             val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
-            mockGetEksternTiltakstype(db, tiltakstypeV3)
 
             val deltakerinfo = Tiltakstype.Deltakerinfo(ledetekst = "Velg innhold", innholdskoder = listOf("kode1"))
 
@@ -140,7 +118,7 @@ class UpdateTiltakstypeTest : FunSpec({
             )
             UpdateTiltakstypeUseCase(db)
                 .execute(command)
-                .shouldBeRight(Unit)
+                .shouldBeRight()
 
             db.repository.tiltakstype.get(TiltakstypeFixtures.AFT.id)?.deltakerinfo shouldBe deltakerinfo
         }
@@ -148,7 +126,6 @@ class UpdateTiltakstypeTest : FunSpec({
         test("loggfører endring") {
             val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
-            mockGetEksternTiltakstype(db, tiltakstypeV3)
 
             val command = UpsertDeltakerinfoCommand(
                 id = TiltakstypeFixtures.AFT.id,
@@ -165,18 +142,17 @@ class UpdateTiltakstypeTest : FunSpec({
         test("publiserer til kafka for tiltakstyper med system TILTAKSADMINISTRASJON") {
             val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
-            mockGetEksternTiltakstype(db, tiltakstypeV3)
 
             val command = UpsertDeltakerinfoCommand(
                 id = TiltakstypeFixtures.AFT.id,
                 deltakerinfo = Tiltakstype.Deltakerinfo(null, emptyList()),
                 endretAv = navIdent,
             )
-            UpdateTiltakstypeUseCase(db)
+            val updated = UpdateTiltakstypeUseCase(db)
                 .execute(command)
                 .shouldBeRight()
 
-            verify { db.outbox.publish(tiltakstypeV3) }
+            verify { db.outbox.publish(updated) }
         }
 
         test("publiserer ikke til kafka for tiltakstyper med system ARENA") {
@@ -192,7 +168,7 @@ class UpdateTiltakstypeTest : FunSpec({
                 .execute(command)
                 .shouldBeRight()
 
-            verify(exactly = 0) { db.outbox.publish(any<TiltakstypeV3Dto>()) }
+            verify(exactly = 0) { db.outbox.publish(any<Tiltakstype>()) }
         }
     }
 })

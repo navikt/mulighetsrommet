@@ -8,9 +8,9 @@ import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandle
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
+import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
-import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 
 abstract class QueryContext {
     abstract val repository: Repositories
@@ -33,7 +33,7 @@ abstract class QueryContext {
     }
 
     interface Outbox {
-        fun publish(ekstern: TiltakstypeV3Dto)
+        fun publish(tiltakstype: Tiltakstype)
 
         fun publish(totrinnskontroll: Totrinnskontroll)
     }

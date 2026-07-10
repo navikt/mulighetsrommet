@@ -20,29 +20,32 @@ import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltIn
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 
+/**
+ * Concrete [QueryContext] backed by JDBC/kotliquery.
+ */
 class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
-    private val tiltakstypeDao = TiltakstypeQueries(session)
-    private val endringshistorikkDao = EndringshistorikkQueries(session)
-    private val redaksjoneltInnholdDao = RedaksjoneltInnholdLenkeQueries(session)
-    private val navEnhetDao = NavEnhetQueries(session)
-    private val navAnsattDao = NavAnsattQueries(session)
-    private val kostnadsstedDao = KostnadsstedQueries(session)
-    private val navAnsattDtoDao = NavAnsattDtoQueries(session)
-    private val totrinnskontrollDao = TotrinnskontrollQueries(session)
+    val tiltakstype = TiltakstypeQueries(session)
+    val endringshistorikk = EndringshistorikkQueries(session)
+    val redaksjoneltInnholdLenke = RedaksjoneltInnholdLenkeQueries(session)
+    val navEnhet = NavEnhetQueries(session)
+    val navAnsatt = NavAnsattQueries(session)
+    val kostnadssted = KostnadsstedQueries(session)
+    val navAnsattDto = NavAnsattDtoQueries(session)
+    val totrinnskontroll = TotrinnskontrollQueries(session)
 
     override val repository = object : Repositories() {
-        override val tiltakstype: TiltakstypeRepository = tiltakstypeDao
-        override val redaksjoneltInnholdLenke: RedaksjoneltInnholdLenkeRepository = redaksjoneltInnholdDao
-        override val navEnhet: NavEnhetRepository = navEnhetDao
-        override val navAnsatt: NavAnsattRepository = navAnsattDao
+        override val tiltakstype: TiltakstypeRepository = this@SqlQueryContext.tiltakstype
+        override val redaksjoneltInnholdLenke: RedaksjoneltInnholdLenkeRepository = this@SqlQueryContext.redaksjoneltInnholdLenke
+        override val navEnhet: NavEnhetRepository = this@SqlQueryContext.navEnhet
+        override val navAnsatt: NavAnsattRepository = this@SqlQueryContext.navAnsatt
     }
 
     override val queries = object : Queries() {
-        override val tiltakstype: TiltakstypeQueryHandler = tiltakstypeDao
-        override val endringshistorikk: EndringshistorikkQueryHandler = endringshistorikkDao
-        override val kostnadssted: KostnadsstedQueryHandler = kostnadsstedDao
-        override val navAnsattDto: NavAnsattDtoQueryHandler = navAnsattDtoDao
-        override val totrinnskontroll: TotrinnskontrollQueryHandler = totrinnskontrollDao
+        override val tiltakstype: TiltakstypeQueryHandler = this@SqlQueryContext.tiltakstype
+        override val endringshistorikk: EndringshistorikkQueryHandler = this@SqlQueryContext.endringshistorikk
+        override val kostnadssted: KostnadsstedQueryHandler = this@SqlQueryContext.kostnadssted
+        override val navAnsattDto: NavAnsattDtoQueryHandler = this@SqlQueryContext.navAnsattDto
+        override val totrinnskontroll: TotrinnskontrollQueryHandler = this@SqlQueryContext.totrinnskontroll
     }
 
     override val outbox = SqlAdminOutbox(session, topics)

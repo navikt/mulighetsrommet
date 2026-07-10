@@ -7,6 +7,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKombinasjon
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeVeilderinfo
+import no.nav.mulighetsrommet.api.contracts.tiltakstype.TiltakstypeV3Dto
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.domain.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
@@ -19,7 +20,6 @@ import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.Innholdselement
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
@@ -128,7 +128,7 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
         return list(queryOf(query, parameters)) { it.toTiltakstype() }
     }
 
-    override fun getEksternTiltakstype(id: UUID): TiltakstypeV3Dto? = with(session) {
+    fun getEksternTiltakstype(id: UUID): TiltakstypeV3Dto? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -299,6 +299,19 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
         }
     }
 
+    override fun getNamesReferencingLenke(lenkeId: UUID): List<String> = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            select tiltakstype.navn
+            from tiltakstype
+            join tiltakstype_faglenke faglenke on faglenke.tiltakstype_id = tiltakstype.id
+            where faglenke.lenke_id = ?::uuid
+            order by tiltakstype.navn
+        """.trimIndent()
+
+        return list(queryOf(query, lenkeId)) { it.string("navn") }
+    }
+
     private fun Row.toTiltakstype(): Tiltakstype {
         val innsatsgrupper = arrayOrNull<String>("innsatsgrupper")
             ?.map { Innsatsgruppe.valueOf(it) }
@@ -374,18 +387,5 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
             oppdatertTidspunkt = localDateTime("updated_at"),
             deltakerRegistreringInnhold = deltakerRegistreringInnhold,
         )
-    }
-
-    override fun getNamesReferencingLenke(lenkeId: UUID): List<String> = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select tiltakstype.navn
-            from tiltakstype
-            join tiltakstype_faglenke faglenke on faglenke.tiltakstype_id = tiltakstype.id
-            where faglenke.lenke_id = ?::uuid
-            order by tiltakstype.navn
-        """.trimIndent()
-
-        return list(queryOf(query, lenkeId)) { it.string("navn") }
     }
 }
