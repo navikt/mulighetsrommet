@@ -3,18 +3,18 @@ import {
   TilskuddBehandlingStatusAarsak,
   TotrinnskontrollDto,
 } from "@tiltaksadministrasjon/api-client";
-import { AarsakerOgForklaring } from "./AarsakerOgForklaring";
+import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
 import { aarsakTilTekst } from "@/utils/Utils";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { erReturnert, erBesluttet } from "@/utils/totrinnskontroll";
 
 type Props = {
   heading: string;
-  opprettelse: TotrinnskontrollDto;
+  kontroll: TotrinnskontrollDto;
 };
 
-export function ToTrinnsOpprettelsesForklaring({ heading, opprettelse }: Props) {
-  if (!erBesluttet(opprettelse) || !erReturnert(opprettelse)) {
+export function ToTrinnskontrollForklaring({ heading, kontroll }: Props) {
+  if (!erBesluttet(kontroll) || !erReturnert(kontroll)) {
     return null;
   }
 
@@ -22,14 +22,12 @@ export function ToTrinnsOpprettelsesForklaring({ heading, opprettelse }: Props) 
     <AarsakerOgForklaring
       heading={heading}
       tekster={[
-        `${opprettelse.besluttetAv.navn} returnerte den ${formaterDato(
-          opprettelse.besluttetTidspunkt,
-        )}.`,
+        `${kontroll.besluttetAv.navn} returnerte den ${formaterDato(kontroll.besluttetTidspunkt)}.`,
       ]}
-      aarsaker={opprettelse.aarsaker.map((aarsak) =>
+      aarsaker={kontroll.aarsaker.map((aarsak) =>
         aarsakTilTekst(aarsak as TilsagnStatusAarsak | TilskuddBehandlingStatusAarsak),
       )}
-      forklaring={opprettelse.forklaring}
+      forklaring={kontroll.forklaring}
     />
   );
 }

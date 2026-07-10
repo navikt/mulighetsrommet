@@ -137,6 +137,7 @@ function utbetalingLenkeText(status: UtbetalingStatusDtoType) {
   switch (status) {
     case UtbetalingStatusDtoType.TIL_ATTESTERING:
     case UtbetalingStatusDtoType.KLAR_TIL_BEHANDLING:
+    case UtbetalingStatusDtoType.TIL_AVBRYTNING:
     case UtbetalingStatusDtoType.RETURNERT:
       return "Behandle";
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:

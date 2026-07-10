@@ -10,8 +10,8 @@ import {
 import { Box, Button, Heading, HGrid, HStack, Show, Spacer, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
-import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
+import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
+import { ToTrinnskontrollForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollForklaring";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useTilsagn } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -75,7 +75,7 @@ export function TilsagnDetaljer() {
 
   return (
     <>
-      <ToTrinnsOpprettelsesForklaring heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
+      <ToTrinnskontrollForklaring heading="Tilsagnet ble returnert" kontroll={opprettelse} />
       {erTilBeslutning(annullering) && (
         <AarsakerOgForklaring
           heading="Tilsagnet annulleres"

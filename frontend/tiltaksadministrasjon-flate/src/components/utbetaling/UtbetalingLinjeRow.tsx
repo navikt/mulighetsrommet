@@ -11,7 +11,7 @@ import { formaterValuta } from "@mr/frontend-common/utils/utils";
 import { Alert, Heading, HStack, InfoCard, Link, List, Table, VStack } from "@navikt/ds-react";
 import React, { useState } from "react";
 import { Link as ReactRouterLink } from "react-router";
-import { AarsakerOgForklaring } from "@/pages/gjennomforing/tilsagn/AarsakerOgForklaring";
+import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
 import { TilsagnInformasjon } from "./TilsagnInformasjon";
 import { UtbetalingLinjeStatusTag } from "./UtbetalingLinjeStatusTag";
 import { BehandlerInformasjon } from "./BehandlerInformasjon";

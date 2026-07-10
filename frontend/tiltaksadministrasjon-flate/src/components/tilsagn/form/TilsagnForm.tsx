@@ -19,7 +19,7 @@ import {
 } from "@navikt/ds-react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useSearchParams } from "react-router";
-import { avtaletekster } from "../../ledetekster/avtaleLedetekster";
+import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { ReactElement, Suspense } from "react";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { addDuration, subDuration } from "@mr/frontend-common/utils/date";

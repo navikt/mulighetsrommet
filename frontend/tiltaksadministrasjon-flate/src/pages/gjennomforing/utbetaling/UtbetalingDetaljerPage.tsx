@@ -67,19 +67,20 @@ import { Handlinger } from "@/components/handlinger/Handlinger";
 import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjonModal";
 import { useAvbrytUtbetaling, useSlettKorreksjon } from "@/api/utbetaling/mutations";
 import { useForm, UseFormReturn } from "react-hook-form";
+import { ToTrinnskontrollForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollForklaring";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
-  const { utbetaling, handlinger } = useUtbetaling(utbetalingId);
+  const { utbetaling, handlinger, tilAvbrytning } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
-  return { utbetaling, handlinger, beregning };
+  return { utbetaling, handlinger, beregning, tilAvbrytning };
 }
 
 export function UtbetalingDetaljerPage() {
   const navigate = useNavigate();
   const [modalVariant, setModalVariant] = useState<UtbetalingHandling | null>(null);
 
-  const { utbetaling, handlinger, beregning } = useUtbetalingDetaljerData();
+  const { utbetaling, handlinger, beregning, tilAvbrytning } = useUtbetalingDetaljerData();
   const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetaling.id);
 
   const { gjennomforingId, periode, tilskuddstype } = utbetaling;
@@ -191,6 +192,12 @@ export function UtbetalingDetaljerPage() {
       </HStack>
       <Separator />
       <VStack gap="space-12">
+        {tilAvbrytning && (
+          <ToTrinnskontrollForklaring
+            heading="Behandlingen ble returnert"
+            kontroll={tilAvbrytning}
+          />
+        )}
         <HGrid columns="1fr auto" align="start">
           <TwoColumnGrid separator>
             <Box>
@@ -334,6 +341,7 @@ function UtbetalingLinjeView({
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
     case UtbetalingStatusDtoType.UBEHANDLET_FORSLAG:
     case UtbetalingStatusDtoType.AVBRUTT:
+    case UtbetalingStatusDtoType.TIL_AVBRYTNING:
       return null;
 
     case UtbetalingStatusDtoType.RETURNERT:
