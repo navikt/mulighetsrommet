@@ -28,10 +28,18 @@ import { ClientOnly } from "./components/ClientOnly";
 import { isProblemDetail } from "./utils/validering";
 import OrganisasjonsTilgangGuard from "./OrganisasjonsTilgangGuard";
 import IngenTilgang from "./components/IngenTilgang";
+import { erAutentisertContext } from "../server/router-context.js";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
-export const loader: LoaderFunction = async () => {
+export const loader: LoaderFunction = async ({ context, request }) => {
+  const erAutentisert = context.get(erAutentisertContext);
+  if (!erAutentisert) {
+    const url = new URL(request.url);
+    const redirectPath = encodeURIComponent(url.toString());
+    return redirect(`/oauth2/start?rd=${redirectPath}`);
+  }
+
   let dekorator = null;
   if (process.env.DISABLE_DEKORATOR !== "true") {
     dekorator = await fetchSsrDekorator();
@@ -165,8 +173,10 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 function RouteError(error: ErrorResponse) {
   switch (error.status) {
     case 401: {
-      const redirectPath = typeof window !== "undefined" ? window.location.pathname : "/";
-      throw redirect(`/oauth2/login?redirect=${redirectPath}`);
+      const redirectPath =
+        typeof window !== "undefined" ? encodeURIComponent(window.location.href) : "/";
+      window.location.href = `/oauth2/start?rd=${redirectPath}`;
+      return null;
     }
     case 403: {
       return Forbidden();
