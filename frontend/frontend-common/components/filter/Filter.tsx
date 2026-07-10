@@ -42,7 +42,9 @@ export function Filter({ filterTab, setFilterOpen, filterOpen }: Props) {
           <HStack justify="space-between" align="center">
             <HStack gap="space-8" align="center">
               <FunnelIcon fontSize="1.5rem" title="filter" />
-              <Heading size="small">Filter</Heading>
+              <Heading level="2" size="small">
+                Filter
+              </Heading>
             </HStack>
             {filterOpen ? (
               <XMarkIcon aria-label="Kryss for å lukke filter" />
