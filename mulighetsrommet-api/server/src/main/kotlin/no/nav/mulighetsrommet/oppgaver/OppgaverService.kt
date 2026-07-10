@@ -467,6 +467,8 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
                 createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
                 arrangor = data.arrangor,
             ).takeIf { AdminUtbetalingService.tilgangTilHandling(UtbetalingHandling.SEND_TIL_ATTESTERING, ansatt) }
+
+        UtbetalingStatusType.TIL_AVBRYTNING -> TODO()
     }
 }
 

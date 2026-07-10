@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
@@ -26,6 +27,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
@@ -53,8 +55,9 @@ class AdminUtbetalingService(
         val ansatt = queries.ansatt.getOrError(navIdent)
         val avbrytHandlingEnabled = featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING)
         val handlinger = utbetalingHandlinger(utbetaling, ansatt, avbrytHandlingEnabled)
+        val tilAvbrytning = queries.totrinnskontroll.getDto(utbetaling.id, TotrinnskontrollType.UTBETALING_AVBRYTELSE)
 
-        return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
+        return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger, tilAvbrytning = tilAvbrytning)
     }
 
     suspend fun getUtbetalingLinjer(
@@ -210,6 +213,17 @@ class AdminUtbetalingService(
             queries.utbetaling.setBegrunnelseMindreBetalt(utbetaling.id, opprett.begrunnelseMindreBetalt)
             utbetalingService.sendTilAttestering(utbetaling.id, opprett.linjer, navIdent)
         }
+    }
+
+    fun sendTilAvbrytning(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>) = db.transaction {
+        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+        utbetalingService.sendTilAvbrytning(
+            id = utbetaling.id,
+            agent = navIdent,
+            operation = "Utbetaling sendt til avbrytning ved behandling av utbetaling",
+            aarsaker = request.aarsaker.map { it.name },
+            forklaring = request.forklaring,
+        )
     }
 
     fun godkjennUtbetalingLinje(

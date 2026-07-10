@@ -7234,6 +7234,7 @@ components:
       - DELVIS_UTBETALT
       - UTBETALT
       - AVBRUTT
+      - TIL_AVBRYTNING
     UtbetalingTypeDto:
       type: object
       properties:
@@ -7469,8 +7470,13 @@ components:
           items:
             $ref: "#/components/schemas/UtbetalingHandling"
           uniqueItems: true
+        tilAvbrytning:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
       - handlinger
+      - tilAvbrytning
       - utbetaling
     UtbetalingStatusAarsak:
       type: string

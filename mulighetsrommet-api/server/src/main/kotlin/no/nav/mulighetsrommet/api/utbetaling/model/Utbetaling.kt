@@ -70,6 +70,7 @@ data class Utbetaling(
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.UTBETALT,
         UtbetalingStatusType.AVBRUTT,
+        UtbetalingStatusType.TIL_AVBRYTNING,
         -> false
     }
 
@@ -84,6 +85,7 @@ data class Utbetaling(
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.TIL_ATTESTERING,
         UtbetalingStatusType.AVBRUTT,
+        UtbetalingStatusType.TIL_AVBRYTNING,
         -> false
     }
 
@@ -104,6 +106,7 @@ data class Utbetaling(
         UtbetalingStatusType.UTBETALT,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_AVBRYTNING,
         ->
             false
     }

@@ -14,6 +14,7 @@ import java.util.UUID
 data class UtbetalingDetaljerDto(
     val utbetaling: UtbetalingDto,
     val handlinger: Set<UtbetalingHandling>,
+    val tilAvbrytning: TotrinnskontrollDto?,
 )
 
 @Serializable

@@ -281,6 +281,26 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
+    fun sendTilAvbrytning(id: UUID, agent: Agent, operation: String, aarsaker: List<String>, forklaring: String?) = with(tx) {
+        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+        require(utbetaling.kanAvbrytes()) {
+            "Utbetaling kan ikke settes til avbrutt"
+        }
+        val avbrytningTilGodkjenning = Totrinnskontroll.opprett(
+            id = UUID.randomUUID(),
+            entityId = utbetaling.id,
+            type = TotrinnskontrollType.UTBETALING_AVBRYTELSE,
+            behandletAv = agent,
+            aarsaker = aarsaker,
+            forklaring = forklaring,
+        )
+        queries.totrinnskontroll.upsert(avbrytningTilGodkjenning)
+        outbox.publish(avbrytningTilGodkjenning)
+        queries.utbetaling.setStatus(id, UtbetalingStatusType.TIL_AVBRYTNING)
+        logEndring(operation, utbetaling.id, agent)
+    }
+
+    context(tx: TransactionalQueryContext)
     fun avbrytUtbetaling(
         utbetalingId: UUID,
         begrunnelse: String,
@@ -841,6 +861,7 @@ class UtbetalingService(
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
             UtbetalingStatusType.AVBRUTT,
+            UtbetalingStatusType.TIL_AVBRYTNING,
             -> emptyList()
         }
     }
