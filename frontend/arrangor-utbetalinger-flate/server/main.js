@@ -3,8 +3,9 @@ import compression from "compression";
 import express from "express";
 import expressPromBundle from "express-prom-bundle";
 import morgan from "morgan";
+import { RouterContextProvider } from "react-router";
 import logger from "./logger.js";
-import { apiProxy } from "./api-proxy.js";
+import { apiProxy, isRequestAuthenticated } from "./api-proxy.js";
 
 const metricsMiddleware = expressPromBundle({ includeMethod: true, includePath: true });
 
@@ -27,13 +28,18 @@ if (process.env.VITE_MULIGHETSROMMET_API_MOCK === "true" && viteDevServer) {
   initializeMockServer();
 }
 
-const remixHandler = createRequestHandler({
+const routeHandler = createRequestHandler({
   build: viteDevServer
     ? () => viteDevServer.ssrLoadModule("virtual:react-router/server-build")
     : await import("../build/server/index.js"),
-  getLoadContext: (req) => ({
-    erAutorisert: req.headers.authorization,
-  }),
+  getLoadContext: async (req) => {
+    const { erAutentisertContext } = viteDevServer
+      ? await viteDevServer.ssrLoadModule("/server/router-context.js")
+      : await import("./router-context.js");
+    const context = new RouterContextProvider();
+    context.set(erAutentisertContext, await isRequestAuthenticated(req));
+    return context;
+  },
 });
 
 const app = express();
@@ -99,7 +105,7 @@ const morganStream = {
 app.use(morgan("combined", { stream: morganStream }));
 
 // handle SSR requests
-app.all("*splat", remixHandler);
+app.all("*splat", routeHandler);
 
 app.listen(port, () => {
   const env = process.env.NODE_ENV || "development";

@@ -4,27 +4,15 @@
  * For more information, see https://remix.run/file-conventions/entry.server
  */
 import { PassThrough } from "node:stream";
-import type {
-  ActionFunctionArgs,
-  AppLoadContext,
-  EntryContext,
-  LoaderFunctionArgs,
-} from "react-router";
+import type { ActionFunctionArgs, EntryContext, LoaderFunctionArgs } from "react-router";
 import { ServerRouter } from "react-router";
 import { createReadableStreamFromReadable } from "@react-router/node";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
-import { initializeMockServer } from "./mocks/node";
 import { client } from "@arrangor-utbetalinger/api-client";
 import logger from "../server/logger.js";
-import { isDemo } from "./services/environment";
 
 export const streamTimeout = 5000;
-
-if (isDemo()) {
-  logger.info("Initialiserer mock server");
-  initializeMockServer();
-}
 
 client.setConfig({
   baseUrl: process.env.VITE_MULIGHETSROMMET_API_BASE ?? "http://localhost:3000",
@@ -35,10 +23,6 @@ export default function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   reactRouterContext: EntryContext,
-  // This is ignored so we can keep it in the template for visibility.  Feel
-  // free to delete this parameter in your app if you're not using it!
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  loadContext: AppLoadContext,
 ) {
   return isbot(request.headers.get("user-agent") || "")
     ? handleBotRequest(request, responseStatusCode, responseHeaders, reactRouterContext)
