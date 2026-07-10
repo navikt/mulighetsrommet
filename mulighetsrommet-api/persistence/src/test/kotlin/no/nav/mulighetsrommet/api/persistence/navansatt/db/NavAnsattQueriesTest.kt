@@ -42,7 +42,7 @@ class NavAnsattQueriesTest : FunSpec({
         etternavn: String,
         hovedenhet: NavEnhet,
         roller: Set<NavAnsattRolle> = setOf(),
-    ) = NavAnsatt(
+    ) = NavAnsatt.opprett(
         entraObjectId = UUID.randomUUID(),
         navIdent = navIdent,
         fornavn = fornavn,
@@ -51,7 +51,6 @@ class NavAnsattQueriesTest : FunSpec({
         mobilnummer = "12345678",
         epost = "${fornavn.lowercase()}@nav.no",
         roller = roller,
-        skalSlettesDato = null,
     )
 
     context("NavAnsattQueries") {
@@ -80,7 +79,7 @@ class NavAnsattQueriesTest : FunSpec({
                 val enRolle = setOf(
                     NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL),
                 )
-                repository.navAnsatt.save(ansatt1.copy(roller = enRolle))
+                repository.navAnsatt.save(ansatt1.medRoller(enRolle))
                 repository.navAnsatt.get(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
 
                 val flereRoller = setOf(
@@ -89,11 +88,11 @@ class NavAnsattQueriesTest : FunSpec({
                     NavAnsattRolle.generell(Rolle.OPPFOLGER_GJENNOMFORING),
                     NavAnsattRolle.generell(Rolle.TILTAKSTYPER_SKRIV),
                 )
-                repository.navAnsatt.save(ansatt1.copy(roller = flereRoller))
+                repository.navAnsatt.save(ansatt1.medRoller(flereRoller))
                 repository.navAnsatt.get(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
 
                 val ingenRoller = setOf<NavAnsattRolle>()
-                repository.navAnsatt.save(ansatt1.copy(roller = ingenRoller))
+                repository.navAnsatt.save(ansatt1.medRoller(ingenRoller))
                 repository.navAnsatt.get(ansatt1.navIdent).shouldNotBeNull().roller shouldBe ingenRoller
             }
         }
@@ -107,20 +106,20 @@ class NavAnsattQueriesTest : FunSpec({
                 val enRolle = setOf(
                     NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("1000"))),
                 )
-                repository.navAnsatt.save(ansatt1.copy(roller = enRolle))
+                repository.navAnsatt.save(ansatt1.medRoller(enRolle))
                 repository.navAnsatt.get(ansatt1.navIdent).shouldNotBeNull().roller shouldBe enRolle
 
                 val flereRoller = setOf(
                     NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("1000"))),
                     NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(NavEnhetNummer("2000"))),
                 )
-                repository.navAnsatt.save(ansatt1.copy(roller = flereRoller))
+                repository.navAnsatt.save(ansatt1.medRoller(flereRoller))
                 repository.navAnsatt.get(ansatt1.navIdent).shouldNotBeNull().roller shouldBe flereRoller
 
                 val ingenRoller = setOf(
                     NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf()),
                 )
-                repository.navAnsatt.save(ansatt1.copy(roller = ingenRoller))
+                repository.navAnsatt.save(ansatt1.medRoller(ingenRoller))
                 repository.navAnsatt.get(ansatt1.navIdent).shouldNotBeNull().roller shouldBe ingenRoller
             }
         }
@@ -170,9 +169,9 @@ class NavAnsattQueriesTest : FunSpec({
                 val generell = NavAnsattRolle.generell(Rolle.TILTAKADMINISTRASJON_GENERELL)
                 val kontaktperson = NavAnsattRolle.generell(Rolle.KONTAKTPERSON)
 
-                val expectedAnsatt1 = ansatt1.copy(roller = setOf(generell))
-                val expectedAnsatt2 = ansatt2.copy(roller = setOf(kontaktperson))
-                val expectedAnsatt3 = ansatt3.copy(roller = setOf(generell, kontaktperson))
+                val expectedAnsatt1 = ansatt1.medRoller(setOf(generell))
+                val expectedAnsatt2 = ansatt2.medRoller(setOf(kontaktperson))
+                val expectedAnsatt3 = ansatt3.medRoller(setOf(generell, kontaktperson))
 
                 repository.navAnsatt.save(expectedAnsatt1)
                 repository.navAnsatt.save(expectedAnsatt2)
@@ -211,8 +210,8 @@ class NavAnsattQueriesTest : FunSpec({
                 val beslutterTilsagnForUkjentKontor =
                     NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(NavEnhetNummer("3000")))
 
-                val expectedAnsatt1 = ansatt1.copy(roller = setOf(beslutterTilsagnAndeby))
-                val expectedAnsatt2 = ansatt2.copy(roller = setOf(beslutterTilsagnForBeggeKontor))
+                val expectedAnsatt1 = ansatt1.medRoller(setOf(beslutterTilsagnAndeby))
+                val expectedAnsatt2 = ansatt2.medRoller(setOf(beslutterTilsagnForBeggeKontor))
 
                 repository.navAnsatt.save(expectedAnsatt1)
                 repository.navAnsatt.save(expectedAnsatt2)

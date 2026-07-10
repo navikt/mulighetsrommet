@@ -169,7 +169,7 @@ private fun Row.toNavAnsatt(): NavAnsatt {
     val roller = stringOrNull("roller_json")
         ?.let { Json.decodeFromString<Set<NavAnsattRolle>>(it) }
         ?: setOf()
-    return NavAnsatt(
+    return NavAnsatt.fromStorage(
         navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),
         etternavn = string("etternavn"),

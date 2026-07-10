@@ -940,5 +940,5 @@ class TilsagnServiceTest : FunSpec({
 })
 
 private fun QueryContext.setRoller(navIdent: NavIdent, roller: Set<NavAnsattRolle>) {
-    queries.ansatt.save(queries.ansatt.getOrError(navIdent).copy(roller = roller))
+    queries.ansatt.save(queries.ansatt.getOrError(navIdent).medRoller(roller))
 }

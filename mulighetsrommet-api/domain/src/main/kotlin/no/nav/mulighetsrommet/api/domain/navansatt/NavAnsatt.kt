@@ -9,7 +9,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
-data class NavAnsatt(
+data class NavAnsatt private constructor(
     @Serializable(with = UUIDSerializer::class)
     val entraObjectId: UUID,
     val navIdent: NavIdent,
@@ -22,9 +22,9 @@ data class NavAnsatt(
     @Serializable(with = LocalDateSerializer::class)
     val skalSlettesDato: LocalDate?,
 ) {
-    fun medRoller(roller: Set<NavAnsattRolle>): NavAnsatt = copy(roller = roller)
+    fun medRoller(roller: Set<NavAnsattRolle>): NavAnsatt = copy(roller = roller, skalSlettesDato = null)
 
-    fun skalSlettes(dato: LocalDate): NavAnsatt = copy(skalSlettesDato = dato, roller = setOf())
+    fun skalSlettes(dato: LocalDate): NavAnsatt = copy(roller = setOf(), skalSlettesDato = dato)
 
     fun hasGenerellRolle(
         rolle: Rolle,
@@ -40,4 +40,49 @@ data class NavAnsatt(
     }
 
     fun displayName(): String = "$fornavn $etternavn"
+
+    companion object {
+        fun opprett(
+            entraObjectId: UUID,
+            navIdent: NavIdent,
+            fornavn: String,
+            etternavn: String,
+            hovedenhet: NavEnhetNummer,
+            mobilnummer: String?,
+            epost: String,
+            roller: Set<NavAnsattRolle>,
+        ) = NavAnsatt(
+            entraObjectId = entraObjectId,
+            navIdent = navIdent,
+            fornavn = fornavn,
+            etternavn = etternavn,
+            hovedenhet = hovedenhet,
+            mobilnummer = mobilnummer,
+            epost = epost,
+            roller = roller,
+            skalSlettesDato = null,
+        )
+
+        fun fromStorage(
+            entraObjectId: UUID,
+            navIdent: NavIdent,
+            fornavn: String,
+            etternavn: String,
+            hovedenhet: NavEnhetNummer,
+            mobilnummer: String?,
+            epost: String,
+            roller: Set<NavAnsattRolle>,
+            skalSlettesDato: LocalDate?,
+        ) = NavAnsatt(
+            entraObjectId = entraObjectId,
+            navIdent = navIdent,
+            fornavn = fornavn,
+            etternavn = etternavn,
+            hovedenhet = hovedenhet,
+            mobilnummer = mobilnummer,
+            epost = epost,
+            roller = roller,
+            skalSlettesDato = skalSlettesDato,
+        )
+    }
 }

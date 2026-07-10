@@ -17,10 +17,10 @@ import java.time.LocalDate
 class NavAnsattSyncServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
-    val ansatt1 = NavAnsattFixture.DonaldDuck.copy(
+    val ansatt1 = NavAnsattFixture.DonaldDuck.medRoller(
         roller = setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)),
     )
-    val ansatt2 = NavAnsattFixture.MikkeMus.copy(
+    val ansatt2 = NavAnsattFixture.MikkeMus.medRoller(
         roller = setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)),
     )
     val domain = MulighetsrommetTestDomain(
@@ -74,10 +74,7 @@ class NavAnsattSyncServiceTest : FunSpec({
 
             database.run {
                 queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
-                    ansatt1.copy(
-                        roller = setOf(),
-                        skalSlettesDato = tomorrow,
-                    ),
+                    ansatt1.skalSlettes(tomorrow),
                     ansatt2,
                 )
             }
@@ -90,14 +87,8 @@ class NavAnsattSyncServiceTest : FunSpec({
 
             database.run {
                 queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
-                    ansatt1.copy(
-                        roller = setOf(),
-                        skalSlettesDato = tomorrow,
-                    ),
-                    ansatt2.copy(
-                        roller = setOf(),
-                        skalSlettesDato = tomorrow,
-                    ),
+                    ansatt1.skalSlettes(tomorrow),
+                    ansatt2.skalSlettes(tomorrow),
                 )
             }
         }

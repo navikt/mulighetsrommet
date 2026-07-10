@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.model.NavIdent
 import java.util.UUID
 
 object NavAnsattFixture {
-    val DonaldDuck: NavAnsatt = NavAnsatt(
+    val DonaldDuck: NavAnsatt = NavAnsatt.opprett(
         navIdent = NavIdent("DD1"),
         fornavn = "Donald",
         etternavn = "Duck",
@@ -15,9 +15,8 @@ object NavAnsattFixture {
         mobilnummer = "12345678",
         epost = "donald.duck@nav.no",
         roller = setOf(),
-        skalSlettesDato = null,
     )
-    val MikkeMus: NavAnsatt = NavAnsatt(
+    val MikkeMus: NavAnsatt = NavAnsatt.opprett(
         navIdent = NavIdent("DD2"),
         fornavn = "Mikke",
         etternavn = "Mus",
@@ -26,9 +25,8 @@ object NavAnsattFixture {
         mobilnummer = "48243214",
         epost = "mikke.mus@nav.no",
         roller = setOf(),
-        skalSlettesDato = null,
     )
-    val FetterAnton: NavAnsatt = NavAnsatt(
+    val FetterAnton: NavAnsatt = NavAnsatt.opprett(
         navIdent = NavIdent("DD3"),
         fornavn = "Fetter",
         etternavn = "Anton",
@@ -37,6 +35,5 @@ object NavAnsattFixture {
         mobilnummer = "48243214",
         epost = "fetter.anton@nav.no",
         roller = setOf(),
-        skalSlettesDato = null,
     )
 }

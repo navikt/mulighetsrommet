@@ -551,29 +551,6 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             }
         }
 
-        test("administrator som er slettet filtreres vekk") {
-            val slettetAdmin = NavAnsattFixture.FetterAnton.copy(skalSlettesDato = LocalDate.now())
-            MulighetsrommetTestDomain(
-                ansatte = listOf(slettetAdmin),
-                additionalSetup = {
-                    queries.ansatt.save(
-                        slettetAdmin.copy(roller = setOf(NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV))),
-                    )
-                },
-            ).initialize(database.db)
-
-            val request = GjennomforingFixtures.createGjennomforingRequest(
-                AvtaleFixtures.oppfolging,
-                administratorer = setOf(slettetAdmin.navIdent),
-            )
-
-            service.create(request, bertilNavIdent).shouldBeRight()
-
-            database.db.session {
-                queries.gjennomforing.getAdministratorer(request.id).orEmpty().shouldBeEmpty()
-            }
-        }
-
         test("administrator uten TILTAKSGJENNOMFORINGER_SKRIV-rolle filtreres vekk") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.FetterAnton),

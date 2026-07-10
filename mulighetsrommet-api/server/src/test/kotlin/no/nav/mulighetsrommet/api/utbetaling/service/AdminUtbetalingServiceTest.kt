@@ -1627,7 +1627,7 @@ private fun createUtbetalingLinje(
 )
 
 private fun QueryContext.setRoller(ansatt: NavAnsatt, roller: Set<NavAnsattRolle>) {
-    queries.ansatt.save(ansatt.copy(roller = roller))
+    queries.ansatt.save(ansatt.medRoller(roller))
 }
 
 fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri(

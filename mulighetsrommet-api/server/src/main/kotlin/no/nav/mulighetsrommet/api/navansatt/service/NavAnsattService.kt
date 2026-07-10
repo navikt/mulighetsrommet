@@ -145,7 +145,7 @@ class NavAnsattService(
     }
 }
 
-fun EntraNavAnsatt.toNavAnsatt(roles: Set<NavAnsattRolle>) = NavAnsatt(
+fun EntraNavAnsatt.toNavAnsatt(roles: Set<NavAnsattRolle>) = NavAnsatt.opprett(
     entraObjectId = entraObjectId,
     navIdent = navIdent,
     fornavn = fornavn,
@@ -154,5 +154,4 @@ fun EntraNavAnsatt.toNavAnsatt(roles: Set<NavAnsattRolle>) = NavAnsatt(
     mobilnummer = mobilnummer,
     epost = epost,
     roller = roles,
-    skalSlettesDato = null,
 )
