@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import java.time.LocalDateTime
 import java.util.UUID
 
-class TiltakstypeUseCaseTest : FunSpec({
+class UpdateTiltakstypeTest : FunSpec({
     val navIdent = NavIdent("Z999999")
 
     val tiltakstypeV3 = TiltakstypeV3Dto(
@@ -41,7 +41,7 @@ class TiltakstypeUseCaseTest : FunSpec({
                 veilederinfo = Tiltakstype.Veilederinfo(),
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(TestAdminDatabase())
+            UpdateTiltakstypeUseCase(TestAdminDatabase())
                 .execute(command)
                 .shouldBeLeft(TiltakstypeUseCaseError.NotFound(unknownId))
         }
@@ -58,7 +58,7 @@ class TiltakstypeUseCaseTest : FunSpec({
                 veilederinfo = veilederinfo,
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(db).execute(command).shouldBeRight()
+            UpdateTiltakstypeUseCase(db).execute(command).shouldBeRight()
 
             db.repository.tiltakstype.get(TiltakstypeFixtures.AFT.id)?.veilederinfo shouldBe veilederinfo
         }
@@ -73,7 +73,7 @@ class TiltakstypeUseCaseTest : FunSpec({
                 veilederinfo = Tiltakstype.Veilederinfo(),
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(db).execute(command).shouldBeRight()
+            UpdateTiltakstypeUseCase(db).execute(command).shouldBeRight()
 
             verify { db.queries.endringshistorikk.logEndring(any(), any(), any(), any(), any(), any()) }
         }
@@ -88,7 +88,7 @@ class TiltakstypeUseCaseTest : FunSpec({
                 veilederinfo = Tiltakstype.Veilederinfo(),
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(db)
+            UpdateTiltakstypeUseCase(db)
                 .execute(command)
                 .shouldBeRight()
 
@@ -104,7 +104,7 @@ class TiltakstypeUseCaseTest : FunSpec({
                 veilederinfo = Tiltakstype.Veilederinfo(),
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(db)
+            UpdateTiltakstypeUseCase(db)
                 .execute(command)
                 .shouldBeRight()
 
@@ -121,7 +121,7 @@ class TiltakstypeUseCaseTest : FunSpec({
                 deltakerinfo = Tiltakstype.Deltakerinfo(ledetekst = null, innholdskoder = emptyList()),
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(TestAdminDatabase())
+            UpdateTiltakstypeUseCase(TestAdminDatabase())
                 .execute(command)
                 .shouldBeLeft(TiltakstypeUseCaseError.NotFound(unknownId))
         }
@@ -138,7 +138,7 @@ class TiltakstypeUseCaseTest : FunSpec({
                 deltakerinfo = deltakerinfo,
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(db)
+            UpdateTiltakstypeUseCase(db)
                 .execute(command)
                 .shouldBeRight(Unit)
 
@@ -155,7 +155,7 @@ class TiltakstypeUseCaseTest : FunSpec({
                 deltakerinfo = Tiltakstype.Deltakerinfo(null, emptyList()),
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(db)
+            UpdateTiltakstypeUseCase(db)
                 .execute(command)
                 .shouldBeRight()
 
@@ -172,7 +172,7 @@ class TiltakstypeUseCaseTest : FunSpec({
                 deltakerinfo = Tiltakstype.Deltakerinfo(null, emptyList()),
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(db)
+            UpdateTiltakstypeUseCase(db)
                 .execute(command)
                 .shouldBeRight()
 
@@ -188,7 +188,7 @@ class TiltakstypeUseCaseTest : FunSpec({
                 deltakerinfo = Tiltakstype.Deltakerinfo(null, emptyList()),
                 endretAv = navIdent,
             )
-            TiltakstypeUseCase(db)
+            UpdateTiltakstypeUseCase(db)
                 .execute(command)
                 .shouldBeRight()
 
