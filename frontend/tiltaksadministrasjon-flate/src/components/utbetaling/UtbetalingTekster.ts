@@ -56,7 +56,7 @@ export const utbetalingTekster = {
         header: "Du er i ferd med å avbryte et utbetalingskrav",
         ingress: "Arrangør vil ikke få noen utbetaling for perioden.",
         button: {
-          label: "Avbryt utbetaling",
+          label: "Send til godkjenning",
         },
       },
       fraAarsak: (aarsak: UtbetalingStatusAarsak): string => {

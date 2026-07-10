@@ -400,6 +400,7 @@ function UtbetalingAvbrytModal({ utbetalingId, open, onClose }: UtbetalingAvbryt
   });
   return (
     <AarsakerOgForklaringModal<UtbetalingStatusAarsak>
+      width={750}
       open={open}
       onClose={onClose}
       header={utbetalingTekster.avbrutt.aarsak.modal.header}

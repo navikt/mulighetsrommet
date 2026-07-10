@@ -204,4 +204,10 @@ const headers: ColumnHeader[] = [
 ];
 
 type Kolonne =
-  "belop" | "kostnadssted" | "tiltakstype" | "arrangor" | "periode" | "status" | "lenke";
+  | "belop"
+  | "kostnadssted"
+  | "tiltakstype"
+  | "arrangor"
+  | "periode"
+  | "status"
+  | "lenke";

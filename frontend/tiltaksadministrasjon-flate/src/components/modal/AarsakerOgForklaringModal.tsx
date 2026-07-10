@@ -1,9 +1,9 @@
+import { InformationSquareIcon } from "@navikt/aksel-icons";
 import {
   Alert,
   Button,
   Checkbox,
   CheckboxGroup,
-  Heading,
   HGrid,
   HStack,
   Modal,
@@ -14,57 +14,85 @@ import { FieldError } from "@tiltaksadministrasjon/api-client";
 import { useState } from "react";
 
 interface Props<T> {
+  width?: number;
   open: boolean;
+  onClose: () => void;
   header: string;
   ingress?: React.ReactNode;
   buttonLabel: string;
   aarsaker: { label: string; value: T }[];
   errors?: FieldError[];
-  onClose: () => void;
   onConfirm: (data: { aarsaker: T[]; forklaring: string | null }) => void;
 }
 
 const FORKLARING_MAX_LENGTH = 500;
 
 export function AarsakerOgForklaringModal<T>(props: Props<T>) {
-  const { errors = [], open, onClose, onConfirm, header, ingress, buttonLabel, aarsaker } = props;
+  const {
+    errors = [],
+    width = 1_000,
+    open,
+    onClose,
+    onConfirm,
+    header,
+    ingress,
+    buttonLabel,
+    aarsaker,
+  } = props;
   const [valgteAarsaker, setValgteAarsaker] = useState<T[]>([]);
   const [forklaring, setForklaring] = useState<string | undefined>(undefined);
 
   return (
-    <Modal width={1000} aria-label={header} open={open} onClose={onClose} portal={true}>
+    <Modal
+      size="small"
+      width={width}
+      aria-label={header}
+      open={open}
+      onClose={onClose}
+      portal={true}
+      header={{
+        icon: <InformationSquareIcon aria-hidden />,
+        heading: header,
+      }}
+    >
       <form>
-        <Modal.Header>
-          <VStack gap="space-16">
-            <Heading size="medium">{header}</Heading>
-            {ingress}
-          </VStack>
-        </Modal.Header>
         <Modal.Body>
-          <HGrid columns={2} gap="space-24" align="start">
-            <CheckboxGroup
-              onChange={setValgteAarsaker}
-              value={valgteAarsaker}
-              name="aarsak"
-              legend="Årsak"
-            >
-              {aarsaker.map(({ label, value }) => (
-                <Checkbox key={String(value)} value={value}>
-                  {label}
-                </Checkbox>
-              ))}
-            </CheckboxGroup>
-            <Textarea
-              onChange={(val) => setForklaring(val.currentTarget.value)}
-              label="Forklaring"
-              resize
-              maxLength={FORKLARING_MAX_LENGTH}
-            ></Textarea>
-          </HGrid>
+          <VStack gap="space-16">
+            {ingress}
+            <HGrid columns={2} gap="space-24" align="start">
+              <CheckboxGroup
+                onChange={setValgteAarsaker}
+                value={valgteAarsaker}
+                name="aarsak"
+                legend="Årsak"
+              >
+                {aarsaker.map(({ label, value }) => (
+                  <Checkbox key={String(value)} value={value}>
+                    {label}
+                  </Checkbox>
+                ))}
+              </CheckboxGroup>
+              <Textarea
+                onChange={(val) => setForklaring(val.currentTarget.value)}
+                label="Forklaring"
+                resize
+                maxLength={FORKLARING_MAX_LENGTH}
+              ></Textarea>
+            </HGrid>
+          </VStack>
         </Modal.Body>
         <Modal.Footer>
           <VStack gap="space-8">
-            <HStack justify="end">
+            <HStack justify="end" gap="space-16">
+              <Button
+                variant="secondary"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onClose();
+                }}
+              >
+                Avbryt
+              </Button>
               <Button
                 type="submit"
                 variant="primary"

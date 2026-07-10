@@ -14,7 +14,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
-import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
@@ -270,9 +269,9 @@ fun Route.utbetalingRoutes() {
                     }
                 }
             }) {
-                //val id = call.parameters.getOrFail<UUID>("id")
-                //val request = call.receive<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
-                //val navIdent = getNavIdent()
+                // val id = call.parameters.getOrFail<UUID>("id")
+                // val request = call.receive<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
+                // val navIdent = getNavIdent()
 
                 call.respond(HttpStatusCode.OK)
             }
