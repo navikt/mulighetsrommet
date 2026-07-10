@@ -6,7 +6,6 @@ import {
   Meta,
   MetaFunction,
   Outlet,
-  redirect,
   Scripts,
   ScrollRestoration,
   useLoaderData,
@@ -28,18 +27,10 @@ import { ClientOnly } from "./components/ClientOnly";
 import { isProblemDetail } from "./utils/validering";
 import OrganisasjonsTilgangGuard from "./OrganisasjonsTilgangGuard";
 import IngenTilgang from "./components/IngenTilgang";
-import { erAutentisertContext } from "../server/router-context.js";
 
 export const meta: MetaFunction = () => [{ title: "Utbetalinger til tiltaksarrangør" }];
 
-export const loader: LoaderFunction = async ({ context, request }) => {
-  const erAutentisert = context.get(erAutentisertContext);
-  if (!erAutentisert) {
-    const url = new URL(request.url);
-    const redirectPath = encodeURIComponent(url.toString());
-    return redirect(`/oauth2/start?rd=${redirectPath}`);
-  }
-
+export const loader: LoaderFunction = async () => {
   let dekorator = null;
   if (process.env.DISABLE_DEKORATOR !== "true") {
     dekorator = await fetchSsrDekorator();
