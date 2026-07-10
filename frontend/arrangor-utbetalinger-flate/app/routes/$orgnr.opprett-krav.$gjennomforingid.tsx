@@ -167,18 +167,18 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
         setClientErrors(innsendingErrors);
         return;
       }
-
-      try {
-        const result = await fetchDeltakere.mutateAsync({
-          orgnr,
-          gjennomforingId,
-          periodeStart: formState.periodeStart!,
-          periodeSlutt: formState.periodeSlutt!,
-        });
-        setDeltakere(result);
-      } catch {
-        setClientErrors([{ pointer: "/periode", detail: "Kunne ikke hente deltakere" }]);
-        return;
+      if (steps[currentStepIndex + 1].type === OpprettKravVeiviserSteg.DELTAKERLISTE) {
+        try {
+          const result = await fetchDeltakere.mutateAsync({
+            orgnr,
+            gjennomforingId,
+            periodeStart: formState.periodeStart!,
+            periodeSlutt: formState.periodeSlutt!,
+          });
+          setDeltakere(result);
+        } catch {
+          return;
+        }
       }
     }
 

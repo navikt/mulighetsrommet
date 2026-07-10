@@ -1,0 +1,31 @@
+package no.nav.mulighetsrommet.api.veilederflate.routes
+
+import io.github.smiley4.ktoropenapi.get
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Route
+import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
+import no.nav.mulighetsrommet.model.ProblemDetail
+import org.koin.ktor.ext.inject
+
+fun Route.regionRoutes() {
+    val kontorstrukturQuery: KontorstrukturQuery by inject()
+
+    get("nav-enheter/kontorstruktur", {
+        tags = setOf("NavEnheter")
+        operationId = "getKontorstruktur"
+        response {
+            code(HttpStatusCode.OK) {
+                description = "Alle Nav-enheter"
+                body<List<Kontorstruktur>>()
+            }
+            default {
+                description = "Problem details"
+                body<ProblemDetail>()
+            }
+        }
+    }) {
+        call.respond(kontorstrukturQuery.execute())
+    }
+}

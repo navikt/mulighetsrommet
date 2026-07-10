@@ -1,7 +1,6 @@
 import { StarFillIcon, StarIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import { Alert, BodyShort, Button, HStack, Radio, RadioGroup, Tooltip } from "@navikt/ds-react";
 import { useRef, useState } from "react";
-import styles from "./LagredeFilterOversikt.module.scss";
 import { VarselModal } from "../varsel/VarselModal";
 
 interface LagretFilter {
@@ -69,7 +68,7 @@ export function LagredeFilterOversikt({
           onChange={(id) => onSelectFilterId(id)}
           value={selectedFilterId || null}
         >
-          <div className={styles.overflow}>
+          <div>
             {filters.map((lagretFilter) => {
               const defaultFilterLabel = lagretFilter.isDefault
                 ? "Fjern som favoritt"
@@ -81,22 +80,28 @@ export function LagredeFilterOversikt({
                   justify="space-between"
                   wrap={false}
                   gap="space-8"
-                  align="center"
+                  align="start" // align="start" so icons stay pinned to the top when the label wraps to 2 lines
                 >
-                  <Radio size="small" value={lagretFilter.id}>
+                  <Radio
+                    size="small"
+                    value={lagretFilter.id}
+                    style={{ minWidth: 0, flex: "1 1 auto" }} // lets the label wrap instead of squeezing siblings
+                  >
                     {lagretFilter.navn}
                   </Radio>
-                  <div className={styles.filterActions}>
+                  <HStack
+                    wrap={false}
+                    gap="space-4"
+                    flexShrink="0" // icon group keeps its size, never gets compressed
+                  >
                     <Tooltip content={defaultFilterLabel}>
                       <Button
                         icon={lagretFilter.isDefault ? <StarFillIcon /> : <StarIcon />}
                         iconPosition="right"
                         aria-label={defaultFilterLabel}
                         variant="tertiary"
-                        size="medium"
-                        onClick={() => {
-                          onSetDefaultFilter(lagretFilter.id, !lagretFilter.isDefault);
-                        }}
+                        size="small"
+                        onClick={() => onSetDefaultFilter(lagretFilter.id, !lagretFilter.isDefault)}
                       />
                     </Tooltip>
                     <Tooltip content={deleteFilterLabel}>
@@ -106,13 +111,11 @@ export function LagredeFilterOversikt({
                         iconPosition="right"
                         aria-label={deleteFilterLabel}
                         variant="tertiary"
-                        size="medium"
-                        onClick={() => {
-                          setFilterForSletting(lagretFilter);
-                        }}
+                        size="small"
+                        onClick={() => setFilterForSletting(lagretFilter)}
                       />
                     </Tooltip>
-                  </div>
+                  </HStack>
                 </HStack>
               );
             })}

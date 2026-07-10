@@ -45,7 +45,21 @@ export function AvtalerPage() {
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout
-            filter={<AvtaleFilter filter={filter.values} updateFilter={updateFilter} />}
+            filter={
+              <AvtaleFilter
+                filter={filter.values}
+                updateFilter={updateFilter}
+                lagredeFilterOversikt={
+                  <LagredeFilterOversikt
+                    filters={filters}
+                    selectedFilterId={filter.id}
+                    onSelectFilterId={selectFilter}
+                    onDeleteFilter={deleteFilter}
+                    onSetDefaultFilter={setDefaultFilter}
+                  />
+                }
+              />
+            }
             nullstillFilterButton={
               hasChanged ? (
                 <>
@@ -53,15 +67,6 @@ export function AvtalerPage() {
                   <LagreFilterButton filter={filter.values} onLagre={saveFilter} />
                 </>
               ) : null
-            }
-            lagredeFilter={
-              <LagredeFilterOversikt
-                filters={filters}
-                selectedFilterId={filter.id}
-                onSelectFilterId={selectFilter}
-                onDeleteFilter={deleteFilter}
-                onSetDefaultFilter={setDefaultFilter}
-              />
             }
             tags={
               <AvtaleFilterTags

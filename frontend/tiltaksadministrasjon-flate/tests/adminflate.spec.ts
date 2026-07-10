@@ -20,7 +20,7 @@ test.describe("Smoketest og UU", () => {
 
   test("Avtaler - Info", async ({ page }) => {
     await page.getByTestId("forsidekort-avtaler").click();
-    await page.getByTestId("filtertab").click();
+    await page.getByTestId("filterbox").click();
     await page.getByTestId("avtaletabell_tittel").first().click();
     await expect(page.getByText("Avtalenavn")).toBeVisible();
     await sjekkUU(page, "avtale_info-container");
@@ -28,7 +28,7 @@ test.describe("Smoketest og UU", () => {
 
   test("Avtaler - Gjennomføringer Tab", async ({ page }) => {
     await page.getByTestId("forsidekort-avtaler").click();
-    await page.getByTestId("filtertab").click();
+    await page.getByTestId("filterbox").click();
     await page.getByTestId("avtaletabell_tittel").first().click();
     await page.getByTestId("gjennomforinger-tab").click();
     await expect(page.getByTestId("gjennomforing-tabell")).toBeVisible();
@@ -43,7 +43,7 @@ test.describe("Smoketest og UU", () => {
 
   test("Gjennomføring - Info", async ({ page }) => {
     await page.getByTestId("forsidekort-gjennomforinger").click();
-    await page.getByTestId("filtertab").click();
+    await page.getByTestId("filterbox").click();
     await page.getByTestId("gjennomforing-tabell_tittel").first().click();
     await expect(page.getByText("Tiltaksnavn")).toBeVisible();
     await sjekkUU(page, "gjennomforing_info-container");

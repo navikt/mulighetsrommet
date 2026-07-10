@@ -222,10 +222,4 @@ const headers: ColumnHeader[] = [
 ];
 
 type Kolonne =
-  | "navn"
-  | "avtalenummer"
-  | "arrangor"
-  | "region"
-  | "startdato"
-  | "sluttdato"
-  | "status";
+  "navn" | "avtalenummer" | "arrangor" | "region" | "startdato" | "sluttdato" | "status";

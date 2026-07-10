@@ -32,7 +32,21 @@ export function OppgaverPage() {
   return (
     <ContentBox>
       <FilterAndTableLayout
-        filter={<OppgaverFilter filter={filter.values} updateFilter={updateFilter} />}
+        filter={
+          <OppgaverFilter
+            filter={filter.values}
+            updateFilter={updateFilter}
+            lagredeFilterOversikt={
+              <LagredeFilterOversikt
+                filters={filters}
+                selectedFilterId={filter.id}
+                onSelectFilterId={selectFilter}
+                onDeleteFilter={deleteFilter}
+                onSetDefaultFilter={setDefaultFilter}
+              />
+            }
+          />
+        }
         nullstillFilterButton={
           hasChanged ? (
             <>
@@ -40,15 +54,6 @@ export function OppgaverPage() {
               <LagreFilterButton filter={filter.values} onLagre={saveFilter} />
             </>
           ) : null
-        }
-        lagredeFilter={
-          <LagredeFilterOversikt
-            filters={filters}
-            selectedFilterId={filter.id}
-            onSelectFilterId={selectFilter}
-            onDeleteFilter={deleteFilter}
-            onSetDefaultFilter={setDefaultFilter}
-          />
         }
         tags={
           <OppgaveFilterTags

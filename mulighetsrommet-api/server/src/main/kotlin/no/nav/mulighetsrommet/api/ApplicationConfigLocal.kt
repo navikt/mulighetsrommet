@@ -1,0 +1,501 @@
+package no.nav.mulighetsrommet.api
+
+import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
+import io.ktor.client.engine.mock.respondError
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.TextContent
+import io.ktor.http.headersOf
+import io.ktor.utils.io.ByteReadChannel
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
+import no.nav.common.kafka.util.KafkaPropertiesBuilder
+import no.nav.common.kafka.util.KafkaPropertiesBuilder.consumerBuilder
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
+import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
+import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
+import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
+import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinRequest
+import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
+import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
+import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
+import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
+import no.nav.mulighetsrommet.api.utbetaling.service.tidligstTidspunktForUtbetalingDev
+import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
+import no.nav.mulighetsrommet.database.DatabaseConfig
+import no.nav.mulighetsrommet.database.FlywayMigrationManager
+import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
+import no.nav.mulighetsrommet.metrics.Metrics
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import no.nav.mulighetsrommet.tokenprovider.TexasClient
+import no.nav.mulighetsrommet.tokenprovider.TokenReponse
+import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
+import no.nav.mulighetsrommet.utils.toUUID
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
+import org.apache.kafka.common.serialization.ByteArraySerializer
+import java.time.LocalDate
+
+private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
+
+val ApplicationConfigLocal = AppConfig(
+    tiltakstyper = TiltakstypeService.Config(
+        features = run {
+            val admin = setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON)
+            val modia = setOf(TiltakstypeFeature.VISES_I_MODIA)
+            val migrert = setOf(TiltakstypeFeature.MIGRERT)
+            val utfaset = setOf(TiltakstypeFeature.UTFASET)
+            mapOf(
+                Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING to admin + modia + migrert + utfaset,
+                Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING to admin + modia + migrert + utfaset,
+
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to admin + modia + migrert,
+                Tiltakskode.ARBEIDSMARKEDSOPPLAERING to admin + modia + migrert,
+                Tiltakskode.ARBEIDSRETTET_REHABILITERING to admin + modia + migrert,
+                Tiltakskode.AVKLARING to admin + modia + migrert,
+                Tiltakskode.DIGITALT_OPPFOLGINGSTILTAK to admin + modia + migrert,
+                Tiltakskode.FAG_OG_YRKESOPPLAERING to admin + modia + migrert,
+                Tiltakskode.JOBBKLUBB to admin + modia + migrert,
+                Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV to admin + modia + migrert,
+                Tiltakskode.OPPFOLGING to admin + modia + migrert,
+                Tiltakskode.STUDIESPESIALISERING to admin + modia + migrert,
+                Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to admin + modia + migrert,
+                Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to admin + modia + migrert,
+
+                Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER to admin + modia,
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to admin + modia,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin + modia,
+                Tiltakskode.HOYERE_UTDANNING to admin + modia,
+
+                Tiltakskode.ARBEIDSTRENING to modia,
+                Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD to modia,
+                Tiltakskode.VARIG_LONNSTILSKUD to modia,
+                Tiltakskode.MENTOR to modia,
+                Tiltakskode.INKLUDERINGSTILSKUD to modia,
+                Tiltakskode.SOMMERJOBB to modia,
+                Tiltakskode.VTAO to modia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG to modia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE to modia,
+                Tiltakskode.ARBEID_MED_STOTTE to modia,
+
+                /*
+                 * Nye tiltakstyper under utvikling
+                 */
+                Tiltakskode.FIREARIG_LONNSTILSUDD to setOf(),
+            )
+        },
+    ),
+    okonomi = OkonomiConfig(
+        gyldigTilsagnPeriode = Tiltakskode.entries.associateWith {
+            Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2030, 1, 1))
+        },
+        tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetalingDev,
+    ),
+    database = DatabaseConfig(
+        jdbcUrl = "jdbc:postgresql://localhost:5442/mr-api?user=valp&password=valp",
+        maximumPoolSize = 10,
+        micrometerRegistry = Metrics.micrometerRegistry,
+    ),
+    flyway = FlywayMigrationManager.MigrationConfig(
+        strategy = FlywayMigrationManager.InitializationStrategy.RepairAndMigrate,
+    ),
+    kafka = KafkaConfig(
+        producerProperties = KafkaPropertiesBuilder.producerBuilder()
+            .withBaseProperties()
+            .withProducerId("mulighetsrommet-api-kafka-producer.v1")
+            .withBrokerUrl("localhost:29092")
+            .withSerializers(ByteArraySerializer::class.java, ByteArraySerializer::class.java)
+            .build(),
+        clients = KafkaClients(
+            { consumerGroupId ->
+                consumerBuilder()
+                    .withBaseProperties()
+                    .withConsumerGroupId(consumerGroupId)
+                    .withBrokerUrl("localhost:29092")
+                    .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+                    .build()
+            },
+        ),
+    ),
+    auth = AuthConfig(
+        azure = AuthProvider(
+            issuer = "http://localhost:8081/azure",
+            jwksUri = "http://localhost:8081/azure/jwks",
+            audience = "mulighetsrommet-api",
+            tokenEndpointUrl = "http://localhost:8081/azure/token",
+            privateJwk = "azure",
+        ),
+        tokenx = AuthProvider(
+            issuer = "http://localhost:8081/tokenx",
+            jwksUri = "http://localhost:8081/tokenx/jwks",
+            audience = "mulighetsrommet-api",
+            tokenEndpointUrl = "http://localhost:8081/tokenx/token",
+            privateJwk = "tokenx",
+        ),
+        maskinporten = AuthProvider(
+            issuer = "http://localhost:8081/maskinporten",
+            jwksUri = "http://localhost:8081/maskinporten/jwks",
+            audience = "mulighetsrommet-api",
+            tokenEndpointUrl = "http://localhost:8081/maskinporten/token",
+            privateJwk = "maskinporten",
+        ),
+        roles = setOf(
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TEAM_MULIGHETSROMMET),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKSTYPER_SKRIV),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKSTYPER_REDIGER_DELTAKERINFO),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.AVTALER_SKRIV),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKADMINISTRASJON_GENERELL),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.OPPFOLGER_GJENNOMFORING),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.TILTAKSGJENNOMFORINGER_SKRIV),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.SAKSBEHANDLER_OKONOMI),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.BESLUTTER_TILSAGN),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.ATTESTANT_UTBETALING),
+            EntraGroupNavAnsattRolleMapping(adGruppeForLokalUtvikling, Rolle.KONTAKTPERSON),
+        ),
+        texas = TexasClient.Config(
+            tokenEndpoint = "http://localhost:8090/api/v1/token",
+            tokenExchangeEndpoint = "http://localhost:8090/api/v1/token/exchange",
+            tokenIntrospectionEndpoint = "http://localhost:8090/api/v1/introspect",
+            engine = MockEngine { _ ->
+                respond(
+                    content = Json.encodeToString(
+                        TokenReponse(
+                            access_token = "dummy",
+                            token_type = TokenReponse.TokenType.Bearer,
+                            expires_in = 1_000_1000,
+                        ),
+                    ),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            },
+        ),
+    ),
+    sanity = SanityClient.Config(
+        dataset = "test",
+        projectId = "xegcworx",
+        token = System.getenv("SANITY_AUTH_TOKEN") ?: "",
+        useCdn = false,
+    ),
+    slack = SlackConfig(
+        token = System.getenv("SLACK_TOKEN") ?: "",
+        channel = "#team-valp-monitoring",
+        enable = false,
+    ),
+    unleash = UnleashFeatureToggleService.Config(
+        appName = "mulighetsrommet-api",
+        url = "http://localhost:8090/unleash",
+        token = "",
+        instanceId = "mulighetsrommet-api",
+        environment = "local",
+    ),
+    arenaAdapter = AuthenticatedHttpClientConfig(
+        url = "http://0.0.0.0:8084",
+        scope = "default",
+    ),
+    tiltakshistorikk = AuthenticatedHttpClientConfig(
+        url = "http://0.0.0.0:8090",
+        scope = "mr-tiltakshistorikk",
+    ),
+    pdfgen = HttpClientConfig(
+        url = "http://localhost:8888",
+    ),
+    tilgangsmaskin = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/tilgangsmaskin",
+        scope = "default",
+        engine = MockEngine { request ->
+            if (request.url.toString().endsWith("/api/v1/bulk/obo")) {
+                val jsonString = (request.body as TextContent).text
+                val requests = JsonIgnoreUnknownKeys.decodeFromString<List<TilgangsmaskinRequest>>(jsonString)
+
+                // Personidenter som matcher mock-personer med STRENGT_FORTROLIG eller STRENGT_FORTROLIG_UTLAND
+                val identerUtenTilgang = setOf("01019212345", "15039054321")
+
+                val payload =
+                    TilgangsmaskinResponse(
+                        requests.map { req ->
+                            if (req.brukerId in identerUtenTilgang) {
+                                TilgangsmaskinResponse.Resultat(
+                                    req.brukerId,
+                                    status = 403,
+                                    detaljer = object : ProblemDetail() {
+                                        override val type = ""
+                                        override val title = "AVVIST_SKJERMING"
+                                        override val status = 403
+                                        override val detail = ""
+                                        override val instance = null
+                                        override val extensions = null
+                                    },
+                                )
+                            } else {
+                                TilgangsmaskinResponse.Resultat(
+                                    req.brukerId,
+                                    status = 204,
+                                )
+                            }
+                        },
+                    )
+                respond(
+                    content = ByteReadChannel(JsonIgnoreUnknownKeys.encodeToString(payload)),
+                    status = HttpStatusCode.MultiStatus,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+            } else {
+                respondError(HttpStatusCode.NotFound, "Mangler MockEngine for Tilgangsmaskinen")
+            }
+        },
+    ),
+    veilarbvedtaksstotteConfig = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/veilarbvedtaksstotte/api",
+        scope = "default",
+    ),
+    veilarboppfolgingConfig = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/veilarboppfolging/api",
+        scope = "default",
+    ),
+    veilarbdialogConfig = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/veilarbdialog/api",
+        scope = "default",
+    ),
+    poaoTilgang = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/poao-tilgang",
+        scope = "default",
+    ),
+    isoppfolgingstilfelleConfig = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/isoppfolgingstilfelle",
+        scope = "default",
+    ),
+    msGraphConfig = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/ms-graph",
+        scope = "default",
+    ),
+    amtDeltakerConfig = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/amt-deltaker",
+        scope = "default",
+        engine = MockEngine { request ->
+            if (request.url.toString().endsWith("/external/deltakere/personalia")) {
+                val jsonString = (request.body as TextContent).text
+                val deltakerIds = JsonIgnoreUnknownKeys.decodeFromString<List<String>>(jsonString)
+
+                data class MockPerson(
+                    val personident: String,
+                    val fornavn: String,
+                    val etternavn: String,
+                    val navEnhetsnummer: String,
+                    val erSkjermet: Boolean,
+                    val adressebeskyttelse: String,
+                )
+
+                val mockPersonalia = listOf(
+                    MockPerson("12345678901", "Ola", "Nordmann", "1206", false, "UGRADERT"),
+                    MockPerson("98765432100", "Kari", "Hansen", "0301", false, "UGRADERT"),
+                    MockPerson("27017809100", "Per", "Johansen", "0106", false, "FORTROLIG"),
+                    MockPerson("01019212345", "Lise", "Berg", "1505", true, "STRENGT_FORTROLIG"),
+                    MockPerson("15039054321", "Erik", "Solberg", "4601", false, "STRENGT_FORTROLIG_UTLAND"),
+                )
+
+                val content = deltakerIds.mapIndexed { index, id ->
+                    val person = mockPersonalia[index % mockPersonalia.size]
+                    """
+                          {
+                            "deltakerId": "$id",
+                            "personident": "${person.personident}",
+                            "fornavn": "${person.fornavn}",
+                            "mellomnavn": null,
+                            "etternavn": "${person.etternavn}",
+                            "navEnhetsnummer": "${person.navEnhetsnummer}",
+                            "erSkjermet": ${person.erSkjermet},
+                            "adressebeskyttelse": "${person.adressebeskyttelse}"
+                          }
+                    """.trimIndent()
+                }.joinToString(prefix = "[", postfix = "]", separator = ",\n")
+
+                respond(
+                    content = ByteReadChannel(content),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+            } else {
+                respondError(HttpStatusCode.NotFound)
+            }
+        },
+    ),
+    pdl = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/pdl",
+        scope = "default",
+        engine = MockEngine { request ->
+            val parsedReq =
+                JsonIgnoreUnknownKeys.decodeFromString<GraphqlRequest<JsonObject>>((request.body as TextContent).text)
+            when {
+                "identer" in parsedReq.variables.keys -> {
+                    val identer = JsonIgnoreUnknownKeys.decodeFromJsonElement<Identer>(parsedReq.variables).identer
+                    val hentPersonBolk = identer.joinToString(",\n") { ident ->
+                        """
+                          {
+                            "ident": "${ident.value}",
+                            "person": {
+                              "navn": [
+                                {
+                                  "fornavn": "Ola",
+                                  "mellomnavn": null,
+                                  "etternavn": "Nordmann"
+                                }
+                              ],
+                              "adressebeskyttelse": [ { "gradering": "STRENGT_FORTROLIG" } ]
+                            },
+                            "code": "ok"
+                          }
+                        """.trimIndent()
+                    }
+                    val geografiskTilknytningBolk = identer.joinToString(",\n") { ident ->
+                        """
+                        {
+                            "ident": "${ident.value}",
+                            "geografiskTilknytning": {
+                              "gtType": "BYDEL",
+                              "gtLand": null,
+                              "gtKommune": null,
+                              "gtBydel": "030102"
+                            },
+                            "code": "ok"
+                        }
+                        """.trimIndent()
+                    }
+                    respond(
+                        content = ByteReadChannel(
+                            """
+                            {
+                              "data": {
+                                "hentGeografiskTilknytningBolk": [$geografiskTilknytningBolk],
+                                "hentPersonBolk": [$hentPersonBolk]
+                              },
+                              "errors": []
+                            }
+                            """.trimIndent(),
+                        ),
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                    )
+                }
+
+                else ->
+                    respond(
+                        content = ByteReadChannel(
+                            """
+                            {
+                              "data": {
+                                "hentGeografiskTilknytning": {
+                                  "gtType": "BYDEL",
+                                  "gtLand": null,
+                                  "gtKommune": null,
+                                  "gtBydel": "030102"
+                                },
+                                "hentPerson": {
+                                  "navn": [
+                                    {
+                                      "fornavn": "Ola",
+                                      "mellomnavn": null,
+                                      "etternavn": "Nordmann"
+                                    }
+                                  ]
+                                },
+                                "hentIdenter": {
+                                  "identer": [
+                                    {
+                                      "ident": "12118323058",
+                                      "gruppe": "AKTORID",
+                                      "historisk": false
+                                    }
+                                  ]
+                                }
+                              },
+                              "errors": []
+                            }
+                            """.trimIndent(),
+                        ),
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                    )
+            }
+        },
+    ),
+    pamOntologi = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090",
+        scope = "default",
+    ),
+    norg2 = HttpClientConfig(
+        url = "http://localhost:8090/norg2",
+    ),
+    altinn = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/altinn",
+        scope = "default",
+    ),
+    dokark = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/dokark",
+        scope = "default",
+    ),
+    dokdistfordeling = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090/dokdistfordeling",
+        scope = "default",
+        engine = MockEngine { request ->
+            respond(
+                status = HttpStatusCode.OK,
+                content = ByteReadChannel(
+                    """
+                {"bestillingsId": "1234"}
+                    """.trimIndent(),
+                ),
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        },
+    ),
+    utdanning = HttpClientConfig(
+        url = "https://api.utdanning.no",
+    ),
+    tasks = TaskConfig(
+        synchronizeNorgEnheter = SynchronizeNorgEnheter.Config(
+            disabled = true,
+            delayOfMinutes = 360,
+        ),
+        synchronizeNavAnsatte = SynchronizeNavAnsatte.Config(
+            disabled = true,
+            cronPattern = "0 */1 * * * *",
+        ),
+        synchronizeUtdanninger = SynchronizeUtdanninger.Config(
+            disabled = true,
+            cronPattern = "0 */1 * * * *",
+        ),
+        notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg.Config(
+            disabled = true,
+            cronPattern = "0 */1 * * * *",
+        ),
+        notifySluttdatoForAvtalerNarmerSeg = NotifySluttdatoForAvtalerNarmerSeg.Config(
+            disabled = true,
+            cronPattern = "0 */1 * * * *",
+        ),
+        updateApentForPamelding = UpdateApentForPamelding.Config(
+            disabled = true,
+            cronPattern = "0 55 23 * * *",
+        ),
+        generateUtbetaling = GenerateUtbetaling.Config(
+            disabled = false,
+            cronPattern = "0 0 5 7 * *",
+        ),
+    ),
+    kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8090",
+        scope = "default",
+    ),
+    clamav = HttpClientConfig(
+        url = "http://localhost:8090",
+    ),
+)

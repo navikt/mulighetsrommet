@@ -38,7 +38,21 @@ export function InnsendingoversiktPage() {
       />
       <ContentBox>
         <FilterAndTableLayout
-          filter={<InnsendingFilter filter={filter.values} updateFilter={updateFilter} />}
+          filter={
+            <InnsendingFilter
+              filter={filter.values}
+              updateFilter={updateFilter}
+              lagredeFilterOversikt={
+                <LagredeFilterOversikt
+                  filters={filters}
+                  selectedFilterId={filter.id}
+                  onSelectFilterId={selectFilter}
+                  onDeleteFilter={deleteFilter}
+                  onSetDefaultFilter={setDefaultFilter}
+                />
+              }
+            />
+          }
           nullstillFilterButton={
             hasChanged ? (
               <>
@@ -46,15 +60,6 @@ export function InnsendingoversiktPage() {
                 <LagreFilterButton filter={filter.values} onLagre={saveFilter} />
               </>
             ) : null
-          }
-          lagredeFilter={
-            <LagredeFilterOversikt
-              filters={filters}
-              selectedFilterId={filter.id}
-              onSelectFilterId={selectFilter}
-              onDeleteFilter={deleteFilter}
-              onSetDefaultFilter={setDefaultFilter}
-            />
           }
           tags={
             <InnsendingFilterTags

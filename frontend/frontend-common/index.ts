@@ -22,7 +22,6 @@ import { LagreFilterButton } from "./components/lagreFilter/LagreFilterButton";
 import { StatusTag } from "./components/tags/StatusTag";
 import { ExpandableStatusTag } from "./components/tags/ExpandableStatusTag";
 import { LagredeFilterOversikt } from "./components/lagreFilter/LagredeFilterOversikt";
-import { FilterContainer } from "./components/filter/FilterContainer";
 import { useOpenFilterWhenThreshold } from "./hooks/useOpenFilterWhenThreshold";
 import { useApiQuery, useApiSuspenseQuery } from "./hooks/useApiQuery";
 import { useSortableData } from "./hooks/useSortableData";
@@ -53,7 +52,6 @@ export {
   LagredeFilterOversikt,
   StatusTag,
   ExpandableStatusTag,
-  FilterContainer,
   useOpenFilterWhenThreshold,
   useApiQuery,
   useApiSuspenseQuery,

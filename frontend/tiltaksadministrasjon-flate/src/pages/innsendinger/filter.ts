@@ -36,4 +36,8 @@ export const parseInnsendingFilter = createGracefulParser(
   defaultInnsendingFilter,
 );
 
-export const InnsendingFilterAccordionAtom = atom<string[]>(["tiltakstype", "navEnhet"]);
+export const InnsendingFilterAccordionAtom = atom<string[]>([
+  "tiltakstype",
+  "navEnhet",
+  "lagrede-filter",
+]);
