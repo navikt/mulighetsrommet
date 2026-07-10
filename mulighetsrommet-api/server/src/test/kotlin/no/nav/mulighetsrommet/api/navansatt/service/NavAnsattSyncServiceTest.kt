@@ -5,13 +5,11 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import java.time.LocalDate
@@ -19,20 +17,17 @@ import java.time.LocalDate
 class NavAnsattSyncServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
+    val ansatt1 = NavAnsattFixture.DonaldDuck.medRoller(
+        roller = setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)),
+    )
+    val ansatt2 = NavAnsattFixture.MikkeMus.medRoller(
+        roller = setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)),
+    )
     val domain = MulighetsrommetTestDomain(
         navEnheter = listOf(NavEnhetFixtures.Innlandet),
-        ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+        ansatte = listOf(ansatt1, ansatt2),
         arrangorer = listOf(),
-    ) {
-        queries.ansatt.setRoller(
-            NavAnsattFixture.DonaldDuck.navIdent,
-            setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)),
-        )
-        queries.ansatt.setRoller(
-            NavAnsattFixture.MikkeMus.navIdent,
-            setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)),
-        )
-    }
+    )
 
     beforeEach {
         domain.initialize(database.db)
@@ -50,11 +45,6 @@ class NavAnsattSyncServiceTest : FunSpec({
         navAnsattService = navAnsattService,
         sanityService = sanityService,
     )
-
-    val ansatt1 =
-        NavAnsattFixture.DonaldDuck.toNavAnsattDto(setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)))
-    val ansatt2 =
-        NavAnsattFixture.MikkeMus.toNavAnsattDto(setOf(NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)))
 
     context("should schedule nav_ansatt to be deleted when they are not in the list of ansatte to sync") {
         val today = LocalDate.now()
@@ -84,10 +74,7 @@ class NavAnsattSyncServiceTest : FunSpec({
 
             database.run {
                 queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
-                    ansatt1.copy(
-                        roller = setOf(),
-                        skalSlettesDato = tomorrow,
-                    ),
+                    ansatt1.skalSlettes(tomorrow),
                     ansatt2,
                 )
             }
@@ -100,14 +87,8 @@ class NavAnsattSyncServiceTest : FunSpec({
 
             database.run {
                 queries.ansatt.getAll() shouldContainExactlyInAnyOrder listOf(
-                    ansatt1.copy(
-                        roller = setOf(),
-                        skalSlettesDato = tomorrow,
-                    ),
-                    ansatt2.copy(
-                        roller = setOf(),
-                        skalSlettesDato = tomorrow,
-                    ),
+                    ansatt1.skalSlettes(tomorrow),
+                    ansatt2.skalSlettes(tomorrow),
                 )
             }
         }
@@ -141,18 +122,3 @@ class NavAnsattSyncServiceTest : FunSpec({
         }
     }
 })
-
-private fun NavAnsattDbo.toNavAnsattDto(roller: Set<NavAnsattRolle>): NavAnsatt = NavAnsatt(
-    entraObjectId = entraObjectId,
-    navIdent = navIdent,
-    fornavn = fornavn,
-    etternavn = etternavn,
-    hovedenhet = NavAnsatt.Hovedenhet(
-        enhetsnummer = NavEnhetFixtures.Innlandet.enhetsnummer,
-        navn = NavEnhetFixtures.Innlandet.navn,
-    ),
-    mobilnummer = mobilnummer,
-    epost = epost,
-    roller = roller,
-    skalSlettesDato = null,
-)

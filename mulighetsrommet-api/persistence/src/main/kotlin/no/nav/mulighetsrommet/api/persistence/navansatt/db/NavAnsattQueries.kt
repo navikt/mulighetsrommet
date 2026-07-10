@@ -1,23 +1,30 @@
-package no.nav.mulighetsrommet.api.navansatt.db
+package no.nav.mulighetsrommet.api.persistence.navansatt.db
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
+import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.intellij.lang.annotations.Language
-import java.time.LocalDate
 import java.util.UUID
 
-class NavAnsattQueries(private val session: Session) {
+class NavAnsattQueries(private val session: Session) : NavAnsattRepository {
 
-    fun upsert(ansatt: NavAnsattDbo) {
+    override fun save(ansatt: NavAnsatt) = withTransaction(session) {
+        upsertAnsatt(ansatt)
+        setRoller(ansatt.navIdent, ansatt.roller)
+    }
+
+    context(session: TransactionalSession)
+    private fun upsertAnsatt(ansatt: NavAnsatt) {
         @Language("PostgreSQL")
         val query = """
             insert into nav_ansatt(nav_ident, fornavn, etternavn, hovedenhet, entra_object_id, mobilnummer, epost, skal_slettes_dato)
@@ -44,7 +51,8 @@ class NavAnsattQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setRoller(navIdent: NavIdent, roller: Set<NavAnsattRolle>) {
+    context(session: TransactionalSession)
+    private fun setRoller(navIdent: NavIdent, roller: Set<NavAnsattRolle>) {
         @Language("PostgreSQL")
         val deleteRoles = """
             delete from nav_ansatt_rolle
@@ -109,35 +117,22 @@ class NavAnsattQueries(private val session: Session) {
         }
     }
 
-    fun getAll(
-        rollerContainsAll: List<NavAnsattRolle>? = null,
-        hovedenhetIn: List<NavEnhetNummer>? = null,
-        skalSlettesDatoLte: LocalDate? = null,
-    ): List<NavAnsatt> = with(session) {
+    override fun getAll(): List<NavAnsatt> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
             from view_nav_ansatt
-            where (:roller::jsonb is null or (roller_json @> :roller::jsonb))
-              and (:hovedenhet::text[] is null or hovedenhet_enhetsnummer = any(:hovedenhet))
-              and (:skal_slettes_dato::date is null or skal_slettes_dato <= :skal_slettes_dato)
             order by fornavn, etternavn
         """.trimIndent()
 
-        val params = mapOf(
-            "roller" to rollerContainsAll?.ifEmpty { null }?.let { Json.encodeToString(it) },
-            "hovedenhet" to hovedenhetIn?.let { createArrayOfValue(it) { it.value } },
-            "skal_slettes_dato" to skalSlettesDatoLte,
-        )
-
-        return list(queryOf(query, params)) { it.toNavAnsatt() }
+        return list(queryOf(query)) { it.toNavAnsatt() }
     }
 
-    fun getByNavIdentOrError(navIdent: NavIdent): NavAnsatt {
-        return checkNotNull(getByNavIdent(navIdent)) { "NavAnsatt ikke funnet" }
+    override fun getOrError(navIdent: NavIdent): NavAnsatt {
+        return checkNotNull(get(navIdent)) { "NavAnsatt ikke funnet" }
     }
 
-    fun getByNavIdent(navIdent: NavIdent): NavAnsatt? = with(session) {
+    override fun get(navIdent: NavIdent): NavAnsatt? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -148,7 +143,7 @@ class NavAnsattQueries(private val session: Session) {
         return single(queryOf(query, navIdent.value)) { it.toNavAnsatt() }
     }
 
-    fun getByEntraObjectId(objectId: UUID): NavAnsatt? = with(session) {
+    override fun getByEntraObjectId(objectId: UUID): NavAnsatt? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -159,7 +154,7 @@ class NavAnsattQueries(private val session: Session) {
         return single(queryOf(query, objectId)) { it.toNavAnsatt() }
     }
 
-    fun deleteByEntraObjectId(objectId: UUID): Int = with(session) {
+    override fun deleteByEntraObjectId(objectId: UUID): Int = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete from nav_ansatt
@@ -168,31 +163,17 @@ class NavAnsattQueries(private val session: Session) {
 
         return update(queryOf(query, objectId))
     }
-
-    fun getNavAnsattDbo(navIdent: NavIdent): NavAnsattDbo? = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from nav_ansatt
-            where nav_ident = ?
-        """.trimIndent()
-
-        return single(queryOf(query, navIdent.value)) { it.toNavAnsattDbo() }
-    }
 }
 
 private fun Row.toNavAnsatt(): NavAnsatt {
     val roller = stringOrNull("roller_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<Set<NavAnsattRolle>>(it) }
+        ?.let { Json.decodeFromString<Set<NavAnsattRolle>>(it) }
         ?: setOf()
-    return NavAnsatt(
+    return NavAnsatt.fromStorage(
         navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),
         etternavn = string("etternavn"),
-        hovedenhet = NavAnsatt.Hovedenhet(
-            enhetsnummer = NavEnhetNummer(string("hovedenhet_enhetsnummer")),
-            navn = string("hovedenhet_navn"),
-        ),
+        hovedenhet = NavEnhetNummer(string("hovedenhet_enhetsnummer")),
         entraObjectId = uuid("entra_object_id"),
         mobilnummer = stringOrNull("mobilnummer"),
         epost = string("epost"),
@@ -200,14 +181,3 @@ private fun Row.toNavAnsatt(): NavAnsatt {
         skalSlettesDato = localDateOrNull("skal_slettes_dato"),
     )
 }
-
-private fun Row.toNavAnsattDbo(): NavAnsattDbo = NavAnsattDbo(
-    navIdent = NavIdent(string("nav_ident")),
-    fornavn = string("fornavn"),
-    etternavn = string("etternavn"),
-    hovedenhet = NavEnhetNummer(string("hovedenhet")),
-    entraObjectId = uuid("entra_object_id"),
-    mobilnummer = stringOrNull("mobilnummer"),
-    epost = string("epost"),
-    skalSlettesDato = localDateOrNull("skal_slettes_dato"),
-)

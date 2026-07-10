@@ -19,6 +19,7 @@ import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.createAuthConfig
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -32,7 +33,6 @@ import no.nav.mulighetsrommet.api.mockKontoregisterOrganisasjon
 import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.mockTilgangsmaskinenForbidden
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder

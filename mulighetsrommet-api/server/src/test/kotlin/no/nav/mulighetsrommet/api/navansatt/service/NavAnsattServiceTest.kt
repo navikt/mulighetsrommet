@@ -12,14 +12,14 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.msgraph.EntraNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle.KONTAKTPERSON
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle.KONTAKTPERSON
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -42,19 +42,19 @@ class NavAnsattServiceTest : FunSpec({
         domain.initialize(database.db)
     }
 
-    fun toAzureAdNavAnsattDto(dbo: NavAnsattDbo) = EntraNavAnsatt(
-        entraObjectId = dbo.entraObjectId,
-        navIdent = dbo.navIdent,
-        fornavn = dbo.fornavn,
-        etternavn = dbo.etternavn,
+    fun toEntraNavAnsatt(ansatt: NavAnsatt) = EntraNavAnsatt(
+        entraObjectId = ansatt.entraObjectId,
+        navIdent = ansatt.navIdent,
+        fornavn = ansatt.fornavn,
+        etternavn = ansatt.etternavn,
         hovedenhetKode = domain.navEnheter[0].enhetsnummer,
         hovedenhetNavn = domain.navEnheter[0].navn,
-        mobilnummer = dbo.mobilnummer,
-        epost = dbo.epost,
+        mobilnummer = ansatt.mobilnummer,
+        epost = ansatt.epost,
     )
 
-    val ansatt1 = toAzureAdNavAnsattDto(NavAnsattFixture.DonaldDuck)
-    val ansatt2 = toAzureAdNavAnsattDto(NavAnsattFixture.MikkeMus)
+    val ansatt1 = toEntraNavAnsatt(NavAnsattFixture.DonaldDuck)
+    val ansatt2 = toEntraNavAnsatt(NavAnsattFixture.MikkeMus)
 
     val adGruppeGenerell = UUID.randomUUID()
     val rolleGenerell = NavAnsattRolle.generell(TILTAKADMINISTRASJON_GENERELL)

@@ -6,8 +6,8 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -49,8 +49,7 @@ fun Route.tilsagnRoutesGet() {
             val result = db.session {
                 val tilsagn = queries.tilsagn.get(id) ?: return@get call.respond(HttpStatusCode.NotFound)
 
-                val ansatt = queries.ansatt.getByNavIdent(navIdent)
-                    ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
+                val ansatt = queries.ansatt.getOrError(navIdent)
 
                 val opprettelse = queries.totrinnskontroll.getDtoOrError(id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
                 val annullering = queries.totrinnskontroll.getDto(id, TotrinnskontrollType.TILSAGN_ANNULLERING)

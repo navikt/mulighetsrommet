@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.avtale.api.avtaleRoutes
 import no.nav.mulighetsrommet.api.avtale.api.kodeverkRoutes
 import no.nav.mulighetsrommet.api.avtale.api.personopplysningRoutes
 import no.nav.mulighetsrommet.api.avtale.api.rammedetaljerRoutes
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.endringshistorikk.api.endringshistorikkRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingPublicRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingRoutes
@@ -21,7 +22,6 @@ import no.nav.mulighetsrommet.api.janzz.api.janzzRoutes
 import no.nav.mulighetsrommet.api.lagretfilter.lagretFilterRoutes
 import no.nav.mulighetsrommet.api.navansatt.api.navAnsattRoutes
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navenhet.api.navEnhetRoutes
 import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.OpenApiVersionHeader

@@ -39,9 +39,9 @@ import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
@@ -456,7 +456,7 @@ class AvtaleService(
         previous: AvtaleValidator.Ctx.Avtale?,
     ): Either<List<FieldError>, AvtaleValidator.Ctx> = either {
         val tiltakstype = queries.tiltakstype.getByTiltakskode(request.tiltakskode)
-        val administratorer = request.administratorer.mapNotNull { queries.ansatt.getByNavIdent(it) }
+        val administratorer = request.administratorer.mapNotNull { queries.ansatt.get(it) }
         val navEnheter = navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() }
 
         val arrangor = request.arrangor?.let {

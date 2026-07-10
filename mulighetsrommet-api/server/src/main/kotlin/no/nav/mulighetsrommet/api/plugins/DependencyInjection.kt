@@ -14,6 +14,7 @@ import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProce
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
+import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQuery
 import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
 import no.nav.mulighetsrommet.admin.navenhet.SynkroniserNavEnheterUseCase
@@ -490,6 +491,7 @@ private fun services(appConfig: AppConfig) = module {
     single<NavEnhetRepository> { SqlNavEnhetRepository(get()) }
     single { NavEnhetService(get()) }
     single { KostnadsstedQuery(get()) }
+    single { NavAnsattDtoQuery(get()) }
     single { ArrangorService(get(), get(), get()) }
     single {
         GenererUtbetalingService(

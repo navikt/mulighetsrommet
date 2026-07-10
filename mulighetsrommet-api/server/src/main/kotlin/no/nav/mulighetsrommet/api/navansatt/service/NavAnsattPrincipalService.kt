@@ -6,8 +6,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.server.auth.jwt.JWTPayloadHolder
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
@@ -70,17 +69,17 @@ class NavAnsattPrincipalService(
         return roller
     }
 
-    private suspend fun syncNavAnsattRoller(oid: UUID, roller: Set<NavAnsattRolle>): Unit = db.session {
+    private suspend fun syncNavAnsattRoller(oid: UUID, roller: Set<NavAnsattRolle>): Unit = db.transaction {
         val ansatt = queries.ansatt.getByEntraObjectId(oid) ?: run {
             log.info("Fant ikke NavAnsatt for oid=$oid i databasen, henter fra Entra i stedet")
             val ansatt = navAnsattService.getNavAnsattFromAzure(oid, AccessType.M2M)
-            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsatt(ansatt))
+            queries.ansatt.save(ansatt)
             ansatt
         }
 
         if (ansatt.roller != roller) {
             log.info("Oppdaterer roller for ansatt med navIdent=${ansatt.navIdent} fra ${ansatt.roller} til $roller")
-            queries.ansatt.setRoller(ansatt.navIdent, roller)
+            queries.ansatt.save(ansatt.medRoller(roller))
         }
     }
 }

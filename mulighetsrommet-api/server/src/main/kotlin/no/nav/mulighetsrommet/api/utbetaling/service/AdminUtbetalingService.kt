@@ -5,8 +5,8 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.nel
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
@@ -47,7 +47,7 @@ class AdminUtbetalingService(
         val linjer = queries.utbetalingLinje.getByUtbetalingId(id)
         val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
 
-        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
+        val ansatt = queries.ansatt.getOrError(navIdent)
         val handlinger = utbetalingHandlinger(utbetaling, ansatt)
 
         return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
@@ -59,7 +59,7 @@ class AdminUtbetalingService(
         onBehalfOf: PersonaliaService.OnBehalfOf.NavAnsatt,
     ): List<UtbetalingLinjeDto> = db.session {
         val utbetaling = queries.utbetaling.getOrError(id)
-        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
+        val ansatt = queries.ansatt.getOrError(navIdent)
 
         val linjer = queries.utbetalingLinje.getByUtbetalingId(id).map { linje ->
             val tilsagn = queries.tilsagn.getOrError(linje.tilsagnId)
