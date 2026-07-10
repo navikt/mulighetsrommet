@@ -19,6 +19,9 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
 
     testFixturesImplementation(projects.common.domain)
+
+    testImplementation(libs.kotest.junit)
+    testImplementation(libs.kotest.assertions.core)
 }
 
 tasks.test {
