@@ -19,6 +19,8 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -32,8 +34,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoReq
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -64,8 +64,8 @@ class GjennomforingAvtaleServiceTest : FunSpec({
         avtaler = listOf(AvtaleFixtures.oppfolging),
     ) {
         val admin = setOf(NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV))
-        queries.ansatt.setRoller(NavAnsattFixture.DonaldDuck.navIdent, admin)
-        queries.ansatt.setRoller(NavAnsattFixture.MikkeMus.navIdent, admin)
+        queries.ansatt.save(NavAnsattFixture.DonaldDuck.medRoller(admin))
+        queries.ansatt.save(NavAnsattFixture.MikkeMus.medRoller(admin))
     }
 
     beforeEach {
@@ -556,9 +556,8 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 ansatte = listOf(slettetAdmin),
                 additionalSetup = {
-                    queries.ansatt.setRoller(
-                        slettetAdmin.navIdent,
-                        setOf(NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV)),
+                    queries.ansatt.save(
+                        slettetAdmin.copy(roller = setOf(NavAnsattRolle.generell(Rolle.TILTAKSGJENNOMFORINGER_SKRIV))),
                     )
                 },
             ).initialize(database.db)

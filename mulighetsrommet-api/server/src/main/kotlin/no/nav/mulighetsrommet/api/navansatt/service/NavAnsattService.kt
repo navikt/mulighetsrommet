@@ -9,17 +9,14 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.msgraph.EntraNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
-import no.nav.mulighetsrommet.api.navansatt.api.NavAnsattFilter
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import org.slf4j.LoggerFactory
 import java.util.UUID
-import kotlin.collections.map
 
 class NavAnsattService(
     private val roles: Set<EntraGroupNavAnsattRolleMapping>,
@@ -28,20 +25,14 @@ class NavAnsattService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getOrSynchronizeNavAnsatt(navIdent: NavIdent, accessType: AccessType): NavAnsatt = db.session {
-        queries.ansatt.getByNavIdent(navIdent) ?: run {
+    suspend fun getOrSynchronizeNavAnsatt(navIdent: NavIdent, accessType: AccessType): NavAnsatt = db.transaction {
+        queries.ansatt.get(navIdent) ?: run {
             logger.info("Fant ikke NavAnsatt for navIdent=$navIdent i databasen, forsøker Azure AD i stedet")
 
             val ansatt = getNavAnsattFromAzure(navIdent, accessType)
-            queries.ansatt.upsert(NavAnsattDbo.fromNavAnsatt(ansatt))
-            queries.ansatt.setRoller(ansatt.navIdent, ansatt.roller)
-            queries.ansatt.getByNavIdentOrError(navIdent)
+            queries.ansatt.save(ansatt)
+            queries.ansatt.getOrError(navIdent)
         }
-    }
-
-    fun getNavAnsatte(filter: NavAnsattFilter): List<NavAnsatt> = db.session {
-        val roller = filter.roller.map { NavAnsattRolle.generell(it) }
-        queries.ansatt.getAll(rollerContainsAll = roller)
     }
 
     suspend fun getNavAnsattFromAzureSok(query: String): List<EntraNavAnsatt> {
@@ -49,7 +40,7 @@ class NavAnsattService(
     }
 
     fun getNavAnsattByNavIdent(navIdent: NavIdent): NavAnsatt? = db.session {
-        queries.ansatt.getByNavIdent(navIdent)
+        queries.ansatt.get(navIdent)
     }
 
     suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.transaction {
@@ -62,7 +53,7 @@ class NavAnsattService(
         }
 
         val roller = ansatt.roller + NavAnsattRolle.generell(Rolle.KONTAKTPERSON)
-        queries.ansatt.setRoller(ansatt.navIdent, roller)
+        queries.ansatt.save(ansatt.medRoller(roller))
 
         microsoftGraphClient.addToGroup(ansatt.entraObjectId, kontaktPersonGruppeId)
     }
@@ -135,7 +126,9 @@ class NavAnsattService(
             .groupBy { it.rolle }
             .map { (rolle, mappings) ->
                 val generell = mappings.any { it.kostnadssteder.isEmpty() }
-                val enheter = mappings.flatMap { it.kostnadssteder }.flatMapTo(mutableSetOf()) { withKostnadssteder(it) }
+                val enheter = mappings.flatMapTo(mutableSetOf()) { mapping ->
+                    mapping.kostnadssteder.flatMap { withKostnadssteder(it) }
+                }
                 NavAnsattRolle(rolle, generell, enheter)
             }.toSet()
     }
@@ -157,10 +150,7 @@ fun EntraNavAnsatt.toNavAnsatt(roles: Set<NavAnsattRolle>) = NavAnsatt(
     navIdent = navIdent,
     fornavn = fornavn,
     etternavn = etternavn,
-    hovedenhet = NavAnsatt.Hovedenhet(
-        enhetsnummer = hovedenhetKode,
-        navn = hovedenhetNavn,
-    ),
+    hovedenhet = hovedenhetKode,
     mobilnummer = mobilnummer,
     epost = epost,
     roller = roles,

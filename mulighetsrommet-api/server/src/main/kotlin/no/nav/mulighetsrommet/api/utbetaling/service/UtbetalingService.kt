@@ -13,10 +13,10 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -156,7 +156,7 @@ class UtbetalingService(
             -> return FieldError.of("$agent kan ikke sende utbetaling til attestering").nel().left()
 
             is NavIdent -> {
-                val ansatt = queries.ansatt.getByNavIdentOrError(agent)
+                val ansatt = queries.ansatt.getOrError(agent)
                 if (!erSaksbehandler(ansatt)) {
                     return FieldError.of("Du kan ikke sende utbetaling til attestering").nel().left()
                 }
@@ -213,7 +213,7 @@ class UtbetalingService(
 
             is NavIdent -> {
                 val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
-                val ansatt = queries.ansatt.getByNavIdentOrError(agent)
+                val ansatt = queries.ansatt.getOrError(agent)
                 if (!erAttestant(ansatt, kostnadssted)) {
                     return FieldError.of("Du kan ikke attestere utbetalingen fordi du ikke er attestant ved tilsagnets kostnadssted (${kostnadssted.navn})")
                         .nel()
@@ -248,7 +248,7 @@ class UtbetalingService(
 
             is NavIdent -> {
                 val kostnadssted = queries.tilsagn.getOrError(linje.tilsagnId).kostnadssted
-                val ansatt = queries.ansatt.getByNavIdentOrError(agent)
+                val ansatt = queries.ansatt.getOrError(agent)
                 if (!(erSaksbehandler(ansatt) || erAttestant(ansatt, kostnadssted))) {
                     return FieldError.of("Du kan ikke returnere utbetalingen fordi du mangler tilgang").nel().left()
                 }

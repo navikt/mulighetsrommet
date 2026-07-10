@@ -12,10 +12,10 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
@@ -323,7 +323,7 @@ class TilsagnService(
             -> return FieldError.of("$agent kan ikke beslutte tilsagn").nel().left()
 
             is NavIdent -> {
-                val ansatt = queries.ansatt.getByNavIdentOrError(agent)
+                val ansatt = queries.ansatt.getOrError(agent)
                 if (!erBeslutter(ansatt, tilsagn.kostnadssted)) {
                     return FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (${tilsagn.kostnadssted.navn})")
                         .nel()
@@ -360,7 +360,7 @@ class TilsagnService(
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
         val tilsagn = queries.tilsagn.getAndAquireLock(id)
 
-        val ansatt = queries.ansatt.getByNavIdentOrError(navIdent)
+        val ansatt = queries.ansatt.getOrError(navIdent)
         if (!(erSaksbehandler(ansatt) || erBeslutter(ansatt, tilsagn.kostnadssted))) {
             return FieldError.of("Du kan ikke returnere tilsagnet fordi du mangler tilgang").nel().left()
         }

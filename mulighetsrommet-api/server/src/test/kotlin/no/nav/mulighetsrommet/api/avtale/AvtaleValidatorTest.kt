@@ -37,7 +37,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.toNavAnsatt
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -981,7 +980,7 @@ class AvtaleValidatorTest : FunSpec({
                 ctx.copy(
                     previous = previous,
                     administratorer = listOf(
-                        NavAnsattFixture.DonaldDuck.copy(skalSlettesDato = LocalDate.now()).toNavAnsatt(emptySet()),
+                        NavAnsattFixture.DonaldDuck.skalSlettes(LocalDate.now()),
                     ),
                 ),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(

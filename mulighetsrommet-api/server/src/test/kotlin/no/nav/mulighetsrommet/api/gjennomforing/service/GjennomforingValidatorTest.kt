@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
@@ -30,7 +31,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.TiltakOslo
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -586,10 +586,7 @@ class GjennomforingValidatorTest : FunSpec({
             navIdent = NavIdent("B123456"),
             fornavn = "",
             etternavn = "",
-            hovedenhet = NavAnsatt.Hovedenhet(
-                enhetsnummer = Gjovik.enhetsnummer,
-                navn = Gjovik.navn,
-            ),
+            hovedenhet = Gjovik.enhetsnummer,
             mobilnummer = null,
             epost = "",
             roller = emptySet(),

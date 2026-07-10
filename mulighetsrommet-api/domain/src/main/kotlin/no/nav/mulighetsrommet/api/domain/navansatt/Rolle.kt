@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.navansatt.model
+package no.nav.mulighetsrommet.api.domain.navansatt
 
 enum class Rolle(val visningsnavn: String) {
     /**

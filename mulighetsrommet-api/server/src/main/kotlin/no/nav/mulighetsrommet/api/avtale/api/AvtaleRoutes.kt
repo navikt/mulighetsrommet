@@ -29,8 +29,8 @@ import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -527,7 +527,7 @@ fun Route.avtaleRoutes() {
             }
         }) {
             val navIdent = getNavIdent()
-            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+            val ansatt = db.session { queries.ansatt.get(navIdent) }
                 ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
             val handlinger = if (ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)) {
@@ -558,7 +558,7 @@ fun Route.avtaleRoutes() {
         }) {
             val id: UUID by call.parameters
             val navIdent = getNavIdent()
-            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
+            val ansatt = db.session { queries.ansatt.get(navIdent) }
                 ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
             avtaleService.get(id)

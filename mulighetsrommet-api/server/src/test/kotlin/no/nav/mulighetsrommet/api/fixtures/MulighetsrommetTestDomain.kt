@@ -6,11 +6,11 @@ import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 
 data class MulighetsrommetTestDomain(
     val navEnheter: List<NavEnhet> = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
-    val ansatte: List<NavAnsattDbo> = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+    val ansatte: List<NavAnsatt> = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
     val arrangorer: List<ArrangorDto> = listOf(
         ArrangorFixtures.hovedenhet,
         ArrangorFixtures.underenhet1,
@@ -69,7 +69,7 @@ data class MulighetsrommetTestDomain(
             session.execute(UtdanningFixtures.Utdanninger.query())
 
             navEnheter.forEach { queries.enhet.save(it) }
-            ansatte.forEach { queries.ansatt.upsert(it) }
+            ansatte.forEach { queries.ansatt.save(it) }
             arrangorer.forEach { queries.arrangor.upsert(it) }
             arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
             tiltakstyper.forEach { repository.tiltakstype.save(it) }

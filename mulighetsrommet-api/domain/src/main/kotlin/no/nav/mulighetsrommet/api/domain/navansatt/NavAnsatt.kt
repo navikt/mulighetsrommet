@@ -1,7 +1,6 @@
-package no.nav.mulighetsrommet.api.navansatt.model
+package no.nav.mulighetsrommet.api.domain.navansatt
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.navansatt.helper.NavAnsattRolleHelper
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -16,18 +15,16 @@ data class NavAnsatt(
     val navIdent: NavIdent,
     val fornavn: String,
     val etternavn: String,
-    val hovedenhet: Hovedenhet,
+    val hovedenhet: NavEnhetNummer,
     val mobilnummer: String?,
     val epost: String,
     val roller: Set<NavAnsattRolle>,
     @Serializable(with = LocalDateSerializer::class)
     val skalSlettesDato: LocalDate?,
 ) {
-    @Serializable
-    data class Hovedenhet(
-        val enhetsnummer: NavEnhetNummer,
-        val navn: String,
-    )
+    fun medRoller(roller: Set<NavAnsattRolle>): NavAnsatt = copy(roller = roller)
+
+    fun skalSlettes(dato: LocalDate): NavAnsatt = copy(skalSlettesDato = dato, roller = setOf())
 
     fun hasGenerellRolle(
         rolle: Rolle,

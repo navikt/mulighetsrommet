@@ -13,7 +13,10 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
+import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -22,8 +25,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
@@ -104,11 +105,11 @@ class TilsagnServiceTest : FunSpec({
                 GjennomforingFixtures.EnkelAmo,
             ),
         ) {
-            queries.ansatt.setRoller(
+            setRoller(
                 ansatt1,
                 setOf(NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(Gjovik.enhetsnummer))),
             )
-            queries.ansatt.setRoller(
+            setRoller(
                 ansatt2,
                 setOf(NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(Gjovik.enhetsnummer))),
             )
@@ -348,7 +349,7 @@ class TilsagnServiceTest : FunSpec({
 
         test("kan ikke beslutte når ansatt mangler beslutter-rolle") {
             database.run {
-                queries.ansatt.setRoller(ansatt1, setOf())
+                setRoller(ansatt1, setOf())
             }
 
             service.upsert(request, ansatt1)
@@ -364,7 +365,7 @@ class TilsagnServiceTest : FunSpec({
 
         test("kan ikke beslutte når ansatt bare har beslutter-rolle ved andre kostnadssteder") {
             database.run {
-                queries.ansatt.setRoller(
+                setRoller(
                     ansatt1,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(Lillehammer.enhetsnummer))),
                 )
@@ -526,7 +527,7 @@ class TilsagnServiceTest : FunSpec({
         }
 
         test("kan ikke returnere tilsagn uten tilgang") {
-            database.run { queries.ansatt.setRoller(ansatt1, setOf()) }
+            database.run { setRoller(ansatt1, setOf()) }
 
             service.upsert(
                 request = request,
@@ -545,7 +546,7 @@ class TilsagnServiceTest : FunSpec({
 
         test("saksbehandler kan returnere tilsagn") {
             database.run {
-                queries.ansatt.setRoller(
+                setRoller(
                     ansatt1,
                     setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 )
@@ -937,3 +938,7 @@ class TilsagnServiceTest : FunSpec({
         }
     }
 })
+
+private fun QueryContext.setRoller(navIdent: NavIdent, roller: Set<NavAnsattRolle>) {
+    queries.ansatt.save(queries.ansatt.getOrError(navIdent).copy(roller = roller))
+}
