@@ -114,7 +114,6 @@ data class NavAnsattFilter(
 )
 
 private fun EntraNavAnsatt.toNavAnsattDto(): NavAnsattDto = NavAnsattDto(
-    entraObjectId = entraObjectId,
     navIdent = navIdent,
     fornavn = fornavn,
     etternavn = etternavn,

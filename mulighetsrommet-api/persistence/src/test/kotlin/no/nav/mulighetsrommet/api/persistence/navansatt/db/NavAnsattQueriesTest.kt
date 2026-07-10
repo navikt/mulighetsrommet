@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.util.UUID
-import kotlin.collections.setOf
 
 class NavAnsattQueriesTest : FunSpec({
     val database = extension(SqlAdminDatabaseTestListener())
@@ -136,7 +135,6 @@ class NavAnsattQueriesTest : FunSpec({
                 repository.navAnsatt.save(ansatt1)
 
                 queries.navAnsattDto.getByNavIdent(NavIdent("D1")) shouldBe NavAnsattDto(
-                    entraObjectId = ansatt1.entraObjectId,
                     navIdent = ansatt1.navIdent,
                     fornavn = "Donald",
                     etternavn = "Duck",

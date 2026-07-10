@@ -48,7 +48,6 @@ private fun Row.toNavAnsattDto(): NavAnsattDto {
         ?.let { JsonIgnoreUnknownKeys.decodeFromString<Set<NavAnsattRolle>>(it) }
         ?: setOf()
     return NavAnsattDto(
-        entraObjectId = uuid("entra_object_id"),
         navIdent = NavIdent(string("nav_ident")),
         fornavn = string("fornavn"),
         etternavn = string("etternavn"),
