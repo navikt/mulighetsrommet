@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering.BransjeOgYrkesrettet
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering.ForberedendeOpplaeringForVoksne
@@ -10,7 +11,6 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.toDbo
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo

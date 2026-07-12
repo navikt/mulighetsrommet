@@ -12,7 +12,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
@@ -108,17 +108,16 @@ class ArrangorServiceTest : FunSpec({
         }
 
         test("skal synkronisere slettetDato for enhet fjernet av jurisike årsaker når arrangør eksisterer") {
-            val arrangor = ArrangorDto(
+            val arrangor = Arrangor(
                 id = UUID.randomUUID(),
                 organisasjonsnummer = Organisasjonsnummer("100200300"),
                 organisasjonsform = "AS",
                 navn = "Bedrift Bedriftsson",
-                underenheter = emptyList(),
                 slettetDato = null,
                 erUtenlandsk = false,
             )
             database.run {
-                queries.arrangor.upsert(arrangor)
+                queries.arrangor.save(arrangor)
             }
 
             val orgnr = Organisasjonsnummer("100200300")
@@ -172,20 +171,19 @@ class ArrangorServiceTest : FunSpec({
     context("brreg sok med utenlandske bedrifter") {
         val brregClient: BrregClient = mockk()
         val arrangorService = ArrangorService(database.api, brregClient, mockk(relaxed = true))
-        val utenlandskArrangor = ArrangorDto(
+        val utenlandskArrangor = Arrangor(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("100000056"),
             organisasjonsform = null,
             navn = "X - Utbildning Nord",
             overordnetEnhet = null,
-            underenheter = emptyList(),
             slettetDato = null,
             erUtenlandsk = true,
         )
 
         beforeEach {
             database.run {
-                queries.arrangor.upsert(utenlandskArrangor)
+                queries.arrangor.save(utenlandskArrangor)
             }
         }
 

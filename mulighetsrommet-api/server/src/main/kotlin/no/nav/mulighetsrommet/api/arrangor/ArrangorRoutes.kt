@@ -15,11 +15,11 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorKobling
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKobling
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -252,11 +252,12 @@ fun Route.arrangorRoutes() {
             call.respond(koblinger)
         }
 
-        delete("kontaktperson/{id}", {
+        delete("{id}/kontaktperson/{kontaktpersonId}", {
             tags = setOf("Arrangor")
             operationId = "deleteArrangorKontaktperson"
             request {
                 pathParameterUuid("id")
+                pathParameterUuid("kontaktpersonId")
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -273,22 +274,11 @@ fun Route.arrangorRoutes() {
             }
         }) {
             val id: UUID by call.parameters
+            val kontaktpersonId: UUID by call.parameters
 
-            db.session {
-                val (gjennomforinger, avtaler) = queries.arrangor.koblingerTilKontaktperson(id)
+            val result = arrangorService.deleteKontaktperson(id, kontaktpersonId)
 
-                if (gjennomforinger.isNotEmpty()) {
-                    return@session call.respond(HttpStatusCode.BadRequest, "Kontaktpersonen er i bruk.")
-                }
-
-                if (avtaler.isNotEmpty()) {
-                    return@session call.respond(HttpStatusCode.BadRequest, "Kontaktpersonen er i bruk.")
-                }
-
-                queries.arrangor.deleteKontaktperson(id)
-            }
-
-            call.respond(HttpStatusCode.OK)
+            call.respondWithStatusResponse(result)
         }
     }
 

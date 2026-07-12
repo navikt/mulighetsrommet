@@ -5,13 +5,17 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.admin.arrangor.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.arrangor.db.DokumentKoblingForKontaktperson
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
+import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.responses.StatusResponse
+import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregEnhet
 import no.nav.mulighetsrommet.brreg.BrregHovedenhet
@@ -156,11 +160,40 @@ class ArrangorService(
     }
 
     fun deleteArrangor(orgnr: Organisasjonsnummer): Unit = db.session {
-        queries.arrangor.delete(orgnr)
+        repository.arrangor.delete(orgnr)
     }
 
-    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson): Unit = db.session {
-        queries.arrangor.upsertKontaktperson(kontaktperson)
+    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson): Unit = db.transaction {
+        val arrangor = requireNotNull(queries.arrangor.get(kontaktperson.arrangorId)) {
+            "Fant ikke arrangør med id=${kontaktperson.arrangorId}"
+        }
+
+        val kontaktpersoner = arrangor.kontaktpersoner
+            .filterNot { it.id == kontaktperson.id } + kontaktperson
+
+        repository.arrangor.save(arrangor.copy(kontaktpersoner = kontaktpersoner))
+    }
+
+    fun deleteKontaktperson(arrangorId: UUID, kontaktpersonId: UUID): StatusResponse<Unit> = db.transaction {
+        val (gjennomforinger, avtaler) = queries.arrangor.koblingerTilKontaktperson(kontaktpersonId)
+
+        if (gjennomforinger.isNotEmpty() || avtaler.isNotEmpty()) {
+            return@transaction ValidationError(
+                errors = listOf(
+                    FieldError.of("Kontaktpersonen er i bruk og kan derfor ikke slettes"),
+                ),
+            ).left()
+        }
+
+        val arrangor = requireNotNull(repository.arrangor.get(arrangorId)) {
+            "Fant ikke arrangør med id=$arrangorId"
+        }
+
+        val kontaktpersoner = arrangor.kontaktpersoner.filterNot { it.id == kontaktpersonId }
+
+        repository.arrangor.save(arrangor.copy(kontaktpersoner = kontaktpersoner))
+
+        Unit.right()
     }
 
     fun hentKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> = db.session {
@@ -176,17 +209,22 @@ class ArrangorService(
     }
 
     private fun syncToDatbase(virksomhet: BrregEnhet): ArrangorDto = db.transaction {
-        val id = getArrangor(virksomhet.organisasjonsnummer)?.id ?: UUID.randomUUID()
-        val arrangor = virksomhet.toArrangorDto(id)
-        queries.arrangor.upsert(arrangor)
+        val eksisterende = queries.arrangor.getByOrganisasjonsnummer(virksomhet.organisasjonsnummer)
+        val id = eksisterende?.id ?: UUID.randomUUID()
+        val arrangor = virksomhet.toArrangor(id).copy(
+            kontaktpersoner = eksisterende?.kontaktpersoner ?: emptyList(),
+        )
+        repository.arrangor.save(arrangor)
         queries.arrangor.getById(id)
     }
 
     private fun syncToDatabase(enhet: FjernetBrregEnhetDto): Unit = db.transaction {
-        getArrangor(enhet.organisasjonsnummer)?.copy(slettetDato = enhet.slettetDato)?.also { arrangor ->
-            log.info("Markerer arrangør som slettet: $arrangor")
-            queries.arrangor.upsert(arrangor)
-        }
+        repository.arrangor.getByOrganisasjonsnummer(enhet.organisasjonsnummer)
+            ?.copy(slettetDato = enhet.slettetDato)
+            ?.also { arrangor ->
+                log.info("Markerer arrangør som slettet: $arrangor")
+                repository.arrangor.save(arrangor)
+            }
     }
 }
 
@@ -196,87 +234,87 @@ data class KoblingerForKontaktperson(
     val avtaler: List<DokumentKoblingForKontaktperson>,
 )
 
-private fun BrregEnhet.toArrangorDto(id: UUID): ArrangorDto {
+private fun BrregEnhet.toArrangor(id: UUID): Arrangor {
     return when (this) {
-        is BrregHovedenhetDto -> ArrangorDto(
+        is BrregHovedenhetDto -> Arrangor(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
             organisasjonsform = organisasjonsform,
             navn = navn,
             overordnetEnhet = null,
-            underenheter = null,
             slettetDato = null,
             erUtenlandsk = false,
         )
 
-        is SlettetBrregHovedenhetDto -> ArrangorDto(
+        is SlettetBrregHovedenhetDto -> Arrangor(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
             organisasjonsform = organisasjonsform,
             navn = navn,
             slettetDato = slettetDato,
             overordnetEnhet = null,
-            underenheter = null,
             erUtenlandsk = false,
         )
 
-        is BrregUnderenhetDto -> ArrangorDto(
+        is BrregUnderenhetDto -> Arrangor(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
             organisasjonsform = organisasjonsform,
             navn = navn,
             overordnetEnhet = overordnetEnhet,
-            underenheter = null,
             slettetDato = null,
             erUtenlandsk = false,
         )
 
-        is SlettetBrregUnderenhetDto -> ArrangorDto(
+        is SlettetBrregUnderenhetDto -> Arrangor(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
             organisasjonsform = organisasjonsform,
             navn = navn,
             slettetDato = slettetDato,
             overordnetEnhet = null,
-            underenheter = null,
             erUtenlandsk = false,
         )
     }
 }
 
-private fun toBrregHovedenhet(arrangor: ArrangorDto): BrregHovedenhet = when {
-    arrangor.slettetDato != null -> SlettetBrregHovedenhetDto(
-        organisasjonsnummer = arrangor.organisasjonsnummer,
-        organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
-        navn = arrangor.navn,
-        slettetDato = arrangor.slettetDato,
-    )
-
-    else -> BrregHovedenhetDto(
-        organisasjonsnummer = arrangor.organisasjonsnummer,
-        organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
-        navn = arrangor.navn,
-        overordnetEnhet = null,
-        postadresse = null,
-        forretningsadresse = null,
-    )
-}
-
-private fun toBrregUnderenhet(arrangor: ArrangorDto): BrregUnderenhet {
-    requireNotNull(arrangor.overordnetEnhet)
+private fun toBrregHovedenhet(arrangor: ArrangorDto): BrregHovedenhet {
+    val slettetDato = arrangor.slettetDato
     return when {
-        arrangor.slettetDato != null -> SlettetBrregUnderenhetDto(
+        slettetDato != null -> SlettetBrregHovedenhetDto(
             organisasjonsnummer = arrangor.organisasjonsnummer,
             organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
             navn = arrangor.navn,
-            slettetDato = arrangor.slettetDato,
+            slettetDato = slettetDato,
+        )
+
+        else -> BrregHovedenhetDto(
+            organisasjonsnummer = arrangor.organisasjonsnummer,
+            organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
+            navn = arrangor.navn,
+            overordnetEnhet = null,
+            postadresse = null,
+            forretningsadresse = null,
+        )
+    }
+}
+
+private fun toBrregUnderenhet(arrangor: ArrangorDto): BrregUnderenhet {
+    val overordnetEnhet = requireNotNull(arrangor.overordnetEnhet)
+    val slettetDato = arrangor.slettetDato
+    return when {
+        slettetDato != null -> SlettetBrregUnderenhetDto(
+            organisasjonsnummer = arrangor.organisasjonsnummer,
+            organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
+            navn = arrangor.navn,
+            slettetDato = slettetDato,
         )
 
         else -> BrregUnderenhetDto(
             organisasjonsnummer = arrangor.organisasjonsnummer,
             organisasjonsform = "IKS", // Interkommunalt selskap (X i Arena)
             navn = arrangor.navn,
-            overordnetEnhet = arrangor.overordnetEnhet,
+            overordnetEnhet = overordnetEnhet,
         )
     }
 }

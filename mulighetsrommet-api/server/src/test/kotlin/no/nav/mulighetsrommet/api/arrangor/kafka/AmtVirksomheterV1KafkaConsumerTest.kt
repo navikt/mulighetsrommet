@@ -14,7 +14,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
@@ -82,8 +82,8 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         test("oppdaterer bare virksomheter som er lagret i databasen") {
             val id = UUID.randomUUID()
             database.run {
-                queries.arrangor.upsert(
-                    ArrangorDto(
+                queries.arrangor.save(
+                    Arrangor(
                         id = id,
                         organisasjonsnummer = virksomhetDto.organisasjonsnummer,
                         organisasjonsform = virksomhetDto.organisasjonsform,
@@ -110,8 +110,8 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             val orgnr = Organisasjonsnummer("433695968")
 
             database.run {
-                queries.arrangor.upsert(
-                    ArrangorDto(
+                queries.arrangor.save(
+                    Arrangor(
                         id = UUID.randomUUID(),
                         organisasjonsnummer = orgnr,
                         organisasjonsform = null,
@@ -140,8 +140,8 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
 
         test("delete virksomheter for tombstone messages") {
             database.run {
-                queries.arrangor.upsert(
-                    ArrangorDto(
+                queries.arrangor.save(
+                    Arrangor(
                         id = UUID.randomUUID(),
                         organisasjonsnummer = underenhetDto.organisasjonsnummer,
                         organisasjonsform = virksomhetDto.organisasjonsform,

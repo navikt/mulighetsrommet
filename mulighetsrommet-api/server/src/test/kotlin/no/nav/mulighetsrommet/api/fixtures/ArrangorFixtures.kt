@@ -1,8 +1,19 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.util.UUID
+
+fun ArrangorDto.toArrangor() = Arrangor(
+    id = id,
+    organisasjonsnummer = organisasjonsnummer,
+    organisasjonsform = organisasjonsform,
+    navn = navn,
+    overordnetEnhet = overordnetEnhet,
+    slettetDato = slettetDato,
+    erUtenlandsk = erUtenlandsk,
+)
 
 object ArrangorFixtures {
     object Fretex {

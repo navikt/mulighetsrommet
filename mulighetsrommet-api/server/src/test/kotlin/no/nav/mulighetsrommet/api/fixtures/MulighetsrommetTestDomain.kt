@@ -1,11 +1,11 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
+import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
@@ -70,8 +70,10 @@ data class MulighetsrommetTestDomain(
 
             navEnheter.forEach { queries.enhet.save(it) }
             ansatte.forEach { queries.ansatt.save(it) }
-            arrangorer.forEach { queries.arrangor.upsert(it) }
-            arrangorKontaktpersoner.forEach { queries.arrangor.upsertKontaktperson(it) }
+            arrangorer.forEach { dto ->
+                val kontaktpersoner = arrangorKontaktpersoner.filter { it.arrangorId == dto.id }
+                queries.arrangor.save(dto.toArrangor().copy(kontaktpersoner = kontaktpersoner))
+            }
             tiltakstyper.forEach { repository.tiltakstype.save(it) }
             prismodeller.forEach { queries.prismodell.upsert(it) }
             regelverklenke.forEach { queries.regelverklenke.upsert(it) }

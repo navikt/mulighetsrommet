@@ -1,25 +1,27 @@
-package no.nav.mulighetsrommet.api.arrangor.db
+package no.nav.mulighetsrommet.api.persistence.arrangor.db
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKobling
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.arrangor.model.UtenlandskArrangor
-import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorKobling
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorQueryHandler
+import no.nav.mulighetsrommet.admin.arrangor.DokumentKoblingForKontaktperson
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
+import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
+import no.nav.mulighetsrommet.api.domain.arrangor.UtenlandskArrangor
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.database.utils.parameters
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.util.UUID
 
-class ArrangorQueries(private val session: Session) {
+class ArrangorQueries(private val session: Session) : ArrangorRepository, ArrangorQueryHandler {
     private val underenheterLateralJoin = """
         left join lateral (
             select json_agg(
@@ -37,8 +39,8 @@ class ArrangorQueries(private val session: Session) {
         where arrangor_underenhet.overordnet_enhet = arrangor.organisasjonsnummer) on true
     """
 
-    /** Upserter kun enheten og tar ikke hensyn til underenheter */
-    fun upsert(arrangor: ArrangorDto) {
+    /** Upserter enheten (tar ikke hensyn til underenheter), og synkroniserer kontaktpersoner. */
+    override fun save(arrangor: Arrangor) {
         @Language("PostgreSQL")
         val query = """
             insert into arrangor(id, organisasjonsnummer, organisasjonsform, navn, overordnet_enhet, slettet_dato, er_utenlandsk_virksomhet)
@@ -65,16 +67,25 @@ class ArrangorQueries(private val session: Session) {
         }
 
         session.execute(queryOf(query, parameters))
+
+        syncKontaktpersoner(arrangor.id, arrangor.kontaktpersoner)
     }
 
-    fun getAll(
-        kobling: ArrangorKobling? = null,
-        sok: String? = null,
-        overordnetEnhetOrgnr: Organisasjonsnummer? = null,
-        slettet: Boolean? = null,
-        utenlandsk: Boolean? = null,
-        pagination: Pagination = Pagination.all(),
-        sortering: String? = null,
+    private fun syncKontaktpersoner(arrangorId: UUID, kontaktpersoner: List<ArrangorKontaktperson>) {
+        val eksisterendeIder = getKontaktpersoner(arrangorId).map { it.id }.toSet()
+        val nyeIder = kontaktpersoner.map { it.id }.toSet()
+        kontaktpersoner.forEach { upsertKontaktperson(it) }
+        (eksisterendeIder - nyeIder).forEach { deleteKontaktperson(it) }
+    }
+
+    override fun getAll(
+        kobling: ArrangorKobling?,
+        sok: String?,
+        overordnetEnhetOrgnr: Organisasjonsnummer?,
+        slettet: Boolean?,
+        utenlandsk: Boolean?,
+        pagination: Pagination,
+        sortering: String?,
     ): PaginatedResult<ArrangorDto> {
         val order = when (sortering) {
             "navn-ascending" -> "arrangor.navn asc"
@@ -122,7 +133,7 @@ class ArrangorQueries(private val session: Session) {
             .runWithSession(session)
     }
 
-    fun get(orgnr: Organisasjonsnummer): ArrangorDto? {
+    override fun get(orgnr: Organisasjonsnummer): ArrangorDto? {
         @Language("PostgreSQL")
         val selectHovedenhet = """
             select
@@ -142,29 +153,7 @@ class ArrangorQueries(private val session: Session) {
         return session.single(queryOf(selectHovedenhet, orgnr.value)) { it.toArrangorDtoMedUnderenheter() }
     }
 
-    fun get(orgnr: List<Organisasjonsnummer>): List<ArrangorDto> {
-        @Language("PostgreSQL")
-        val selectHovedenhet = """
-            select
-                id,
-                organisasjonsnummer,
-                organisasjonsform,
-                overordnet_enhet,
-                er_utenlandsk_virksomhet,
-                navn,
-                slettet_dato,
-                underenheter_json
-            from arrangor
-                $underenheterLateralJoin
-            where arrangor.organisasjonsnummer = any(?)
-        """.trimIndent()
-
-        return session.list(queryOf(selectHovedenhet, session.createTextArray(orgnr.map { it.value }))) {
-            it.toArrangorDtoMedUnderenheter()
-        }
-    }
-
-    fun getById(id: UUID): ArrangorDto {
+    override fun getById(id: UUID): ArrangorDto {
         @Language("PostgreSQL")
         val query = """
             select
@@ -186,7 +175,7 @@ class ArrangorQueries(private val session: Session) {
         }
     }
 
-    fun getHovedenhetById(id: UUID): ArrangorDto {
+    override fun getHovedenhetById(id: UUID): ArrangorDto {
         val arrangor = getById(id)
 
         @Language("PostgreSQL")
@@ -211,7 +200,47 @@ class ArrangorQueries(private val session: Session) {
         return arrangor.copy(underenheter = underenheter)
     }
 
-    fun delete(orgnr: Organisasjonsnummer) {
+    override fun get(id: UUID): Arrangor? {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                id,
+                organisasjonsnummer,
+                organisasjonsform,
+                overordnet_enhet,
+                navn,
+                slettet_dato,
+                er_utenlandsk_virksomhet
+            from arrangor
+            where id = ?::uuid
+        """.trimIndent()
+
+        val arrangor = session.single(queryOf(query, id)) { it.toArrangor() } ?: return null
+
+        return arrangor.copy(kontaktpersoner = getKontaktpersoner(id))
+    }
+
+    override fun getByOrganisasjonsnummer(orgnr: Organisasjonsnummer): Arrangor? {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                id,
+                organisasjonsnummer,
+                organisasjonsform,
+                overordnet_enhet,
+                navn,
+                slettet_dato,
+                er_utenlandsk_virksomhet
+            from arrangor
+            where organisasjonsnummer = ?
+        """.trimIndent()
+
+        val arrangor = session.single(queryOf(query, orgnr.value)) { it.toArrangor() } ?: return null
+
+        return arrangor.copy(kontaktpersoner = getKontaktpersoner(arrangor.id))
+    }
+
+    override fun delete(orgnr: Organisasjonsnummer) {
         @Language("PostgreSQL")
         val query = """
             delete from arrangor where organisasjonsnummer = ?
@@ -220,7 +249,7 @@ class ArrangorQueries(private val session: Session) {
         session.execute(queryOf(query, orgnr.value))
     }
 
-    fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) {
+    private fun upsertKontaktperson(kontaktperson: ArrangorKontaktperson) {
         @Language("PostgreSQL")
         val query = """
             insert into arrangor_kontaktperson(id, arrangor_id, navn, telefon, epost, beskrivelse, ansvarlig_for)
@@ -247,7 +276,9 @@ class ArrangorQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun koblingerTilKontaktperson(kontaktpersonId: UUID): Pair<List<DokumentKoblingForKontaktperson>, List<DokumentKoblingForKontaktperson>> {
+    override fun koblingerTilKontaktperson(
+        kontaktpersonId: UUID,
+    ): Pair<List<DokumentKoblingForKontaktperson>, List<DokumentKoblingForKontaktperson>> {
         @Language("PostgreSQL")
         val gjennomforingQuery = """
             select tg.navn, tg.id
@@ -273,7 +304,7 @@ class ArrangorQueries(private val session: Session) {
         return gjennomforinger to avtaler
     }
 
-    fun deleteKontaktperson(id: UUID) {
+    private fun deleteKontaktperson(id: UUID) {
         @Language("PostgreSQL")
         val query = """
             delete from arrangor_kontaktperson where id = ?
@@ -282,7 +313,7 @@ class ArrangorQueries(private val session: Session) {
         session.execute(queryOf(query, id))
     }
 
-    fun getKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> {
+    override fun getKontaktpersoner(arrangorId: UUID): List<ArrangorKontaktperson> {
         @Language("PostgreSQL")
         val query = """
             select
@@ -300,7 +331,7 @@ class ArrangorQueries(private val session: Session) {
         return session.list(queryOf(query, arrangorId)) { it.toArrangorKontaktperson() }
     }
 
-    fun getUtenlandskArrangor(arrangorId: UUID): UtenlandskArrangor? {
+    override fun getUtenlandskArrangor(arrangorId: UUID): UtenlandskArrangor? {
         @Language("PostgreSQL")
         val query = """
             select
@@ -326,6 +357,16 @@ class ArrangorQueries(private val session: Session) {
         postNummer = string("adresse_post_nummer"),
         landKode = string("adresse_land_kode"),
         bankNavn = string("bank_navn"),
+    )
+
+    private fun Row.toArrangor() = Arrangor(
+        id = uuid("id"),
+        organisasjonsnummer = Organisasjonsnummer(string("organisasjonsnummer")),
+        organisasjonsform = stringOrNull("organisasjonsform"),
+        navn = string("navn"),
+        overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) },
+        slettetDato = localDateOrNull("slettet_dato"),
+        erUtenlandsk = boolean("er_utenlandsk_virksomhet"),
     )
 
     private fun Row.toArrangorDtoUtenUnderenheter() = ArrangorDto(
@@ -370,10 +411,3 @@ class ArrangorQueries(private val session: Session) {
 fun Session.createArrayOfAnsvarligFor(
     ansvarligFor: List<ArrangorKontaktperson.Ansvar>,
 ): Array = createArrayOf("arrangor_kontaktperson_ansvarlig_for_type", ansvarligFor)
-
-@Serializable
-data class DokumentKoblingForKontaktperson(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val navn: String,
-)
