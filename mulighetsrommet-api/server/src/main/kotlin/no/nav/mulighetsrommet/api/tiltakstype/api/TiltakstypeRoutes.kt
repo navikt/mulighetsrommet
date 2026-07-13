@@ -18,15 +18,15 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeHandling
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktDto
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktQuery
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeUseCase
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeUseCaseError
+import no.nav.mulighetsrommet.admin.tiltak.UpdateTiltakstypeUseCase
 import no.nav.mulighetsrommet.admin.tiltak.UpsertDeltakerinfoCommand
 import no.nav.mulighetsrommet.admin.tiltak.UpsertVeilederinfoCommand
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeSortField
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -42,7 +42,7 @@ fun Route.tiltakstypeRoutes() {
     val db: AdminDatabase by inject()
     val tiltakstypeKompaktQuery: TiltakstypeKompaktQuery by inject()
     val tiltakstypeDtoQuery: TiltakstypeDtoQuery by inject()
-    val tiltakstypeUseCase: TiltakstypeUseCase by inject()
+    val updateTiltakstype: UpdateTiltakstypeUseCase by inject()
     val navAnsattService: NavAnsattService by inject()
 
     route("tiltakstyper") {
@@ -184,7 +184,7 @@ fun Route.tiltakstypeRoutes() {
                     ),
                     endretAv = navIdent,
                 )
-                val result = tiltakstypeUseCase.execute(command)
+                val result = updateTiltakstype.execute(command)
                     .mapLeft { error ->
                         when (error) {
                             is TiltakstypeUseCaseError.NotFound -> tiltakstypeNotFound(error.id)
@@ -232,7 +232,7 @@ fun Route.tiltakstypeRoutes() {
                     ),
                     endretAv = navIdent,
                 )
-                val result = tiltakstypeUseCase.execute(command)
+                val result = updateTiltakstype.execute(command)
                     .mapLeft { error ->
                         when (error) {
                             is TiltakstypeUseCaseError.NotFound -> tiltakstypeNotFound(error.id)

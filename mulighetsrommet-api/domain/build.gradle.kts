@@ -8,11 +8,20 @@ base {
     archivesName = "mulighetsrommet-api-domain"
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
+    }
+}
+
 dependencies {
     implementation(projects.common.domain)
     implementation(libs.kotlinx.serialization.json)
 
     testFixturesImplementation(projects.common.domain)
+
+    testImplementation(libs.kotest.junit)
+    testImplementation(libs.kotest.assertions.core)
 }
 
 tasks.test {

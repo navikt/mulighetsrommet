@@ -14,6 +14,7 @@ import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProce
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
+import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQuery
 import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
 import no.nav.mulighetsrommet.admin.navenhet.SynkroniserNavEnheterUseCase
@@ -21,7 +22,7 @@ import no.nav.mulighetsrommet.admin.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeUseCase
+import no.nav.mulighetsrommet.admin.tiltak.UpdateTiltakstypeUseCase
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -481,7 +482,7 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeService(appConfig.tiltakstyper, get()) }
     single { TiltakstypeKompaktQuery(get()) }
     single { TiltakstypeDtoQuery(get(), get()) }
-    single { TiltakstypeUseCase(get()) }
+    single { UpdateTiltakstypeUseCase(get()) }
     single { RedaksjoneltInnholdLenkeService(get()) }
     single { SanityNavEnhetPublisher(get(), get()) }
     single { SynkroniserNavEnheterUseCase(get()) }
@@ -490,6 +491,7 @@ private fun services(appConfig: AppConfig) = module {
     single<NavEnhetRepository> { SqlNavEnhetRepository(get()) }
     single { NavEnhetService(get()) }
     single { KostnadsstedQuery(get()) }
+    single { NavAnsattDtoQuery(get()) }
     single { ArrangorService(get(), get(), get()) }
     single {
         GenererUtbetalingService(

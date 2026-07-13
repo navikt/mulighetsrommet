@@ -7,14 +7,21 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDto
+import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQuery
+import no.nav.mulighetsrommet.api.clients.msgraph.EntraNavAnsatt
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
+import no.nav.mulighetsrommet.ktor.exception.NotFound
+import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
 fun Route.navAnsattRoutes() {
     val ansattService: NavAnsattService by inject()
+    val navAnsattDtoQuery: NavAnsattDtoQuery by inject()
 
     route("/ansatt") {
         get({
@@ -37,10 +44,9 @@ fun Route.navAnsattRoutes() {
             }
         }) {
             val filter = getNavAnsattFilter()
+            val roller = filter.roller.map { NavAnsattRolle.generell(it) }
 
-            val ansatte = ansattService.getNavAnsatte(filter = filter).map {
-                NavAnsattDto.fromNavAnsatt(it)
-            }
+            val ansatte = navAnsattDtoQuery.getAll(rollerContainsAll = roller)
 
             call.respond(ansatte)
         }
@@ -65,7 +71,7 @@ fun Route.navAnsattRoutes() {
             val q: String by call.request.queryParameters
 
             val ansatte = ansattService.getNavAnsattFromAzureSok(query = q).map {
-                NavAnsattDto.fromEntraNavAnsatt(it)
+                it.toNavAnsattDto()
             }
 
             call.respond(ansatte)
@@ -87,9 +93,8 @@ fun Route.navAnsattRoutes() {
         }) {
             val navIdent = getNavIdent()
 
-            val ansatt = ansattService.getNavAnsattByNavIdent(navIdent)
-                ?.let { NavAnsattDto.fromNavAnsatt(it) }
-                ?: return@get call.respond(HttpStatusCode.NotFound, "Fant ikke ansatt med navIdent=$navIdent")
+            val ansatt = navAnsattDtoQuery.get(navIdent)
+                ?: return@get call.respondWithProblemDetail(NotFound("Fant ikke ansatt med navIdent=$navIdent"))
 
             call.respond(ansatt)
         }
@@ -106,4 +111,17 @@ fun RoutingContext.getNavAnsattFilter(): NavAnsattFilter {
 
 data class NavAnsattFilter(
     val roller: List<Rolle> = emptyList(),
+)
+
+private fun EntraNavAnsatt.toNavAnsattDto(): NavAnsattDto = NavAnsattDto(
+    navIdent = navIdent,
+    fornavn = fornavn,
+    etternavn = etternavn,
+    hovedenhet = NavAnsattDto.Hovedenhet(
+        enhetsnummer = hovedenhetKode,
+        navn = hovedenhetNavn,
+    ),
+    mobilnummer = mobilnummer,
+    epost = epost,
+    roller = listOf(),
 )

@@ -3,14 +3,30 @@ import { useTiltakIdFraUrl } from "@/hooks/useTiltakIdFraUrl";
 import {
   GjennomforingStatusType,
   VeilederflateTiltak,
-  VeilederflateTiltakEnkeltplass,
-  VeilederflateTiltakEnkeltplassAnskaffet,
-  VeilederflateTiltakGruppe,
   VeilederTiltakService,
 } from "@arbeidsmarkedstiltak/api-client";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
-export function isTiltakGruppe(tiltak: VeilederflateTiltak): tiltak is VeilederflateTiltakGruppe {
+type VeilederflateTiltakGruppeVariant = Extract<
+  VeilederflateTiltak,
+  { type?: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe" }
+>;
+
+type VeilederflateTiltakEnkeltplassVariant = Extract<
+  VeilederflateTiltak,
+  { type?: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass" }
+>;
+
+type VeilederflateTiltakEnkeltplassAnskaffetVariant = Extract<
+  VeilederflateTiltak,
+  {
+    type?: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet";
+  }
+>;
+
+export function isTiltakGruppe(
+  tiltak: VeilederflateTiltak,
+): tiltak is VeilederflateTiltakGruppeVariant {
   return (
     tiltak.type === "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe"
   );
@@ -22,7 +38,7 @@ export function isTiltakAktivt(tiltak: VeilederflateTiltak): boolean {
 
 export function isTiltakEnkeltplass(
   tiltak: VeilederflateTiltak,
-): tiltak is VeilederflateTiltakEnkeltplass {
+): tiltak is VeilederflateTiltakEnkeltplassVariant {
   return (
     tiltak.type === "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass"
   );
@@ -30,7 +46,7 @@ export function isTiltakEnkeltplass(
 
 export function isTiltakEnkeltplassAnskaffet(
   tiltak: VeilederflateTiltak,
-): tiltak is VeilederflateTiltakEnkeltplassAnskaffet {
+): tiltak is VeilederflateTiltakEnkeltplassAnskaffetVariant {
   return (
     tiltak.type ===
     "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet"
@@ -39,7 +55,7 @@ export function isTiltakEnkeltplassAnskaffet(
 
 export function isTiltakMedArrangor(
   tiltak: VeilederflateTiltak,
-): tiltak is VeilederflateTiltakGruppe | VeilederflateTiltakEnkeltplassAnskaffet {
+): tiltak is VeilederflateTiltakGruppeVariant | VeilederflateTiltakEnkeltplassAnskaffetVariant {
   return isTiltakGruppe(tiltak) || isTiltakEnkeltplassAnskaffet(tiltak);
 }
 

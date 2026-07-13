@@ -1,12 +1,12 @@
 import {
   DataDrivenTableDto,
+  DataDrivenTableDtoRow,
   DataDrivenTableDtoColumnAlign,
   DataElementTextFormat,
   TimelineDto,
   TimelineDtoRowPeriodVariant,
 } from "@arrangor-utbetalinger/api-client";
 import { dataElementText } from "./dataDrivenTableHelpers";
-import { DataDrivenTableDtoRow } from "@mr/frontend-common/components/datadriven/types";
 
 interface DeltakelseRow {
   cells: DeltakelseRowCell;

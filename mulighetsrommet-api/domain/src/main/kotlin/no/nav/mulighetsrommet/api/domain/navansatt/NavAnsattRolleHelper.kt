@@ -1,6 +1,4 @@
-package no.nav.mulighetsrommet.api.navansatt.helper
-
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsattRolle
+package no.nav.mulighetsrommet.api.domain.navansatt
 
 object NavAnsattRolleHelper {
     fun hasRole(

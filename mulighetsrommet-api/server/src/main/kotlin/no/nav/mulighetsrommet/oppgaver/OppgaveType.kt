@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.oppgaver
 
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 
 enum class OppgaveType(val navn: String, val rolle: Rolle, val kategori: Kategori) {
     TILSAGN_TIL_GODKJENNING(

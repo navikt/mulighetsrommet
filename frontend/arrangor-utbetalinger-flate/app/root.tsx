@@ -6,7 +6,6 @@ import {
   Meta,
   MetaFunction,
   Outlet,
-  redirect,
   Scripts,
   ScrollRestoration,
   useLoaderData,
@@ -165,8 +164,10 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 function RouteError(error: ErrorResponse) {
   switch (error.status) {
     case 401: {
-      const redirectPath = typeof window !== "undefined" ? window.location.pathname : "/";
-      throw redirect(`/oauth2/login?redirect=${redirectPath}`);
+      const redirectPath =
+        typeof window !== "undefined" ? encodeURIComponent(window.location.href) : "/";
+      window.location.href = `/oauth2/start?rd=${redirectPath}`;
+      return null;
     }
     case 403: {
       return Forbidden();

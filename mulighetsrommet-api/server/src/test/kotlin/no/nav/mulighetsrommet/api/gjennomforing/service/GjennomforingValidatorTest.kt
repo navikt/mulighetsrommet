@@ -30,7 +30,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.TiltakOslo
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
-import no.nav.mulighetsrommet.api.navansatt.model.NavAnsatt
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -38,7 +37,6 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
@@ -581,20 +579,7 @@ class GjennomforingValidatorTest : FunSpec({
     }
 
     context("slettede nav ansatte") {
-        val ansatt = NavAnsatt(
-            entraObjectId = UUID.randomUUID(),
-            navIdent = NavIdent("B123456"),
-            fornavn = "",
-            etternavn = "",
-            hovedenhet = NavAnsatt.Hovedenhet(
-                enhetsnummer = Gjovik.enhetsnummer,
-                navn = Gjovik.navn,
-            ),
-            mobilnummer = null,
-            epost = "",
-            roller = emptySet(),
-            skalSlettesDato = LocalDate.now(),
-        )
+        val ansatt = NavAnsattFixture.FetterAnton.skalSlettes(LocalDate.now())
 
         test("Slettede kontaktpersoner valideres") {
             GjennomforingValidator.validateVeilederinfo(
@@ -602,7 +587,7 @@ class GjennomforingValidatorTest : FunSpec({
                 ctx.avtale,
                 listOf(ansatt),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-                FieldError("/veilederinformasjon/kontaktpersoner", "Nav identer B123456 er slettet og må fjernes"),
+                FieldError("/veilederinformasjon/kontaktpersoner", "Nav identer DD3 er slettet og må fjernes"),
             )
         }
     }

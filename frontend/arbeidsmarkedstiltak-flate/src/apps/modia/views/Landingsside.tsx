@@ -257,8 +257,6 @@ function hentDato(deltakelse: Deltakelse) {
       return deltakelse.periode.sluttDato ?? deltakelse.periode.startDato;
     case "TILTAK_ARBEIDSGIVER":
       return deltakelse.periode.sluttDato ?? deltakelse.periode.startDato;
-    case undefined:
-      return null;
   }
 }
 

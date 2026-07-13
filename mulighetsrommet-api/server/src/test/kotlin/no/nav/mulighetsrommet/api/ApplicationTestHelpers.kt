@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerR
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinRequest
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattDbo
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -21,7 +21,7 @@ import no.nav.security.mock.oauth2.MockOAuth2Server
 import java.util.UUID
 
 fun MockOAuth2Server.createRequestWithAnsattClaims(
-    ansatt: NavAnsattDbo,
+    ansatt: NavAnsatt,
     roles: Set<EntraGroupNavAnsattRolleMapping>,
 ): (HttpRequestBuilder) -> Unit = { request: HttpRequestBuilder ->
     val claims = getAnsattClaims(ansatt, roles)
@@ -29,7 +29,7 @@ fun MockOAuth2Server.createRequestWithAnsattClaims(
 }
 
 fun getAnsattClaims(
-    ansatt: NavAnsattDbo,
+    ansatt: NavAnsatt,
     roles: Set<EntraGroupNavAnsattRolleMapping>,
 ): Map<String, Any> {
     return mapOf(

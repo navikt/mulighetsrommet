@@ -35,8 +35,9 @@ test.describe("Gjennomføringsdetaljer for alle Nav-ansatte", () => {
   });
 
   test("Sjekk riktig gjennomføring", async ({ page }) => {
-    const h1 = await page.getByRole("heading", { level: 1 }).innerText();
-    expect(h1).toContain("Sindres mentorordning med Yoda");
+    await expect(
+      page.getByRole("heading", { level: 1, name: /Sindres mentorordning med Yoda/ }),
+    ).toBeVisible();
   });
 
   test("Sjekk at 'Del med bruker', 'Start påmelding' eller 'Opprett avtale' ikke eksisterer", async ({
@@ -59,8 +60,9 @@ test.describe("Tiltakdetaljer", () => {
   });
 
   test("Sjekk riktig gjennomføring", async ({ page }) => {
-    const h1 = await page.getByRole("heading", { level: 1 }).innerText();
-    expect(h1).toContain("Sindres mentorordning med Yoda");
+    await expect(
+      page.getByRole("heading", { level: 1, name: /Sindres mentorordning med Yoda/ }),
+    ).toBeVisible();
   });
 
   test("Sjekk at 'Del med bruker', 'Start påmelding' eller 'Opprett avtale' ikke eksisterer", async ({

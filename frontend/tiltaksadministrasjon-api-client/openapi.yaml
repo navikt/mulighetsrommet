@@ -8039,9 +8039,6 @@ components:
     NavAnsattDto:
       type: object
       properties:
-        entraObjectId:
-          type: string
-          format: uuid
         navIdent:
           type: string
         fornavn:
@@ -8061,7 +8058,6 @@ components:
           items:
             $ref: "#/components/schemas/NavAnsattRolleDto"
       required:
-      - entraObjectId
       - epost
       - etternavn
       - fornavn

@@ -13,9 +13,9 @@ import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
-import no.nav.mulighetsrommet.api.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.db.KostnadsstedQueries
+import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries

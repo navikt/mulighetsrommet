@@ -9,7 +9,6 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -41,8 +40,7 @@ fun Route.oppgaverRoutes() {
             }
         }) {
             val navIdent = getNavIdent()
-            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
-                ?: throw MrExceptions.navAnsattNotFound(navIdent)
+            val ansatt = db.session { queries.ansatt.getOrError(navIdent) }
 
             val filter = call.receive<OppgaverFilter>()
 
@@ -72,8 +70,7 @@ fun Route.oppgaverRoutes() {
             }
         }) {
             val navIdent = getNavIdent()
-            val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
-                ?: throw MrExceptions.navAnsattNotFound(navIdent)
+            val ansatt = db.session { queries.ansatt.getOrError(navIdent) }
 
             val oppgavetyper = service.getOppgavetyper(ansatt)
 

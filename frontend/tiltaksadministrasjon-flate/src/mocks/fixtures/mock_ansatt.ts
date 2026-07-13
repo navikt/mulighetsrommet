@@ -5,7 +5,6 @@ import {
 } from "@tiltaksadministrasjon/api-client";
 
 const bertil: NavAnsattDto = {
-  entraObjectId: "0bab029e-e84e-4842-8a27-d153b29782cf",
   navIdent: "B123456",
   fornavn: "Bertil",
   etternavn: "Bengtson",
@@ -24,7 +23,6 @@ const bertil: NavAnsattDto = {
 };
 
 const pelle: NavAnsattDto = {
-  entraObjectId: "db0d3a34-1071-42f5-aeec-38d37055271d",
   fornavn: "Pelle",
   etternavn: "Pilotbruker",
   navIdent: "P987655",
@@ -38,7 +36,6 @@ const pelle: NavAnsattDto = {
 };
 
 const perRichard: NavAnsattDto = {
-  entraObjectId: "uu3d3a34-1071-42f5-aeec-38d37055271d",
   epost: "per.richard.olsen@nav.no",
   mobilnummer: "90567894",
   navIdent: "O123456",
@@ -52,7 +49,6 @@ const perRichard: NavAnsattDto = {
 };
 
 const nikoline: NavAnsattDto = {
-  entraObjectId: "zz3d3a34-1071-42f5-aeec-38d37055271d",
   epost: "nikoline.madsen@nav.no",
   mobilnummer: "90764321",
   navIdent: "M654378",
@@ -66,7 +62,6 @@ const nikoline: NavAnsattDto = {
 };
 
 const petrus: NavAnsattDto = {
-  entraObjectId: "ab3d3a34-1071-42f5-aeec-38d37055271d",
   epost: "petrus.pilsen@nav.no",
   mobilnummer: "78654323",
   navIdent: "M887654",

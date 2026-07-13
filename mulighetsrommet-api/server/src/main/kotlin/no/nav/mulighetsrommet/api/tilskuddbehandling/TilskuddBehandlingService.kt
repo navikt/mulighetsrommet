@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.navansatt.model.Rolle
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.responses.FieldError
@@ -184,8 +184,7 @@ class TilskuddBehandlingService(
         kostnadssted: NavEnhetNummer,
         opprettelse: Totrinnskontroll,
     ): Boolean {
-        val ansatt = db.session { queries.ansatt.getByNavIdent(navIdent) }
-            ?: throw IllegalStateException("Fant ikke ansatt med navIdent $navIdent")
+        val ansatt = db.session { queries.ansatt.getOrError(navIdent) }
 
         val attestant = ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted))
         val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)

@@ -159,8 +159,8 @@ class TotrinnskontrollQueriesTest : FunSpec({
     test("getDto returnerer navn for NavIdent behandletAv og besluttetAv") {
         database.runAndRollback {
             queries.enhet.save(NavEnhetFixtures.Innlandet)
-            queries.ansatt.upsert(NavAnsattFixture.DonaldDuck)
-            queries.ansatt.upsert(NavAnsattFixture.MikkeMus)
+            queries.ansatt.save(NavAnsattFixture.DonaldDuck)
+            queries.ansatt.save(NavAnsattFixture.MikkeMus)
 
             val entityId = UUID.randomUUID()
 
