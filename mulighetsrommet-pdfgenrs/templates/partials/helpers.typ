@@ -24,6 +24,14 @@
   }
 }
 
+#let format-name(fornavn, mellomnavn, etternavn) = {
+  if mellomnavn != "" {
+    fornavn + " " + mellomnavn + " " + etternavn
+  } else {
+    fornavn + " " + etternavn
+  }
+}
+
 #let formater-verdi(entry) = {
   let verdi  = entry.at("value", default: none)
   let fmt    = entry.at("format", default: none)

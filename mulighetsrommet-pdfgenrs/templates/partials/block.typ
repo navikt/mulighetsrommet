@@ -8,7 +8,7 @@
   let type = block.at("type", default: "")
   let desc = block.at("description", default: none)
 
-  if desc != none { par(desc) }
+  if desc != none { heading(desc, level: 2) }
 
   if type == "description-list"  { render-beskrivelsesliste(block) }
   else if type == "item-list"    { render-elementliste(block) }

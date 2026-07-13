@@ -3,6 +3,13 @@
   "subject": "Utbetaling til Nav",
   "description": "Detaljer om utbetaling for gjennomføring av Avklaring",
   "author": "Nav",
+  "topSection": {
+    "publicExemption": false,
+    "mottaker": "AKSEPTABEL EMPIRISK TIGER AS",
+    "deltaker": {},
+    "dato": "2025-01-02",
+    "saksnummer": "A-2026/9999-1"
+  },
   "sections": [
     {
       "title": {

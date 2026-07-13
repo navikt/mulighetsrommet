@@ -3,6 +3,13 @@
   "subject": "Krav om utbetaling fra Nav",
   "description": "Krav om utbetaling fra Nav",
   "author": "Tiltaksadministrasjon",
+  "topSection": {
+    "publicExemption": false,
+    "mottaker": "AKSEPTABEL EMPIRISK TIGER AS",
+    "deltaker": {},
+    "dato": "2025-01-02",
+    "saksnummer": "A-2026/9999-1"
+  },
   "sections": [
     {
       "title": {
@@ -95,9 +102,7 @@
         {
           "type": "item-list",
           "description": "Det er registrert stengt hos arrangør i følgende perioder:",
-          "items": [
-            "07.01.2025 - 13.01.2025: Stengt for ferie"
-          ]
+          "items": ["07.01.2025 - 13.01.2025: Stengt for ferie"]
         }
       ]
     },

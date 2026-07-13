@@ -2,10 +2,10 @@
 #let signatur(data) = {
   if data == none { return }
 
-  let intro = str(data.at("intro", default: "Med vennlig hilsen"))
-  let saksbehandler = str(data.at("saksbehandler", default: data.at("subject", default: "")))
-  let beslutter = str(data.at("beslutter", default: ""))
-  let navenhet = str(data.at("navenhet", default: ""))
+  let intro = data.at("intro", default: "Med vennlig hilsen")
+  let saksbehandler = data.at("saksbehandler", default: data.at("subject", default: ""))
+  let beslutter = data.at("beslutter", default: "")
+  let navenhet = data.at("navenhet", default: "")
 
   v(signatureStyle.at("spacingBefore"))
   block[
@@ -32,13 +32,13 @@
 
 #let render-hilsen(hilsen) = {
   v(1.2em)
-  par(text("Med vennlig hilsen"))
+  par("Med vennlig hilsen")
   grid(
     columns: signatureStyle.at("namesColumns"),
     gutter: signatureStyle.at("namesGutter"),
-  par(text(hilsen.at("subject", default: ""))),
+  par(hilsen.at("subject", default: "")),
   for annen in hilsen.at("others", default: ()) {
-    par(text(annen))
+    par(annen)
   },)
 }
 
