@@ -39,7 +39,7 @@ class NavAnsattServiceTest : FunSpec({
     )
 
     beforeSpec {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     fun toEntraNavAnsatt(ansatt: NavAnsatt) = EntraNavAnsatt(
@@ -76,7 +76,7 @@ class NavAnsattServiceTest : FunSpec({
         roles: Set<EntraGroupNavAnsattRolleMapping>,
     ) = NavAnsattService(
         roles = roles,
-        db = database.db,
+        db = database.api,
         microsoftGraphClient = msGraph,
     )
 
@@ -169,7 +169,7 @@ class NavAnsattServiceTest : FunSpec({
                         """,
                     ),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val adGruppeBeslutterInnlandet = UUID.randomUUID()
             val rolleBeslutterInnlandet = EntraGroupNavAnsattRolleMapping(

@@ -26,12 +26,12 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ): ReplikerDeltakerEnkeltplassKafkaConsumer {
         val service = GjennomforingEnkeltplassService(
-            database.db,
+            database.api,
             mockk(),
-            TiltakstypeService(TiltakstypeService.Config(features), database.newDb),
+            TiltakstypeService(TiltakstypeService.Config(features), database.admin),
         )
         return ReplikerDeltakerEnkeltplassKafkaConsumer(
-            db = database.db,
+            db = database.api,
             service = service,
         )
     }
@@ -40,7 +40,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         MulighetsrommetTestDomain(
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(AFT1),
-        ).initialize(database.db)
+        ).initialize(database.api)
 
         val deltaker = DeltakerFixtures.createAmtDeltakerDto(
             gjennomforingId = AFT1.id,
@@ -59,7 +59,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
     test("oppdaterer ikke gjennomføring når tiltakstype enda ikke er migrert") {
         MulighetsrommetTestDomain(
             gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.GJENNOMFORES)),
-        ).initialize(database.db)
+        ).initialize(database.api)
 
         val deltaker = DeltakerFixtures.createAmtDeltakerDto(
             gjennomforingId = EnkelAmo.id,
@@ -77,7 +77,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
     test("oppdaterer gjennomføring når tiltakstypen er migrert") {
         MulighetsrommetTestDomain(
             gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.GJENNOMFORES)),
-        ).initialize(database.db)
+        ).initialize(database.api)
 
         val deltaker = DeltakerFixtures.createAmtDeltakerDto(
             gjennomforingId = EnkelAmo.id,
@@ -102,7 +102,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         MulighetsrommetTestDomain(
             gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.GJENNOMFORES)),
             deltakere = listOf(lagretDeltaker),
-        ).initialize(database.db)
+        ).initialize(database.api)
 
         val features = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT))
         val consumer = createConsumer(features)

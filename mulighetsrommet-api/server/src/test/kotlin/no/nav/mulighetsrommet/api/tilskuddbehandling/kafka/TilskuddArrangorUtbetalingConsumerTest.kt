@@ -48,7 +48,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
-        ).initialize(database.db)
+        ).initialize(database.api)
 
         coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
             Kontonummer("12345678901"),
@@ -103,7 +103,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
 
     fun createConsumer(): TilskuddArrangorUtbetalingConsumer {
         val tilsagnService = TilsagnService(
-            db = database.db,
+            db = database.api,
             config = TilsagnService.Config(
                 gyldigTilsagnPeriode = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to gyldigTilsagnPeriode),
             ),
@@ -117,7 +117,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             arrangorService = arrangorService,
         )
         return TilskuddArrangorUtbetalingConsumer(
-            db = database.db,
+            db = database.api,
             utbetalingService = utbetalingService,
             tilsagnService = tilsagnService,
         )
@@ -125,7 +125,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
 
     test("oppretter utbetaling for innvilget tilskudd til arrangør") {
         val service = TilskuddBehandlingService(
-            database.db,
+            database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
         )
@@ -145,7 +145,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
         val service = TilskuddBehandlingService(
-            database.db,
+            database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
         )

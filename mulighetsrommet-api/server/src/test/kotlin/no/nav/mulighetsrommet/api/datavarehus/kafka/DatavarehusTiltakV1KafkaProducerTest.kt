@@ -37,7 +37,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
         val producer = DatavarehusTiltakV1KafkaProducer(
             config,
             producerClient,
-            database.db,
+            database.api,
         )
 
         val key = UUID.randomUUID().toString()
@@ -53,14 +53,14 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(AFT1),
         )
-        domain.initialize(database.db)
+        domain.initialize(database.api)
 
         val producerClient = mockk<KafkaProducerClient<ByteArray, ByteArray?>>(relaxed = true)
 
         val producer = DatavarehusTiltakV1KafkaProducer(
             config,
             producerClient,
-            database.db,
+            database.api,
         )
 
         var gjennomforing: TiltaksgjennomforingV2Dto = TiltaksgjennomforingV2Dto.Gruppe(

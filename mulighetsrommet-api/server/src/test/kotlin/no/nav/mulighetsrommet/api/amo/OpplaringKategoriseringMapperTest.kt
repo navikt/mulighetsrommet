@@ -14,11 +14,11 @@ class OpplaringKategoriseringMapperTest : FunSpec({
         prettyPrintIndent = "  "
     }
     beforeSpec {
-        MulighetsrommetTestDomain().initialize(dbListener.db)
+        MulighetsrommetTestDomain().initialize(dbListener.api)
     }
 
     test("STUDIESPESIALISERING") {
-        dbListener.db.session {
+        dbListener.api.session {
             val kodeverk =
                 context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.STUDIESPESIALISERING) }
             jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual STUDIESPESIALISERING_JSON
@@ -26,7 +26,7 @@ class OpplaringKategoriseringMapperTest : FunSpec({
     }
 
     test("NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV") {
-        dbListener.db.session {
+        dbListener.api.session {
             val kodeverk =
                 context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV) }
             jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON
@@ -34,14 +34,14 @@ class OpplaringKategoriseringMapperTest : FunSpec({
     }
 
     test("FAG_OG_YRKESOPPLAERING") {
-        dbListener.db.session {
+        dbListener.api.session {
             val kodeverk = context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.FAG_OG_YRKESOPPLAERING) }
             jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual FAG_OG_YRKESOPPLAERING_JSON
         }
     }
 
     test("ARBEIDSMARKEDSOPPLAERING") {
-        dbListener.db.session {
+        dbListener.api.session {
             val kodeverk =
                 context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.ARBEIDSMARKEDSOPPLAERING) }
             jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual ARBEIDSMARKEDSOPPLAERING_JSON
@@ -49,7 +49,7 @@ class OpplaringKategoriseringMapperTest : FunSpec({
     }
 
     test("GRUPPE_ARBEIDSMARKEDSOPPLAERING") {
-        dbListener.db.session {
+        dbListener.api.session {
             val kodeverk =
                 context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) }
             jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual GRUPPE_ARBEIDSMARKEDSOPPLAERING_JSON

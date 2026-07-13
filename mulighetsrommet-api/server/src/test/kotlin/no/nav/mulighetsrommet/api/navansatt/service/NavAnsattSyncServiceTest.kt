@@ -30,7 +30,7 @@ class NavAnsattSyncServiceTest : FunSpec({
     )
 
     beforeEach {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterEach {
@@ -41,7 +41,7 @@ class NavAnsattSyncServiceTest : FunSpec({
     val navAnsattService: NavAnsattService = mockk()
 
     fun createService() = NavAnsattSyncService(
-        db = database.db,
+        db = database.api,
         navAnsattService = navAnsattService,
         sanityService = sanityService,
     )

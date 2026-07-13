@@ -45,11 +45,11 @@ class ArrangorflateServiceTest : FunSpec({
     coEvery { personaliaService.getPersonalia(any<List<UUID>>(), any()) } returns emptyList()
 
     beforeEach {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     fun createService() = ArrangorflateService(
-        database.db,
+        database.api,
         personaliaService,
         kontoregisterOrganisasjon,
     )

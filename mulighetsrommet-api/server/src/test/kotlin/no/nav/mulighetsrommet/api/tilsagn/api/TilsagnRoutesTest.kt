@@ -74,7 +74,7 @@ class TilsagnRoutesTest : FunSpec({
     }
 
     beforeEach {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterEach {

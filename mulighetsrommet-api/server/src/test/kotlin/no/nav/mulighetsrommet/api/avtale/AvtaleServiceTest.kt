@@ -77,7 +77,7 @@ class AvtaleServiceTest : FunSpec({
     )
 
     beforeEach {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterEach {
@@ -88,13 +88,13 @@ class AvtaleServiceTest : FunSpec({
 
     fun createAvtaleService(
         gjennomforingPublisher: InitialLoadGjennomforinger = mockk(relaxed = true),
-        arrangorService: ArrangorService = ArrangorService(database.db, mockk(), mockk()),
+        arrangorService: ArrangorService = ArrangorService(database.api, mockk(), mockk()),
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ) = AvtaleService(
         config = AvtaleService.Config(mapOf()),
-        database.db,
+        database.api,
         arrangorService,
-        TiltakstypeService(TiltakstypeService.Config(features), database.newDb),
+        TiltakstypeService(TiltakstypeService.Config(features), database.admin),
         gjennomforingPublisher,
     )
 
@@ -105,7 +105,7 @@ class AvtaleServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val request = AvtaleFixtures.createAvtaleRequest(
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -154,7 +154,7 @@ class AvtaleServiceTest : FunSpec({
                 overordnetEnhet = orgnrHovedenhet,
             ).right()
 
-            val arrangorService = ArrangorService(database.db, brregClient, mockk())
+            val arrangorService = ArrangorService(database.api, brregClient, mockk())
 
             val avtaleService = createAvtaleService(arrangorService = arrangorService)
 
@@ -211,7 +211,7 @@ class AvtaleServiceTest : FunSpec({
         test("får ikke opprette avtaler for tiltakstyper som er ment for enkeltplasser") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.Arbeidstrening),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val arbeidstrening = AvtaleFixtures.createAvtaleRequest(Tiltakskode.ARBEIDSTRENING)
             avtaleService.create(arbeidstrening, bertilNavIdent).shouldBeLeft() shouldBe listOf(
@@ -228,7 +228,7 @@ class AvtaleServiceTest : FunSpec({
             val brregClient = mockk<BrregClient>()
             coEvery { brregClient.getBrregEnhet(Organisasjonsnummer("223442332")) } returns BrregError.NotFound.left()
 
-            val arrangorService = ArrangorService(db = database.db, brregClient = brregClient, mockk())
+            val arrangorService = ArrangorService(db = database.api, brregClient = brregClient, mockk())
 
             val avtaleService = createAvtaleService(arrangorService = arrangorService)
 
@@ -259,7 +259,7 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val prismodell1Request = PrismodellRequest(
                 id = UUID.randomUUID(),
@@ -299,7 +299,7 @@ class AvtaleServiceTest : FunSpec({
         test("tillater ikke oppretting av forhåndsgodkjente prismodeller") {
             MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.oppfolging, AvtaleFixtures.AFT),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val request = PrismodellRequest(
                 id = UUID.randomUUID(),
@@ -339,7 +339,7 @@ class AvtaleServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
                 gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val request = listOf(
                 PrismodellRequest(
@@ -386,7 +386,7 @@ class AvtaleServiceTest : FunSpec({
                     aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
                     forklaring = null,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             avtaleService.avbrytAvtale(
                 avbruttAvtale.id,
@@ -427,7 +427,7 @@ class AvtaleServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
                 gjennomforinger = listOf(gjennomforing1, gjennomforing2),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             avtaleService.avbrytAvtale(
                 avtale.id,
@@ -457,7 +457,7 @@ class AvtaleServiceTest : FunSpec({
                     aarsaker = listOf(AvbrytGjennomforingAarsak.BUDSJETT_HENSYN),
                     forklaring = null,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             avtaleService.avbrytAvtale(
                 avtale.id,
@@ -531,7 +531,7 @@ class AvtaleServiceTest : FunSpec({
         test("opsjon kan ikke utløses hvis ny sluttdato er etter maks varighet for opsjon") {
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val request = OpprettOpsjonLoggRequest(
                 nySluttDato = today.plusMonths(1),
@@ -559,7 +559,7 @@ class AvtaleServiceTest : FunSpec({
                         ),
                     ),
                 ),
-            ).initialize(database.db)
+            ).initialize(database.api)
             val sluttDato = avtale.detaljerDbo.sluttDato!!
 
             val request = OpprettOpsjonLoggRequest(
@@ -574,7 +574,7 @@ class AvtaleServiceTest : FunSpec({
         test("registrering og sletting av opsjoner påvirker avtalens sluttdato og status") {
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val request = OpprettOpsjonLoggRequest(
                 nySluttDato = tomorrow,
@@ -598,7 +598,7 @@ class AvtaleServiceTest : FunSpec({
         test("opsjon kan bare slettes hvis den er den siste registrerte") {
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val request = OpprettOpsjonLoggRequest(
                 nySluttDato = tomorrow,
@@ -620,7 +620,7 @@ class AvtaleServiceTest : FunSpec({
         test("opsjon kan ikke utløses etter at det er besluttet at ingen flere opsjoner skal utløses") {
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val request = OpprettOpsjonLoggRequest(
                 nySluttDato = null,
@@ -642,7 +642,7 @@ class AvtaleServiceTest : FunSpec({
         test("skal kunne slette opsjon som er registrert med status SKAL_IKKE_UTLOSE_OPSJON") {
             MulighetsrommetTestDomain(
                 avtaler = listOf(avtale),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val request = OpprettOpsjonLoggRequest(
                 nySluttDato = null,
@@ -660,7 +660,7 @@ class AvtaleServiceTest : FunSpec({
 
     context("hent avtaler") {
         test("kan generere excel for avtaler") {
-            MulighetsrommetTestDomain(avtaler = listOf(AvtaleFixtures.oppfolging)).initialize(database.db)
+            MulighetsrommetTestDomain(avtaler = listOf(AvtaleFixtures.oppfolging)).initialize(database.api)
             val avtaleService = createAvtaleService()
 
             val file = avtaleService.exportToExcel(

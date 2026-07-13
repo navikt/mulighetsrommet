@@ -125,7 +125,7 @@ class VeilederflateServiceTest : FunSpec({
     }
 
     beforeSpec {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     val sanityService: SanityService = mockk(relaxed = true)
@@ -145,13 +145,13 @@ class VeilederflateServiceTest : FunSpec({
     ): VeilederflateService {
         val tiltakstypeService = TiltakstypeService(
             config = TiltakstypeService.Config(features),
-            db = database.newDb,
+            db = database.admin,
         )
         return VeilederflateService(
-            db = database.db,
+            db = database.api,
             tiltakstypeService = tiltakstypeService,
             sanityService = sanityService,
-            navEnhetService = NavEnhetService(SqlNavEnhetRepository(database.db.db)),
+            navEnhetService = NavEnhetService(SqlNavEnhetRepository(database.api.db)),
         )
     }
 

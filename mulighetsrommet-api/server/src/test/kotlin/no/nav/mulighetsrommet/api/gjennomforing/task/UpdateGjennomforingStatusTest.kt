@@ -25,9 +25,9 @@ class UpdateGjennomforingStatusTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     fun createTask() = UpdateGjennomforingStatus(
-        database.db,
+        database.api,
         GjennomforingAvtaleService(
-            db = database.db,
+            db = database.api,
             navAnsattService = mockk(relaxed = true),
         ),
     )
@@ -62,7 +62,7 @@ class UpdateGjennomforingStatusTest : FunSpec({
         )
 
         beforeEach {
-            domain.initialize(database.db)
+            domain.initialize(database.api)
         }
 
         afterEach {

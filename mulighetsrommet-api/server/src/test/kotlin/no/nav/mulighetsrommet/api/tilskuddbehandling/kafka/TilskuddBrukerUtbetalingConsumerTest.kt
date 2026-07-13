@@ -57,7 +57,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             deltakere = listOf(
                 DeltakerFixtures.createDeltakerDbo(GjennomforingFixtures.EnkelAmo.id).copy(id = deltakerId),
             ),
-        ).initialize(database.db)
+        ).initialize(database.api)
 
         coEvery { personaliaService.getPersonalia(deltakerId, any()) } returns Personalia(
             deltakerId = deltakerId,
@@ -112,14 +112,14 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     )
 
     fun createConsumer() = TilskuddBrukerUtbetalingConsumer(
-        db = database.db,
+        db = database.api,
         personaliaService = personaliaService,
         brukerUtbetalingService = brukerUtbetalingService,
     )
 
     test("oppretter hel ved utbetaling for innvilget tilskudd til bruker") {
         val service = TilskuddBehandlingService(
-            database.db,
+            database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
         )
@@ -127,7 +127,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
         createConsumer().consume(behandlingId, Json.encodeToJsonElement(godkjentHendelse))
 
-        val result = database.db.session { queries.brukerUtbetaling.getByTilskudd(tilskuddId) }
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskuddId) }
 
         result.shouldNotBeNull()
         result.belop shouldBe 5000
@@ -141,7 +141,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
     test("behandler ikke tilskudd to ganger hvis utbetaling allerede eksisterer") {
         val service = TilskuddBehandlingService(
-            database.db,
+            database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
         )

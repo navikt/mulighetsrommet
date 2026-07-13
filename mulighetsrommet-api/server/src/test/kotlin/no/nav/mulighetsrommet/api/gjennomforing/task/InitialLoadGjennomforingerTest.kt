@@ -32,7 +32,7 @@ class InitialLoadGjennomforingerTest : FunSpec({
     )
 
     beforeSpec {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     val gjennomforinvV2Topic = "topic-v2"
@@ -42,8 +42,8 @@ class InitialLoadGjennomforingerTest : FunSpec({
         producerClient: KafkaProducerClient<ByteArray, ByteArray?>,
     ): InitialLoadGjennomforinger = InitialLoadGjennomforinger(
         InitialLoadGjennomforinger.Config(gjennomforinvV2Topic),
-        database.db,
-        GjennomforingDetaljerService(database.db, TiltakstypeService(db = database.newDb), mockk(), mockk()),
+        database.api,
+        GjennomforingDetaljerService(database.api, TiltakstypeService(db = database.admin), mockk(), mockk()),
         producerClient,
     )
 

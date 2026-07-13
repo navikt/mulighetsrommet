@@ -41,18 +41,18 @@ class UpdateApentForPameldingTest : FunSpec({
         }
 
         val service = GjennomforingAvtaleService(
-            db = database.db,
+            db = database.api,
             navAnsattService = mockk(),
         )
 
         val updateApentForPamelding = UpdateApentForPamelding(
             config = UpdateApentForPamelding.Config(disabled = true),
-            db = database.db,
+            db = database.api,
             avtaleGjennomforingService = service,
         )
 
         beforeEach {
-            domain.initialize(database.db)
+            domain.initialize(database.api)
         }
 
         afterEach {

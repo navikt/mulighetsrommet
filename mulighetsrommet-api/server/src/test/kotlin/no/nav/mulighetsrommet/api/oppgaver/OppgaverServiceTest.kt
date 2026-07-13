@@ -64,7 +64,7 @@ class OppgaverServiceTest : FunSpec({
 
     context("tilsagn") {
         test("Skal hente oppgaver for tilsagn med filter") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
@@ -77,7 +77,7 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnStatus.TIL_GODKJENNING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -93,7 +93,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal ikke se oppgaver som ansatt selv har sendt til godkjenning") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -105,7 +105,7 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnStatus.TIL_GODKJENNING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.TILSAGN_TIL_GODKJENNING),
@@ -138,9 +138,9 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_ANNULLERING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.ANNULLERT)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn4, TilsagnStatus.TIL_OPPGJOR)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
             service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
@@ -166,9 +166,9 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.RETURNERT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
             service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
@@ -197,9 +197,9 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.TIL_GODKJENNING)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -216,7 +216,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal se oppgaver for returnert tilsagn når ansatt selv har sendt tilsagn til godkjenning") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -228,7 +228,7 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnStatus.RETURNERT,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -260,9 +260,9 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.TIL_GODKJENNING)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -283,7 +283,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Arrangor data kommer med") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
@@ -296,7 +296,7 @@ class OppgaverServiceTest : FunSpec({
                     TilsagnStatus.TIL_GODKJENNING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -315,7 +315,7 @@ class OppgaverServiceTest : FunSpec({
 
     context("utbetalingslinjer") {
         test("Skal hente oppgaver for utbetalingslinjer med filter") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 navEnheter = listOf(
@@ -341,7 +341,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
                 setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje1, UtbetalingLinjeStatus.TIL_ATTESTERING)
                 setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje2, UtbetalingLinjeStatus.RETURNERT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             // Skal se utbetaling til godkjenning når ansatt har attestant-rolle
             service.oppgaver(
@@ -402,7 +402,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal ikke hente oppgaver som ansatt selv har sendt til godkjenning") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -419,7 +419,7 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingLinjeStatus.TIL_ATTESTERING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
@@ -436,7 +436,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal hente oppgaver selv om ansatt selv har besluttet tilsagnet") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -457,7 +457,7 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingLinjeStatus.TIL_ATTESTERING,
                     behandletAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.UTBETALING_TIL_ATTESTERING),
@@ -490,7 +490,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal bare se oppgaver for kostandssteder som overlapper med ansattes roller") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
@@ -507,7 +507,7 @@ class OppgaverServiceTest : FunSpec({
                     UtbetalingLinjeStatus.TIL_ATTESTERING,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             forAll(
                 row(
@@ -550,7 +550,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("skal ikke se utbetalingslinje oppgaver for avbrutte utbetalinger") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 navEnheter = listOf(
@@ -576,7 +576,7 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
                 setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje1, UtbetalingLinjeStatus.RETURNERT)
                 setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje2, UtbetalingLinjeStatus.AVBRUTT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             // Skal se utbetaling til godkjenning når ansatt har attestant-rolle
             service.oppgaver(
@@ -644,9 +644,9 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
                 setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje1, UtbetalingLinjeStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             val oppgaver = service.oppgaver(
                 oppgavetyper = setOf(),
@@ -723,9 +723,9 @@ class OppgaverServiceTest : FunSpec({
                         ),
                     ),
                 ),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.AVTALE_MANGLER_ADMINISTRATOR),
@@ -756,7 +756,7 @@ class OppgaverServiceTest : FunSpec({
 
     context("enkeltplasser") {
         test("beslutter som ikke har opprettet enkeltplass ser oppgave for enkeltplass til godkjenning") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -766,7 +766,7 @@ class OppgaverServiceTest : FunSpec({
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -782,7 +782,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("beslutter som har opprettet enkeltplass ser ikke oppgave") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -792,7 +792,7 @@ class OppgaverServiceTest : FunSpec({
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
@@ -806,7 +806,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("ansatt uten beslutter-rolle ser ikke oppgave") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -816,7 +816,7 @@ class OppgaverServiceTest : FunSpec({
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
@@ -830,7 +830,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("allerede godkjent enkeltplass gir ikke oppgave") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -841,7 +841,7 @@ class OppgaverServiceTest : FunSpec({
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
@@ -855,7 +855,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("saksbehandler ser oppgave når enkeltplass er satt på vent") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -866,7 +866,7 @@ class OppgaverServiceTest : FunSpec({
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -882,7 +882,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("ansatt uten saksbehandler-rolle ser ikke satt-på-vent oppgave") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -893,7 +893,7 @@ class OppgaverServiceTest : FunSpec({
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.ENKELTPLASS_SATT_PA_VENT),
@@ -907,7 +907,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("satt-på-vent enkeltplass vises ikke som til-godkjenning oppgave") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -918,7 +918,7 @@ class OppgaverServiceTest : FunSpec({
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
@@ -940,9 +940,9 @@ class OppgaverServiceTest : FunSpec({
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
-            OppgaverService(database.db, features(enkeltplassFilterEnabled = false)).oppgaver(
+            OppgaverService(database.api, features(enkeltplassFilterEnabled = false)).oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
@@ -954,7 +954,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("region-filter begrenser enkeltplass oppgaver til riktig region") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             val enkeltplassInnlandet = GjennomforingFixtures.EnkelAmo.copy(
                 ansvarligEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
@@ -978,7 +978,7 @@ class OppgaverServiceTest : FunSpec({
                     TotrinnskontrollType.ENKELTPLASS_OKONOMI,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -996,7 +996,7 @@ class OppgaverServiceTest : FunSpec({
 
     context("tilskuddsbehandlinger") {
         test("attestant som ikke har opprettet behandling ser oppgave til attestering") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -1007,7 +1007,7 @@ class OppgaverServiceTest : FunSpec({
                     TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -1023,7 +1023,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("attestant som selv har opprettet behandling ser ikke oppgave") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -1034,7 +1034,7 @@ class OppgaverServiceTest : FunSpec({
                     TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.TILSKUDDBEHANDLING_TIL_ATTESTERING),
@@ -1048,7 +1048,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("saksbehandler ser returnert tilskuddsbehandling") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -1064,7 +1064,7 @@ class OppgaverServiceTest : FunSpec({
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -1080,7 +1080,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("ferdig behandlet tilskuddsbehandling gir ingen oppgave") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
@@ -1097,7 +1097,7 @@ class OppgaverServiceTest : FunSpec({
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                     besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -1117,9 +1117,9 @@ class OppgaverServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             ) {
-            }.initialize(database.db)
+            }.initialize(database.api)
 
-            OppgaverService(database.db, features(enkeltplassFilterEnabled = false)).oppgaver(
+            OppgaverService(database.api, features(enkeltplassFilterEnabled = false)).oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
                 regioner = setOf(),
@@ -1131,7 +1131,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("region-filter begrenser tilskuddsbehandling oppgaver") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             val behandlingOslo = TilskuddFixtures.Behandling.copy(
                 id = UUID.randomUUID(),
@@ -1154,7 +1154,7 @@ class OppgaverServiceTest : FunSpec({
                     TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -1170,7 +1170,7 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("arrangor-filter begrenser tilskuddsbehandling oppgaver") {
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             val behandlingOslo = TilskuddFixtures.Behandling.copy(
                 gjennomforingId = GjennomforingFixtures.EnkelFagOgYrke.id,
@@ -1193,7 +1193,7 @@ class OppgaverServiceTest : FunSpec({
                     TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
                     behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             service.oppgaver(
                 oppgavetyper = setOf(),
@@ -1224,9 +1224,9 @@ class OppgaverServiceTest : FunSpec({
                     domain.gjennomforinger[2].id,
                     setOf(NavAnsattFixture.DonaldDuck.navIdent),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
-            val service = OppgaverService(database.db, features())
+            val service = OppgaverService(database.api, features())
 
             service.oppgaver(
                 oppgavetyper = setOf(OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR),
