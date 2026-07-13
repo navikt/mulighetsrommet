@@ -415,13 +415,13 @@ class OppgaveQueries(private val session: Session) {
 
     fun getAvtaleManglerAdministratorOppgaveData(
         tiltakskoder: Set<Tiltakskode>,
-        navRegioner: Set<NavEnhetNummer>,
+        navEnheter: Set<NavEnhetNummer>,
         arrangorer: Set<UUID>?,
     ): List<AvtaleManglerAdministratorOppgaveData> = with(session) {
         val statuser = listOf(AvtaleStatusType.UTKAST, AvtaleStatusType.AKTIV)
 
         val parameters = mapOf(
-            "nav_enheter" to navRegioner.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
+            "nav_enheter" to navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
             "tiltakskoder" to tiltakskoder.ifEmpty { null }?.let { session.createTextArray(it) },
             "statuser" to statuser.ifEmpty { null }?.let { createArrayOfAvtaleStatus(statuser) },
             "arrangorer" to arrangorer?.let { session.createUuidArray(it) },

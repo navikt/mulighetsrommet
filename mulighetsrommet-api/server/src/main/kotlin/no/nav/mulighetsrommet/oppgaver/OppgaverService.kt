@@ -42,22 +42,16 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
     fun oppgaver(
         oppgavetyper: Set<OppgaveType>,
         tiltakskoder: Set<Tiltakskode>,
-        regioner: Set<NavEnhetNummer>,
+        navEnheter: Set<NavEnhetNummer>,
         arrangorer: Set<UUID>,
         ansatt: NavAnsatt,
     ): List<Oppgave> = db.transaction {
-        val navEnheterForRegioner = if (regioner.isEmpty()) {
-            emptySet()
-        } else {
-            getNavEnheterOgKostnadsstederForRegioner(regioner)
-        }
-
         val oppgaver = buildList {
             if (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.TILSAGN }) {
                 addAll(
                     tilsagnOppgaver(
                         tiltakskoder = tiltakskoder,
-                        kostnadssteder = navEnheterForRegioner,
+                        kostnadssteder = navEnheter,
                         arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
@@ -67,7 +61,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                 addAll(
                     utbetalingLinjeOppgaver(
                         tiltakskoder = tiltakskoder,
-                        kostnadssteder = navEnheterForRegioner,
+                        kostnadssteder = navEnheter,
                         arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
@@ -77,7 +71,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                 addAll(
                     utbetalingOppgaver(
                         tiltakskoder = tiltakskoder,
-                        kostnadssteder = navEnheterForRegioner,
+                        kostnadssteder = navEnheter,
                         arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
@@ -87,7 +81,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                 addAll(
                     avtaleOppgaver(
                         tiltakskoder = tiltakskoder,
-                        regioner = regioner,
+                        navEnheter = navEnheter,
                         arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
@@ -97,7 +91,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                 addAll(
                     gjennomforingOppgaver(
                         tiltakskoder = tiltakskoder,
-                        navEnheter = navEnheterForRegioner,
+                        navEnheter = navEnheter,
                         arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
@@ -107,7 +101,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                 addAll(
                     enkeltplassOppgaver(
                         tiltakskoder = tiltakskoder,
-                        navEnheter = navEnheterForRegioner,
+                        navEnheter = navEnheter,
                         arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
@@ -117,7 +111,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                 addAll(
                     tilskuddBehandlingOppgaver(
                         tiltakskoder = tiltakskoder,
-                        kostnadssteder = navEnheterForRegioner,
+                        kostnadssteder = navEnheter,
                         arrangorer = arrangorer,
                         ansatt = ansatt,
                     ),
@@ -183,12 +177,12 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
 
     private fun QueryContext.avtaleOppgaver(
         tiltakskoder: Set<Tiltakskode>,
-        regioner: Set<NavEnhetNummer>,
+        navEnheter: Set<NavEnhetNummer>,
         arrangorer: Set<UUID>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
-            .getAvtaleManglerAdministratorOppgaveData(tiltakskoder, regioner, arrangorer.ifEmpty { null })
+            .getAvtaleManglerAdministratorOppgaveData(tiltakskoder, navEnheter, arrangorer.ifEmpty { null })
             .mapNotNull { it.toOppgave(ansatt) }
     }
 
@@ -252,16 +246,6 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
         else -> {
             data.kostnadssteder.isEmpty() || data.kostnadssteder.any { it in kostnadssteder }
         }
-    }
-
-    private fun QueryContext.getNavEnheterOgKostnadsstederForRegioner(regioner: Set<NavEnhetNummer>): Set<NavEnhetNummer> {
-        val kostnadssteder = queries.kostnadssted.getAll(regioner.toList())
-            .flatMap { listOf(it.region.enhetsnummer, it.enhetsnummer) }
-            .toSet()
-        val navEnheter = regioner.flatMapTo(mutableSetOf()) { region ->
-            queries.enhet.getAll(overordnetEnhet = region).map { it.enhetsnummer } + region
-        }
-        return kostnadssteder + navEnheter
     }
 }
 
