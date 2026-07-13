@@ -7815,7 +7815,7 @@ components:
           items:
             $ref: "#/components/schemas/Tiltakskode"
           uniqueItems: true
-        regioner:
+        navEnheter:
           type: array
           items:
             type: string
@@ -7828,8 +7828,8 @@ components:
           uniqueItems: true
       required:
       - arrangorer
+      - navEnheter
       - oppgavetyper
-      - regioner
       - tiltakskoder
     Oppgave:
       type: object

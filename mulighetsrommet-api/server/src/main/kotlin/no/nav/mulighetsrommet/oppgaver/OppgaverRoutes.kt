@@ -47,7 +47,7 @@ fun Route.oppgaverRoutes() {
             val oppgaver = service.oppgaver(
                 oppgavetyper = filter.oppgavetyper,
                 tiltakskoder = filter.tiltakskoder,
-                regioner = filter.regioner,
+                navEnheter = filter.navEnheter,
                 arrangorer = filter.arrangorer.toSet(),
                 ansatt = ansatt,
             )
@@ -83,7 +83,7 @@ fun Route.oppgaverRoutes() {
 data class OppgaverFilter(
     val oppgavetyper: Set<OppgaveType>,
     val tiltakskoder: Set<Tiltakskode>,
-    val regioner: Set<NavEnhetNummer>,
+    val navEnheter: Set<NavEnhetNummer>,
     val arrangorer: Set<
         @Serializable(with = UUIDSerializer::class)
         UUID,

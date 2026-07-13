@@ -8,9 +8,9 @@ import {
 } from "@/pages/oppgaveoversikt/oppgaver/filter";
 import { OppgaveType } from "@tiltaksadministrasjon/api-client";
 import { OppgaveTypeFilter } from "@/components/filter/OppgaveTypeFilter";
-import { NavRegionFilter } from "@/components/filter/NavRegionFilter";
 import { GjennomforingTiltakstypeFilter } from "./GjennomforingTiltakstypeFilter";
 import { ArrangorerFilter } from "./ArrangorerFilter";
+import { KontorstrukturFilter } from "./KontorstrukturFilter";
 
 interface Props {
   filter: OppgaverFilterType;
@@ -49,18 +49,23 @@ export function OppgaverFilter({ filter, updateFilter, lagredeFilterOversikt }: 
             />
           </Accordion.Content>
         </Accordion.Item>
-        <Accordion.Item open={accordionsOpen.includes("regioner")}>
+        <Accordion.Item open={accordionsOpen.includes("navEnhet")}>
           <Accordion.Header
             onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "regioner")]);
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "navEnhet")]);
             }}
           >
-            <FilterAccordionHeader tittel="Region" antallValgteFilter={filter.regioner.length} />
+            <FilterAccordionHeader
+              tittel="Nav-enhet"
+              antallValgteFilter={filter.navEnheter.length}
+            />
           </Accordion.Header>
           <Accordion.Content>
-            <NavRegionFilter
-              value={filter.regioner}
-              onChange={(regioner) => updateFilter({ regioner })}
+            <KontorstrukturFilter
+              value={filter.navEnheter}
+              onChange={(navEnheter) => {
+                updateFilter({ navEnheter });
+              }}
             />
           </Accordion.Content>
         </Accordion.Item>
