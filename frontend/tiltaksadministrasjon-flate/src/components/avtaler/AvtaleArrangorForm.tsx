@@ -5,8 +5,8 @@ import {
   ArrangorDto,
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
-  BrregHovedenhetDto,
-  BrregUnderenhetDto,
+  Hovedenhet,
+  Underenhet,
 } from "@tiltaksadministrasjon/api-client";
 import { useRef, useState } from "react";
 import { DeepPartial, useFormContext } from "react-hook-form";
@@ -118,7 +118,7 @@ export function AvtaleArrangorForm() {
 }
 
 function getArrangorHovedenhetOptions(
-  virksomheter: BrregHovedenhetDto[],
+  virksomheter: Hovedenhet[],
   arrangor: ArrangorDto | undefined,
 ) {
   const options = virksomheter
@@ -146,7 +146,7 @@ function isArrangorMissingFromOptions(
 }
 
 function getArrangorUnderenhetOptions(
-  underenheter: BrregUnderenhetDto[],
+  underenheter: Underenhet[],
   valgteOrgnr: string[],
 ): ComboboxOption[] {
   const brregOrgnr = new Set(underenheter.map((u) => u.organisasjonsnummer));

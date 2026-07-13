@@ -167,47 +167,4 @@ class ArrangorServiceTest : FunSpec({
             }
         }
     }
-
-    context("brreg sok med utenlandske bedrifter") {
-        val brregClient: BrregClient = mockk()
-        val arrangorService = ArrangorService(database.api, brregClient, mockk(relaxed = true))
-        val utenlandskArrangor = Arrangor(
-            id = UUID.randomUUID(),
-            organisasjonsnummer = Organisasjonsnummer("100000056"),
-            organisasjonsform = null,
-            navn = "X - Utbildning Nord",
-            overordnetEnhet = null,
-            slettetDato = null,
-            erUtenlandsk = true,
-        )
-
-        beforeEach {
-            database.run {
-                queries.arrangor.save(utenlandskArrangor)
-            }
-        }
-
-        afterEach {
-            clearAllMocks()
-            database.truncateAll()
-        }
-
-        test("sok gir med utenlandske arrangører") {
-            coEvery { brregClient.searchHovedenhet(any()) } returns emptyList<BrregHovedenhetDto>().right()
-
-            arrangorService.brregSok("Nord").shouldBeRight()[0] should {
-                it.navn shouldBe utenlandskArrangor.navn
-                it.organisasjonsnummer shouldBe utenlandskArrangor.organisasjonsnummer
-            }
-        }
-
-        test("hent underenheter for utenlandsk arrangør gir liste med hovedenheten") {
-            coEvery { brregClient.getUnderenheterForHovedenhet(utenlandskArrangor.organisasjonsnummer) } returns emptyList<BrregUnderenhetDto>().right()
-
-            arrangorService.brregUnderenheter(utenlandskArrangor.organisasjonsnummer).shouldBeRight()[0] should {
-                it.navn shouldBe utenlandskArrangor.navn
-                it.organisasjonsnummer shouldBe utenlandskArrangor.organisasjonsnummer
-            }
-        }
-    }
 })

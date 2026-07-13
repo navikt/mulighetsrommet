@@ -13,6 +13,8 @@ import no.nav.common.kafka.producer.feilhandtering.publisher.QueuedKafkaProducer
 import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
+import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQuery
 import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
@@ -53,6 +55,7 @@ import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
+import no.nav.mulighetsrommet.api.enhetsregister.BrregEnhetsregisterGateway
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.GjennomforingRequestKafkaConsumer
@@ -496,6 +499,8 @@ private fun services(appConfig: AppConfig) = module {
     single { KostnadsstedQuery(get()) }
     single { NavAnsattDtoQuery(get()) }
     single { ArrangorService(get(), get(), get()) }
+    single<EnhetsregisterGateway> { BrregEnhetsregisterGateway(get()) }
+    single { EnhetsregisterQuery(get(), get()) }
     single {
         GenererUtbetalingService(
             config = GenererUtbetalingService.Config(

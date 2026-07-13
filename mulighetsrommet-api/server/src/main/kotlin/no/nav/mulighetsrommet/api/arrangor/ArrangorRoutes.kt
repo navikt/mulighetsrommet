@@ -17,6 +17,9 @@ import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorKobling
+import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
+import no.nav.mulighetsrommet.admin.enhetsregister.Hovedenhet
+import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
@@ -28,8 +31,6 @@ import no.nav.mulighetsrommet.api.responses.StatusResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
-import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -39,6 +40,7 @@ import java.util.UUID
 fun Route.arrangorRoutes() {
     val db: ApiDatabase by inject()
     val arrangorService: ArrangorService by inject()
+    val enhetsregister: EnhetsregisterQuery by inject()
 
     route("arrangorer") {
         post("{orgnr}", {
@@ -292,7 +294,7 @@ fun Route.arrangorRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Treff hos Brreg"
-                    body<List<BrregHovedenhetDto>>()
+                    body<List<Hovedenhet>>()
                 }
                 default {
                     description = "Problem details"
@@ -301,7 +303,7 @@ fun Route.arrangorRoutes() {
             }
         }) {
             val q: String by call.request.queryParameters
-            val result = arrangorService.brregSok(sok = q)
+            val result = enhetsregister.sokHovedenheter(sok = q)
                 .mapLeft { it.toProblemDetail() }
             call.respondWithStatusResponse(result)
         }
@@ -315,7 +317,7 @@ fun Route.arrangorRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Underenhetene til hovedenhet for gitt orgnr"
-                    body<List<BrregUnderenhetDto>>()
+                    body<List<Underenhet>>()
                 }
                 default {
                     description = "Problem details"
@@ -324,8 +326,8 @@ fun Route.arrangorRoutes() {
             }
         }) {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
-            val result = arrangorService.brregUnderenheter(orgnr)
-                .mapLeft { it.toProblemDetail(orgnr) }
+            val result = enhetsregister.hentUnderenheterForHovedenhet(orgnr)
+                .mapLeft { it.toProblemDetail() }
             call.respondWithStatusResponse(result)
         }
     }

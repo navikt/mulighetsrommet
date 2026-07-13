@@ -5,8 +5,9 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
+import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
+import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
@@ -21,7 +22,7 @@ fun Route.arrangorPublicRoutes() {
 }
 
 private fun Route.enhetRoutes() {
-    val arrangorService: ArrangorService by inject()
+    val enhetsregister: EnhetsregisterQuery by inject()
 
     get("/underenhet", {
         tags = setOf("Arrangor")
@@ -35,7 +36,7 @@ private fun Route.enhetRoutes() {
         response {
             code(HttpStatusCode.OK) {
                 description = "Liste med underenheter"
-                body<List<BrregUnderenhetDto>>()
+                body<List<Underenhet>>()
             }
             code(HttpStatusCode.BadRequest) {
                 description = "Søket er blankt"
@@ -52,7 +53,7 @@ private fun Route.enhetRoutes() {
         }
     }) {
         val sok: String by call.parameters
-        val result = arrangorService.brregSokUnderenheter(sok).mapLeft { it.toProblemDetail() }
+        val result = enhetsregister.sokUnderenheter(sok).mapLeft { it.toProblemDetail() }
         call.respondWithStatusResponse(result)
     }
 }

@@ -6,11 +6,11 @@ import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
+import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.withTestApplication
-import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.brreg.testFixture.BrregFixtures
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
@@ -66,7 +66,7 @@ class ArrangorPublicRoutesTest : FunSpec({
 
                     response.status shouldBe HttpStatusCode.OK
 
-                    val responseBody = response.body<List<BrregUnderenhetDto>>()
+                    val responseBody = response.body<List<Underenhet>>()
                     responseBody.size shouldBe 1
                 }
             }
@@ -89,7 +89,7 @@ class ArrangorPublicRoutesTest : FunSpec({
 
                     response.status shouldBe HttpStatusCode.OK
 
-                    val responseBody = response.body<List<BrregUnderenhetDto>>()
+                    val responseBody = response.body<List<Underenhet>>()
                     responseBody.size shouldBe 0
                 }
             }

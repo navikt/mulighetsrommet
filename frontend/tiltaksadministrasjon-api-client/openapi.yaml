@@ -3183,7 +3183,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/BrregHovedenhetDto"
+                  $ref: "#/components/schemas/Hovedenhet"
         default:
           description: Problem details
           headers: {}
@@ -3214,7 +3214,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/BrregUnderenhetDto"
+                  $ref: "#/components/schemas/Underenhet"
         default:
           description: Problem details
           headers: {}
@@ -8256,76 +8256,58 @@ components:
       required:
       - avtaler
       - gjennomforinger
-    BrregHovedenhetDto:
+    Hovedenhet:
       type: object
       properties:
         organisasjonsnummer:
           type: string
-        organisasjonsform:
-          type: string
         navn:
           type: string
-        postadresse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/BrregAdresse"
-        forretningsadresse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/BrregAdresse"
+        organisasjonsform:
+          type:
+          - "null"
+          - string
         overordnetEnhet:
           type:
           - "null"
           - string
-      required:
-      - forretningsadresse
-      - navn
-      - organisasjonsform
-      - organisasjonsnummer
-      - overordnetEnhet
-      - postadresse
-    BrregAdresse:
-      type: object
-      properties:
-        landkode:
+        slettetDato:
           type:
           - "null"
           - string
-        postnummer:
-          type:
-          - "null"
-          - string
-        poststed:
-          type:
-          - "null"
-          - string
-        adresse:
-          type:
-          - "null"
-          - array
-          items:
-            type: string
-      required:
-      - adresse
-      - landkode
-      - postnummer
-      - poststed
-    BrregUnderenhetDto:
-      type: object
-      properties:
-        organisasjonsnummer:
-          type: string
-        organisasjonsform:
-          type: string
-        navn:
-          type: string
-        overordnetEnhet:
-          type: string
+          format: date
       required:
       - navn
       - organisasjonsform
       - organisasjonsnummer
       - overordnetEnhet
+      - slettetDato
+    Underenhet:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        organisasjonsform:
+          type:
+          - "null"
+          - string
+        overordnetEnhet:
+          type:
+          - "null"
+          - string
+        slettetDato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - navn
+      - organisasjonsform
+      - organisasjonsnummer
+      - overordnetEnhet
+      - slettetDato
     UtdanningsprogramMedUtdanningerDto:
       type: object
       properties:

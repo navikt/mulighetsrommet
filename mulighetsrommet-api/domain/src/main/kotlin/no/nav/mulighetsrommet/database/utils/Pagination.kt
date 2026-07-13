@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.database.utils
 
-class Pagination private constructor(
+data class Pagination private constructor(
     private val page: Int,
     val pageSize: Int? = null,
 ) {

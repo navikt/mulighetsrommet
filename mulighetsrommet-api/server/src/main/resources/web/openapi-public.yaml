@@ -153,7 +153,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/BrregUnderenhetDto"
+                  $ref: "#/components/schemas/Underenhet"
         "400":
           description: Søket er blankt
           headers: {}
@@ -378,22 +378,32 @@ components:
       required:
       - lopenr
       - opprettetAar
-    BrregUnderenhetDto:
+    Underenhet:
       type: object
       properties:
         organisasjonsnummer:
           type: string
-        organisasjonsform:
-          type: string
         navn:
           type: string
+        organisasjonsform:
+          type:
+          - "null"
+          - string
         overordnetEnhet:
-          type: string
+          type:
+          - "null"
+          - string
+        slettetDato:
+          type:
+          - "null"
+          - string
+          format: date
       required:
       - navn
       - organisasjonsform
       - organisasjonsnummer
       - overordnetEnhet
+      - slettetDato
     ProblemDetail:
       type: object
       additionalProperties: {}

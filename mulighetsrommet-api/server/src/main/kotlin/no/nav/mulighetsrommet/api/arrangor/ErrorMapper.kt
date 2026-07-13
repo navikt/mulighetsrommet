@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangor
 
+import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Gone
@@ -16,11 +17,11 @@ fun ArrangorError.toProblemDetail(orgnr: Organisasjonsnummer? = null): ProblemDe
             this.error.toProblemDetail()
         }
     }
+}
 
-    is ArrangorError.TomtSok ->
-        BadRequest(this.message)
-
-    else -> InternalServerError("Ukjent feil oppsto ved henting av arrangør")
+fun EnhetsregisterError.toProblemDetail(): ProblemDetail = when (this) {
+    is EnhetsregisterError.UgyldigSok -> BadRequest(message)
+    is EnhetsregisterError.Feil -> InternalServerError("Feil oppsto ved henting fra enhetsregisteret")
 }
 
 fun BrregError.toProblemDetail(orgnr: Organisasjonsnummer): ProblemDetail = when (this) {
