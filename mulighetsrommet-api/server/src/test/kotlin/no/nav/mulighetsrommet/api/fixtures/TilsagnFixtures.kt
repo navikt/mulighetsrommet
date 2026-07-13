@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
@@ -9,7 +10,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode

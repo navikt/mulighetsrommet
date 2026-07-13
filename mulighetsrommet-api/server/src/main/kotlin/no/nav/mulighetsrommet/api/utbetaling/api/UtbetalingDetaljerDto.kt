@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.ValutaBelop

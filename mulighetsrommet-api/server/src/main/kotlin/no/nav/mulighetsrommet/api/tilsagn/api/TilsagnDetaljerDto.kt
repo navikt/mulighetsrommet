@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn.api
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 
 @Serializable
 data class TilsagnDetaljerDto(

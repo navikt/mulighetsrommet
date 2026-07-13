@@ -7,12 +7,12 @@ import arrow.core.nel
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingDetaljerDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling

@@ -17,6 +17,8 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -37,8 +39,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri

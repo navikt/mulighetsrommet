@@ -1,16 +1,16 @@
-package no.nav.mulighetsrommet.api.totrinnskontroll.db
+package no.nav.mulighetsrommet.api.persistence.totrinnskontroll
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
-import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -18,7 +18,7 @@ import java.time.Instant
 import java.util.UUID
 
 class TotrinnskontrollQueriesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener())
+    val database = extension(SqlAdminDatabaseTestListener())
 
     test("upsert med samme id overskriver alle felter") {
         database.runAndRollback {
@@ -158,9 +158,9 @@ class TotrinnskontrollQueriesTest : FunSpec({
 
     test("getDto returnerer navn for NavIdent behandletAv og besluttetAv") {
         database.runAndRollback {
-            queries.enhet.save(NavEnhetFixtures.Innlandet)
-            queries.ansatt.save(NavAnsattFixture.DonaldDuck)
-            queries.ansatt.save(NavAnsattFixture.MikkeMus)
+            repository.navEnhet.save(NavEnhetFixtures.Innlandet)
+            repository.navAnsatt.save(NavAnsattFixture.DonaldDuck)
+            repository.navAnsatt.save(NavAnsattFixture.MikkeMus)
 
             val entityId = UUID.randomUUID()
 

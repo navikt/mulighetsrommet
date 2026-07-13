@@ -7,6 +7,8 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
@@ -17,8 +19,6 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling

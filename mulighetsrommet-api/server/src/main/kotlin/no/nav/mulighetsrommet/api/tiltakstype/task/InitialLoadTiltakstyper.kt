@@ -6,9 +6,9 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.contracts.tiltakstype.TiltakstypeV3Dto
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.model.TiltakstypeSystem
-import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory

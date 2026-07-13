@@ -1,6 +1,7 @@
-package no.nav.mulighetsrommet.api.totrinnskontroll.api
+package no.nav.mulighetsrommet.admin.totrinnskontroll
 
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.Agent
@@ -22,6 +23,7 @@ sealed class TotrinnskontrollDto {
     abstract val forklaring: String?
 
     @Serializable
+    @SerialName("TotrinnskontrollDto.TilBeslutning")
     data class TilBeslutning(
         override val behandletAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
@@ -31,6 +33,7 @@ sealed class TotrinnskontrollDto {
     ) : TotrinnskontrollDto()
 
     @Serializable
+    @SerialName("TotrinnskontrollDto.Besluttet")
     data class Besluttet(
         override val behandletAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)

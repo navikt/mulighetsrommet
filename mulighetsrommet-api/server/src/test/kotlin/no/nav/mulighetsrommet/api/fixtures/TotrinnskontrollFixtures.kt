@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.Instant
 import java.util.UUID

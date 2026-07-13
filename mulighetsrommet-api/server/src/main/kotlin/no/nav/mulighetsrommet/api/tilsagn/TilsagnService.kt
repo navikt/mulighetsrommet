@@ -14,6 +14,8 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
@@ -34,8 +36,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utbetaling.service.erBeslutter
@@ -147,8 +148,9 @@ class TilsagnService(
         }
 
         val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        if (opprettelse.besluttetAv == navIdent && opprettelse.behandletAv is NavIdent) {
-            sendNotifikasjonSlettetTilsagn(tilsagn, besluttetAv = navIdent, behandletAv = opprettelse.behandletAv)
+        val behandletAv = opprettelse.behandletAv
+        if (opprettelse.besluttetAv == navIdent && behandletAv is NavIdent) {
+            sendNotifikasjonSlettetTilsagn(tilsagn, besluttetAv = navIdent, behandletAv = behandletAv)
         }
 
         queries.tilsagn.delete(id)
@@ -396,7 +398,7 @@ class TilsagnService(
         }
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        return opprettelse.godkjenn(besluttetAv).map { godkjent ->
+        return opprettelse.godkjenn(besluttetAv).mapLeft { it.toFieldErrors() }.map { godkjent ->
             queries.totrinnskontroll.upsert(godkjent)
             outbox.publish(godkjent)
             queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
@@ -421,7 +423,7 @@ class TilsagnService(
         }
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        return opprettelse.returner(besluttetAv, aarsaker.map { it.name }, forklaring).map { returnert ->
+        return opprettelse.returner(besluttetAv, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
             queries.totrinnskontroll.upsert(returnert)
             outbox.publish(returnert)
             queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
@@ -470,7 +472,7 @@ class TilsagnService(
         }
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
-        return annullering.godkjenn(besluttetAv).map { godkjent ->
+        return annullering.godkjenn(besluttetAv).mapLeft { it.toFieldErrors() }.map { godkjent ->
             queries.totrinnskontroll.upsert(godkjent)
             outbox.publish(godkjent)
             queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.ANNULLERT)
@@ -491,13 +493,14 @@ class TilsagnService(
         }
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
-        return annullering.returner(besluttetAv, aarsaker.map { it.name }, forklaring).map { returnert ->
+        return annullering.returner(besluttetAv, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
             queries.totrinnskontroll.upsert(returnert)
             outbox.publish(returnert)
             queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-            if (annullering.behandletAv is NavIdent) {
-                sendNotifikasjonOmAvvistAnnullering(tilsagn, besluttetAv, annullering.behandletAv)
+            val behandletAv = annullering.behandletAv
+            if (behandletAv is NavIdent) {
+                sendNotifikasjonOmAvvistAnnullering(tilsagn, besluttetAv, behandletAv)
             }
 
             logEndring("Annullering avvist", tilsagn.id, besluttetAv)
@@ -544,7 +547,7 @@ class TilsagnService(
         }
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
-        oppgjor.godkjenn(besluttetAv).map { godkjent ->
+        oppgjor.godkjenn(besluttetAv).mapLeft { it.toFieldErrors() }.map { godkjent ->
             queries.totrinnskontroll.upsert(godkjent)
             outbox.publish(godkjent)
             queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.OPPGJORT)
@@ -565,13 +568,14 @@ class TilsagnService(
         }
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
-        return oppgjor.returner(besluttetAv, aarsaker.map { it.name }, forklaring).map { returnert ->
+        return oppgjor.returner(besluttetAv, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
             queries.totrinnskontroll.upsert(returnert)
             outbox.publish(returnert)
             queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-            if (oppgjor.behandletAv is NavIdent) {
-                sendNotifikasjonOmAvvistOppgjor(tilsagn, besluttetAv, oppgjor.behandletAv)
+            val behandletAv = oppgjor.behandletAv
+            if (behandletAv is NavIdent) {
+                sendNotifikasjonOmAvvistOppgjor(tilsagn, besluttetAv, behandletAv)
             }
 
             logEndring("Oppgjør avvist", tilsagn.id, besluttetAv)
@@ -657,7 +661,9 @@ class TilsagnService(
 
     private fun TransactionalQueryContext.publishOpprettBestilling(tilsagn: Tilsagn) {
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null) {
+        val besluttetAv = opprettelse.besluttetAv
+        val besluttetTidspunkt = opprettelse.besluttetTidspunkt
+        check(besluttetAv != null && besluttetTidspunkt != null) {
             "Tilsagn id=${tilsagn.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
@@ -701,8 +707,8 @@ class TilsagnService(
             periode = tilsagn.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
             behandletTidspunkt = opprettelse.behandletTidspunkt,
-            besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = opprettelse.besluttetTidspunkt,
+            besluttetAv = besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = besluttetTidspunkt,
             valuta = tilsagn.beregning.output.pris.valuta,
         )
 
@@ -711,7 +717,9 @@ class TilsagnService(
 
     private fun TransactionalQueryContext.publishAnnullerBestilling(tilsagn: Tilsagn) {
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
-        check(annullering.besluttetAv != null && annullering.besluttetTidspunkt != null) {
+        val besluttetAv = annullering.besluttetAv
+        val besluttetTidspunkt = annullering.besluttetTidspunkt
+        check(besluttetAv != null && besluttetTidspunkt != null) {
             "Tilsagn id=${tilsagn.id} må være besluttet annullert for å sendes som annullert til økonomi"
         }
 
@@ -719,8 +727,8 @@ class TilsagnService(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             behandletAv = annullering.behandletAv.toOkonomiPart(),
             behandletTidspunkt = annullering.behandletTidspunkt,
-            besluttetAv = annullering.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = annullering.besluttetTidspunkt,
+            besluttetAv = besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = besluttetTidspunkt,
         )
 
         outbox.publish(OkonomiBestillingMelding.Annullering(annullerBestilling))
@@ -728,7 +736,9 @@ class TilsagnService(
 
     private fun TransactionalQueryContext.publishGjorOppBestilling(tilsagn: Tilsagn) {
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
-        check(oppgjor.besluttetAv != null && oppgjor.besluttetTidspunkt != null) {
+        val besluttetAv = oppgjor.besluttetAv
+        val besluttetTidspunkt = oppgjor.besluttetTidspunkt
+        check(besluttetAv != null && besluttetTidspunkt != null) {
             "Tilsagn id=${tilsagn.id} må være besluttet oppgjort for å kunne sendes til økonomi"
         }
 
@@ -736,8 +746,8 @@ class TilsagnService(
             bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
             behandletAv = oppgjor.behandletAv.toOkonomiPart(),
             behandletTidspunkt = oppgjor.behandletTidspunkt,
-            besluttetAv = oppgjor.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = oppgjor.besluttetTidspunkt,
+            besluttetAv = besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = besluttetTidspunkt,
         )
 
         outbox.publish(OkonomiBestillingMelding.GjorOppBestilling(faktura))

@@ -5,13 +5,13 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
@@ -307,7 +307,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
         }
 
         TilsagnStatus.RETURNERT -> {
-            requireNotNull(opprettelse.besluttetTidspunkt)
+            val besluttetTidspunkt = requireNotNull(opprettelse.besluttetTidspunkt)
             Oppgave(
                 id = data.id,
                 type = OppgaveType.TILSAGN_RETURNERT,
@@ -317,7 +317,7 @@ private fun QueryContext.toOppgave(data: TilsagnOppgaveData, ansatt: NavAnsatt):
                 description = "Tilsagnet ${data.bestillingsnummer} er returnert av beslutter",
                 tiltakstype = tiltakstype,
                 link = link,
-                createdAt = opprettelse.besluttetTidspunkt.tilNorskLocalDateTime(),
+                createdAt = besluttetTidspunkt.tilNorskLocalDateTime(),
                 arrangor = data.arrangor,
             ).takeIf {
                 TilsagnService.tilgangTilHandling(

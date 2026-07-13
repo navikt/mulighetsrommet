@@ -17,6 +17,9 @@ import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
@@ -27,9 +30,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -439,7 +440,7 @@ class GjennomforingEnkeltplassService(
         okonomi: Totrinnskontroll,
         agent: Agent,
     ): Validated<Enkeltplass> {
-        return okonomi.copy(forklaring = null).godkjenn(agent).map { godkjent ->
+        return okonomi.copy(forklaring = null).godkjenn(agent).mapLeft { it.toFieldErrors() }.map { godkjent ->
             queries.totrinnskontroll.upsert(godkjent)
             outbox.publish(godkjent)
             logEndring("Enkeltplass ble godkjent", id, agent)
@@ -452,7 +453,7 @@ class GjennomforingEnkeltplassService(
         agent: Agent,
         forklaring: String?,
     ): Validated<Enkeltplass> {
-        return okonomi.settPaVent(agent, forklaring = forklaring).map { paVent ->
+        return okonomi.settPaVent(agent, forklaring = forklaring).mapLeft { it.toFieldErrors() }.map { paVent ->
             queries.totrinnskontroll.upsert(paVent)
             outbox.publish(paVent)
             logEndring("Godkjenning ble satt på vent", id, agent)

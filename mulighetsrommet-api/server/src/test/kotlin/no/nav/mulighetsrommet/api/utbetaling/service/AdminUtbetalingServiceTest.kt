@@ -22,6 +22,8 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -40,8 +42,6 @@ import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling

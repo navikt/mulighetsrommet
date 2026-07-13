@@ -1,14 +1,10 @@
-package no.nav.mulighetsrommet.api.totrinnskontroll
+package no.nav.mulighetsrommet.api.domain.totrinnskontroll
 
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import java.util.UUID
@@ -53,23 +49,17 @@ class TotrinnskontrollTest : FunSpec({
         }
 
         test("feiler når behandletAv og besluttetAv er samme NavIdent") {
-            opprett().godkjenn(behandletAv) shouldBeLeft listOf(
-                FieldError.of("Du kan ikke beslutte noe du selv har behandlet"),
-            )
+            opprett().godkjenn(behandletAv) shouldBeLeft TotrinnskontrollError.KanIkkeBesluttesAvBehandler
         }
 
         test("feiler når allerede godkjent") {
             val godkjent = opprett().godkjenn(besluttetAv).shouldBeRight()
-            godkjent.godkjenn(besluttetAv) shouldBeLeft listOf(
-                FieldError.of("Totrinnskontrollen er allerede godkjent"),
-            )
+            godkjent.godkjenn(besluttetAv) shouldBeLeft TotrinnskontrollError.AlleredeBesluttet(TotrinnskontrollStatus.GODKJENT)
         }
 
         test("feiler når allerede returnert") {
             val returnert = opprett().returner(besluttetAv).shouldBeRight()
-            returnert.godkjenn(besluttetAv) shouldBeLeft listOf(
-                FieldError.of("Totrinnskontrollen er allerede returnert"),
-            )
+            returnert.godkjenn(besluttetAv) shouldBeLeft TotrinnskontrollError.AlleredeBesluttet(TotrinnskontrollStatus.RETURNERT)
         }
 
         test("godkjenning uten årsaker-override beholder eksisterende årsaker") {
@@ -100,15 +90,15 @@ class TotrinnskontrollTest : FunSpec({
 
         test("feiler når allerede godkjent og besluttetAv er NavIdent") {
             val godkjent = opprett().godkjenn(besluttetAv).shouldBeRight()
-            godkjent.returner(besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
-                FieldError.of("Totrinnskontrollen er allerede godkjent"),
+            godkjent.returner(besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft TotrinnskontrollError.AlleredeBesluttet(
+                TotrinnskontrollStatus.GODKJENT,
             )
         }
 
         test("feiler når allerede returnert") {
             val returnert = opprett().returner(besluttetAv).shouldBeRight()
-            returnert.returner(besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft listOf(
-                FieldError.of("Totrinnskontrollen er allerede returnert"),
+            returnert.returner(besluttetAv, listOf("FEIL_BELOP")) shouldBeLeft TotrinnskontrollError.AlleredeBesluttet(
+                TotrinnskontrollStatus.RETURNERT,
             )
         }
 
@@ -151,29 +141,22 @@ class TotrinnskontrollTest : FunSpec({
 
         test("oppdaterer behandletTidspunkt til nåtid") {
             val paVent = sattPaVent()
-            val original = paVent.behandletTidspunkt
             val tilbakestilt = paVent.tilbakestill(behandletAv).shouldBeRight()
-            tilbakestilt.behandletTidspunkt shouldNotBe original
+            tilbakestilt.behandletTidspunkt shouldNotBe paVent.behandletTidspunkt
         }
 
         test("feiler når status er TIL_BEHANDLING") {
-            opprett(TotrinnskontrollType.ENKELTPLASS_OKONOMI).tilbakestill(behandletAv) shouldBeLeft listOf(
-                FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent"),
-            )
+            opprett(TotrinnskontrollType.ENKELTPLASS_OKONOMI).tilbakestill(behandletAv) shouldBeLeft TotrinnskontrollError.KanBareTilbakestillesNarSattPaVent
         }
 
         test("feiler når status er GODKJENT") {
             val godkjent = opprett(TotrinnskontrollType.ENKELTPLASS_OKONOMI).godkjenn(besluttetAv).shouldBeRight()
-            godkjent.tilbakestill(behandletAv) shouldBeLeft listOf(
-                FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent"),
-            )
+            godkjent.tilbakestill(behandletAv) shouldBeLeft TotrinnskontrollError.KanBareTilbakestillesNarSattPaVent
         }
 
         test("feiler når status er RETURNERT") {
             val returnert = opprett(TotrinnskontrollType.ENKELTPLASS_OKONOMI).returner(besluttetAv).shouldBeRight()
-            returnert.tilbakestill(behandletAv) shouldBeLeft listOf(
-                FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent"),
-            )
+            returnert.tilbakestill(behandletAv) shouldBeLeft TotrinnskontrollError.KanBareTilbakestillesNarSattPaVent
         }
     }
 })

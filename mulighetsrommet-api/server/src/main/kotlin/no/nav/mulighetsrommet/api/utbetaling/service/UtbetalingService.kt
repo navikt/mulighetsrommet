@@ -16,15 +16,16 @@ import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
@@ -630,7 +631,7 @@ class UtbetalingService(
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
         val opprettelse = getTotrinnskontroll(utbetalingLinje.id)
-        opprettelse.godkjenn(besluttetAv).onLeft { return it.left() }.onRight { godkjent ->
+        opprettelse.godkjenn(besluttetAv).mapLeft { it.toFieldErrors() }.onLeft { return it.left() }.onRight { godkjent ->
             queries.totrinnskontroll.upsert(godkjent)
             outbox.publish(godkjent)
         }
@@ -728,7 +729,7 @@ class UtbetalingService(
     ) {
         queries.utbetalingLinje.setStatus(utbetalingLinjeId, UtbetalingLinjeStatus.RETURNERT)
         val opprettelse = getTotrinnskontroll(utbetalingLinjeId)
-        opprettelse.returner(besluttetAv, aarsaker.map { it.name }, forklaring).onLeft {
+        opprettelse.returner(besluttetAv, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.onLeft {
             throw UtbetalingException(it)
         }.onRight { returnert ->
             queries.totrinnskontroll.upsert(returnert)
@@ -757,7 +758,9 @@ class UtbetalingService(
 
     private fun TransactionalQueryContext.publishOpprettFaktura(linje: UtbetalingLinje) {
         val opprettelse = getTotrinnskontroll(linje.id)
-        check(opprettelse.besluttetAv != null && opprettelse.besluttetTidspunkt != null && opprettelse.status == TotrinnskontrollStatus.GODKJENT) {
+        val besluttetAv = opprettelse.besluttetAv
+        val besluttetTidspunkt = opprettelse.besluttetTidspunkt
+        check(besluttetAv != null && besluttetTidspunkt != null && opprettelse.status == TotrinnskontrollStatus.GODKJENT) {
             "UtbetalingLinje id=${linje.id} må være besluttet godkjent for å sendes til økonomi"
         }
 
@@ -797,8 +800,8 @@ class UtbetalingService(
             periode = linje.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),
             behandletTidspunkt = opprettelse.behandletTidspunkt,
-            besluttetAv = opprettelse.besluttetAv.toOkonomiPart(),
-            besluttetTidspunkt = opprettelse.besluttetTidspunkt,
+            besluttetAv = besluttetAv.toOkonomiPart(),
+            besluttetTidspunkt = besluttetTidspunkt,
             gjorOppBestilling = linje.gjorOppTilsagn,
             beskrivelse = beskrivelse,
             belop = linje.pris.belop,
