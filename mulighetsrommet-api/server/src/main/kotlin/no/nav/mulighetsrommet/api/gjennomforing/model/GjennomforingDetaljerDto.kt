@@ -6,10 +6,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.avtale.model.AmoKategoriseringDto
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia

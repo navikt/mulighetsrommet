@@ -10,6 +10,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet1
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -31,7 +32,6 @@ import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener

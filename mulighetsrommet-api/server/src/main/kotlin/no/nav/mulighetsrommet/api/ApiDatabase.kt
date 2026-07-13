@@ -19,10 +19,10 @@ import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
+import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingQueries
-import no.nav.mulighetsrommet.api.totrinnskontroll.db.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeQueries

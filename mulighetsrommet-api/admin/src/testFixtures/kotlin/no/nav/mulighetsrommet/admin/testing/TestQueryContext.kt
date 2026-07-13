@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 
 class TestQueryContext : QueryContext() {
     private val redaksjoneltInnholdLenkeRepository = FakeRedaksjoneltInnholdLenkeRepository()
@@ -17,6 +18,7 @@ class TestQueryContext : QueryContext() {
     private var endringshistorikk: EndringshistorikkQueryHandler = mockk(relaxed = true)
     private var kostnadssted: KostnadsstedQueryHandler = mockk(relaxed = true)
     private var navAnsattDto: NavAnsattDtoQueryHandler = mockk(relaxed = true)
+    private var totrinnskontroll: TotrinnskontrollQueryHandler = mockk(relaxed = true)
 
     override val repository = object : Repositories() {
         override val tiltakstype get() = tiltakstypeRepository
@@ -30,6 +32,7 @@ class TestQueryContext : QueryContext() {
         override val endringshistorikk get() = this@TestQueryContext.endringshistorikk
         override val kostnadssted get() = this@TestQueryContext.kostnadssted
         override val navAnsattDto get() = this@TestQueryContext.navAnsattDto
+        override val totrinnskontroll get() = this@TestQueryContext.totrinnskontroll
     }
 
     override val outbox: Outbox = mockk(relaxed = true)

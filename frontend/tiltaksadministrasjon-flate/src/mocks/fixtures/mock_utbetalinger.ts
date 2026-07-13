@@ -275,7 +275,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     pris: { belop: 5000, valuta: Valuta.NOK },
     gjorOppTilsagn: true,
     opprettelse: {
-      type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning",
+      type: "TotrinnskontrollDto.TilBeslutning",
       behandletAv: {
         agent: "B123456",
         navn: "Bertil Bengtson",
@@ -323,7 +323,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     pris: { belop: 7500, valuta: Valuta.NOK },
     gjorOppTilsagn: false,
     opprettelse: {
-      type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet",
+      type: "TotrinnskontrollDto.Besluttet",
       behandletAv: {
         agent: "B123456",
         navn: "Bertil Bengtson",
@@ -372,7 +372,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     pris: { belop: 3000, valuta: Valuta.NOK },
     gjorOppTilsagn: true,
     opprettelse: {
-      type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet",
+      type: "TotrinnskontrollDto.Besluttet",
       behandletAv: {
         agent: "B123456",
         navn: "Bertil Bengtson",
@@ -427,7 +427,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     pris: { belop: 3000, valuta: Valuta.NOK },
     gjorOppTilsagn: false,
     opprettelse: {
-      type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning",
+      type: "TotrinnskontrollDto.TilBeslutning",
       behandletAv: {
         agent: "B123456",
         navn: "Bertil Bengtson",
@@ -474,7 +474,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     pris: { belop: 3000, valuta: Valuta.NOK },
     gjorOppTilsagn: false,
     opprettelse: {
-      type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.Besluttet",
+      type: "TotrinnskontrollDto.Besluttet",
       behandletAv: {
         agent: "B123456",
         navn: "Bertil Bengtson",

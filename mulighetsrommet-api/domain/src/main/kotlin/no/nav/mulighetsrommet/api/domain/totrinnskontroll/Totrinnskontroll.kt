@@ -1,12 +1,9 @@
-package no.nav.mulighetsrommet.api.totrinnskontroll.model
+package no.nav.mulighetsrommet.api.domain.totrinnskontroll
 
 import arrow.core.Either
-import arrow.core.NonEmptyList
 import arrow.core.left
-import arrow.core.nel
 import arrow.core.right
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.AgentSerializer
@@ -78,7 +75,7 @@ data class Totrinnskontroll(
         besluttetAv: Agent,
         aarsaker: List<String> = emptyList(),
         forklaring: String? = null,
-    ): Either<NonEmptyList<FieldError>, Totrinnskontroll> {
+    ): Either<TotrinnskontrollError, Totrinnskontroll> {
         if (!kanSettesPaVent()) {
             return alleredeBesluttetError()
         }
@@ -91,9 +88,9 @@ data class Totrinnskontroll(
         ).right()
     }
 
-    fun tilbakestill(nyBehandletAv: Agent): Either<NonEmptyList<FieldError>, Totrinnskontroll> {
+    fun tilbakestill(nyBehandletAv: Agent): Either<TotrinnskontrollError, Totrinnskontroll> {
         if (!kanTilbakestilles()) {
-            return FieldError.of("Totrinnskontrollen kan bare tilbakestilles når den er satt på vent").nel().left()
+            return TotrinnskontrollError.KanBareTilbakestillesNarSattPaVent.left()
         }
         return copy(
             status = TotrinnskontrollStatus.TIL_BEHANDLING,
@@ -106,12 +103,12 @@ data class Totrinnskontroll(
         ).right()
     }
 
-    fun godkjenn(besluttetAv: Agent): Either<NonEmptyList<FieldError>, Totrinnskontroll> {
+    fun godkjenn(besluttetAv: Agent): Either<TotrinnskontrollError, Totrinnskontroll> {
         if (!kanBesluttes()) {
             return alleredeBesluttetError()
         }
         if (!kanBesluttesAv(besluttetAv)) {
-            return FieldError.of("Du kan ikke beslutte noe du selv har behandlet").nel().left()
+            return TotrinnskontrollError.KanIkkeBesluttesAvBehandler.left()
         }
         return copy(
             status = TotrinnskontrollStatus.GODKJENT,
@@ -124,7 +121,7 @@ data class Totrinnskontroll(
         besluttetAv: Agent,
         aarsaker: List<String> = emptyList(),
         forklaring: String? = null,
-    ): Either<NonEmptyList<FieldError>, Totrinnskontroll> {
+    ): Either<TotrinnskontrollError, Totrinnskontroll> {
         // TODO: ikke tillate systemet å returnere godkjent totrinnskontroll
         //  Vi har et tilfelle der systemet er tillatt å endre fra GODKJENT til RETURNERT, men det mer "riktige"
         //  hadde kanskje heller vært om vi opprettet et nytt innslag i totrinnskontroll-loggen?
@@ -140,14 +137,8 @@ data class Totrinnskontroll(
         ).right()
     }
 
-    private fun alleredeBesluttetError(): Either<NonEmptyList<FieldError>, Nothing> {
-        val beskrivelse = when (status) {
-            TotrinnskontrollStatus.RETURNERT -> "returnert"
-            TotrinnskontrollStatus.GODKJENT -> "godkjent"
-            TotrinnskontrollStatus.SATT_PA_VENT -> "satt på vent"
-            TotrinnskontrollStatus.TIL_BEHANDLING -> error("Totrinnskontroll er til behandling")
-        }
-        return FieldError.of("Totrinnskontrollen er allerede $beskrivelse").nel().left()
+    private fun alleredeBesluttetError(): Either<TotrinnskontrollError, Nothing> {
+        return TotrinnskontrollError.AlleredeBesluttet(status).left()
     }
 }
 

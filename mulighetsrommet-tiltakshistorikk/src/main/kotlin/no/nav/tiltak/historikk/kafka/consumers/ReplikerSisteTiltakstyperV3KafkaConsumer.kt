@@ -4,9 +4,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
+import no.nav.mulighetsrommet.api.contracts.tiltakstype.TiltakstypeV3Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.TiltakstypeV3Dto
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.db.queries.TiltakstypeDbo
 import java.util.UUID

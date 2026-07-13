@@ -1,6 +1,7 @@
-package no.nav.mulighetsrommet.api.totrinnskontroll.model
+package no.nav.mulighetsrommet.api.contracts.totrinnskontroll
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.Instant

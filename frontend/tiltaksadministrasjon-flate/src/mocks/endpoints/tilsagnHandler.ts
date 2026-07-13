@@ -78,7 +78,7 @@ export const tilsagnHandlers = [
 ];
 
 const tilBeslutning: TotrinnskontrollDto = {
-  type: "no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto.TilBeslutning",
+  type: "TotrinnskontrollDto.TilBeslutning",
   behandletAv: {
     agent: "P123456",
     navn: "Per Haraldsen",

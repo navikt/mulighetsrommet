@@ -23,6 +23,7 @@ dependencies {
     implementation(projects.common.tiltakshistorikkClient)
     implementation(projects.common.brreg)
     implementation(projects.common.amtDeltaker)
+    implementation(projects.mulighetsrommetApi.contracts)
 
     // Cache
     implementation(libs.caffeine)

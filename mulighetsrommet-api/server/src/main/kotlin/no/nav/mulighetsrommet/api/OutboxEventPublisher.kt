@@ -4,10 +4,10 @@ import kotlinx.serialization.json.Json
 import kotliquery.Session
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.common.kafka.util.KafkaUtils
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.Totrinnskontroll
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollStatus
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.toAgentHendelse
+import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
+import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
+import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.toTotrinnskontrollHendelse
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
@@ -17,9 +17,23 @@ import java.time.Instant
 
 class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
     val kpr = KafkaProducerRecordQueries(session)
+    private val tiltakstypeQueries = TiltakstypeQueries(session)
+
+    fun publish(tiltakstype: Tiltakstype) {
+        val dto = requireNotNull(tiltakstypeQueries.getEksternTiltakstype(tiltakstype.id)) {
+            "Fant ikke ekstern tiltakstype for id=${tiltakstype.id}"
+        }
+        val record = StoredProducerRecord(
+            topics.sisteTiltakstyperTopic,
+            dto.id.toString().toByteArray(),
+            Json.encodeToString(dto).toByteArray(),
+            null,
+        )
+        kpr.storeRecord(record)
+    }
 
     fun publish(totrinnskontroll: Totrinnskontroll) {
-        val hendelse = toHendelse(totrinnskontroll)
+        val hendelse = totrinnskontroll.toTotrinnskontrollHendelse()
         val record = StoredProducerRecord(
             topics.totrinnskontrollTopic,
             totrinnskontroll.entityId.toString().toByteArray(),
@@ -63,22 +77,4 @@ class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
         )
         kpr.storeRecord(record)
     }
-
-    private fun toHendelse(totrinnskontroll: Totrinnskontroll): TotrinnskontrollHendelse = TotrinnskontrollHendelse(
-        id = totrinnskontroll.id,
-        entityId = totrinnskontroll.entityId,
-        type = totrinnskontroll.type,
-        status = when (totrinnskontroll.status) {
-            TotrinnskontrollStatus.TIL_BEHANDLING -> TotrinnskontrollHendelse.Status.TIL_BEHANDLING
-            TotrinnskontrollStatus.SATT_PA_VENT -> TotrinnskontrollHendelse.Status.SATT_PA_VENT
-            TotrinnskontrollStatus.GODKJENT -> TotrinnskontrollHendelse.Status.GODKJENT
-            TotrinnskontrollStatus.RETURNERT -> TotrinnskontrollHendelse.Status.RETURNERT
-        },
-        behandletAv = totrinnskontroll.behandletAv.toAgentHendelse(),
-        behandletTidspunkt = totrinnskontroll.behandletTidspunkt,
-        besluttetAv = totrinnskontroll.besluttetAv?.toAgentHendelse(),
-        besluttetTidspunkt = totrinnskontroll.besluttetTidspunkt,
-        aarsaker = totrinnskontroll.aarsaker,
-        forklaring = totrinnskontroll.forklaring,
-    )
 }

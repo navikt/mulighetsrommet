@@ -7,12 +7,12 @@ import io.ktor.server.routing.Route
 import io.ktor.server.util.getOrFail
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd

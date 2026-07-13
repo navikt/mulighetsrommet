@@ -12,6 +12,9 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
+import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
+import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -22,9 +25,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollAgent
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollHendelse
-import no.nav.mulighetsrommet.api.totrinnskontroll.model.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia

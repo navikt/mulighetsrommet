@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.toAmoKategoriseringDto
@@ -14,7 +15,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktpersonDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
-import no.nav.mulighetsrommet.api.totrinnskontroll.api.TotrinnskontrollDto
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
