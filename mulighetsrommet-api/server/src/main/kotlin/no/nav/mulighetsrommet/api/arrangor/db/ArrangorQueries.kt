@@ -333,9 +333,8 @@ class ArrangorQueries(private val session: Session) {
                 adresse_post_nummer,
                 adresse_land_kode,
                 bank_navn
-            from arrangor
-                inner join arrangor_utenlandsk on arrangor_utenlandsk.id = arrangor.arrangor_utenlandsk_id
-            where arrangor.id = ?::uuid
+            from arrangor_utenlandsk
+            where arrangor_id = ?::uuid
         """.trimIndent()
 
         return session.single(queryOf(query, arrangorId)) { it.toUtenlandskArrangor() }
