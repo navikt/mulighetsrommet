@@ -1,5 +1,6 @@
 import { CheckboxGroup } from "@mr/frontend-common";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
+import { OppgaveTypeStruktur } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   value: string[];
@@ -8,13 +9,28 @@ interface Props {
 
 export function OppgaveTypeFilter({ value, onChange }: Props) {
   const { data: oppgavetyper } = useGetOppgavetyper();
+  const groups = toCheckboxGroups(oppgavetyper);
   return (
     <CheckboxGroup
       legend="Oppgavetyper"
       hideLegend
       value={value}
-      items={oppgavetyper.map(({ type, navn }) => ({ id: type, navn }))}
+      items={groups}
       onChange={onChange}
     />
   );
+}
+
+function toCheckboxGroups(struktur: OppgaveTypeStruktur[]) {
+  return struktur.map(({ kategori, typer }) => {
+    return {
+      id: kategori,
+      navn: kategori,
+      items: typer.map((type) => ({
+        id: type.type,
+        navn: type.navn,
+        erStandardvalg: true,
+      })),
+    };
+  });
 }

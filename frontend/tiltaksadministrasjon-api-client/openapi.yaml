@@ -2598,7 +2598,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/OppgaveTypeDto"
+                  $ref: "#/components/schemas/OppgaveTypeStruktur"
         default:
           description: Problem details
           headers: {}
@@ -7917,6 +7917,18 @@ components:
       - id
       - navn
       - organisasjonsnummer
+    OppgaveTypeStruktur:
+      type: object
+      properties:
+        kategori:
+          type: string
+        typer:
+          type: array
+          items:
+            $ref: "#/components/schemas/OppgaveTypeDto"
+      required:
+      - kategori
+      - typer
     OppgaveTypeDto:
       type: object
       properties:

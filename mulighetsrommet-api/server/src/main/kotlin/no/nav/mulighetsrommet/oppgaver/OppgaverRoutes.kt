@@ -61,7 +61,7 @@ fun Route.oppgaverRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Relevante oppgavetyper basert på rollene til innlogget bruker"
-                    body<List<OppgaveTypeDto>>()
+                    body<List<OppgaveTypeStruktur>>()
                 }
                 default {
                     description = "Problem details"
@@ -73,6 +73,7 @@ fun Route.oppgaverRoutes() {
             val ansatt = db.session { queries.ansatt.getOrError(navIdent) }
 
             val oppgavetyper = service.getOppgavetyper(ansatt)
+                .toOppgaveTypeStruktur()
 
             call.respond(oppgavetyper)
         }
@@ -89,6 +90,31 @@ data class OppgaverFilter(
         UUID,
         >,
 )
+
+@Serializable
+data class OppgaveTypeStruktur(
+    val kategori: String,
+    val typer: List<OppgaveTypeDto>,
+)
+
+fun List<OppgaveTypeDto>.toOppgaveTypeStruktur(): List<OppgaveTypeStruktur> = groupBy { it.type.strukturKategori() }
+    .map { (kategori, typer) -> OppgaveTypeStruktur(kategori, typer) }
+
+private fun OppgaveType.strukturKategori(): String = when (this.kategori) {
+    Kategori.TILSAGN -> "Tilsagn"
+
+    Kategori.UTBETALING_LINJE,
+    Kategori.UTBETALING,
+    -> "Utbetaling"
+
+    Kategori.AVTALE -> "Avtale"
+
+    Kategori.GJENNOMFORING -> "Gjennomforing"
+
+    Kategori.ENKELTPLASS -> "Enkeltplass"
+
+    Kategori.TILSKUDDBEHANDLING -> "Tilskuddsbehandling"
+}
 
 @Serializable
 data class OppgaveTypeDto(

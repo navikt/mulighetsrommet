@@ -6,6 +6,7 @@ import { OppgaverFilterType } from "@/pages/oppgaveoversikt/oppgaver/filter";
 import { Chips } from "@navikt/ds-react";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { KontorstrukturFilterTag } from "./KontorstrukturFilterTag";
+import { OppgaveTypeDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   filter: OppgaverFilterType;
@@ -15,10 +16,11 @@ interface Props {
 }
 
 export function OppgaveFilterTags({ filter, updateFilter, filterOpen, setTagsHeight }: Props) {
-  const { data: oppgavetyper } = useGetOppgavetyper();
+  const { data: oppgaveTypeStruktur } = useGetOppgavetyper();
   const { data: arrangorer } = useArrangorer(undefined, {
     pageSize: 10000,
   });
+  const oppgaveTyper: OppgaveTypeDto[] = oppgaveTypeStruktur.flatMap(({ typer }) => typer);
 
   const removeArrayItem = (key: keyof OppgaverFilterType, value: any) => {
     updateFilter({
@@ -31,7 +33,7 @@ export function OppgaveFilterTags({ filter, updateFilter, filterOpen, setTagsHei
       <Chips>
         {filter.type.map((type) => (
           <Chips.Removable key={type} onClick={() => removeArrayItem("type", type)}>
-            {oppgavetyper.find((o) => type === o.type)?.navn || type}
+            {oppgaveTyper.find((o) => type === o.type)?.navn || type}
           </Chips.Removable>
         ))}
         {filter.navEnheter.length > 0 && (
