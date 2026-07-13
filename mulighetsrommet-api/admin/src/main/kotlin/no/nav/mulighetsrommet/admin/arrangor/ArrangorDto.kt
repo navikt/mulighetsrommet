@@ -35,5 +35,5 @@ fun Arrangor.toDto() = ArrangorDto(
     overordnetEnhet = overordnetEnhet,
     underenheter = listOf(),
     slettetDato = slettetDato,
-    erUtenlandsk = erUtenlandsk,
+    erUtenlandsk = this is Arrangor.Utenlandsk,
 )

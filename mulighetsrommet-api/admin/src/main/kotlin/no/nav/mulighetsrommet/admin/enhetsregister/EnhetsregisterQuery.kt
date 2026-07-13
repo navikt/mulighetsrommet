@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
 /**
@@ -40,7 +41,7 @@ class EnhetsregisterQuery(
 
     suspend fun hentUnderenheterForHovedenhet(orgnr: Organisasjonsnummer): Either<EnhetsregisterError, List<Underenhet>> {
         val arrangor = db.session { repository.arrangor.getByOrganisasjonsnummer(orgnr) }
-        if (arrangor != null && arrangor.erUtenlandsk) {
+        if (arrangor != null && arrangor is Arrangor.Utenlandsk) {
             // Utenlandske virksomheter har ingen underenheter i brreg - de representerer seg selv
             return listOf(
                 Underenhet(

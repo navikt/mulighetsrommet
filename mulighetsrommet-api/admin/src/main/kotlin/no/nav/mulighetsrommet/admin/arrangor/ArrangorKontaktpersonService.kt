@@ -22,19 +22,13 @@ class ArrangorKontaktpersonService(
     private val db: AdminDatabase,
 ) {
     fun upsert(kontaktperson: ArrangorKontaktperson): Unit = db.transaction {
-        val arrangor = requireNotNull(repository.arrangor.get(kontaktperson.arrangorId)) {
-            "Fant ikke arrangør med id=${kontaktperson.arrangorId}"
-        }
-
+        val arrangor = repository.arrangor.get(kontaktperson.arrangorId)
         val kontaktpersoner = arrangor.kontaktpersoner.filterNot { it.id == kontaktperson.id } + kontaktperson
-
-        repository.arrangor.save(arrangor.copy(kontaktpersoner = kontaktpersoner))
+        repository.arrangor.save(arrangor.medKontaktpersoner(kontaktpersoner))
     }
 
     fun delete(arrangorId: UUID, kontaktpersonId: UUID): Either<ArrangorKontaktpersonError, Unit> = db.transaction {
-        val arrangor = requireNotNull(repository.arrangor.get(arrangorId)) {
-            "Fant ikke arrangør med id=$arrangorId"
-        }
+        val arrangor = repository.arrangor.get(arrangorId)
 
         val (gjennomforinger, avtaler) = queries.arrangor.koblingerTilKontaktperson(kontaktpersonId)
         if (gjennomforinger.isNotEmpty() || avtaler.isNotEmpty()) {
@@ -42,8 +36,7 @@ class ArrangorKontaktpersonService(
         }
 
         val kontaktpersoner = arrangor.kontaktpersoner.filterNot { it.id == kontaktpersonId }
-
-        repository.arrangor.save(arrangor.copy(kontaktpersoner = kontaktpersoner))
+        repository.arrangor.save(arrangor.medKontaktpersoner(kontaktpersoner))
 
         Unit.right()
     }

@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.admin.arrangor.toDto
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
@@ -19,15 +19,6 @@ import java.util.UUID
 class EnhetsregisterQueryTest : FunSpec({
     val db = TestAdminDatabase()
 
-    fun arrangor(orgnr: String, navn: String, erUtenlandsk: Boolean, overordnetEnhet: String? = null) = Arrangor(
-        id = UUID.randomUUID(),
-        organisasjonsnummer = Organisasjonsnummer(orgnr),
-        organisasjonsform = "AS",
-        navn = navn,
-        overordnetEnhet = overordnetEnhet?.let { Organisasjonsnummer(it) },
-        erUtenlandsk = erUtenlandsk,
-    )
-
     test("sokHovedenheter validerer at sok ikke er blank") {
         val query = EnhetsregisterQuery(mockk(), db)
 
@@ -36,7 +27,13 @@ class EnhetsregisterQueryTest : FunSpec({
 
     test("sokHovedenheter kombinerer treff fra gateway med utenlandske arrangører") {
         val fraBrreg = Hovedenhet(organisasjonsnummer = Organisasjonsnummer("111111111"), navn = "Nord AS")
-        val utenlandsk = arrangor("100000001", "Nord Utenlandsk AS", erUtenlandsk = true)
+        val utenlandsk = Arrangor.Utenlandsk(
+            id = UUID.randomUUID(),
+            organisasjonsnummer = Organisasjonsnummer("100000001"),
+            organisasjonsform = "AS",
+            navn = "Nord Utenlandsk AS",
+            overordnetEnhet = null,
+        )
 
         val gateway: EnhetsregisterGateway = mockk {
             coEvery { sokHovedenheter("nord") } returns listOf(fraBrreg).right()
@@ -65,7 +62,13 @@ class EnhetsregisterQueryTest : FunSpec({
     }
 
     test("hentUnderenheterForHovedenhet kortslutter til utenlandsk arrangør uten å spørre gateway") {
-        val utenlandsk = arrangor("100000002", "Utenlandsk Tiger AS", erUtenlandsk = true)
+        val utenlandsk = Arrangor.Utenlandsk(
+            id = UUID.randomUUID(),
+            organisasjonsnummer = Organisasjonsnummer("100000002"),
+            organisasjonsform = "AS",
+            navn = "Utenlandsk Tiger AS",
+            overordnetEnhet = null,
+        )
         db.repository.arrangor.save(utenlandsk)
 
         val query = EnhetsregisterQuery(mockk(), db)
@@ -83,12 +86,14 @@ class EnhetsregisterQueryTest : FunSpec({
     test("hentUnderenheterForHovedenhet kombinerer treff fra gateway med slettede underenheter") {
         val hovedenhetOrgnr = Organisasjonsnummer("111111112")
         val fraBrreg = Underenhet(organisasjonsnummer = Organisasjonsnummer("222222223"), navn = "Avdeling")
-        val slettet = arrangor(
-            "333333334",
-            "Slettet Avdeling",
-            erUtenlandsk = false,
-            overordnetEnhet = hovedenhetOrgnr.value,
-        ).copy(slettetDato = LocalDate.of(2020, 1, 1))
+        val slettet = Arrangor.Norsk(
+            id = UUID.randomUUID(),
+            organisasjonsnummer = Organisasjonsnummer("333333334"),
+            organisasjonsform = "AS",
+            navn = "Slettet Avdeling",
+            overordnetEnhet = hovedenhetOrgnr,
+            slettetDato = LocalDate.of(2020, 1, 1),
+        )
 
         val gateway: EnhetsregisterGateway = mockk {
             coEvery { hentUnderenheterForHovedenhet(hovedenhetOrgnr) } returns listOf(fraBrreg).right()
@@ -114,14 +119,3 @@ class EnhetsregisterQueryTest : FunSpec({
         )
     }
 })
-
-private fun Arrangor.toDto(): ArrangorDto = ArrangorDto(
-    organisasjonsnummer = organisasjonsnummer,
-    navn = navn,
-    organisasjonsform = organisasjonsform,
-    overordnetEnhet = overordnetEnhet,
-    slettetDato = slettetDato,
-    id = id,
-    underenheter = null,
-    erUtenlandsk = erUtenlandsk,
-)

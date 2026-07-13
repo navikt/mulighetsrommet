@@ -105,13 +105,12 @@ class SyncArrangorUseCaseTest : FunSpec({
         test("skal synkronisere slettetDato for enhet fjernet av juridiske årsaker når arrangør eksisterer") {
             val db = TestAdminDatabase()
 
-            val arrangor = Arrangor(
+            val arrangor = Arrangor.Norsk(
                 id = UUID.randomUUID(),
                 organisasjonsnummer = Organisasjonsnummer("100200300"),
                 organisasjonsform = "AS",
                 navn = "Bedrift Bedriftsson",
                 slettetDato = null,
-                erUtenlandsk = false,
             )
             db.repository.arrangor.save(arrangor)
 

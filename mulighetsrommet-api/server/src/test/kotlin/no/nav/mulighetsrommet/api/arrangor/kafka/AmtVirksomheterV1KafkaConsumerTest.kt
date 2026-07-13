@@ -77,12 +77,11 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             val id = UUID.randomUUID()
             database.run {
                 queries.arrangor.save(
-                    Arrangor(
+                    Arrangor.Norsk(
                         id = id,
                         organisasjonsnummer = hovedenhet.organisasjonsnummer,
                         organisasjonsform = hovedenhet.organisasjonsform,
                         navn = "Kiwi",
-                        erUtenlandsk = false,
                     ),
                 )
             }
@@ -105,12 +104,11 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
 
             database.run {
                 queries.arrangor.save(
-                    Arrangor(
+                    Arrangor.Norsk(
                         id = UUID.randomUUID(),
                         organisasjonsnummer = orgnr,
                         organisasjonsform = null,
                         navn = "Slottet",
-                        erUtenlandsk = false,
                     ),
                 )
             }
@@ -135,12 +133,11 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         test("delete virksomheter for tombstone messages") {
             database.run {
                 queries.arrangor.save(
-                    Arrangor(
+                    Arrangor.Norsk(
                         id = UUID.randomUUID(),
                         organisasjonsnummer = underenhet.organisasjonsnummer,
                         organisasjonsform = hovedenhet.organisasjonsform,
                         navn = "Kiwi",
-                        erUtenlandsk = false,
                     ),
                 )
                 queries.arrangor.get(underenhet.organisasjonsnummer).shouldNotBeNull()

@@ -87,32 +87,32 @@ class SyncArrangorUseCase(
     }
 
     private fun markerSlettet(orgnr: Organisasjonsnummer, slettetDato: LocalDate): Unit = db.transaction {
-        repository.arrangor.getByOrganisasjonsnummer(orgnr)
-            ?.copy(slettetDato = slettetDato)
-            ?.also { arrangor -> repository.arrangor.save(arrangor) }
+        when (val arrangor = repository.arrangor.getByOrganisasjonsnummer(orgnr)) {
+            is Arrangor.Norsk -> repository.arrangor.save(arrangor.copy(slettetDato = slettetDato))
+            is Arrangor.Utenlandsk -> repository.arrangor.save(arrangor.copy(slettetDato = slettetDato))
+            null -> {}
+        }
     }
 }
 
 private fun Virksomhet.toArrangor(id: UUID, kontaktpersoner: List<ArrangorKontaktperson>) = when (this) {
-    is Hovedenhet -> Arrangor(
+    is Hovedenhet -> Arrangor.Norsk(
         id = id,
         organisasjonsnummer = organisasjonsnummer,
         organisasjonsform = organisasjonsform,
         navn = navn,
         overordnetEnhet = null,
         slettetDato = slettetDato,
-        erUtenlandsk = false,
         kontaktpersoner = kontaktpersoner,
     )
 
-    is Underenhet -> Arrangor(
+    is Underenhet -> Arrangor.Norsk(
         id = id,
         organisasjonsnummer = organisasjonsnummer,
         organisasjonsform = organisasjonsform,
         navn = navn,
         overordnetEnhet = if (slettetDato == null) overordnetEnhet else null,
         slettetDato = slettetDato,
-        erUtenlandsk = false,
         kontaktpersoner = kontaktpersoner,
     )
 }

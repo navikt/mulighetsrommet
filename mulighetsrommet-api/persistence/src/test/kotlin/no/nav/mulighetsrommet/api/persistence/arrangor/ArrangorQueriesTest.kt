@@ -7,9 +7,11 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
@@ -21,41 +23,37 @@ class ArrangorQueriesTest : FunSpec({
     context("crud") {
         test("søk og filtrering på arrangører") {
             database.runAndRollback {
-                val overordnet = Arrangor(
+                val overordnet = Arrangor.Norsk(
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
                     organisasjonsform = "AS",
-                    erUtenlandsk = false,
                 )
                 repository.arrangor.save(overordnet)
 
-                val underenhet1 = Arrangor(
+                val underenhet1 = Arrangor.Norsk(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
                     organisasjonsform = "BEDR",
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
-                    erUtenlandsk = false,
                 )
                 repository.arrangor.save(underenhet1)
 
-                val underenhet2 = Arrangor(
+                val underenhet2 = Arrangor.Norsk(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("912704327"),
                     organisasjonsform = "BEDR",
                     overordnetEnhet = overordnet.organisasjonsnummer,
                     navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
-                    erUtenlandsk = false,
                 )
                 repository.arrangor.save(underenhet2)
 
-                val utenlandsk = Arrangor(
+                val utenlandsk = Arrangor.Utenlandsk(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("100000001"),
                     organisasjonsform = "IKS",
                     navn = "X - Utenlandsk arrangør",
-                    erUtenlandsk = true,
                 )
                 repository.arrangor.save(utenlandsk)
 
@@ -81,21 +79,19 @@ class ArrangorQueriesTest : FunSpec({
 
         test("Upsert underenhet etter overenhet") {
             database.runAndRollback {
-                val underenhet1 = Arrangor(
+                val underenhet1 = Arrangor.Norsk(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
                     organisasjonsform = "BEDR",
                     overordnetEnhet = Organisasjonsnummer("982254604"),
-                    erUtenlandsk = false,
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
                 )
 
-                val overordnet = Arrangor(
+                val overordnet = Arrangor.Norsk(
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
                     organisasjonsform = "AS",
-                    erUtenlandsk = false,
                 )
 
                 repository.arrangor.save(overordnet)
@@ -114,21 +110,19 @@ class ArrangorQueriesTest : FunSpec({
         }
 
         test("getByHovedenhet") {
-            val hovedenhet = Arrangor(
+            val hovedenhet = Arrangor.Norsk(
                 id = UUID.randomUUID(),
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 organisasjonsform = "AS",
                 navn = "Hovedenhet AS",
-                erUtenlandsk = false,
             )
 
-            val underenhet = Arrangor(
+            val underenhet = Arrangor.Norsk(
                 id = UUID.randomUUID(),
                 organisasjonsnummer = Organisasjonsnummer("976663934"),
                 organisasjonsform = "BEDR",
                 overordnetEnhet = Organisasjonsnummer("123456789"),
                 navn = "Underenhet 1 AS",
-                erUtenlandsk = false,
             )
 
             database.runAndRollback {
@@ -145,22 +139,20 @@ class ArrangorQueriesTest : FunSpec({
             database.runAndRollback {
                 val slettetDato = LocalDate.of(2024, 1, 1)
 
-                val underenhet1 = Arrangor(
+                val underenhet1 = Arrangor.Norsk(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
                     organisasjonsform = "BEDR",
                     overordnetEnhet = Organisasjonsnummer("982254604"),
                     navn = "REMA 1000 NORGE AS REGION NORDLAND",
                     slettetDato = slettetDato,
-                    erUtenlandsk = false,
                 )
 
-                val overordnet = Arrangor(
+                val overordnet = Arrangor.Norsk(
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
                     organisasjonsform = "AS",
-                    erUtenlandsk = false,
                 )
 
                 repository.arrangor.save(overordnet)
@@ -178,15 +170,122 @@ class ArrangorQueriesTest : FunSpec({
         }
     }
 
+    context("utenlandsk arrangør") {
+        test("betalingsinformasjon og adresse blir persistert og hentet via repository.save/get") {
+            database.runAndRollback {
+                val arrangor = Arrangor.Utenlandsk(
+                    id = UUID.randomUUID(),
+                    organisasjonsnummer = Organisasjonsnummer("100000002"),
+                    organisasjonsform = "IKS",
+                    navn = "Irsk arrangør",
+                    betalingsinformasjon = Betalingsinformasjon.IBan(
+                        bic = "DABAIE2D",
+                        iban = "IE29AIBK93115212345678",
+                        bankNavn = "AIB Bank",
+                        bankLandKode = "IE",
+                    ),
+                    adresse = Arrangor.Utenlandsk.Adresse(
+                        gateNavn = "O'Connell Street 1",
+                        by = "Dublin",
+                        postNummer = "D01",
+                        landKode = "IE",
+                    ),
+                )
+
+                repository.arrangor.save(arrangor)
+
+                repository.arrangor.get(arrangor.id) shouldBe arrangor
+                repository.arrangor.getByOrganisasjonsnummer(arrangor.organisasjonsnummer) shouldBe arrangor
+            }
+        }
+
+        test("betalingsinformasjon og adresse er null for utenlandsk arrangør som mangler dette") {
+            database.runAndRollback {
+                val arrangor = Arrangor.Utenlandsk(
+                    id = UUID.randomUUID(),
+                    organisasjonsnummer = Organisasjonsnummer("100000003"),
+                    organisasjonsform = "IKS",
+                    navn = "Utenlandsk arrangør uten bankdata",
+                )
+                repository.arrangor.save(arrangor)
+
+                repository.arrangor.get(arrangor.id).shouldBeInstanceOf<Arrangor.Utenlandsk>().should {
+                    it.betalingsinformasjon shouldBe null
+                    it.adresse shouldBe null
+                }
+            }
+        }
+
+        test("save() bevarer betalingsinformasjon og adresse når andre felter oppdateres") {
+            database.runAndRollback {
+                val arrangor = Arrangor.Utenlandsk(
+                    id = UUID.randomUUID(),
+                    organisasjonsnummer = Organisasjonsnummer("100000004"),
+                    organisasjonsform = "IKS",
+                    navn = "Irsk arrangør",
+                    betalingsinformasjon = Betalingsinformasjon.IBan(
+                        bic = "DABAIE2D",
+                        iban = "IE29AIBK93115212345678",
+                        bankNavn = "AIB Bank",
+                        bankLandKode = "IE",
+                    ),
+                    adresse = Arrangor.Utenlandsk.Adresse(
+                        gateNavn = "O'Connell Street 1",
+                        by = "Dublin",
+                        postNummer = "D01",
+                        landKode = "IE",
+                    ),
+                )
+                repository.arrangor.save(arrangor)
+
+                val hentet = repository.arrangor.get(arrangor.id).shouldBeInstanceOf<Arrangor.Utenlandsk>()
+                repository.arrangor.save(hentet.copy(navn = "Irsk arrangør (oppdatert navn)"))
+
+                repository.arrangor.get(arrangor.id) shouldBe arrangor.copy(navn = "Irsk arrangør (oppdatert navn)")
+            }
+        }
+
+        test("save() overskriver eksisterende betalingsinformasjon og adresse ved endring") {
+            database.runAndRollback {
+                val arrangor = Arrangor.Utenlandsk(
+                    id = UUID.randomUUID(),
+                    organisasjonsnummer = Organisasjonsnummer("100000006"),
+                    organisasjonsform = "IKS",
+                    navn = "Irsk arrangør",
+                    betalingsinformasjon = Betalingsinformasjon.IBan(
+                        bic = "DABAIE2D",
+                        iban = "IE29AIBK93115212345678",
+                        bankNavn = "AIB Bank",
+                        bankLandKode = "IE",
+                    ),
+                    adresse = Arrangor.Utenlandsk.Adresse(
+                        gateNavn = "O'Connell Street 1",
+                        by = "Dublin",
+                        postNummer = "D01",
+                        landKode = "IE",
+                    ),
+                )
+                repository.arrangor.save(arrangor)
+
+                val oppdatert = arrangor.copy(
+                    betalingsinformasjon = arrangor.betalingsinformasjon!!.copy(bic = "NEWBIC1"),
+                    adresse = arrangor.adresse!!.copy(by = "Cork"),
+                )
+                repository.arrangor.save(oppdatert)
+
+                repository.arrangor.get(arrangor.id) shouldBe oppdatert
+            }
+        }
+    }
+
     context("kontaktperson hos arrangør") {
         test("crud") {
             database.runAndRollback {
-                val arrangor = Arrangor(
+                val arrangor = Arrangor.Norsk(
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
                     organisasjonsform = "AS",
-                    erUtenlandsk = false,
                 )
                 repository.arrangor.save(arrangor)
 
@@ -212,8 +311,7 @@ class ArrangorQueriesTest : FunSpec({
 
                 repository.arrangor.save(arrangor.copy(kontaktpersoner = listOf(kontaktperson1, kontaktperson2)))
 
-                repository.arrangor.get(arrangor.id)
-                    .shouldNotBeNull().kontaktpersoner shouldContainExactlyInAnyOrder listOf(
+                repository.arrangor.get(arrangor.id).kontaktpersoner shouldContainExactlyInAnyOrder listOf(
                     kontaktperson1,
                     kontaktperson2,
                 )
@@ -232,6 +330,34 @@ class ArrangorQueriesTest : FunSpec({
                 queries.arrangor.getKontaktpersoner(arrangor.id) shouldContainExactlyInAnyOrder listOf(kontaktperson2)
             }
         }
+
+        test("medKontaktpersoner fungerer også for utenlandsk arrangør") {
+            database.runAndRollback {
+                val arrangor = Arrangor.Utenlandsk(
+                    id = UUID.randomUUID(),
+                    organisasjonsnummer = Organisasjonsnummer("100000005"),
+                    organisasjonsform = "IKS",
+                    navn = "Utenlandsk arrangør",
+                )
+                repository.arrangor.save(arrangor)
+
+                val kontaktperson = ArrangorKontaktperson(
+                    id = UUID.randomUUID(),
+                    arrangorId = arrangor.id,
+                    navn = "Fredrik",
+                    telefon = "322232323",
+                    epost = "fredrik@gmail.com",
+                    beskrivelse = null,
+                    ansvarligFor = listOf(),
+                )
+
+                repository.arrangor.save(arrangor.medKontaktpersoner(listOf(kontaktperson)))
+
+                repository.arrangor.get(arrangor.id).kontaktpersoner shouldContainExactlyInAnyOrder listOf(
+                    kontaktperson,
+                )
+            }
+        }
     }
 })
 
@@ -242,7 +368,7 @@ private fun Arrangor.toArrangorDto() = ArrangorDto(
     navn = navn,
     overordnetEnhet = overordnetEnhet,
     slettetDato = slettetDato,
-    erUtenlandsk = erUtenlandsk,
+    erUtenlandsk = this is Arrangor.Utenlandsk,
 )
 
 private infix fun Collection<ArrangorDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {

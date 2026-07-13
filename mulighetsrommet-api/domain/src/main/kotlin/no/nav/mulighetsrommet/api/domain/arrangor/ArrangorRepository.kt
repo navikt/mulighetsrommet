@@ -6,11 +6,9 @@ import java.util.UUID
 interface ArrangorRepository {
     fun save(arrangor: Arrangor)
 
-    fun get(id: UUID): Arrangor?
+    fun get(id: UUID): Arrangor
 
     fun getByOrganisasjonsnummer(orgnr: Organisasjonsnummer): Arrangor?
 
     fun delete(orgnr: Organisasjonsnummer)
-
-    fun getUtenlandskArrangor(arrangorId: UUID): UtenlandskArrangor?
 }

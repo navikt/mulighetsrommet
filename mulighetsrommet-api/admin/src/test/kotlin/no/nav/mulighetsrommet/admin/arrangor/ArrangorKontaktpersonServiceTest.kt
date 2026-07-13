@@ -15,14 +15,12 @@ import java.util.UUID
 class ArrangorKontaktpersonServiceTest : FunSpec({
     val arrangorId = UUID.randomUUID()
 
-    fun arrangor(kontaktpersoner: List<ArrangorKontaktperson> = emptyList()) = Arrangor(
+    fun arrangor(kontaktpersoner: List<ArrangorKontaktperson> = emptyList()) = Arrangor.Norsk(
         id = arrangorId,
         overordnetEnhet = null,
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = "AS",
         navn = "Fretex AS",
-        erUtenlandsk = false,
-        slettetDato = null,
         kontaktpersoner = kontaktpersoner,
     )
 
@@ -45,7 +43,7 @@ class ArrangorKontaktpersonServiceTest : FunSpec({
             val person = kontaktperson()
             service.upsert(person)
 
-            db.repository.arrangor.get(arrangorId)?.kontaktpersoner shouldBe listOf(person)
+            db.repository.arrangor.get(arrangorId).kontaktpersoner shouldBe listOf(person)
         }
 
         test("erstatter eksisterende kontaktperson med samme id") {
@@ -57,7 +55,7 @@ class ArrangorKontaktpersonServiceTest : FunSpec({
             val oppdatert = person.copy(navn = "Ola Nordmann")
             service.upsert(oppdatert)
 
-            db.repository.arrangor.get(arrangorId)?.kontaktpersoner shouldBe listOf(oppdatert)
+            db.repository.arrangor.get(arrangorId).kontaktpersoner shouldBe listOf(oppdatert)
         }
 
         test("kaster exception når arrangør ikke finnes") {
@@ -80,7 +78,7 @@ class ArrangorKontaktpersonServiceTest : FunSpec({
 
             service.delete(arrangorId, person.id).shouldBeRight()
 
-            db.repository.arrangor.get(arrangorId)?.kontaktpersoner shouldBe emptyList()
+            db.repository.arrangor.get(arrangorId).kontaktpersoner shouldBe emptyList()
         }
 
         test("returnerer KontaktpersonErIBruk når kontaktperson har koblinger til gjennomføringer") {

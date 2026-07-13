@@ -11,7 +11,8 @@ import no.nav.mulighetsrommet.admin.arrangor.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
-import no.nav.mulighetsrommet.api.domain.arrangor.UtenlandskArrangor
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
@@ -39,7 +40,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
         where arrangor_underenhet.overordnet_enhet = arrangor.organisasjonsnummer) on true
     """
 
-    /** Upserter enheten (tar ikke hensyn til underenheter), og synkroniserer kontaktpersoner. */
+    /** Upserter enheten (tar ikke hensyn til underenheter) */
     override fun save(arrangor: Arrangor) {
         @Language("PostgreSQL")
         val query = """
@@ -62,13 +63,54 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
                 "navn" to navn,
                 "overordnet_enhet" to overordnetEnhet?.value,
                 "slettet_dato" to slettetDato,
-                "er_utenlandsk_virksomhet" to erUtenlandsk,
+                "er_utenlandsk_virksomhet" to (this is Arrangor.Utenlandsk),
             )
         }
 
         session.execute(queryOf(query, parameters))
 
         syncKontaktpersoner(arrangor.id, arrangor.kontaktpersoner)
+
+        when (arrangor) {
+            is Arrangor.Utenlandsk -> saveUtenlandskInformasjon(arrangor)
+            is Arrangor.Norsk -> Unit
+        }
+    }
+
+    private fun saveUtenlandskInformasjon(arrangor: Arrangor.Utenlandsk) {
+        val betalingsinformasjon = arrangor.betalingsinformasjon
+        val adresse = arrangor.adresse
+
+        if (betalingsinformasjon == null || adresse == null) {
+            return
+        }
+
+        @Language("PostgreSQL")
+        val query = """
+            insert into arrangor_utenlandsk(arrangor_id, bic, iban, bank_navn, adresse_gate_navn, adresse_by, adresse_post_nummer, adresse_land_kode)
+            values (:arrangor_id, :bic, :iban, :bank_navn, :adresse_gate_navn, :adresse_by, :adresse_post_nummer, :adresse_land_kode)
+            on conflict (arrangor_id) do update set
+                bic = excluded.bic,
+                iban = excluded.iban,
+                bank_navn = excluded.bank_navn,
+                adresse_gate_navn = excluded.adresse_gate_navn,
+                adresse_by = excluded.adresse_by,
+                adresse_post_nummer = excluded.adresse_post_nummer,
+                adresse_land_kode = excluded.adresse_land_kode
+        """.trimIndent()
+
+        val parameters = mapOf(
+            "arrangor_id" to arrangor.id,
+            "bic" to betalingsinformasjon.bic,
+            "iban" to betalingsinformasjon.iban,
+            "bank_navn" to betalingsinformasjon.bankNavn,
+            "adresse_gate_navn" to adresse.gateNavn,
+            "adresse_by" to adresse.by,
+            "adresse_post_nummer" to adresse.postNummer,
+            "adresse_land_kode" to adresse.landKode,
+        )
+
+        session.execute(queryOf(query, parameters))
     }
 
     private fun syncKontaktpersoner(arrangorId: UUID, kontaktpersoner: List<ArrangorKontaktperson>) {
@@ -200,44 +242,60 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
         return arrangor.copy(underenheter = underenheter)
     }
 
-    override fun get(id: UUID): Arrangor? {
+    override fun get(id: UUID): Arrangor {
         @Language("PostgreSQL")
         val query = """
             select
-                id,
-                organisasjonsnummer,
-                organisasjonsform,
-                overordnet_enhet,
-                navn,
-                slettet_dato,
-                er_utenlandsk_virksomhet
+                arrangor.id,
+                arrangor.organisasjonsnummer,
+                arrangor.organisasjonsform,
+                arrangor.overordnet_enhet,
+                arrangor.navn,
+                arrangor.slettet_dato,
+                arrangor.er_utenlandsk_virksomhet,
+                arrangor_utenlandsk.bic,
+                arrangor_utenlandsk.iban,
+                arrangor_utenlandsk.bank_navn,
+                arrangor_utenlandsk.adresse_gate_navn,
+                arrangor_utenlandsk.adresse_by,
+                arrangor_utenlandsk.adresse_post_nummer,
+                arrangor_utenlandsk.adresse_land_kode
             from arrangor
-            where id = ?::uuid
+                left join arrangor_utenlandsk on arrangor_utenlandsk.arrangor_id = arrangor.id
+            where arrangor.id = ?::uuid
         """.trimIndent()
 
-        val arrangor = session.single(queryOf(query, id)) { it.toArrangor() } ?: return null
+        val arrangor = session.requireSingle(queryOf(query, id)) { it.toArrangor() }
 
-        return arrangor.copy(kontaktpersoner = getKontaktpersoner(id))
+        return arrangor.medKontaktpersoner(getKontaktpersoner(id))
     }
 
     override fun getByOrganisasjonsnummer(orgnr: Organisasjonsnummer): Arrangor? {
         @Language("PostgreSQL")
         val query = """
             select
-                id,
-                organisasjonsnummer,
-                organisasjonsform,
-                overordnet_enhet,
-                navn,
-                slettet_dato,
-                er_utenlandsk_virksomhet
+                arrangor.id,
+                arrangor.organisasjonsnummer,
+                arrangor.organisasjonsform,
+                arrangor.overordnet_enhet,
+                arrangor.navn,
+                arrangor.slettet_dato,
+                arrangor.er_utenlandsk_virksomhet,
+                arrangor_utenlandsk.bic,
+                arrangor_utenlandsk.iban,
+                arrangor_utenlandsk.bank_navn,
+                arrangor_utenlandsk.adresse_gate_navn,
+                arrangor_utenlandsk.adresse_by,
+                arrangor_utenlandsk.adresse_post_nummer,
+                arrangor_utenlandsk.adresse_land_kode
             from arrangor
-            where organisasjonsnummer = ?
+                left join arrangor_utenlandsk on arrangor_utenlandsk.arrangor_id = arrangor.id
+            where arrangor.organisasjonsnummer = ?
         """.trimIndent()
 
         val arrangor = session.single(queryOf(query, orgnr.value)) { it.toArrangor() } ?: return null
 
-        return arrangor.copy(kontaktpersoner = getKontaktpersoner(arrangor.id))
+        return arrangor.medKontaktpersoner(getKontaktpersoner(arrangor.id))
     }
 
     override fun delete(orgnr: Organisasjonsnummer) {
@@ -331,43 +389,53 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
         return session.list(queryOf(query, arrangorId)) { it.toArrangorKontaktperson() }
     }
 
-    override fun getUtenlandskArrangor(arrangorId: UUID): UtenlandskArrangor? {
-        @Language("PostgreSQL")
-        val query = """
-            select
-                bic,
-                iban,
-                adresse_gate_navn,
-                adresse_by,
-                adresse_post_nummer,
-                adresse_land_kode,
-                bank_navn
-            from arrangor_utenlandsk
-            where arrangor_id = ?::uuid
-        """.trimIndent()
+    private fun Row.toArrangor(): Arrangor {
+        val id = uuid("id")
+        val organisasjonsnummer = Organisasjonsnummer(string("organisasjonsnummer"))
+        val organisasjonsform = stringOrNull("organisasjonsform")
+        val navn = string("navn")
+        val overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) }
+        val slettetDato = localDateOrNull("slettet_dato")
 
-        return session.single(queryOf(query, arrangorId)) { it.toUtenlandskArrangor() }
+        if (!boolean("er_utenlandsk_virksomhet")) {
+            return Arrangor.Norsk(
+                id = id,
+                organisasjonsnummer = organisasjonsnummer,
+                organisasjonsform = organisasjonsform,
+                navn = navn,
+                overordnetEnhet = overordnetEnhet,
+                slettetDato = slettetDato,
+            )
+        }
+
+        val betalingsinformasjon = stringOrNull("bic")?.let {
+            Betalingsinformasjon.IBan(
+                bic = it,
+                iban = string("iban"),
+                bankNavn = string("bank_navn"),
+                bankLandKode = string("adresse_land_kode"),
+            )
+        }
+        val adresse = stringOrNull("adresse_gate_navn")?.let {
+            Arrangor.Utenlandsk.Adresse(
+                gateNavn = it,
+                by = string("adresse_by"),
+                postNummer = string("adresse_post_nummer"),
+                landKode = string("adresse_land_kode"),
+            )
+        }
+
+        return Arrangor.Utenlandsk(
+            id = id,
+            organisasjonsnummer = organisasjonsnummer,
+            organisasjonsform = organisasjonsform,
+            navn = navn,
+            overordnetEnhet = overordnetEnhet,
+            slettetDato = slettetDato,
+            betalingsinformasjon = betalingsinformasjon,
+            adresse = adresse,
+        )
     }
-
-    private fun Row.toUtenlandskArrangor() = UtenlandskArrangor(
-        bic = string("bic"),
-        iban = string("iban"),
-        gateNavn = string("adresse_gate_navn"),
-        by = string("adresse_by"),
-        postNummer = string("adresse_post_nummer"),
-        landKode = string("adresse_land_kode"),
-        bankNavn = string("bank_navn"),
-    )
-
-    private fun Row.toArrangor() = Arrangor(
-        id = uuid("id"),
-        organisasjonsnummer = Organisasjonsnummer(string("organisasjonsnummer")),
-        organisasjonsform = stringOrNull("organisasjonsform"),
-        navn = string("navn"),
-        overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) },
-        slettetDato = localDateOrNull("slettet_dato"),
-        erUtenlandsk = boolean("er_utenlandsk_virksomhet"),
-    )
 
     private fun Row.toArrangorDtoUtenUnderenheter() = ArrangorDto(
         id = uuid("id"),

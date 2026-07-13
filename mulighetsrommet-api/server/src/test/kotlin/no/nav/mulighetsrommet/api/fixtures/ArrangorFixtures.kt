@@ -5,15 +5,25 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.util.UUID
 
-fun ArrangorDto.toArrangor() = Arrangor(
-    id = id,
-    organisasjonsnummer = organisasjonsnummer,
-    organisasjonsform = organisasjonsform,
-    navn = navn,
-    overordnetEnhet = overordnetEnhet,
-    slettetDato = slettetDato,
-    erUtenlandsk = erUtenlandsk,
-)
+fun ArrangorDto.toArrangor() = if (erUtenlandsk) {
+    Arrangor.Utenlandsk(
+        id = id,
+        organisasjonsnummer = organisasjonsnummer,
+        organisasjonsform = organisasjonsform,
+        navn = navn,
+        overordnetEnhet = overordnetEnhet,
+        slettetDato = slettetDato,
+    )
+} else {
+    Arrangor.Norsk(
+        id = id,
+        organisasjonsnummer = organisasjonsnummer,
+        organisasjonsform = organisasjonsform,
+        navn = navn,
+        overordnetEnhet = overordnetEnhet,
+        slettetDato = slettetDato,
+    )
+}
 
 object ArrangorFixtures {
     object Fretex {

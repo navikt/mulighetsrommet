@@ -72,7 +72,7 @@ data class MulighetsrommetTestDomain(
             ansatte.forEach { queries.ansatt.save(it) }
             arrangorer.forEach { dto ->
                 val kontaktpersoner = arrangorKontaktpersoner.filter { it.arrangorId == dto.id }
-                queries.arrangor.save(dto.toArrangor().copy(kontaktpersoner = kontaktpersoner))
+                queries.arrangor.save(dto.toArrangor().medKontaktpersoner(kontaktpersoner))
             }
             tiltakstyper.forEach { repository.tiltakstype.save(it) }
             prismodeller.forEach { queries.prismodell.upsert(it) }
