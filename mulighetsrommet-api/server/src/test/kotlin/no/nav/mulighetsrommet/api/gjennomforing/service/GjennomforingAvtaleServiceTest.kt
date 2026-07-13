@@ -50,7 +50,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     fun createService(): GjennomforingAvtaleService = GjennomforingAvtaleService(
-        db = database.db,
+        db = database.api,
         navAnsattService = mockk(relaxed = true),
     )
 
@@ -69,7 +69,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
     }
 
     beforeEach {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterEach {
@@ -118,7 +118,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             service.create(gjennomforing, bertilNavIdent).shouldBeRight()
 
-            database.db.session {
+            database.api.session {
                 queries.gjennomforing.getAll(search = "merkelig").items.shouldBeEmpty()
                 queries.gjennomforing.getAll(search = "rart").items.shouldHaveSize(1)
                 queries.gjennomforing.getAll(search = ArrangorFixtures.hovedenhet.navn).items.shouldBeEmpty()
@@ -129,7 +129,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
         test("løpenummer og tiltaksnummer fra Arena blir tilgjengelig via fritekstsøk") {
             val gjennomforing = service.create(request, bertilNavIdent).shouldBeRight()
 
-            database.db.session {
+            database.api.session {
                 queries.gjennomforing.getAll(
                     search = "1234",
                 ).items.shouldBeEmpty()
@@ -146,7 +146,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             service.updateArenaData(gjennomforing.id, Gjennomforing.ArenaData(Tiltaksnummer("2025#123"), null))
 
-            database.db.session {
+            database.api.session {
                 queries.gjennomforing.getAll(
                     search = "2025#123",
                 ).items.shouldHaveSize(1)
@@ -224,7 +224,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             service.updateVeilederinfo(createRequest.id, veilederinfoRequest, bertilNavIdent).shouldBeRight()
 
-            database.db.session {
+            database.api.session {
                 val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(createRequest.id)
                 detaljer.beskrivelse shouldBe "Ny beskrivelse"
                 detaljer.kontorstruktur.shouldHaveSize(1)
@@ -309,7 +309,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
@@ -333,7 +333,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
@@ -356,7 +356,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
@@ -396,7 +396,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             service.avbrytGjennomforing(
                 gjennomforing.id,
@@ -428,7 +428,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             service.avsluttGjennomforing(
                 gjennomforing.id,
@@ -467,7 +467,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             service.gjenapneGjennomforing(
                 gjennomforing.id,
@@ -487,7 +487,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             service.gjenapneGjennomforing(
                 gjennomforing.id,
@@ -508,7 +508,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val nySluttDato = LocalDate.of(2024, 12, 31)
             service.gjenapneGjennomforing(
@@ -545,7 +545,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             service.create(request, bertilNavIdent).shouldBeRight()
 
-            database.db.session {
+            database.api.session {
                 queries.gjennomforing.getAdministratorer(request.id).orEmpty()
                     .map { it.navIdent } shouldBe listOf(NavAnsattFixture.DonaldDuck.navIdent)
             }
@@ -554,7 +554,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
         test("administrator uten TILTAKSGJENNOMFORINGER_SKRIV-rolle filtreres vekk") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.FetterAnton),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val request = GjennomforingFixtures.createGjennomforingRequest(
                 AvtaleFixtures.oppfolging,
@@ -563,7 +563,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             service.create(request, bertilNavIdent).shouldBeRight()
 
-            database.db.session {
+            database.api.session {
                 queries.gjennomforing.getAdministratorer(request.id).orEmpty().shouldBeEmpty()
             }
         }
@@ -612,7 +612,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createService()
 

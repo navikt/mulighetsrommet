@@ -38,7 +38,7 @@ class AltinnRettigheterServiceTest : FunSpec({
     )
 
     fun createService(expiry: Duration, altinnClient: AltinnClient) = AltinnRettigheterService(
-        db = database.db,
+        db = database.api,
         altinnClient = altinnClient,
         config = AltinnRettigheterService.Config(
             rettighetExpiryDuration = expiry,

@@ -65,15 +65,15 @@ class GjennomforingDetaljerServiceTest : FunSpec({
     }
 
     beforeSpec {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     val personaliaService = mockk<PersonaliaService>()
 
     fun createService(): GjennomforingDetaljerService {
-        val tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(), database.newDb)
+        val tiltakstypeService = TiltakstypeService(TiltakstypeService.Config(), database.admin)
         return GjennomforingDetaljerService(
-            db = database.db,
+            db = database.api,
             tiltakstypeService = tiltakstypeService,
             navAnsattService = mockk(),
             personaliaService = personaliaService,

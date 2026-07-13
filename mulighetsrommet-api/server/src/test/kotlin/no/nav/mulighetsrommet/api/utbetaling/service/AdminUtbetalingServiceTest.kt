@@ -87,7 +87,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
     fun createTilsagnService(): TilsagnService = TilsagnService(
         TilsagnService.Config(gyldigTilsagnPeriode = mapOf()),
-        db = database.db,
+        db = database.api,
         navAnsattService = mockk(),
     )
 
@@ -103,7 +103,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             arrangorService = arrangorService,
         )
         return AdminUtbetalingService(
-            db = database.db,
+            db = database.api,
             utbetalingService = utbetalingService,
             personaliaService = mockk(),
             featureToggleService = mockk(),
@@ -130,7 +130,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.GENERERT)),
-            ).initialize(database.db)
+            ).initialize(database.api)
         }
 
         test("utbetaling blir opprettet med fri-beregning") {
@@ -173,7 +173,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 arrangorer = listOf(utenlandskArrangor),
                 gjennomforinger = listOf(gjennomforingMedUtenlandskArrangor),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -259,7 +259,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET),
                     utbetaling2.copy(status = UtbetalingStatusType.GENERERT),
                 ),
-            ).initialize(database.db)
+            ).initialize(database.api)
         }
 
         test("korreksjon må gjelde for en eksisterende utbetaling") {
@@ -317,7 +317,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.TIL_ATTESTERING)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -345,7 +345,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                         NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer)),
                     ),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -375,7 +375,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -406,7 +406,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -443,7 +443,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -481,7 +481,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -508,7 +508,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.DonaldDuck,
                     setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -531,7 +531,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.GENERERT)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -560,7 +560,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.DonaldDuck,
                     setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -604,7 +604,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
             val service = createUtbetalingService()
 
             val utbetalingLinje1 = createUtbetalingLinje(tilsagn1.id, 5.NOK)
@@ -660,7 +660,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
             val service = createUtbetalingService()
 
             val utbetalingLinje1 = createUtbetalingLinje(tilsagn1.id, 5.NOK)
@@ -740,7 +740,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.DonaldDuck,
                     setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -794,7 +794,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -871,7 +871,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -940,7 +940,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -987,7 +987,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1062,7 +1062,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val februarNorskTid = TidligstTidspunktForUtbetalingCalculator { _, _ ->
                 LocalDate.of(2025, 2, 1).atStartOfDay(ZoneId.of("Europe/Oslo")).toInstant()
@@ -1111,7 +1111,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.kontorspesifikk(Rolle.ATTESTANT_UTBETALING, setOf(Innlandet.enhetsnummer))),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1142,7 +1142,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.DonaldDuck,
                     setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1175,7 +1175,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.MikkeMus,
                     setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1204,7 +1204,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     NavAnsattFixture.DonaldDuck,
                     setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 )
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1238,7 +1238,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
             ) {
                 setTilsagnStatus(tilsagnMedHoytBelop, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1258,7 +1258,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1279,7 +1279,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1303,7 +1303,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.OPPGJORT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1329,7 +1329,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1344,7 +1344,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1366,7 +1366,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(original, korreksjon),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1397,7 +1397,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 utbetalingLinjer = listOf(linje),
             ) {
                 setUtbetalingLinjeStatus(linje, UtbetalingLinjeStatus.RETURNERT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1429,7 +1429,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 utbetalingLinjer = listOf(linje),
             ) {
                 setUtbetalingLinjeStatus(linje, UtbetalingLinjeStatus.TIL_ATTESTERING)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1461,7 +1461,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 utbetalingLinjer = listOf(linje),
             ) {
                 queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, lagretFakturaStatusSistOppdatert)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1502,7 +1502,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 utbetalingLinjer = listOf(linje),
             ) {
                 queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, lagretFakturaStatusSistOppdatert)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1544,7 +1544,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 utbetalingLinjer = listOf(linje),
             ) {
                 queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, lagretFakturaStatusSistOppdatert)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -1589,7 +1589,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             ) {
                 queries.utbetalingLinje.setFakturaSendtTidspunk(linje1.id, lagretFakturaStatusSistOppdatert)
                 queries.utbetalingLinje.setFakturaSendtTidspunk(linje2.id, lagretFakturaStatusSistOppdatert)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 

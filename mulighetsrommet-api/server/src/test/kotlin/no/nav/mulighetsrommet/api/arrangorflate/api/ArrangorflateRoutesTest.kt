@@ -50,7 +50,7 @@ class ArrangorflateRoutesTest : FunSpec({
     }
 
     beforeEach {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterEach {

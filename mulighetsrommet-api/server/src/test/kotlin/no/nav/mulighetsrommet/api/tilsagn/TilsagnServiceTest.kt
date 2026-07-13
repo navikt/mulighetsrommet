@@ -113,7 +113,7 @@ class TilsagnServiceTest : FunSpec({
                 ansatt2,
                 setOf(NavAnsattRolle.kontorspesifikk(Rolle.BESLUTTER_TILSAGN, setOf(Gjovik.enhetsnummer))),
             )
-        }.initialize(database.db)
+        }.initialize(database.api)
     }
 
     afterEach {
@@ -126,7 +126,7 @@ class TilsagnServiceTest : FunSpec({
         navAnsattService: NavAnsattService = mockk(relaxed = true),
     ): TilsagnService {
         return TilsagnService(
-            db = database.db,
+            db = database.api,
             config = TilsagnService.Config(
                 gyldigTilsagnPeriode = mapOf(
                     Tiltakskode.ARBEIDSFORBEREDENDE_TRENING to gyldigTilsagnPeriode,
@@ -191,7 +191,7 @@ class TilsagnServiceTest : FunSpec({
                     GjennomforingFixtures.AFT1,
                     GjennomforingFixtures.AFT1.copy(id = UUID.randomUUID()),
                 ),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val tilsagn2 = UUID.randomUUID()
             val tilsagn3 = UUID.randomUUID()

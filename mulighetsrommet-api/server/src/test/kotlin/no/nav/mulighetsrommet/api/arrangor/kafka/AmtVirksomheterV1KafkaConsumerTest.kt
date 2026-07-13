@@ -62,7 +62,7 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         coEvery { brregClient.getBrregEnhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
 
         val arrangorService = ArrangorService(
-            db = database.db,
+            db = database.api,
             brregClient = brregClient,
             kontoregisterOrganisasjonClient = mockk(relaxed = true),
         )

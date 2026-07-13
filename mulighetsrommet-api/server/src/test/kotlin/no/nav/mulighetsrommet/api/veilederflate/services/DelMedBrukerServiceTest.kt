@@ -25,12 +25,12 @@ class DelMedBrukerServiceTest : FunSpec({
     val sanityService: SanityService = mockk(relaxed = true)
 
     context("DelMedBrukerService") {
-        val service = DelMedBrukerService(database.db, sanityService, NavEnhetService(SqlNavEnhetRepository(database.db.db)))
+        val service = DelMedBrukerService(database.api, sanityService, NavEnhetService(SqlNavEnhetRepository(database.api.db)))
 
         beforeEach {
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
-            ).initialize(database.db)
+            ).initialize(database.api)
         }
 
         afterEach {
@@ -75,7 +75,7 @@ class DelMedBrukerServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val request = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
@@ -104,7 +104,7 @@ class DelMedBrukerServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val deling1 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
@@ -165,7 +165,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 ),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1.copy(navn = "Delt med bruker - tabell")),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val sanityGjennomforingIdForEnkeltplass = UUID.randomUUID()
             val sanityGjennomforingIdForArbeidstrening = UUID.randomUUID()

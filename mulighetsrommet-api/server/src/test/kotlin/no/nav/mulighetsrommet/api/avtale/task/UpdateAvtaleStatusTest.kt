@@ -20,10 +20,10 @@ class UpdateAvtaleStatusTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     fun createTask() = UpdateAvtaleStatus(
-        database.db,
+        database.api,
         AvtaleService(
             config = AvtaleService.Config(mapOf()),
-            db = database.db,
+            db = database.api,
             arrangorService = mockk(),
             tiltakstypeService = mockk(),
             gjennomforingPublisher = mockk(),
@@ -58,7 +58,7 @@ class UpdateAvtaleStatusTest : FunSpec({
     )
 
     beforeEach {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterEach {

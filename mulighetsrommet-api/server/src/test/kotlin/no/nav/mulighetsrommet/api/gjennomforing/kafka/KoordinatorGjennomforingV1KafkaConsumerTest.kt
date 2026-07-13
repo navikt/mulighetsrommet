@@ -19,7 +19,7 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
 
     fun createConsumer(): AmtKoordinatorGjennomforingV1KafkaConsumer {
         return AmtKoordinatorGjennomforingV1KafkaConsumer(
-            db = database.db,
+            db = database.api,
         )
     }
 
@@ -61,7 +61,7 @@ class KoordinatorGjennomforingV1KafkaConsumerTest : FunSpec({
     )
 
     beforeEach {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterEach {

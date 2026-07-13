@@ -38,7 +38,7 @@ class AvtaleRoutesTest : FunSpec({
 
     beforeSpec {
         oauth.start()
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterSpec {

@@ -33,7 +33,7 @@ class InitialLoadTiltakstyperTest : FunSpec({
     }
 
     beforeSpec {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     val kafkaTopic = "test-tiltakstype-topic"
@@ -43,7 +43,7 @@ class InitialLoadTiltakstyperTest : FunSpec({
         sanityService: SanityService,
     ): InitialLoadTiltakstyper = InitialLoadTiltakstyper(
         InitialLoadTiltakstyper.Config(kafkaTopic),
-        database.db,
+        database.api,
         producerClient,
         sanityService,
     )

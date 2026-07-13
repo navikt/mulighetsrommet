@@ -46,14 +46,14 @@ class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
     }
 
     beforeSpec {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     context("getAllGjennomforingerSomNarmerSegSluttdato") {
         test("skal hente gjennomføringer som er 14, 7 eller 1 dag til sluttdato") {
             val task = NotifySluttdatoForGjennomforingerNarmerSeg(
                 NotifySluttdatoForGjennomforingerNarmerSeg.Config(disabled = true),
-                database.db,
+                database.api,
                 mockk(),
             )
 
@@ -72,7 +72,7 @@ class NotifySluttdatoForGjennomforingerNarmerSegTest : FunSpec({
             val notificationTask: NotificationTask = mockk(relaxed = true)
             val task = NotifySluttdatoForGjennomforingerNarmerSeg(
                 NotifySluttdatoForGjennomforingerNarmerSeg.Config(disabled = true),
-                database.db,
+                database.api,
                 notificationTask,
             )
 

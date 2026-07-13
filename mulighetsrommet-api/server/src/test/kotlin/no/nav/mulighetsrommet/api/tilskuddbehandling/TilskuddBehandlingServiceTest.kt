@@ -37,7 +37,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(GjennomforingFixtures.AFT1),
-        ).initialize(database.db)
+        ).initialize(database.api)
     }
 
     afterEach {
@@ -71,7 +71,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
     )
 
     fun createService() = TilskuddBehandlingService(
-        database.db,
+        database.api,
         mockk(relaxed = true),
         mockk(relaxed = true),
     )

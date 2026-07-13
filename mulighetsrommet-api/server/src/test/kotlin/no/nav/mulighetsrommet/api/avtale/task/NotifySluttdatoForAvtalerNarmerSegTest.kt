@@ -69,14 +69,14 @@ class NotifySluttdatoForAvtalerNarmerSegTest : FunSpec({
     )
 
     beforeSpec {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     context("getAllAvtalerSomNarmerSegSluttdato") {
         test("skal hente avtaler som har sluttdato om 8 md, 6 md, 3 md, 14 dager og 7 dager") {
             val task = NotifySluttdatoForAvtalerNarmerSeg(
                 NotifySluttdatoForAvtalerNarmerSeg.Config(disabled = true),
-                database.db,
+                database.api,
                 mockk(),
             )
 
@@ -97,7 +97,7 @@ class NotifySluttdatoForAvtalerNarmerSegTest : FunSpec({
             val notificationTask: NotificationTask = mockk(relaxed = true)
             val task = NotifySluttdatoForAvtalerNarmerSeg(
                 NotifySluttdatoForAvtalerNarmerSeg.Config(disabled = true),
-                database.db,
+                database.api,
                 notificationTask,
             )
 
