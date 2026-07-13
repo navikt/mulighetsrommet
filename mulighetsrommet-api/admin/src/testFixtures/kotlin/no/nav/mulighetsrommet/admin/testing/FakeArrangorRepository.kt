@@ -29,4 +29,12 @@ class FakeArrangorRepository : ArrangorRepository {
     override fun getUtenlandskArrangor(arrangorId: UUID): UtenlandskArrangor? {
         return utenlandskStore[arrangorId]
     }
+
+    /**
+     * Test-only seeding av utenlandsk bankinformasjon. Det finnes ikke noen funksjon for dette i produksjon.
+     * I produksjon settes disse dataene manuelt direkte i databasen.
+     */
+    fun saveUtenlandsk(arrangorId: UUID, utenlandsk: UtenlandskArrangor) {
+        utenlandskStore[arrangorId] = utenlandsk
+    }
 }

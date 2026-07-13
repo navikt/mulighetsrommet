@@ -10,6 +10,9 @@ import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.arrangor.toDto
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.navenhet.toDto
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
@@ -17,7 +20,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
@@ -71,7 +73,7 @@ import kotlin.io.path.outputStream
 class AvtaleService(
     private val config: Config,
     private val db: ApiDatabase,
-    private val arrangorService: ArrangorService,
+    private val syncArrangor: SyncArrangorUseCase,
     private val tiltakstypeService: TiltakstypeService,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
@@ -562,8 +564,9 @@ class AvtaleService(
 
     private suspend fun syncArrangorFromBrreg(
         orgnr: Organisasjonsnummer,
-    ): Either<List<FieldError>, ArrangorDto> = arrangorService
-        .getArrangorOrSyncFromBrreg(orgnr)
+    ): Either<List<FieldError>, ArrangorDto> = syncArrangor
+        .execute(SyncArrangorIfMissing(orgnr))
+        .map { it.toDto() }
         .mapLeft {
             FieldError.of(
                 "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",

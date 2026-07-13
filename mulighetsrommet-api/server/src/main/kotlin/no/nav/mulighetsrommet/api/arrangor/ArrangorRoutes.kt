@@ -17,6 +17,14 @@ import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorKobling
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonError
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonService
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
+import no.nav.mulighetsrommet.admin.arrangor.HentBetalingsinformasjon
+import no.nav.mulighetsrommet.admin.arrangor.KoblingerForKontaktperson
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.arrangor.toDto
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
 import no.nav.mulighetsrommet.admin.enhetsregister.Hovedenhet
 import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
@@ -39,7 +47,9 @@ import java.util.UUID
 
 fun Route.arrangorRoutes() {
     val db: ApiDatabase by inject()
-    val arrangorService: ArrangorService by inject()
+    val syncArrangor: SyncArrangorUseCase by inject()
+    val arrangorKontaktpersoner: ArrangorKontaktpersonService by inject()
+    val betalingsinformasjon: BetalingsinformasjonQuery by inject()
     val enhetsregister: EnhetsregisterQuery by inject()
 
     route("arrangorer") {
@@ -62,8 +72,9 @@ fun Route.arrangorRoutes() {
         }) {
             val orgnr = call.parameters.getOrFail("orgnr").let { Organisasjonsnummer(it) }
 
-            val response = arrangorService.getArrangorOrSyncFromBrreg(orgnr)
-                .mapLeft { it.toProblemDetail(orgnr) }
+            val response = syncArrangor.execute(SyncArrangorIfMissing(orgnr))
+                .map { it.toDto() }
+                .mapLeft { it.toProblemDetail() }
 
             call.respondWithStatusResponse(response)
         }
@@ -150,10 +161,10 @@ fun Route.arrangorRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            val betalingsinformasjon = arrangorService.getBetalingsinformasjon(id)
+            val response = betalingsinformasjon.execute(HentBetalingsinformasjon(id))
                 ?: return@get call.respond(HttpStatusCode.NoContent)
 
-            call.respond(HttpStatusCode.OK, betalingsinformasjon)
+            call.respond(HttpStatusCode.OK, response)
         }
 
         get("{id}/hovedenhet", {
@@ -199,7 +210,7 @@ fun Route.arrangorRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            call.respond(arrangorService.hentKontaktpersoner(id))
+            call.respond(arrangorKontaktpersoner.hentAlle(id))
         }
 
         put("{id}/kontaktpersoner", {
@@ -224,7 +235,7 @@ fun Route.arrangorRoutes() {
             val virksomhetKontaktperson = call.receive<ArrangorKontaktpersonRequest>()
 
             val result = virksomhetKontaktperson.toDto(id)
-                .onRight { arrangorService.upsertKontaktperson(it) }
+                .onRight { arrangorKontaktpersoner.upsert(it) }
                 .onLeft { application.log.warn("Klarte ikke opprette kontaktperson: $it") }
 
             call.respondWithStatusResponse(result)
@@ -249,7 +260,7 @@ fun Route.arrangorRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            val koblinger = arrangorService.hentKoblingerForKontaktperson(id)
+            val koblinger = arrangorKontaktpersoner.hentKoblinger(id)
 
             call.respond(koblinger)
         }
@@ -278,7 +289,13 @@ fun Route.arrangorRoutes() {
             val id: UUID by call.parameters
             val kontaktpersonId: UUID by call.parameters
 
-            val result = arrangorService.deleteKontaktperson(id, kontaktpersonId)
+            val result = arrangorKontaktpersoner.delete(id, kontaktpersonId)
+                .mapLeft {
+                    val error = when (it) {
+                        ArrangorKontaktpersonError.KontaktpersonErIBruk -> FieldError.of("Kontaktpersonen er i bruk og kan derfor ikke slettes")
+                    }
+                    ValidationError("Kunne ikke slette kontaktperson", listOf(error))
+                }
 
             call.respondWithStatusResponse(result)
         }

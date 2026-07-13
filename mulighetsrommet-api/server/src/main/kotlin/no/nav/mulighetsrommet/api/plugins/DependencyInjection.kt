@@ -13,6 +13,10 @@ import no.nav.common.kafka.producer.feilhandtering.publisher.QueuedKafkaProducer
 import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProcessorBuilder
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonService
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
+import no.nav.mulighetsrommet.admin.arrangor.KontoregisterGateway
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
@@ -32,7 +36,7 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterService
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
+import no.nav.mulighetsrommet.api.arrangor.KontoregisterOrganisasjonGateway
 import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
@@ -233,7 +237,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 genererUtbetalingService = get(),
             ),
             config.clients.replikerDeltakerEnkeltplass to ReplikerDeltakerEnkeltplassKafkaConsumer(get(), get()),
-            config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get()),
+            config.clients.amtVirksomheterV1 to AmtVirksomheterV1KafkaConsumer(get(), get()),
             config.clients.amtArrangorMeldingV1 to AmtArrangorMeldingV1KafkaConsumer(get(), get()),
             config.clients.amtKoordinatorMeldingV1 to AmtKoordinatorGjennomforingV1KafkaConsumer(get()),
             config.clients.replicateBestillingStatus to ReplikerBestillingStatusConsumer(get()),
@@ -498,7 +502,10 @@ private fun services(appConfig: AppConfig) = module {
     single { NavEnhetService(get()) }
     single { KostnadsstedQuery(get()) }
     single { NavAnsattDtoQuery(get()) }
-    single { ArrangorService(get(), get(), get()) }
+    single { SyncArrangorUseCase(get(), get()) }
+    single { ArrangorKontaktpersonService(get()) }
+    single<KontoregisterGateway> { KontoregisterOrganisasjonGateway(get()) }
+    single { BetalingsinformasjonQuery(get(), get()) }
     single<EnhetsregisterGateway> { BrregEnhetsregisterGateway(get()) }
     single { EnhetsregisterQuery(get(), get()) }
     single {

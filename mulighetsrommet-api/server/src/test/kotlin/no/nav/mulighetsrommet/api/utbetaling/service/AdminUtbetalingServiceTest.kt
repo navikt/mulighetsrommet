@@ -14,10 +14,10 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
@@ -78,9 +78,9 @@ class AdminUtbetalingServiceTest : FunSpec({
     }
 
     var umiddelbarUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, _ -> null }
-    val arrangorService: ArrangorService = mockk()
+    val betalingsinformasjon: BetalingsinformasjonQuery = mockk()
 
-    coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
+    coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
         kontonummer = Kontonummer("12345678901"),
         kid = null,
     )
@@ -100,7 +100,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
             ),
             tilsagnService = tilsagnService,
-            arrangorService = arrangorService,
+            betalingsinformasjon = betalingsinformasjon,
         )
         return AdminUtbetalingService(
             db = database.api,

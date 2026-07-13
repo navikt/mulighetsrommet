@@ -1,16 +1,24 @@
 package no.nav.mulighetsrommet.api.enhetsregister
 
+import arrow.core.left
 import arrow.core.right
+import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.enhetsregister.Hovedenhet
 import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
+import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
+import no.nav.mulighetsrommet.brreg.FjernetBrregEnhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
@@ -106,5 +114,80 @@ class BrregEnhetsregisterGatewayTest : FunSpec({
                 slettetDato = LocalDate.of(2020, 1, 1),
             ),
         )
+    }
+
+    context("hentVirksomhet") {
+        test("hovedenhet fra brreg mappes til Funnet") {
+            val orgnr = Organisasjonsnummer("999999999")
+            val brregClient = mockk<BrregClient> {
+                coEvery { getBrregEnhet(orgnr) } returns BrregHovedenhetDto(
+                    organisasjonsnummer = orgnr,
+                    organisasjonsform = "AS",
+                    navn = "Fretex AS",
+                    postadresse = null,
+                    forretningsadresse = null,
+                    overordnetEnhet = null,
+                ).right()
+            }
+            val enhetsregister = BrregEnhetsregisterGateway(brregClient)
+
+            enhetsregister.hentVirksomhet(orgnr).shouldBeRight().shouldBeTypeOf<VirksomhetOppslag.Funnet>() should {
+                it.virksomhet.organisasjonsnummer shouldBe orgnr
+                it.virksomhet.navn shouldBe "Fretex AS"
+            }
+        }
+
+        test("underenhet fra brreg mappes til Funnet") {
+            val orgnr = Organisasjonsnummer("999999998")
+            val brregClient = mockk<BrregClient> {
+                coEvery { getBrregEnhet(orgnr) } returns BrregUnderenhetDto(
+                    organisasjonsnummer = orgnr,
+                    organisasjonsform = "BEDR",
+                    navn = "Fretex AS avd Oslo",
+                    overordnetEnhet = Organisasjonsnummer("999999999"),
+                ).right()
+            }
+            val enhetsregister = BrregEnhetsregisterGateway(brregClient)
+
+            enhetsregister.hentVirksomhet(orgnr).shouldBeRight().shouldBeTypeOf<VirksomhetOppslag.Funnet>() should {
+                it.virksomhet.organisasjonsnummer shouldBe orgnr
+                it.virksomhet.navn shouldBe "Fretex AS avd Oslo"
+            }
+        }
+
+        test("virksomhet fjernet av juridiske årsaker mappes til FjernetAvJuridiskeArsaker") {
+            val orgnr = Organisasjonsnummer("999999997")
+            val slettetDato = LocalDate.of(2020, 1, 1)
+            val brregClient = mockk<BrregClient> {
+                coEvery { getBrregEnhet(orgnr) } returns BrregError.FjernetAvJuridiskeArsaker(
+                    FjernetBrregEnhetDto(orgnr, slettetDato),
+                ).left()
+            }
+            val enhetsregister = BrregEnhetsregisterGateway(brregClient)
+
+            enhetsregister.hentVirksomhet(orgnr).shouldBeRight(
+                VirksomhetOppslag.FjernetAvJuridiskeArsaker(orgnr, slettetDato),
+            )
+        }
+
+        test("NotFound fra brreg mappes til EnhetsregisterError.IkkeFunnet") {
+            val orgnr = Organisasjonsnummer("999999996")
+            val brregClient = mockk<BrregClient> {
+                coEvery { getBrregEnhet(orgnr) } returns BrregError.NotFound.left()
+            }
+            val enhetsregister = BrregEnhetsregisterGateway(brregClient)
+
+            enhetsregister.hentVirksomhet(orgnr).shouldBeLeft(EnhetsregisterError.IkkeFunnet)
+        }
+
+        test("andre feil fra brreg mappes til EnhetsregisterError.Feil") {
+            val orgnr = Organisasjonsnummer("999999995")
+            val brregClient = mockk<BrregClient> {
+                coEvery { getBrregEnhet(orgnr) } returns BrregError.Error.left()
+            }
+            val enhetsregister = BrregEnhetsregisterGateway(brregClient)
+
+            enhetsregister.hentVirksomhet(orgnr).shouldBeLeft(EnhetsregisterError.Feil)
+        }
     }
 })

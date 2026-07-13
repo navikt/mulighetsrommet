@@ -1,10 +1,13 @@
 package no.nav.mulighetsrommet.api.enhetsregister
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.Hovedenhet
 import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
+import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhet
@@ -36,6 +39,28 @@ class BrregEnhetsregisterGateway(
         return brregClient.getUnderenheterForHovedenhet(orgnr)
             .map { underenheter -> underenheter.map { it.toUnderenhet(overordnetEnhet = orgnr) } }
             .mapLeft { it.toEnhetsregisterError() }
+    }
+
+    override suspend fun hentVirksomhet(orgnr: Organisasjonsnummer): Either<EnhetsregisterError, VirksomhetOppslag> {
+        return brregClient.getBrregEnhet(orgnr).fold(
+            { error ->
+                when (error) {
+                    is BrregError.FjernetAvJuridiskeArsaker -> VirksomhetOppslag.FjernetAvJuridiskeArsaker(
+                        organisasjonsnummer = error.enhet.organisasjonsnummer,
+                        slettetDato = error.enhet.slettetDato,
+                    ).right()
+
+                    else -> error.toEnhetsregisterError().left()
+                }
+            },
+            { enhet ->
+                val virksomhet = when (enhet) {
+                    is BrregHovedenhet -> enhet.toHovedenhet()
+                    is BrregUnderenhet -> enhet.toUnderenhet()
+                }
+                VirksomhetOppslag.Funnet(virksomhet).right()
+            },
+        )
     }
 }
 
@@ -73,7 +98,8 @@ private fun BrregUnderenhet.toUnderenhet(overordnetEnhet: Organisasjonsnummer? =
 }
 
 private fun BrregError.toEnhetsregisterError(): EnhetsregisterError = when (this) {
-    is BrregError.NotFound,
+    is BrregError.NotFound -> EnhetsregisterError.IkkeFunnet
+
     is BrregError.FjernetAvJuridiskeArsaker,
     is BrregError.BadRequest,
     is BrregError.Error,

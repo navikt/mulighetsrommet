@@ -8,5 +8,7 @@ interface EnhetsregisterGateway {
 
     suspend fun sokUnderenheter(sok: String): Either<EnhetsregisterError, List<Underenhet>>
 
+    suspend fun hentVirksomhet(orgnr: Organisasjonsnummer): Either<EnhetsregisterError, VirksomhetOppslag>
+
     suspend fun hentUnderenheterForHovedenhet(orgnr: Organisasjonsnummer): Either<EnhetsregisterError, List<Underenhet>>
 }

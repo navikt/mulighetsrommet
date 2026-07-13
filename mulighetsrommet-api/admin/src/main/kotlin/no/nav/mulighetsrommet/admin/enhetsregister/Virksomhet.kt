@@ -36,3 +36,12 @@ data class Underenhet(
     @Serializable(with = LocalDateSerializer::class)
     override val slettetDato: LocalDate? = null,
 ) : Virksomhet
+
+sealed interface VirksomhetOppslag {
+    data class Funnet(val virksomhet: Virksomhet) : VirksomhetOppslag
+
+    data class FjernetAvJuridiskeArsaker(
+        val organisasjonsnummer: Organisasjonsnummer,
+        val slettetDato: LocalDate,
+    ) : VirksomhetOppslag
+}

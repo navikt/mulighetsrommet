@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.admin.arrangor
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -24,4 +25,15 @@ data class ArrangorDto(
     @Serializable(with = LocalDateSerializer::class)
     val slettetDato: LocalDate? = null,
     val erUtenlandsk: Boolean,
+)
+
+fun Arrangor.toDto() = ArrangorDto(
+    id = id,
+    organisasjonsnummer = organisasjonsnummer,
+    organisasjonsform = organisasjonsform,
+    navn = navn,
+    overordnetEnhet = overordnetEnhet,
+    underenheter = listOf(),
+    slettetDato = slettetDato,
+    erUtenlandsk = erUtenlandsk,
 )
