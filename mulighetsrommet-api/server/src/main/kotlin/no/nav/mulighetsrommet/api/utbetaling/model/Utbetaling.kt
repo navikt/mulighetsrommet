@@ -92,6 +92,22 @@ data class Utbetaling(
 
     fun erKorreksjon(): Boolean = korreksjon != null
 
+    fun kanAvbrytes(): Boolean = !erKorreksjon() && when (status) {
+        UtbetalingStatusType.GENERERT,
+        UtbetalingStatusType.TIL_BEHANDLING,
+        UtbetalingStatusType.RETURNERT,
+        ->
+            true
+
+        UtbetalingStatusType.AVBRUTT,
+        UtbetalingStatusType.FERDIG_BEHANDLET,
+        UtbetalingStatusType.UTBETALT,
+        UtbetalingStatusType.DELVIS_UTBETALT,
+        UtbetalingStatusType.TIL_ATTESTERING,
+        ->
+            false
+    }
+
     @Serializable
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)

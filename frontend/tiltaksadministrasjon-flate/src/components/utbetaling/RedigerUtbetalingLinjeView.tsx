@@ -1,13 +1,10 @@
 import {
   OpprettUtbetalingLinjerRequest,
-  TilsagnType,
-  Tilskuddstype,
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingLinjeDto,
   ValidationError,
 } from "@tiltaksadministrasjon/api-client";
-import { FileCheckmarkIcon, PencilIcon, PiggybankIcon, TrashFillIcon } from "@navikt/aksel-icons";
 import {
   Alert,
   BodyLong,
@@ -15,22 +12,18 @@ import {
   Button,
   Heading,
   HStack,
-  Modal,
   Spacer,
   Textarea,
   TextField,
   VStack,
 } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
-import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { FormProvider, UseFormReturn, useWatch } from "react-hook-form";
 import { GjorOppTilsagnFormCheckbox } from "./GjorOppTilsagnCheckbox";
 import { utbetalingTekster } from "./UtbetalingTekster";
-import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
-import { useOpprettUtbetalingLinjer, useSlettKorreksjon } from "@/api/utbetaling/mutations";
-import { Handlinger } from "@/components/handlinger/Handlinger";
+import { useOpprettUtbetalingLinjer } from "@/api/utbetaling/mutations";
 import { ValideringsfeilOppsummering } from "../skjema/ValideringsfeilOppsummering";
 import { extractValidationErrors } from "@/utils/Utils";
 import { applyValidationErrors } from "@/components/skjema/helpers";
@@ -41,26 +34,18 @@ export interface Props {
   utbetaling: UtbetalingDto;
   handlinger: UtbetalingHandling[];
   utbetalingLinjer: UtbetalingLinjeDto[];
+  form: UseFormReturn<OpprettUtbetalingLinjerRequest>;
 }
 
-export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingLinjer }: Props) {
-  const navigate = useNavigate();
+export function RedigerUtbetalingLinjeView({
+  utbetaling,
+  handlinger,
+  utbetalingLinjer,
+  form,
+}: Props) {
   const [mindreBelopModalOpen, setMindreBelopModalOpen] = useState<boolean>(false);
-  const [slettKorreksjonModalOpen, setSlettKorreksjonModalOpen] = useState<boolean>(false);
 
   const opprettMutation = useOpprettUtbetalingLinjer(utbetaling.id);
-
-  const form = useForm<OpprettUtbetalingLinjerRequest>({
-    defaultValues: {
-      utbetalingId: utbetaling.id,
-      utbetalingLinjer: utbetalingLinjer.map((linje) => ({
-        pris: linje.pris,
-        id: linje.id,
-        tilsagnId: linje.tilsagn.id,
-      })),
-      begrunnelseMindreBetalt: null,
-    },
-  });
 
   const {
     handleSubmit,
@@ -95,7 +80,7 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
     name: utbetalingLinjerWatch.map((_, index) => `utbetalingLinjer.${index}.pris.belop` as const),
   });
 
-  const { gjennomforingId, periode, tilskuddstype, beregning } = utbetaling;
+  const { beregning } = utbetaling;
 
   const utbetalesTotalt = {
     valuta: beregning.valuta,
@@ -108,19 +93,6 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
     opprettMutation.mutate(payload, {
       onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
     });
-  }
-
-  const tilsagnsTypeFraTilskudd = tilsagnType(tilskuddstype);
-
-  function opprettEkstraTilsagn() {
-    const defaultTilsagn = utbetalingLinjer.length === 1 ? utbetalingLinjer[0].tilsagn : undefined;
-    return navigate(
-      `/gjennomforinger/${gjennomforingId}/tilsagn/opprett-tilsagn` +
-        `?type=${tilsagnsTypeFraTilskudd}` +
-        `&periodeStart=${periode.start}` +
-        `&periodeSlutt=${yyyyMMddFormatting(subDuration(periode.slutt, { days: 1 }))}` +
-        `&kostnadssted=${defaultTilsagn?.kostnadssted.enhetsnummer || ""}`,
-    );
   }
 
   function submitHandler(data: OpprettUtbetalingLinjerRequest) {
@@ -152,47 +124,6 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
               {utbetalingTekster.linje.header}
             </Heading>
             <Spacer />
-            <Handlinger
-              handlinger={handlinger}
-              grupper={[
-                {
-                  items: [
-                    {
-                      label: "Rediger utbetaling",
-                      href: "rediger-utbetaling",
-                      icon: <PencilIcon />,
-                      handling: UtbetalingHandling.REDIGER,
-                    },
-                    {
-                      label:
-                        utbetalingTekster.linje.handlinger.opprettTilsagn(tilsagnsTypeFraTilskudd),
-                      onClick: opprettEkstraTilsagn,
-                      icon: <PiggybankIcon />,
-                    },
-                    {
-                      label: utbetalingTekster.linje.handlinger.hentGodkjenteTilsagn,
-                      onClick: () =>
-                        setValue(
-                          "utbetalingLinjer",
-                          utbetalingLinjer.map((linje) => ({
-                            id: linje.id,
-                            pris: linje.pris,
-                            tilsagnId: linje.tilsagn.id,
-                            gjorOppTilsagn: linje.gjorOppTilsagn,
-                          })),
-                        ),
-                      icon: <FileCheckmarkIcon />,
-                    },
-                    {
-                      label: "Slett utbetaling",
-                      onClick: () => setSlettKorreksjonModalOpen(true),
-                      icon: <TrashFillIcon />,
-                      handling: UtbetalingHandling.SLETT,
-                    },
-                  ],
-                },
-              ]}
-            />
           </HStack>
 
           <UtbetalingLinjeTable
@@ -295,25 +226,8 @@ export function RedigerUtbetalingLinjeView({ utbetaling, handlinger, utbetalingL
           secondaryButton
         />
       </form>
-      <SlettUtbetalingModal
-        utbetalingId={utbetaling.id}
-        open={slettKorreksjonModalOpen}
-        onClose={() => {
-          setSlettKorreksjonModalOpen(false);
-        }}
-      />
     </FormProvider>
   );
-}
-
-function tilsagnType(tilskuddstype: Tilskuddstype): TilsagnType {
-  switch (tilskuddstype) {
-    case Tilskuddstype.TILTAK_DRIFTSTILSKUDD:
-    case Tilskuddstype.TILTAK_OPPLAERING_TILSKUDD:
-      return TilsagnType.EKSTRATILSAGN;
-    case Tilskuddstype.TILTAK_INVESTERINGER:
-      return TilsagnType.INVESTERING;
-  }
 }
 
 function FjernUtbetalingLinje({ onRemove }: { onRemove: () => void }) {
@@ -321,58 +235,5 @@ function FjernUtbetalingLinje({ onRemove }: { onRemove: () => void }) {
     <Button data-color="neutral" size="small" variant="secondary" type="button" onClick={onRemove}>
       {utbetalingTekster.linje.handlinger.fjern}
     </Button>
-  );
-}
-
-function SlettUtbetalingModal({
-  utbetalingId,
-  open,
-  onClose,
-}: {
-  utbetalingId: string;
-  open: boolean;
-  onClose: () => void;
-}) {
-  const navigate = useNavigate();
-  const slettKorreksjonMutation = useSlettKorreksjon();
-
-  function slettKorreksjon() {
-    slettKorreksjonMutation.mutate(
-      { id: utbetalingId },
-      {
-        onSuccess: () => navigate("..", { replace: true }),
-      },
-    );
-  }
-
-  return (
-    <Modal onClose={onClose} closeOnBackdropClick aria-label="modal" open={open}>
-      <Modal.Header closeButton={false}>
-        <Heading align="start" size="medium">
-          Slett utbetaling
-        </Heading>
-      </Modal.Header>
-      <Modal.Body>
-        <BodyShort>
-          Du er i ferd med å slette en korrigeringsutbetaling. Dette vil fjerne den valgte
-          ubetalingen fra løsningen. Er du sikker på at du vil fortsette?
-        </BodyShort>
-      </Modal.Body>
-      <Modal.Footer>
-        <HStack gap="space-16">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            Nei, takk
-          </Button>
-          <Button
-            data-color="danger"
-            title="Slett utbetaling"
-            variant="primary"
-            onClick={slettKorreksjon}
-          >
-            Ja, jeg vil slette utbetalingen
-          </Button>
-        </HStack>
-      </Modal.Footer>
-    </Modal>
   );
 }

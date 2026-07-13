@@ -1,5 +1,6 @@
 import {
   AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak,
+  AarsakerOgForklaringRequestUtbetalingStatusAarsak,
   OpprettUtbetalingLinjerRequest,
   ProblemDetail,
   UtbetalingRequest,
@@ -69,6 +70,20 @@ export function useReturnerUtbetalingLinje() {
   });
 }
 
+export function useAvbrytUtbetaling() {
+  const queryClient = useQueryClient();
+
+  return useApiMutation<
+    unknown,
+    ProblemDetail,
+    { id: string; body: AarsakerOgForklaringRequestUtbetalingStatusAarsak }
+  >({
+    mutationFn: ({ id, body }) => UtbetalingService.avbrytUtbetaling({ path: { id }, body }),
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
+    },
+  });
+}
 export function useSlettKorreksjon() {
   return useApiMutation<unknown, ProblemDetail, { id: string }>({
     mutationFn: ({ id }) => UtbetalingService.slettKorreksjon({ path: { id } }),

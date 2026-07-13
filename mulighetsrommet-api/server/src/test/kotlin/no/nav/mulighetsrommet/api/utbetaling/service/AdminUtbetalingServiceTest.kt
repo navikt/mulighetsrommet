@@ -106,6 +106,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             db = database.db,
             utbetalingService = utbetalingService,
             personaliaService = mockk(),
+            featureToggleService = mockk(),
         )
     }
 

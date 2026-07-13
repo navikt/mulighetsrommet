@@ -6,6 +6,7 @@ const mockFeatures: Features = {
   [FeatureToggle.TILTAKSHISTORIKK_VIS_KOMET_ENKELTPLASSER]: true,
   [FeatureToggle.TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER]: true,
   [FeatureToggle.TILTAKSADMINISTRASJON_VIS_TILSKUDDSBEHANDLING]: true,
+  [FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING]: true,
 };
 
 export const featureToggleHandlers = [
