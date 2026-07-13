@@ -24,5 +24,7 @@ export function BetalingsinformasjonDetaljer({ betalingsinformasjon }: Props) {
           <MetadataVStack label="Bank landkode" value={betalingsinformasjon.bankLandKode} />
         </VStack>
       );
+    case undefined:
+      return null;
   }
 }

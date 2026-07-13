@@ -8,7 +8,6 @@ import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.http.content.default
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
@@ -274,12 +273,66 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
                 val navIdent = getNavIdent()
 
-                request.validate()
+                request.validate().flatMap {
+                    utbetalingService.sendTilAvbrytning(id, navIdent, it)
+                }
                     .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
                     .onRight {
-                        utbetalingService.sendTilAvbrytning(id, navIdent, it)
                         call.respond(HttpStatusCode.OK)
                     }
+            }
+
+            put("/avbryt/godkjenn", {
+                description = "Godkjenn avbrytning av utbetaling"
+                tags = setOf("Utbetaling")
+                operationId = "godkjennAvbrytningUtbetaling"
+                request {
+                    pathParameterUuid("id")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetaling ble avbrutt"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+
+                utbetalingService.godkjentAvbrytning(id, navIdent)
+                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
+                    .onRight { call.respond(HttpStatusCode.OK) }
+            }
+
+            put("/avbryt/avvis", {
+                description = "Avvis avbrytning av utbetaling"
+                tags = setOf("Utbetaling")
+                operationId = "avvisAvbrytningUtbetaling"
+                request {
+                    pathParameterUuid("id")
+                    body<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetaling ble ikke avbrutt, returnert til saksbehandler"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
+                val navIdent = getNavIdent()
+                request.validate().flatMap {
+                    utbetalingService.avvisAvbrytning(id, navIdent, it)
+                }
+                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
+                    .onRight { call.respond(HttpStatusCode.OK) }
             }
         }
 

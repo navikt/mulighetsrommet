@@ -4,11 +4,12 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.nel
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
@@ -53,9 +54,10 @@ class AdminUtbetalingService(
         val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
 
         val ansatt = queries.ansatt.getOrError(navIdent)
-        val avbrytHandlingEnabled = featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING)
-        val handlinger = utbetalingHandlinger(utbetaling, ansatt, avbrytHandlingEnabled)
+        val avbrytHandlingEnabled =
+            featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING)
         val tilAvbrytning = queries.totrinnskontroll.getDto(utbetaling.id, TotrinnskontrollType.UTBETALING_AVBRYTELSE)
+        val handlinger = utbetalingHandlinger(utbetaling, ansatt, tilAvbrytning, avbrytHandlingEnabled)
 
         return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger, tilAvbrytning = tilAvbrytning)
     }
@@ -215,12 +217,28 @@ class AdminUtbetalingService(
         }
     }
 
-    fun sendTilAvbrytning(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>) = db.transaction {
-        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+    fun sendTilAvbrytning(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>): Either<List<FieldError>, Unit> = db.transaction {
         utbetalingService.sendTilAvbrytning(
-            id = utbetaling.id,
+            id = id,
             agent = navIdent,
             operation = "Utbetaling sendt til avbrytning ved behandling av utbetaling",
+            aarsaker = request.aarsaker.map { it.name },
+            forklaring = request.forklaring,
+        )
+    }
+
+    fun godkjentAvbrytning(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
+        return utbetalingService.godkjennAvbrytning(id, navIdent)
+    }
+
+    fun avvisAvbrytning(
+        id: UUID,
+        navIdent: NavIdent,
+        request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>,
+    ): Either<List<FieldError>, Unit> = db.transaction {
+        return utbetalingService.avvisAvbrytning(
+            id = id,
+            besluttetAv = navIdent,
             aarsaker = request.aarsaker.map { it.name },
             forklaring = request.forklaring,
         )
@@ -259,19 +277,35 @@ class AdminUtbetalingService(
     }
 
     companion object {
-        fun utbetalingHandlinger(utbetaling: Utbetaling, ansatt: NavAnsatt, avbrytHandlingEnabled: Boolean) = setOfNotNull(
+        fun utbetalingHandlinger(
+            utbetaling: Utbetaling,
+            ansatt: NavAnsatt,
+            tilAvbrytning: TotrinnskontrollDto?,
+            avbrytHandlingEnabled: Boolean,
+        ) = setOfNotNull(
             UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.SLETT.takeIf { utbetaling.erTilBehandling() && utbetaling.erKorreksjon() },
-            UtbetalingHandling.AVBRYT.takeIf { avbrytHandlingEnabled && utbetaling.kanAvbrytes() },
             UtbetalingHandling.OPPRETT_KORREKSJON.takeIf { utbetaling.erFerdigBehandlet() && !utbetaling.erKorreksjon() },
             UtbetalingHandling.REDIGER.takeIf { kanRedigeres(utbetaling) },
             UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
+            UtbetalingHandling.SEND_TIL_AVBRYTNING.takeIf { avbrytHandlingEnabled && utbetaling.kanAvbrytes() },
+            UtbetalingHandling.GODKJENN_AVBRYTNING.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytning) },
+            UtbetalingHandling.AVSLA_AVBRYTNING.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytning) },
         )
             .filter { handling ->
                 tilgangTilHandling(handling, ansatt)
             }
             .toSet()
+
+        private fun kanGodkjenneAvbrytning(ansatt: NavAnsatt, tilAvbrytning: TotrinnskontrollDto?) = when (tilAvbrytning) {
+            is TotrinnskontrollDto.TilBeslutning ->
+                tilAvbrytning.behandletAv != ansatt
+
+            is TotrinnskontrollDto.Besluttet,
+            null,
+            -> false
+        }
 
         fun linjeHandlinger(
             linje: UtbetalingLinje,
@@ -301,9 +335,11 @@ class AdminUtbetalingService(
                 UtbetalingHandling.REDIGER -> saksbehandlerOkonomi
                 UtbetalingHandling.SEND_TIL_ATTESTERING -> saksbehandlerOkonomi
                 UtbetalingHandling.SLETT -> saksbehandlerOkonomi
-                UtbetalingHandling.AVBRYT -> saksbehandlerOkonomi
                 UtbetalingHandling.HENT_GODKJENTE_TILSAGN -> saksbehandlerOkonomi
                 UtbetalingHandling.OPPRETT_TILSAGN -> saksbehandlerOkonomi
+                UtbetalingHandling.SEND_TIL_AVBRYTNING -> saksbehandlerOkonomi
+                UtbetalingHandling.GODKJENN_AVBRYTNING -> saksbehandlerOkonomi
+                UtbetalingHandling.AVSLA_AVBRYTNING -> saksbehandlerOkonomi
             }
         }
 

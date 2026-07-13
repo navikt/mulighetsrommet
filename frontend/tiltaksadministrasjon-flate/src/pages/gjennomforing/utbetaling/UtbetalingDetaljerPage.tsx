@@ -131,9 +131,9 @@ export function UtbetalingDetaljerPage() {
             {
               items: [
                 {
-                  handling: UtbetalingHandling.AVBRYT,
+                  handling: UtbetalingHandling.SEND_TIL_AVBRYTNING,
                   label: utbetalingTekster.avbrutt.handling.button.label,
-                  onClick: () => setModalVariant(UtbetalingHandling.AVBRYT),
+                  onClick: () => setModalVariant(UtbetalingHandling.SEND_TIL_AVBRYTNING),
                   variant: "danger",
                   icon: <XMarkIcon />,
                 },
@@ -176,7 +176,7 @@ export function UtbetalingDetaljerPage() {
         />
         <UtbetalingAvbrytModal
           utbetalingId={utbetaling.id}
-          open={modalVariant === UtbetalingHandling.AVBRYT}
+          open={modalVariant === UtbetalingHandling.SEND_TIL_AVBRYTNING}
           onClose={() => setModalVariant(null)}
         />
         <OpprettKorreksjonModal
@@ -319,6 +319,24 @@ export function UtbetalingDetaljerPage() {
           handlinger={handlinger}
           form={form}
         />
+        <HStack gap="space-8" justify={"end"}>
+          {handlinger.includes(UtbetalingHandling.AVSLA_AVBRYTNING) && (
+            <Button variant="secondary" size="small" type="button" onClick={() => {}}>
+              Avslå avbrytning
+            </Button>
+          )}
+          {handlinger.includes(UtbetalingHandling.GODKJENN_AVBRYTNING) && (
+            <Button
+              data-color="danger"
+              size="small"
+              variant="primary"
+              type="button"
+              onClick={() => {}}
+            >
+              Bekreft avbrytning
+            </Button>
+          )}
+        </HStack>
       </VStack>
     </VStack>
   );
