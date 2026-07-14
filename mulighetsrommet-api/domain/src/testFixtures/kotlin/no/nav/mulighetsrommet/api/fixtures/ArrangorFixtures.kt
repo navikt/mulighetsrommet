@@ -1,83 +1,56 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.util.UUID
 
-fun ArrangorDto.toArrangor() = if (erUtenlandsk) {
-    Arrangor.Utenlandsk(
-        id = id,
-        organisasjonsnummer = organisasjonsnummer,
-        organisasjonsform = organisasjonsform,
-        navn = navn,
-        overordnetEnhet = overordnetEnhet,
-        slettetDato = slettetDato,
-    )
-} else {
-    Arrangor.Norsk(
-        id = id,
-        organisasjonsnummer = organisasjonsnummer,
-        organisasjonsform = organisasjonsform,
-        navn = navn,
-        overordnetEnhet = overordnetEnhet,
-        slettetDato = slettetDato,
-    )
-}
-
 object ArrangorFixtures {
     object Fretex {
-        val hovedenhet = ArrangorDto(
+        val hovedenhet = Arrangor.Norsk(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("983982433"),
             organisasjonsform = "AS",
             navn = "FRETEX AS",
-            erUtenlandsk = false,
         )
 
-        val underenhet1 = ArrangorDto(
+        val underenhet1 = Arrangor.Norsk(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("992943084"),
             organisasjonsform = "BEDR",
             overordnetEnhet = Organisasjonsnummer("983982433"),
             navn = "FRETEX AS AVD OSLO",
-            erUtenlandsk = false,
         )
     }
 
-    val hovedenhet = ArrangorDto(
+    val hovedenhet = Arrangor.Norsk(
         id = UUID.randomUUID(),
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = "AS",
         navn = "Hovedenhet AS",
-        erUtenlandsk = false,
     )
 
-    val underenhet1 = ArrangorDto(
+    val underenhet1 = Arrangor.Norsk(
         id = UUID.randomUUID(),
         organisasjonsnummer = Organisasjonsnummer("976663934"),
         organisasjonsform = "BEDR",
         overordnetEnhet = Organisasjonsnummer("123456789"),
         navn = "Underenhet 1 AS",
-        erUtenlandsk = false,
     )
 
-    val underenhet2 = ArrangorDto(
+    val underenhet2 = Arrangor.Norsk(
         id = UUID.randomUUID(),
         organisasjonsnummer = Organisasjonsnummer("890765789"),
         organisasjonsform = "BEDR",
         overordnetEnhet = Organisasjonsnummer("123456789"),
-        erUtenlandsk = false,
         navn = "Underenhet 2 AS",
     )
 
     object Utenlandsk {
-        val hovedenhet = ArrangorDto(
+        val hovedenhet = Arrangor.Utenlandsk(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("100000001"),
             organisasjonsform = "AS",
             navn = "Utenlandsk Tiger AS",
-            erUtenlandsk = true,
         )
     }
 }

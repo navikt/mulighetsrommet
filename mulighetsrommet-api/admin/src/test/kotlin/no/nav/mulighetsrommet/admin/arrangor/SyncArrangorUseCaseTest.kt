@@ -23,16 +23,16 @@ import java.time.LocalDate
 import java.util.UUID
 
 class SyncArrangorUseCaseTest : FunSpec({
+    val hovedenhet = Hovedenhet(
+        organisasjonsnummer = Organisasjonsnummer("123456789"),
+        organisasjonsform = "AS",
+        navn = "Testbedriften AS",
+    )
     val underenhet = Underenhet(
         organisasjonsnummer = Organisasjonsnummer("234567891"),
         organisasjonsform = "BEDR",
         navn = "Underenhet til Testbedriften AS",
         overordnetEnhet = Organisasjonsnummer("123456789"),
-    )
-    val hovedenhet = Hovedenhet(
-        organisasjonsnummer = Organisasjonsnummer("123456789"),
-        organisasjonsform = "AS",
-        navn = "Testbedriften AS",
     )
 
     context("get or sync arrangør fra enhetsregisteret") {

@@ -8,6 +8,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.admin.arrangor.toDto
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
@@ -121,7 +122,7 @@ class GjennomforingValidatorTest : FunSpec({
     val ctx = GjennomforingValidator.Context(
         today = LocalDate.now(),
         avtale = avtale,
-        arrangor = ArrangorFixtures.underenhet1,
+        arrangor = ArrangorFixtures.underenhet1.toDto(),
         kategorisering = kategoriseringCtx,
         previous = null,
     )
@@ -329,7 +330,7 @@ class GjennomforingValidatorTest : FunSpec({
     test("arrangøren må være aktiv i Brreg") {
         validateCreate(
             request,
-            ctx.copy(arrangor = ArrangorFixtures.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1))),
+            ctx.copy(arrangor = ArrangorFixtures.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)).toDto()),
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
             FieldError(
                 "/arrangorId",

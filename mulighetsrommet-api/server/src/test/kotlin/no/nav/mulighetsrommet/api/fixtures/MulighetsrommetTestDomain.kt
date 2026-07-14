@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 data class MulighetsrommetTestDomain(
     val navEnheter: List<NavEnhet> = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
     val ansatte: List<NavAnsatt> = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-    val arrangorer: List<ArrangorDto> = listOf(
+    val arrangorer: List<Arrangor> = listOf(
         ArrangorFixtures.hovedenhet,
         ArrangorFixtures.underenhet1,
         ArrangorFixtures.underenhet2,
@@ -70,9 +70,9 @@ data class MulighetsrommetTestDomain(
 
             navEnheter.forEach { queries.enhet.save(it) }
             ansatte.forEach { queries.ansatt.save(it) }
-            arrangorer.forEach { dto ->
-                val kontaktpersoner = arrangorKontaktpersoner.filter { it.arrangorId == dto.id }
-                queries.arrangor.save(dto.toArrangor().medKontaktpersoner(kontaktpersoner))
+            arrangorer.forEach { arrangor ->
+                val kontaktpersoner = arrangorKontaktpersoner.filter { it.arrangorId == arrangor.id }
+                repository.arrangor.save(arrangor.medKontaktpersoner(kontaktpersoner))
             }
             tiltakstyper.forEach { repository.tiltakstype.save(it) }
             prismodeller.forEach { queries.prismodell.upsert(it) }

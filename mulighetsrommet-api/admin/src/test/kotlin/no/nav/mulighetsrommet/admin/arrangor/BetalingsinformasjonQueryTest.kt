@@ -8,37 +8,18 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
-import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.model.Kontonummer
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import java.util.UUID
 
 class BetalingsinformasjonQueryTest : FunSpec({
-    val arrangorId = UUID.randomUUID()
-    val organisasjonsnummer = Organisasjonsnummer("123456789")
-
-    fun norskArrangor() = Arrangor.Norsk(
-        id = arrangorId,
-        organisasjonsnummer = organisasjonsnummer,
-        organisasjonsform = "AS",
-        navn = "Fretex AS",
-    )
-
-    fun utenlandskArrangor(
-        betalingsinformasjon: Betalingsinformasjon.IBan? = null,
-    ) = Arrangor.Utenlandsk(
-        id = arrangorId,
-        organisasjonsnummer = organisasjonsnummer,
-        organisasjonsform = "AS",
-        navn = "Fretex AS",
-        betalingsinformasjon = betalingsinformasjon,
-    )
+    val arrangor = ArrangorFixtures.hovedenhet
+    val utenlandsk = ArrangorFixtures.Utenlandsk.hovedenhet
 
     test("henter IBan for utenlandsk arrangør") {
         val db = TestAdminDatabase()
         db.repository.arrangor.save(
-            utenlandskArrangor(
+            utenlandsk.copy(
                 betalingsinformasjon = Betalingsinformasjon.IBan(
                     bic = "DABANOKKXXX",
                     iban = "NO9386011117947",
@@ -48,7 +29,7 @@ class BetalingsinformasjonQueryTest : FunSpec({
             ),
         )
 
-        val result = BetalingsinformasjonQuery(db, mockk()).execute(HentBetalingsinformasjon(arrangorId))
+        val result = BetalingsinformasjonQuery(db, mockk()).execute(HentBetalingsinformasjon(utenlandsk.id))
 
         result shouldBe Betalingsinformasjon.IBan(
             bic = "DABANOKKXXX",
@@ -60,10 +41,10 @@ class BetalingsinformasjonQueryTest : FunSpec({
 
     test("kaster exception når utenlandsk arrangør mangler betalingsinformasjon") {
         val db = TestAdminDatabase()
-        db.repository.arrangor.save(utenlandskArrangor())
+        db.repository.arrangor.save(utenlandsk.copy(betalingsinformasjon = null))
 
         shouldThrow<IllegalArgumentException> {
-            BetalingsinformasjonQuery(db, mockk()).execute(HentBetalingsinformasjon(arrangorId))
+            BetalingsinformasjonQuery(db, mockk()).execute(HentBetalingsinformasjon(utenlandsk.id))
         }
     }
 
@@ -71,40 +52,46 @@ class BetalingsinformasjonQueryTest : FunSpec({
         val db = TestAdminDatabase()
 
         shouldThrow<IllegalArgumentException> {
-            BetalingsinformasjonQuery(db, mockk()).execute(HentBetalingsinformasjon(arrangorId))
+            BetalingsinformasjonQuery(db, mockk()).execute(HentBetalingsinformasjon(arrangor.id))
         }
     }
 
     test("henter BBan for norsk arrangør via kontoregister") {
-        val db = TestAdminDatabase()
-        db.repository.arrangor.save(norskArrangor())
-        val kontoregister = mockk<KontoregisterGateway>()
-        coEvery { kontoregister.hentKontonummer(organisasjonsnummer) } returns Kontonummer("12345678901").right()
+        val kontoregister = mockk<KontoregisterGateway> {
+            coEvery { hentKontonummer(arrangor.organisasjonsnummer) } returns Kontonummer("12345678901").right()
+        }
 
-        val result = BetalingsinformasjonQuery(db, kontoregister).execute(HentBetalingsinformasjon(arrangorId))
+        val db = TestAdminDatabase()
+        db.repository.arrangor.save(arrangor)
+
+        val result = BetalingsinformasjonQuery(db, kontoregister).execute(HentBetalingsinformasjon(arrangor.id))
 
         result shouldBe Betalingsinformasjon.BBan(Kontonummer("12345678901"), null)
     }
 
     test("returnerer null når kontoregister ikke finner kontonummer") {
-        val db = TestAdminDatabase()
-        db.repository.arrangor.save(norskArrangor())
-        val kontoregister = mockk<KontoregisterGateway>()
-        coEvery { kontoregister.hentKontonummer(organisasjonsnummer) } returns KontoregisterError.IkkeFunnet.left()
+        val kontoregister = mockk<KontoregisterGateway> {
+            coEvery { hentKontonummer(arrangor.organisasjonsnummer) } returns KontoregisterError.IkkeFunnet.left()
+        }
 
-        val result = BetalingsinformasjonQuery(db, kontoregister).execute(HentBetalingsinformasjon(arrangorId))
+        val db = TestAdminDatabase()
+        db.repository.arrangor.save(arrangor)
+
+        val result = BetalingsinformasjonQuery(db, kontoregister).execute(HentBetalingsinformasjon(arrangor.id))
 
         result shouldBe null
     }
 
     test("kaster exception når kontoregister feiler") {
+        val kontoregister = mockk<KontoregisterGateway> {
+            coEvery { hentKontonummer(arrangor.organisasjonsnummer) } returns KontoregisterError.Feil.left()
+        }
+
         val db = TestAdminDatabase()
-        db.repository.arrangor.save(norskArrangor())
-        val kontoregister = mockk<KontoregisterGateway>()
-        coEvery { kontoregister.hentKontonummer(organisasjonsnummer) } returns KontoregisterError.Feil.left()
+        db.repository.arrangor.save(arrangor)
 
         shouldThrow<IllegalStateException> {
-            BetalingsinformasjonQuery(db, kontoregister).execute(HentBetalingsinformasjon(arrangorId))
+            BetalingsinformasjonQuery(db, kontoregister).execute(HentBetalingsinformasjon(arrangor.id))
         }
     }
 })

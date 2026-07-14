@@ -15,7 +15,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
-import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
@@ -24,6 +23,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -948,26 +948,23 @@ class AvtaleQueriesTest : FunSpec({
     }
 
     context("Sortering") {
-        val arrangorA = ArrangorDto(
+        val arrangorA = Arrangor.Norsk(
             id = UUID.randomUUID(),
             navn = "alvdal",
             organisasjonsnummer = Organisasjonsnummer("987654321"),
             organisasjonsform = "BEDR",
-            erUtenlandsk = false,
         )
-        val arrangorB = ArrangorDto(
+        val arrangorB = Arrangor.Norsk(
             id = UUID.randomUUID(),
             navn = "bjarne",
             organisasjonsnummer = Organisasjonsnummer("123456789"),
             organisasjonsform = "BEDR",
-            erUtenlandsk = false,
         )
-        val arrangorC = ArrangorDto(
+        val arrangorC = Arrangor.Norsk(
             id = UUID.randomUUID(),
             navn = "chris",
             organisasjonsnummer = Organisasjonsnummer("999888777"),
             organisasjonsform = "BEDR",
-            erUtenlandsk = false,
         )
         val domain = MulighetsrommetTestDomain(
             arrangorer = listOf(arrangorA, arrangorB, arrangorC),

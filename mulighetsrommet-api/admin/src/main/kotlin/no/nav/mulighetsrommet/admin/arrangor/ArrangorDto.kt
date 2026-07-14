@@ -27,13 +27,13 @@ data class ArrangorDto(
     val erUtenlandsk: Boolean,
 )
 
-fun Arrangor.toDto() = ArrangorDto(
+fun Arrangor.toDto(underenheter: List<ArrangorDto>? = null) = ArrangorDto(
     id = id,
     organisasjonsnummer = organisasjonsnummer,
     organisasjonsform = organisasjonsform,
     navn = navn,
     overordnetEnhet = overordnetEnhet,
-    underenheter = listOf(),
+    underenheter = underenheter,
     slettetDato = slettetDato,
     erUtenlandsk = this is Arrangor.Utenlandsk,
 )

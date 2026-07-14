@@ -7,26 +7,16 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
-import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import java.util.UUID
 
 class ArrangorKontaktpersonServiceTest : FunSpec({
-    val arrangorId = UUID.randomUUID()
-
-    fun arrangor(kontaktpersoner: List<ArrangorKontaktperson> = emptyList()) = Arrangor.Norsk(
-        id = arrangorId,
-        overordnetEnhet = null,
-        organisasjonsnummer = Organisasjonsnummer("123456789"),
-        organisasjonsform = "AS",
-        navn = "Fretex AS",
-        kontaktpersoner = kontaktpersoner,
-    )
+    val arrangor = ArrangorFixtures.hovedenhet
 
     fun kontaktperson(id: UUID = UUID.randomUUID()) = ArrangorKontaktperson(
         id = id,
-        arrangorId = arrangorId,
+        arrangorId = arrangor.id,
         navn = "Kari Nordmann",
         beskrivelse = null,
         telefon = null,
@@ -38,24 +28,24 @@ class ArrangorKontaktpersonServiceTest : FunSpec({
         test("legger til ny kontaktperson på arrangør") {
             val db = TestAdminDatabase()
             val service = ArrangorKontaktpersonService(db)
-            db.repository.arrangor.save(arrangor())
+            db.repository.arrangor.save(arrangor)
 
             val person = kontaktperson()
             service.upsert(person)
 
-            db.repository.arrangor.get(arrangorId).kontaktpersoner shouldBe listOf(person)
+            db.repository.arrangor.get(arrangor.id).kontaktpersoner shouldBe listOf(person)
         }
 
         test("erstatter eksisterende kontaktperson med samme id") {
             val db = TestAdminDatabase()
             val service = ArrangorKontaktpersonService(db)
             val person = kontaktperson()
-            db.repository.arrangor.save(arrangor(listOf(person)))
+            db.repository.arrangor.save(arrangor.medKontaktpersoner(listOf(person)))
 
             val oppdatert = person.copy(navn = "Ola Nordmann")
             service.upsert(oppdatert)
 
-            db.repository.arrangor.get(arrangorId).kontaktpersoner shouldBe listOf(oppdatert)
+            db.repository.arrangor.get(arrangor.id).kontaktpersoner shouldBe listOf(oppdatert)
         }
 
         test("kaster exception når arrangør ikke finnes") {
@@ -73,39 +63,39 @@ class ArrangorKontaktpersonServiceTest : FunSpec({
             val db = TestAdminDatabase()
             val service = ArrangorKontaktpersonService(db)
             val person = kontaktperson()
-            db.repository.arrangor.save(arrangor(listOf(person)))
+            db.repository.arrangor.save(arrangor.medKontaktpersoner(listOf(person)))
             every { db.queries.arrangor.koblingerTilKontaktperson(person.id) } returns (emptyList<DokumentKoblingForKontaktperson>() to emptyList())
 
-            service.delete(arrangorId, person.id).shouldBeRight()
+            service.delete(arrangor.id, person.id).shouldBeRight()
 
-            db.repository.arrangor.get(arrangorId).kontaktpersoner shouldBe emptyList()
+            db.repository.arrangor.get(arrangor.id).kontaktpersoner shouldBe emptyList()
         }
 
         test("returnerer KontaktpersonErIBruk når kontaktperson har koblinger til gjennomføringer") {
             val db = TestAdminDatabase()
             val person = kontaktperson()
-            db.repository.arrangor.save(arrangor(listOf(person)))
+            db.repository.arrangor.save(arrangor.medKontaktpersoner(listOf(person)))
             val kobling = DokumentKoblingForKontaktperson(UUID.randomUUID(), "Gjennomføring 1")
             every { db.queries.arrangor.koblingerTilKontaktperson(person.id) } returns Pair(
                 listOf(kobling),
                 listOf(),
             )
 
-            ArrangorKontaktpersonService(db).delete(arrangorId, person.id)
+            ArrangorKontaktpersonService(db).delete(arrangor.id, person.id)
                 .shouldBeLeft(ArrangorKontaktpersonError.KontaktpersonErIBruk)
         }
 
         test("returnerer KontaktpersonErIBruk når kontaktperson har koblinger til avtaler") {
             val db = TestAdminDatabase()
             val person = kontaktperson()
-            db.repository.arrangor.save(arrangor(listOf(person)))
+            db.repository.arrangor.save(arrangor.medKontaktpersoner(listOf(person)))
             val kobling = DokumentKoblingForKontaktperson(UUID.randomUUID(), "Avtale 1")
             every { db.queries.arrangor.koblingerTilKontaktperson(person.id) } returns Pair(
                 listOf(),
                 listOf(kobling),
             )
 
-            ArrangorKontaktpersonService(db).delete(arrangorId, person.id)
+            ArrangorKontaktpersonService(db).delete(arrangor.id, person.id)
                 .shouldBeLeft(ArrangorKontaktpersonError.KontaktpersonErIBruk)
         }
 
@@ -122,9 +112,9 @@ class ArrangorKontaktpersonServiceTest : FunSpec({
         test("henter alle kontaktpersoner for arrangør") {
             val db = TestAdminDatabase()
             val kontaktpersoner = listOf(kontaktperson())
-            every { db.queries.arrangor.getKontaktpersoner(arrangorId) } returns kontaktpersoner
+            every { db.queries.arrangor.getKontaktpersoner(arrangor.id) } returns kontaktpersoner
 
-            ArrangorKontaktpersonService(db).hentAlle(arrangorId) shouldBe kontaktpersoner
+            ArrangorKontaktpersonService(db).hentAlle(arrangor.id) shouldBe kontaktpersoner
         }
     }
 

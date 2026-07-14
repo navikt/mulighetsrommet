@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.toArrangor
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -82,7 +81,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             val arrangorer = mockk<SyncArrangorUseCase>()
             coEvery {
                 arrangorer.execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
-            } returns ArrangorFixtures.underenhet1.toArrangor().right()
+            } returns ArrangorFixtures.underenhet1.right()
 
             val consumer = createConsumer(service, arrangorer)
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
@@ -146,7 +145,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             val arrangorer = mockk<SyncArrangorUseCase>()
             coEvery {
                 arrangorer.execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
-            } returns ArrangorFixtures.underenhet1.toArrangor().right()
+            } returns ArrangorFixtures.underenhet1.right()
 
             val consumer = createConsumer(service, arrangorer)
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))

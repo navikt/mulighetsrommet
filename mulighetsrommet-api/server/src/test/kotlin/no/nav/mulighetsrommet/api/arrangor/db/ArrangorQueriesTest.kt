@@ -5,6 +5,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.should
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorKobling
+import no.nav.mulighetsrommet.admin.arrangor.toDto
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -32,7 +33,10 @@ class ArrangorQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.arrangor.getAll().items shouldContainExactlyInAnyOrder listOf(hovedenhet, underenhet)
+                queries.arrangor.getAll().items shouldContainExactlyInAnyOrder listOf(
+                    hovedenhet.toDto(),
+                    underenhet.toDto(),
+                )
                 queries.arrangor.getAll(kobling = ArrangorKobling.AVTALE).should {
                     it.items shouldContainExactlyIds listOf(hovedenhet.id)
                 }
