@@ -144,13 +144,6 @@ export function UtbetalingDetaljerPage() {
             {
               items: [
                 {
-                  handling: UtbetalingHandling.SEND_TIL_AVBRYTNING,
-                  label: utbetalingTekster.avbrutt.handling.button.label,
-                  onClick: () => setModalVariant(UtbetalingHandling.SEND_TIL_AVBRYTNING),
-                  variant: "danger",
-                  icon: <XMarkIcon />,
-                },
-                {
                   handling: UtbetalingHandling.REDIGER,
                   label: "Rediger utbetaling",
                   href: "rediger-utbetaling",
@@ -177,6 +170,17 @@ export function UtbetalingDetaljerPage() {
                     ),
                   icon: <FileCheckmarkIcon />,
                 },
+              ],
+            },
+            {
+              items: [
+                {
+                  handling: UtbetalingHandling.SEND_TIL_AVBRYTNING,
+                  label: utbetalingTekster.avbrutt.handling.sendTilAvbrytning.label,
+                  onClick: () => setModalVariant(UtbetalingHandling.SEND_TIL_AVBRYTNING),
+                  variant: "danger",
+                  icon: <XMarkIcon />,
+                },
                 {
                   handling: UtbetalingHandling.SLETT,
                   label: "Slett utbetaling",
@@ -189,8 +193,7 @@ export function UtbetalingDetaljerPage() {
         />
       </HStack>
       <VStack gap="space-12">
-        {tilAvbrytning && ("Har avbrytning"
-        )}
+        {tilAvbrytning && "Har avbrytning"}
         <HGrid columns="1fr auto" align="start">
           <TwoColumnGrid separator>
             <Box>
@@ -321,18 +324,17 @@ export function UtbetalingDetaljerPage() {
               type="button"
               onClick={() => setModalVariant(UtbetalingHandling.AVVIS_AVBRYTNING)}
             >
-              Avslå avbrytning
+              {utbetalingTekster.avbrutt.handling.godkjenn.label}
             </Button>
           )}
           {handlinger.includes(UtbetalingHandling.GODKJENN_AVBRYTNING) && (
             <Button
-              //data-color="danger"
               size="small"
               variant="primary"
               type="button"
               onClick={() => godkjennAvbytUtbetaling()}
             >
-              Bekreft avbrytning
+              {utbetalingTekster.avbrutt.handling.godkjenn.label}
             </Button>
           )}
 

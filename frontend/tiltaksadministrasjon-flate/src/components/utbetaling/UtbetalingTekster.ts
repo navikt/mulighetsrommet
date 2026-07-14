@@ -47,26 +47,38 @@ export const utbetalingTekster = {
   },
   avbrutt: {
     handling: {
-      button: {
+      sendTilAvbrytning: {
         label: "Avbryt utbetalingskrav",
       },
+      godkjenn: {
+        label: "Bekreft avbrytelse",
+      },
+      avvis: {
+        label: "Avslå avbrytelse",
+      },
     },
-    aarsak: {
-      modal: {
+    modal: {
+      sendTilAvbrytning: {
         header: "Du er i ferd med å avbryte et utbetalingskrav",
         ingress: "Arrangør vil ikke få noen utbetaling for perioden.",
         button: {
           label: "Send til godkjenning",
         },
       },
-      fraAarsak: (aarsak: UtbetalingStatusAarsak): string => {
-        switch (aarsak) {
-          case UtbetalingStatusAarsak.TILSAGN_GJORT_OPP:
-            return "Tilsagnsmidler er brukt opp";
-          case UtbetalingStatusAarsak.ANNET:
-            return "Annet";
-        }
+      avvis: {
+        header: "Avslå avbrytelse med forklaring",
+        button: {
+          label: "Avslå avbrytelse",
+        },
       },
+    },
+    fraAarsak: (aarsak: UtbetalingStatusAarsak): string => {
+      switch (aarsak) {
+        case UtbetalingStatusAarsak.TILSAGN_GJORT_OPP:
+          return "Tilsagnsmidler er brukt opp";
+        case UtbetalingStatusAarsak.ANNET:
+          return "Annet";
+      }
     },
   },
   linje: {

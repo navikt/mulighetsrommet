@@ -8,7 +8,6 @@ import { useAvvisAvbrytUtbetaling } from "@/api/utbetaling/mutations";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { useState } from "react";
 import { utbetalingTekster } from "./UtbetalingTekster";
-import { BodyShort } from "@navikt/ds-react";
 
 interface AvvisAvbrytUtbetalingModalProps {
   utbetalingId: string;
@@ -41,7 +40,7 @@ export function AvvisAvbrytUtbetalingModal({
   const avvisAarsakValg = [UtbetalingStatusAarsak.ANNET].map((val) => {
     return {
       value: val,
-      label: utbetalingTekster.avbrutt.aarsak.fraAarsak(val),
+      label: utbetalingTekster.avbrutt.fraAarsak(val),
     };
   });
 
@@ -50,10 +49,9 @@ export function AvvisAvbrytUtbetalingModal({
       width={750}
       open={open}
       onClose={onClose}
-      header={utbetalingTekster.avbrutt.aarsak.modal.header}
-      ingress={<BodyShort>{utbetalingTekster.avbrutt.aarsak.modal.ingress}</BodyShort>}
+      header={utbetalingTekster.avbrutt.modal.avvis.header}
       aarsaker={avvisAarsakValg}
-      buttonLabel={utbetalingTekster.avbrutt.aarsak.modal.button.label}
+      buttonLabel={utbetalingTekster.avbrutt.modal.avvis.button.label}
       errors={errors}
       onConfirm={(request) => avvisAvbrytUtbetaling(request)}
     />

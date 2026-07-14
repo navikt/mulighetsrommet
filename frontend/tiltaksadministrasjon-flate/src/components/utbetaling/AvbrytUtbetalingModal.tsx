@@ -40,7 +40,7 @@ export function AvbrytUtbetalingModal({ utbetalingId, open, onClose }: AvbrytUtb
   ].map((val) => {
     return {
       value: val,
-      label: utbetalingTekster.avbrutt.aarsak.fraAarsak(val),
+      label: utbetalingTekster.avbrutt.fraAarsak(val),
     };
   });
   return (
@@ -48,10 +48,10 @@ export function AvbrytUtbetalingModal({ utbetalingId, open, onClose }: AvbrytUtb
       width={750}
       open={open}
       onClose={onClose}
-      header={utbetalingTekster.avbrutt.aarsak.modal.header}
-      ingress={<BodyShort>{utbetalingTekster.avbrutt.aarsak.modal.ingress}</BodyShort>}
+      header={utbetalingTekster.avbrutt.modal.sendTilAvbrytning.header}
+      ingress={<BodyShort>{utbetalingTekster.avbrutt.modal.sendTilAvbrytning.ingress}</BodyShort>}
       aarsaker={avbrytUtbetalingAarsakValg}
-      buttonLabel={utbetalingTekster.avbrutt.aarsak.modal.button.label}
+      buttonLabel={utbetalingTekster.avbrutt.modal.sendTilAvbrytning.button.label}
       errors={errors}
       onConfirm={(request) => avbrytUtbetaling(request)}
     />
