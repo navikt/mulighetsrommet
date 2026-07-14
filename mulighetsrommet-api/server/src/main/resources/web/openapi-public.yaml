@@ -84,6 +84,52 @@ paths:
           description: Gjennomføringen ble ikke funnet
           headers: {}
       deprecated: false
+  /api/v1/virksomhet/underenhet:
+    get:
+      tags:
+      - Arrangor
+      description: Søk etter unrderenhet på orgnr eller navn
+      operationId: sokUnderenhet
+      parameters:
+      - name: sok
+        in: query
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Liste med underenheter
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BrregUnderenhetDto"
+        "400":
+          description: Søket er blankt
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Internal server error ved kall mot Brreg
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/v1/arrangor/underenhet:
     get:
       tags:
