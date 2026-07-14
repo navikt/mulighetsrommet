@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
-import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
@@ -24,7 +23,6 @@ data class MulighetsrommetTestDomain(
         ArrangorFixtures.underenhet1,
         ArrangorFixtures.underenhet2,
     ),
-    val arrangorKontaktpersoner: List<ArrangorKontaktperson> = listOf(),
     val tiltakstyper: List<Tiltakstype> = listOf(
         TiltakstypeFixtures.Oppfolging,
         TiltakstypeFixtures.Arbeidstrening,
@@ -70,10 +68,7 @@ data class MulighetsrommetTestDomain(
 
             navEnheter.forEach { queries.enhet.save(it) }
             ansatte.forEach { queries.ansatt.save(it) }
-            arrangorer.forEach { arrangor ->
-                val kontaktpersoner = arrangorKontaktpersoner.filter { it.arrangorId == arrangor.id }
-                repository.arrangor.save(arrangor.medKontaktpersoner(kontaktpersoner))
-            }
+            arrangorer.forEach { repository.arrangor.save(it) }
             tiltakstyper.forEach { repository.tiltakstype.save(it) }
             prismodeller.forEach { queries.prismodell.upsert(it) }
             regelverklenke.forEach { queries.regelverklenke.upsert(it) }

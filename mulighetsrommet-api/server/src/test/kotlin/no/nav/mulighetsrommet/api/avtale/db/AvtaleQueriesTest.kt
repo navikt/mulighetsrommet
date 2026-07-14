@@ -268,7 +268,10 @@ class AvtaleQueriesTest : FunSpec({
 
             database.runAndRollback {
                 MulighetsrommetTestDomain(
-                    arrangorKontaktpersoner = listOf(p1, p2, p3),
+                    arrangorer = listOf(
+                        ArrangorFixtures.hovedenhet.medKontaktpersoner(listOf(p1, p2, p3)),
+                        ArrangorFixtures.underenhet1,
+                    ),
                     avtaler = listOf(avtale),
                 ).initialize()
 
@@ -387,6 +390,7 @@ class AvtaleQueriesTest : FunSpec({
                     navn = "Fredrik Navnesen",
                     telefon = "32322",
                 )
+                val hovedenhet = ArrangorFixtures.hovedenhet.medKontaktpersoner(listOf(p1, p2))
                 val underenhet1 = ArrangorFixtures.underenhet1
                 val underenhet2 = ArrangorFixtures.underenhet2
 
@@ -401,7 +405,7 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 MulighetsrommetTestDomain(
-                    arrangorKontaktpersoner = listOf(p1, p2),
+                    arrangorer = listOf(hovedenhet, underenhet1, underenhet2),
                     avtaler = listOf(avtale),
                 ).initialize()
 
