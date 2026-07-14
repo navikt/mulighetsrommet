@@ -7,21 +7,20 @@ import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 interface RammedetaljerProps {
   rammedetaljer: RammedetaljerDto;
 }
+
 export function AvtaleRammedetaljer({ rammedetaljer }: RammedetaljerProps) {
   switch (rammedetaljer.type) {
     case "TOTAL_RAMME":
       return <TotalRammeDetaljer detaljer={rammedetaljer} />;
     case "TOTALT_UTBETALT":
       return <TotaltUtbetaltDetaljer detaljer={rammedetaljer} />;
-    case undefined:
-    default:
-      return null;
   }
 }
 
 interface TotalRammeDetaljerProps {
   detaljer: TotalRamme;
 }
+
 function TotalRammeDetaljer({ detaljer }: TotalRammeDetaljerProps) {
   return (
     <>

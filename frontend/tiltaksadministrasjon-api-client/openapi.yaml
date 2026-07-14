@@ -7519,7 +7519,7 @@ components:
       - SLETT
       - SEND_TIL_AVBRYTNING
       - GODKJENN_AVBRYTNING
-      - AVSLA_AVBRYTNING
+      - AVVIS_AVBRYTNING
       - HENT_GODKJENTE_TILSAGN
       - OPPRETT_TILSAGN
     UtbetalingDetaljerDto:

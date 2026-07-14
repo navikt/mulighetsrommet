@@ -291,7 +291,7 @@ class AdminUtbetalingService(
             UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.SEND_TIL_AVBRYTNING.takeIf { avbrytHandlingEnabled && utbetaling.kanAvbrytes() },
             UtbetalingHandling.GODKJENN_AVBRYTNING.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytning) },
-            UtbetalingHandling.AVSLA_AVBRYTNING.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytning) },
+            UtbetalingHandling.AVVIS_AVBRYTNING.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytning) },
         )
             .filter { handling ->
                 tilgangTilHandling(handling, ansatt)
@@ -339,7 +339,7 @@ class AdminUtbetalingService(
                 UtbetalingHandling.OPPRETT_TILSAGN -> saksbehandlerOkonomi
                 UtbetalingHandling.SEND_TIL_AVBRYTNING -> saksbehandlerOkonomi
                 UtbetalingHandling.GODKJENN_AVBRYTNING -> saksbehandlerOkonomi
-                UtbetalingHandling.AVSLA_AVBRYTNING -> saksbehandlerOkonomi
+                UtbetalingHandling.AVVIS_AVBRYTNING -> saksbehandlerOkonomi
             }
         }
 
