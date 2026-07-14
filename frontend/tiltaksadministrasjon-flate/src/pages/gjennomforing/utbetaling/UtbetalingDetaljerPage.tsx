@@ -10,6 +10,7 @@ import {
   OpprettUtbetalingLinjerRequest,
   FieldError,
   ValidationError,
+  UtbetalingStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import {
@@ -44,6 +45,7 @@ import { RedigerUtbetalingLinjeView } from "@/components/utbetaling/RedigerUtbet
 import {
   MetadataFritekstfelt,
   MetadataVStack,
+  Separator,
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -66,6 +68,8 @@ import { AvvisAvbrytUtbetalingModal } from "@/components/utbetaling/AvvisAvbrytU
 import { useGodkjennAvbrytUtbetaling } from "@/api/utbetaling/mutations";
 import { ErrorFieldSummary } from "@/components/skjema/ValideringsfeilOppsummering";
 import { ToTrinnsAvbrytelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollAvbrytningForklaring";
+import { TotrinnsBegrunnelse } from "@/components/totrinnskontroll/TotrinnsBegrunnelse";
+import { aarsakTilTekst } from "@/utils/Utils";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
@@ -194,7 +198,9 @@ export function UtbetalingDetaljerPage() {
         />
       </HStack>
       <VStack gap="space-12">
-        {tilAvbrytning && <ToTrinnsAvbrytelseForklaring avbrytelse={tilAvbrytning} />}
+        {utbetaling.status.type !== UtbetalingStatusDtoType.AVBRUTT && tilAvbrytning && (
+          <ToTrinnsAvbrytelseForklaring avbrytelse={tilAvbrytning} />
+        )}
         <HGrid columns="1fr auto" align="start">
           <TwoColumnGrid separator>
             <Box>
@@ -307,6 +313,18 @@ export function UtbetalingDetaljerPage() {
                 )}
               </VStack>
             </Box>
+            {utbetaling.status.type === UtbetalingStatusDtoType.AVBRUTT && tilAvbrytning && (
+              <>
+                <Separator />
+                <TotrinnsBegrunnelse
+                  title="Begrunnelse for avbrytelse"
+                  aarsaker={tilAvbrytning.aarsaker.map((arsak) =>
+                    aarsakTilTekst(arsak as UtbetalingStatusAarsak),
+                  )}
+                  forklaring={tilAvbrytning.forklaring}
+                />
+              </>
+            )}
           </TwoColumnGrid>
         </HGrid>
         <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />

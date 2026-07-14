@@ -34,7 +34,7 @@ export function ToTrinnsAvbrytelseForklaring({ avbrytelse }: Props) {
             heading="Avbrytelse av utbetalingskrav ble godkjent"
             tekster={[
               `${avbrytelse.behandletAv.navn} sendte kravet til avbrytning den ${formaterDato(avbrytelse.behandletTidspunkt)}.`,
-              `Godkjent av ${avbrytelse.besluttetAv.navn} `
+              `Godkjent av ${avbrytelse.besluttetAv.navn} `,
             ]}
             aarsaker={avbrytelse.aarsaker.map((aarsak) =>
               aarsakTilTekst(aarsak as UtbetalingStatusAarsak),

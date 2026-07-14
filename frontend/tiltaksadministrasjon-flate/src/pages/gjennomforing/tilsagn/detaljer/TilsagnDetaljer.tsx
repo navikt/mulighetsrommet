@@ -34,6 +34,7 @@ import { TilsagnDeltakerCompact } from "@/components/personalia/TilsagnDeltakerC
 import { aarsakTilTekst } from "@/utils/Utils";
 import { TilsagnStengtePerioder } from "@/components/tilsagn/beregning/TilsagnStengtePerioder";
 import { formaterNavEnhet } from "@/utils/nav-enhet";
+import { TotrinnsBegrunnelse } from "@/components/totrinnskontroll/TotrinnsBegrunnelse";
 
 export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
@@ -234,7 +235,7 @@ export function TilsagnDetaljer() {
             {status.type === TilsagnStatus.ANNULLERT && (
               <>
                 <Separator />
-                <Begrunnelse
+                <TotrinnsBegrunnelse
                   title="Begrunnelse for annullering"
                   aarsaker={(annullering?.aarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
@@ -246,7 +247,7 @@ export function TilsagnDetaljer() {
             {status.type === TilsagnStatus.OPPGJORT && (
               <>
                 <Separator />
-                <Begrunnelse
+                <TotrinnsBegrunnelse
                   title="Begrunnelse for oppgjør"
                   aarsaker={(tilOppgjor?.aarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
@@ -365,28 +366,6 @@ export function TilsagnDetaljer() {
           onConfirm={returnerTilsagn}
         />
       </VStack>
-    </>
-  );
-}
-
-interface BegrunnelseProps {
-  title: string;
-  aarsaker: string[];
-  forklaring?: string | null;
-}
-
-function Begrunnelse({ title, aarsaker, forklaring }: BegrunnelseProps) {
-  if (aarsaker.length === 0 && !forklaring) {
-    return null;
-  }
-
-  return (
-    <>
-      <Heading level="4" spacing size="small">
-        {title}
-      </Heading>
-      <MetadataVStack label="Årsaker" value={aarsaker.join(", ")} />
-      <MetadataFritekstfelt label="Forklaring" value={forklaring} />
     </>
   );
 }
