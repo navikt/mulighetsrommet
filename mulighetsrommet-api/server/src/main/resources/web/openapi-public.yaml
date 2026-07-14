@@ -84,12 +84,12 @@ paths:
           description: Gjennomføringen ble ikke funnet
           headers: {}
       deprecated: false
-  /api/v1/virksomhet/underenhet:
+  /api/v1/virksomhet/hovedenhet:
     get:
       tags:
-      - Arrangor
-      description: Søk etter unrderenhet på orgnr eller navn
-      operationId: sokUnderenhet
+      - Virksomhet
+      description: Søk etter hovedenhet på orgnr eller navn
+      operationId: sokHovedenheter
       parameters:
       - name: sok
         in: query
@@ -100,28 +100,14 @@ paths:
           type: string
       responses:
         "200":
-          description: Liste med underenheter
+          description: Liste med hovedenheter
           headers: {}
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/BrregUnderenhetDto"
-        "400":
-          description: Søket er blankt
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-        "500":
-          description: Internal server error ved kall mot Brreg
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
+                  $ref: "#/components/schemas/Hovedenhet"
         default:
           description: Problem details
           headers: {}
@@ -130,11 +116,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/v1/arrangor/underenhet:
+  /api/v1/virksomhet/underenhet:
     get:
       tags:
-      - Arrangor
-      description: Søk etter unrderenhet på orgnr eller navn
+      - Virksomhet
+      description: Søk etter underenhet på orgnr eller navn
       operationId: sokUnderenhet
       parameters:
       - name: sok
@@ -168,6 +154,37 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/v1/virksomhet/{orgnr}/underenheter:
+    get:
+      tags:
+      - Virksomhet
+      operationId: getUnderenheter
+      parameters:
+      - name: orgnr
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Underenhetene til hovedenhet for gitt orgnr
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Underenhet"
         default:
           description: Problem details
           headers: {}
@@ -378,7 +395,7 @@ components:
       required:
       - lopenr
       - opprettetAar
-    Underenhet:
+    Hovedenhet:
       type: object
       properties:
         organisasjonsnummer:
@@ -423,5 +440,31 @@ components:
       - status
       - title
       - type
+    Underenhet:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        organisasjonsform:
+          type:
+          - "null"
+          - string
+        overordnetEnhet:
+          type:
+          - "null"
+          - string
+        slettetDato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - navn
+      - organisasjonsform
+      - organisasjonsnummer
+      - overordnetEnhet
+      - slettetDato
   examples: {}
 webhooks: {}

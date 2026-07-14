@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.arrangor.api
+package no.nav.mulighetsrommet.api.enhetsregister
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
-class ArrangorPublicRoutesTest : FunSpec({
+class EnhetsregisterRoutesTest : FunSpec({
     val oauth = MockOAuth2Server()
 
     beforeSpec {
@@ -31,9 +31,9 @@ class ArrangorPublicRoutesTest : FunSpec({
         auth = createAuthConfig(oauth, roles = setOf()),
     )
 
-    context("/v1/arrangor") {
+    context("/v1/virksomhet") {
         context("sok underenhet") {
-            val sokUrl = { term: String -> "/api/v1/arrangor/underenhet?sok=$term" }
+            val sokUrl = { term: String -> "/api/v1/virksomhet/underenhet?sok=$term" }
 
             test("401 når påkrevde claims mangler fra token") {
                 withTestApplication(appConfig()) {

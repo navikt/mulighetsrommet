@@ -15,17 +15,14 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
 import { FormGroup } from "@/layouts/FormGroup";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
-import { useSokBrregHovedenhet } from "@/api/virksomhet/useSokBrregHovedenhet";
-import { useBrregUnderenheter } from "@/api/virksomhet/useBrregUnderenheter";
+import { useSokVirksomhetHovedenhet } from "@/api/virksomhet/useSokVirksomhetHovedenhet";
+import { useVirksomhetUnderenheter } from "@/api/virksomhet/useVirksomhetUnderenheter";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { ComboboxOption, FormCombobox } from "@/components/skjema/FormCombobox";
 import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 
 export function AvtaleArrangorForm() {
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
-  const [sokArrangor, setSokArrangor] = useState("");
-
-  const { data: brregVirksomheter = [] } = useSokBrregHovedenhet(sokArrangor);
 
   const { watch, setValue } = useFormContext<DeepPartial<AvtaleFormValues>>();
   const watchedArrangor = watch("detaljer.arrangor.hovedenhet") ?? "";
@@ -34,10 +31,12 @@ export function AvtaleArrangorForm() {
   );
 
   const { data: arrangor } = useSyncArrangorFromBrreg(watchedArrangor);
-  const { data: underenheter } = useBrregUnderenheter(watchedArrangor);
+  const { data: underenheter } = useVirksomhetUnderenheter(watchedArrangor);
   const { data: kontaktpersoner } = useArrangorKontaktpersoner(arrangor?.id ?? "");
 
-  const arrangorHovedenhetOptions = getArrangorHovedenhetOptions(brregVirksomheter, arrangor);
+  const [sokArrangor, setSokArrangor] = useState("");
+  const { data: hovedenheter = [] } = useSokVirksomhetHovedenhet(sokArrangor);
+  const arrangorHovedenhetOptions = getArrangorHovedenhetOptions(hovedenheter, arrangor);
   const arrangorUnderenhetOptions = getArrangorUnderenhetOptions(
     underenheter ?? [],
     watchedUnderenheter,
