@@ -18,7 +18,6 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.util.UUID
-import kotlin.String
 
 class ArrangorQueries(private val session: Session) {
     private val underenheterLateralJoin = """
@@ -141,27 +140,6 @@ class ArrangorQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(selectHovedenhet, orgnr.value)) { it.toArrangorDtoMedUnderenheter() }
-    }
-
-    fun getByGjennomforingId(gjennomforingId: UUID): ArrangorDto? {
-        @Language("PostgreSQL")
-        val selectHovedenhet = """
-            select
-                arrangor.id,
-                arrangor.organisasjonsnummer,
-                arrangor.organisasjonsform,
-                arrangor.overordnet_enhet,
-                arrangor.er_utenlandsk_virksomhet,
-                arrangor.navn,
-                arrangor.slettet_dato,
-                underenheter_json
-            from gjennomforing
-                inner join arrangor on arrangor.id = gjennomforing.arrangor_id
-                $underenheterLateralJoin
-            where gjennomforing.id = ?
-        """.trimIndent()
-
-        return session.single(queryOf(selectHovedenhet, gjennomforingId)) { it.toArrangorDtoMedUnderenheter() }
     }
 
     fun get(orgnr: List<Organisasjonsnummer>): List<ArrangorDto> {

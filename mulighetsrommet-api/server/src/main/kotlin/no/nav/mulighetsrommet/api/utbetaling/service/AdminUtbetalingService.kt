@@ -135,7 +135,8 @@ class AdminUtbetalingService(
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         when (opprett) {
             is UpsertUtbetaling.Anskaffelse if opprett.journalpostId == null -> {
-                val arrangor = checkNotNull(queries.arrangor.getByGjennomforingId(opprett.gjennomforingId))
+                val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(opprett.gjennomforingId)
+                val arrangor = queries.arrangor.getById(gjennomforing.arrangor.id)
                 if (!arrangor.erUtenlandsk) {
                     return FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
                         .nel()
