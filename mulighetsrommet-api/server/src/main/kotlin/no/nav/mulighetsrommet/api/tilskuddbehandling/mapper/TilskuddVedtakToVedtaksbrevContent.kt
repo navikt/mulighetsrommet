@@ -16,7 +16,8 @@ object TilskuddVedtakToVedtaksbrevContent {
         saksbehandler: String,
         beslutter: String,
     ): VedtaksbrevContent {
-        val navn = splitNavn(navn)
+        val navn = navn
+        val norskIdent = norskIdent
         val vedtakListe = tilskuddBehandling.tilskudd.map { t ->
             VedtaksbrevContent.Vedtak(
                 utfall = t.vedtakResultat.beskrivelse,
@@ -33,16 +34,14 @@ object TilskuddVedtakToVedtaksbrevContent {
 
         return VedtaksbrevContent(
             deltaker = VedtaksbrevContent.Deltaker(
-                fornavn = navn.fornavn,
-                mellomnavn = navn.mellomnavn,
-                etternavn = navn.etternavn,
-                personident = norskIdent,
+                navn = navn,
+                norskIdent = norskIdent,
             ),
             saksnummer = gjennomforing.lopenummer,
             opprettetDato = LocalDate.now(),
             saksbehandler = saksbehandler,
             beslutter = beslutter,
-            avsender = gjennomforing.ansvarligEnhet.navn,
+            enhet = gjennomforing.ansvarligEnhet.navn,
             vedtak = vedtakListe,
         )
     }

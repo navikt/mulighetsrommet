@@ -11,6 +11,7 @@ data class PdfDocumentContent(
     val subject: String,
     val description: String,
     val author: String,
+    val enhet: String?,
     val topSection: TopSection? = null,
     val sections: List<Section>,
     val regards: Regards? = null,
@@ -21,9 +22,10 @@ data class PdfDocumentContent(
             subject: String,
             description: String,
             author: String,
+            enhet: String? = null,
             init: PdfDocumentContentBuilder.() -> Unit,
         ): PdfDocumentContent {
-            val builder = PdfDocumentContentBuilder(title, subject, description, author)
+            val builder = PdfDocumentContentBuilder(title, subject, description, author, enhet)
             builder.init()
             return builder.build()
         }
@@ -36,6 +38,13 @@ data class TopSection(
     val addressedTo: String? = null,
     val date: String? = null,
     val reference: String? = null,
+    val deltaker: Deltaker? = null,
+)
+
+@Serializable
+data class Deltaker(
+    val navn: String,
+    val norskIdent: String? = null,
 )
 
 @Serializable
