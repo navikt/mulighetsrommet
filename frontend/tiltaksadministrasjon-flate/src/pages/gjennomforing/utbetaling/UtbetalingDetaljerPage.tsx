@@ -65,6 +65,7 @@ import { AvbrytUtbetalingModal } from "@/components/utbetaling/AvbrytUtbetalingM
 import { AvvisAvbrytUtbetalingModal } from "@/components/utbetaling/AvvisAvbrytUtbetalingModal";
 import { useGodkjennAvbrytUtbetaling } from "@/api/utbetaling/mutations";
 import { ErrorFieldSummary } from "@/components/skjema/ValideringsfeilOppsummering";
+import { ToTrinnsAvbrytelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollAvbrytningForklaring";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
@@ -193,7 +194,7 @@ export function UtbetalingDetaljerPage() {
         />
       </HStack>
       <VStack gap="space-12">
-        {tilAvbrytning && "Har avbrytning"}
+        {tilAvbrytning && <ToTrinnsAvbrytelseForklaring avbrytelse={tilAvbrytning} />}
         <HGrid columns="1fr auto" align="start">
           <TwoColumnGrid separator>
             <Box>
@@ -324,7 +325,7 @@ export function UtbetalingDetaljerPage() {
               type="button"
               onClick={() => setModalVariant(UtbetalingHandling.AVVIS_AVBRYTNING)}
             >
-              {utbetalingTekster.avbrutt.handling.godkjenn.label}
+              {utbetalingTekster.avbrutt.handling.avvis.label}
             </Button>
           )}
           {handlinger.includes(UtbetalingHandling.GODKJENN_AVBRYTNING) && (
