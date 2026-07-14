@@ -50,6 +50,6 @@ class AmtVirksomheterV1KafkaConsumer(
     }
 
     private fun shouldIgnoreMessage(key: String): Boolean {
-        return db.session { queries.arrangor.get(Organisasjonsnummer(key)) } == null
+        return db.session { repository.arrangor.getByOrganisasjonsnummer(Organisasjonsnummer(key)) } == null
     }
 }

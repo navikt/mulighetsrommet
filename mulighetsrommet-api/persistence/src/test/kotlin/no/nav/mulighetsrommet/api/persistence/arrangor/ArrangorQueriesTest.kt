@@ -86,10 +86,10 @@ class ArrangorQueriesTest : FunSpec({
                 repository.arrangor.save(hovedenhet)
                 repository.arrangor.save(underenhet1)
 
-                queries.arrangor.get(underenhet1.organisasjonsnummer).shouldNotBeNull().should {
+                queries.arrangor.getById(underenhet1.id).shouldNotBeNull().should {
                     it.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
                 }
-                queries.arrangor.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
+                queries.arrangor.getById(hovedenhet.id).shouldNotBeNull().should {
                     it.underenheter.shouldNotBeNull().shouldHaveSize(1).first().should { e ->
                         e.navn shouldBe underenhet1.navn
                         e.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
@@ -122,10 +122,10 @@ class ArrangorQueriesTest : FunSpec({
                 repository.arrangor.save(hovedenhet)
                 repository.arrangor.save(underenhet1)
 
-                queries.arrangor.get(hovedenhet.organisasjonsnummer).shouldNotBeNull().should {
+                queries.arrangor.getById(hovedenhet.id).shouldNotBeNull().should {
                     it.slettetDato shouldBe null
                 }
-                queries.arrangor.get(underenhet1.organisasjonsnummer).shouldNotBeNull().should {
+                queries.arrangor.getById(underenhet1.id).shouldNotBeNull().should {
                     it.slettetDato shouldBe slettetDato
                 }
                 queries.arrangor.getAll(slettet = true).items shouldContainExactlyInAnyOrder listOf(underenhet1.toDto())

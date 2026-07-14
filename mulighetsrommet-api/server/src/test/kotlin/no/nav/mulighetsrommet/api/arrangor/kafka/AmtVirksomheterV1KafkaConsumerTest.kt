@@ -126,7 +126,9 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             virksomhetConsumer.consume(orgnr.value, Json.encodeToJsonElement(fjernetVirksomhet))
 
             database.run {
-                queries.arrangor.get(orgnr).shouldNotBeNull().slettetDato shouldBe LocalDate.of(2025, 5, 24)
+                repository.arrangor.getByOrganisasjonsnummer(orgnr).shouldNotBeNull().should {
+                    it.slettetDato shouldBe LocalDate.of(2025, 5, 24)
+                }
             }
         }
 
@@ -140,13 +142,13 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
                         navn = "Kiwi",
                     ),
                 )
-                queries.arrangor.get(underenhet.organisasjonsnummer).shouldNotBeNull()
+                queries.arrangor.getByOrganisasjonsnummer(underenhet.organisasjonsnummer).shouldNotBeNull()
             }
 
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, JsonNull)
 
             database.run {
-                queries.arrangor.get(underenhet.organisasjonsnummer) shouldBe null
+                repository.arrangor.getByOrganisasjonsnummer(underenhet.organisasjonsnummer) shouldBe null
             }
         }
     }

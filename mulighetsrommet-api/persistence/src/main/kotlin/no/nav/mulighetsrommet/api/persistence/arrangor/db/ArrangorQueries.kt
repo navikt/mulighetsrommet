@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.persistence.arrangor.db
 
-import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
@@ -23,23 +22,6 @@ import java.sql.Array
 import java.util.UUID
 
 class ArrangorQueries(private val session: Session) : ArrangorRepository, ArrangorQueryHandler {
-    private val underenheterLateralJoin = """
-        left join lateral (
-            select json_agg(
-                json_build_object(
-                    'id', id,
-                    'organisasjonsnummer', organisasjonsnummer,
-                    'overordnetEnhet', overordnet_enhet,
-                    'organisasjonsform', organisasjonsform,
-                    'navn', navn,
-                    'slettetDato', slettet_dato,
-                    'erUtenlandsk', er_utenlandsk_virksomhet
-                )
-            ) as underenheter_json
-            from arrangor arrangor_underenhet
-        where arrangor_underenhet.overordnet_enhet = arrangor.organisasjonsnummer) on true
-    """
-
     /** Upserter enheten (tar ikke hensyn til underenheter) */
     override fun save(arrangor: Arrangor) {
         @Language("PostgreSQL")
@@ -173,26 +155,6 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
         return queryOf(query, params + pagination.parameters)
             .mapPaginated { it.toArrangorDtoUtenUnderenheter() }
             .runWithSession(session)
-    }
-
-    override fun get(orgnr: Organisasjonsnummer): ArrangorDto? {
-        @Language("PostgreSQL")
-        val selectHovedenhet = """
-            select
-                id,
-                organisasjonsnummer,
-                organisasjonsform,
-                overordnet_enhet,
-                er_utenlandsk_virksomhet,
-                navn,
-                slettet_dato,
-                underenheter_json
-            from arrangor
-                $underenheterLateralJoin
-            where arrangor.organisasjonsnummer = ?
-        """.trimIndent()
-
-        return session.single(queryOf(selectHovedenhet, orgnr.value)) { it.toArrangorDtoMedUnderenheter() }
     }
 
     override fun getById(id: UUID): ArrangorDto {
@@ -446,22 +408,6 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
         slettetDato = localDateOrNull("slettet_dato"),
         erUtenlandsk = boolean("er_utenlandsk_virksomhet"),
     )
-
-    private fun Row.toArrangorDtoMedUnderenheter(): ArrangorDto {
-        val underenheter = stringOrNull("underenheter_json")?.let {
-            Json.decodeFromString<List<ArrangorDto>>(it)
-        }
-        return ArrangorDto(
-            id = uuid("id"),
-            organisasjonsnummer = Organisasjonsnummer(string("organisasjonsnummer")),
-            organisasjonsform = stringOrNull("organisasjonsform"),
-            navn = string("navn"),
-            overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) },
-            slettetDato = localDateOrNull("slettet_dato"),
-            underenheter = underenheter,
-            erUtenlandsk = boolean("er_utenlandsk_virksomhet"),
-        )
-    }
 
     private fun Row.toArrangorKontaktperson() = ArrangorKontaktperson(
         id = uuid("id"),

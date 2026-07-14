@@ -8,13 +8,13 @@ import com.github.kagkarlsson.scheduler.task.FailureHandler
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.JournalpostId
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapper
@@ -95,8 +95,7 @@ class JournalforEnkeltplassTilsagnsbrev(
             else -> return@transaction Either.Left("Fant ${deltakere.size} deltakere for enkeltplass ${enkeltplass.id}")
         }
         val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
-        val arrangor = queries.arrangor.get(tilsagn.arrangor.organisasjonsnummer)
-            ?: return@transaction Either.Left("Fant ikke arrangør med organisasjonsnummer ${tilsagn.arrangor.organisasjonsnummer}")
+        val arrangor = repository.arrangor.get(tilsagn.arrangor.id)
 
         val kontonummer = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
             .map { kontonummer -> Kontonummer(kontonummer.kontonr) }
@@ -151,7 +150,7 @@ fun tilsagnJournalpost(
     pdf: ByteArray,
     tilsagnId: UUID,
     deltaker: NorskIdent,
-    arrangor: ArrangorDto,
+    arrangor: Arrangor,
     fagsakId: String,
 ): Journalpost = Journalpost(
     tittel = "Tilsagnsbrev",

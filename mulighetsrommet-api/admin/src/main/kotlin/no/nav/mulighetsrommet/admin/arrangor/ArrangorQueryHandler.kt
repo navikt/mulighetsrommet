@@ -17,8 +17,6 @@ interface ArrangorQueryHandler {
         sortering: String? = null,
     ): PaginatedResult<ArrangorDto>
 
-    fun get(orgnr: Organisasjonsnummer): ArrangorDto?
-
     fun getById(id: UUID): ArrangorDto
 
     fun getHovedenhetById(id: UUID): ArrangorDto
