@@ -1618,6 +1618,110 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/individuelle-gjennomforinger:
+    get:
+      tags:
+      - IndividuellGjennomforing
+      operationId: getAllIndividuelleGjennomforinger
+      parameters: []
+      responses:
+        "200":
+          description: Liste over individuelle gjennomføringer (uten filter)
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IndividuellGjennomforing"
+      deprecated: false
+    put:
+      tags:
+      - IndividuellGjennomforing
+      operationId: upsertIndividuellGjennomforing
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IndividuellGjennomforingRequest"
+        required: false
+      responses:
+        "200":
+          description: Individuell gjennomføring ble opprettet/oppdatert
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndividuellGjennomforing"
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/individuelle-gjennomforinger/filter:
+    post:
+      tags:
+      - IndividuellGjennomforing
+      operationId: getIndividuelleGjennomforinger
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetIndividuelleGjennomforingerRequest"
+        required: false
+      responses:
+        "200":
+          description: Liste over individuelle gjennomføringer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IndividuellGjennomforing"
+      deprecated: false
+  /api/tiltaksadministrasjon/individuelle-gjennomforinger/{id}:
+    get:
+      tags:
+      - IndividuellGjennomforing
+      operationId: getIndividuellGjennomforing
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Individuell gjennomføring
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IndividuellGjennomforing"
+        "404":
+          description: Ikke funnet
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/kodeverk/avtaletyper:
     get:
       tags:
@@ -6211,6 +6315,237 @@ components:
       - OPPRETT_UTBETALING
       - GODKJENN_ENKELTPLASS_OKONOMI
       - SETT_PA_VENT_ENKELTPLASS_OKONOMI
+    IndividuellGjennomforingRequest.Kontaktperson:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - navIdent
+    IndividuellGjennomforingRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakstypeId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        stedForGjennomforing:
+          type:
+          - "null"
+          - string
+        arrangorId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        arrangorKontaktpersoner:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        administratorer:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        navRegioner:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        navKontorer:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        navAndreEnheter:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/IndividuellGjennomforingRequest.Kontaktperson"
+          uniqueItems: true
+      required:
+      - administratorer
+      - arrangorId
+      - arrangorKontaktpersoner
+      - beskrivelse
+      - faneinnhold
+      - id
+      - kontaktpersoner
+      - navAndreEnheter
+      - navKontorer
+      - navRegioner
+      - navn
+      - stedForGjennomforing
+      - tiltakstypeId
+    IndividuellGjennomforing.Tiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - id
+      - navn
+      - tiltakskode
+    IndividuellGjennomforing.Arrangor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        organisasjonsnummer:
+          type: string
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
+    IndividuellGjennomforing.Administrator:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type: string
+      required:
+      - navIdent
+      - navn
+    IndividuellGjennomforing.NavEnhet:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
+    IndividuellGjennomforing.Kontaktperson:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - navIdent
+      - navn
+    IndividuellGjennomforing.ArrangorKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+    IndividuellGjennomforing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakstype:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/IndividuellGjennomforing.Tiltakstype"
+        stedForGjennomforing:
+          type:
+          - "null"
+          - string
+        arrangor:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/IndividuellGjennomforing.Arrangor"
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        administratorer:
+          type: array
+          items:
+            $ref: "#/components/schemas/IndividuellGjennomforing.Administrator"
+        navEnheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/IndividuellGjennomforing.NavEnhet"
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/IndividuellGjennomforing.Kontaktperson"
+        arrangorKontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/IndividuellGjennomforing.ArrangorKontaktperson"
+      required:
+      - administratorer
+      - arrangor
+      - arrangorKontaktpersoner
+      - beskrivelse
+      - faneinnhold
+      - id
+      - kontaktpersoner
+      - navEnheter
+      - navn
+      - stedForGjennomforing
+      - tiltakstype
+    GetIndividuelleGjennomforingerRequest:
+      type: object
+      properties:
+        navEnheter:
+          type: array
+          items:
+            type: string
+        tiltakstyper:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - navEnheter
+      - tiltakstyper
     AvtaletypeInfo:
       type: object
       properties:

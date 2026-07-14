@@ -60,6 +60,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.ReplikerDeltakerEnkeltplas
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
+import no.nav.mulighetsrommet.api.individuell_gjennomforing.service.IndividuellGjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
@@ -464,6 +465,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
     single { GjennomforingDetaljerService(get(), get(), get(), get()) }
+    single { IndividuellGjennomforingService(get()) }
     single {
         GjennomforingEnkeltplassService(
             get(),

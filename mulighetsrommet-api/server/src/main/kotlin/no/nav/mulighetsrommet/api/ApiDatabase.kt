@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
+import no.nav.mulighetsrommet.api.individuell_gjennomforing.db.IndividuellGjennomforingQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.db.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattQueries
@@ -80,6 +81,7 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
         val rammedetaljer = RammedetaljerQueries(session)
         val opsjoner = OpsjonLoggQueries(session)
         val gjennomforing = GjennomforingQueries(session)
+        val individuellGjennomforing = IndividuellGjennomforingQueries(session)
         val deltaker = DeltakerQueries(session)
         val deltakerForslag = DeltakerForslagQueries(session)
         val utbetaling = UtbetalingQueries(session)

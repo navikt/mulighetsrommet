@@ -62,6 +62,9 @@ import { TilskuddBehandlingFormPage } from "./pages/tilskudd-behandling/Tilskudd
 import { TilskuddBehandlingerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingerPage";
 import { isProduction } from "./environment";
 import { TilskuddUtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/TilskuddUtbetalingerForGjennomforingContainer";
+import { IndividuelleGjennomforingerPage } from "./pages/individuell-gjennomforing/IndividuelleGjennomforingerPage";
+import { OpprettIndividuellGjennomforingPage } from "./pages/individuell-gjennomforing/OpprettIndividuellGjennomforingPage";
+import { IndividuellGjennomforingPage } from "./pages/individuell-gjennomforing/IndividuellGjennomforingPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -280,6 +283,15 @@ const routes: RouteObject[] = [
       }),
       route({ path: "arrangorer", element: <ArrangorerPage /> }),
       route({ path: "arrangorer/:arrangorId", element: <ArrangorPage /> }),
+      route({ path: "individuelle-gjennomforinger", element: <IndividuelleGjennomforingerPage /> }),
+      route({
+        path: "individuelle-gjennomforinger/opprett",
+        element: <OpprettIndividuellGjennomforingPage />,
+      }),
+      route({
+        path: "individuelle-gjennomforinger/:individuellGjennomforingId",
+        element: <IndividuellGjennomforingPage />,
+      }),
       route({
         path: "oppgaveoversikt",
         element: <OppgaveoversiktPage />,
