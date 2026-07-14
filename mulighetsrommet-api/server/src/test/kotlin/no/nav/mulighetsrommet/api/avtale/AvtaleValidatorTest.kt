@@ -10,7 +10,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.admin.arrangor.toDto
+import no.nav.mulighetsrommet.admin.arrangor.toHovedenhetDto
 import no.nav.mulighetsrommet.admin.navenhet.toDto
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
@@ -95,12 +95,10 @@ class AvtaleValidatorTest : FunSpec({
     )
     val ctx = Ctx(
         previous = null,
-        arrangor = ArrangorFixtures.hovedenhet.toDto(
-            underenheter = listOf(ArrangorFixtures.underenhet1.toDto()),
-        ),
+        arrangor = ArrangorFixtures.hovedenhet.toHovedenhetDto(listOf(ArrangorFixtures.underenhet1)),
         kategorisering = kategoriseringCtx,
         administratorer = emptyList(),
-        tiltakstype = AvtaleValidator.Ctx.Tiltakstype(
+        tiltakstype = Ctx.Tiltakstype(
             navn = TiltakstypeFixtures.Oppfolging.navn,
             id = TiltakstypeFixtures.Oppfolging.id,
         ),
@@ -110,12 +108,10 @@ class AvtaleValidatorTest : FunSpec({
 
     val createForhandsgodkjentAvtaleContext = Ctx(
         previous = null,
-        arrangor = ArrangorFixtures.hovedenhet.toDto(
-            underenheter = listOf(ArrangorFixtures.underenhet1.toDto()),
-        ),
+        arrangor = ArrangorFixtures.hovedenhet.toHovedenhetDto(listOf(ArrangorFixtures.underenhet1)),
         kategorisering = kategoriseringCtx,
         administratorer = emptyList(),
-        tiltakstype = AvtaleValidator.Ctx.Tiltakstype(
+        tiltakstype = Ctx.Tiltakstype(
             navn = TiltakstypeFixtures.AFT.navn,
             id = TiltakstypeFixtures.AFT.id,
         ),
@@ -397,8 +393,8 @@ class AvtaleValidatorTest : FunSpec({
         AvtaleValidator.validateCreateAvtale(
             avtaleRequest,
             ctx.copy(
-                arrangor = ArrangorFixtures.Fretex.hovedenhet.toDto(
-                    underenheter = listOf(ArrangorFixtures.underenhet1.toDto()),
+                arrangor = ArrangorFixtures.Fretex.hovedenhet.toHovedenhetDto(
+                    listOf(ArrangorFixtures.underenhet1),
                 ),
             ),
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -411,8 +407,8 @@ class AvtaleValidatorTest : FunSpec({
         AvtaleValidator.validateCreateAvtale(
             avtaleRequest,
             ctx.copy(
-                arrangor = ArrangorFixtures.Fretex.hovedenhet.toDto(
-                    underenheter = listOf(ArrangorFixtures.Fretex.underenhet1.toDto()),
+                arrangor = ArrangorFixtures.Fretex.hovedenhet.toHovedenhetDto(
+                    listOf(ArrangorFixtures.Fretex.underenhet1),
                 ),
             ),
         ).shouldBeRight()
@@ -422,10 +418,8 @@ class AvtaleValidatorTest : FunSpec({
         AvtaleValidator.validateCreateAvtale(
             avtaleRequest,
             ctx.copy(
-                arrangor = ArrangorFixtures.Fretex.hovedenhet.copy(slettetDato = LocalDate.now()).toDto(
-                    underenheter = listOf(
-                        ArrangorFixtures.Fretex.underenhet1.copy(slettetDato = LocalDate.now()).toDto(),
-                    ),
+                arrangor = ArrangorFixtures.Fretex.hovedenhet.copy(slettetDato = LocalDate.now()).toHovedenhetDto(
+                    listOf(ArrangorFixtures.Fretex.underenhet1.copy(slettetDato = LocalDate.now())),
                 ),
             ),
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(

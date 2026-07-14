@@ -19,7 +19,7 @@ interface ArrangorQueryHandler {
 
     fun getById(id: UUID): ArrangorDto
 
-    fun getHovedenhetById(id: UUID): ArrangorDto
+    fun getHovedenhetById(id: UUID): ArrangorHovedenhetDto
 
     fun koblingerTilKontaktperson(
         kontaktpersonId: UUID,

@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.Either
 import arrow.core.right
-import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorHovedenhetDto
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
@@ -61,7 +61,7 @@ import kotlin.contracts.ExperimentalContracts
 object AvtaleValidator {
     data class Ctx(
         val previous: Avtale?,
-        val arrangor: ArrangorDto?,
+        val arrangor: ArrangorHovedenhetDto?,
         val administratorer: List<NavAnsatt>,
         val kategorisering: Kategorisering,
         val tiltakstype: Tiltakstype,
@@ -467,7 +467,7 @@ object AvtaleValidator {
         AvtaleStatusType.AVSLUTTET
     }
 
-    private fun validateArrangor(arrangor: ArrangorDto) = validation(DetaljerRequest::arrangor) {
+    private fun validateArrangor(arrangor: ArrangorHovedenhetDto) = validation(DetaljerRequest::arrangor) {
         if (arrangor.erUtenlandsk) {
             return@validation
         }
@@ -479,7 +479,7 @@ object AvtaleValidator {
             )
         }
 
-        arrangor.underenheter?.forEach { underenhet ->
+        arrangor.underenheter.forEach { underenhet ->
             validate(underenhet.slettetDato == null) {
                 FieldError.of(
                     "Arrangøren ${underenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",

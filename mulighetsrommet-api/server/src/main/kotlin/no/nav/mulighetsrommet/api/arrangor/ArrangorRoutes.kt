@@ -16,6 +16,7 @@ import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorHovedenhetDto
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorKobling
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonError
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonService
@@ -176,7 +177,7 @@ fun Route.arrangorRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Hovedenhet til arrangør"
-                    body<ArrangorDto>()
+                    body<ArrangorHovedenhetDto>()
                 }
                 default {
                     description = "Problem details"

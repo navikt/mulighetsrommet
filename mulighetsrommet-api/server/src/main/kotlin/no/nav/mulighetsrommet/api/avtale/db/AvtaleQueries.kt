@@ -203,7 +203,7 @@ class AvtaleQueries(private val session: Session) {
         )
     }
 
-    private fun upsertArrangor(avtaleId: UUID, arrangor: ArrangorDbo?) = withTransaction(session) {
+    private fun upsertArrangor(avtaleId: UUID, arrangor: AvtaleArrangorDbo?) = withTransaction(session) {
         @Language("PostgreSQL")
         val setArrangorUnderenhet = """
              insert into avtale_arrangor_underenhet (avtale_id, arrangor_id)

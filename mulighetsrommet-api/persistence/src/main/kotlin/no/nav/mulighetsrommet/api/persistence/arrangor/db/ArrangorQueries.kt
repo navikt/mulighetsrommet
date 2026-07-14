@@ -4,9 +4,11 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorHovedenhetDto
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorKobling
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorQueryHandler
 import no.nav.mulighetsrommet.admin.arrangor.DokumentKoblingForKontaktperson
+import no.nav.mulighetsrommet.admin.arrangor.medUnderenheter
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
@@ -179,7 +181,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
         }
     }
 
-    override fun getHovedenhetById(id: UUID): ArrangorDto {
+    override fun getHovedenhetById(id: UUID): ArrangorHovedenhetDto {
         val arrangor = getById(id)
 
         @Language("PostgreSQL")
@@ -201,7 +203,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
             it.toArrangorDtoUtenUnderenheter()
         }
 
-        return arrangor.copy(underenheter = underenheter)
+        return arrangor.medUnderenheter(underenheter)
     }
 
     override fun get(id: UUID): Arrangor {

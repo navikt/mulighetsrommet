@@ -3017,7 +3017,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrangorDto"
+                $ref: "#/components/schemas/ArrangorHovedenhetDto"
         default:
           description: Problem details
           headers: {}
@@ -8124,12 +8124,6 @@ components:
           type:
           - "null"
           - string
-        underenheter:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/ArrangorDto"
         slettetDato:
           type:
           - "null"
@@ -8145,7 +8139,6 @@ components:
       - organisasjonsnummer
       - overordnetEnhet
       - slettetDato
-      - underenheter
     ArrangorKobling:
       type: string
       enum:
@@ -8163,6 +8156,39 @@ components:
       required:
       - data
       - pagination
+    ArrangorHovedenhetDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        organisasjonsform:
+          type:
+          - "null"
+          - string
+        navn:
+          type: string
+        underenheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorDto"
+        slettetDato:
+          type:
+          - "null"
+          - string
+          format: date
+        erUtenlandsk:
+          type: boolean
+      required:
+      - erUtenlandsk
+      - id
+      - navn
+      - organisasjonsform
+      - organisasjonsnummer
+      - slettetDato
+      - underenheter
     ArrangorKontaktperson:
       type: object
       properties:

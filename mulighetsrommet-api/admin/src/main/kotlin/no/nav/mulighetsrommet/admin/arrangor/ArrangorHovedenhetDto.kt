@@ -8,30 +8,35 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
 
-enum class ArrangorKobling {
-    AVTALE,
-    TILTAKSGJENNOMFORING,
-}
-
 @Serializable
-data class ArrangorDto(
+data class ArrangorHovedenhetDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val organisasjonsnummer: Organisasjonsnummer,
     val organisasjonsform: String?,
     val navn: String,
-    val overordnetEnhet: Organisasjonsnummer? = null,
+    val underenheter: List<ArrangorDto>,
     @Serializable(with = LocalDateSerializer::class)
     val slettetDato: LocalDate? = null,
     val erUtenlandsk: Boolean,
 )
 
-fun Arrangor.toDto() = ArrangorDto(
+fun Arrangor.toHovedenhetDto(underenheter: List<Arrangor>): ArrangorHovedenhetDto = ArrangorHovedenhetDto(
     id = id,
     organisasjonsnummer = organisasjonsnummer,
     organisasjonsform = organisasjonsform,
     navn = navn,
-    overordnetEnhet = overordnetEnhet,
+    underenheter = underenheter.map { it.toDto() },
     slettetDato = slettetDato,
     erUtenlandsk = this is Arrangor.Utenlandsk,
+)
+
+fun ArrangorDto.medUnderenheter(underenheter: List<ArrangorDto>) = ArrangorHovedenhetDto(
+    id = id,
+    organisasjonsnummer = organisasjonsnummer,
+    organisasjonsform = organisasjonsform,
+    navn = navn,
+    underenheter = underenheter,
+    slettetDato = slettetDato,
+    erUtenlandsk = erUtenlandsk,
 )

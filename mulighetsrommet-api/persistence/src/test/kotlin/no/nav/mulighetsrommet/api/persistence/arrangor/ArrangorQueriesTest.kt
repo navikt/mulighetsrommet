@@ -89,8 +89,8 @@ class ArrangorQueriesTest : FunSpec({
                 queries.arrangor.getById(underenhet1.id).shouldNotBeNull().should {
                     it.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
                 }
-                queries.arrangor.getById(hovedenhet.id).shouldNotBeNull().should {
-                    it.underenheter.shouldNotBeNull().shouldHaveSize(1).first().should { e ->
+                queries.arrangor.getHovedenhetById(hovedenhet.id).should {
+                    it.underenheter.shouldHaveSize(1).first().should { e ->
                         e.navn shouldBe underenhet1.navn
                         e.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
                     }
