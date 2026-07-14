@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
 import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
-import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
 import java.util.UUID
@@ -78,41 +77,37 @@ class SyncArrangorUseCase(
     }
 
     private fun save(virksomhet: Virksomhet): Arrangor = db.transaction {
-        val eksisterende = repository.arrangor.getByOrganisasjonsnummer(virksomhet.organisasjonsnummer)
-        val id = eksisterende?.id ?: UUID.randomUUID()
-        val kontaktpersoner = eksisterende?.kontaktpersoner ?: listOf()
-        val arrangor = virksomhet.toArrangor(id, kontaktpersoner)
+        val arrangor = repository.arrangor.getByOrganisasjonsnummer(virksomhet.organisasjonsnummer)
+            ?.let { it as? Arrangor.Norsk }
+            ?.registrerVirksomhet(virksomhet.navn, virksomhet.organisasjonsform)
+            ?: virksomhet.toArrangor()
         repository.arrangor.save(arrangor)
         arrangor
     }
 
     private fun markerSlettet(orgnr: Organisasjonsnummer, slettetDato: LocalDate): Unit = db.transaction {
-        when (val arrangor = repository.arrangor.getByOrganisasjonsnummer(orgnr)) {
-            is Arrangor.Norsk -> repository.arrangor.save(arrangor.copy(slettetDato = slettetDato))
-            is Arrangor.Utenlandsk -> repository.arrangor.save(arrangor.copy(slettetDato = slettetDato))
-            null -> {}
+        repository.arrangor.getByOrganisasjonsnummer(orgnr)?.also {
+            repository.arrangor.save(it.registrerSlettet(slettetDato))
         }
     }
 }
 
-private fun Virksomhet.toArrangor(id: UUID, kontaktpersoner: List<ArrangorKontaktperson>) = when (this) {
-    is Hovedenhet -> Arrangor.Norsk(
-        id = id,
+private fun Virksomhet.toArrangor(): Arrangor.Norsk = when (this) {
+    is Hovedenhet -> Arrangor.Norsk.opprett(
+        id = UUID.randomUUID(),
         organisasjonsnummer = organisasjonsnummer,
         organisasjonsform = organisasjonsform,
         navn = navn,
         overordnetEnhet = null,
         slettetDato = slettetDato,
-        kontaktpersoner = kontaktpersoner,
     )
 
-    is Underenhet -> Arrangor.Norsk(
-        id = id,
+    is Underenhet -> Arrangor.Norsk.opprett(
+        id = UUID.randomUUID(),
         organisasjonsnummer = organisasjonsnummer,
         organisasjonsform = organisasjonsform,
         navn = navn,
         overordnetEnhet = if (slettetDato == null) overordnetEnhet else null,
         slettetDato = slettetDato,
-        kontaktpersoner = kontaktpersoner,
     )
 }

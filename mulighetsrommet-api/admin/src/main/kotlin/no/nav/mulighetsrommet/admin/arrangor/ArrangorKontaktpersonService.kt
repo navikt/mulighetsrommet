@@ -24,7 +24,7 @@ class ArrangorKontaktpersonService(
     fun upsert(kontaktperson: ArrangorKontaktperson): Unit = db.transaction {
         val arrangor = repository.arrangor.get(kontaktperson.arrangorId)
         val kontaktpersoner = arrangor.kontaktpersoner.filterNot { it.id == kontaktperson.id } + kontaktperson
-        repository.arrangor.save(arrangor.medKontaktpersoner(kontaktpersoner))
+        repository.arrangor.save(arrangor.registrerKontaktpersoner(kontaktpersoner))
     }
 
     fun delete(arrangorId: UUID, kontaktpersonId: UUID): Either<ArrangorKontaktpersonError, Unit> = db.transaction {
@@ -36,7 +36,7 @@ class ArrangorKontaktpersonService(
         }
 
         val kontaktpersoner = arrangor.kontaktpersoner.filterNot { it.id == kontaktpersonId }
-        repository.arrangor.save(arrangor.medKontaktpersoner(kontaktpersoner))
+        repository.arrangor.save(arrangor.registrerKontaktpersoner(kontaktpersoner))
 
         Unit.right()
     }

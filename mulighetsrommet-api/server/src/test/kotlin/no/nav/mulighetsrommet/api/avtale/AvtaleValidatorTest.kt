@@ -418,8 +418,8 @@ class AvtaleValidatorTest : FunSpec({
         AvtaleValidator.validateCreateAvtale(
             avtaleRequest,
             ctx.copy(
-                arrangor = ArrangorFixtures.Fretex.hovedenhet.copy(slettetDato = LocalDate.now()).toHovedenhetDto(
-                    listOf(ArrangorFixtures.Fretex.underenhet1.copy(slettetDato = LocalDate.now())),
+                arrangor = ArrangorFixtures.Fretex.hovedenhet.registrerSlettet(LocalDate.now()).toHovedenhetDto(
+                    listOf(ArrangorFixtures.Fretex.underenhet1.registrerSlettet(LocalDate.now())),
                 ),
             ),
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(

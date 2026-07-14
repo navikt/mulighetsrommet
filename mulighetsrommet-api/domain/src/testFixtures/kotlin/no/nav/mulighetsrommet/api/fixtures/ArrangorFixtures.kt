@@ -6,14 +6,14 @@ import java.util.UUID
 
 object ArrangorFixtures {
     object Fretex {
-        val hovedenhet = Arrangor.Norsk(
+        val hovedenhet = Arrangor.Norsk.opprett(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("983982433"),
             organisasjonsform = "AS",
             navn = "FRETEX AS",
         )
 
-        val underenhet1 = Arrangor.Norsk(
+        val underenhet1 = Arrangor.Norsk.opprett(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("992943084"),
             organisasjonsform = "BEDR",
@@ -22,14 +22,14 @@ object ArrangorFixtures {
         )
     }
 
-    val hovedenhet = Arrangor.Norsk(
+    val hovedenhet = Arrangor.Norsk.opprett(
         id = UUID.randomUUID(),
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = "AS",
         navn = "Hovedenhet AS",
     )
 
-    val underenhet1 = Arrangor.Norsk(
+    val underenhet1 = Arrangor.Norsk.opprett(
         id = UUID.randomUUID(),
         organisasjonsnummer = Organisasjonsnummer("976663934"),
         organisasjonsform = "BEDR",
@@ -37,7 +37,7 @@ object ArrangorFixtures {
         navn = "Underenhet 1 AS",
     )
 
-    val underenhet2 = Arrangor.Norsk(
+    val underenhet2 = Arrangor.Norsk.opprett(
         id = UUID.randomUUID(),
         organisasjonsnummer = Organisasjonsnummer("890765789"),
         organisasjonsform = "BEDR",
@@ -46,7 +46,7 @@ object ArrangorFixtures {
     )
 
     object Utenlandsk {
-        val hovedenhet = Arrangor.Utenlandsk(
+        val hovedenhet = Arrangor.Utenlandsk.opprett(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("100000001"),
             organisasjonsform = "AS",

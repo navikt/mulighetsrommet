@@ -279,7 +279,7 @@ class GjennomforingQueriesTest : FunSpec({
 
             database.runAndRollback {
                 MulighetsrommetTestDomain(
-                    arrangorer = listOf(ArrangorFixtures.hovedenhet.medKontaktpersoner(listOf(thomas, jens))),
+                    arrangorer = listOf(ArrangorFixtures.hovedenhet.registrerKontaktpersoner(listOf(thomas, jens))),
                 ).initialize()
 
                 queries.gjennomforing.upsert(Oppfolging1)

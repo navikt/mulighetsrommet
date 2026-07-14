@@ -27,7 +27,7 @@ class EnhetsregisterQueryTest : FunSpec({
 
     test("sokHovedenheter kombinerer treff fra gateway med utenlandske arrangører") {
         val fraBrreg = Hovedenhet(organisasjonsnummer = Organisasjonsnummer("111111111"), navn = "Nord AS")
-        val utenlandsk = Arrangor.Utenlandsk(
+        val utenlandsk = Arrangor.Utenlandsk.opprett(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("100000001"),
             organisasjonsform = "AS",
@@ -62,7 +62,7 @@ class EnhetsregisterQueryTest : FunSpec({
     }
 
     test("hentUnderenheterForHovedenhet kortslutter til utenlandsk arrangør uten å spørre gateway") {
-        val utenlandsk = Arrangor.Utenlandsk(
+        val utenlandsk = Arrangor.Utenlandsk.opprett(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("100000002"),
             organisasjonsform = "AS",
@@ -86,7 +86,7 @@ class EnhetsregisterQueryTest : FunSpec({
     test("hentUnderenheterForHovedenhet kombinerer treff fra gateway med slettede underenheter") {
         val hovedenhetOrgnr = Organisasjonsnummer("111111112")
         val fraBrreg = Underenhet(organisasjonsnummer = Organisasjonsnummer("222222223"), navn = "Avdeling")
-        val slettet = Arrangor.Norsk(
+        val slettet = Arrangor.Norsk.opprett(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("333333334"),
             organisasjonsform = "AS",

@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -19,12 +20,18 @@ class BetalingsinformasjonQueryTest : FunSpec({
     test("henter IBan for utenlandsk arrangør") {
         val db = TestAdminDatabase()
         db.repository.arrangor.save(
-            utenlandsk.copy(
+            utenlandsk.registrerBetalingsinformasjon(
                 betalingsinformasjon = Betalingsinformasjon.IBan(
                     bic = "DABANOKKXXX",
                     iban = "NO9386011117947",
                     bankNavn = "Danske Bank",
                     bankLandKode = "NO",
+                ),
+                adresse = Arrangor.Utenlandsk.Adresse(
+                    gateNavn = "Testgata 1",
+                    by = "Oslo",
+                    postNummer = "0001",
+                    landKode = "NO",
                 ),
             ),
         )
@@ -41,7 +48,7 @@ class BetalingsinformasjonQueryTest : FunSpec({
 
     test("kaster exception når utenlandsk arrangør mangler betalingsinformasjon") {
         val db = TestAdminDatabase()
-        db.repository.arrangor.save(utenlandsk.copy(betalingsinformasjon = null))
+        db.repository.arrangor.save(utenlandsk)
 
         shouldThrow<IllegalArgumentException> {
             BetalingsinformasjonQuery(db, mockk()).execute(HentBetalingsinformasjon(utenlandsk.id))

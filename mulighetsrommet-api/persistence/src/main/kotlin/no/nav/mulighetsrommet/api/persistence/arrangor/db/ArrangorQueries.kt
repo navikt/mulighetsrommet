@@ -229,9 +229,12 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
             where arrangor.id = ?::uuid
         """.trimIndent()
 
-        val arrangor = session.requireSingle(queryOf(query, id)) { it.toArrangor() }
+        val arrangor = session.requireSingle(queryOf(query, id)) {
+            val kontaktpersoner = getKontaktpersoner(it.uuid("id"))
+            it.toArrangor(kontaktpersoner)
+        }
 
-        return arrangor.medKontaktpersoner(getKontaktpersoner(id))
+        return arrangor.registrerKontaktpersoner(getKontaktpersoner(id))
     }
 
     override fun getByOrganisasjonsnummer(orgnr: Organisasjonsnummer): Arrangor? {
@@ -257,9 +260,10 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
             where arrangor.organisasjonsnummer = ?
         """.trimIndent()
 
-        val arrangor = session.single(queryOf(query, orgnr.value)) { it.toArrangor() } ?: return null
-
-        return arrangor.medKontaktpersoner(getKontaktpersoner(arrangor.id))
+        return session.single(queryOf(query, orgnr.value)) {
+            val kontaktpersoner = getKontaktpersoner(it.uuid("id"))
+            it.toArrangor(kontaktpersoner)
+        }
     }
 
     override fun delete(orgnr: Organisasjonsnummer) {
@@ -353,7 +357,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
         return session.list(queryOf(query, arrangorId)) { it.toArrangorKontaktperson() }
     }
 
-    private fun Row.toArrangor(): Arrangor {
+    private fun Row.toArrangor(kontaktpersoner: List<ArrangorKontaktperson>): Arrangor {
         val id = uuid("id")
         val organisasjonsnummer = Organisasjonsnummer(string("organisasjonsnummer"))
         val organisasjonsform = stringOrNull("organisasjonsform")
@@ -362,13 +366,14 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
         val slettetDato = localDateOrNull("slettet_dato")
 
         if (!boolean("er_utenlandsk_virksomhet")) {
-            return Arrangor.Norsk(
+            return Arrangor.Norsk.fromStorage(
                 id = id,
                 organisasjonsnummer = organisasjonsnummer,
                 organisasjonsform = organisasjonsform,
                 navn = navn,
                 overordnetEnhet = overordnetEnhet,
                 slettetDato = slettetDato,
+                kontaktpersoner = kontaktpersoner,
             )
         }
 
@@ -389,13 +394,14 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
             )
         }
 
-        return Arrangor.Utenlandsk(
+        return Arrangor.Utenlandsk.fromStorage(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
             organisasjonsform = organisasjonsform,
             navn = navn,
             overordnetEnhet = overordnetEnhet,
             slettetDato = slettetDato,
+            kontaktpersoner = kontaktpersoner,
             betalingsinformasjon = betalingsinformasjon,
             adresse = adresse,
         )

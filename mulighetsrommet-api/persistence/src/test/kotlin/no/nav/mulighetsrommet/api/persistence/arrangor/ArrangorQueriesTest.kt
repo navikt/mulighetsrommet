@@ -24,7 +24,7 @@ class ArrangorQueriesTest : FunSpec({
     context("crud") {
         test("søk og filtrering på arrangører") {
             database.runAndRollback {
-                val hovedenhet = Arrangor.Norsk(
+                val hovedenhet = Arrangor.Norsk.opprett(
                     id = UUID.randomUUID(),
                     navn = "REMA 1000 AS",
                     organisasjonsnummer = Organisasjonsnummer("982254604"),
@@ -32,7 +32,7 @@ class ArrangorQueriesTest : FunSpec({
                 )
                 repository.arrangor.save(hovedenhet)
 
-                val underenhet1 = Arrangor.Norsk(
+                val underenhet1 = Arrangor.Norsk.opprett(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("880907522"),
                     organisasjonsform = "BEDR",
@@ -41,7 +41,7 @@ class ArrangorQueriesTest : FunSpec({
                 )
                 repository.arrangor.save(underenhet1)
 
-                val underenhet2 = Arrangor.Norsk(
+                val underenhet2 = Arrangor.Norsk.opprett(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("912704327"),
                     organisasjonsform = "BEDR",
@@ -50,7 +50,7 @@ class ArrangorQueriesTest : FunSpec({
                 )
                 repository.arrangor.save(underenhet2)
 
-                val utenlandsk = Arrangor.Utenlandsk(
+                val utenlandsk = Arrangor.Utenlandsk.opprett(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("100000001"),
                     organisasjonsform = "IKS",
@@ -117,7 +117,7 @@ class ArrangorQueriesTest : FunSpec({
                 val slettetDato = LocalDate.of(2024, 1, 1)
 
                 val hovedenhet = ArrangorFixtures.hovedenhet
-                val underenhet1 = ArrangorFixtures.underenhet1.copy(slettetDato = slettetDato)
+                val underenhet1 = ArrangorFixtures.underenhet1.registrerSlettet(slettetDato)
 
                 repository.arrangor.save(hovedenhet)
                 repository.arrangor.save(underenhet1)
@@ -137,8 +137,7 @@ class ArrangorQueriesTest : FunSpec({
     context("utenlandsk arrangør") {
         test("betalingsinformasjon og adresse blir persistert og hentet via repository.save/get") {
             database.runAndRollback {
-                val arrangor = ArrangorFixtures.Utenlandsk.hovedenhet.copy(
-                    navn = "Irsk arrangør",
+                val arrangor = ArrangorFixtures.Utenlandsk.hovedenhet.registrerBetalingsinformasjon(
                     betalingsinformasjon = Betalingsinformasjon.IBan(
                         bic = "DABAIE2D",
                         iban = "IE29AIBK93115212345678",
@@ -162,7 +161,7 @@ class ArrangorQueriesTest : FunSpec({
 
         test("betalingsinformasjon og adresse er null for utenlandsk arrangør som mangler dette") {
             database.runAndRollback {
-                val arrangor = ArrangorFixtures.Utenlandsk.hovedenhet.copy(navn = "Utenlandsk arrangør uten bankdata")
+                val arrangor = ArrangorFixtures.Utenlandsk.hovedenhet
                 repository.arrangor.save(arrangor)
 
                 repository.arrangor.get(arrangor.id).shouldBeInstanceOf<Arrangor.Utenlandsk>().should {
@@ -172,36 +171,9 @@ class ArrangorQueriesTest : FunSpec({
             }
         }
 
-        test("save() bevarer betalingsinformasjon og adresse når andre felter oppdateres") {
-            database.runAndRollback {
-                val arrangor = ArrangorFixtures.Utenlandsk.hovedenhet.copy(
-                    navn = "Irsk arrangør",
-                    betalingsinformasjon = Betalingsinformasjon.IBan(
-                        bic = "DABAIE2D",
-                        iban = "IE29AIBK93115212345678",
-                        bankNavn = "AIB Bank",
-                        bankLandKode = "IE",
-                    ),
-                    adresse = Arrangor.Utenlandsk.Adresse(
-                        gateNavn = "O'Connell Street 1",
-                        by = "Dublin",
-                        postNummer = "D01",
-                        landKode = "IE",
-                    ),
-                )
-                repository.arrangor.save(arrangor)
-
-                val hentet = repository.arrangor.get(arrangor.id).shouldBeInstanceOf<Arrangor.Utenlandsk>()
-                repository.arrangor.save(hentet.copy(navn = "Irsk arrangør (oppdatert navn)"))
-
-                repository.arrangor.get(arrangor.id) shouldBe arrangor.copy(navn = "Irsk arrangør (oppdatert navn)")
-            }
-        }
-
         test("save() overskriver eksisterende betalingsinformasjon og adresse ved endring") {
             database.runAndRollback {
-                val arrangor = ArrangorFixtures.Utenlandsk.hovedenhet.copy(
-                    navn = "Irsk arrangør",
+                val arrangor = ArrangorFixtures.Utenlandsk.hovedenhet.registrerBetalingsinformasjon(
                     betalingsinformasjon = Betalingsinformasjon.IBan(
                         bic = "DABAIE2D",
                         iban = "IE29AIBK93115212345678",
@@ -217,7 +189,7 @@ class ArrangorQueriesTest : FunSpec({
                 )
                 repository.arrangor.save(arrangor)
 
-                val oppdatert = arrangor.copy(
+                val oppdatert = arrangor.registrerBetalingsinformasjon(
                     betalingsinformasjon = arrangor.betalingsinformasjon!!.copy(bic = "NEWBIC1"),
                     adresse = arrangor.adresse!!.copy(by = "Cork"),
                 )
@@ -254,7 +226,7 @@ class ArrangorQueriesTest : FunSpec({
                     ansvarligFor = listOf(),
                 )
 
-                repository.arrangor.save(arrangor.copy(kontaktpersoner = listOf(kontaktperson1, kontaktperson2)))
+                repository.arrangor.save(arrangor.registrerKontaktpersoner(listOf(kontaktperson1, kontaktperson2)))
 
                 repository.arrangor.get(arrangor.id).kontaktpersoner shouldContainExactlyInAnyOrder listOf(
                     kontaktperson1,
@@ -266,7 +238,7 @@ class ArrangorQueriesTest : FunSpec({
                     kontaktperson2,
                 )
 
-                repository.arrangor.save(arrangor.copy(kontaktpersoner = listOf(kontaktperson2)))
+                repository.arrangor.save(arrangor.registrerKontaktpersoner(listOf(kontaktperson2)))
 
                 repository.arrangor.getByOrganisasjonsnummer(arrangor.organisasjonsnummer)
                     .shouldNotBeNull()
@@ -291,7 +263,7 @@ class ArrangorQueriesTest : FunSpec({
                     ansvarligFor = listOf(),
                 )
 
-                repository.arrangor.save(arrangor.medKontaktpersoner(listOf(kontaktperson)))
+                repository.arrangor.save(arrangor.registrerKontaktpersoner(listOf(kontaktperson)))
 
                 repository.arrangor.get(arrangor.id).kontaktpersoner shouldContainExactlyInAnyOrder listOf(
                     kontaktperson,

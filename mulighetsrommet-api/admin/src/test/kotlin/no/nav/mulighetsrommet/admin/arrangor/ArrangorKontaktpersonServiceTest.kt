@@ -40,7 +40,7 @@ class ArrangorKontaktpersonServiceTest : FunSpec({
             val db = TestAdminDatabase()
             val service = ArrangorKontaktpersonService(db)
             val person = kontaktperson()
-            db.repository.arrangor.save(arrangor.medKontaktpersoner(listOf(person)))
+            db.repository.arrangor.save(arrangor.registrerKontaktpersoner(listOf(person)))
 
             val oppdatert = person.copy(navn = "Ola Nordmann")
             service.upsert(oppdatert)
@@ -63,7 +63,7 @@ class ArrangorKontaktpersonServiceTest : FunSpec({
             val db = TestAdminDatabase()
             val service = ArrangorKontaktpersonService(db)
             val person = kontaktperson()
-            db.repository.arrangor.save(arrangor.medKontaktpersoner(listOf(person)))
+            db.repository.arrangor.save(arrangor.registrerKontaktpersoner(listOf(person)))
             every { db.queries.arrangor.koblingerTilKontaktperson(person.id) } returns (emptyList<DokumentKoblingForKontaktperson>() to emptyList())
 
             service.delete(arrangor.id, person.id).shouldBeRight()
@@ -74,7 +74,7 @@ class ArrangorKontaktpersonServiceTest : FunSpec({
         test("returnerer KontaktpersonErIBruk når kontaktperson har koblinger til gjennomføringer") {
             val db = TestAdminDatabase()
             val person = kontaktperson()
-            db.repository.arrangor.save(arrangor.medKontaktpersoner(listOf(person)))
+            db.repository.arrangor.save(arrangor.registrerKontaktpersoner(listOf(person)))
             val kobling = DokumentKoblingForKontaktperson(UUID.randomUUID(), "Gjennomføring 1")
             every { db.queries.arrangor.koblingerTilKontaktperson(person.id) } returns Pair(
                 listOf(kobling),
@@ -88,7 +88,7 @@ class ArrangorKontaktpersonServiceTest : FunSpec({
         test("returnerer KontaktpersonErIBruk når kontaktperson har koblinger til avtaler") {
             val db = TestAdminDatabase()
             val person = kontaktperson()
-            db.repository.arrangor.save(arrangor.medKontaktpersoner(listOf(person)))
+            db.repository.arrangor.save(arrangor.registrerKontaktpersoner(listOf(person)))
             val kobling = DokumentKoblingForKontaktperson(UUID.randomUUID(), "Avtale 1")
             every { db.queries.arrangor.koblingerTilKontaktperson(person.id) } returns Pair(
                 listOf(),

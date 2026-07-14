@@ -269,7 +269,7 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 MulighetsrommetTestDomain(
                     arrangorer = listOf(
-                        ArrangorFixtures.hovedenhet.medKontaktpersoner(listOf(p1, p2, p3)),
+                        ArrangorFixtures.hovedenhet.registrerKontaktpersoner(listOf(p1, p2, p3)),
                         ArrangorFixtures.underenhet1,
                     ),
                     avtaler = listOf(avtale),
@@ -390,7 +390,7 @@ class AvtaleQueriesTest : FunSpec({
                     navn = "Fredrik Navnesen",
                     telefon = "32322",
                 )
-                val hovedenhet = ArrangorFixtures.hovedenhet.medKontaktpersoner(listOf(p1, p2))
+                val hovedenhet = ArrangorFixtures.hovedenhet.registrerKontaktpersoner(listOf(p1, p2))
                 val underenhet1 = ArrangorFixtures.underenhet1
                 val underenhet2 = ArrangorFixtures.underenhet2
 
@@ -878,16 +878,18 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Filtrering på tiltaksarrangørs navn gir treff") {
-            val annenArrangor = ArrangorFixtures.underenhet1.copy(
+            val annenArrangor = Arrangor.Norsk.opprett(
                 id = UUID.randomUUID(),
-                navn = "Annen Arrangør AS",
                 organisasjonsnummer = Organisasjonsnummer("667543265"),
+                organisasjonsform = ArrangorFixtures.underenhet1.organisasjonsform,
+                navn = "Annen Arrangør AS",
+                overordnetEnhet = ArrangorFixtures.underenhet1.overordnetEnhet,
             )
 
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, TiltakstypeFixtures.AFT),
                 arrangorer = listOf(
-                    ArrangorFixtures.hovedenhet.copy(navn = "Hovedenhet AS"),
+                    ArrangorFixtures.hovedenhet,
                     ArrangorFixtures.underenhet1,
                     annenArrangor,
                 ),
@@ -952,19 +954,19 @@ class AvtaleQueriesTest : FunSpec({
     }
 
     context("Sortering") {
-        val arrangorA = Arrangor.Norsk(
+        val arrangorA = Arrangor.Norsk.opprett(
             id = UUID.randomUUID(),
             navn = "alvdal",
             organisasjonsnummer = Organisasjonsnummer("987654321"),
             organisasjonsform = "BEDR",
         )
-        val arrangorB = Arrangor.Norsk(
+        val arrangorB = Arrangor.Norsk.opprett(
             id = UUID.randomUUID(),
             navn = "bjarne",
             organisasjonsnummer = Organisasjonsnummer("123456789"),
             organisasjonsform = "BEDR",
         )
-        val arrangorC = Arrangor.Norsk(
+        val arrangorC = Arrangor.Norsk.opprett(
             id = UUID.randomUUID(),
             navn = "chris",
             organisasjonsnummer = Organisasjonsnummer("999888777"),

@@ -13,24 +13,72 @@ sealed class Arrangor {
     abstract val slettetDato: LocalDate?
     abstract val kontaktpersoner: List<ArrangorKontaktperson>
 
-    fun medKontaktpersoner(kontaktpersoner: List<ArrangorKontaktperson>): Arrangor = when (this) {
-        is Norsk -> copy(kontaktpersoner = kontaktpersoner)
-        is Utenlandsk -> copy(kontaktpersoner = kontaktpersoner)
-    }
+    abstract fun registrerKontaktpersoner(kontaktpersoner: List<ArrangorKontaktperson>): Arrangor
+
+    abstract fun registrerSlettet(slettetDato: LocalDate): Arrangor
 
     /**
      * Norske virksomheter hentet fra Brønnøysundregisteret. Betalingsinformasjon er ikke lagret direkte på
      * arrangør, men hentes i stedet on demand fra utbetalingsseksjonen (Kontoregister Organisasjon).
      */
-    data class Norsk(
+    data class Norsk private constructor(
         override val id: UUID,
         override val organisasjonsnummer: Organisasjonsnummer,
         override val organisasjonsform: String?,
         override val navn: String,
-        override val overordnetEnhet: Organisasjonsnummer? = null,
-        override val slettetDato: LocalDate? = null,
-        override val kontaktpersoner: List<ArrangorKontaktperson> = emptyList(),
-    ) : Arrangor()
+        override val overordnetEnhet: Organisasjonsnummer?,
+        override val slettetDato: LocalDate?,
+        override val kontaktpersoner: List<ArrangorKontaktperson>,
+    ) : Arrangor() {
+        override fun registrerKontaktpersoner(kontaktpersoner: List<ArrangorKontaktperson>): Norsk {
+            return copy(kontaktpersoner = kontaktpersoner)
+        }
+
+        override fun registrerSlettet(slettetDato: LocalDate): Norsk {
+            return copy(slettetDato = slettetDato)
+        }
+
+        fun registrerVirksomhet(navn: String, organisasjonsform: String?): Norsk {
+            return copy(navn = navn, organisasjonsform = organisasjonsform)
+        }
+
+        companion object {
+            fun opprett(
+                id: UUID,
+                organisasjonsnummer: Organisasjonsnummer,
+                organisasjonsform: String?,
+                navn: String,
+                overordnetEnhet: Organisasjonsnummer? = null,
+                slettetDato: LocalDate? = null,
+            ) = Norsk(
+                id = id,
+                organisasjonsnummer = organisasjonsnummer,
+                organisasjonsform = organisasjonsform,
+                navn = navn,
+                overordnetEnhet = overordnetEnhet,
+                slettetDato = slettetDato,
+                kontaktpersoner = listOf(),
+            )
+
+            fun fromStorage(
+                id: UUID,
+                organisasjonsnummer: Organisasjonsnummer,
+                organisasjonsform: String?,
+                navn: String,
+                overordnetEnhet: Organisasjonsnummer?,
+                slettetDato: LocalDate?,
+                kontaktpersoner: List<ArrangorKontaktperson>,
+            ) = Norsk(
+                id = id,
+                organisasjonsnummer = organisasjonsnummer,
+                organisasjonsform = organisasjonsform,
+                navn = navn,
+                overordnetEnhet = overordnetEnhet,
+                slettetDato = slettetDato,
+                kontaktpersoner = kontaktpersoner,
+            )
+        }
+    }
 
     /**
      * Utenlandske virksomheter som er registrert manuelt og arvet fra Arena.
@@ -43,22 +91,80 @@ sealed class Arrangor {
      * For at utenlandske virksomheter skal kunne motta utbetalinger må betalingsinformasjonen og adresse
      * registreres manuelt i eget register (altså egen database).
      */
-    data class Utenlandsk(
+    data class Utenlandsk private constructor(
         override val id: UUID,
         override val organisasjonsnummer: Organisasjonsnummer,
         override val organisasjonsform: String?,
         override val navn: String,
-        override val overordnetEnhet: Organisasjonsnummer? = null,
-        override val slettetDato: LocalDate? = null,
-        override val kontaktpersoner: List<ArrangorKontaktperson> = emptyList(),
-        val betalingsinformasjon: Betalingsinformasjon.IBan? = null,
-        val adresse: Adresse? = null,
+        override val overordnetEnhet: Organisasjonsnummer?,
+        override val slettetDato: LocalDate?,
+        override val kontaktpersoner: List<ArrangorKontaktperson>,
+        val betalingsinformasjon: Betalingsinformasjon.IBan?,
+        val adresse: Adresse?,
     ) : Arrangor() {
+        override fun registrerKontaktpersoner(kontaktpersoner: List<ArrangorKontaktperson>): Utenlandsk {
+            return copy(kontaktpersoner = kontaktpersoner)
+        }
+
+        override fun registrerSlettet(slettetDato: LocalDate): Utenlandsk {
+            return copy(slettetDato = slettetDato)
+        }
+
+        fun registrerBetalingsinformasjon(
+            betalingsinformasjon: Betalingsinformasjon.IBan,
+            adresse: Adresse,
+        ): Utenlandsk {
+            return copy(betalingsinformasjon = betalingsinformasjon, adresse = adresse)
+        }
+
         data class Adresse(
             val gateNavn: String,
             val by: String,
             val postNummer: String,
             val landKode: String,
         )
+
+        companion object {
+            fun opprett(
+                id: UUID,
+                organisasjonsnummer: Organisasjonsnummer,
+                organisasjonsform: String?,
+                navn: String,
+                overordnetEnhet: Organisasjonsnummer? = null,
+                slettetDato: LocalDate? = null,
+            ) = Utenlandsk(
+                id = id,
+                organisasjonsnummer = organisasjonsnummer,
+                organisasjonsform = organisasjonsform,
+                navn = navn,
+                overordnetEnhet = overordnetEnhet,
+                slettetDato = slettetDato,
+                kontaktpersoner = listOf(),
+                betalingsinformasjon = null,
+                adresse = null,
+            )
+
+            fun fromStorage(
+                id: UUID,
+                organisasjonsnummer: Organisasjonsnummer,
+                organisasjonsform: String?,
+                navn: String,
+                overordnetEnhet: Organisasjonsnummer?,
+                slettetDato: LocalDate?,
+                kontaktpersoner: List<ArrangorKontaktperson>,
+                betalingsinformasjon: Betalingsinformasjon.IBan?,
+                adresse: Adresse?,
+            ) = Utenlandsk(
+                id = id,
+                organisasjonsnummer = organisasjonsnummer,
+                organisasjonsform = organisasjonsform,
+                navn = navn,
+                overordnetEnhet = overordnetEnhet,
+                slettetDato = slettetDato,
+                kontaktpersoner = kontaktpersoner,
+                betalingsinformasjon = betalingsinformasjon,
+                adresse = adresse,
+            )
+        }
     }
 }

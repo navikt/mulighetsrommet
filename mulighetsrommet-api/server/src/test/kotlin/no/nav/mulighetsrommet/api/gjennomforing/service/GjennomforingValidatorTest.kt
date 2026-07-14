@@ -330,7 +330,7 @@ class GjennomforingValidatorTest : FunSpec({
     test("arrangøren må være aktiv i Brreg") {
         validateCreate(
             request,
-            ctx.copy(arrangor = ArrangorFixtures.underenhet1.copy(slettetDato = LocalDate.of(2024, 1, 1)).toDto()),
+            ctx.copy(arrangor = ArrangorFixtures.underenhet1.registrerSlettet(LocalDate.of(2024, 1, 1)).toDto()),
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
             FieldError(
                 "/arrangorId",
