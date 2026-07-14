@@ -4,7 +4,7 @@
 
 template_files=()
 shopt -s nullglob
-for f in templates/mulighetsrommet/*.typ; do
+for f in templates/block-content/*.typ; do
   template_files+=("$f")
 done
 shopt -u nullglob

@@ -4,11 +4,11 @@
   "description": "Krav om utbetaling fra Nav",
   "author": "Tiltaksadministrasjon",
   "topSection": {
-    "publicExemption": false,
-    "mottaker": "AKSEPTABEL EMPIRISK TIGER AS",
-    "deltaker": {},
-    "dato": "2025-01-02",
-    "saksnummer": "A-2026/9999-1"
+    "publicExemption": true,
+    "addressedTo": "AKSEPTABEL EMPIRISK TIGER AS",
+    "deltaker": null,
+    "date": "2026-03-02",
+    "reference": "A-2026/9999-1"
   },
   "sections": [
     {

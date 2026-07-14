@@ -27,9 +27,6 @@ spec:
     path: /internal/is_alive
     initialDelay: 10
   observability:
-    autoInstrumentation:
-      enabled: true
-      runtime: java
     logging:
       destinations:
         - id: loki

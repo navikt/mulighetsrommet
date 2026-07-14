@@ -3,17 +3,16 @@
   "subject": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
+  "enhet": "Nav Øst-Viken",
   "topSection": {
     "publicExemption": true,
-    "mottaker": "AKSEPTABEL EMPIRISK TIGER AS",
+    "addressedTo": "AKSEPTABEL EMPIRISK TIGER AS",
     "deltaker": {
-      "fornavn": "Ola",
-      "mellomnavn": "",
-      "etternavn": "Normann",
-      "fnr": "01010199999"
+      "navn": "Ola Normann",
+      "norskIdent": "01010199999"
     },
-    "dato": "2026-03-02",
-    "saksnummer": "A-2026/9999-1"
+    "date": "2026-03-02",
+    "reference": "A-2026/9999-1"
   },
   "sections": [
     {
