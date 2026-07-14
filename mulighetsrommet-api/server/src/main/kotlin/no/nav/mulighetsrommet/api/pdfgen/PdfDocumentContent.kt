@@ -4,6 +4,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.poao_tilgang.client.NorskIdent
 
 @Serializable
 data class PdfDocumentContent(
@@ -44,7 +45,7 @@ data class TopSection(
 @Serializable
 data class Deltaker(
     val navn: String,
-    val norskIdent: String? = null,
+    val norskIdent: NorskIdent? = null,
 )
 
 @Serializable
