@@ -1,6 +1,6 @@
-#import "helpers.typ": formater-verdi
+#import "helpers.typ": format-value
 
-#let render-tabell(block) = {
+#let block-table(block) = {
   let tbl = block.at("table", default: none)
   if tbl == none { return }
 
@@ -24,7 +24,7 @@
       celler.enumerate().map(((i, celle)) => {
         let kol    = kolonner.at(i, default: (:))
         let juster = if kol.at("align", default: "LEFT") == "RIGHT" { right } else { left }
-        table.cell(align: juster, formater-verdi(celle))
+        table.cell(align: juster, format-value(celle))
       })
     }).flatten()
   )

@@ -1,4 +1,4 @@
-#let render-avsnitt(block) = {
+#let paragraph(block) = {
   let ord = block.at("words", default: ())
   par(
     ord.map(ord-item => {

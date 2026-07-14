@@ -1,6 +1,6 @@
 #import "block.typ": render-block
 
-#let render-section(seksjon) = {
+#let section(seksjon) = {
   let tittel = seksjon.at("title", default: none)
   let blocks = seksjon.at("blocks", default: ())
 

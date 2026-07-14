@@ -1,4 +1,4 @@
-#let brev-layout = (
+#let letter-layout = (
   topSectionGutter: 8pt,
   topSectionBottomSpacing: 19.5pt,
   topSectionColumnGutter: 30pt,
@@ -13,10 +13,10 @@
 
 #let headingStyle = (
   levels: (
-    "1": (size: 12pt, leading: 0pt, tracking: 0.225pt, before: 0pt),
-    "2": (size: 9.75pt, leading: 0pt, tracking: 0.1875pt, before: 19.5pt),
-    "3": (size: 9pt, leading: 0pt, tracking: 0.15pt, before: 19.5pt),
-    "4": (size: 8.25pt, leading: 0pt, tracking: 0.075pt, before: 19.6pt),
+    "1": (size: 12pt,  before: 0pt, after: 0pt),
+    "2": (size: 9.75pt, before: 19.5pt, after: 4.5pt),
+    "3": (size: 9pt, before: 19.5pt, after: 4.5pt),
+    "4": (size: 8.25pt, before: 19.5pt, after: 4.5pt),
   ),
 )
 
@@ -27,20 +27,14 @@
   weight: "regular",
 )
 
-#let footerStyle = (
-  size: 6.75pt,
-  leading: 0pt,
-  weight: "regular",
-)
-
-
-#let heading-style(size, leading, tracking, space-before, body) = {
+#let heading-style(size, space-before, space-after, body) = {
   v(space-before)
-  set par(leading: leading)
-  text(size: size, weight: "bold", tracking: tracking, body)
+  set par(leading: 0pt)
+  text(size: size, tracking: 0pt, weight: "bold", body)
+  v(space-after)
 }
 
-#let bruk-brev-stiler(body) = {
+#let apply-letter-layout(body) = {
   set page(paper: "a4", margin: (top: 48pt, bottom: 55.5pt, x: 48pt), footer: context [
     #set text(size: 8pt)
     #h(1fr)
@@ -51,37 +45,31 @@
 
   show heading.where(level: 1): it => {
     let h = headingStyle.at("levels").at("1")
-    heading-style(h.at("size"), h.at("leading"), h.at("tracking"), h.at("before"), it.body)
+    heading-style(h.at("size"), h.at("before"), h.at("after"), it.body)
   }
 
   show heading.where(level: 2): it => {
     let h = headingStyle.at("levels").at("2")
-    heading-style(h.at("size"), h.at("leading"), h.at("tracking"), h.at("before"), it.body)
+    heading-style(h.at("size"), h.at("before"), h.at("after"), it.body)
   }
 
   show heading.where(level: 3): it => {
     let h = headingStyle.at("levels").at("3")
-    heading-style(h.at("size"), h.at("leading"), h.at("tracking"), h.at("before"), it.body)
+    heading-style(h.at("size"), h.at("before"), h.at("after"), it.body)
   }
 
   show heading.where(level: 4): it => {
     let h = headingStyle.at("levels").at("4")
-    heading-style(h.at("size"), h.at("leading"), h.at("tracking"), h.at("before"), it.body)
+    heading-style(h.at("size"), h.at("before"), h.at("after"), it.body)
   }
 
-  body
-}
-
-#let apply-footer-style(body) = {
-  set text(size: footerStyle.at("size"), weight: footerStyle.at("weight"))
-  set par(leading: footerStyle.at("leading"))
   body
 }
 
 #let info-grid(..cells) = align(left)[
   #grid(
     columns: (auto, 1fr),
-    gutter: brev-layout.at("topSectionGutter"),
+    gutter: letter-layout.at("topSectionGutter"),
     ..cells,
   )
 ]

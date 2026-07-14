@@ -1,7 +1,7 @@
 #import "../partials/helpers.typ": iso-til-nor-dato
 #import "../partials/styles.typ": bodyStyle
 
-#let render-avslag(vedtak) = {
+#let avslag(vedtak) = {
   let tilskudd  = vedtak.at("tilskuddType", default: "")
   let periode   = vedtak.at("periode", default: none)
   let fradato   = iso-til-nor-dato(periode.at("fradato", default: ""))

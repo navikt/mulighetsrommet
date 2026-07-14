@@ -1,4 +1,4 @@
-#let maaneder = (
+#let months = (
   "januar", "februar", "mars", "april", "mai", "juni",
   "juli", "august", "september", "oktober", "november", "desember",
 )
@@ -18,21 +18,13 @@
   if s == none or s == "" { return "" }
   let deler = str(s).split("-")
   if deler.len() >= 3 {
-    str(int(deler.at(2))) + ". " + maaneder.at(int(deler.at(1)) - 1) + " " + deler.at(0)
+    str(int(deler.at(2))) + ". " + months.at(int(deler.at(1)) - 1) + " " + deler.at(0)
   } else {
     s
   }
 }
 
-#let format-name(fornavn, mellomnavn, etternavn) = {
-  if mellomnavn != "" {
-    fornavn + " " + mellomnavn + " " + etternavn
-  } else {
-    fornavn + " " + etternavn
-  }
-}
-
-#let formater-verdi(entry) = {
+#let format-value(entry) = {
   let verdi  = entry.at("value", default: none)
   let fmt    = entry.at("format", default: none)
   let valuta = entry.at("currency", default: none)

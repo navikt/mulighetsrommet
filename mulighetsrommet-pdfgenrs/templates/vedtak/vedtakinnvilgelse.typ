@@ -1,7 +1,7 @@
 #import "../partials/helpers.typ": iso-til-nor-dato
 #import "../partials/styles.typ": bodyStyle
 
-#let render-innvilgelse(vedtak) = {
+#let innvilgelse(vedtak) = {
   let tilskudd  = vedtak.at("tilskuddType", default: "")
   let belop     = vedtak.at("tilskuddBelop", default: "")
   let valuta    = vedtak.at("valuta", default: "NOK")

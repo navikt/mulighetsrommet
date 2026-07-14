@@ -1,16 +1,16 @@
-#import "./styles.typ": brev-layout
+#import "./styles.typ": letter-layout
 #import "helpers.typ": iso-til-nor-dato
 
-#let render-top-section(top) = {
+#let top-section(top) = {
   if top == none { return }
 
   grid(
     columns: (auto, 1fr, auto),
-    column-gutter: brev-layout.at("topSectionColumnGutter"),
-    gutter: brev-layout.at("topSectionGutter"),
+    column-gutter: letter-layout.at("topSectionColumnGutter"),
+    gutter: letter-layout.at("topSectionGutter"),
     ..top
     )
-    v(brev-layout.at("topSectionBottomSpacing"))
+    v(letter-layout.at("topSectionBottomSpacing"))
 
 }
 

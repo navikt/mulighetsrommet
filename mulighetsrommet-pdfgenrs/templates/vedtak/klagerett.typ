@@ -1,5 +1,5 @@
 #import "../partials/styles.typ": bodyStyle
-#let render-klagerett() = [
+#let klagerett() = [
   #heading("Du kan klage på vedtaket", level: 2)
 
   #par("Hvis du mener vedtaket er feil, kan du klage innen [antall uker fylles ut av breveieren] uker fra den datoen vedtaket har kommet fram til deg. Dette følger av [sett inn lovhenvisning]. Du finner skjema og informasjon på nav.no/klage.")
