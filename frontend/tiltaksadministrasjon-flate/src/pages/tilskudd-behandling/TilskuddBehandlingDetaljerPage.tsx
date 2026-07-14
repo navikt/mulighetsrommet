@@ -19,7 +19,7 @@ import { Alert, BodyShort, Box, Button, HStack, List, VStack } from "@navikt/ds-
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { TilskuddBehandlingLayout } from "@/components/tilskudd-behandling/TilskuddBehandlingLayout";
-import { ToTrinnskontrollForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollForklaring";
+import { ToTrinnsOpprettelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollOpprettelseForklaring";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import {
   MetadataFritekstfelt,
@@ -96,7 +96,10 @@ export function TilskuddBehandlingDetaljerPage() {
   return (
     <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
       {erReturnert(opprettelse) && (
-        <ToTrinnskontrollForklaring heading="Behandlingen ble returnert" kontroll={opprettelse} />
+        <ToTrinnsOpprettelseForklaring
+          heading="Behandlingen ble returnert"
+          opprettelse={opprettelse}
+        />
       )}
       <Box marginBlock="space-16">
         <HStack gap="space-8" justify="end">

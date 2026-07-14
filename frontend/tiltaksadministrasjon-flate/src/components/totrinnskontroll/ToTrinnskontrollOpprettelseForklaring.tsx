@@ -10,11 +10,11 @@ import { erReturnert, erBesluttet } from "@/utils/totrinnskontroll";
 
 type Props = {
   heading: string;
-  kontroll: TotrinnskontrollDto;
+  opprettelse: TotrinnskontrollDto;
 };
 
-export function ToTrinnskontrollForklaring({ heading, kontroll }: Props) {
-  if (!erBesluttet(kontroll) || !erReturnert(kontroll)) {
+export function ToTrinnsOpprettelseForklaring({ heading, opprettelse }: Props) {
+  if (!erBesluttet(opprettelse) || !erReturnert(opprettelse)) {
     return null;
   }
 
@@ -22,12 +22,12 @@ export function ToTrinnskontrollForklaring({ heading, kontroll }: Props) {
     <AarsakerOgForklaring
       heading={heading}
       tekster={[
-        `${kontroll.besluttetAv.navn} returnerte den ${formaterDato(kontroll.besluttetTidspunkt)}.`,
+        `${opprettelse.besluttetAv.navn} returnerte den ${formaterDato(opprettelse.besluttetTidspunkt)}.`,
       ]}
-      aarsaker={kontroll.aarsaker.map((aarsak) =>
+      aarsaker={opprettelse.aarsaker.map((aarsak) =>
         aarsakTilTekst(aarsak as TilsagnStatusAarsak | TilskuddBehandlingStatusAarsak),
       )}
-      forklaring={kontroll.forklaring}
+      forklaring={opprettelse.forklaring}
     />
   );
 }

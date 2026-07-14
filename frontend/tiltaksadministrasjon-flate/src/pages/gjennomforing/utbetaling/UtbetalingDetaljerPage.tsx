@@ -60,7 +60,6 @@ import {
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjonModal";
 import { useForm, UseFormReturn } from "react-hook-form";
-import { ToTrinnskontrollForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollForklaring";
 import { SlettKorreksjonModal } from "@/components/utbetaling/SlettKorreksjonModal";
 import { AvbrytUtbetalingModal } from "@/components/utbetaling/AvbrytUtbetalingModal";
 import { AvvisAvbrytUtbetalingModal } from "@/components/utbetaling/AvvisAvbrytUtbetalingModal";
@@ -190,11 +189,7 @@ export function UtbetalingDetaljerPage() {
         />
       </HStack>
       <VStack gap="space-12">
-        {tilAvbrytning && (
-          <ToTrinnskontrollForklaring
-            heading="Behandlingen ble returnert"
-            kontroll={tilAvbrytning}
-          />
+        {tilAvbrytning && ("Har avbrytning"
         )}
         <HGrid columns="1fr auto" align="start">
           <TwoColumnGrid separator>
