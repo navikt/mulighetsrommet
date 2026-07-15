@@ -9,7 +9,7 @@ export function useDeleteArrangorKontaktperson(arrangorId: string) {
   return useApiMutation<unknown, ProblemDetail, { kontaktpersonId: string }>({
     mutationFn({ kontaktpersonId }: { kontaktpersonId: string }) {
       return ArrangorService.deleteArrangorKontaktperson({
-        path: { id: kontaktpersonId },
+        path: { id: arrangorId, kontaktpersonId },
       });
     },
     onSuccess() {

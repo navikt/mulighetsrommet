@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.arrangor.model
+package no.nav.mulighetsrommet.api.domain.arrangor
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.UUIDSerializer

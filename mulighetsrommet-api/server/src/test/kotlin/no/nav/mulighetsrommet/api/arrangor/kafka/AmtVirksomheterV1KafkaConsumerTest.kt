@@ -1,10 +1,9 @@
 package no.nav.mulighetsrommet.api.arrangor.kafka
 
-import arrow.core.left
 import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -13,13 +12,11 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.brreg.BrregClient
-import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
-import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
-import no.nav.mulighetsrommet.brreg.FjernetBrregEnhetDto
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
+import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
+import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
@@ -41,34 +38,30 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             overordnetEnhetOrganisasjonsnummer = amtVirksomhet.organisasjonsnummer,
         )
 
-        val underenhetDto = BrregUnderenhetDto(
+        val underenhet = Virksomhet.Underenhet(
             navn = amtUnderenhet.navn,
             organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
             organisasjonsform = "BEDR",
             overordnetEnhet = amtVirksomhet.organisasjonsnummer,
         )
 
-        val virksomhetDto = BrregHovedenhetDto(
+        val hovedenhet = Virksomhet.Hovedenhet(
             organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
             organisasjonsform = "AS",
             navn = amtVirksomhet.navn,
-            overordnetEnhet = null,
-            postadresse = null,
-            forretningsadresse = null,
         )
 
-        val brregClient: BrregClient = mockk()
-        coEvery { brregClient.getBrregEnhet(amtVirksomhet.organisasjonsnummer) } returns virksomhetDto.right()
-        coEvery { brregClient.getBrregEnhet(amtUnderenhet.organisasjonsnummer) } returns underenhetDto.right()
+        val enhetsregister: EnhetsregisterGateway = mockk {
+            coEvery { hentVirksomhet(amtVirksomhet.organisasjonsnummer) } answers {
+                VirksomhetOppslag.Funnet(hovedenhet).right()
+            }
+            coEvery { hentVirksomhet(amtUnderenhet.organisasjonsnummer) } answers {
+                VirksomhetOppslag.Funnet(underenhet).right()
+            }
+        }
 
-        val arrangorService = ArrangorService(
-            db = database.api,
-            brregClient = brregClient,
-            kontoregisterOrganisasjonClient = mockk(relaxed = true),
-        )
-        val virksomhetConsumer = AmtVirksomheterV1KafkaConsumer(
-            arrangorService = arrangorService,
-        )
+        val syncArrangor = SyncArrangorUseCase(database.admin, enhetsregister)
+        val virksomhetConsumer = AmtVirksomheterV1KafkaConsumer(database.api, syncArrangor)
 
         test("ignorer virksomheter når de ikke allerede er lagret i databasen") {
             virksomhetConsumer.consume(amtVirksomhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtVirksomhet))
@@ -82,13 +75,12 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
         test("oppdaterer bare virksomheter som er lagret i databasen") {
             val id = UUID.randomUUID()
             database.run {
-                queries.arrangor.upsert(
-                    ArrangorDto(
+                queries.arrangor.save(
+                    Arrangor.Norsk.opprett(
                         id = id,
-                        organisasjonsnummer = virksomhetDto.organisasjonsnummer,
-                        organisasjonsform = virksomhetDto.organisasjonsform,
+                        organisasjonsnummer = hovedenhet.organisasjonsnummer,
+                        organisasjonsform = hovedenhet.organisasjonsform,
                         navn = "Kiwi",
-                        erUtenlandsk = false,
                     ),
                 )
             }
@@ -97,26 +89,21 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtUnderenhet))
 
             database.run {
-                queries.arrangor.getAll().items.shouldHaveSize(1).first().should {
-                    it.id shouldBe id
-                    it.organisasjonsnummer shouldBe virksomhetDto.organisasjonsnummer
-                    it.organisasjonsform shouldBe virksomhetDto.organisasjonsform
-                    it.navn shouldBe "REMA 1000 AS"
-                }
+                repository.arrangor.getByOrganisasjonsnummer(amtVirksomhet.organisasjonsnummer).shouldNotBeNull()
+                repository.arrangor.getByOrganisasjonsnummer(amtUnderenhet.organisasjonsnummer).shouldBeNull()
             }
         }
 
-        test("håndterer virksomet som er fjernet fra Brreg") {
+        test("håndterer virksomet som er fjernet fra enhetsregisteret") {
             val orgnr = Organisasjonsnummer("433695968")
 
             database.run {
-                queries.arrangor.upsert(
-                    ArrangorDto(
+                queries.arrangor.save(
+                    Arrangor.Norsk.opprett(
                         id = UUID.randomUUID(),
                         organisasjonsnummer = orgnr,
                         organisasjonsform = null,
                         navn = "Slottet",
-                        erUtenlandsk = false,
                     ),
                 )
             }
@@ -127,35 +114,36 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
                 overordnetEnhetOrganisasjonsnummer = null,
             )
 
-            coEvery { brregClient.getBrregEnhet(orgnr) } returns BrregError.FjernetAvJuridiskeArsaker(
-                FjernetBrregEnhetDto(orgnr, LocalDate.of(2025, 5, 24)),
-            ).left()
+            coEvery { enhetsregister.hentVirksomhet(orgnr) } answers {
+                VirksomhetOppslag.FjernetAvJuridiskeArsaker(orgnr, LocalDate.of(2025, 5, 24)).right()
+            }
 
             virksomhetConsumer.consume(orgnr.value, Json.encodeToJsonElement(fjernetVirksomhet))
 
             database.run {
-                queries.arrangor.get(orgnr).shouldNotBeNull().slettetDato shouldBe LocalDate.of(2025, 5, 24)
+                repository.arrangor.getByOrganisasjonsnummer(orgnr).shouldNotBeNull().should {
+                    it.slettetDato shouldBe LocalDate.of(2025, 5, 24)
+                }
             }
         }
 
         test("delete virksomheter for tombstone messages") {
             database.run {
-                queries.arrangor.upsert(
-                    ArrangorDto(
+                queries.arrangor.save(
+                    Arrangor.Norsk.opprett(
                         id = UUID.randomUUID(),
-                        organisasjonsnummer = underenhetDto.organisasjonsnummer,
-                        organisasjonsform = virksomhetDto.organisasjonsform,
+                        organisasjonsnummer = underenhet.organisasjonsnummer,
+                        organisasjonsform = hovedenhet.organisasjonsform,
                         navn = "Kiwi",
-                        erUtenlandsk = false,
                     ),
                 )
-                queries.arrangor.get(underenhetDto.organisasjonsnummer).shouldNotBeNull()
+                queries.arrangor.getByOrganisasjonsnummer(underenhet.organisasjonsnummer).shouldNotBeNull()
             }
 
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, JsonNull)
 
             database.run {
-                queries.arrangor.get(underenhetDto.organisasjonsnummer) shouldBe null
+                repository.arrangor.getByOrganisasjonsnummer(underenhet.organisasjonsnummer) shouldBe null
             }
         }
     }

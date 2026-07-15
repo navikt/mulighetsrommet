@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.arrangor.api
+package no.nav.mulighetsrommet.api.enhetsregister
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -6,17 +6,17 @@ import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
+import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.withTestApplication
-import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.brreg.testFixture.BrregFixtures
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
-class ArrangorPublicRoutesTest : FunSpec({
+class EnhetsregisterRoutesTest : FunSpec({
     val oauth = MockOAuth2Server()
 
     beforeSpec {
@@ -31,9 +31,9 @@ class ArrangorPublicRoutesTest : FunSpec({
         auth = createAuthConfig(oauth, roles = setOf()),
     )
 
-    context("/v1/arrangor") {
+    context("/v1/virksomhet") {
         context("sok underenhet") {
-            val sokUrl = { term: String -> "/api/v1/arrangor/underenhet?sok=$term" }
+            val sokUrl = { term: String -> "/api/v1/virksomhet/underenhet?sok=$term" }
 
             test("401 når påkrevde claims mangler fra token") {
                 withTestApplication(appConfig()) {
@@ -66,7 +66,7 @@ class ArrangorPublicRoutesTest : FunSpec({
 
                     response.status shouldBe HttpStatusCode.OK
 
-                    val responseBody = response.body<List<BrregUnderenhetDto>>()
+                    val responseBody = response.body<List<Virksomhet.Underenhet>>()
                     responseBody.size shouldBe 1
                 }
             }
@@ -89,7 +89,7 @@ class ArrangorPublicRoutesTest : FunSpec({
 
                     response.status shouldBe HttpStatusCode.OK
 
-                    val responseBody = response.body<List<BrregUnderenhetDto>>()
+                    val responseBody = response.body<List<Virksomhet.Underenhet>>()
                     responseBody.size shouldBe 0
                 }
             }

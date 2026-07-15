@@ -5,57 +5,14 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.action.QueryAction
 
-class Pagination private constructor(
-    private val page: Int,
-    val pageSize: Int? = null,
-) {
-
-    init {
-        require(page > 0) {
-            "'page' must be greater than '0'"
-        }
-
-        require(pageSize == null || pageSize > 0) {
-            "'pageSize' must be 'null' or greater than '0'"
-        }
-    }
-
-    companion object {
-        fun all() = Pagination(
-            page = 1,
-            pageSize = null,
-        )
-
-        fun of(page: Int, size: Int) = Pagination(
-            page = page,
-            pageSize = size,
-        )
-    }
-
-    val parameters: Map<String, Int?>
-        get() {
-            val offset = if (pageSize == null) {
-                null
-            } else {
-                (page - 1) * pageSize
-            }
-
-            return mapOf(
-                "limit" to pageSize,
-                "offset" to offset,
-            )
-        }
-
-    override fun toString(): String {
-        return "Pagination(page=$page, pageSize=$pageSize)"
-    }
-}
-
-data class PaginatedResult<T>(val totalCount: Int, val items: List<T>)
-
-inline fun <T, U> PaginatedResult<T>.map(transform: (T) -> U): PaginatedResult<U> {
-    return PaginatedResult(totalCount, items.map(transform))
-}
+/**
+ * Sql-parametre for [Pagination], navngitt for å matche `limit`/`offset` i en parameterisert spørring.
+ */
+val Pagination.parameters: Map<String, Int?>
+    get() = mapOf(
+        "limit" to pageSize,
+        "offset" to offset,
+    )
 
 /**
  * Utility som utvider [Query] med en accessor for paginert data.

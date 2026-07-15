@@ -16,9 +16,13 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
+import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
+import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
+import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
@@ -41,10 +45,6 @@ import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.brreg.BrregClient
-import no.nav.mulighetsrommet.brreg.BrregError
-import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
-import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -88,12 +88,12 @@ class AvtaleServiceTest : FunSpec({
 
     fun createAvtaleService(
         gjennomforingPublisher: InitialLoadGjennomforinger = mockk(relaxed = true),
-        arrangorService: ArrangorService = ArrangorService(database.api, mockk(), mockk()),
+        syncArrangor: SyncArrangorUseCase = SyncArrangorUseCase(database.admin, mockk()),
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ) = AvtaleService(
         config = AvtaleService.Config(mapOf()),
         database.api,
-        arrangorService,
+        syncArrangor,
         TiltakstypeService(TiltakstypeService.Config(features), database.admin),
         gjennomforingPublisher,
     )
@@ -136,27 +136,29 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("oppretter avtale med arrangør hentet fra brreg") {
-            val brregClient = mockk<BrregClient>()
             val orgnrHovedenhet = Organisasjonsnummer("999999999")
             val orgnrUnderenhet = Organisasjonsnummer("888888888")
-            coEvery { brregClient.getBrregEnhet(orgnrHovedenhet) } returns BrregHovedenhetDto(
-                organisasjonsnummer = orgnrHovedenhet,
-                organisasjonsform = "AS",
-                navn = "Ny arrangør hovedenhet",
-                overordnetEnhet = null,
-                postadresse = null,
-                forretningsadresse = null,
-            ).right()
-            coEvery { brregClient.getBrregEnhet(orgnrUnderenhet) } returns BrregUnderenhetDto(
-                organisasjonsnummer = orgnrUnderenhet,
-                organisasjonsform = "AS",
-                navn = "Ny arrangør underenhet",
-                overordnetEnhet = orgnrHovedenhet,
-            ).right()
+            val enhetsregister = mockk<EnhetsregisterGateway> {
+                coEvery { hentVirksomhet(orgnrHovedenhet) } returns VirksomhetOppslag.Funnet(
+                    Virksomhet.Hovedenhet(
+                        organisasjonsnummer = orgnrHovedenhet,
+                        organisasjonsform = "AS",
+                        navn = "Ny arrangør hovedenhet",
+                    ),
+                ).right()
+                coEvery { hentVirksomhet(orgnrUnderenhet) } returns VirksomhetOppslag.Funnet(
+                    Virksomhet.Underenhet(
+                        organisasjonsnummer = orgnrUnderenhet,
+                        organisasjonsform = "AS",
+                        navn = "Ny arrangør underenhet",
+                        overordnetEnhet = orgnrHovedenhet,
+                    ),
+                ).right()
+            }
 
-            val arrangorService = ArrangorService(database.api, brregClient, mockk())
+            val syncArrangor = SyncArrangorUseCase(database.admin, enhetsregister)
 
-            val avtaleService = createAvtaleService(arrangorService = arrangorService)
+            val avtaleService = createAvtaleService(syncArrangor = syncArrangor)
 
             val request = AvtaleFixtures.createAvtaleRequest(
                 Tiltakskode.OPPFOLGING,
@@ -225,12 +227,13 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("får ikke opprette avtale dersom virksomhet ikke finnes i Brreg") {
-            val brregClient = mockk<BrregClient>()
-            coEvery { brregClient.getBrregEnhet(Organisasjonsnummer("223442332")) } returns BrregError.NotFound.left()
+            val enhetsregister = mockk<EnhetsregisterGateway> {
+                coEvery { hentVirksomhet(Organisasjonsnummer("223442332")) } returns EnhetsregisterError.IkkeFunnet.left()
+            }
 
-            val arrangorService = ArrangorService(db = database.api, brregClient = brregClient, mockk())
+            val syncArrangor = SyncArrangorUseCase(database.admin, enhetsregister)
 
-            val avtaleService = createAvtaleService(arrangorService = arrangorService)
+            val avtaleService = createAvtaleService(syncArrangor = syncArrangor)
 
             val request = AvtaleFixtures.createAvtaleRequest(
                 Tiltakskode.OPPFOLGING,

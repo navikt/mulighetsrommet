@@ -14,10 +14,10 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.amt.model.AmtArrangorMelding
 import no.nav.amt.model.EndringAarsak
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -72,10 +72,10 @@ class GenererUtbetalingServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    val arrangorService = mockk<ArrangorService>()
+    val betalingsinformasjon = mockk<BetalingsinformasjonQuery>()
 
     beforeEach {
-        coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
+        coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
             kontonummer = Kontonummer("12345678901"),
             kid = null,
         )
@@ -95,7 +95,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val utbetalingService = UtbetalingService(
             config = UtbetalingService.Config(tidligstTidspunktForUtbetaling),
             tilsagnService = tilsagnService,
-            arrangorService = arrangorService,
+            betalingsinformasjon = betalingsinformasjon,
         )
         return GenererUtbetalingService(
             config = GenererUtbetalingService.Config(gyldigTilsagnPeriode),
@@ -929,7 +929,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 setTilsagnStatus(tilsagn, TilsagnStatus.GODKJENT)
             }.initialize(database.api)
 
-            coEvery { arrangorService.getBetalingsinformasjon(any()) } returns null
+            coEvery { betalingsinformasjon.execute(any()) } returns null
 
             val utbetaling = service.genererUtbetalingerForPeriode(januar).shouldHaveSize(1).first()
             utbetaling.status shouldBe UtbetalingStatusType.GENERERT

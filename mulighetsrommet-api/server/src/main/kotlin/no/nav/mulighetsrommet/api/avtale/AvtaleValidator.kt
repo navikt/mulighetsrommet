@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.amo.models.Bransje
 import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
 import no.nav.mulighetsrommet.api.amo.models.InnholdElement
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
@@ -34,6 +33,7 @@ import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodeller
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.ArrangorUnderenhet
@@ -61,7 +61,7 @@ import kotlin.contracts.ExperimentalContracts
 object AvtaleValidator {
     data class Ctx(
         val previous: Avtale?,
-        val arrangor: ArrangorDto?,
+        val arrangor: AvtaleArrangor?,
         val administratorer: List<NavAnsatt>,
         val kategorisering: Kategorisering,
         val tiltakstype: Tiltakstype,
@@ -76,6 +76,11 @@ object AvtaleValidator {
             val tiltakskode: Tiltakskode,
             val gjennomforinger: List<Gjennomforing>,
             val prismodeller: List<Prismodell>,
+        )
+
+        data class AvtaleArrangor(
+            val hovedenhet: Arrangor,
+            val underenheter: List<Arrangor>,
         )
 
         data class Gjennomforing(
@@ -446,7 +451,13 @@ object AvtaleValidator {
             }
         }
         val opplaringKategorisering =
-            context(ctx.kategorisering) { validateOpplaringKategorisering(request.tiltakskode, request.amoKategorisering, request.utdanningslop) }
+            context(ctx.kategorisering) {
+                validateOpplaringKategorisering(
+                    request.tiltakskode,
+                    request.amoKategorisering,
+                    request.utdanningslop,
+                )
+            }
 
         validateSlettetNavAnsatte(ctx.administratorer)
         ctx.arrangor?.let { validateArrangor(it).bind() }
@@ -467,19 +478,19 @@ object AvtaleValidator {
         AvtaleStatusType.AVSLUTTET
     }
 
-    private fun validateArrangor(arrangor: ArrangorDto) = validation(DetaljerRequest::arrangor) {
-        if (arrangor.erUtenlandsk) {
+    private fun validateArrangor(arrangor: Ctx.AvtaleArrangor) = validation(DetaljerRequest::arrangor) {
+        if (arrangor.hovedenhet is Arrangor.Utenlandsk) {
             return@validation
         }
 
-        validate(arrangor.slettetDato == null) {
+        validate(arrangor.hovedenhet.slettetDato == null) {
             FieldError.of(
-                "Arrangøren ${arrangor.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                "Arrangøren ${arrangor.hovedenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
                 DetaljerRequest.Arrangor::hovedenhet,
             )
         }
 
-        arrangor.underenheter?.forEach { underenhet ->
+        arrangor.underenheter.forEach { underenhet ->
             validate(underenhet.slettetDato == null) {
                 FieldError.of(
                     "Arrangøren ${underenhet.navn} er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
@@ -487,9 +498,9 @@ object AvtaleValidator {
                 )
             }
 
-            validate(underenhet.overordnetEnhet == arrangor.organisasjonsnummer) {
+            validate(underenhet is Arrangor.Norsk && underenhet.overordnetEnhet == arrangor.hovedenhet.organisasjonsnummer) {
                 FieldError.of(
-                    "Arrangøren ${underenhet.navn} - ${underenhet.organisasjonsnummer.value} er ikke en gyldig underenhet til hovedenheten ${arrangor.navn}.",
+                    "Arrangøren ${underenhet.navn} (${underenhet.organisasjonsnummer}) er ikke en gyldig underenhet til hovedenheten ${arrangor.hovedenhet.navn}.",
                     DetaljerRequest.Arrangor::underenheter,
                 )
             }

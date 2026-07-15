@@ -1,4 +1,4 @@
-import { mockArrangorer } from "./mock_arrangorer";
+import { mockFretexHovedenhet, mockFretexUnderenheter } from "./mock_arrangorer";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 import {
@@ -29,9 +29,9 @@ export const mockAvtaler: AvtaleDto[] = [
     beskrivelse: null,
     faneinnhold: null,
     arrangor: {
-      ...mockArrangorer.data[0],
+      ...mockFretexHovedenhet,
       slettet: false,
-      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
+      underenheter: mockFretexUnderenheter.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -103,10 +103,10 @@ export const mockAvtaler: AvtaleDto[] = [
     navn: "Avtale hos ÅMLI KOMMUNE SAMFUNNSAVDELINGA",
     avtalenummer: "2021#10579",
     arrangor: {
-      ...mockArrangorer.data[0],
+      ...mockFretexHovedenhet,
       slettet: false,
       kontaktpersoner: [],
-      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
+      underenheter: mockFretexUnderenheter.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -179,10 +179,10 @@ export const mockAvtaler: AvtaleDto[] = [
     navn: "Avtale hos Åna Fengsel",
     avtalenummer: "2020#4929",
     arrangor: {
-      ...mockArrangorer.data[0],
+      ...mockFretexHovedenhet,
       slettet: false,
       kontaktpersoner: [],
-      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
+      underenheter: mockFretexUnderenheter.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
@@ -242,10 +242,10 @@ export const mockAvtaler: AvtaleDto[] = [
     avtalenummer: "2020#4929",
     sakarkivNummer: "24/12345",
     arrangor: {
-      ...mockArrangorer.data[0],
+      ...mockFretexHovedenhet,
       slettet: false,
       kontaktpersoner: [],
-      underenheter: (mockArrangorer.data[0].underenheter || []).map((v) => ({
+      underenheter: mockFretexUnderenheter.map((v) => ({
         id: v.id,
         organisasjonsnummer: v.organisasjonsnummer,
         navn: v.navn,
