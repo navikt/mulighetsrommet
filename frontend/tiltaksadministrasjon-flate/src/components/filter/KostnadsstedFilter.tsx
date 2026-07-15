@@ -1,4 +1,4 @@
-import { CheckboxGroup, CheckboxGroupItem } from "@mr/frontend-common";
+import { CheckboxDropdownGroup, CheckboxGroupItem } from "@mr/frontend-common";
 import { RegionKostnadssteder } from "@tiltaksadministrasjon/api-client";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
 
@@ -11,9 +11,8 @@ export function KostnadsstedFilter({ value, onChange }: Props) {
   const { data: regioner } = useKostnadssteder();
   const groups = toCheckboxGroups(regioner);
   return (
-    <CheckboxGroup
+    <CheckboxDropdownGroup
       legend="Kostnadssteder"
-      hideLegend
       value={value}
       onChange={onChange}
       items={groups}

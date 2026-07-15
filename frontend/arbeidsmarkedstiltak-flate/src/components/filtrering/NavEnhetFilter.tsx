@@ -1,5 +1,5 @@
 import { Kontorstruktur, KontorstrukturKontortype } from "@arbeidsmarkedstiltak/api-client";
-import { CheckboxGroup } from "@mr/frontend-common";
+import { CheckboxDropdownGroup } from "@mr/frontend-common";
 import { useNavKontorstruktur } from "@/api/queries/useNavKontorstruktur";
 
 interface Props {
@@ -11,13 +11,7 @@ export function NavEnhetFilter({ value, onChange }: Props) {
   const { data: regioner } = useNavKontorstruktur();
   const groups = toCheckboxGroups(regioner);
   return (
-    <CheckboxGroup
-      legend="Nav-kontorer"
-      hideLegend
-      value={value}
-      onChange={onChange}
-      items={groups}
-    />
+    <CheckboxDropdownGroup legend="Nav-enheter" value={value} onChange={onChange} items={groups} />
   );
 }
 
