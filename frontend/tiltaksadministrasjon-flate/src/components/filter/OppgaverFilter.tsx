@@ -10,7 +10,7 @@ import { OppgaveType } from "@tiltaksadministrasjon/api-client";
 import { OppgaveTypeFilter } from "@/components/filter/OppgaveTypeFilter";
 import { GjennomforingTiltakstypeFilter } from "./GjennomforingTiltakstypeFilter";
 import { ArrangorerFilter } from "./ArrangorerFilter";
-import { KontorstrukturFilter } from "./KontorstrukturFilter";
+import { KontorstrukturOgKostnadsstedFilter } from "./KontorstrukturOgKostnadsstedFilter";
 
 interface Props {
   filter: OppgaverFilterType;
@@ -61,7 +61,7 @@ export function OppgaverFilter({ filter, updateFilter, lagredeFilterOversikt }: 
             />
           </Accordion.Header>
           <Accordion.Content>
-            <KontorstrukturFilter
+            <KontorstrukturOgKostnadsstedFilter
               value={filter.navEnheter}
               onChange={(navEnheter) => {
                 updateFilter({ navEnheter });

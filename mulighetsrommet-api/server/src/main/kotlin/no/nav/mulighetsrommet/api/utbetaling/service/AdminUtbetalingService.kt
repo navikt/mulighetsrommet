@@ -5,6 +5,7 @@ import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.nel
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -51,7 +52,8 @@ class AdminUtbetalingService(
         val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
 
         val ansatt = queries.ansatt.getOrError(navIdent)
-        val avbrytHandlingEnabled = featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING)
+        val avbrytHandlingEnabled =
+            featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING)
         val handlinger = utbetalingHandlinger(utbetaling, ansatt, avbrytHandlingEnabled)
 
         return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
@@ -135,8 +137,9 @@ class AdminUtbetalingService(
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
         when (opprett) {
             is UpsertUtbetaling.Anskaffelse if opprett.journalpostId == null -> {
-                val arrangor = checkNotNull(queries.arrangor.getByGjennomforingId(opprett.gjennomforingId))
-                if (!arrangor.erUtenlandsk) {
+                val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(opprett.gjennomforingId)
+                val arrangor = repository.arrangor.get(gjennomforing.arrangor.id)
+                if (arrangor is Arrangor.Norsk) {
                     return FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
                         .nel()
                         .left()

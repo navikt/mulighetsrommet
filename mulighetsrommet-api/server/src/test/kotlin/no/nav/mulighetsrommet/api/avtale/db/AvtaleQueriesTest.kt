@@ -17,14 +17,14 @@ import io.kotest.matchers.shouldBe
 import kotliquery.Query
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.toDbo
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
+import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
@@ -268,7 +268,10 @@ class AvtaleQueriesTest : FunSpec({
 
             database.runAndRollback {
                 MulighetsrommetTestDomain(
-                    arrangorKontaktpersoner = listOf(p1, p2, p3),
+                    arrangorer = listOf(
+                        ArrangorFixtures.hovedenhet.registrerKontaktpersoner(listOf(p1, p2, p3)),
+                        ArrangorFixtures.underenhet1,
+                    ),
                     avtaler = listOf(avtale),
                 ).initialize()
 
@@ -347,7 +350,7 @@ class AvtaleQueriesTest : FunSpec({
         test("Underenheter blir riktig med fra spørring") {
             val avtale = AvtaleFixtures.oppfolging.copy(
                 detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-                    arrangor = ArrangorDbo(
+                    arrangor = AvtaleArrangorDbo(
                         hovedenhet = ArrangorFixtures.hovedenhet.id,
                         underenheter = listOf(ArrangorFixtures.underenhet1.id, ArrangorFixtures.underenhet2.id),
                         kontaktpersoner = emptyList(),
@@ -387,12 +390,13 @@ class AvtaleQueriesTest : FunSpec({
                     navn = "Fredrik Navnesen",
                     telefon = "32322",
                 )
+                val hovedenhet = ArrangorFixtures.hovedenhet.registrerKontaktpersoner(listOf(p1, p2))
                 val underenhet1 = ArrangorFixtures.underenhet1
                 val underenhet2 = ArrangorFixtures.underenhet2
 
                 val avtale = AvtaleFixtures.oppfolging.copy(
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-                        arrangor = ArrangorDbo(
+                        arrangor = AvtaleArrangorDbo(
                             hovedenhet = ArrangorFixtures.hovedenhet.id,
                             underenheter = listOf(underenhet1.id, underenhet2.id),
                             kontaktpersoner = listOf(p1.id, p2.id),
@@ -401,7 +405,7 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 MulighetsrommetTestDomain(
-                    arrangorKontaktpersoner = listOf(p1, p2),
+                    arrangorer = listOf(hovedenhet, underenhet1, underenhet2),
                     avtaler = listOf(avtale),
                 ).initialize()
 
@@ -874,16 +878,18 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Filtrering på tiltaksarrangørs navn gir treff") {
-            val annenArrangor = ArrangorFixtures.underenhet1.copy(
+            val annenArrangor = Arrangor.Norsk.opprett(
                 id = UUID.randomUUID(),
-                navn = "Annen Arrangør AS",
                 organisasjonsnummer = Organisasjonsnummer("667543265"),
+                organisasjonsform = ArrangorFixtures.underenhet1.organisasjonsform,
+                navn = "Annen Arrangør AS",
+                overordnetEnhet = ArrangorFixtures.underenhet1.overordnetEnhet,
             )
 
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, TiltakstypeFixtures.AFT),
                 arrangorer = listOf(
-                    ArrangorFixtures.hovedenhet.copy(navn = "Hovedenhet AS"),
+                    ArrangorFixtures.hovedenhet,
                     ArrangorFixtures.underenhet1,
                     annenArrangor,
                 ),
@@ -948,26 +954,23 @@ class AvtaleQueriesTest : FunSpec({
     }
 
     context("Sortering") {
-        val arrangorA = ArrangorDto(
+        val arrangorA = Arrangor.Norsk.opprett(
             id = UUID.randomUUID(),
             navn = "alvdal",
             organisasjonsnummer = Organisasjonsnummer("987654321"),
             organisasjonsform = "BEDR",
-            erUtenlandsk = false,
         )
-        val arrangorB = ArrangorDto(
+        val arrangorB = Arrangor.Norsk.opprett(
             id = UUID.randomUUID(),
             navn = "bjarne",
             organisasjonsnummer = Organisasjonsnummer("123456789"),
             organisasjonsform = "BEDR",
-            erUtenlandsk = false,
         )
-        val arrangorC = ArrangorDto(
+        val arrangorC = Arrangor.Norsk.opprett(
             id = UUID.randomUUID(),
             navn = "chris",
             organisasjonsnummer = Organisasjonsnummer("999888777"),
             organisasjonsform = "BEDR",
-            erUtenlandsk = false,
         )
         val domain = MulighetsrommetTestDomain(
             arrangorer = listOf(arrangorA, arrangorB, arrangorC),
@@ -1135,8 +1138,8 @@ private infix fun Collection<Avtale>.shouldContainExactlyIds(listOf: Collection<
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }
 
-private fun arrangorFromHovedenhet(hovedenhet: UUID): ArrangorDbo {
-    return ArrangorDbo(
+private fun arrangorFromHovedenhet(hovedenhet: UUID): AvtaleArrangorDbo {
+    return AvtaleArrangorDbo(
         hovedenhet = hovedenhet,
         underenheter = emptyList(),
         kontaktpersoner = emptyList(),

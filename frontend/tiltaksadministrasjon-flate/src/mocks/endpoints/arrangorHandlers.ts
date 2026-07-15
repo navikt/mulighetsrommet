@@ -1,12 +1,13 @@
 import { http, HttpResponse, PathParams } from "msw";
 import {
   ArrangorDto,
+  ArrangorHovedenhetDto,
   ArrangorKontaktperson,
   Betalingsinformasjon,
   KoblingerForKontaktperson,
   PaginatedResponseArrangorDto,
 } from "@tiltaksadministrasjon/api-client";
-import { mockArrangorer } from "../fixtures/mock_arrangorer";
+import { mockArrangorer, mockFretexHovedenhet } from "../fixtures/mock_arrangorer";
 import { mockArrangorKontaktpersoner } from "../fixtures/mock_arrangorKontaktperson";
 import { mockAvtaler } from "../fixtures/mock_avtaler";
 import { mockGjennomforinger } from "../fixtures/mock_gjennomforinger";
@@ -40,10 +41,14 @@ export const arrangorHandlers = [
     },
   ),
 
-  http.get<PathParams, undefined, ArrangorDto | undefined>(
+  http.get<PathParams, undefined, ArrangorHovedenhetDto | undefined>(
     "*/api/tiltaksadministrasjon/arrangorer/:id/hovedenhet",
     ({ params }) => {
-      return HttpResponse.json(mockArrangorer.data.find((enhet) => enhet.id === params.id));
+      if (params.id === mockFretexHovedenhet.id) {
+        return HttpResponse.json(mockFretexHovedenhet);
+      }
+      const enhet = mockArrangorer.data.find((enhet) => enhet.id === params.id);
+      return HttpResponse.json(enhet ? { ...enhet, underenheter: [] } : undefined);
     },
   ),
 

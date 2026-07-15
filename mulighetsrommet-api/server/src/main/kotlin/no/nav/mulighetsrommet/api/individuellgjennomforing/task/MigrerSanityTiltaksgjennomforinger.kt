@@ -101,7 +101,7 @@ class MigrerSanityTiltaksgjennomforinger(
                 }
 
                 val arrangorId = tiltak.arrangor?.organisasjonsnummer?.let { orgnr ->
-                    db.session { queries.arrangor.get(orgnr) }?.id.also {
+                    db.session { queries.arrangor.getByOrganisasjonsnummer(orgnr) }?.id.also {
                         if (it == null) {
                             logger.warn("Fant ikke arrangør med orgnr=$orgnr for gjennomforing sanityId=$sanityId")
                         }

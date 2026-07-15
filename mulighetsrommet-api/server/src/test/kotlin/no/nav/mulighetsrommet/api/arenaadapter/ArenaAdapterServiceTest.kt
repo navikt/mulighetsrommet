@@ -9,9 +9,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -50,7 +50,7 @@ class ArenaAdapterServiceTest : FunSpec({
         return ArenaAdapterService(
             db = database.api,
             sanityService = sanityService,
-            arrangorService = ArrangorService(database.api, mockk(), mockk()),
+            arrangor = SyncArrangorUseCase(database.admin, mockk()),
             tiltakstypeService = tiltakstypeService,
             gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
                 database.api,

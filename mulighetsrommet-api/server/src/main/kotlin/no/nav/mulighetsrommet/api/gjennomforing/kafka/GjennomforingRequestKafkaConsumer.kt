@@ -4,10 +4,11 @@ import arrow.core.getOrElse
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.KategoriseringMapper
 import no.nav.mulighetsrommet.api.gjennomforing.service.EnkeltplassRequest
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
@@ -21,7 +22,7 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.util.UUID
 
 class GjennomforingRequestKafkaConsumer(
-    private val arrangorer: ArrangorService,
+    private val arrangorer: SyncArrangorUseCase,
     private val tiltakstyper: TiltakstypeService,
     private val enkeltplasser: GjennomforingEnkeltplassService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
@@ -66,8 +67,8 @@ class GjennomforingRequestKafkaConsumer(
         }
     }
 
-    private suspend fun getArrangor(organisasjonsnummer: Organisasjonsnummer): ArrangorDto = arrangorer
-        .getArrangorOrSyncFromBrreg(organisasjonsnummer)
+    private suspend fun getArrangor(organisasjonsnummer: Organisasjonsnummer): Arrangor = arrangorer
+        .execute(SyncArrangorIfMissing(organisasjonsnummer))
         .getOrElse { error("Klarte ikke hente arrangør fra brreg $it") }
 }
 

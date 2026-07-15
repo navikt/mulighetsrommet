@@ -3186,7 +3186,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ArrangorDto"
+                $ref: "#/components/schemas/ArrangorHovedenhetDto"
         default:
           description: Problem details
           headers: {}
@@ -3292,12 +3292,21 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/arrangorer/{id}/kontaktperson/{kontaktpersonId}:
     delete:
       tags:
       - Arrangor
       operationId: deleteArrangorKontaktperson
       parameters:
       - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: kontaktpersonId
         in: path
         required: true
         deprecated: false
@@ -3321,29 +3330,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/brreg/sok:
+  /api/tiltaksadministrasjon/virksomhet/hovedenhet:
     get:
       tags:
-      - Brreg
-      operationId: sokBrregHovedenhet
+      - Virksomhet
+      description: Søk etter hovedenhet på orgnr eller navn
+      operationId: sokHovedenheter
       parameters:
-      - name: q
+      - name: sok
         in: query
-        required: false
+        required: true
         deprecated: false
         explode: false
         schema:
           type: string
       responses:
         "200":
-          description: Treff hos Brreg
+          description: Liste med hovedenheter
           headers: {}
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/BrregHovedenhetDto"
+                  $ref: "#/components/schemas/Virksomhet.Hovedenhet"
         default:
           description: Problem details
           headers: {}
@@ -3352,11 +3362,57 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/brreg/{orgnr}/underenheter:
+  /api/tiltaksadministrasjon/virksomhet/underenhet:
     get:
       tags:
-      - Brreg
-      operationId: getBrregUnderenheter
+      - Virksomhet
+      description: Søk etter underenhet på orgnr eller navn
+      operationId: sokUnderenhet
+      parameters:
+      - name: sok
+        in: query
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Liste med underenheter
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Virksomhet.Underenhet"
+        "400":
+          description: Søket er blankt
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Internal server error ved kall mot Brreg
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/virksomhet/{orgnr}/underenheter:
+    get:
+      tags:
+      - Virksomhet
+      operationId: getUnderenheter
       parameters:
       - name: orgnr
         in: path
@@ -3374,7 +3430,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/BrregUnderenhetDto"
+                  $ref: "#/components/schemas/Virksomhet.Underenhet"
         default:
           description: Problem details
           headers: {}
@@ -3807,7 +3863,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 21
+        - 22
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -8567,38 +8623,18 @@ components:
           format: uuid
         organisasjonsnummer:
           type: string
-        organisasjonsform:
-          type:
-          - "null"
-          - string
         navn:
           type: string
-        overordnetEnhet:
-          type:
-          - "null"
-          - string
-        underenheter:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/ArrangorDto"
         slettetDato:
           type:
           - "null"
           - string
           format: date
-        erUtenlandsk:
-          type: boolean
       required:
-      - erUtenlandsk
       - id
       - navn
-      - organisasjonsform
       - organisasjonsnummer
-      - overordnetEnhet
       - slettetDato
-      - underenheter
     ArrangorKobling:
       type: string
       enum:
@@ -8616,6 +8652,31 @@ components:
       required:
       - data
       - pagination
+    ArrangorHovedenhetDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        underenheter:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorDto"
+        slettetDato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
+      - slettetDato
+      - underenheter
     ArrangorKontaktperson:
       type: object
       properties:
@@ -8709,76 +8770,58 @@ components:
       required:
       - avtaler
       - gjennomforinger
-    BrregHovedenhetDto:
+    Virksomhet.Hovedenhet:
       type: object
       properties:
         organisasjonsnummer:
           type: string
-        organisasjonsform:
-          type: string
         navn:
           type: string
-        postadresse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/BrregAdresse"
-        forretningsadresse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/BrregAdresse"
+        organisasjonsform:
+          type:
+          - "null"
+          - string
         overordnetEnhet:
           type:
           - "null"
           - string
-      required:
-      - forretningsadresse
-      - navn
-      - organisasjonsform
-      - organisasjonsnummer
-      - overordnetEnhet
-      - postadresse
-    BrregAdresse:
-      type: object
-      properties:
-        landkode:
+        slettetDato:
           type:
           - "null"
           - string
-        postnummer:
-          type:
-          - "null"
-          - string
-        poststed:
-          type:
-          - "null"
-          - string
-        adresse:
-          type:
-          - "null"
-          - array
-          items:
-            type: string
-      required:
-      - adresse
-      - landkode
-      - postnummer
-      - poststed
-    BrregUnderenhetDto:
-      type: object
-      properties:
-        organisasjonsnummer:
-          type: string
-        organisasjonsform:
-          type: string
-        navn:
-          type: string
-        overordnetEnhet:
-          type: string
+          format: date
       required:
       - navn
       - organisasjonsform
       - organisasjonsnummer
       - overordnetEnhet
+      - slettetDato
+    Virksomhet.Underenhet:
+      type: object
+      properties:
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+        organisasjonsform:
+          type:
+          - "null"
+          - string
+        overordnetEnhet:
+          type:
+          - "null"
+          - string
+        slettetDato:
+          type:
+          - "null"
+          - string
+          format: date
+      required:
+      - navn
+      - organisasjonsform
+      - organisasjonsnummer
+      - overordnetEnhet
+      - slettetDato
     UtdanningsprogramMedUtdanningerDto:
       type: object
       properties:

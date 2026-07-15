@@ -10,8 +10,9 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.put
 import io.ktor.server.routing.route
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangor
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
@@ -44,7 +45,7 @@ import java.util.UUID
 
 fun Route.maamRoutes() {
     val db: ApiDatabase by inject()
-    val arrangor: ArrangorService by inject()
+    val arrangor: SyncArrangorUseCase by inject()
     val tilsagnService: TilsagnService by inject()
     val utbetalingService: UtbetalingService by inject()
 
@@ -151,7 +152,7 @@ fun Route.maamRoutes() {
                 input.organisasjonsnummer
                     .split(",")
                     .map { Organisasjonsnummer(it.trim()) }
-                    .forEach { arrangor.syncArrangorFromBrreg(it) }
+                    .forEach { arrangor.execute(SyncArrangor(it)) }
 
                 call.respond(HttpStatusCode.OK, ExecutedTaskResponse("Synkronisert! :)"))
             }

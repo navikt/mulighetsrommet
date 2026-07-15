@@ -10,10 +10,10 @@ import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.amo.AmoKurstype
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.toDbo
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
-import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
+import no.nav.mulighetsrommet.api.avtale.db.AvtaleArrangorDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.PersonvernDbo
@@ -35,7 +35,7 @@ object AvtaleDboMapper {
             tiltakstypeId = avtale.tiltakstype.id,
             sakarkivNummer = avtale.sakarkivNummer,
             arrangor = avtale.arrangor?.id?.let {
-                ArrangorDbo(
+                AvtaleArrangorDbo(
                     hovedenhet = it,
                     underenheter = avtale.arrangor.underenheter.map { it.id },
                     kontaktpersoner = avtale.arrangor.kontaktpersoner.map { it.id },
@@ -107,15 +107,15 @@ fun Prismodell.satser(): List<AvtaltSats> = when (this) {
     is Prismodell.IngenKostnader -> listOf()
 }
 
-fun ArrangorDto.toDbo(kontaktpersoner: List<UUID>?): ArrangorDbo = ArrangorDbo(
-    hovedenhet = id,
-    underenheter = underenheter?.map { it.id } ?: emptyList(),
+fun AvtaleValidator.Ctx.AvtaleArrangor.toDbo(kontaktpersoner: List<UUID>?): AvtaleArrangorDbo = AvtaleArrangorDbo(
+    hovedenhet = hovedenhet.id,
+    underenheter = underenheter.map { it.id },
     kontaktpersoner = kontaktpersoner ?: emptyList(),
 )
 
 fun DetaljerRequest.toDbo(
     tiltakstypeId: UUID,
-    arrangorDbo: ArrangorDbo?,
+    arrangorDbo: AvtaleArrangorDbo?,
     status: AvtaleStatusType,
     kategorisering: OpplaringKategoriseringDbo?,
 ): DetaljerDbo = DetaljerDbo(

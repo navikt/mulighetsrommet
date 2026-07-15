@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.admin.testing
 
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.QueryContext
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorQueryHandler
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHandler
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
@@ -13,18 +14,21 @@ class TestQueryContext : QueryContext() {
     private val tiltakstypeRepository = FakeTiltakstypeRepository()
     private val navEnhetRepository = FakeNavEnhetRepository()
     private val navAnsattRepository = FakeNavAnsattRepository()
+    private val arrangorRepository = FakeArrangorRepository()
 
     private var tiltakstype: TiltakstypeQueryHandler = mockk(relaxed = true)
     private var endringshistorikk: EndringshistorikkQueryHandler = mockk(relaxed = true)
     private var kostnadssted: KostnadsstedQueryHandler = mockk(relaxed = true)
     private var navAnsattDto: NavAnsattDtoQueryHandler = mockk(relaxed = true)
     private var totrinnskontroll: TotrinnskontrollQueryHandler = mockk(relaxed = true)
+    private var arrangor: ArrangorQueryHandler = mockk(relaxed = true)
 
     override val repository = object : Repositories() {
         override val tiltakstype get() = tiltakstypeRepository
         override val redaksjoneltInnholdLenke get() = redaksjoneltInnholdLenkeRepository
         override val navEnhet get() = navEnhetRepository
         override val navAnsatt get() = navAnsattRepository
+        override val arrangor get() = arrangorRepository
     }
 
     override val queries = object : Queries() {
@@ -33,6 +37,7 @@ class TestQueryContext : QueryContext() {
         override val kostnadssted get() = this@TestQueryContext.kostnadssted
         override val navAnsattDto get() = this@TestQueryContext.navAnsattDto
         override val totrinnskontroll get() = this@TestQueryContext.totrinnskontroll
+        override val arrangor get() = this@TestQueryContext.arrangor
     }
 
     override val outbox: Outbox = mockk(relaxed = true)

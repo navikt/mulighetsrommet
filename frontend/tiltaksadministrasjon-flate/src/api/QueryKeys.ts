@@ -46,9 +46,9 @@ export const QueryKeys = {
   notifications: (status?: NotificationStatus) =>
     ["notifications", status].filter((part) => part !== undefined),
   notificationsSummary: () => ["notifications", "summary"],
-  brregVirksomheter: (sokestreng: string) => ["virksomhet", "sok", sokestreng],
   sokSertifiseringer: (q: string) => ["sokSertifiseringer", "q", q],
-  brregVirksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
+  virksomhetHovedenhet: (sok: string) => ["virksomhet", "hovedenhet", sok],
+  virksomhetUnderenheter: (id: string) => ["virksomet", id, "underenheter"],
   navansatte: (roller: Rolle[]) => ["nav-ansatte", roller],
   sokNavansatt: (q: string, id: string) => ["sok-nav-ansatte", q, id],
   navRegioner: () => ["navRegioner"],

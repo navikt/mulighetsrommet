@@ -1,9 +1,9 @@
 import { BodyShort, CopyButton, List, Tabs, Box } from "@navikt/ds-react";
-import { ArrangorDto } from "@tiltaksadministrasjon/api-client";
+import { ArrangorHovedenhetDto } from "@tiltaksadministrasjon/api-client";
 import { ArrangorKontaktpersonOversikt } from "./ArrangorKontaktpersonerOversikt";
 
 interface Props {
-  arrangor: ArrangorDto;
+  arrangor: ArrangorHovedenhetDto;
 }
 
 export function ArrangorKort({ arrangor }: Props) {
@@ -11,15 +11,12 @@ export function ArrangorKort({ arrangor }: Props) {
     <div>
       <BodyShort className="flex items-baseline">
         Organisasjonsnummer: {arrangor.organisasjonsnummer}
-        <CopyButton size="small" copyText={arrangor.organisasjonsnummer} />{" "}
+        <CopyButton size="small" copyText={arrangor.organisasjonsnummer} />
       </BodyShort>
       <Tabs defaultValue="kontaktpersoner" className="mt-8">
         <Tabs.List>
           <Tabs.Tab value="kontaktpersoner" label="Kontaktpersoner" />
-          <Tabs.Tab
-            value="underenheter"
-            label={`Underenheter (${arrangor.underenheter?.length ?? 0})`}
-          />
+          <Tabs.Tab value="underenheter" label={`Underenheter (${arrangor.underenheter.length})`} />
         </Tabs.List>
         <Tabs.Panel value="kontaktpersoner">
           <ArrangorKontaktpersonOversikt arrangor={arrangor} />
@@ -28,7 +25,7 @@ export function ArrangorKort({ arrangor }: Props) {
           <div>
             <Box marginBlock="space-16" asChild>
               <List data-aksel-migrated-v8>
-                {arrangor.underenheter?.map((underenhet) => (
+                {arrangor.underenheter.map((underenhet) => (
                   <List.Item key={underenhet.id}>
                     {underenhet.navn} ({underenhet.organisasjonsnummer})
                   </List.Item>

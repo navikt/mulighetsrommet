@@ -1,165 +1,24 @@
 package no.nav.mulighetsrommet.api.arrangor.db
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.collections.shouldHaveSize
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
-import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKobling
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorKontaktperson
-import no.nav.mulighetsrommet.api.arrangor.model.UtenlandskArrangor
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorKobling
+import no.nav.mulighetsrommet.admin.arrangor.toDto
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import java.time.LocalDate
 import java.util.UUID
 
+// TODO: flyttes til "admin" etter at avhengigheter også er flyttet (avtale, gjennomføring)
 class ArrangorQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     context("crud") {
-        test("søk og filtrering på arrangører") {
-            database.runAndRollback {
-                val overordnet = ArrangorDto(
-                    id = UUID.randomUUID(),
-                    navn = "REMA 1000 AS",
-                    organisasjonsnummer = Organisasjonsnummer("982254604"),
-                    organisasjonsform = "AS",
-                    erUtenlandsk = false,
-                )
-                queries.arrangor.upsert(overordnet)
-
-                val underenhet1 = ArrangorDto(
-                    id = UUID.randomUUID(),
-                    organisasjonsnummer = Organisasjonsnummer("880907522"),
-                    organisasjonsform = "BEDR",
-                    overordnetEnhet = overordnet.organisasjonsnummer,
-                    navn = "REMA 1000 NORGE AS REGION NORDLAND",
-                    erUtenlandsk = false,
-                )
-                queries.arrangor.upsert(underenhet1)
-
-                val underenhet2 = ArrangorDto(
-                    id = UUID.randomUUID(),
-                    organisasjonsnummer = Organisasjonsnummer("912704327"),
-                    organisasjonsform = "BEDR",
-                    overordnetEnhet = overordnet.organisasjonsnummer,
-                    navn = "REMA 1000 NORGE AS REGION VESTRE ØSTLAND",
-                    erUtenlandsk = false,
-                )
-                queries.arrangor.upsert(underenhet2)
-
-                val utenlandsk = ArrangorDto(
-                    id = UUID.randomUUID(),
-                    organisasjonsnummer = Organisasjonsnummer("100000001"),
-                    organisasjonsform = "IKS",
-                    navn = "X - Utenlandsk arrangør",
-                    erUtenlandsk = true,
-                )
-                queries.arrangor.upsert(utenlandsk)
-
-                queries.arrangor.getAll(utenlandsk = true).items shouldContainExactlyInAnyOrder listOf(utenlandsk)
-                queries.arrangor.getAll(utenlandsk = false).items shouldContainExactlyInAnyOrder listOf(
-                    overordnet,
-                    underenhet1,
-                    underenhet2,
-                )
-
-                queries.arrangor.getAll(sok = "utenlandsk").items shouldContainExactlyInAnyOrder listOf(utenlandsk)
-                queries.arrangor.getAll(sok = "østland").items shouldContainExactlyInAnyOrder listOf(underenhet2)
-
-                queries.arrangor.getAll(overordnetEnhetOrgnr = overordnet.organisasjonsnummer).items shouldContainExactlyInAnyOrder listOf(
-                    underenhet1,
-                    underenhet2,
-                )
-                queries.arrangor.getAll(overordnetEnhetOrgnr = underenhet1.organisasjonsnummer).items.shouldBeEmpty()
-            }
-        }
-
-        test("Upsert underenhet etter overenhet") {
-            database.runAndRollback {
-                val underenhet1 = ArrangorDto(
-                    id = UUID.randomUUID(),
-                    organisasjonsnummer = Organisasjonsnummer("880907522"),
-                    organisasjonsform = "BEDR",
-                    overordnetEnhet = Organisasjonsnummer("982254604"),
-                    erUtenlandsk = false,
-                    navn = "REMA 1000 NORGE AS REGION NORDLAND",
-                )
-
-                val overordnet = ArrangorDto(
-                    id = UUID.randomUUID(),
-                    navn = "REMA 1000 AS",
-                    organisasjonsnummer = Organisasjonsnummer("982254604"),
-                    organisasjonsform = "AS",
-                    erUtenlandsk = false,
-                )
-
-                queries.arrangor.upsert(overordnet)
-                queries.arrangor.upsert(underenhet1)
-
-                queries.arrangor.get(underenhet1.organisasjonsnummer).shouldNotBeNull().should {
-                    it.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
-                }
-                queries.arrangor.get(overordnet.organisasjonsnummer).shouldNotBeNull().should {
-                    it.underenheter.shouldNotBeNull().shouldHaveSize(1).first().should { e ->
-                        e.navn shouldBe underenhet1.navn
-                        e.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
-                    }
-                }
-                queries.arrangor.get(listOf(overordnet.organisasjonsnummer)).firstOrNull().shouldNotBeNull().should {
-                    it.underenheter.shouldNotBeNull().shouldHaveSize(1).first().should { e ->
-                        e.navn shouldBe underenhet1.navn
-                        e.organisasjonsnummer shouldBe underenhet1.organisasjonsnummer
-                    }
-                }
-            }
-        }
-
-        test("Upsert slettet enhet") {
-            database.runAndRollback {
-                val slettetDato = LocalDate.of(2024, 1, 1)
-
-                val underenhet1 = ArrangorDto(
-                    id = UUID.randomUUID(),
-                    organisasjonsnummer = Organisasjonsnummer("880907522"),
-                    organisasjonsform = "BEDR",
-                    overordnetEnhet = Organisasjonsnummer("982254604"),
-                    navn = "REMA 1000 NORGE AS REGION NORDLAND",
-                    slettetDato = slettetDato,
-                    erUtenlandsk = false,
-                )
-
-                val overordnet = ArrangorDto(
-                    id = UUID.randomUUID(),
-                    navn = "REMA 1000 AS",
-                    organisasjonsnummer = Organisasjonsnummer("982254604"),
-                    organisasjonsform = "AS",
-                    erUtenlandsk = false,
-                )
-
-                queries.arrangor.upsert(overordnet)
-                queries.arrangor.upsert(underenhet1)
-
-                queries.arrangor.get(overordnet.organisasjonsnummer).shouldNotBeNull().should {
-                    it.slettetDato shouldBe null
-                }
-                queries.arrangor.get(underenhet1.organisasjonsnummer).shouldNotBeNull().should {
-                    it.slettetDato shouldBe slettetDato
-                }
-                queries.arrangor.getAll(slettet = true).items shouldContainExactlyInAnyOrder listOf(underenhet1)
-                queries.arrangor.getAll(slettet = false).items shouldContainExactlyInAnyOrder listOf(overordnet)
-            }
-        }
-
         test("Filter på avtale eller gjennomforing") {
             val hovedenhet = ArrangorFixtures.hovedenhet
             val underenhet = ArrangorFixtures.underenhet1
@@ -174,117 +33,16 @@ class ArrangorQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.arrangor.getAll().items shouldContainExactlyInAnyOrder listOf(hovedenhet, underenhet)
+                queries.arrangor.getAll().items shouldContainExactlyInAnyOrder listOf(
+                    hovedenhet.toDto(),
+                    underenhet.toDto(),
+                )
                 queries.arrangor.getAll(kobling = ArrangorKobling.AVTALE).should {
                     it.items shouldContainExactlyIds listOf(hovedenhet.id)
                 }
                 queries.arrangor.getAll(kobling = ArrangorKobling.TILTAKSGJENNOMFORING).should {
                     it.items shouldContainExactlyIds listOf(underenhet.id)
                 }
-            }
-        }
-
-        test("getByHovedenhet") {
-            val hovedenhet = ArrangorFixtures.hovedenhet
-            val underenhet = ArrangorFixtures.underenhet1
-
-            val domain = MulighetsrommetTestDomain(
-                arrangorer = listOf(hovedenhet, underenhet),
-                tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
-                avtaler = listOf(AvtaleFixtures.oppfolging),
-                gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
-            )
-
-            database.runAndRollback {
-                domain.initialize()
-
-                queries.arrangor.getHovedenhetById(hovedenhet.id).should {
-                    it.underenheter.shouldNotBeNull() shouldContainExactlyIds listOf(underenhet.id)
-                }
-            }
-        }
-    }
-
-    context("kontaktperson hos arrangør") {
-        test("crud") {
-            val arrangorId = ArrangorFixtures.hovedenhet.id
-
-            val kontaktperson1 = ArrangorKontaktperson(
-                id = UUID.randomUUID(),
-                arrangorId = arrangorId,
-                navn = "Fredrik",
-                telefon = "322232323",
-                epost = "fredrik@gmail.com",
-                beskrivelse = null,
-                ansvarligFor = listOf(),
-            )
-
-            val kontaktperson2 = ArrangorKontaktperson(
-                id = UUID.randomUUID(),
-                arrangorId = arrangorId,
-                navn = "Trond",
-                telefon = "232232323",
-                epost = "trond@gmail.com",
-                beskrivelse = "Adm. dir.",
-                ansvarligFor = listOf(),
-            )
-
-            val domain = MulighetsrommetTestDomain(
-                arrangorer = listOf(ArrangorFixtures.hovedenhet),
-                arrangorKontaktpersoner = listOf(kontaktperson1, kontaktperson2),
-            )
-
-            database.runAndRollback {
-                domain.initialize()
-
-                queries.arrangor.getKontaktpersoner(arrangorId) shouldContainExactlyInAnyOrder listOf(
-                    kontaktperson1,
-                    kontaktperson2,
-                )
-            }
-        }
-    }
-
-    context("utenlandsk arrangør") {
-        test("getUtenlandskArrangor henter bankinformasjon knyttet til arrangøren") {
-            val arrangor = ArrangorFixtures.Utenlandsk.hovedenhet
-
-            val domain = MulighetsrommetTestDomain(
-                arrangorer = listOf(arrangor),
-            )
-
-            val utenlandskArrangor = UtenlandskArrangor(
-                bic = "DEUTDEFF",
-                iban = "DE89370400440532013000",
-                gateNavn = "Musterstraße 1",
-                by = "Berlin",
-                postNummer = "10115",
-                landKode = "DE",
-                bankNavn = "Deutsche Bank",
-            )
-
-            database.runAndRollback {
-                domain.initialize()
-
-                session.execute(
-                    queryOf(
-                        """
-                        insert into arrangor_utenlandsk (
-                            arrangor_id, bic, iban, bank_navn, adresse_gate_navn, adresse_by, adresse_post_nummer, adresse_land_kode
-                        ) values (?, ?, ?, ?, ?, ?, ?, ?)
-                        """.trimIndent(),
-                        arrangor.id,
-                        utenlandskArrangor.bic,
-                        utenlandskArrangor.iban,
-                        utenlandskArrangor.bankNavn,
-                        utenlandskArrangor.gateNavn,
-                        utenlandskArrangor.by,
-                        utenlandskArrangor.postNummer,
-                        utenlandskArrangor.landKode,
-                    ),
-                )
-
-                queries.arrangor.getUtenlandskArrangor(arrangor.id) shouldBe utenlandskArrangor
             }
         }
     }

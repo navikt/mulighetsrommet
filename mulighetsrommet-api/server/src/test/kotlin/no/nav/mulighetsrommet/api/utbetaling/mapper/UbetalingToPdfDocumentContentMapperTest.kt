@@ -4,9 +4,9 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
@@ -410,6 +410,7 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
   "subject": "Utbetaling til Nav",
   "description": "Detaljer om utbetaling for gjennomføring av Oppfølging",
   "author": "Nav",
+  "enhet": null,
   "sections": [
     {
       "title": {
@@ -630,6 +631,7 @@ private val expectedUtbetalingsdetaljerTimesPrisContent = """
       "subject": "Utbetaling til Nav",
       "description": "Detaljer om utbetaling for gjennomføring av Oppfolging",
       "author": "Nav",
+      "enhet": null,
       "sections": [
         {
           "title": {
@@ -845,6 +847,7 @@ private val expectedJournalpostFastSatsContent = """
   "subject": "Krav om utbetaling fra Nav",
   "description": "Krav om utbetaling fra Nav",
   "author": "Tiltaksadministrasjon",
+  "enhet": null,
   "sections": [
     {
       "title": {
@@ -1280,6 +1283,7 @@ private val expectedJournalpostTimesPrisContent = """
   "subject": "Krav om utbetaling fra Nav",
   "description": "Krav om utbetaling fra Nav",
   "author": "Tiltaksadministrasjon",
+  "enhet": null,
   "sections": [
     {
       "title": {

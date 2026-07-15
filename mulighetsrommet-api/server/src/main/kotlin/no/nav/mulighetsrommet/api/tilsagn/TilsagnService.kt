@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
@@ -43,7 +44,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.erBeslutter
 import no.nav.mulighetsrommet.api.utbetaling.service.erSaksbehandler
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
-import no.nav.mulighetsrommet.model.Arrangor
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -321,7 +321,7 @@ class TilsagnService(
             Tiltaksadministrasjon -> Unit
 
             Arena,
-            Arrangor,
+            no.nav.mulighetsrommet.model.Arrangor,
             -> return FieldError.of("$agent kan ikke beslutte tilsagn").nel().left()
 
             is NavIdent -> {
@@ -423,12 +423,14 @@ class TilsagnService(
         }
 
         val opprettelse = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        return opprettelse.returner(besluttetAv, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
-            queries.totrinnskontroll.upsert(returnert)
-            outbox.publish(returnert)
-            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
-            logEndring("Tilsagn returnert", tilsagn.id, besluttetAv)
-        }
+        return opprettelse.returner(besluttetAv, aarsaker.map { it.name }, forklaring)
+            .mapLeft { it.toFieldErrors() }
+            .map { returnert ->
+                queries.totrinnskontroll.upsert(returnert)
+                outbox.publish(returnert)
+                queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.RETURNERT)
+                logEndring("Tilsagn returnert", tilsagn.id, besluttetAv)
+            }
     }
 
     private fun TransactionalQueryContext.setTilAnnullering(
@@ -493,18 +495,20 @@ class TilsagnService(
         }
 
         val annullering = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING)
-        return annullering.returner(besluttetAv, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
-            queries.totrinnskontroll.upsert(returnert)
-            outbox.publish(returnert)
-            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
+        return annullering.returner(besluttetAv, aarsaker.map { it.name }, forklaring)
+            .mapLeft { it.toFieldErrors() }
+            .map { returnert ->
+                queries.totrinnskontroll.upsert(returnert)
+                outbox.publish(returnert)
+                queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-            val behandletAv = annullering.behandletAv
-            if (behandletAv is NavIdent) {
-                sendNotifikasjonOmAvvistAnnullering(tilsagn, besluttetAv, behandletAv)
+                val behandletAv = annullering.behandletAv
+                if (behandletAv is NavIdent) {
+                    sendNotifikasjonOmAvvistAnnullering(tilsagn, besluttetAv, behandletAv)
+                }
+
+                logEndring("Annullering avvist", tilsagn.id, besluttetAv)
             }
-
-            logEndring("Annullering avvist", tilsagn.id, besluttetAv)
-        }
     }
 
     context(tx: TransactionalQueryContext)
@@ -568,18 +572,20 @@ class TilsagnService(
         }
 
         val oppgjor = queries.totrinnskontroll.getOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR)
-        return oppgjor.returner(besluttetAv, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
-            queries.totrinnskontroll.upsert(returnert)
-            outbox.publish(returnert)
-            queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
+        return oppgjor.returner(besluttetAv, aarsaker.map { it.name }, forklaring)
+            .mapLeft { it.toFieldErrors() }
+            .map { returnert ->
+                queries.totrinnskontroll.upsert(returnert)
+                outbox.publish(returnert)
+                queries.tilsagn.setStatus(tilsagn.id, TilsagnStatus.GODKJENT)
 
-            val behandletAv = oppgjor.behandletAv
-            if (behandletAv is NavIdent) {
-                sendNotifikasjonOmAvvistOppgjor(tilsagn, besluttetAv, behandletAv)
+                val behandletAv = oppgjor.behandletAv
+                if (behandletAv is NavIdent) {
+                    sendNotifikasjonOmAvvistOppgjor(tilsagn, besluttetAv, behandletAv)
+                }
+
+                logEndring("Oppgjør avvist", tilsagn.id, besluttetAv)
             }
-
-            logEndring("Oppgjør avvist", tilsagn.id, besluttetAv)
-        }
     }
 
     private fun QueryContext.sendNotifikasjonOmAvvistAnnullering(
@@ -674,21 +680,22 @@ class TilsagnService(
             is GjennomforingEnkeltplass -> null
         }
 
-        val arrangorErUtenlandsk = queries.arrangor.getById(gjennomforing.arrangor.id).erUtenlandsk
-        val arrangor = if (arrangorErUtenlandsk) {
-            val utenlandskArrangor = requireNotNull(queries.arrangor.getUtenlandskArrangor(gjennomforing.arrangor.id)) {
-                "Mangler data om utenlandsk arrangør"
+        val arrangor = when (val arrangor = repository.arrangor.get(gjennomforing.arrangor.id)) {
+            is Arrangor.Utenlandsk -> {
+                val utenlandskArrangor = requireNotNull(arrangor.adresse) {
+                    "Mangler data om utenlandsk arrangør"
+                }
+                OpprettBestilling.Arrangor.Utenlandsk(
+                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                    navn = gjennomforing.arrangor.navn,
+                    by = utenlandskArrangor.by,
+                    postNummer = utenlandskArrangor.postNummer,
+                    landKode = utenlandskArrangor.landKode,
+                    gateNavn = utenlandskArrangor.gateNavn,
+                )
             }
-            OpprettBestilling.Arrangor.Utenlandsk(
-                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-                navn = gjennomforing.arrangor.navn,
-                by = utenlandskArrangor.by,
-                postNummer = utenlandskArrangor.postNummer,
-                landKode = utenlandskArrangor.landKode,
-                gateNavn = utenlandskArrangor.gateNavn,
-            )
-        } else {
-            OpprettBestilling.Arrangor.Norsk(
+
+            is Arrangor.Norsk -> OpprettBestilling.Arrangor.Norsk(
                 organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
             )
         }

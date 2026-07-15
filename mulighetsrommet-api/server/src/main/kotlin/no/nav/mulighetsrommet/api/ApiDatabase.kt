@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
-import no.nav.mulighetsrommet.api.arrangor.db.ArrangorQueries
 import no.nav.mulighetsrommet.api.arrangorflate.db.ArrangorflateQueries
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
@@ -11,9 +10,11 @@ import no.nav.mulighetsrommet.api.avtale.db.PrismodellQueries
 import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerQueries
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
+import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
 import no.nav.mulighetsrommet.api.individuellgjennomforing.db.IndividuellGjennomforingQueries
+import no.nav.mulighetsrommet.api.persistence.arrangor.db.ArrangorQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.db.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattQueries
@@ -108,6 +109,7 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
 
     inner class Repositories {
         val tiltakstype: TiltakstypeRepository = queries.tiltakstype
+        val arrangor: ArrangorRepository = queries.arrangor
     }
 }
 

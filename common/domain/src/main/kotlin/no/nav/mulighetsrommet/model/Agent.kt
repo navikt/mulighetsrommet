@@ -25,8 +25,7 @@ fun Agent.textRepr(): String = when (this) {
     Arena,
     Arrangor,
     Tiltaksadministrasjon,
-    ->
-        this.toString()
+    -> toString()
 
-    is NavIdent -> this.value
+    is NavIdent -> value
 }
