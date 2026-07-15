@@ -91,13 +91,9 @@ class MigrerSanityTiltaksgjennomforinger(
                 }
                 val publisert = sanityId in publiserteSanityIds
 
-                val tiltakstypeId = tiltakstypePerSanityId[tiltak.tiltakstype._id]?.id.also {
-                    if (it == null) {
-                        logger.warn(
-                            "Fant ikke tiltakstype med sanityId=${tiltak.tiltakstype._id} " +
-                                "for gjennomforing sanityId=$sanityId",
-                        )
-                    }
+                val tiltakstypeId = requireNotNull(tiltakstypePerSanityId[tiltak.tiltakstype._id]?.id) {
+                    "Fant ikke tiltakstype med sanityId=${tiltak.tiltakstype._id} " +
+                        "for gjennomforing sanityId=$sanityId"
                 }
 
                 val arrangorId = tiltak.arrangor?.organisasjonsnummer?.let { orgnr ->

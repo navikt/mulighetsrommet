@@ -18,10 +18,7 @@ select ig.id,
        arrangor_kontaktpersoner_json,
        ig.publisert,
        ig.sanity_id,
-       ig.tiltaksnummer,
-       ig.start_dato,
-       ig.slutt_dato,
-       ig.status
+       ig.tiltaksnummer
 from individuell_gjennomforing ig
          left join tiltakstype on tiltakstype.id = ig.tiltakstype_id
          left join arrangor on arrangor.id = ig.arrangor_id
@@ -33,7 +30,7 @@ from individuell_gjennomforing ig
                                    ) as administratorer_json
                             from individuell_gjennomforing_administrator adm
                                      join nav_ansatt ansatt on ansatt.nav_ident = adm.nav_ident
-                            where adm.gjennomforing_id = ig.id) on true
+                            where adm.individuell_gjennomforing_id = ig.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'enhetsnummer', enhet.enhetsnummer,
@@ -44,7 +41,7 @@ from individuell_gjennomforing ig
                                    ) as nav_enheter_json
                             from individuell_gjennomforing_nav_enhet ig_enhet
                                      join nav_enhet enhet on enhet.enhetsnummer = ig_enhet.enhetsnummer
-                            where ig_enhet.gjennomforing_id = ig.id) on true
+                            where ig_enhet.individuell_gjennomforing_id = ig.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'navIdent', ansatt.nav_ident,
@@ -57,7 +54,7 @@ from individuell_gjennomforing ig
                                    ) as kontaktpersoner_json
                             from individuell_gjennomforing_kontaktperson kp
                                      join nav_ansatt ansatt on ansatt.nav_ident = kp.kontaktperson_nav_ident
-                            where kp.gjennomforing_id = ig.id) on true
+                            where kp.individuell_gjennomforing_id = ig.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'id', akp.id,
@@ -69,4 +66,4 @@ from individuell_gjennomforing ig
                                    ) as arrangor_kontaktpersoner_json
                             from individuell_gjennomforing_arrangor_kontaktperson ig_akp
                                      join arrangor_kontaktperson akp on akp.id = ig_akp.arrangor_kontaktperson_id
-                            where ig_akp.gjennomforing_id = ig.id) on true
+                            where ig_akp.individuell_gjennomforing_id = ig.id) on true

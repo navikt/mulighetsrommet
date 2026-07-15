@@ -28,10 +28,7 @@ export function IndividuelleGjennomforingerPage() {
       <ContentBox>
         <FilterAndTableLayout
           filter={
-            <IndividuellGjennomforingFilter
-              filter={filter.values}
-              updateFilter={updateFilter}
-            />
+            <IndividuellGjennomforingFilter filter={filter.values} updateFilter={updateFilter} />
           }
           nullstillFilterButton={
             hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null

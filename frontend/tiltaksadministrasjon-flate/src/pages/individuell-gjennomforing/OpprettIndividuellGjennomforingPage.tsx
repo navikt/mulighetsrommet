@@ -28,7 +28,7 @@ export function OpprettIndividuellGjennomforingPage() {
     resolver: zodResolver(IndividuellGjennomforingSchema),
     defaultValues: {
       navn: "",
-      tiltakstypeId: null,
+      tiltakstypeId: "",
       stedForGjennomforing: null,
       arrangorId: null,
       arrangorKontaktpersoner: [],
@@ -50,18 +50,18 @@ export function OpprettIndividuellGjennomforingPage() {
       {
         id,
         navn: data.navn,
-        tiltakstypeId: data.tiltakstypeId ?? null,
+        tiltakstypeId: data.tiltakstypeId,
         stedForGjennomforing: data.stedForGjennomforing ?? null,
         arrangorId: data.arrangorId ?? null,
         arrangorKontaktpersoner: data.arrangorKontaktpersoner ?? [],
-        beskrivelse: data.veilederinformasjon?.beskrivelse ?? null,
-        faneinnhold: data.veilederinformasjon?.faneinnhold ?? null,
-        administratorer: data.administratorer ?? [],
-        navRegioner: data.veilederinformasjon?.navRegioner ?? [],
-        navKontorer: data.veilederinformasjon?.navKontorer ?? [],
-        navAndreEnheter: data.veilederinformasjon?.navAndreEnheter ?? [],
+        beskrivelse: data.veilederinformasjon.beskrivelse ?? null,
+        faneinnhold: data.veilederinformasjon.faneinnhold ?? null,
+        administratorer: data.administratorer,
+        navRegioner: data.veilederinformasjon.navRegioner ?? [],
+        navKontorer: data.veilederinformasjon.navKontorer ?? [],
+        navAndreEnheter: data.veilederinformasjon.navAndreEnheter ?? [],
         kontaktpersoner:
-          data.veilederinformasjon?.kontaktpersoner?.map((k) => ({
+          data.veilederinformasjon.kontaktpersoner?.map((k) => ({
             navIdent: k.navIdent,
             beskrivelse: k.beskrivelse ?? null,
           })) ?? [],
@@ -76,7 +76,10 @@ export function OpprettIndividuellGjennomforingPage() {
     <>
       <title>Opprett individuell gjennomføring</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <HeaderBanner ikon={<GjennomforingAvtaleIkon />} heading="Opprett individuell gjennomføring" />
+      <HeaderBanner
+        ikon={<GjennomforingAvtaleIkon />}
+        heading="Opprett individuell gjennomføring"
+      />
       <ContentBox>
         <WhitePaddedBox>
           <FormProvider {...form}>

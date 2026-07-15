@@ -176,8 +176,6 @@ class VeilederflateService(
         val sanityIderIDb = dbGjennomforinger.mapNotNull { it.sanityId }.toSet()
 
         val dbTiltak = dbGjennomforinger
-            // Midlertidig filtrering av de som mangler tiltakstype. Det må støttes i Modia først
-            .filter { it.tiltakstype != null }
             .map { toVeilederflateTiltak(it) }
             .filter { it.tiltakstype.innsatsgrupper.orEmpty().contains(innsatsgruppe) }
 
@@ -230,8 +228,7 @@ class VeilederflateService(
     }
 
     private suspend fun toVeilederflateTiltak(gjennomforing: IndividuellGjennomforing): VeilederflateTiltak {
-        val tiltakskode = gjennomforing.tiltakstype?.tiltakskode
-            ?: error("IndividuellGjennomforing mangler tiltakstype: id=${gjennomforing.id}")
+        val tiltakskode = gjennomforing.tiltakstype.tiltakskode
         val tiltakstype = getAllTiltakstyper().singleOrNull { it.tiltakskode == tiltakskode }
             ?: error("Tiltakstype mangler for tiltakskode=$tiltakskode")
 

@@ -1,9 +1,7 @@
 import { Heading, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { useRef, useState } from "react";
-import {
-  IndividuellGjennomforingFormValues,
-} from "@/pages/individuell-gjennomforing/IndividuellGjennomforingFormValues";
+import { IndividuellGjennomforingFormValues } from "@/pages/individuell-gjennomforing/IndividuellGjennomforingFormValues";
 import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { FormCombobox } from "@/components/skjema/FormCombobox";
@@ -47,7 +45,7 @@ export function IndividuellGjennomforingForm() {
   const debouncedArrangorQuery = useDebounce(arrangorQuery, 300);
   const { data: arrangorerResult } = useArrangorer(undefined, { sok: debouncedArrangorQuery });
   const arrangorOptions =
-    arrangorerResult?.data?.map((a) => ({
+    arrangorerResult?.data.map((a) => ({
       value: a.id,
       label: `${a.navn} - ${a.organisasjonsnummer}`,
     })) ?? [];
@@ -59,30 +57,24 @@ export function IndividuellGjennomforingForm() {
     .map((kp) => ({ value: kp.id, label: kp.navn }));
 
   const { data: kontorstruktur } = useKontorstruktur();
-  const regionOptions = (kontorstruktur ?? []).map((k) => ({
+  const regionOptions = kontorstruktur.map((k) => ({
     value: k.region.enhetsnummer,
     label: k.region.navn,
   }));
-  const navRegioner = watch("veilederinformasjon.navRegioner") ?? [];
-  const kontorOptions = getLokaleUnderenheterAsSelectOptions(navRegioner, kontorstruktur ?? []);
-  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(
-    navRegioner,
-    kontorstruktur ?? [],
-  );
+  const navRegioner = watch("veilederinformasjon.navRegioner");
+  const kontorOptions = getLokaleUnderenheterAsSelectOptions(navRegioner, kontorstruktur);
+  const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(navRegioner, kontorstruktur);
 
   return (
     <VStack gap="space-16">
-      <FormTextField<IndividuellGjennomforingFormValues>
-        name="navn"
-        label="Navn"
-        required
-      />
+      <FormTextField<IndividuellGjennomforingFormValues> name="navn" label="Navn" required />
 
       <FormCombobox<IndividuellGjennomforingFormValues>
         name="tiltakstypeId"
-        label="Tiltakstype (valgfritt)"
+        label="Tiltakstype"
         placeholder="Velg tiltakstype"
         options={tiltakstypeOptions}
+        required
       />
 
       <FormTextarea<IndividuellGjennomforingFormValues>
@@ -206,7 +198,7 @@ function NavKontaktpersonFields({ index, id }: { index: number; id: string }) {
   const { data: ansatte } = useSokNavAnsatt(query, id);
   const { watch } = useFormContext<IndividuellGjennomforingFormValues>();
 
-  const kontaktpersoner = watch("veilederinformasjon.kontaktpersoner") ?? [];
+  const kontaktpersoner = watch("veilederinformasjon.kontaktpersoner");
   const excludedIdenter = kontaktpersoner.map((k) => k.navIdent);
 
   const alleredeValgt = kontaktpersoner

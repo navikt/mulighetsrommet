@@ -28,7 +28,6 @@ export function IndividuellGjennomforingHandlinger({ gjennomforing, ansatt }: Pr
   }
 
   const administratorer = gjennomforing.administratorer.map((a) => a.navIdent);
-  console.log(administratorer)
 
   return (
     <KnapperadContainer>
@@ -46,7 +45,8 @@ export function IndividuellGjennomforingHandlinger({ gjennomforing, ansatt }: Pr
             items: [
               {
                 label: "Rediger",
-                onClick: () => navigate(`/individuelle-gjennomforinger/${gjennomforing.id}/rediger`),
+                onClick: () =>
+                  navigate(`/individuelle-gjennomforinger/${gjennomforing.id}/rediger`),
                 handling: "REDIGER",
                 administratorer,
               },

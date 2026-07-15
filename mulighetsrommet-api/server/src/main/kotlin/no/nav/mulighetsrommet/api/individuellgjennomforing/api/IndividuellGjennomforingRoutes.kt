@@ -45,7 +45,7 @@ data class IndividuellGjennomforingRequest(
     val id: UUID,
     val navn: String,
     @Serializable(with = UUIDSerializer::class)
-    val tiltakstypeId: UUID? = null,
+    val tiltakstypeId: UUID,
     val stedForGjennomforing: String? = null,
     @Serializable(with = UUIDSerializer::class)
     val arrangorId: UUID? = null,

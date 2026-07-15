@@ -29,7 +29,7 @@ export interface IndividuellGjennomforingAdministrator {
 export interface IndividuellGjennomforing {
   id: string;
   navn: string;
-  tiltakstype?: IndividuellGjennomforingTiltakstype | null;
+  tiltakstype: IndividuellGjennomforingTiltakstype;
   stedForGjennomforing?: string | null;
   arrangor?: IndividuellGjennomforingArrangor | null;
   faneinnhold?: Faneinnhold | null;
@@ -60,4 +60,3 @@ export function useIndividuelleGjennomforinger(
     },
   });
 }
-

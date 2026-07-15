@@ -4,7 +4,7 @@ import { z } from "zod";
 export const IndividuellGjennomforingSchema = z
   .object({
     navn: z.string().min(1, "Navn er påkrevd"),
-    tiltakstypeId: z.string().nullable().optional(),
+    tiltakstypeId: z.string().min(1, "Tiltakstype er påkrevd"),
     stedForGjennomforing: z.string().nullable().optional(),
     arrangorId: z.string().nullable().optional(),
     arrangorKontaktpersoner: z.string().array().default([]),

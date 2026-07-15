@@ -6457,9 +6457,7 @@ components:
         navn:
           type: string
         tiltakstypeId:
-          type:
-          - "null"
-          - string
+          type: string
           format: uuid
         stedForGjennomforing:
           type:
@@ -6632,24 +6630,8 @@ components:
           type:
           - "null"
           - string
-        startDato:
-          type:
-          - "null"
-          - string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        status:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/GjennomforingStatusType"
         tiltakstype:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/IndividuellGjennomforing.Tiltakstype"
+          $ref: "#/components/schemas/IndividuellGjennomforing.Tiltakstype"
         stedForGjennomforing:
           type:
           - "null"
@@ -6696,9 +6678,6 @@ components:
       - navn
       - publisert
       - sanityId
-      - sluttDato
-      - startDato
-      - status
       - stedForGjennomforing
       - tiltaksnummer
       - tiltakstype

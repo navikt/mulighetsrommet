@@ -12,7 +12,7 @@ export interface IndividuellGjennomforingKontaktpersonRequest {
 export interface IndividuellGjennomforingRequest {
   id: string;
   navn: string;
-  tiltakstypeId?: string | null;
+  tiltakstypeId: string;
   stedForGjennomforing?: string | null;
   arrangorId?: string | null;
   arrangorKontaktpersoner: string[];

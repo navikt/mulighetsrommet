@@ -87,7 +87,9 @@ export const QueryKeys = {
   opplaeringtilskudd: () => ["opplaeringtilskudd"],
   tilskuddBehandlinger: (gjennomforingId?: string) => ["tilskudd-behandling", gjennomforingId],
   tilskuddBehandling: (behandlingId: string) => ["tilskudd-behandling", behandlingId],
-  individuelleGjennomforinger: (filter?: object) => ["individuelle-gjennomforinger", filter] as const,
+  individuelleGjennomforinger: (filter?: object) =>
+    ["individuelle-gjennomforinger", filter] as const,
   individuellGjennomforing: (id?: string) => ["individuell-gjennomforing", id] as const,
-  individuellGjennomforingHandlinger: (id: string) => ["individuell-gjennomforing-handlinger", id] as const,
+  individuellGjennomforingHandlinger: (id: string) =>
+    ["individuell-gjennomforing-handlinger", id] as const,
 };

@@ -58,7 +58,7 @@ function toDefaultValues(ig: IndividuellGjennomforing): IndividuellGjennomforing
 
   return {
     navn: ig.navn,
-    tiltakstypeId: ig.tiltakstype?.id ?? null,
+    tiltakstypeId: ig.tiltakstype.id,
     stedForGjennomforing: ig.stedForGjennomforing ?? null,
     arrangorId: ig.arrangor?.id ?? null,
     arrangorKontaktpersoner: ig.arrangorKontaktpersoner.map((kp) => kp.id),
@@ -91,18 +91,18 @@ function RedigerForm({ gjennomforing }: { gjennomforing: IndividuellGjennomforin
       {
         id: gjennomforing.id,
         navn: data.navn,
-        tiltakstypeId: data.tiltakstypeId ?? null,
+        tiltakstypeId: data.tiltakstypeId,
         stedForGjennomforing: data.stedForGjennomforing ?? null,
         arrangorId: data.arrangorId ?? null,
         arrangorKontaktpersoner: data.arrangorKontaktpersoner ?? [],
-        beskrivelse: data.veilederinformasjon?.beskrivelse ?? null,
-        faneinnhold: data.veilederinformasjon?.faneinnhold ?? null,
-        administratorer: data.administratorer ?? [],
-        navRegioner: data.veilederinformasjon?.navRegioner ?? [],
-        navKontorer: data.veilederinformasjon?.navKontorer ?? [],
-        navAndreEnheter: data.veilederinformasjon?.navAndreEnheter ?? [],
+        beskrivelse: data.veilederinformasjon.beskrivelse ?? null,
+        faneinnhold: data.veilederinformasjon.faneinnhold ?? null,
+        administratorer: data.administratorer,
+        navRegioner: data.veilederinformasjon.navRegioner ?? [],
+        navKontorer: data.veilederinformasjon.navKontorer ?? [],
+        navAndreEnheter: data.veilederinformasjon.navAndreEnheter ?? [],
         kontaktpersoner:
-          data.veilederinformasjon?.kontaktpersoner?.map((k) => ({
+          data.veilederinformasjon.kontaktpersoner?.map((k) => ({
             navIdent: k.navIdent,
             beskrivelse: k.beskrivelse ?? null,
           })) ?? [],

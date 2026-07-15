@@ -48,21 +48,25 @@ export function IndividuellGjennomforingPage() {
           <VStack gap="space-16">
             <Bolk aria-label="Grunninfo">
               <VStack gap="space-8">
-                {gjennomforing.tiltakstype && (
-                  <div>
-                    <Heading size="small" level="2">Tiltakstype</Heading>
-                    <BodyShort>{gjennomforing.tiltakstype.navn}</BodyShort>
-                  </div>
-                )}
+                <div>
+                  <Heading size="small" level="2">
+                    Tiltakstype
+                  </Heading>
+                  <BodyShort>{gjennomforing.tiltakstype.navn}</BodyShort>
+                </div>
                 {gjennomforing.stedForGjennomforing && (
                   <div>
-                    <Heading size="small" level="2">Sted for gjennomføring</Heading>
+                    <Heading size="small" level="2">
+                      Sted for gjennomføring
+                    </Heading>
                     <BodyShort>{gjennomforing.stedForGjennomforing}</BodyShort>
                   </div>
                 )}
                 {gjennomforing.arrangor && (
                   <div>
-                    <Heading size="small" level="2">Arrangør</Heading>
+                    <Heading size="small" level="2">
+                      Arrangør
+                    </Heading>
                     <BodyShort>
                       {gjennomforing.arrangor.navn} — {gjennomforing.arrangor.organisasjonsnummer}
                     </BodyShort>
@@ -80,7 +84,9 @@ export function IndividuellGjennomforingPage() {
                 )}
                 {gjennomforing.administratorer.length > 0 && (
                   <div>
-                    <Heading size="small" level="2">Administratorer</Heading>
+                    <Heading size="small" level="2">
+                      Administratorer
+                    </Heading>
                     <VStack gap="space-4">
                       {gjennomforing.administratorer.map((admin) => (
                         <BodyShort key={admin.navIdent}>

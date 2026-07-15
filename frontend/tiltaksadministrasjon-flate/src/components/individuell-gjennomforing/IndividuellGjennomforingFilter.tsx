@@ -16,9 +16,7 @@ interface Props {
 }
 
 export function IndividuellGjennomforingFilter({ filter, updateFilter }: Props) {
-  const [accordionsOpen, setAccordionsOpen] = useAtom(
-    individuellGjennomforingFilterAccordionAtom,
-  );
+  const [accordionsOpen, setAccordionsOpen] = useAtom(individuellGjennomforingFilterAccordionAtom);
 
   return (
     <Accordion>

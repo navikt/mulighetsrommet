@@ -49,7 +49,7 @@ export function IndividuellGjennomforingTabell({ filter }: Props) {
                     {gjennomforing.navn}
                   </Link>
                 </Table.DataCell>
-                <Table.DataCell>{gjennomforing.tiltakstype?.navn ?? "-"}</Table.DataCell>
+                <Table.DataCell>{gjennomforing.tiltakstype.navn}</Table.DataCell>
                 <Table.DataCell>{gjennomforing.arrangor?.navn ?? "-"}</Table.DataCell>
               </Table.Row>
             ))}

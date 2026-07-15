@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.individuellgjennomforing.model.IndividuellGjen
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.model.Faneinnhold
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -22,7 +21,7 @@ class IndividuellGjennomforingQueries(private val session: Session) {
     fun upsert(
         id: UUID,
         navn: String,
-        tiltakstypeId: UUID?,
+        tiltakstypeId: UUID,
         stedForGjennomforing: String?,
         arrangorId: UUID?,
         faneinnhold: Faneinnhold?,
@@ -87,9 +86,9 @@ class IndividuellGjennomforingQueries(private val session: Session) {
     fun setAdministratorer(id: UUID, administratorer: Set<NavIdent>) = with(session) {
         @Language("PostgreSQL")
         val upsertAdministrator = """
-            insert into individuell_gjennomforing_administrator (gjennomforing_id, nav_ident)
+            insert into individuell_gjennomforing_administrator (individuell_gjennomforing_id, nav_ident)
             values (:id::uuid, :nav_ident)
-            on conflict (gjennomforing_id, nav_ident) do nothing
+            on conflict (individuell_gjennomforing_id, nav_ident) do nothing
         """.trimIndent()
         batchPreparedNamedStatement(
             upsertAdministrator,
@@ -99,7 +98,7 @@ class IndividuellGjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val deleteAdministratorer = """
             delete from individuell_gjennomforing_administrator
-            where gjennomforing_id = ?::uuid and not (nav_ident = any (?))
+            where individuell_gjennomforing_id = ?::uuid and not (nav_ident = any (?))
         """.trimIndent()
         execute(queryOf(deleteAdministratorer, id, createArrayOfValue(administratorer) { it.value }))
     }
@@ -107,16 +106,16 @@ class IndividuellGjennomforingQueries(private val session: Session) {
     fun setNavEnheter(id: UUID, navEnheter: Set<NavEnhetNummer>) = with(session) {
         @Language("PostgreSQL")
         val upsertEnhet = """
-            insert into individuell_gjennomforing_nav_enhet (gjennomforing_id, enhetsnummer)
+            insert into individuell_gjennomforing_nav_enhet (individuell_gjennomforing_id, enhetsnummer)
             values (:id::uuid, :enhetsnummer)
-            on conflict (gjennomforing_id, enhetsnummer) do nothing
+            on conflict (individuell_gjennomforing_id, enhetsnummer) do nothing
         """.trimIndent()
         batchPreparedNamedStatement(upsertEnhet, navEnheter.map { mapOf("id" to id, "enhetsnummer" to it.value) })
 
         @Language("PostgreSQL")
         val deleteEnheter = """
             delete from individuell_gjennomforing_nav_enhet
-            where gjennomforing_id = ?::uuid and not (enhetsnummer = any (?))
+            where individuell_gjennomforing_id = ?::uuid and not (enhetsnummer = any (?))
         """.trimIndent()
         execute(queryOf(deleteEnheter, id, createArrayOfValue(navEnheter) { it.value }))
     }
@@ -124,9 +123,9 @@ class IndividuellGjennomforingQueries(private val session: Session) {
     fun setKontaktpersoner(id: UUID, kontaktpersoner: Set<KontaktpersonDbo>) = with(session) {
         @Language("PostgreSQL")
         val upsertKontaktperson = """
-            insert into individuell_gjennomforing_kontaktperson (gjennomforing_id, kontaktperson_nav_ident, beskrivelse)
+            insert into individuell_gjennomforing_kontaktperson (individuell_gjennomforing_id, kontaktperson_nav_ident, beskrivelse)
             values (:id::uuid, :nav_ident, :beskrivelse)
-            on conflict (gjennomforing_id, kontaktperson_nav_ident) do update set
+            on conflict (individuell_gjennomforing_id, kontaktperson_nav_ident) do update set
                 beskrivelse = :beskrivelse
         """.trimIndent()
         batchPreparedNamedStatement(
@@ -137,7 +136,7 @@ class IndividuellGjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val deleteKontaktpersoner = """
             delete from individuell_gjennomforing_kontaktperson
-            where gjennomforing_id = ?::uuid and not (kontaktperson_nav_ident = any (?))
+            where individuell_gjennomforing_id = ?::uuid and not (kontaktperson_nav_ident = any (?))
         """.trimIndent()
         execute(queryOf(deleteKontaktpersoner, id, createArrayOfValue(kontaktpersoner) { it.navIdent.value }))
     }
@@ -145,19 +144,19 @@ class IndividuellGjennomforingQueries(private val session: Session) {
     fun setArrangorKontaktpersoner(id: UUID, arrangorKontaktpersoner: Set<UUID>) = with(session) {
         @Language("PostgreSQL")
         val upsertArrangorKontaktperson = """
-            insert into individuell_gjennomforing_arrangor_kontaktperson (gjennomforing_id, arrangor_kontaktperson_id)
-            values (:gjennomforing_id::uuid, :arrangor_kontaktperson_id::uuid)
+            insert into individuell_gjennomforing_arrangor_kontaktperson (individuell_gjennomforing_id, arrangor_kontaktperson_id)
+            values (:individuell_gjennomforing_id::uuid, :arrangor_kontaktperson_id::uuid)
             on conflict do nothing
         """.trimIndent()
         batchPreparedNamedStatement(
             upsertArrangorKontaktperson,
-            arrangorKontaktpersoner.map { mapOf("gjennomforing_id" to id, "arrangor_kontaktperson_id" to it) },
+            arrangorKontaktpersoner.map { mapOf("individuell_gjennomforing_id" to id, "arrangor_kontaktperson_id" to it) },
         )
 
         @Language("PostgreSQL")
         val deleteArrangorKontaktpersoner = """
             delete from individuell_gjennomforing_arrangor_kontaktperson
-            where gjennomforing_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
+            where individuell_gjennomforing_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
         """.trimIndent()
         execute(queryOf(deleteArrangorKontaktpersoner, id, createUuidArray(arrangorKontaktpersoner)))
     }
@@ -183,7 +182,7 @@ class IndividuellGjennomforingQueries(private val session: Session) {
             select *
             from view_individuell_gjennomforing
             where (:nav_enheter::text[] is null or id in (
-                select gjennomforing_id from individuell_gjennomforing_nav_enhet
+                select individuell_gjennomforing_id from individuell_gjennomforing_nav_enhet
                 where enhetsnummer = any (:nav_enheter)
             ))
             and (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
@@ -217,7 +216,7 @@ class IndividuellGjennomforingQueries(private val session: Session) {
     }
 
     private fun toIndividuellGjennomforing(row: Row): IndividuellGjennomforing {
-        val tiltakstypeId = row.uuidOrNull("tiltakstype_id")
+        val tiltakstypeId = row.uuid("tiltakstype_id")
         val arrangorId = row.uuidOrNull("arrangor_id")
 
         return IndividuellGjennomforing(
@@ -225,10 +224,7 @@ class IndividuellGjennomforingQueries(private val session: Session) {
             navn = row.string("navn"),
             sanityId = row.uuidOrNull("sanity_id"),
             tiltaksnummer = row.stringOrNull("tiltaksnummer"),
-            startDato = row.localDateOrNull("start_dato"),
-            sluttDato = row.localDateOrNull("slutt_dato"),
-            status = row.stringOrNull("status")?.let { GjennomforingStatusType.valueOf(it) },
-            tiltakstype = tiltakstypeId?.let {
+            tiltakstype = tiltakstypeId.let {
                 IndividuellGjennomforing.Tiltakstype(
                     id = it,
                     navn = row.string("tiltakstype_navn"),
