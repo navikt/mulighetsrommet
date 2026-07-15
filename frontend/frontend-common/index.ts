@@ -1,11 +1,11 @@
 import useDebounce from "./hooks/useDebounce";
 import { shallowEquals } from "./utils/shallow-equals";
 import {
-  CheckboxGroup,
   CheckboxGroupProps,
   CheckboxGroupItem,
   CheckboxGroupSubItem,
-} from "./components/filter/CheckboxGroup";
+  CheckboxDropdownGroup,
+} from "./components/filter/CheckboxDropdownGroup";
 import { MultiLabelFilterTag } from "./components/filter/filterTag/MultiLabelFilterTag";
 import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
 import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader";
@@ -34,7 +34,7 @@ import { PortableText } from "./components/portabletext/PortableText";
 export {
   useDebounce,
   shallowEquals,
-  CheckboxGroup,
+  CheckboxDropdownGroup,
   type CheckboxGroupProps,
   type CheckboxGroupItem,
   type CheckboxGroupSubItem,
