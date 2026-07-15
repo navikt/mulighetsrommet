@@ -602,11 +602,11 @@ importers:
         specifier: 8.14.0
         version: 8.14.0
       '@portabletext/editor':
-        specifier: 7.8.1
-        version: 7.8.1(@types/react@19.2.14)(react@19.2.4)
+        specifier: 7.10.2
+        version: 7.10.2(@types/react@19.2.14)(react@19.2.4)
       '@portabletext/toolbar':
-        specifier: 8.0.24
-        version: 8.0.24(@portabletext/editor@7.8.1(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
+        specifier: 8.0.29
+        version: 8.0.29(@portabletext/editor@7.10.2(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
       '@portabletext/types':
         specifier: 4.0.2
         version: 4.0.2
@@ -3045,8 +3045,8 @@ packages:
     peerDependencies:
       react: ^19.2.7
 
-  '@portabletext/editor@7.8.1':
-    resolution: {integrity: sha512-KZvL8X2o61tG+QKHabMAEcKiotjSb4LQxI9UxSCADQ0ZDdbOHQsQY4LRZGqszK+W0sqTHiSCKKsh4JHS0lY1sQ==}
+  '@portabletext/editor@7.10.2':
+    resolution: {integrity: sha512-H+XDW4ewjVn7O8pK7cLEbwn5wxsxbScjp/nPoSpC/k6zVvm3UxyJ0tvEZnNsqB+iqmPU1t+yKoFkVsYmJdmEvA==}
     engines: {node: '>=20.19 <22 || >=22.12'}
     peerDependencies:
       react: ^19.2.7
@@ -3057,10 +3057,6 @@ packages:
 
   '@portabletext/keyboard-shortcuts@2.1.3':
     resolution: {integrity: sha512-dIK1zRfRLMm0j0deXEfMZ2Mcm9olyeGCo2Vx+/qhBs29kvl/NhNvHC9hvBHlqRcOieRz45wpHpqA6oEfTeWCVA==}
-    engines: {node: '>=20.19 <22 || >=22.12'}
-
-  '@portabletext/markdown@1.4.2':
-    resolution: {integrity: sha512-CEXSfH12Gs/F7fiqNq0fCAdY8NLxbpzYs+eTgDiXM/L51grbWlfdAaVnmXXwGbxa3z5cySIoZP+M7EzTKsBfKA==}
     engines: {node: '>=20.19 <22 || >=22.12'}
 
   '@portabletext/markdown@1.4.3':
@@ -3145,11 +3141,11 @@ packages:
     resolution: {integrity: sha512-w59PcErj5JXUCv9tbV2npqJmcnORTAftCMLp0vc9FnWrXL3C9qYvuB2MQbdHsZEOesF3VmwqUsYUgjm7PX4JTw==}
     engines: {node: '>=20.19 <22 || >=22.12'}
 
-  '@portabletext/toolbar@8.0.24':
-    resolution: {integrity: sha512-ApAdoSETueWqYUU2H9qtvq5niYfcpzOnZuCxNY7a+jwvy/dStb6HGCNhTMGboZlWaJoU59+QWJEQo60/Whx1mw==}
+  '@portabletext/toolbar@8.0.29':
+    resolution: {integrity: sha512-1WuScmRAQ1X8POs+jz0dSujv4609HmbBdHVZL5VB8jot5f5RlMFZvnoLK3q8vld6rN2+rHA9wYlOc3JfsahLBQ==}
     engines: {node: '>=20.19 <22 || >=22.12'}
     peerDependencies:
-      '@portabletext/editor': ^7.8.1
+      '@portabletext/editor': ^7.10.2
       react: ^19.2.7
 
   '@portabletext/toolkit@5.0.2':
@@ -6260,9 +6256,6 @@ packages:
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
-  linkify-it@5.0.1:
-    resolution: {integrity: sha512-wVoTjP4Q6R0NW5hiZkVJaFZPWgtXfoGF+6LucL3/FtiNjmcHhYjEr5f1Kqjirc1nBW07J/ZuRFumqr2oqccEWg==}
-
   linkify-it@5.0.2:
     resolution: {integrity: sha512-ONTm2jCMAVZjgQa/Fy1kScXsuOoF5NPTsoFBdE1KVIZ2vAh/r9+Bqo+0jINCBYnavTPQZz38QzFTme79ENoN3Q==}
 
@@ -6330,10 +6323,6 @@ packages:
 
   make-event-props@2.0.0:
     resolution: {integrity: sha512-G/hncXrl4Qt7mauJEXSg3AcdYzmpkIITTNl5I+rH9sog5Yw0kK6vseJjCaPfOXqOqQuPUP89Rkhfz5kPS8ijtw==}
-
-  markdown-it@14.2.0:
-    resolution: {integrity: sha512-1TGiQiJVRQ3NPmZH6sx5Cfnmg6GQm9jvC1ch4TK511NjSJvjzKLzn5pPfZRNZkRPZP0HqCioSndqH8v2nRaWVQ==}
-    hasBin: true
 
   markdown-it@14.3.0:
     resolution: {integrity: sha512-RCEsPjR+sr0x+AuYp601tKTkgFG4YEPLCzHST3cQ/fhlJkqAkz1L2/Qbp1j9qw5SBwQHFBoW8+hoN5xssOF0Tw==}
@@ -8438,9 +8427,6 @@ packages:
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
 
-  xstate@5.32.2:
-    resolution: {integrity: sha512-uDrojEQYYb4cEeB/SpKDBQlnL2969N5ltmVak4jUMUC6VVRuhi7PCnTBxe4YlQ8YLzdaOEOuVR48CRQPE2o0Uw==}
-
   xstate@5.32.4:
     resolution: {integrity: sha512-E5WtDB8DBs2ZWliz2Ry9XfbSZTbBRcK/cwefBot04qQ/L5SLP16xpnTDU4/ZFXuXFhNxi7JP2RhuoGwBnM+S4A==}
 
@@ -10292,12 +10278,6 @@ snapshots:
 
   '@marijn/find-cluster-break@1.0.3': {}
 
-  '@mdit/plugin-alert@0.23.2(markdown-it@14.2.0)':
-    dependencies:
-      '@types/markdown-it': 14.1.2
-    optionalDependencies:
-      markdown-it: 14.2.0
-
   '@mdit/plugin-alert@0.23.2(markdown-it@14.3.0)':
     dependencies:
       '@types/markdown-it': 14.1.2
@@ -10997,19 +10977,19 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  '@portabletext/editor@7.8.1(@types/react@19.2.14)(react@19.2.4)':
+  '@portabletext/editor@7.10.2(@types/react@19.2.14)(react@19.2.4)':
     dependencies:
       '@portabletext/html': 1.1.0
       '@portabletext/keyboard-shortcuts': 2.1.3
-      '@portabletext/markdown': 1.4.2
+      '@portabletext/markdown': 1.4.3
       '@portabletext/patches': 2.0.5
       '@portabletext/schema': 2.2.2
       '@portabletext/to-html': 5.0.2
-      '@xstate/react': 6.1.0(@types/react@19.2.14)(react@19.2.4)(xstate@5.32.2)
+      '@xstate/react': 6.1.0(@types/react@19.2.14)(react@19.2.4)(xstate@5.32.4)
       debug: 4.4.3(supports-color@8.1.1)
       react: 19.2.4
       scroll-into-view-if-needed: 3.1.0
-      xstate: 5.32.2
+      xstate: 5.32.4
     transitivePeerDependencies:
       - '@types/react'
       - supports-color
@@ -11020,13 +11000,6 @@ snapshots:
       '@vercel/stega': 1.1.0
 
   '@portabletext/keyboard-shortcuts@2.1.3': {}
-
-  '@portabletext/markdown@1.4.2':
-    dependencies:
-      '@mdit/plugin-alert': 0.23.2(markdown-it@14.2.0)
-      '@portabletext/schema': 2.2.2
-      '@portabletext/toolkit': 5.0.2
-      markdown-it: 14.2.0
 
   '@portabletext/markdown@1.4.3':
     dependencies:
@@ -11116,13 +11089,13 @@ snapshots:
       '@portabletext/toolkit': 5.0.2
       '@portabletext/types': 4.0.2
 
-  '@portabletext/toolbar@8.0.24(@portabletext/editor@7.8.1(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)':
+  '@portabletext/toolbar@8.0.29(@portabletext/editor@7.10.2(@types/react@19.2.14)(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)':
     dependencies:
-      '@portabletext/editor': 7.8.1(@types/react@19.2.14)(react@19.2.4)
+      '@portabletext/editor': 7.10.2(@types/react@19.2.14)(react@19.2.4)
       '@portabletext/keyboard-shortcuts': 2.1.3
-      '@xstate/react': 6.1.0(@types/react@19.2.14)(react@19.2.4)(xstate@5.32.2)
+      '@xstate/react': 6.1.0(@types/react@19.2.14)(react@19.2.4)(xstate@5.32.4)
       react: 19.2.4
-      xstate: 5.32.2
+      xstate: 5.32.4
     transitivePeerDependencies:
       - '@types/react'
 
@@ -12535,16 +12508,6 @@ snapshots:
       '@vitest/pretty-format': 4.1.9
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
-
-  '@xstate/react@6.1.0(@types/react@19.2.14)(react@19.2.4)(xstate@5.32.2)':
-    dependencies:
-      react: 19.2.4
-      use-isomorphic-layout-effect: 1.2.1(@types/react@19.2.14)(react@19.2.4)
-      use-sync-external-store: 1.6.0(react@19.2.4)
-    optionalDependencies:
-      xstate: 5.32.2
-    transitivePeerDependencies:
-      - '@types/react'
 
   '@xstate/react@6.1.0(@types/react@19.2.14)(react@19.2.4)(xstate@5.32.4)':
     dependencies:
@@ -14722,10 +14685,6 @@ snapshots:
 
   lines-and-columns@1.2.4: {}
 
-  linkify-it@5.0.1:
-    dependencies:
-      uc.micro: 2.1.0
-
   linkify-it@5.0.2:
     dependencies:
       uc.micro: 2.1.0
@@ -14796,15 +14755,6 @@ snapshots:
       semver: 5.7.2
 
   make-event-props@2.0.0: {}
-
-  markdown-it@14.2.0:
-    dependencies:
-      argparse: 2.0.1
-      entities: 4.5.0
-      linkify-it: 5.0.1
-      mdurl: 2.0.0
-      punycode.js: 2.3.1
-      uc.micro: 2.1.0
 
   markdown-it@14.3.0:
     dependencies:
@@ -17269,8 +17219,6 @@ snapshots:
   xml-name-validator@5.0.0: {}
 
   xmlchars@2.2.0: {}
-
-  xstate@5.32.2: {}
 
   xstate@5.32.4: {}
 
