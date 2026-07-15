@@ -19,8 +19,7 @@ import io.mockk.verify
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
-import no.nav.mulighetsrommet.admin.enhetsregister.Hovedenhet
-import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
+import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
@@ -141,14 +140,14 @@ class AvtaleServiceTest : FunSpec({
             val orgnrUnderenhet = Organisasjonsnummer("888888888")
             val enhetsregister = mockk<EnhetsregisterGateway> {
                 coEvery { hentVirksomhet(orgnrHovedenhet) } returns VirksomhetOppslag.Funnet(
-                    Hovedenhet(
+                    Virksomhet.Hovedenhet(
                         organisasjonsnummer = orgnrHovedenhet,
                         organisasjonsform = "AS",
                         navn = "Ny arrangør hovedenhet",
                     ),
                 ).right()
                 coEvery { hentVirksomhet(orgnrUnderenhet) } returns VirksomhetOppslag.Funnet(
-                    Underenhet(
+                    Virksomhet.Underenhet(
                         organisasjonsnummer = orgnrUnderenhet,
                         organisasjonsform = "AS",
                         navn = "Ny arrangør underenhet",

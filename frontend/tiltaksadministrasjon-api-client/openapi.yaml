@@ -3184,7 +3184,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Hovedenhet"
+                  $ref: "#/components/schemas/Virksomhet.Hovedenhet"
         default:
           description: Problem details
           headers: {}
@@ -3216,7 +3216,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Underenhet"
+                  $ref: "#/components/schemas/Virksomhet.Underenhet"
         "400":
           description: Søket er blankt
           headers: {}
@@ -3261,7 +3261,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Underenhet"
+                  $ref: "#/components/schemas/Virksomhet.Underenhet"
         default:
           description: Problem details
           headers: {}
@@ -8308,7 +8308,7 @@ components:
       required:
       - avtaler
       - gjennomforinger
-    Hovedenhet:
+    Virksomhet.Hovedenhet:
       type: object
       properties:
         organisasjonsnummer:
@@ -8334,7 +8334,7 @@ components:
       - organisasjonsnummer
       - overordnetEnhet
       - slettetDato
-    Underenhet:
+    Virksomhet.Underenhet:
       type: object
       properties:
         organisasjonsnummer:

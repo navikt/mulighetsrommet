@@ -11,8 +11,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
-import no.nav.mulighetsrommet.admin.enhetsregister.Hovedenhet
-import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
+import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
@@ -42,7 +41,7 @@ class BrregEnhetsregisterGatewayTest : FunSpec({
         val hovedenheter = gateway.sokHovedenheter("nord").shouldBeRight()
 
         hovedenheter shouldBe listOf(
-            Hovedenhet(
+            Virksomhet.Hovedenhet(
                 organisasjonsnummer = Organisasjonsnummer("111111111"),
                 navn = "Nord AS",
                 organisasjonsform = "AS",
@@ -67,7 +66,7 @@ class BrregEnhetsregisterGatewayTest : FunSpec({
         val underenheter = gateway.sokUnderenheter("nord").shouldBeRight()
 
         underenheter shouldBe listOf(
-            Underenhet(
+            Virksomhet.Underenhet(
                 organisasjonsnummer = Organisasjonsnummer("333333333"),
                 navn = "Nord Avdeling",
                 organisasjonsform = "BEDR",
@@ -100,13 +99,13 @@ class BrregEnhetsregisterGatewayTest : FunSpec({
         val underenheter = gateway.hentUnderenheterForHovedenhet(hovedenhetOrgnr).shouldBeRight()
 
         underenheter shouldBe listOf(
-            Underenhet(
+            Virksomhet.Underenhet(
                 organisasjonsnummer = Organisasjonsnummer("333333333"),
                 navn = "Nord Avdeling",
                 organisasjonsform = "BEDR",
                 overordnetEnhet = hovedenhetOrgnr,
             ),
-            Underenhet(
+            Virksomhet.Underenhet(
                 organisasjonsnummer = Organisasjonsnummer("444444444"),
                 navn = "Nord Avdeling Slettet",
                 organisasjonsform = "BEDR",

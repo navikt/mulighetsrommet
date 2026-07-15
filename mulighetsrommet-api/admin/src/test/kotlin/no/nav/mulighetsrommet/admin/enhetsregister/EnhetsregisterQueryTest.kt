@@ -27,7 +27,7 @@ class EnhetsregisterQueryTest : FunSpec({
     }
 
     test("sokHovedenheter kombinerer treff fra gateway med utenlandske arrangører") {
-        val fraBrreg = Hovedenhet(
+        val fraBrreg = Virksomhet.Hovedenhet(
             organisasjonsnummer = Organisasjonsnummer("111111111"),
             navn = "Nord AS",
             organisasjonsform = "AS",
@@ -56,7 +56,7 @@ class EnhetsregisterQueryTest : FunSpec({
 
         result shouldBe listOf(
             fraBrreg,
-            Hovedenhet(
+            Virksomhet.Hovedenhet(
                 organisasjonsnummer = utenlandsk.organisasjonsnummer,
                 navn = utenlandsk.navn,
                 organisasjonsform = null,
@@ -72,7 +72,7 @@ class EnhetsregisterQueryTest : FunSpec({
         val result = query.hentUnderenheterForHovedenhet(utenlandsk.organisasjonsnummer).shouldBeRight()
 
         result shouldBe listOf(
-            Underenhet(
+            Virksomhet.Underenhet(
                 organisasjonsnummer = utenlandsk.organisasjonsnummer,
                 navn = utenlandsk.navn,
                 overordnetEnhet = null,
@@ -83,7 +83,7 @@ class EnhetsregisterQueryTest : FunSpec({
 
     test("hentUnderenheterForHovedenhet kombinerer treff fra gateway med slettede underenheter") {
         val hovedenhetOrgnr = Organisasjonsnummer("111111112")
-        val fraBrreg = Underenhet(
+        val fraBrreg = Virksomhet.Underenhet(
             organisasjonsnummer = Organisasjonsnummer("222222223"),
             navn = "Avdeling",
             organisasjonsform = "BEDR",
@@ -112,7 +112,7 @@ class EnhetsregisterQueryTest : FunSpec({
 
         result shouldBe listOf(
             fraBrreg,
-            Underenhet(
+            Virksomhet.Underenhet(
                 organisasjonsnummer = slettet.organisasjonsnummer,
                 navn = slettet.navn,
                 overordnetEnhet = null,

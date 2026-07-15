@@ -7,8 +7,6 @@ import arrow.core.right
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
-import no.nav.mulighetsrommet.admin.enhetsregister.Hovedenhet
-import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
 import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
@@ -65,7 +63,7 @@ class SyncArrangorUseCase(
 
     private suspend fun syncVirksomhet(virksomhet: Virksomhet): Either<SyncArrangorError, Arrangor> {
         // Sørger for at hovedenheten også finnes lagret før underenheten materialiseres
-        val overordnetEnhet = (virksomhet as? Underenhet)
+        val overordnetEnhet = (virksomhet as? Virksomhet.Underenhet)
             ?.takeIf { it.slettetDato == null }
             ?.overordnetEnhet
 
@@ -93,7 +91,7 @@ class SyncArrangorUseCase(
 }
 
 private fun Virksomhet.toArrangor(): Arrangor.Norsk = when (this) {
-    is Hovedenhet -> Arrangor.Norsk.opprett(
+    is Virksomhet.Hovedenhet -> Arrangor.Norsk.opprett(
         id = UUID.randomUUID(),
         organisasjonsnummer = organisasjonsnummer,
         organisasjonsform = organisasjonsform,
@@ -102,7 +100,7 @@ private fun Virksomhet.toArrangor(): Arrangor.Norsk = when (this) {
         slettetDato = slettetDato,
     )
 
-    is Underenhet -> Arrangor.Norsk.opprett(
+    is Virksomhet.Underenhet -> Arrangor.Norsk.opprett(
         id = UUID.randomUUID(),
         organisasjonsnummer = organisasjonsnummer,
         organisasjonsform = organisasjonsform,

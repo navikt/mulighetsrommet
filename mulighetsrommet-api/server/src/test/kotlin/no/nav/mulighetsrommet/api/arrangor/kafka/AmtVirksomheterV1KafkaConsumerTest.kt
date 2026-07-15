@@ -14,8 +14,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
-import no.nav.mulighetsrommet.admin.enhetsregister.Hovedenhet
-import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
+import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -39,14 +38,14 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             overordnetEnhetOrganisasjonsnummer = amtVirksomhet.organisasjonsnummer,
         )
 
-        val underenhet = Underenhet(
+        val underenhet = Virksomhet.Underenhet(
             navn = amtUnderenhet.navn,
             organisasjonsnummer = amtUnderenhet.organisasjonsnummer,
             organisasjonsform = "BEDR",
             overordnetEnhet = amtVirksomhet.organisasjonsnummer,
         )
 
-        val hovedenhet = Hovedenhet(
+        val hovedenhet = Virksomhet.Hovedenhet(
             organisasjonsnummer = amtVirksomhet.organisasjonsnummer,
             organisasjonsform = "AS",
             navn = amtVirksomhet.navn,

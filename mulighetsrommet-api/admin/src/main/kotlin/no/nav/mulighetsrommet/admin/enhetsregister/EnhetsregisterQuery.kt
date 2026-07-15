@@ -18,7 +18,7 @@ class EnhetsregisterQuery(
     private val gateway: EnhetsregisterGateway,
     private val db: AdminDatabase,
 ) {
-    suspend fun sokHovedenheter(sok: String): Either<EnhetsregisterError, List<Hovedenhet>> {
+    suspend fun sokHovedenheter(sok: String): Either<EnhetsregisterError, List<Virksomhet.Hovedenhet>> {
         if (sok.isBlank()) {
             return EnhetsregisterError.UgyldigSok().left()
         }
@@ -31,7 +31,7 @@ class EnhetsregisterQuery(
         }
     }
 
-    suspend fun sokUnderenheter(sok: String): Either<EnhetsregisterError, List<Underenhet>> {
+    suspend fun sokUnderenheter(sok: String): Either<EnhetsregisterError, List<Virksomhet.Underenhet>> {
         if (sok.isBlank()) {
             return EnhetsregisterError.UgyldigSok().left()
         }
@@ -39,12 +39,12 @@ class EnhetsregisterQuery(
         return gateway.sokUnderenheter(sok)
     }
 
-    suspend fun hentUnderenheterForHovedenhet(orgnr: Organisasjonsnummer): Either<EnhetsregisterError, List<Underenhet>> {
+    suspend fun hentUnderenheterForHovedenhet(orgnr: Organisasjonsnummer): Either<EnhetsregisterError, List<Virksomhet.Underenhet>> {
         val arrangor = db.session { repository.arrangor.getByOrganisasjonsnummer(orgnr) }
         if (arrangor != null && arrangor is Arrangor.Utenlandsk) {
             // Utenlandske virksomheter har ingen underenheter i brreg - de representerer seg selv
             return listOf(
-                Underenhet(
+                Virksomhet.Underenhet(
                     organisasjonsnummer = arrangor.organisasjonsnummer,
                     navn = arrangor.navn,
                     overordnetEnhet = null,
@@ -66,7 +66,7 @@ class EnhetsregisterQuery(
     }
 }
 
-private fun ArrangorDto.toHovedenhet(): Hovedenhet = Hovedenhet(
+private fun ArrangorDto.toHovedenhet(): Virksomhet.Hovedenhet = Virksomhet.Hovedenhet(
     organisasjonsnummer = organisasjonsnummer,
     navn = navn,
     organisasjonsform = null,
@@ -74,7 +74,7 @@ private fun ArrangorDto.toHovedenhet(): Hovedenhet = Hovedenhet(
     slettetDato = slettetDato,
 )
 
-private fun ArrangorDto.toUnderenhet(): Underenhet = Underenhet(
+private fun ArrangorDto.toUnderenhet(): Virksomhet.Underenhet = Virksomhet.Underenhet(
     organisasjonsnummer = organisasjonsnummer,
     navn = navn,
     overordnetEnhet = null,

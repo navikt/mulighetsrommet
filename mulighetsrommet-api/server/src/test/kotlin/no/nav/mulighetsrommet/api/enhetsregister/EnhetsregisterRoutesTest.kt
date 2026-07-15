@@ -6,7 +6,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
-import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
+import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.plugins.AppRoles
@@ -66,7 +66,7 @@ class EnhetsregisterRoutesTest : FunSpec({
 
                     response.status shouldBe HttpStatusCode.OK
 
-                    val responseBody = response.body<List<Underenhet>>()
+                    val responseBody = response.body<List<Virksomhet.Underenhet>>()
                     responseBody.size shouldBe 1
                 }
             }
@@ -89,7 +89,7 @@ class EnhetsregisterRoutesTest : FunSpec({
 
                     response.status shouldBe HttpStatusCode.OK
 
-                    val responseBody = response.body<List<Underenhet>>()
+                    val responseBody = response.body<List<Virksomhet.Underenhet>>()
                     responseBody.size shouldBe 0
                 }
             }

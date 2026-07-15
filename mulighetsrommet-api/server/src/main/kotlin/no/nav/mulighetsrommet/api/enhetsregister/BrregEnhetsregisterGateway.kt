@@ -5,8 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
-import no.nav.mulighetsrommet.admin.enhetsregister.Hovedenhet
-import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
+import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
@@ -21,13 +20,13 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 class BrregEnhetsregisterGateway(
     private val brregClient: BrregClient,
 ) : EnhetsregisterGateway {
-    override suspend fun sokHovedenheter(sok: String): Either<EnhetsregisterError, List<Hovedenhet>> {
+    override suspend fun sokHovedenheter(sok: String): Either<EnhetsregisterError, List<Virksomhet.Hovedenhet>> {
         return brregClient.searchHovedenhet(sok)
             .map { hovedenheter -> hovedenheter.map { it.toHovedenhet() } }
             .mapLeft { it.toEnhetsregisterError() }
     }
 
-    override suspend fun sokUnderenheter(sok: String): Either<EnhetsregisterError, List<Underenhet>> {
+    override suspend fun sokUnderenheter(sok: String): Either<EnhetsregisterError, List<Virksomhet.Underenhet>> {
         return brregClient.searchUnderenhet(sok)
             .map { underenheter -> underenheter.map { it.toUnderenhet() } }
             .mapLeft { it.toEnhetsregisterError() }
@@ -35,7 +34,7 @@ class BrregEnhetsregisterGateway(
 
     override suspend fun hentUnderenheterForHovedenhet(
         orgnr: Organisasjonsnummer,
-    ): Either<EnhetsregisterError, List<Underenhet>> {
+    ): Either<EnhetsregisterError, List<Virksomhet.Underenhet>> {
         return brregClient.getUnderenheterForHovedenhet(orgnr)
             .map { underenheter -> underenheter.map { it.toUnderenhet(overordnetEnhet = orgnr) } }
             .mapLeft { it.toEnhetsregisterError() }
@@ -64,15 +63,15 @@ class BrregEnhetsregisterGateway(
     }
 }
 
-private fun BrregHovedenhet.toHovedenhet(): Hovedenhet = when (this) {
-    is BrregHovedenhetDto -> Hovedenhet(
+private fun BrregHovedenhet.toHovedenhet(): Virksomhet.Hovedenhet = when (this) {
+    is BrregHovedenhetDto -> Virksomhet.Hovedenhet(
         organisasjonsnummer = organisasjonsnummer,
         navn = navn,
         organisasjonsform = organisasjonsform,
         overordnetEnhet = overordnetEnhet,
     )
 
-    is SlettetBrregHovedenhetDto -> Hovedenhet(
+    is SlettetBrregHovedenhetDto -> Virksomhet.Hovedenhet(
         organisasjonsnummer = organisasjonsnummer,
         navn = navn,
         organisasjonsform = organisasjonsform,
@@ -80,15 +79,15 @@ private fun BrregHovedenhet.toHovedenhet(): Hovedenhet = when (this) {
     )
 }
 
-private fun BrregUnderenhet.toUnderenhet(overordnetEnhet: Organisasjonsnummer? = null): Underenhet = when (this) {
-    is BrregUnderenhetDto -> Underenhet(
+private fun BrregUnderenhet.toUnderenhet(overordnetEnhet: Organisasjonsnummer? = null): Virksomhet.Underenhet = when (this) {
+    is BrregUnderenhetDto -> Virksomhet.Underenhet(
         organisasjonsnummer = organisasjonsnummer,
         navn = navn,
         organisasjonsform = organisasjonsform,
         overordnetEnhet = overordnetEnhet ?: this.overordnetEnhet,
     )
 
-    is SlettetBrregUnderenhetDto -> Underenhet(
+    is SlettetBrregUnderenhetDto -> Virksomhet.Underenhet(
         organisasjonsnummer = organisasjonsnummer,
         navn = navn,
         organisasjonsform = organisasjonsform,

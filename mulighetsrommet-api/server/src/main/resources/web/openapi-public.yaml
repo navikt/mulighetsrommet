@@ -107,7 +107,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Hovedenhet"
+                  $ref: "#/components/schemas/Virksomhet.Hovedenhet"
         default:
           description: Problem details
           headers: {}
@@ -139,7 +139,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Underenhet"
+                  $ref: "#/components/schemas/Virksomhet.Underenhet"
         "400":
           description: Søket er blankt
           headers: {}
@@ -184,7 +184,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Underenhet"
+                  $ref: "#/components/schemas/Virksomhet.Underenhet"
         default:
           description: Problem details
           headers: {}
@@ -395,7 +395,7 @@ components:
       required:
       - lopenr
       - opprettetAar
-    Hovedenhet:
+    Virksomhet.Hovedenhet:
       type: object
       properties:
         organisasjonsnummer:
@@ -440,7 +440,7 @@ components:
       - status
       - title
       - type
-    Underenhet:
+    Virksomhet.Underenhet:
       type: object
       properties:
         organisasjonsnummer:

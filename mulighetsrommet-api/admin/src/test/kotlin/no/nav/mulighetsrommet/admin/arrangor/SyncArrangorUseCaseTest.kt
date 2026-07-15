@@ -13,8 +13,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
-import no.nav.mulighetsrommet.admin.enhetsregister.Hovedenhet
-import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
+import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
@@ -23,12 +22,12 @@ import java.time.LocalDate
 import java.util.UUID
 
 class SyncArrangorUseCaseTest : FunSpec({
-    val hovedenhet = Hovedenhet(
+    val hovedenhet = Virksomhet.Hovedenhet(
         organisasjonsnummer = Organisasjonsnummer("123456789"),
         organisasjonsform = "AS",
         navn = "Testbedriften AS",
     )
-    val underenhet = Underenhet(
+    val underenhet = Virksomhet.Underenhet(
         organisasjonsnummer = Organisasjonsnummer("234567891"),
         organisasjonsform = "BEDR",
         navn = "Underenhet til Testbedriften AS",
@@ -81,7 +80,7 @@ class SyncArrangorUseCaseTest : FunSpec({
             val db = TestAdminDatabase()
 
             val orgnr = Organisasjonsnummer("100200300")
-            val slettetVirksomhet = Hovedenhet(
+            val slettetVirksomhet = Virksomhet.Hovedenhet(
                 organisasjonsnummer = orgnr,
                 organisasjonsform = "AS",
                 navn = "Slettet bedrift",

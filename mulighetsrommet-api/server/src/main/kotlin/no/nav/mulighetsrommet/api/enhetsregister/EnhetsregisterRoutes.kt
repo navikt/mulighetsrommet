@@ -7,8 +7,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
-import no.nav.mulighetsrommet.admin.enhetsregister.Hovedenhet
-import no.nav.mulighetsrommet.admin.enhetsregister.Underenhet
+import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.api.arrangor.toProblemDetail
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -31,7 +30,7 @@ fun Route.enhetsregisterRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Liste med hovedenheter"
-                    body<List<Hovedenhet>>()
+                    body<List<Virksomhet.Hovedenhet>>()
                 }
                 default {
                     description = "Problem details"
@@ -56,7 +55,7 @@ fun Route.enhetsregisterRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Liste med underenheter"
-                    body<List<Underenhet>>()
+                    body<List<Virksomhet.Underenhet>>()
                 }
                 code(HttpStatusCode.BadRequest) {
                     description = "Søket er blankt"
@@ -86,7 +85,7 @@ fun Route.enhetsregisterRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Underenhetene til hovedenhet for gitt orgnr"
-                    body<List<Underenhet>>()
+                    body<List<Virksomhet.Underenhet>>()
                 }
                 default {
                     description = "Problem details"
