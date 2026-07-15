@@ -1,4 +1,4 @@
-import { CheckboxGroup } from "@mr/frontend-common";
+import { CheckboxDropdownGroup } from "@mr/frontend-common";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 import { OppgaveTypeStruktur } from "@tiltaksadministrasjon/api-client";
 
@@ -11,13 +11,7 @@ export function OppgaveTypeFilter({ value, onChange }: Props) {
   const { data: oppgavetyper } = useGetOppgavetyper();
   const groups = toCheckboxGroups(oppgavetyper);
   return (
-    <CheckboxGroup
-      legend="Oppgavetyper"
-      hideLegend
-      value={value}
-      items={groups}
-      onChange={onChange}
-    />
+    <CheckboxDropdownGroup legend="Oppgavetyper" value={value} items={groups} onChange={onChange} />
   );
 }
 
