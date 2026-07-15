@@ -65,6 +65,7 @@ import { TilskuddUtbetalingerForGjennomforingContainer } from "./pages/gjennomfo
 import { IndividuelleGjennomforingerPage } from "./pages/individuell-gjennomforing/IndividuelleGjennomforingerPage";
 import { OpprettIndividuellGjennomforingPage } from "./pages/individuell-gjennomforing/OpprettIndividuellGjennomforingPage";
 import { IndividuellGjennomforingPage } from "./pages/individuell-gjennomforing/IndividuellGjennomforingPage";
+import { RedigerIndividuellGjennomforingPage } from "./pages/individuell-gjennomforing/RedigerIndividuellGjennomforingPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -291,6 +292,10 @@ const routes: RouteObject[] = [
       route({
         path: "individuelle-gjennomforinger/:individuellGjennomforingId",
         element: <IndividuellGjennomforingPage />,
+      }),
+      route({
+        path: "individuelle-gjennomforinger/:individuellGjennomforingId/rediger",
+        element: <RedigerIndividuellGjennomforingPage />,
       }),
       route({
         path: "oppgaveoversikt",

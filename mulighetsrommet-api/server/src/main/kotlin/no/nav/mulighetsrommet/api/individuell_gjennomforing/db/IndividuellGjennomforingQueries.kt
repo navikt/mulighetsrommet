@@ -135,6 +135,17 @@ class IndividuellGjennomforingQueries(private val session: Session) {
         execute(queryOf(deleteArrangorKontaktpersoner, id, createUuidArray(arrangorKontaktpersoner)))
     }
 
+    fun setPublisert(id: UUID, publisert: Boolean) {
+        @Language("PostgreSQL")
+        val query = """
+            update individuell_gjennomforing
+            set publisert  = ?,
+                updated_at = now()
+            where id = ?::uuid
+        """.trimIndent()
+        session.execute(queryOf(query, publisert, id))
+    }
+
     fun getAll(
         navEnheter: List<NavEnhetNummer> = emptyList(),
         tiltakstyper: List<UUID> = emptyList(),
@@ -189,6 +200,7 @@ class IndividuellGjennomforingQueries(private val session: Session) {
             },
             faneinnhold = row.stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
             beskrivelse = row.stringOrNull("beskrivelse"),
+            publisert = row.boolean("publisert"),
             administratorer = row.stringOrNull("administratorer_json")
                 ?.let { Json.decodeFromString<List<IndividuellGjennomforing.Administrator>>(it) }
                 ?: emptyList(),

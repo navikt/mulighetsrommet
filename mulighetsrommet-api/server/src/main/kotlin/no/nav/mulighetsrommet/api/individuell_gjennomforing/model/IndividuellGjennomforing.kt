@@ -19,6 +19,7 @@ data class IndividuellGjennomforing(
     val arrangor: Arrangor? = null,
     val faneinnhold: Faneinnhold? = null,
     val beskrivelse: String? = null,
+    val publisert: Boolean = false,
     val administratorer: List<Administrator> = emptyList(),
     val kontorstruktur: List<Kontorstruktur> = emptyList(),
     val kontaktpersoner: List<Kontaktperson> = emptyList(),

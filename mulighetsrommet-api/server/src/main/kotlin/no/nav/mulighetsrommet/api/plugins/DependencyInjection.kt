@@ -465,7 +465,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
     single { GjennomforingDetaljerService(get(), get(), get(), get()) }
-    single { IndividuellGjennomforingService(get()) }
+    single { IndividuellGjennomforingService(get(), get()) }
     single {
         GjennomforingEnkeltplassService(
             get(),

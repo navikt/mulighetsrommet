@@ -34,6 +34,7 @@ export interface IndividuellGjennomforing {
   arrangor?: IndividuellGjennomforingArrangor | null;
   faneinnhold?: Faneinnhold | null;
   beskrivelse?: string | null;
+  publisert: boolean;
   administratorer: IndividuellGjennomforingAdministrator[];
   kontorstruktur: Kontorstruktur[];
   kontaktpersoner: GjennomforingKontaktpersonDto[];

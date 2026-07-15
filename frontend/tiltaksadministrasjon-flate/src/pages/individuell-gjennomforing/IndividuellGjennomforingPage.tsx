@@ -15,12 +15,17 @@ import { RedaksjoneltInnholdContainer } from "@/components/redaksjoneltInnhold/R
 import { RedaksjoneltInnhold } from "@/components/redaksjoneltInnhold/RedaksjoneltInnhold";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { CaretDownFillIcon, CaretUpFillIcon } from "@navikt/aksel-icons";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Kontorstruktur } from "@tiltaksadministrasjon/api-client";
+import { IndividuellGjennomforingHandlinger } from "@/components/individuell-gjennomforing/IndividuellGjennomforingHandlinger";
+import { Laster } from "@/components/laster/Laster";
+import { InlineErrorBoundary } from "@/ErrorBoundary";
+import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 
 export function IndividuellGjennomforingPage() {
   const { individuellGjennomforingId } = useRequiredParams(["individuellGjennomforingId"]);
   const { data: gjennomforing } = useIndividuellGjennomforing(individuellGjennomforingId);
+  const { data: ansatt } = useHentAnsatt();
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Individuelle gjennomføringer", lenke: "/individuelle-gjennomforinger" },
@@ -34,6 +39,12 @@ export function IndividuellGjennomforingPage() {
       <HeaderBanner ikon={<GjennomforingAvtaleIkon />} heading={gjennomforing.navn} />
       <ContentBox>
         <WhitePaddedBox>
+          <InlineErrorBoundary>
+            <Suspense fallback={<Laster tekst="Laster handlinger..." />}>
+              <IndividuellGjennomforingHandlinger ansatt={ansatt} gjennomforing={gjennomforing} />
+            </Suspense>
+          </InlineErrorBoundary>
+          <Separator />
           <VStack gap="space-16">
             <Bolk aria-label="Grunninfo">
               <VStack gap="space-8">

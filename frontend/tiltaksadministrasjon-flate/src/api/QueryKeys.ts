@@ -89,4 +89,5 @@ export const QueryKeys = {
   tilskuddBehandling: (behandlingId: string) => ["tilskudd-behandling", behandlingId],
   individuelleGjennomforinger: (filter?: object) => ["individuelle-gjennomforinger", filter] as const,
   individuellGjennomforing: (id?: string) => ["individuell-gjennomforing", id] as const,
+  individuellGjennomforingHandlinger: (id: string) => ["individuell-gjennomforing-handlinger", id] as const,
 };

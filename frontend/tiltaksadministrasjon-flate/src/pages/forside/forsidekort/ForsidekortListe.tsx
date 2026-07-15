@@ -6,6 +6,7 @@ import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { HGrid } from "@navikt/ds-react";
 import { UtbetalingerIkon } from "@/components/ikoner/UtbetalingerIkon";
 import { previewArbeidsmarkedstiltakUrl, sanityStudioUrl } from "@/constants";
+import { isProduction } from "@/environment";
 
 const forsidekortData: ForsideKortProps[] = [
   {
@@ -37,12 +38,16 @@ const forsidekortData: ForsideKortProps[] = [
     tekst: "Her administrerer du individuelle gjennomføringer",
     apneINyTab: true,
   },
-  {
-    navn: "Individuelle gjennomføringer",
-    ikon: <GjennomforingAvtaleIkon inkluderBakgrunn />,
-    url: "/individuelle-gjennomforinger",
-    tekst: "Her administrerer du individuelle gjennomføringer",
-  },
+  ...(!isProduction()
+    ? [
+        {
+          navn: "Individuelle gjennomføringer (ny)",
+          ikon: <GjennomforingAvtaleIkon inkluderBakgrunn />,
+          url: "/individuelle-gjennomforinger",
+          tekst: "Her administrerer du individuelle gjennomføringer",
+        } satisfies ForsideKortProps,
+      ]
+    : []),
   {
     navn: "Veilederflate forhåndsvisning",
     ikon: <ForhandsvisningIkon inkluderBakgrunn aria-label="Preview" />,

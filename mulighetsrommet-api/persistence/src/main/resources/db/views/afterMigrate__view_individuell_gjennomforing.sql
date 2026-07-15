@@ -15,7 +15,8 @@ select ig.id,
        administratorer_json,
        nav_enheter_json,
        kontaktpersoner_json,
-       arrangor_kontaktpersoner_json
+       arrangor_kontaktpersoner_json,
+       ig.publisert
 from individuell_gjennomforing ig
          left join tiltakstype on tiltakstype.id = ig.tiltakstype_id
          left join arrangor on arrangor.id = ig.arrangor_id

@@ -10,8 +10,11 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.individuell_gjennomforing.model.IndividuellGjennomforing
 import no.nav.mulighetsrommet.api.individuell_gjennomforing.service.IndividuellGjennomforingService
+import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
@@ -23,6 +26,18 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.UUID
+
+@Serializable
+enum class IndividuellGjennomforingHandling {
+    PUBLISER,
+    REDIGER,
+    FORHANDSVIS_I_MODIA,
+}
+
+@Serializable
+data class IndividuellGjennomforingPublisertRequest(
+    val publisert: Boolean,
+)
 
 @Serializable
 data class IndividuellGjennomforingRequest(
@@ -63,30 +78,55 @@ fun Route.individuellGjennomforingRoutes() {
     val service: IndividuellGjennomforingService by inject()
 
     route("individuelle-gjennomforinger") {
-        put({
-            tags = setOf("IndividuellGjennomforing")
-            operationId = "upsertIndividuellGjennomforing"
-            request {
-                body<IndividuellGjennomforingRequest>()
+        authorize(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) {
+            put({
+                tags = setOf("IndividuellGjennomforing")
+                operationId = "upsertIndividuellGjennomforing"
+                request {
+                    body<IndividuellGjennomforingRequest>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Individuell gjennomføring ble opprettet/oppdatert"
+                        body<IndividuellGjennomforing>()
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description = "Valideringsfeil"
+                        body<ValidationError>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val request = call.receive<IndividuellGjennomforingRequest>()
+                val result = service.upsert(request).mapLeft { ValidationError(errors = it) }
+                call.respondWithStatusResponse(result)
             }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Individuell gjennomføring ble opprettet/oppdatert"
-                    body<IndividuellGjennomforing>()
+
+            put("{id}/tilgjengelig-for-veileder", {
+                tags = setOf("IndividuellGjennomforing")
+                operationId = "setPublisertIndividuellGjennomforing"
+                request {
+                    pathParameterUuid("id")
+                    body<IndividuellGjennomforingPublisertRequest>()
                 }
-                code(HttpStatusCode.BadRequest) {
-                    description = "Valideringsfeil"
-                    body<ValidationError>()
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Tilgjengelighet ble oppdatert"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
                 }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
+            }) {
+                val id: UUID by call.parameters
+                val request = call.receive<IndividuellGjennomforingPublisertRequest>()
+                service.setPublisert(id, request.publisert)
+                call.respond(HttpStatusCode.OK)
             }
-        }) {
-            val request = call.receive<IndividuellGjennomforingRequest>()
-            val result = service.upsert(request).mapLeft { ValidationError(errors = it) }
-            call.respondWithStatusResponse(result)
         }
 
         post("filter", {
@@ -149,6 +189,28 @@ fun Route.individuellGjennomforingRoutes() {
             } else {
                 call.respond(gjennomforing)
             }
+        }
+
+        get("{id}/handlinger", {
+            tags = setOf("IndividuellGjennomforing")
+            operationId = "getIndividuellGjennomforingHandlinger"
+            request {
+                pathParameterUuid("id")
+            }
+            response {
+                code(HttpStatusCode.OK) {
+                    description = "Mulige handlinger for innlogget bruker"
+                    body<Set<IndividuellGjennomforingHandling>>()
+                }
+                default {
+                    description = "Problem details"
+                    body<ProblemDetail>()
+                }
+            }
+        }) {
+            val id: UUID by call.parameters
+            val navIdent = getNavIdent()
+            call.respond(service.getHandlinger(id, navIdent))
         }
     }
 }
