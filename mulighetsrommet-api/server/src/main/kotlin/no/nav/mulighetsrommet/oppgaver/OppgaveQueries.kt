@@ -373,7 +373,8 @@ class OppgaveQueries(private val session: Session) {
                 ks.kostnadssteder,
                 arrangor.navn as arrangor_navn,
                 arrangor.id as arrangor_id,
-                arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
+                arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
+                coalesce(avbrytelse.behandlet, false) as til_avbrytelse
             from utbetaling
                 join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
                 inner join arrangor on gjennomforing.arrangor_id = arrangor.id
@@ -384,6 +385,13 @@ class OppgaveQueries(private val session: Session) {
                     where tilsagn.gjennomforing_id = utbetaling.gjennomforing_id
                       and tilsagn.periode && utbetaling.periode
                 ) ks on true
+                left join lateral (
+                    select behandlet_av is not null as behandlet
+                    from totrinnskontroll t
+                    where t.entity_id = utbetaling.id
+                      and t.type = 'UTBETALING_AVBRYTELSE'
+                      and t.status = 'TIL_BEHANDLING'
+                ) avbrytelse on true
             where
                 (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
                 and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer));
@@ -409,6 +417,7 @@ class OppgaveQueries(private val session: Session) {
                     row.string("arrangor_navn"),
                     row.uuid("arrangor_id"),
                 ),
+                tilAvbrytelse = row.boolean("til_avbrytelse"),
             )
         }
     }
@@ -596,6 +605,7 @@ data class UtbetalingOppgaveData(
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing,
     val arrangor: OppgaveArrangor,
+    val tilAvbrytelse: Boolean,
 )
 
 data class AvtaleManglerAdministratorOppgaveData(

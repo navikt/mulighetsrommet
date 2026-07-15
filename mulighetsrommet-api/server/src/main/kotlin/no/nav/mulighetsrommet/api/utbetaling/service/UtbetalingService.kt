@@ -299,7 +299,6 @@ class UtbetalingService(
         )
         queries.totrinnskontroll.upsert(avbrytningTilGodkjenning)
         outbox.publish(avbrytningTilGodkjenning)
-        queries.utbetaling.setStatus(id, UtbetalingStatusType.TIL_AVBRYTNING)
         logEndring(operation, utbetaling.id, agent)
         return Unit.right()
     }
@@ -307,8 +306,8 @@ class UtbetalingService(
     context(tx: TransactionalQueryContext)
     fun godkjennAvbrytning(id: UUID, agent: Agent): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
-        if (utbetaling.status != UtbetalingStatusType.TIL_AVBRYTNING) {
-            return FieldError.of("Utbetalingen må ha status ${UtbetalingStatusType.TIL_AVBRYTNING} for at avbrytningen skal godkjennes")
+        if (!utbetaling.kanAvbrytes()) {
+            return FieldError.of("Utbetalingen kan ikke avbrytes")
                 .nel()
                 .left()
         }
@@ -324,10 +323,11 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun avvisAvbrytning(id: UUID, besluttetAv: NavIdent, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Unit> = with(tx) {
+    fun avslaAvbrytning(id: UUID, besluttetAv: NavIdent, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
-        if (utbetaling.status != UtbetalingStatusType.TIL_AVBRYTNING) {
-            return FieldError.of("Utbetalingen må ha status ${UtbetalingStatusType.TIL_AVBRYTNING} for at avbrytningen kan avvises")
+        if (!utbetaling.kanAvbrytes()) {
+            // TODO: Her forsøker man å avslå en totrinnskontroll av avbrytelse. En kontroll på rett satus her er gjerne ikke nødvendig?
+            return FieldError.of("Utbetalingen kan ikke avbrytes")
                 .nel()
                 .left()
         }
@@ -336,7 +336,6 @@ class UtbetalingService(
         return avbrytning.returner(besluttetAv, aarsaker, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
             queries.totrinnskontroll.upsert(returnert)
             outbox.publish(returnert)
-            queries.utbetaling.setStatus(utbetaling.id, UtbetalingStatusType.RETURNERT)
 
             val behandletAv = avbrytning.behandletAv
             if (behandletAv is NavIdent) {
@@ -931,7 +930,6 @@ class UtbetalingService(
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
             UtbetalingStatusType.AVBRUTT,
-            UtbetalingStatusType.TIL_AVBRYTNING,
             -> emptyList()
         }
     }

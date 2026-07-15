@@ -96,7 +96,7 @@ export function useGodkjennAvbrytUtbetaling() {
   });
 }
 
-export function useAvvisAvbrytUtbetaling() {
+export function useAvslaAvbrytelseUtbetaling() {
   const queryClient = useQueryClient();
 
   return useApiMutation<
@@ -105,7 +105,7 @@ export function useAvvisAvbrytUtbetaling() {
     { id: string; body: AarsakerOgForklaringRequestUtbetalingStatusAarsak }
   >({
     mutationFn: ({ id, body }) =>
-      UtbetalingService.avvisAvbrytningUtbetaling({ path: { id }, body }),
+      UtbetalingService.avslaAvbrytelseUtbetaling({ path: { id }, body }),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
     },

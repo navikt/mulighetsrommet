@@ -4,27 +4,27 @@ import {
   ValidationError,
   AarsakerOgForklaringRequestUtbetalingStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
-import { useAvvisAvbrytUtbetaling } from "@/api/utbetaling/mutations";
+import { useAvslaAvbrytelseUtbetaling } from "@/api/utbetaling/mutations";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import { useState } from "react";
-import { utbetalingTekster } from "./UtbetalingTekster";
+import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 
-interface AvvisAvbrytUtbetalingModalProps {
+interface AvslaAvbrytelseUtbetalingModalProps {
   utbetalingId: string;
   open: boolean;
   onClose: () => void;
 }
 
-export function AvvisAvbrytUtbetalingModal({
+export function AvslaAvbrytelseUtbetalingModal({
   utbetalingId,
   open,
   onClose,
-}: AvvisAvbrytUtbetalingModalProps) {
+}: AvslaAvbrytelseUtbetalingModalProps) {
   const [errors, setErrors] = useState<FieldError[]>([]);
-  const avvisAvbrytningMutation = useAvvisAvbrytUtbetaling();
+  const avslaAvbrytelseMutation = useAvslaAvbrytelseUtbetaling();
 
-  function avvisAvbrytUtbetaling(body: AarsakerOgForklaringRequestUtbetalingStatusAarsak) {
-    avvisAvbrytningMutation.mutate(
+  function avslaAvbrytelseUtbetaling(body: AarsakerOgForklaringRequestUtbetalingStatusAarsak) {
+    avslaAvbrytelseMutation.mutate(
       { id: utbetalingId, body },
       {
         onValidationError: (error: ValidationError) => {
@@ -37,7 +37,7 @@ export function AvvisAvbrytUtbetalingModal({
     );
   }
 
-  const avvisAarsakValg = [UtbetalingStatusAarsak.ANNET].map((val) => {
+  const avsalgAarsakValg = [UtbetalingStatusAarsak.ANNET].map((val) => {
     return {
       value: val,
       label: utbetalingTekster.avbrutt.fraAarsak(val),
@@ -49,11 +49,11 @@ export function AvvisAvbrytUtbetalingModal({
       width={750}
       open={open}
       onClose={onClose}
-      header={utbetalingTekster.avbrutt.modal.avvis.header}
-      aarsaker={avvisAarsakValg}
-      buttonLabel={utbetalingTekster.avbrutt.modal.avvis.button.label}
+      header={utbetalingTekster.avbrutt.modal.avsla.header}
+      aarsaker={avsalgAarsakValg}
+      buttonLabel={utbetalingTekster.avbrutt.modal.avsla.button.label}
       errors={errors}
-      onConfirm={(request) => avvisAvbrytUtbetaling(request)}
+      onConfirm={(request) => avslaAvbrytelseUtbetaling(request)}
     />
   );
 }

@@ -40,9 +40,4 @@ enum class UtbetalingStatusType {
      * Avbrutt av arrangør
      */
     AVBRUTT,
-
-    /**
-     * Saksbehandler hos Nav har sendt utbetalingen til avbrytning i påvente av en beslutter
-     */
-    TIL_AVBRYTNING,
 }

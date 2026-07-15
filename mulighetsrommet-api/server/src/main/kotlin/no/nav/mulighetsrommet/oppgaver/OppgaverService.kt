@@ -442,35 +442,60 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
 
 private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? {
     return when (data.status) {
-        UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.TIL_ATTESTERING,
-        UtbetalingStatusType.RETURNERT,
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.UTBETALT,
         UtbetalingStatusType.AVBRUTT,
         -> null
 
-        UtbetalingStatusType.TIL_BEHANDLING ->
-            Oppgave(
-                id = data.id,
-                type = OppgaveType.UTBETALING_TIL_BEHANDLING,
-                navn = OppgaveType.UTBETALING_TIL_BEHANDLING.navn,
-                enhet = null,
-                title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing),
-                description = "Utbetaling for perioden ${data.periode.formatPeriode()} er klar til behandling",
-                tiltakstype = data.tiltakstype,
-                link = OppgaveLink(
-                    linkText = "Se utbetaling",
-                    link = "/gjennomforinger/${data.gjennomforing.id}/utbetalinger/${data.id}",
-                ),
-                createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
-                arrangor = data.arrangor,
-            ).takeIf { AdminUtbetalingService.tilgangTilHandling(UtbetalingHandling.SEND_TIL_ATTESTERING, ansatt) }
+        UtbetalingStatusType.GENERERT,
+        UtbetalingStatusType.RETURNERT,
+        ->
+            if (data.tilAvbrytelse) {
+                tilAvbrytelseOppgave(data, ansatt)
+            } else {
+                null
+            }
 
-        UtbetalingStatusType.TIL_AVBRYTNING -> TODO()
+        UtbetalingStatusType.TIL_BEHANDLING ->
+            if (data.tilAvbrytelse) {
+                tilAvbrytelseOppgave(data, ansatt)
+            } else {
+                Oppgave(
+                    id = data.id,
+                    type = OppgaveType.UTBETALING_TIL_BEHANDLING,
+                    navn = OppgaveType.UTBETALING_TIL_BEHANDLING.navn,
+                    enhet = null,
+                    title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing),
+                    description = "Utbetaling for perioden ${data.periode.formatPeriode()} er klar til behandling",
+                    tiltakstype = data.tiltakstype,
+                    link = OppgaveLink(
+                        linkText = "Se utbetaling",
+                        link = "/gjennomforinger/${data.gjennomforing.id}/utbetalinger/${data.id}",
+                    ),
+                    createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
+                    arrangor = data.arrangor,
+                ).takeIf { AdminUtbetalingService.tilgangTilHandling(UtbetalingHandling.SEND_TIL_ATTESTERING, ansatt) }
+            }
     }
 }
+
+private fun tilAvbrytelseOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? = Oppgave(
+    id = data.id,
+    type = OppgaveType.UTBETALING_TIL_AVBRYTELSE,
+    navn = OppgaveType.UTBETALING_TIL_AVBRYTELSE.navn,
+    enhet = null,
+    title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing),
+    description = "Utbetaling for perioden ${data.periode.formatPeriode()} er sendt til avbrytelse",
+    tiltakstype = data.tiltakstype,
+    link = OppgaveLink(
+        linkText = "Se utbetaling",
+        link = "/gjennomforinger/${data.gjennomforing.id}/utbetalinger/${data.id}",
+    ),
+    createdAt = data.createdAt,
+    arrangor = data.arrangor,
+).takeIf { AdminUtbetalingService.tilgangTilHandling(UtbetalingHandling.GODKJENN_AVBRYTELSE, ansatt) }
 
 private fun AvtaleManglerAdministratorOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
     id = id,

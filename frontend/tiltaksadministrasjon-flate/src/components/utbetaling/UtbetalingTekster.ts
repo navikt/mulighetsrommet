@@ -53,7 +53,7 @@ export const utbetalingTekster = {
       godkjenn: {
         label: "Bekreft avbrytelse",
       },
-      avvis: {
+      avsla: {
         label: "Avslå avbrytelse",
       },
     },
@@ -65,7 +65,7 @@ export const utbetalingTekster = {
           label: "Send til godkjenning",
         },
       },
-      avvis: {
+      avsla: {
         header: "Avslå avbrytelse med forklaring",
         button: {
           label: "Avslå avbrytelse",

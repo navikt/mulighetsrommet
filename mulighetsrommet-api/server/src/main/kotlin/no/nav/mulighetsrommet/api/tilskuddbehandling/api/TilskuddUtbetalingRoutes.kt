@@ -118,7 +118,6 @@ data class TilskuddUtbetalingStatusDto(
         fun from(utbetalingStatus: UtbetalingStatusType): TilskuddUtbetalingStatusDto {
             val type: Type = when (utbetalingStatus) {
                 UtbetalingStatusType.TIL_BEHANDLING,
-                UtbetalingStatusType.TIL_AVBRYTNING,
                 UtbetalingStatusType.AVBRUTT,
                 UtbetalingStatusType.TIL_ATTESTERING,
                 UtbetalingStatusType.RETURNERT,

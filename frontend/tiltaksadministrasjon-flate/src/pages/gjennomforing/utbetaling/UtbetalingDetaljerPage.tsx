@@ -64,7 +64,7 @@ import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjo
 import { useForm, UseFormReturn } from "react-hook-form";
 import { SlettKorreksjonModal } from "@/components/utbetaling/SlettKorreksjonModal";
 import { AvbrytUtbetalingModal } from "@/components/utbetaling/AvbrytUtbetalingModal";
-import { AvvisAvbrytUtbetalingModal } from "@/components/utbetaling/AvvisAvbrytUtbetalingModal";
+import { AvslaAvbrytelseUtbetalingModal } from "@/components/utbetaling/AvslaAvbrytelseUtbetalingModal";
 import { useGodkjennAvbrytUtbetaling } from "@/api/utbetaling/mutations";
 import { ErrorFieldSummary } from "@/components/skjema/ValideringsfeilOppsummering";
 import { ToTrinnsAvbrytelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollAvbrytningForklaring";
@@ -180,9 +180,9 @@ export function UtbetalingDetaljerPage() {
             {
               items: [
                 {
-                  handling: UtbetalingHandling.SEND_TIL_AVBRYTNING,
+                  handling: UtbetalingHandling.SEND_TIL_AVBRYTELSE,
                   label: utbetalingTekster.avbrutt.handling.sendTilAvbrytning.label,
-                  onClick: () => setModalVariant(UtbetalingHandling.SEND_TIL_AVBRYTNING),
+                  onClick: () => setModalVariant(UtbetalingHandling.SEND_TIL_AVBRYTELSE),
                   variant: "danger",
                   icon: <XMarkIcon />,
                 },
@@ -336,17 +336,17 @@ export function UtbetalingDetaljerPage() {
         />
         <HStack gap="space-8" justify={"end"}>
           <ErrorFieldSummary errors={errors} />
-          {handlinger.includes(UtbetalingHandling.AVVIS_AVBRYTNING) && (
+          {handlinger.includes(UtbetalingHandling.AVSLA_AVBRYTELSE) && (
             <Button
               variant="secondary"
               size="small"
               type="button"
-              onClick={() => setModalVariant(UtbetalingHandling.AVVIS_AVBRYTNING)}
+              onClick={() => setModalVariant(UtbetalingHandling.AVSLA_AVBRYTELSE)}
             >
-              {utbetalingTekster.avbrutt.handling.avvis.label}
+              {utbetalingTekster.avbrutt.handling.avsla.label}
             </Button>
           )}
-          {handlinger.includes(UtbetalingHandling.GODKJENN_AVBRYTNING) && (
+          {handlinger.includes(UtbetalingHandling.GODKJENN_AVBRYTELSE) && (
             <Button
               size="small"
               variant="primary"
@@ -359,12 +359,12 @@ export function UtbetalingDetaljerPage() {
 
           <AvbrytUtbetalingModal
             utbetalingId={utbetaling.id}
-            open={modalVariant === UtbetalingHandling.SEND_TIL_AVBRYTNING}
+            open={modalVariant === UtbetalingHandling.SEND_TIL_AVBRYTELSE}
             onClose={() => setModalVariant(null)}
           />
-          <AvvisAvbrytUtbetalingModal
+          <AvslaAvbrytelseUtbetalingModal
             utbetalingId={utbetaling.id}
-            open={modalVariant === UtbetalingHandling.AVVIS_AVBRYTNING}
+            open={modalVariant === UtbetalingHandling.AVSLA_AVBRYTELSE}
             onClose={() => setModalVariant(null)}
           />
           <OpprettKorreksjonModal
@@ -400,7 +400,7 @@ function UtbetalingLinjeView({
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
     case UtbetalingStatusDtoType.UBEHANDLET_FORSLAG:
     case UtbetalingStatusDtoType.AVBRUTT:
-    case UtbetalingStatusDtoType.TIL_AVBRYTNING:
+    case UtbetalingStatusDtoType.TIL_AVBRYTELSE:
       return null;
 
     case UtbetalingStatusDtoType.RETURNERT:

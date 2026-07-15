@@ -51,15 +51,19 @@ class AdminUtbetalingService(
     fun getUtbetalingDetaljer(id: UUID, navIdent: NavIdent): UtbetalingDetaljerDto = db.session {
         val utbetaling = queries.utbetaling.getOrError(id)
         val linjer = queries.utbetalingLinje.getByUtbetalingId(id)
-        val dto = UtbetalingDto.fromUtbetaling(utbetaling, linjer)
+        val tilAvbrytelse = queries.totrinnskontroll.getDto(utbetaling.id, TotrinnskontrollType.UTBETALING_AVBRYTELSE)
+        val dto = UtbetalingDto.fromUtbetaling(
+            utbetaling = utbetaling,
+            linjer = linjer,
+            tilAvbrytelse = utbetaling.kanAvbrytes() && tilAvbrytelse is TotrinnskontrollDto.TilBeslutning,
+        )
 
         val ansatt = queries.ansatt.getOrError(navIdent)
         val avbrytHandlingEnabled =
             featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING)
-        val tilAvbrytning = queries.totrinnskontroll.getDto(utbetaling.id, TotrinnskontrollType.UTBETALING_AVBRYTELSE)
-        val handlinger = utbetalingHandlinger(utbetaling, ansatt, tilAvbrytning, avbrytHandlingEnabled)
+        val handlinger = utbetalingHandlinger(utbetaling, ansatt, tilAvbrytelse, avbrytHandlingEnabled)
 
-        return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger, tilAvbrytning = tilAvbrytning)
+        return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger, tilAvbrytning = tilAvbrytelse)
     }
 
     suspend fun getUtbetalingLinjer(
@@ -217,7 +221,11 @@ class AdminUtbetalingService(
         }
     }
 
-    fun sendTilAvbrytning(id: UUID, navIdent: NavIdent, request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>): Either<List<FieldError>, Unit> = db.transaction {
+    fun sendTilAvbrytning(
+        id: UUID,
+        navIdent: NavIdent,
+        request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>,
+    ): Either<List<FieldError>, Unit> = db.transaction {
         utbetalingService.sendTilAvbrytning(
             id = id,
             agent = navIdent,
@@ -227,16 +235,16 @@ class AdminUtbetalingService(
         )
     }
 
-    fun godkjentAvbrytning(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
+    fun godkjennAvbrytning(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
         return utbetalingService.godkjennAvbrytning(id, navIdent)
     }
 
-    fun avvisAvbrytning(
+    fun avslaAvbrytelse(
         id: UUID,
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>,
     ): Either<List<FieldError>, Unit> = db.transaction {
-        return utbetalingService.avvisAvbrytning(
+        return utbetalingService.avslaAvbrytning(
             id = id,
             besluttetAv = navIdent,
             aarsaker = request.aarsaker.map { it.name },
@@ -289,9 +297,9 @@ class AdminUtbetalingService(
             UtbetalingHandling.REDIGER.takeIf { kanRedigeres(utbetaling) },
             UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
-            UtbetalingHandling.SEND_TIL_AVBRYTNING.takeIf { avbrytHandlingEnabled && utbetaling.kanAvbrytes() },
-            UtbetalingHandling.GODKJENN_AVBRYTNING.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytning) },
-            UtbetalingHandling.AVVIS_AVBRYTNING.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytning) },
+            UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { avbrytHandlingEnabled && utbetaling.kanAvbrytes() },
+            UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytning) },
+            UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytning) },
         )
             .filter { handling ->
                 tilgangTilHandling(handling, ansatt)
@@ -337,9 +345,9 @@ class AdminUtbetalingService(
                 UtbetalingHandling.SLETT -> saksbehandlerOkonomi
                 UtbetalingHandling.HENT_GODKJENTE_TILSAGN -> saksbehandlerOkonomi
                 UtbetalingHandling.OPPRETT_TILSAGN -> saksbehandlerOkonomi
-                UtbetalingHandling.SEND_TIL_AVBRYTNING -> saksbehandlerOkonomi
-                UtbetalingHandling.GODKJENN_AVBRYTNING -> saksbehandlerOkonomi
-                UtbetalingHandling.AVVIS_AVBRYTNING -> saksbehandlerOkonomi
+                UtbetalingHandling.SEND_TIL_AVBRYTELSE -> saksbehandlerOkonomi
+                UtbetalingHandling.GODKJENN_AVBRYTELSE -> saksbehandlerOkonomi
+                UtbetalingHandling.AVSLA_AVBRYTELSE -> saksbehandlerOkonomi
             }
         }
 

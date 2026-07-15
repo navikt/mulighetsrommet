@@ -17,9 +17,11 @@ import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -94,9 +96,21 @@ fun Route.utbetalingRoutes() {
                     Pair(null, emptyList())
                 }
 
+                val tilAvbrytelse = {
+                    val totrinn = queries.totrinnskontroll.getDto(utbetaling.id, TotrinnskontrollType.UTBETALING_AVBRYTELSE)
+                    val underGodkjenning = when (totrinn) {
+                        is TotrinnskontrollDto.TilBeslutning -> true
+
+                        is TotrinnskontrollDto.Besluttet,
+                        null,
+                        -> false
+                    }
+                    utbetaling.kanAvbrytes() && underGodkjenning
+                }
+
                 UtbetalingKompaktDto(
                     id = utbetaling.id,
-                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer),
+                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer, tilAvbrytelse()),
                     periode = utbetaling.periode,
                     kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhet(it) },
                     belopUtbetalt = belopUtbetalt,
@@ -283,7 +297,7 @@ fun Route.utbetalingRoutes() {
             }
 
             put("/avbryt/godkjenn", {
-                description = "Godkjenn avbrytning av utbetaling"
+                description = "Godkjenn avbrytelse av utbetaling"
                 tags = setOf("Utbetaling")
                 operationId = "godkjennAvbrytningUtbetaling"
                 request {
@@ -302,22 +316,22 @@ fun Route.utbetalingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                utbetalingService.godkjentAvbrytning(id, navIdent)
+                utbetalingService.godkjennAvbrytning(id, navIdent)
                     .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
                     .onRight { call.respond(HttpStatusCode.OK) }
             }
 
-            put("/avbryt/avvis", {
-                description = "Avvis avbrytning av utbetaling"
+            put("/avbryt/avsla", {
+                description = "Avslå avbrytelse av utbetaling"
                 tags = setOf("Utbetaling")
-                operationId = "avvisAvbrytningUtbetaling"
+                operationId = "avslaAvbrytelseUtbetaling"
                 request {
                     pathParameterUuid("id")
                     body<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Utbetaling ble ikke avbrutt, returnert til saksbehandler"
+                        description = "Avbrytelse av utbetaling ble avslått, returnert til saksbehandling"
                     }
                     default {
                         description = "Problem details"
@@ -329,7 +343,7 @@ fun Route.utbetalingRoutes() {
                 val request = call.receive<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
                 val navIdent = getNavIdent()
                 request.validate().flatMap {
-                    utbetalingService.avvisAvbrytning(id, navIdent, it)
+                    utbetalingService.avslaAvbrytelse(id, navIdent, it)
                 }
                     .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
                     .onRight { call.respond(HttpStatusCode.OK) }
