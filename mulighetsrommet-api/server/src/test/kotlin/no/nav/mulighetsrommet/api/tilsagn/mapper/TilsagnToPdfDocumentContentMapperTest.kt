@@ -171,11 +171,16 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
   "subject": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
+  "enhet": "Nav tiltak Oslo",
   "topSection": {
     "publicExemption": true,
     "addressedTo": "Brev til AKSEPTABEL EMPIRISK TIGER AS",
     "date": "2026-03-01",
-    "reference": "Ref. A-2026/9999-1"
+    "reference": "Ref. A-2026/9999-1",
+    "deltaker": {
+      "navn": "Normann, Ola",
+      "norskIdent": "01010199999"
+    }
   },
   "sections": [
     {
@@ -342,11 +347,15 @@ private val expectedUtbetalingsdetaljerFastSatsContentSkjermet = """
   "subject": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
+  "enhet": "Nav tiltak Oslo",
   "topSection": {
     "publicExemption": true,
     "addressedTo": "Brev til AKSEPTABEL EMPIRISK TIGER AS",
     "date": "2026-03-01",
-    "reference": "Ref. A-2026/9999-1"
+    "reference": "Ref. A-2026/9999-1",
+    "deltaker": {
+      "navn": "Skjermet"
+    }
   },
   "sections": [
     {
@@ -513,11 +522,15 @@ private val expectedUtbetalingsdetaljerFastSatsContentAdressebeskyttet = """
   "subject": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
+  "enhet": "Nav tiltak Oslo",
   "topSection": {
     "publicExemption": true,
     "addressedTo": "Brev til AKSEPTABEL EMPIRISK TIGER AS",
     "date": "2026-03-01",
-    "reference": "Ref. A-2026/9999-1"
+    "reference": "Ref. A-2026/9999-1",
+    "deltaker": {
+      "navn": "Adressebeskyttet"
+    }
   },
   "sections": [
     {

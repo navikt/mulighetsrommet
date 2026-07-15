@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn.mapper
 
+import no.nav.mulighetsrommet.api.pdfgen.Deltaker
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.Regards
 import no.nav.mulighetsrommet.api.pdfgen.SectionBuilder
@@ -25,6 +26,7 @@ object TilsagnToPdfDocumentContentMapper {
         subject = "Tilsagnsbrev til ${tilsagn.arrangor.navn}",
         description = "Detaljer om tilsagn for gjennomføring av ${tilsagn.tiltakstype.navn}",
         author = "Nav",
+        enhet = tilsagn.kostnadssted.navn,
     ) {
         topSection(
             TopSection(
@@ -32,6 +34,20 @@ object TilsagnToPdfDocumentContentMapper {
                 addressedTo = "Brev til ${tilsagn.arrangor.navn}",
                 date = referanseDato.toString(),
                 reference = "Ref. ${tilsagn.bestilling.bestillingsnummer}",
+                deltaker =
+                when (personalia.gradering) {
+                    Gradering.SKJERMING -> Deltaker("Skjermet")
+
+                    Gradering.STRENGT_FORTROLIG_UTLAND,
+                    Gradering.STRENGT_FORTROLIG_ADRESSE,
+                    Gradering.FORTROLIG_ADRESSE,
+                    -> Deltaker("Adressebeskyttet")
+
+                    else -> Deltaker(
+                        navn = personalia.navn(),
+                        norskIdent = personalia.norskIdent()?.value,
+                    )
+                },
             ),
         )
 

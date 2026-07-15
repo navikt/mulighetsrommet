@@ -195,6 +195,7 @@ spec:
     outbound:
       rules:
         - application: pdfgen
+        - application: pdfgenrs
         - application: mulighetsrommet-arena-adapter
         - application: tiltakshistorikk
         - application: poao-tilgang
