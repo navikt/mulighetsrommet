@@ -1,9 +1,7 @@
 {
   "deltaker": {
-    "fornavn": "Ola",
-    "mellomnavn": "",
-    "etternavn": "Normann",
-    "personident": "01010112345"
+    "navn": "Ola Normann",
+    "norskIdent": "01010112345"
   },
   "saksnummer": "V-2026/9999-1",
   "opprettetDato": "2026-05-26",

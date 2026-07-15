@@ -30,14 +30,14 @@ class ApiDatabaseTestListener(
         slackNotifier = null,
     )
 
-    val db: ApiDatabase
+    val api: ApiDatabase
         get() {
             return delegate
                 ?.let { ApiDatabase(it, ApplicationConfigTest.kafka.topics) }
                 ?: throw RuntimeException("Database has not yet been initialized")
         }
 
-    val newDb: AdminDatabase
+    val admin: AdminDatabase
         get() {
             return delegate
                 ?.let { SqlAdminDatabase(it, ApplicationConfigTest.kafka.topics.toOutboxTopics()) }
@@ -51,7 +51,7 @@ class ApiDatabaseTestListener(
 
         delegate = Database(config)
 
-        flywayMigration.migrate(db.db)
+        flywayMigration.migrate(api.db)
     }
 
     override suspend fun afterSpec(spec: Spec) {
@@ -60,16 +60,16 @@ class ApiDatabaseTestListener(
     }
 
     fun assertTable(tableName: String): TableAssert {
-        val connection = AssertDbConnectionFactory.of(db.getDatasource()).create()
+        val connection = AssertDbConnectionFactory.of(api.getDatasource()).create()
         val table = connection.table(tableName).build()
         return Assertions.assertThat(table)
     }
 
-    inline fun <T> run(block: TransactionalQueryContext.(TransactionalSession) -> T): T = db.transaction {
+    inline fun <T> run(block: TransactionalQueryContext.(TransactionalSession) -> T): T = api.transaction {
         block(session)
     }
 
-    inline fun <T> runAndRollback(block: TransactionalQueryContext.() -> T): T = db.db.session { s ->
+    inline fun <T> runAndRollback(block: TransactionalQueryContext.() -> T): T = api.db.session { s ->
         try {
             s.connection.begin()
             s.transactional = true
@@ -83,7 +83,7 @@ class ApiDatabaseTestListener(
         }
     }
 
-    fun truncateAll(): Unit = db.db.session { session ->
+    fun truncateAll(): Unit = api.db.session { session ->
         truncateTablesWithDynamicData(session)
     }
 }

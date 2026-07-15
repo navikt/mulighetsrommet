@@ -58,7 +58,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
     )
 
     beforeEach {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterEach {
@@ -69,9 +69,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ): GjennomforingEnkeltplassService {
         return GjennomforingEnkeltplassService(
-            db = database.db,
+            db = database.api,
             personaliaService = mockk(),
-            tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.newDb),
+            tiltakstyper = TiltakstypeService(TiltakstypeService.Config(features), database.admin),
         )
     }
 
@@ -562,7 +562,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 )
                 MulighetsrommetTestDomain(
                     deltakere = listOf(eksisterendeDeltaker),
-                ).initialize(database.db)
+                ).initialize(database.api)
 
                 val deltaker = DeltakerFixtures.createDeltaker(
                     id = eksisterendeDeltaker.id,
@@ -579,7 +579,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 )
                 MulighetsrommetTestDomain(
                     deltakere = listOf(annenDeltaker),
-                ).initialize(database.db)
+                ).initialize(database.api)
 
                 val nyDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
@@ -597,7 +597,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 )
                 MulighetsrommetTestDomain(
                     deltakere = listOf(eksisterendeDeltaker),
-                ).initialize(database.db)
+                ).initialize(database.api)
 
                 val feilregistrertDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
@@ -774,7 +774,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 )
                 MulighetsrommetTestDomain(
                     deltakere = listOf(lagretDeltaker),
-                ).initialize(database.db)
+                ).initialize(database.api)
 
                 val service = createService(migrert)
 
@@ -804,7 +804,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 )
                 MulighetsrommetTestDomain(
                     deltakere = listOf(lagretDeltaker),
-                ).initialize(database.db)
+                ).initialize(database.api)
 
                 val deltaker = DeltakerFixtures.createDeltaker(
                     id = lagretDeltaker.id,

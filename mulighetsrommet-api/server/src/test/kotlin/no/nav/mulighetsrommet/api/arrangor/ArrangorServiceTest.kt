@@ -44,7 +44,7 @@ class ArrangorServiceTest : FunSpec({
 
     context("get or sync arrangør fra brreg") {
         val brregClient: BrregClient = mockk()
-        val arrangorService = ArrangorService(database.db, brregClient, mockk(relaxed = true))
+        val arrangorService = ArrangorService(database.api, brregClient, mockk(relaxed = true))
 
         afterEach {
             clearAllMocks()
@@ -171,7 +171,7 @@ class ArrangorServiceTest : FunSpec({
 
     context("brreg sok med utenlandske bedrifter") {
         val brregClient: BrregClient = mockk()
-        val arrangorService = ArrangorService(database.db, brregClient, mockk(relaxed = true))
+        val arrangorService = ArrangorService(database.api, brregClient, mockk(relaxed = true))
         val utenlandskArrangor = ArrangorDto(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("100000056"),

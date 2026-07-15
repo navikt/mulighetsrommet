@@ -56,7 +56,7 @@ class JournalforUtbetalingTest : FunSpec({
     )
 
     beforeSpec {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     val pdfGenClient = mockk<PdfGenClient>()
@@ -66,7 +66,7 @@ class JournalforUtbetalingTest : FunSpec({
     coEvery { personaliaService.getPersonalia(any<List<UUID>>(), any()) } returns emptyList()
 
     fun createTask() = JournalforUtbetaling(
-        db = database.db,
+        db = database.api,
         dokarkClient = dokarkClient,
         personaliaService = personaliaService,
         pdf = pdfGenClient,

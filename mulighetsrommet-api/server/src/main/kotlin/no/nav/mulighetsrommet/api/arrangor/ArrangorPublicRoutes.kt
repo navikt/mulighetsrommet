@@ -11,6 +11,10 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
 
 fun Route.arrangorPublicRoutes() {
+    route("/v1/virksomhet") {
+        enhetRoutes()
+    }
+    // TODO: slettes når komet er over på nytt endepunkt
     route("/v1/arrangor") {
         enhetRoutes()
     }

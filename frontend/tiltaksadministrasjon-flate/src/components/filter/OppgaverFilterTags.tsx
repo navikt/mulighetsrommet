@@ -3,9 +3,10 @@ import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterTagsContainer } from "@mr/frontend-common";
 import { useGetOppgavetyper } from "@/api/oppgaver/useGetOppgavetyper";
 import { OppgaverFilterType } from "@/pages/oppgaveoversikt/oppgaver/filter";
-import { useKontorstruktur } from "@/api/enhet/useKontorstruktur";
 import { Chips } from "@navikt/ds-react";
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
+import { KontorstrukturFilterTag } from "./KontorstrukturFilterTag";
+import { OppgaveTypeDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   filter: OppgaverFilterType;
@@ -15,11 +16,11 @@ interface Props {
 }
 
 export function OppgaveFilterTags({ filter, updateFilter, filterOpen, setTagsHeight }: Props) {
-  const { data: oppgavetyper } = useGetOppgavetyper();
-  const { data: regioner } = useKontorstruktur();
+  const { data: oppgaveTypeStruktur } = useGetOppgavetyper();
   const { data: arrangorer } = useArrangorer(undefined, {
     pageSize: 10000,
   });
+  const oppgaveTyper: OppgaveTypeDto[] = oppgaveTypeStruktur.flatMap(({ typer }) => typer);
 
   const removeArrayItem = (key: keyof OppgaverFilterType, value: any) => {
     updateFilter({
@@ -32,18 +33,15 @@ export function OppgaveFilterTags({ filter, updateFilter, filterOpen, setTagsHei
       <Chips>
         {filter.type.map((type) => (
           <Chips.Removable key={type} onClick={() => removeArrayItem("type", type)}>
-            {oppgavetyper.find((o) => type === o.type)?.navn || type}
+            {oppgaveTyper.find((o) => type === o.type)?.navn || type}
           </Chips.Removable>
         ))}
-        {filter.regioner.map((enhetsnummer) => (
-          <Chips.Removable
-            key={enhetsnummer}
-            onClick={() => removeArrayItem("regioner", enhetsnummer)}
-          >
-            {regioner.find(({ region }) => region.enhetsnummer === enhetsnummer)?.region.navn ||
-              enhetsnummer}
-          </Chips.Removable>
-        ))}
+        {filter.navEnheter.length > 0 && (
+          <KontorstrukturFilterTag
+            navEnheter={filter.navEnheter}
+            onClick={() => updateFilter({ navEnheter: [] })}
+          />
+        )}
         {filter.arrangorer.map((id) => (
           <Chips.Removable key={id} onClick={() => removeArrayItem("arrangorer", id)}>
             {arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}

@@ -70,7 +70,7 @@ class GjennomforingQueriesTest : FunSpec({
     )
 
     beforeSpec {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     context("avtale") {

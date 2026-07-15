@@ -8,6 +8,7 @@ class PdfDocumentContentBuilder(
     private val subject: String,
     private val description: String,
     private val author: String,
+    private var enhet: String? = null,
 ) {
     private var topSection: TopSection? = null
     private val sections = mutableListOf<Section>()
@@ -39,6 +40,7 @@ class PdfDocumentContentBuilder(
         topSection = topSection,
         sections = sections,
         regards = regards,
+        enhet = enhet,
     )
 }
 

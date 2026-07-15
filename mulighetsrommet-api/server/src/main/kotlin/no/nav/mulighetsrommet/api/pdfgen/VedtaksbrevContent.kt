@@ -14,15 +14,13 @@ data class VedtaksbrevContent(
     val opprettetDato: LocalDate,
     val saksbehandler: String,
     val beslutter: String,
-    val avsender: String,
+    val enhet: String,
     val vedtak: List<Vedtak>,
 ) {
     @Serializable
     data class Deltaker(
-        val fornavn: String,
-        val mellomnavn: String,
-        val etternavn: String,
-        val personident: NorskIdent?,
+        val navn: String,
+        val norskIdent: NorskIdent?,
     )
 
     @Serializable

@@ -376,7 +376,7 @@ val ApplicationConfigDev = AppConfig(
         url = "http://tiltakshistorikk",
         scope = "api://dev-gcp.team-mulighetsrommet.tiltakshistorikk/.default",
     ),
-    pdfgen = HttpClientConfig(url = "http://pdfgen"),
+    pdfgen = HttpClientConfig(url = "http://pdfgenrs"),
     msGraphConfig = AuthenticatedHttpClientConfig(
         url = "https://graph.microsoft.com",
         scope = "https://graph.microsoft.com/.default",

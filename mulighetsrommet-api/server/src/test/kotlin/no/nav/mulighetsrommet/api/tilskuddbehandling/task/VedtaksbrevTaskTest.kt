@@ -54,7 +54,7 @@ class VedtaksbrevTaskTest : FunSpec({
             deltakere = listOf(
                 DeltakerFixtures.createDeltakerDbo(GjennomforingFixtures.EnkelAmo.id).copy(id = deltakerId),
             ),
-        ).initialize(database.db)
+        ).initialize(database.api)
 
         coEvery { personaliaService.getPersonalia(deltakerId, any()) } returns Personalia(
             deltakerId = deltakerId,
@@ -67,7 +67,7 @@ class VedtaksbrevTaskTest : FunSpec({
             avvistGrunn = null,
         )
 
-        opprettOgAttesterTilskudd(database.db, behandlingId, tilskuddId)
+        opprettOgAttesterTilskudd(database.api, behandlingId, tilskuddId)
     }
 
     afterEach {
@@ -90,7 +90,7 @@ class VedtaksbrevTaskTest : FunSpec({
         ).right()
 
         val task = JournalforVedtaksbrev(
-            db = database.db,
+            db = database.api,
             dokarkClient = dokarkClient,
             personaliaService = personaliaService,
             pdf = pdfGenClient,
@@ -111,7 +111,7 @@ class VedtaksbrevTaskTest : FunSpec({
         coEvery { pdfGenClient.getPdfVedtaksbrev(any()) } returns PdfGenError(500, "").left()
 
         val task = JournalforVedtaksbrev(
-            db = database.db,
+            db = database.api,
             dokarkClient = dokarkClient,
             personaliaService = personaliaService,
             pdf = pdfGenClient,
@@ -124,7 +124,7 @@ class VedtaksbrevTaskTest : FunSpec({
     test("distribuering sender journalpost til dokdist og lagrer bestillingsId") {
         val dokdistClient = mockk<DokdistClient>()
 
-        database.db.transaction {
+        database.api.transaction {
             queries.tilskuddBehandling.setJournalpostId(behandlingId, "121212")
         }
 
@@ -139,7 +139,7 @@ class VedtaksbrevTaskTest : FunSpec({
         } returns DokdistResponse(bestillingsId = "BEST-1").right()
 
         val task = DistribuerVedtaksbrev(
-            db = database.db,
+            db = database.api,
             dokdistClient = dokdistClient,
         )
 
@@ -162,7 +162,7 @@ class VedtaksbrevTaskTest : FunSpec({
 
     test("distribuering feiler nar vedtak mangler journalpost") {
         val task = DistribuerVedtaksbrev(
-            db = database.db,
+            db = database.api,
             dokdistClient = mockk(),
         )
 

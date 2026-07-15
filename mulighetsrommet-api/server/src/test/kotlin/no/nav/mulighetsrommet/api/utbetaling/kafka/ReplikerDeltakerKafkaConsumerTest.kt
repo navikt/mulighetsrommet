@@ -37,7 +37,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
         oppdaterUtbetaling: GenererUtbetalingService = mockk(relaxed = true),
     ): ReplikerDeltakerKafkaConsumer {
         return ReplikerDeltakerKafkaConsumer(
-            db = database.db,
+            db = database.api,
             genererUtbetalingService = oppdaterUtbetaling,
         )
     }
@@ -65,7 +65,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
         )
 
         beforeEach {
-            domain.initialize(database.db)
+            domain.initialize(database.api)
         }
 
         afterEach {
@@ -268,7 +268,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
         )
 
         beforeEach {
-            domain.initialize(database.db)
+            domain.initialize(database.api)
 
             coEvery { oppdaterUtbetaling.skedulerOppdaterUtbetalingerForGjennomforing(any(), any()) } returns Unit
         }

@@ -37,7 +37,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
     )
 
     beforeEach {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterEach {
@@ -53,16 +53,16 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
     ): GjennomforingRequestKafkaConsumer {
         return GjennomforingRequestKafkaConsumer(
             arrangorer = arrangorer,
-            tiltakstyper = TiltakstypeService(tiltakstypeConfig, database.newDb),
+            tiltakstyper = TiltakstypeService(tiltakstypeConfig, database.admin),
             enkeltplasser = enkeltplasser,
         )
     }
 
     context("EnkeltplassUtkast") {
         val service = GjennomforingEnkeltplassService(
-            database.db,
+            database.api,
             mockk(),
-            TiltakstypeService(TiltakstypeService.Config(), database.newDb),
+            TiltakstypeService(TiltakstypeService.Config(), database.admin),
         )
 
         val gjennomforingId = UUID.randomUUID()
@@ -123,9 +123,9 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
     context("EnkeltplassSoktInn") {
         val service = GjennomforingEnkeltplassService(
-            database.db,
+            database.api,
             mockk(),
-            TiltakstypeService(TiltakstypeService.Config(), database.newDb),
+            TiltakstypeService(TiltakstypeService.Config(), database.admin),
         )
 
         val gjennomforingId = UUID.randomUUID()

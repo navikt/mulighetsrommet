@@ -11,7 +11,7 @@ export function useOppgaver(filter: OppgaverFilterType) {
         body: {
           tiltakskoder: filter.tiltakstyper,
           oppgavetyper: filter.type,
-          regioner: filter.regioner,
+          navEnheter: filter.navEnheter,
           arrangorer: filter.arrangorer,
         },
       }),

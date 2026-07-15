@@ -29,7 +29,7 @@
     "@arbeidsmarkedstiltak/api-client": "workspace:*",
     "@emotion/cache": "11.14.0",
     "@emotion/react": "11.14.0",
-    "@grafana/faro-web-sdk": "2.8.0",
+    "@grafana/faro-web-sdk": "2.8.2",
     "@mr/frontend-common": "workspace:*",
     "@navikt/aksel-icons": "8.14.0",
     "@navikt/ds-css": "8.14.0",

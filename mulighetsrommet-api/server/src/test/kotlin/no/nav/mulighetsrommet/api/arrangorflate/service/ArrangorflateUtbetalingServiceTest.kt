@@ -94,7 +94,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
     fun createTilsagnService(): TilsagnService = TilsagnService(
         TilsagnService.Config(gyldigTilsagnPeriode = mapOf()),
-        db = database.db,
+        db = database.api,
         navAnsattService = mockk(),
     )
 
@@ -112,7 +112,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             arrangorService = arrangorService,
         )
         return ArrangorflateUtbetalingService(
-            db = database.db,
+            db = database.api,
             utbetalingService = utbetalingService,
             genererUtbetalingService = genererUtbetalingService,
             journalforUtbetaling = journalforUtbetaling,
@@ -133,7 +133,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -155,7 +155,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.gruppeAmo),
                 gjennomforinger = listOf(GjennomforingFixtures.GruppeAmo1),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -177,7 +177,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(Oppfolging1),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -218,7 +218,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                     prismodeller = listOf(prismodell),
                     avtaler = listOf(AvtaleFixtures.gruppeAmo.copy(prismodeller = listOf(prismodell.id))),
                     gjennomforinger = listOf(GjennomforingFixtures.GruppeAmo1.copy(prismodellId = prismodell.id)),
-                ).initialize(database.db)
+                ).initialize(database.api)
 
                 service.opprettUtbetaling(
                     ArrangorflateOpprettUtbetaling(
@@ -238,7 +238,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true)
 
@@ -291,7 +291,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(utbetalingFremtidigPeriode),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -308,7 +308,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(utbetalingUtenKonto),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -324,7 +324,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
             ) {
                 queries.utbetaling.setBlokkeringer(utbetaling1Id, setOf(Utbetaling.Blokkering.UBEHANDLET_FORSLAG))
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -344,7 +344,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true)
             val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
@@ -379,7 +379,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -407,7 +407,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setUtbetalingLinjeStatus(utbetalingLinje1, UtbetalingLinjeStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -431,7 +431,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -482,7 +482,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -502,7 +502,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 tilsagn = listOf(Tilsagn1),
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -522,7 +522,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -546,7 +546,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(Tilsagn2, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -575,7 +575,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetaling1Forhandsgodkjent),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -605,7 +605,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 ),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeRight(
@@ -639,7 +639,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 ),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -678,7 +678,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 ),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -717,7 +717,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 ),
             ) {
                 setTilsagnStatus(Tilsagn1, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val tilsagnService: TilsagnService = spyk(createTilsagnService())
             coEvery {
@@ -798,7 +798,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 utbetalinger = listOf(utbetalingForAvtaltSats),
             ) {
                 setTilsagnStatus(tilsagnForAvtaltSats, TilsagnStatus.GODKJENT)
-            }.initialize(database.db)
+            }.initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -818,7 +818,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(innsendtUtbetaling.copy(status = UtbetalingStatusType.TIL_BEHANDLING)),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -827,7 +827,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 begrunnelse = "Feil opplysninger",
             ).shouldBeRight()
 
-            val utbetaling = database.db.session { queries.arrangorflate.utbetaling.getOrError(utbetaling1.id) }
+            val utbetaling = database.api.session { queries.arrangorflate.utbetaling.getOrError(utbetaling1.id) }
             utbetaling.should {
                 it.status shouldBe UtbetalingStatusType.AVBRUTT
             }
@@ -838,7 +838,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(innsendtUtbetaling.copy(status = UtbetalingStatusType.RETURNERT)),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 
@@ -846,7 +846,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 utbetalingId = utbetaling1.id,
                 begrunnelse = "Trukket tilbake",
             ).shouldBeRight()
-            val utbetaling = database.db.session { queries.arrangorflate.utbetaling.getOrError(utbetaling1.id) }
+            val utbetaling = database.api.session { queries.arrangorflate.utbetaling.getOrError(utbetaling1.id) }
             utbetaling.should {
                 it.status shouldBe UtbetalingStatusType.AVBRUTT
             }
@@ -857,7 +857,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
                 utbetalinger = listOf(innsendtUtbetaling),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createUtbetalingService()
 

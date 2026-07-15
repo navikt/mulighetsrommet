@@ -69,7 +69,7 @@ class UtbetalingRoutesTest : FunSpec({
 
     beforeSpec {
         oauth.start()
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterSpec {
@@ -346,7 +346,7 @@ class UtbetalingRoutesTest : FunSpec({
             MulighetsrommetTestDomain(
                 utbetalinger = listOf(utbetaling),
                 deltakere = listOf(deltaker),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             withTestApplication(appConfigMedTilgangsmaskinAvvist()) {
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))

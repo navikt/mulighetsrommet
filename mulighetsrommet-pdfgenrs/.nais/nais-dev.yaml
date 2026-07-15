@@ -1,0 +1,40 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: pdfgenrs
+  namespace: team-mulighetsrommet
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "20M"
+  labels:
+    team: team-mulighetsrommet
+spec:
+  image: "{{ image }}"
+  port: 8080
+  replicas:
+    min: 1
+    max: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 256Mi
+    limits:
+      memory: 2048Mi
+  liveness:
+    path: /internal/is_alive
+  readiness:
+    path: /internal/is_ready
+  startup:
+    path: /internal/is_alive
+    initialDelay: 10
+  observability:
+    logging:
+      destinations:
+        - id: loki
+        - id: elastic
+  prometheus:
+    enabled: true
+    path: /internal/prometheus
+  accessPolicy:
+    inbound:
+      rules:
+        - application: mulighetsrommet-api

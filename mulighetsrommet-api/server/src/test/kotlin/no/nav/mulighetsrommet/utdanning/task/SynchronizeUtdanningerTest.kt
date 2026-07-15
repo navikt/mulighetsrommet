@@ -15,7 +15,7 @@ class SynchronizeUtdanningerTest : FunSpec({
     val utdanningClient: UtdanningClient = mockk(relaxed = true)
 
     fun createTask() = SynchronizeUtdanninger(
-        db = database.db,
+        db = database.api,
         utdanningClient = utdanningClient,
         config = SynchronizeUtdanninger.Config(disabled = true, cronPattern = "0 0 0 1 * ?"),
     )

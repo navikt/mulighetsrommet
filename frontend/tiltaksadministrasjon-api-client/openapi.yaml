@@ -2691,7 +2691,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/OppgaveTypeDto"
+                  $ref: "#/components/schemas/OppgaveTypeStruktur"
         default:
           description: Problem details
           headers: {}
@@ -7939,7 +7939,7 @@ components:
           items:
             $ref: "#/components/schemas/Tiltakskode"
           uniqueItems: true
-        regioner:
+        navEnheter:
           type: array
           items:
             type: string
@@ -7952,8 +7952,8 @@ components:
           uniqueItems: true
       required:
       - arrangorer
+      - navEnheter
       - oppgavetyper
-      - regioner
       - tiltakskoder
     Oppgave:
       type: object
@@ -8041,6 +8041,18 @@ components:
       - id
       - navn
       - organisasjonsnummer
+    OppgaveTypeStruktur:
+      type: object
+      properties:
+        kategori:
+          type: string
+        typer:
+          type: array
+          items:
+            $ref: "#/components/schemas/OppgaveTypeDto"
+      required:
+      - kategori
+      - typer
     OppgaveTypeDto:
       type: object
       properties:

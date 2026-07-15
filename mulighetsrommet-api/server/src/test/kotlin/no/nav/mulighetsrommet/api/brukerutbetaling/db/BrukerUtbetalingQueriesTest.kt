@@ -30,7 +30,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
     )
 
     beforeEach {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     afterEach {
@@ -60,13 +60,13 @@ class BrukerUtbetalingQueriesTest : FunSpec({
         val behandling = TilskuddFixtures.Behandling
         val tilskudd = TilskuddFixtures.Tilskudd
 
-        database.db.transaction {
+        database.api.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
             queries.brukerUtbetaling.insert(utbetaling)
             queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id)
         }
 
-        val result = database.db.session { queries.brukerUtbetaling.getByTilskudd(tilskudd.id) }
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskudd.id) }
 
         result.shouldNotBeNull()
         result.id shouldBe utbetaling.id
@@ -84,16 +84,16 @@ class BrukerUtbetalingQueriesTest : FunSpec({
         val behandling = TilskuddFixtures.Behandling
         val tilskudd = TilskuddFixtures.Tilskudd
 
-        database.db.transaction {
+        database.api.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
         }
 
-        val result = database.db.session { queries.brukerUtbetaling.getByTilskudd(tilskudd.id) }
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskudd.id) }
         result.shouldBeNull()
     }
 
     test("setHelVedStatus persists status and error") {
-        database.db.transaction {
+        database.api.transaction {
             queries.brukerUtbetaling.insert(utbetaling)
         }
 
@@ -107,16 +107,16 @@ class BrukerUtbetalingQueriesTest : FunSpec({
             detaljer = null,
             error = error,
         )
-        database.db.session { queries.brukerUtbetaling.setHelVedStatus(utbetaling.id, status) }
+        database.api.session { queries.brukerUtbetaling.setHelVedStatus(utbetaling.id, status) }
 
         val behandling = TilskuddFixtures.Behandling
         val tilskudd = TilskuddFixtures.Tilskudd
-        database.db.transaction {
+        database.api.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
             queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id)
         }
 
-        val result = database.db.session { queries.brukerUtbetaling.getByTilskudd(tilskudd.id) }
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskudd.id) }
 
         result.shouldNotBeNull()
         result.helVedStatus shouldBe HelVedStatus.Status.FEILET

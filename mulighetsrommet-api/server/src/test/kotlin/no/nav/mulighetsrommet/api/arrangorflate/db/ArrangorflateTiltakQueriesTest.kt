@@ -34,7 +34,7 @@ class ArrangorflateTiltakQueriesTest : FunSpec({
     )
 
     beforeSpec {
-        domain.initialize(database.db)
+        domain.initialize(database.api)
     }
 
     test("henter ingen tiltak når påkrevde argumenter mangler") {

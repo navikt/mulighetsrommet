@@ -222,7 +222,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
             avtaler = listOf(AvtaleFixtures.oppfolging),
             gjennomforinger = listOf(gjennomforing),
-        ).initialize(database.db)
+        ).initialize(database.api)
     }
 
     test("henter historikk for bruker basert på person id") {

@@ -45,24 +45,24 @@ class ArenaAdapterServiceTest : FunSpec({
     ): ArenaAdapterService {
         val tiltakstypeService = TiltakstypeService(
             TiltakstypeService.Config(features),
-            database.newDb,
+            database.admin,
         )
         return ArenaAdapterService(
-            db = database.db,
+            db = database.api,
             sanityService = sanityService,
-            arrangorService = ArrangorService(database.db, mockk(), mockk()),
+            arrangorService = ArrangorService(database.api, mockk(), mockk()),
             tiltakstypeService = tiltakstypeService,
             gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
-                database.db,
+                database.api,
                 personaliaService,
                 tiltakstypeService,
             ),
             gjennomforingAvtaleService = GjennomforingAvtaleService(
-                db = database.db,
+                db = database.api,
                 navAnsattService = mockk(),
             ),
             gjennomforingArenaService = GjennomforingArenaService(
-                database.db,
+                database.api,
             ),
         )
     }
@@ -89,7 +89,7 @@ class ArenaAdapterServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.IPS),
-            ).initialize(database.db)
+            ).initialize(database.api)
         }
 
         afterEach {
@@ -157,7 +157,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik),
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createArenaAdapterService(
                 features = mapOf(Tiltakskode.OPPFOLGING to setOf()),
@@ -207,7 +207,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(gjennomforing1),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val arenaDbo = ArenaGjennomforingDbo(
                 id = gjennomforing1.id,
@@ -258,7 +258,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(gjennomforing1),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createArenaAdapterService(
                 features = mapOf(Tiltakskode.OPPFOLGING to setOf(TiltakstypeFeature.MIGRERT)),
@@ -306,7 +306,7 @@ class ArenaAdapterServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 navEnheter = listOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.Oslo),
                 tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-            ).initialize(database.db)
+            ).initialize(database.api)
         }
 
         afterEach {
@@ -404,7 +404,7 @@ class ArenaAdapterServiceTest : FunSpec({
             )
             MulighetsrommetTestDomain(
                 gjennomforinger = listOf(gjennomforing),
-            ).initialize(database.db)
+            ).initialize(database.api)
 
             val service = createArenaAdapterService(
                 features = mapOf(

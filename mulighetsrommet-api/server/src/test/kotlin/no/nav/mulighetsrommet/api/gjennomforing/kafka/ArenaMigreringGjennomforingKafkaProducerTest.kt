@@ -44,7 +44,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1, GjennomforingFixtures.EnkelAmo),
         ) {
             queries.gjennomforing.setNavEnheter(GjennomforingFixtures.Oppfolging1.id, setOf(NavEnhetNummer("0400")))
-        }.initialize(database.db)
+        }.initialize(database.api)
 
         val gruppetiltak = Gruppe(
             id = GjennomforingFixtures.Oppfolging1.id,
@@ -92,7 +92,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             ArenaMigreringGjennomforingKafkaProducer.Config(
                 producerTopic = "producer-topic",
             ),
-            database.db,
+            database.api,
             tiltakstyper,
             arenaAdapterClient,
             producerClient,
@@ -101,7 +101,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
         fun configureTiltakstypeService(
             migrert: TiltakstypeService.Config = TiltakstypeService.Config(),
         ): TiltakstypeService {
-            return TiltakstypeService(migrert, database.newDb)
+            return TiltakstypeService(migrert, database.admin)
         }
 
         afterEach {
