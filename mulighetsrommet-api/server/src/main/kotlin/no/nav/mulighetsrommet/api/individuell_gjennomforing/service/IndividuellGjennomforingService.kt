@@ -17,36 +17,37 @@ class IndividuellGjennomforingService(
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
 ) {
-    fun upsert(request: IndividuellGjennomforingRequest): Validated<IndividuellGjennomforing> =
-        IndividuellGjennomforingValidator.validate(request).map {
-            val navEnheter = (request.navRegioner + request.navKontorer + request.navAndreEnheter).toSet()
-            db.transaction {
-                queries.individuellGjennomforing.upsert(
-                    id = request.id,
-                    navn = request.navn.trim(),
-                    tiltakstypeId = request.tiltakstypeId,
-                    stedForGjennomforing = request.stedForGjennomforing,
-                    arrangorId = request.arrangorId,
-                    faneinnhold = request.faneinnhold,
-                    beskrivelse = request.beskrivelse,
-                )
-                queries.individuellGjennomforing.setAdministratorer(request.id, request.administratorer)
-                queries.individuellGjennomforing.setNavEnheter(request.id, navEnheter)
-                queries.individuellGjennomforing.setKontaktpersoner(
+    fun upsert(request: IndividuellGjennomforingRequest): Validated<IndividuellGjennomforing> = IndividuellGjennomforingValidator.validate(request).map {
+        val navEnheter = (request.navRegioner + request.navKontorer + request.navAndreEnheter).toSet()
+        db.transaction {
+            queries.individuellGjennomforing.upsert(
+                id = request.id,
+                navn = request.navn.trim(),
+                tiltakstypeId = request.tiltakstypeId,
+                stedForGjennomforing = request.stedForGjennomforing,
+                arrangorId = request.arrangorId,
+                faneinnhold = request.faneinnhold,
+                beskrivelse = request.beskrivelse,
+                tiltaksnummer = null,
+                sanityId = null,
+            )
+            queries.individuellGjennomforing.setAdministratorer(request.id, request.administratorer)
+            queries.individuellGjennomforing.setNavEnheter(request.id, navEnheter)
+            queries.individuellGjennomforing.setKontaktpersoner(
+                request.id,
+                request.kontaktpersoner.map { KontaktpersonDbo(it.navIdent, it.beskrivelse) }.toSet(),
+            )
+            if (request.arrangorId != null) {
+                queries.individuellGjennomforing.setArrangorKontaktpersoner(
                     request.id,
-                    request.kontaktpersoner.map { KontaktpersonDbo(it.navIdent, it.beskrivelse) }.toSet(),
+                    request.arrangorKontaktpersoner,
                 )
-                if (request.arrangorId != null) {
-                    queries.individuellGjennomforing.setArrangorKontaktpersoner(
-                        request.id,
-                        request.arrangorKontaktpersoner,
-                    )
-                } else {
-                    queries.individuellGjennomforing.setArrangorKontaktpersoner(request.id, emptySet())
-                }
-                queries.individuellGjennomforing.get(request.id)!!
+            } else {
+                queries.individuellGjennomforing.setArrangorKontaktpersoner(request.id, emptySet())
             }
+            queries.individuellGjennomforing.get(request.id)!!
         }
+    }
 
     fun setPublisert(id: UUID, publisert: Boolean): Unit = db.transaction {
         queries.individuellGjennomforing.setPublisert(id, publisert)

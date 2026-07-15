@@ -16,7 +16,12 @@ select ig.id,
        nav_enheter_json,
        kontaktpersoner_json,
        arrangor_kontaktpersoner_json,
-       ig.publisert
+       ig.publisert,
+       ig.sanity_id,
+       ig.tiltaksnummer,
+       ig.start_dato,
+       ig.slutt_dato,
+       ig.status
 from individuell_gjennomforing ig
          left join tiltakstype on tiltakstype.id = ig.tiltakstype_id
          left join arrangor on arrangor.id = ig.arrangor_id

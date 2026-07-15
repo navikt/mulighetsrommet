@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.individuell_gjennomforing.model.IndividuellGje
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -26,11 +27,33 @@ class IndividuellGjennomforingQueries(private val session: Session) {
         arrangorId: UUID?,
         faneinnhold: Faneinnhold?,
         beskrivelse: String?,
+        tiltaksnummer: String?,
+        sanityId: UUID?,
     ) {
         @Language("PostgreSQL")
         val query = """
-            insert into individuell_gjennomforing (id, navn, tiltakstype_id, sted_for_gjennomforing, arrangor_id, faneinnhold, beskrivelse)
-            values (:id::uuid, :navn, :tiltakstype_id::uuid, :sted_for_gjennomforing, :arrangor_id::uuid, :faneinnhold::jsonb, :beskrivelse)
+            insert into individuell_gjennomforing (
+                id,
+                navn,
+                tiltakstype_id,
+                sted_for_gjennomforing,
+                arrangor_id,
+                faneinnhold,
+                beskrivelse,
+                tiltaksnummer,
+                sanity_id
+            )
+            values (
+                :id::uuid,
+                :navn,
+                :tiltakstype_id::uuid,
+                :sted_for_gjennomforing,
+                :arrangor_id::uuid,
+                :faneinnhold::jsonb,
+                :beskrivelse,
+                :tiltaksnummer,
+                :sanity_id::uuid
+            )
             on conflict (id) do update set
                 navn                   = excluded.navn,
                 tiltakstype_id         = excluded.tiltakstype_id,
@@ -38,6 +61,8 @@ class IndividuellGjennomforingQueries(private val session: Session) {
                 arrangor_id            = excluded.arrangor_id,
                 faneinnhold            = excluded.faneinnhold,
                 beskrivelse            = excluded.beskrivelse,
+                sanity_id              = excluded.sanity_id,
+                tiltaksnummer          = excluded.tiltaksnummer,
                 updated_at             = now()
         """.trimIndent()
 
@@ -52,6 +77,8 @@ class IndividuellGjennomforingQueries(private val session: Session) {
                     "arrangor_id" to arrangorId,
                     "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
                     "beskrivelse" to beskrivelse,
+                    "tiltaksnummer" to tiltaksnummer,
+                    "sanity_id" to sanityId,
                 ),
             ),
         )
@@ -149,6 +176,7 @@ class IndividuellGjennomforingQueries(private val session: Session) {
     fun getAll(
         navEnheter: List<NavEnhetNummer> = emptyList(),
         tiltakstyper: List<UUID> = emptyList(),
+        publisert: Boolean? = null,
     ): List<IndividuellGjennomforing> = with(session) {
         @Language("PostgreSQL")
         val query = """
@@ -159,12 +187,14 @@ class IndividuellGjennomforingQueries(private val session: Session) {
                 where enhetsnummer = any (:nav_enheter)
             ))
             and (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
+            and (:publisert::boolean is null or publisert = :publisert)
             order by created_at desc
         """.trimIndent()
 
         val params = mapOf(
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
             "tiltakstype_ids" to tiltakstyper.ifEmpty { null }?.let { createUuidArray(it) },
+            "publisert" to publisert,
         )
 
         list(queryOf(query, params), ::toIndividuellGjennomforing)
@@ -176,6 +206,16 @@ class IndividuellGjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, mapOf("id" to id)), ::toIndividuellGjennomforing)
     }
 
+    fun getBySanityId(sanityId: UUID): IndividuellGjennomforing? {
+        @Language("PostgreSQL")
+        val query = "select * from view_individuell_gjennomforing where sanity_id = :sanity_id::uuid"
+        return session.single(queryOf(query, mapOf("sanity_id" to sanityId)), ::toIndividuellGjennomforing)
+    }
+
+    fun delete(id: UUID) {
+        session.execute(queryOf("delete from individuell_gjennomforing where id = ?::uuid", id))
+    }
+
     private fun toIndividuellGjennomforing(row: Row): IndividuellGjennomforing {
         val tiltakstypeId = row.uuidOrNull("tiltakstype_id")
         val arrangorId = row.uuidOrNull("arrangor_id")
@@ -183,6 +223,11 @@ class IndividuellGjennomforingQueries(private val session: Session) {
         return IndividuellGjennomforing(
             id = row.uuid("id"),
             navn = row.string("navn"),
+            sanityId = row.uuidOrNull("sanity_id"),
+            tiltaksnummer = row.stringOrNull("tiltaksnummer"),
+            startDato = row.localDateOrNull("start_dato"),
+            sluttDato = row.localDateOrNull("slutt_dato"),
+            status = row.stringOrNull("status")?.let { GjennomforingStatusType.valueOf(it) },
             tiltakstype = tiltakstypeId?.let {
                 IndividuellGjennomforing.Tiltakstype(
                     id = it,
