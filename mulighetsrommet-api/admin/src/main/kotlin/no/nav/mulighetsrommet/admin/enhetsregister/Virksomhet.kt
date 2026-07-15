@@ -21,7 +21,7 @@ sealed interface Virksomhet {
 data class Hovedenhet(
     override val organisasjonsnummer: Organisasjonsnummer,
     override val navn: String,
-    override val organisasjonsform: String? = null,
+    override val organisasjonsform: String?,
     val overordnetEnhet: Organisasjonsnummer? = null,
     @Serializable(with = LocalDateSerializer::class)
     override val slettetDato: LocalDate? = null,
@@ -31,7 +31,7 @@ data class Hovedenhet(
 data class Underenhet(
     override val organisasjonsnummer: Organisasjonsnummer,
     override val navn: String,
-    override val organisasjonsform: String? = null,
+    override val organisasjonsform: String?,
     val overordnetEnhet: Organisasjonsnummer? = null,
     @Serializable(with = LocalDateSerializer::class)
     override val slettetDato: LocalDate? = null,

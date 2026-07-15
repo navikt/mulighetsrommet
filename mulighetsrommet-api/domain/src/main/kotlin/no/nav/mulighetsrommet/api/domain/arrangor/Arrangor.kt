@@ -7,9 +7,7 @@ import java.util.UUID
 sealed class Arrangor {
     abstract val id: UUID
     abstract val organisasjonsnummer: Organisasjonsnummer
-    abstract val organisasjonsform: String?
     abstract val navn: String
-    abstract val overordnetEnhet: Organisasjonsnummer?
     abstract val slettetDato: LocalDate?
     abstract val kontaktpersoner: List<ArrangorKontaktperson>
 
@@ -18,15 +16,15 @@ sealed class Arrangor {
     abstract fun registrerSlettet(slettetDato: LocalDate): Arrangor
 
     /**
-     * Norske virksomheter hentet fra Brønnøysundregisteret. Betalingsinformasjon er ikke lagret direkte på
-     * arrangør, men hentes i stedet on demand fra utbetalingsseksjonen (Kontoregister Organisasjon).
+     * Norske virksomheter hentet fra Brønnøysundregisteret (Brreg). Betalingsinformasjon er ikke lagret
+     * direkte på arrangør, men hentes i stedet on demand fra utbetalingsseksjonen (Kontoregister Organisasjon).
      */
     data class Norsk private constructor(
         override val id: UUID,
         override val organisasjonsnummer: Organisasjonsnummer,
-        override val organisasjonsform: String?,
+        val organisasjonsform: String?,
         override val navn: String,
-        override val overordnetEnhet: Organisasjonsnummer?,
+        val overordnetEnhet: Organisasjonsnummer?,
         override val slettetDato: LocalDate?,
         override val kontaktpersoner: List<ArrangorKontaktperson>,
     ) : Arrangor() {
@@ -94,9 +92,7 @@ sealed class Arrangor {
     data class Utenlandsk private constructor(
         override val id: UUID,
         override val organisasjonsnummer: Organisasjonsnummer,
-        override val organisasjonsform: String?,
         override val navn: String,
-        override val overordnetEnhet: Organisasjonsnummer?,
         override val slettetDato: LocalDate?,
         override val kontaktpersoner: List<ArrangorKontaktperson>,
         val betalingsinformasjon: Betalingsinformasjon.IBan?,
@@ -128,16 +124,12 @@ sealed class Arrangor {
             fun opprett(
                 id: UUID,
                 organisasjonsnummer: Organisasjonsnummer,
-                organisasjonsform: String?,
                 navn: String,
-                overordnetEnhet: Organisasjonsnummer? = null,
                 slettetDato: LocalDate? = null,
             ) = Utenlandsk(
                 id = id,
                 organisasjonsnummer = organisasjonsnummer,
-                organisasjonsform = organisasjonsform,
                 navn = navn,
-                overordnetEnhet = overordnetEnhet,
                 slettetDato = slettetDato,
                 kontaktpersoner = listOf(),
                 betalingsinformasjon = null,
@@ -147,9 +139,7 @@ sealed class Arrangor {
             fun fromStorage(
                 id: UUID,
                 organisasjonsnummer: Organisasjonsnummer,
-                organisasjonsform: String?,
                 navn: String,
-                overordnetEnhet: Organisasjonsnummer?,
                 slettetDato: LocalDate?,
                 kontaktpersoner: List<ArrangorKontaktperson>,
                 betalingsinformasjon: Betalingsinformasjon.IBan?,
@@ -157,9 +147,7 @@ sealed class Arrangor {
             ) = Utenlandsk(
                 id = id,
                 organisasjonsnummer = organisasjonsnummer,
-                organisasjonsform = organisasjonsform,
                 navn = navn,
-                overordnetEnhet = overordnetEnhet,
                 slettetDato = slettetDato,
                 kontaktpersoner = kontaktpersoner,
                 betalingsinformasjon = betalingsinformasjon,

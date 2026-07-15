@@ -49,8 +49,7 @@ object ArrangorFixtures {
         val hovedenhet = Arrangor.Utenlandsk.opprett(
             id = UUID.randomUUID(),
             organisasjonsnummer = Organisasjonsnummer("100000001"),
-            organisasjonsform = "AS",
-            navn = "Utenlandsk Tiger AS",
+            navn = "Utenlandsk Tiger",
         )
     }
 }

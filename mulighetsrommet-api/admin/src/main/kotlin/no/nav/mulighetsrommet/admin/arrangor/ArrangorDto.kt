@@ -18,20 +18,14 @@ data class ArrangorDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val organisasjonsnummer: Organisasjonsnummer,
-    val organisasjonsform: String?,
     val navn: String,
-    val overordnetEnhet: Organisasjonsnummer? = null,
     @Serializable(with = LocalDateSerializer::class)
     val slettetDato: LocalDate? = null,
-    val erUtenlandsk: Boolean,
 )
 
 fun Arrangor.toDto() = ArrangorDto(
     id = id,
     organisasjonsnummer = organisasjonsnummer,
-    organisasjonsform = organisasjonsform,
     navn = navn,
-    overordnetEnhet = overordnetEnhet,
     slettetDato = slettetDato,
-    erUtenlandsk = this is Arrangor.Utenlandsk,
 )

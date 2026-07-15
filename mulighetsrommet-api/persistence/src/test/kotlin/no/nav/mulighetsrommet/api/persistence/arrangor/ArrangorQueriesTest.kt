@@ -53,8 +53,7 @@ class ArrangorQueriesTest : FunSpec({
                 val utenlandsk = Arrangor.Utenlandsk.opprett(
                     id = UUID.randomUUID(),
                     organisasjonsnummer = Organisasjonsnummer("100000001"),
-                    organisasjonsform = "IKS",
-                    navn = "X - Utenlandsk arrangør",
+                    navn = "Utenlandsk arrangør",
                 )
                 repository.arrangor.save(utenlandsk)
 

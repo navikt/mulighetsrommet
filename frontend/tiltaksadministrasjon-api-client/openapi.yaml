@@ -8161,30 +8161,17 @@ components:
           format: uuid
         organisasjonsnummer:
           type: string
-        organisasjonsform:
-          type:
-          - "null"
-          - string
         navn:
           type: string
-        overordnetEnhet:
-          type:
-          - "null"
-          - string
         slettetDato:
           type:
           - "null"
           - string
           format: date
-        erUtenlandsk:
-          type: boolean
       required:
-      - erUtenlandsk
       - id
       - navn
-      - organisasjonsform
       - organisasjonsnummer
-      - overordnetEnhet
       - slettetDato
     ArrangorKobling:
       type: string
@@ -8211,10 +8198,6 @@ components:
           format: uuid
         organisasjonsnummer:
           type: string
-        organisasjonsform:
-          type:
-          - "null"
-          - string
         navn:
           type: string
         underenheter:
@@ -8226,13 +8209,9 @@ components:
           - "null"
           - string
           format: date
-        erUtenlandsk:
-          type: boolean
       required:
-      - erUtenlandsk
       - id
       - navn
-      - organisasjonsform
       - organisasjonsnummer
       - slettetDato
       - underenheter

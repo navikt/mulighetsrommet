@@ -47,7 +47,8 @@ class EnhetsregisterQuery(
                 Underenhet(
                     organisasjonsnummer = arrangor.organisasjonsnummer,
                     navn = arrangor.navn,
-                    overordnetEnhet = arrangor.organisasjonsnummer,
+                    overordnetEnhet = null,
+                    organisasjonsform = null,
                 ),
             ).right()
         }
@@ -68,14 +69,15 @@ class EnhetsregisterQuery(
 private fun ArrangorDto.toHovedenhet(): Hovedenhet = Hovedenhet(
     organisasjonsnummer = organisasjonsnummer,
     navn = navn,
-    organisasjonsform = organisasjonsform,
-    overordnetEnhet = overordnetEnhet,
+    organisasjonsform = null,
+    overordnetEnhet = null,
     slettetDato = slettetDato,
 )
 
 private fun ArrangorDto.toUnderenhet(): Underenhet = Underenhet(
     organisasjonsnummer = organisasjonsnummer,
     navn = navn,
-    overordnetEnhet = overordnetEnhet,
+    overordnetEnhet = null,
+    organisasjonsform = null,
     slettetDato = slettetDato,
 )

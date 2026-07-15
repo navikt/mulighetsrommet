@@ -43,9 +43,9 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
             mapOf(
                 "id" to id,
                 "organisasjonsnummer" to organisasjonsnummer.value,
-                "organisasjonsform" to organisasjonsform,
+                "organisasjonsform" to (this as? Arrangor.Norsk)?.organisasjonsform,
                 "navn" to navn,
-                "overordnet_enhet" to overordnetEnhet?.value,
+                "overordnet_enhet" to (this as? Arrangor.Norsk)?.overordnetEnhet?.value,
                 "slettet_dato" to slettetDato,
                 "er_utenlandsk_virksomhet" to (this is Arrangor.Utenlandsk),
             )
@@ -397,9 +397,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
         return Arrangor.Utenlandsk.fromStorage(
             id = id,
             organisasjonsnummer = organisasjonsnummer,
-            organisasjonsform = organisasjonsform,
             navn = navn,
-            overordnetEnhet = overordnetEnhet,
             slettetDato = slettetDato,
             kontaktpersoner = kontaktpersoner,
             betalingsinformasjon = betalingsinformasjon,
@@ -410,11 +408,8 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
     private fun Row.toArrangorDtoUtenUnderenheter() = ArrangorDto(
         id = uuid("id"),
         organisasjonsnummer = Organisasjonsnummer(string("organisasjonsnummer")),
-        organisasjonsform = stringOrNull("organisasjonsform"),
         navn = string("navn"),
-        overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) },
         slettetDato = localDateOrNull("slettet_dato"),
-        erUtenlandsk = boolean("er_utenlandsk_virksomhet"),
     )
 
     private fun Row.toArrangorKontaktperson() = ArrangorKontaktperson(

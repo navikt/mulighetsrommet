@@ -10,7 +10,6 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.admin.arrangor.toHovedenhetDto
 import no.nav.mulighetsrommet.admin.navenhet.toDto
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
@@ -95,7 +94,7 @@ class AvtaleValidatorTest : FunSpec({
     )
     val ctx = Ctx(
         previous = null,
-        arrangor = ArrangorFixtures.hovedenhet.toHovedenhetDto(listOf(ArrangorFixtures.underenhet1)),
+        arrangor = Ctx.AvtaleArrangor(ArrangorFixtures.hovedenhet, listOf(ArrangorFixtures.underenhet1)),
         kategorisering = kategoriseringCtx,
         administratorer = emptyList(),
         tiltakstype = Ctx.Tiltakstype(
@@ -108,7 +107,7 @@ class AvtaleValidatorTest : FunSpec({
 
     val createForhandsgodkjentAvtaleContext = Ctx(
         previous = null,
-        arrangor = ArrangorFixtures.hovedenhet.toHovedenhetDto(listOf(ArrangorFixtures.underenhet1)),
+        arrangor = Ctx.AvtaleArrangor(ArrangorFixtures.hovedenhet, listOf(ArrangorFixtures.underenhet1)),
         kategorisering = kategoriseringCtx,
         administratorer = emptyList(),
         tiltakstype = Ctx.Tiltakstype(
@@ -393,21 +392,20 @@ class AvtaleValidatorTest : FunSpec({
         AvtaleValidator.validateCreateAvtale(
             avtaleRequest,
             ctx.copy(
-                arrangor = ArrangorFixtures.Fretex.hovedenhet.toHovedenhetDto(
-                    listOf(ArrangorFixtures.underenhet1),
-                ),
+                arrangor = Ctx.AvtaleArrangor(ArrangorFixtures.Fretex.hovedenhet, listOf(ArrangorFixtures.underenhet1)),
             ),
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
             FieldError(
                 "/detaljer/arrangor/underenheter",
-                "Arrangøren Underenhet 1 AS - ${ArrangorFixtures.underenhet1.organisasjonsnummer.value} er ikke en gyldig underenhet til hovedenheten FRETEX AS.",
+                "Arrangøren Underenhet 1 AS (976663934) er ikke en gyldig underenhet til hovedenheten FRETEX AS.",
             ),
         )
 
         AvtaleValidator.validateCreateAvtale(
             avtaleRequest,
             ctx.copy(
-                arrangor = ArrangorFixtures.Fretex.hovedenhet.toHovedenhetDto(
+                arrangor = Ctx.AvtaleArrangor(
+                    ArrangorFixtures.Fretex.hovedenhet,
                     listOf(ArrangorFixtures.Fretex.underenhet1),
                 ),
             ),
@@ -418,7 +416,8 @@ class AvtaleValidatorTest : FunSpec({
         AvtaleValidator.validateCreateAvtale(
             avtaleRequest,
             ctx.copy(
-                arrangor = ArrangorFixtures.Fretex.hovedenhet.registrerSlettet(LocalDate.now()).toHovedenhetDto(
+                arrangor = Ctx.AvtaleArrangor(
+                    ArrangorFixtures.Fretex.hovedenhet.registrerSlettet(LocalDate.now()),
                     listOf(ArrangorFixtures.Fretex.underenhet1.registrerSlettet(LocalDate.now())),
                 ),
             ),

@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.arrangor.kafka
 import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -90,12 +90,8 @@ class AmtVirksomheterV1KafkaConsumerTest : FunSpec({
             virksomhetConsumer.consume(amtUnderenhet.organisasjonsnummer.value, Json.encodeToJsonElement(amtUnderenhet))
 
             database.run {
-                queries.arrangor.getAll().items.shouldHaveSize(1).first().should {
-                    it.id shouldBe id
-                    it.organisasjonsnummer shouldBe hovedenhet.organisasjonsnummer
-                    it.organisasjonsform shouldBe hovedenhet.organisasjonsform
-                    it.navn shouldBe "REMA 1000 AS"
-                }
+                repository.arrangor.getByOrganisasjonsnummer(amtVirksomhet.organisasjonsnummer).shouldNotBeNull()
+                repository.arrangor.getByOrganisasjonsnummer(amtUnderenhet.organisasjonsnummer).shouldBeNull()
             }
         }
 

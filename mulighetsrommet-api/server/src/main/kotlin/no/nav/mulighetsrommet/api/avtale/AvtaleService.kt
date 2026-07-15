@@ -11,7 +11,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
-import no.nav.mulighetsrommet.admin.arrangor.toHovedenhetDto
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.navenhet.toDto
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
@@ -462,8 +461,8 @@ class AvtaleService(
         val navEnheter = navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() }
 
         val arrangor = request.arrangor?.let {
-            val (arrangor, underenheter) = syncArrangorerFromBrreg(it.hovedenhet, it.underenheter).bind()
-            arrangor.toHovedenhetDto(underenheter)
+            val (hovedenhet, underenheter) = syncArrangorerFromBrreg(it.hovedenhet, it.underenheter).bind()
+            AvtaleValidator.Ctx.AvtaleArrangor(hovedenhet, underenheter)
         }
 
         val systembestemtPrismodell = queries.prismodell.getBySystemId(request.tiltakskode.name)
