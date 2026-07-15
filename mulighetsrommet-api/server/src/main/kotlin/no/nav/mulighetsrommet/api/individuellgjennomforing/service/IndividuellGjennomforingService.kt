@@ -1,12 +1,12 @@
-package no.nav.mulighetsrommet.api.individuell_gjennomforing.service
+package no.nav.mulighetsrommet.api.individuellgjennomforing.service
 
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.individuell_gjennomforing.api.IndividuellGjennomforingHandling
-import no.nav.mulighetsrommet.api.individuell_gjennomforing.api.IndividuellGjennomforingRequest
-import no.nav.mulighetsrommet.api.individuell_gjennomforing.db.IndividuellGjennomforingQueries.KontaktpersonDbo
-import no.nav.mulighetsrommet.api.individuell_gjennomforing.model.IndividuellGjennomforing
+import no.nav.mulighetsrommet.api.individuellgjennomforing.api.IndividuellGjennomforingHandling
+import no.nav.mulighetsrommet.api.individuellgjennomforing.api.IndividuellGjennomforingRequest
+import no.nav.mulighetsrommet.api.individuellgjennomforing.db.IndividuellGjennomforingQueries.KontaktpersonDbo
+import no.nav.mulighetsrommet.api.individuellgjennomforing.model.IndividuellGjennomforing
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.NavIdent

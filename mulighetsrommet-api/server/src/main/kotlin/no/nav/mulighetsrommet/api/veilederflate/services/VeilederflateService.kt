@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.individuell_gjennomforing.model.IndividuellGjennomforing
+import no.nav.mulighetsrommet.api.individuellgjennomforing.model.IndividuellGjennomforing
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing

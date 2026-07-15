@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.individuell_gjennomforing.api
+package no.nav.mulighetsrommet.api.individuellgjennomforing.api
 
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -11,8 +11,8 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.individuell_gjennomforing.model.IndividuellGjennomforing
-import no.nav.mulighetsrommet.api.individuell_gjennomforing.service.IndividuellGjennomforingService
+import no.nav.mulighetsrommet.api.individuellgjennomforing.model.IndividuellGjennomforing
+import no.nav.mulighetsrommet.api.individuellgjennomforing.service.IndividuellGjennomforingService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid

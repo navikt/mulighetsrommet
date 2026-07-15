@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
-import no.nav.mulighetsrommet.api.individuell_gjennomforing.db.IndividuellGjennomforingQueries
+import no.nav.mulighetsrommet.api.individuellgjennomforing.db.IndividuellGjennomforingQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.db.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattQueries

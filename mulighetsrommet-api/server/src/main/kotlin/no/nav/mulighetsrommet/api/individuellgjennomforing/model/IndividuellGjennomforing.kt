@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.individuell_gjennomforing.model
+package no.nav.mulighetsrommet.api.individuellgjennomforing.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur

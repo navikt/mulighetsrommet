@@ -1669,6 +1669,38 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/individuelle-gjennomforinger/{id}/tilgjengelig-for-veileder:
+    put:
+      tags:
+      - IndividuellGjennomforing
+      operationId: setPublisertIndividuellGjennomforing
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IndividuellGjennomforingPublisertRequest"
+        required: false
+      responses:
+        "200":
+          description: Tilgjengelighet ble oppdatert
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/individuelle-gjennomforinger/filter:
     post:
       tags:
@@ -1716,6 +1748,39 @@ paths:
                 $ref: "#/components/schemas/IndividuellGjennomforing"
         "404":
           description: Ikke funnet
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/individuelle-gjennomforinger/{id}/handlinger:
+    get:
+      tags:
+      - IndividuellGjennomforing
+      operationId: getIndividuellGjennomforingHandlinger
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Mulige handlinger for innlogget bruker
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IndividuellGjennomforingHandling"
+                uniqueItems: true
+        default:
+          description: Problem details
           headers: {}
           content:
             application/json:
@@ -6440,16 +6505,6 @@ components:
       required:
       - navIdent
       - navn
-    IndividuellGjennomforing.NavEnhet:
-      type: object
-      properties:
-        enhetsnummer:
-          type: string
-        navn:
-          type: string
-      required:
-      - enhetsnummer
-      - navn
     IndividuellGjennomforing.Kontaktperson:
       type: object
       properties:
@@ -6457,12 +6512,25 @@ components:
           type: string
         navn:
           type: string
+        epost:
+          type:
+          - "null"
+          - string
+        mobilnummer:
+          type:
+          - "null"
+          - string
+        hovedenhet:
+          type: string
         beskrivelse:
           type:
           - "null"
           - string
       required:
       - beskrivelse
+      - epost
+      - hovedenhet
+      - mobilnummer
       - navIdent
       - navn
     IndividuellGjennomforing.ArrangorKontaktperson:
@@ -6473,9 +6541,24 @@ components:
           format: uuid
         navn:
           type: string
+        telefon:
+          type:
+          - "null"
+          - string
+        epost:
+          type:
+          - "null"
+          - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
       required:
+      - beskrivelse
+      - epost
       - id
       - navn
+      - telefon
     IndividuellGjennomforing:
       type: object
       properties:
@@ -6484,6 +6567,29 @@ components:
           format: uuid
         navn:
           type: string
+        sanityId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        tiltaksnummer:
+          type:
+          - "null"
+          - string
+        startDato:
+          type:
+          - "null"
+          - string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        status:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingStatusType"
         tiltakstype:
           oneOf:
           - type: "null"
@@ -6504,14 +6610,16 @@ components:
           type:
           - "null"
           - string
+        publisert:
+          type: boolean
         administratorer:
           type: array
           items:
             $ref: "#/components/schemas/IndividuellGjennomforing.Administrator"
-        navEnheter:
+        kontorstruktur:
           type: array
           items:
-            $ref: "#/components/schemas/IndividuellGjennomforing.NavEnhet"
+            $ref: "#/components/schemas/Kontorstruktur"
         kontaktpersoner:
           type: array
           items:
@@ -6528,10 +6636,23 @@ components:
       - faneinnhold
       - id
       - kontaktpersoner
-      - navEnheter
+      - kontorstruktur
       - navn
+      - publisert
+      - sanityId
+      - sluttDato
+      - startDato
+      - status
       - stedForGjennomforing
+      - tiltaksnummer
       - tiltakstype
+    IndividuellGjennomforingPublisertRequest:
+      type: object
+      properties:
+        publisert:
+          type: boolean
+      required:
+      - publisert
     GetIndividuelleGjennomforingerRequest:
       type: object
       properties:
@@ -6546,6 +6667,12 @@ components:
       required:
       - navEnheter
       - tiltakstyper
+    IndividuellGjennomforingHandling:
+      type: string
+      enum:
+      - PUBLISER
+      - REDIGER
+      - FORHANDSVIS_I_MODIA
     AvtaletypeInfo:
       type: object
       properties:

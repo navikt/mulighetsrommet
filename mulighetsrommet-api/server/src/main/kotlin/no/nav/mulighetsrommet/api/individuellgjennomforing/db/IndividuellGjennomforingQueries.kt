@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.individuell_gjennomforing.db
+package no.nav.mulighetsrommet.api.individuellgjennomforing.db
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -6,7 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.individuell_gjennomforing.model.IndividuellGjennomforing
+import no.nav.mulighetsrommet.api.individuellgjennomforing.model.IndividuellGjennomforing
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.model.Faneinnhold

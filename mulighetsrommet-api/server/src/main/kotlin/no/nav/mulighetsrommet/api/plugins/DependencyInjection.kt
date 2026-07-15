@@ -60,13 +60,14 @@ import no.nav.mulighetsrommet.api.gjennomforing.kafka.ReplikerDeltakerEnkeltplas
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
-import no.nav.mulighetsrommet.api.individuell_gjennomforing.service.IndividuellGjennomforingService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
+import no.nav.mulighetsrommet.api.individuellgjennomforing.service.IndividuellGjennomforingService
+import no.nav.mulighetsrommet.api.individuellgjennomforing.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.janzz.PamOntologiService
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
 import no.nav.mulighetsrommet.api.lagretfilter.LagretFilterService
@@ -578,6 +579,7 @@ private fun tasks(config: AppConfig) = module {
     }
     single { SynchronizeNavAnsatte(tasks.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(tasks.synchronizeUtdanninger, get(), get()) }
+    single { MigrerSanityTiltaksgjennomforinger(get(), get()) }
     single { GenerateUtbetaling(tasks.generateUtbetaling, get()) }
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
@@ -622,6 +624,7 @@ private fun tasks(config: AppConfig) = module {
         val journalforVedtaksbrev: JournalforVedtaksbrev by inject()
         val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
         val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
+        val migrerSanityTiltaksgjennomforinger: MigrerSanityTiltaksgjennomforinger by inject()
 
         val db: Database by inject()
 
@@ -639,6 +642,7 @@ private fun tasks(config: AppConfig) = module {
                 journalforVedtaksbrev.task,
                 distribuerVedtaksbrev.task,
                 updateGjennomforingAvtaleFreeTextSearch.task,
+                migrerSanityTiltaksgjennomforinger.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())

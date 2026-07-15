@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.endringshistorikk.api.endringshistorikkRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingPublicRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingRoutes
-import no.nav.mulighetsrommet.api.individuell_gjennomforing.api.individuellGjennomforingRoutes
+import no.nav.mulighetsrommet.api.individuellgjennomforing.api.individuellGjennomforingRoutes
 import no.nav.mulighetsrommet.api.janzz.api.janzzRoutes
 import no.nav.mulighetsrommet.api.lagretfilter.lagretFilterRoutes
 import no.nav.mulighetsrommet.api.navansatt.api.navAnsattRoutes
