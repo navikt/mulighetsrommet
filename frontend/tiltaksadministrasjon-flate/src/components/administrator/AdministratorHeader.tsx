@@ -75,7 +75,7 @@ export function AdministratorHeader() {
               </ActionMenu.Item>
               <ActionMenu.Divider />
               <ActionMenu.Item as="a" href={sanityStudioUrl()} target="_blank">
-                Individuelle tiltaksgjennomføringer
+                Tiltaksdokumenter
               </ActionMenu.Item>
               <ActionMenu.Item as="a" href={previewArbeidsmarkedstiltakUrl()} target="_blank">
                 Veilederflate forhåndsvisning

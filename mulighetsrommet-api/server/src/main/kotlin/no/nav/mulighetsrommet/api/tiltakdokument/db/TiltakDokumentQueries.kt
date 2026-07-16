@@ -1,0 +1,264 @@
+package no.nav.mulighetsrommet.api.tiltakdokument.db
+
+import kotlinx.serialization.json.Json
+import kotliquery.Row
+import kotliquery.Session
+import kotliquery.queryOf
+import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
+import no.nav.mulighetsrommet.api.tiltakdokument.model.TiltakDokument
+import no.nav.mulighetsrommet.database.createArrayOfValue
+import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltakskode
+import org.intellij.lang.annotations.Language
+import java.util.UUID
+
+class TiltakDokumentQueries(private val session: Session) {
+
+    fun upsert(
+        id: UUID,
+        navn: String,
+        tiltakstypeId: UUID,
+        stedForGjennomforing: String?,
+        arrangorId: UUID?,
+        faneinnhold: Faneinnhold?,
+        beskrivelse: String?,
+        tiltaksnummer: String?,
+        sanityId: UUID?,
+    ) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into tiltak_dokument (
+                id,
+                navn,
+                tiltakstype_id,
+                sted_for_gjennomforing,
+                arrangor_id,
+                faneinnhold,
+                beskrivelse,
+                tiltaksnummer,
+                sanity_id
+            )
+            values (
+                :id::uuid,
+                :navn,
+                :tiltakstype_id::uuid,
+                :sted_for_gjennomforing,
+                :arrangor_id::uuid,
+                :faneinnhold::jsonb,
+                :beskrivelse,
+                :tiltaksnummer,
+                :sanity_id::uuid
+            )
+            on conflict (id) do update set
+                navn                   = excluded.navn,
+                tiltakstype_id         = excluded.tiltakstype_id,
+                sted_for_gjennomforing = excluded.sted_for_gjennomforing,
+                arrangor_id            = excluded.arrangor_id,
+                faneinnhold            = excluded.faneinnhold,
+                beskrivelse            = excluded.beskrivelse,
+                sanity_id              = excluded.sanity_id,
+                tiltaksnummer          = excluded.tiltaksnummer,
+                updated_at             = now()
+        """.trimIndent()
+
+        session.execute(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to id,
+                    "navn" to navn,
+                    "tiltakstype_id" to tiltakstypeId,
+                    "sted_for_gjennomforing" to stedForGjennomforing,
+                    "arrangor_id" to arrangorId,
+                    "faneinnhold" to faneinnhold?.let { Json.encodeToString(it) },
+                    "beskrivelse" to beskrivelse,
+                    "tiltaksnummer" to tiltaksnummer,
+                    "sanity_id" to sanityId,
+                ),
+            ),
+        )
+    }
+
+    fun setAdministratorer(id: UUID, administratorer: Set<NavIdent>) = with(session) {
+        @Language("PostgreSQL")
+        val upsertAdministrator = """
+            insert into tiltak_dokument_administrator (tiltak_dokument_id, nav_ident)
+            values (:id::uuid, :nav_ident)
+            on conflict (tiltak_dokument_id, nav_ident) do nothing
+        """.trimIndent()
+        batchPreparedNamedStatement(
+            upsertAdministrator,
+            administratorer.map { mapOf("id" to id, "nav_ident" to it.value) },
+        )
+
+        @Language("PostgreSQL")
+        val deleteAdministratorer = """
+            delete from tiltak_dokument_administrator
+            where tiltak_dokument_id = ?::uuid and not (nav_ident = any (?))
+        """.trimIndent()
+        execute(queryOf(deleteAdministratorer, id, createArrayOfValue(administratorer) { it.value }))
+    }
+
+    fun setNavEnheter(id: UUID, navEnheter: Set<NavEnhetNummer>) = with(session) {
+        @Language("PostgreSQL")
+        val upsertEnhet = """
+            insert into tiltak_dokument_nav_enhet (tiltak_dokument_id, enhetsnummer)
+            values (:id::uuid, :enhetsnummer)
+            on conflict (tiltak_dokument_id, enhetsnummer) do nothing
+        """.trimIndent()
+        batchPreparedNamedStatement(upsertEnhet, navEnheter.map { mapOf("id" to id, "enhetsnummer" to it.value) })
+
+        @Language("PostgreSQL")
+        val deleteEnheter = """
+            delete from tiltak_dokument_nav_enhet
+            where tiltak_dokument_id = ?::uuid and not (enhetsnummer = any (?))
+        """.trimIndent()
+        execute(queryOf(deleteEnheter, id, createArrayOfValue(navEnheter) { it.value }))
+    }
+
+    fun setKontaktpersoner(id: UUID, kontaktpersoner: Set<KontaktpersonDbo>) = with(session) {
+        @Language("PostgreSQL")
+        val upsertKontaktperson = """
+            insert into tiltak_dokument_kontaktperson (tiltak_dokument_id, kontaktperson_nav_ident, beskrivelse)
+            values (:id::uuid, :nav_ident, :beskrivelse)
+            on conflict (tiltak_dokument_id, kontaktperson_nav_ident) do update set
+                beskrivelse = :beskrivelse
+        """.trimIndent()
+        batchPreparedNamedStatement(
+            upsertKontaktperson,
+            kontaktpersoner.map { mapOf("id" to id, "nav_ident" to it.navIdent.value, "beskrivelse" to it.beskrivelse) },
+        )
+
+        @Language("PostgreSQL")
+        val deleteKontaktpersoner = """
+            delete from tiltak_dokument_kontaktperson
+            where tiltak_dokument_id = ?::uuid and not (kontaktperson_nav_ident = any (?))
+        """.trimIndent()
+        execute(queryOf(deleteKontaktpersoner, id, createArrayOfValue(kontaktpersoner) { it.navIdent.value }))
+    }
+
+    fun setArrangorKontaktpersoner(id: UUID, arrangorKontaktpersoner: Set<UUID>) = with(session) {
+        @Language("PostgreSQL")
+        val upsertArrangorKontaktperson = """
+            insert into tiltak_dokument_arrangor_kontaktperson (tiltak_dokument_id, arrangor_kontaktperson_id)
+            values (:tiltak_dokument_id::uuid, :arrangor_kontaktperson_id::uuid)
+            on conflict do nothing
+        """.trimIndent()
+        batchPreparedNamedStatement(
+            upsertArrangorKontaktperson,
+            arrangorKontaktpersoner.map { mapOf("tiltak_dokument_id" to id, "arrangor_kontaktperson_id" to it) },
+        )
+
+        @Language("PostgreSQL")
+        val deleteArrangorKontaktpersoner = """
+            delete from tiltak_dokument_arrangor_kontaktperson
+            where tiltak_dokument_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
+        """.trimIndent()
+        execute(queryOf(deleteArrangorKontaktpersoner, id, createUuidArray(arrangorKontaktpersoner)))
+    }
+
+    fun setPublisert(id: UUID, publisert: Boolean) {
+        @Language("PostgreSQL")
+        val query = """
+            update tiltak_dokument
+            set publisert  = ?,
+                updated_at = now()
+            where id = ?::uuid
+        """.trimIndent()
+        session.execute(queryOf(query, publisert, id))
+    }
+
+    fun getAll(
+        navEnheter: List<NavEnhetNummer> = emptyList(),
+        tiltakstyper: List<UUID> = emptyList(),
+        publisert: Boolean? = null,
+    ): List<TiltakDokument> = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_tiltak_dokument
+            where (:nav_enheter::text[] is null or id in (
+                select tiltak_dokument_id from tiltak_dokument_nav_enhet
+                where enhetsnummer = any (:nav_enheter)
+            ))
+            and (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
+            and (:publisert::boolean is null or publisert = :publisert)
+            order by created_at desc
+        """.trimIndent()
+
+        val params = mapOf(
+            "nav_enheter" to navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
+            "tiltakstype_ids" to tiltakstyper.ifEmpty { null }?.let { createUuidArray(it) },
+            "publisert" to publisert,
+        )
+
+        list(queryOf(query, params), ::toTiltakDokument)
+    }
+
+    fun get(id: UUID): TiltakDokument? {
+        @Language("PostgreSQL")
+        val query = "select * from view_tiltak_dokument where id = :id::uuid"
+        return session.single(queryOf(query, mapOf("id" to id)), ::toTiltakDokument)
+    }
+
+    fun getBySanityId(sanityId: UUID): TiltakDokument? {
+        @Language("PostgreSQL")
+        val query = "select * from view_tiltak_dokument where sanity_id = :sanity_id::uuid"
+        return session.single(queryOf(query, mapOf("sanity_id" to sanityId)), ::toTiltakDokument)
+    }
+
+    fun delete(id: UUID) {
+        session.execute(queryOf("delete from tiltak_dokument where id = ?::uuid", id))
+    }
+
+    private fun toTiltakDokument(row: Row): TiltakDokument {
+        val tiltakstypeId = row.uuid("tiltakstype_id")
+        val arrangorId = row.uuidOrNull("arrangor_id")
+
+        return TiltakDokument(
+            id = row.uuid("id"),
+            navn = row.string("navn"),
+            sanityId = row.uuidOrNull("sanity_id"),
+            tiltaksnummer = row.stringOrNull("tiltaksnummer"),
+            tiltakstype = tiltakstypeId.let {
+                TiltakDokument.Tiltakstype(
+                    id = it,
+                    navn = row.string("tiltakstype_navn"),
+                    tiltakskode = Tiltakskode.valueOf(row.string("tiltakstype_tiltakskode")),
+                )
+            },
+            stedForGjennomforing = row.stringOrNull("sted_for_gjennomforing"),
+            arrangor = arrangorId?.let {
+                TiltakDokument.Arrangor(
+                    id = it,
+                    navn = row.string("arrangor_navn"),
+                    organisasjonsnummer = row.string("arrangor_organisasjonsnummer"),
+                )
+            },
+            faneinnhold = row.stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+            beskrivelse = row.stringOrNull("beskrivelse"),
+            publisert = row.boolean("publisert"),
+            administratorer = row.stringOrNull("administratorer_json")
+                ?.let { Json.decodeFromString<List<TiltakDokument.Administrator>>(it) }
+                ?: emptyList(),
+            kontorstruktur = row.stringOrNull("nav_enheter_json")
+                ?.let { Kontorstruktur.fromNavEnheter(Json.decodeFromString<List<NavEnhetDto>>(it)) }
+                ?: emptyList(),
+            kontaktpersoner = row.stringOrNull("kontaktpersoner_json")
+                ?.let { Json.decodeFromString<List<TiltakDokument.Kontaktperson>>(it) }
+                ?: emptyList(),
+            arrangorKontaktpersoner = row.stringOrNull("arrangor_kontaktpersoner_json")
+                ?.let { Json.decodeFromString<List<TiltakDokument.ArrangorKontaktperson>>(it) }
+                ?: emptyList(),
+        )
+    }
+
+    data class KontaktpersonDbo(
+        val navIdent: NavIdent,
+        val beskrivelse: String?,
+    )
+}

@@ -32,19 +32,19 @@ const forsidekortData: ForsideKortProps[] = [
     tekst: "Her finner du informasjon om Gjennomføringer for gruppetiltak",
   },
   {
-    navn: "Individuelle gjennomføringer i Sanity",
+    navn: "Tiltaksdokumenter i Sanity",
     ikon: <img className="h-16 w-16 rounded-full" src="./sanity_logo.png" alt="Sanity-logo" />,
     url: sanityStudioUrl(),
-    tekst: "Her administrerer du individuelle gjennomføringer",
+    tekst: "Her administrerer du tiltaksdokumenter",
     apneINyTab: true,
   },
   ...(!isProduction()
     ? [
         {
-          navn: "Individuelle gjennomføringer (ny)",
+          navn: "Tiltaksdokumenter (tidligere Sanity)",
           ikon: <GjennomforingAvtaleIkon inkluderBakgrunn />,
-          url: "/individuelle-gjennomforinger",
-          tekst: "Her administrerer du individuelle gjennomføringer",
+          url: "/tiltak-dokumenter",
+          tekst: "Her administrerer du tiltaksdokumenter",
         } satisfies ForsideKortProps,
       ]
     : []),

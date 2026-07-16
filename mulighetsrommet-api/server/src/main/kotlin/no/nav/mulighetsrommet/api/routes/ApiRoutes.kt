@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.endringshistorikk.api.endringshistorikkRoutes
 import no.nav.mulighetsrommet.api.enhetsregister.enhetsregisterRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingPublicRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingRoutes
-import no.nav.mulighetsrommet.api.individuellgjennomforing.api.individuellGjennomforingRoutes
 import no.nav.mulighetsrommet.api.janzz.api.janzzRoutes
 import no.nav.mulighetsrommet.api.lagretfilter.lagretFilterRoutes
 import no.nav.mulighetsrommet.api.navansatt.api.navAnsattRoutes
@@ -34,6 +33,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
 import no.nav.mulighetsrommet.api.tilskuddbehandling.api.opplaeringtilskuddRoutes
 import no.nav.mulighetsrommet.api.tilskuddbehandling.api.tilskuddBehandlingRoutes
 import no.nav.mulighetsrommet.api.tilskuddbehandling.api.tilskuddUtbetalingRoutes
+import no.nav.mulighetsrommet.api.tiltakdokument.api.tiltakDokumentRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.api.tiltakstypeRoutes
 import no.nav.mulighetsrommet.api.utbetaling.api.utbetalingRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.arbeidsmarkedstiltakRoutes
@@ -128,7 +128,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     tiltakstypeRoutes()
     avtaleRoutes()
     gjennomforingRoutes()
-    individuellGjennomforingRoutes()
+    tiltakDokumentRoutes()
     kodeverkRoutes()
     rammedetaljerRoutes()
     personopplysningRoutes()

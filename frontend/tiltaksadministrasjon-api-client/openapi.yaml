@@ -1618,33 +1618,33 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/individuelle-gjennomforinger:
+  /api/tiltaksadministrasjon/tiltak-dokumenter:
     get:
       tags:
-      - IndividuellGjennomforing
-      operationId: getAllIndividuelleGjennomforinger
+      - TiltakDokument
+      operationId: getAllTiltakDokumenter
       parameters: []
       responses:
         "200":
-          description: Liste over individuelle gjennomføringer (uten filter)
+          description: Liste over tiltak-dokumentøringer (uten filter)
           headers: {}
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/IndividuellGjennomforing"
+                  $ref: "#/components/schemas/TiltakDokument"
       deprecated: false
     put:
       tags:
-      - IndividuellGjennomforing
-      operationId: upsertIndividuellGjennomforing
+      - TiltakDokument
+      operationId: upsertTiltakDokument
       parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/IndividuellGjennomforingRequest"
+              $ref: "#/components/schemas/TiltakDokumentRequest"
         required: false
       responses:
         "200":
@@ -1653,7 +1653,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/IndividuellGjennomforing"
+                $ref: "#/components/schemas/TiltakDokument"
         "400":
           description: Valideringsfeil
           headers: {}
@@ -1669,11 +1669,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/individuelle-gjennomforinger/{id}/tilgjengelig-for-veileder:
+  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}/tilgjengelig-for-veileder:
     put:
       tags:
-      - IndividuellGjennomforing
-      operationId: setPublisertIndividuellGjennomforing
+      - TiltakDokument
+      operationId: setPublisertTiltakDokument
       parameters:
       - name: id
         in: path
@@ -1687,7 +1687,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/IndividuellGjennomforingPublisertRequest"
+              $ref: "#/components/schemas/TiltakDokumentPublisertRequest"
         required: false
       responses:
         "200":
@@ -1701,34 +1701,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/individuelle-gjennomforinger/filter:
+  /api/tiltaksadministrasjon/tiltak-dokumenter/filter:
     post:
       tags:
-      - IndividuellGjennomforing
-      operationId: getIndividuelleGjennomforinger
+      - TiltakDokument
+      operationId: getTiltakDokumenter
       parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetIndividuelleGjennomforingerRequest"
+              $ref: "#/components/schemas/GetTiltakDokumenterRequest"
         required: false
       responses:
         "200":
-          description: Liste over individuelle gjennomføringer
+          description: Liste over tiltak-dokumentøringer
           headers: {}
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/IndividuellGjennomforing"
+                  $ref: "#/components/schemas/TiltakDokument"
       deprecated: false
-  /api/tiltaksadministrasjon/individuelle-gjennomforinger/{id}:
+  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}:
     get:
       tags:
-      - IndividuellGjennomforing
-      operationId: getIndividuellGjennomforing
+      - TiltakDokument
+      operationId: getTiltakDokument
       parameters:
       - name: id
         in: path
@@ -1745,7 +1745,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/IndividuellGjennomforing"
+                $ref: "#/components/schemas/TiltakDokument"
         "404":
           description: Ikke funnet
           headers: {}
@@ -1754,11 +1754,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/individuelle-gjennomforinger/{id}/handlinger:
+  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}/handlinger:
     get:
       tags:
-      - IndividuellGjennomforing
-      operationId: getIndividuellGjennomforingHandlinger
+      - TiltakDokument
+      operationId: getTiltakDokumentHandlinger
       parameters:
       - name: id
         in: path
@@ -1777,7 +1777,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/IndividuellGjennomforingHandling"
+                  $ref: "#/components/schemas/TiltakDokumentHandling"
                 uniqueItems: true
         default:
           description: Problem details
@@ -6436,7 +6436,7 @@ components:
       - OPPRETT_UTBETALING
       - GODKJENN_ENKELTPLASS_OKONOMI
       - SETT_PA_VENT_ENKELTPLASS_OKONOMI
-    IndividuellGjennomforingRequest.Kontaktperson:
+    TiltakDokumentRequest.Kontaktperson:
       type: object
       properties:
         navIdent:
@@ -6448,7 +6448,7 @@ components:
       required:
       - beskrivelse
       - navIdent
-    IndividuellGjennomforingRequest:
+    TiltakDokumentRequest:
       type: object
       properties:
         id:
@@ -6505,7 +6505,7 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/IndividuellGjennomforingRequest.Kontaktperson"
+            $ref: "#/components/schemas/TiltakDokumentRequest.Kontaktperson"
           uniqueItems: true
       required:
       - administratorer
@@ -6521,7 +6521,7 @@ components:
       - navn
       - stedForGjennomforing
       - tiltakstypeId
-    IndividuellGjennomforing.Tiltakstype:
+    TiltakDokument.Tiltakstype:
       type: object
       properties:
         id:
@@ -6535,7 +6535,7 @@ components:
       - id
       - navn
       - tiltakskode
-    IndividuellGjennomforing.Arrangor:
+    TiltakDokument.Arrangor:
       type: object
       properties:
         id:
@@ -6549,7 +6549,7 @@ components:
       - id
       - navn
       - organisasjonsnummer
-    IndividuellGjennomforing.Administrator:
+    TiltakDokument.Administrator:
       type: object
       properties:
         navIdent:
@@ -6559,7 +6559,7 @@ components:
       required:
       - navIdent
       - navn
-    IndividuellGjennomforing.Kontaktperson:
+    TiltakDokument.Kontaktperson:
       type: object
       properties:
         navIdent:
@@ -6587,7 +6587,7 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    IndividuellGjennomforing.ArrangorKontaktperson:
+    TiltakDokument.ArrangorKontaktperson:
       type: object
       properties:
         id:
@@ -6613,7 +6613,7 @@ components:
       - id
       - navn
       - telefon
-    IndividuellGjennomforing:
+    TiltakDokument:
       type: object
       properties:
         id:
@@ -6631,7 +6631,7 @@ components:
           - "null"
           - string
         tiltakstype:
-          $ref: "#/components/schemas/IndividuellGjennomforing.Tiltakstype"
+          $ref: "#/components/schemas/TiltakDokument.Tiltakstype"
         stedForGjennomforing:
           type:
           - "null"
@@ -6639,7 +6639,7 @@ components:
         arrangor:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/IndividuellGjennomforing.Arrangor"
+          - $ref: "#/components/schemas/TiltakDokument.Arrangor"
         faneinnhold:
           oneOf:
           - type: "null"
@@ -6653,7 +6653,7 @@ components:
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/IndividuellGjennomforing.Administrator"
+            $ref: "#/components/schemas/TiltakDokument.Administrator"
         kontorstruktur:
           type: array
           items:
@@ -6661,11 +6661,11 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/IndividuellGjennomforing.Kontaktperson"
+            $ref: "#/components/schemas/TiltakDokument.Kontaktperson"
         arrangorKontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/IndividuellGjennomforing.ArrangorKontaktperson"
+            $ref: "#/components/schemas/TiltakDokument.ArrangorKontaktperson"
       required:
       - administratorer
       - arrangor
@@ -6681,14 +6681,14 @@ components:
       - stedForGjennomforing
       - tiltaksnummer
       - tiltakstype
-    IndividuellGjennomforingPublisertRequest:
+    TiltakDokumentPublisertRequest:
       type: object
       properties:
         publisert:
           type: boolean
       required:
       - publisert
-    GetIndividuelleGjennomforingerRequest:
+    GetTiltakDokumenterRequest:
       type: object
       properties:
         navEnheter:
@@ -6702,7 +6702,7 @@ components:
       required:
       - navEnheter
       - tiltakstyper
-    IndividuellGjennomforingHandling:
+    TiltakDokumentHandling:
       type: string
       enum:
       - PUBLISER

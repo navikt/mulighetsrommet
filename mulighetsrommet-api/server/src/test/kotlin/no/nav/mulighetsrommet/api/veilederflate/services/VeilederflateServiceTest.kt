@@ -341,11 +341,11 @@ class VeilederflateServiceTest : FunSpec({
         }
     }
 
-    context("individuell_gjennomforing — DB-first for sanity-tiltak") {
+    context("tiltak_dokument — DB-first for sanity-tiltak") {
         afterEach {
             database.run {
-                queries.individuellGjennomforing.getAll().forEach { g ->
-                    queries.individuellGjennomforing.delete(g.id)
+                queries.tiltakDokument.getAll().forEach { g ->
+                    queries.tiltakDokument.delete(g.id)
                 }
             }
         }
@@ -360,10 +360,10 @@ class VeilederflateServiceTest : FunSpec({
 
         test("returnerer rad fra DB når individuell gjennomforing er publisert og matcher enhet") {
             val sanityId = tiltakEnkelAmo._id.toUUID()
-            val individuellGjennomforingId = UUID.randomUUID()
+            val tiltakDokumentId = UUID.randomUUID()
             database.run {
-                queries.individuellGjennomforing.upsert(
-                    id = individuellGjennomforingId,
+                queries.tiltakDokument.upsert(
+                    id = tiltakDokumentId,
                     navn = "IPS Innlandet",
                     tiltakstypeId = TiltakstypeFixtures.IPS.id,
                     tiltaksnummer = "2024#99001",
@@ -373,12 +373,12 @@ class VeilederflateServiceTest : FunSpec({
                     faneinnhold = null,
                     beskrivelse = null,
                 )
-                queries.individuellGjennomforing.setPublisert(
-                    individuellGjennomforingId,
+                queries.tiltakDokument.setPublisert(
+                    tiltakDokumentId,
                     true,
                 )
-                queries.individuellGjennomforing.setNavEnheter(
-                    individuellGjennomforingId,
+                queries.tiltakDokument.setNavEnheter(
+                    tiltakDokumentId,
                     setOf(NavEnhetFixtures.Gjovik.enhetsnummer),
                 )
             }
@@ -400,7 +400,7 @@ class VeilederflateServiceTest : FunSpec({
         test("returnerer ikke rad fra DB når individuell gjennomforing ikke er publisert") {
             val sanityId = UUID.randomUUID()
             database.run {
-                queries.individuellGjennomforing.upsert(
+                queries.tiltakDokument.upsert(
                     id = UUID.randomUUID(),
                     navn = "Upublisert IPS",
                     tiltakstypeId = TiltakstypeFixtures.IPS.id,
@@ -412,8 +412,8 @@ class VeilederflateServiceTest : FunSpec({
                     beskrivelse = null,
                 )
                 // publisert = false (default)
-                queries.individuellGjennomforing.setNavEnheter(
-                    queries.individuellGjennomforing.getAll().first { it.sanityId == sanityId }.id,
+                queries.tiltakDokument.setNavEnheter(
+                    queries.tiltakDokument.getAll().first { it.sanityId == sanityId }.id,
                     setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
                 )
             }
@@ -435,7 +435,7 @@ class VeilederflateServiceTest : FunSpec({
             val serviceWithArbeidstrening = createService() // default: inkluderer ARBEIDSTRENING
             val dbId = UUID.randomUUID()
             database.run {
-                queries.individuellGjennomforing.upsert(
+                queries.tiltakDokument.upsert(
                     id = dbId,
                     navn = "DB-versjon av Arbeidstrening",
                     tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
@@ -446,8 +446,8 @@ class VeilederflateServiceTest : FunSpec({
                     faneinnhold = null,
                     beskrivelse = null,
                 )
-                queries.individuellGjennomforing.setPublisert(dbId, true)
-                queries.individuellGjennomforing.setNavEnheter(dbId, setOf(NavEnhetFixtures.Gjovik.enhetsnummer))
+                queries.tiltakDokument.setPublisert(dbId, true)
+                queries.tiltakDokument.setNavEnheter(dbId, setOf(NavEnhetFixtures.Gjovik.enhetsnummer))
             }
 
             val tiltak = serviceWithArbeidstrening.hentTiltaksgjennomforinger(
@@ -469,7 +469,7 @@ class VeilederflateServiceTest : FunSpec({
         test("hentTiltaksgjennomforing finner rad direkte på intern id") {
             val internId = UUID.randomUUID()
             database.run {
-                queries.individuellGjennomforing.upsert(
+                queries.tiltakDokument.upsert(
                     id = internId,
                     navn = "IPS direkte oppslag",
                     tiltakstypeId = TiltakstypeFixtures.IPS.id,
@@ -493,7 +493,7 @@ class VeilederflateServiceTest : FunSpec({
         test("hentTiltaksgjennomforing finner rad via sanityId") {
             val sanityId = UUID.randomUUID()
             database.run {
-                queries.individuellGjennomforing.upsert(
+                queries.tiltakDokument.upsert(
                     id = UUID.randomUUID(),
                     navn = "IPS via sanityId",
                     tiltakstypeId = TiltakstypeFixtures.IPS.id,

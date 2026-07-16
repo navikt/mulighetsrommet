@@ -1,0 +1,10 @@
+alter table individuell_gjennomforing rename to tiltak_dokument;
+alter table individuell_gjennomforing_administrator rename to tiltak_dokument_administrator;
+alter table individuell_gjennomforing_nav_enhet rename to tiltak_dokument_nav_enhet;
+alter table individuell_gjennomforing_kontaktperson rename to tiltak_dokument_kontaktperson;
+alter table individuell_gjennomforing_arrangor_kontaktperson rename to tiltak_dokument_arrangor_kontaktperson;
+
+alter table tiltak_dokument_administrator rename column individuell_gjennomforing_id to tiltak_dokument_id;
+alter table tiltak_dokument_nav_enhet rename column individuell_gjennomforing_id to tiltak_dokument_id;
+alter table tiltak_dokument_kontaktperson rename column individuell_gjennomforing_id to tiltak_dokument_id;
+alter table tiltak_dokument_arrangor_kontaktperson rename column individuell_gjennomforing_id to tiltak_dokument_id;

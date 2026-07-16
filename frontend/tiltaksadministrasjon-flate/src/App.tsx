@@ -62,10 +62,10 @@ import { TilskuddBehandlingFormPage } from "./pages/tilskudd-behandling/Tilskudd
 import { TilskuddBehandlingerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingerPage";
 import { isProduction } from "./environment";
 import { TilskuddUtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/TilskuddUtbetalingerForGjennomforingContainer";
-import { IndividuelleGjennomforingerPage } from "./pages/individuell-gjennomforing/IndividuelleGjennomforingerPage";
-import { OpprettIndividuellGjennomforingPage } from "./pages/individuell-gjennomforing/OpprettIndividuellGjennomforingPage";
-import { IndividuellGjennomforingPage } from "./pages/individuell-gjennomforing/IndividuellGjennomforingPage";
-import { RedigerIndividuellGjennomforingPage } from "./pages/individuell-gjennomforing/RedigerIndividuellGjennomforingPage";
+import { TiltakDokumenterPage } from "./pages/tiltak-dokument/TiltakDokumenterPage";
+import { OpprettTiltakDokumentPage } from "./pages/tiltak-dokument/OpprettTiltakDokumentPage";
+import { TiltakDokumentPage } from "./pages/tiltak-dokument/TiltakDokumentPage";
+import { RedigerTiltakDokumentPage } from "./pages/tiltak-dokument/RedigerTiltakDokumentPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -284,18 +284,18 @@ const routes: RouteObject[] = [
       }),
       route({ path: "arrangorer", element: <ArrangorerPage /> }),
       route({ path: "arrangorer/:arrangorId", element: <ArrangorPage /> }),
-      route({ path: "individuelle-gjennomforinger", element: <IndividuelleGjennomforingerPage /> }),
+      route({ path: "tiltak-dokumenter", element: <TiltakDokumenterPage /> }),
       route({
-        path: "individuelle-gjennomforinger/opprett",
-        element: <OpprettIndividuellGjennomforingPage />,
+        path: "tiltak-dokumenter/opprett",
+        element: <OpprettTiltakDokumentPage />,
       }),
       route({
-        path: "individuelle-gjennomforinger/:individuellGjennomforingId",
-        element: <IndividuellGjennomforingPage />,
+        path: "tiltak-dokumenter/:tiltakDokumentId",
+        element: <TiltakDokumentPage />,
       }),
       route({
-        path: "individuelle-gjennomforinger/:individuellGjennomforingId/rediger",
-        element: <RedigerIndividuellGjennomforingPage />,
+        path: "tiltak-dokumenter/:tiltakDokumentId/rediger",
+        element: <RedigerTiltakDokumentPage />,
       }),
       route({
         path: "oppgaveoversikt",

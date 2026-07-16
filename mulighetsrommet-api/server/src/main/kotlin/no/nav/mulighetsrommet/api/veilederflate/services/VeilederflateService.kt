@@ -7,10 +7,10 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.individuellgjennomforing.model.IndividuellGjennomforing
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
+import no.nav.mulighetsrommet.api.tiltakdokument.model.TiltakDokument
 import no.nav.mulighetsrommet.api.veilederflate.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
@@ -81,7 +81,7 @@ class VeilederflateService(
         erSykmeldtMedArbeidsgiver: Boolean,
         cacheUsage: CacheUsage,
     ): List<VeilederflateTiltak> = coroutineScope {
-        val individuelleGjennomforinger = async {
+        val tiltakDokumenter = async {
             hentSanityTiltak(enheter, tiltakskoder, innsatsgruppe, apentForPamelding, search, cacheUsage)
         }
 
@@ -96,7 +96,7 @@ class VeilederflateService(
             )
         }
 
-        (individuelleGjennomforinger.await() + gruppeGjennomforinger.await()).filter {
+        (tiltakDokumenter.await() + gruppeGjennomforinger.await()).filter {
             tiltakstypeService.isEnabled(it.tiltakstype.tiltakskode, TiltakstypeFeature.VISES_I_MODIA)
         }
     }
@@ -109,10 +109,10 @@ class VeilederflateService(
         db.session { queries.veilderTiltak.get(id) }
             ?.let { return toVeilederflateTiltak(it) }
 
-        db.session { queries.individuellGjennomforing.get(id) }
+        db.session { queries.tiltakDokument.get(id) }
             ?.let { return toVeilederflateTiltak(it) }
 
-        db.session { queries.individuellGjennomforing.getBySanityId(id) }
+        db.session { queries.tiltakDokument.getBySanityId(id) }
             ?.let { return toVeilederflateTiltak(it) }
 
         val gjennomforing = sanityService.getTiltak(id, sanityPerspective, cacheUsage)
@@ -165,7 +165,7 @@ class VeilederflateService(
 
         // Hent publiserte rader fra vår database
         val dbGjennomforinger = db.session {
-            queries.individuellGjennomforing.getAll(
+            queries.tiltakDokument.getAll(
                 navEnheter = enheter.toList(),
                 tiltakstyper = tiltakstypeIds ?: emptyList(),
                 publisert = true,
@@ -227,7 +227,7 @@ class VeilederflateService(
             .map { toVeilederflateTiltak(it) }
     }
 
-    private suspend fun toVeilederflateTiltak(gjennomforing: IndividuellGjennomforing): VeilederflateTiltak {
+    private suspend fun toVeilederflateTiltak(gjennomforing: TiltakDokument): VeilederflateTiltak {
         val tiltakskode = gjennomforing.tiltakstype.tiltakskode
         val tiltakstype = getAllTiltakstyper().singleOrNull { it.tiltakskode == tiltakskode }
             ?: error("Tiltakstype mangler for tiltakskode=$tiltakskode")

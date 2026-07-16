@@ -73,8 +73,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomfo
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFreeTextSearch
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingStatus
-import no.nav.mulighetsrommet.api.individuellgjennomforing.service.IndividuellGjennomforingService
-import no.nav.mulighetsrommet.api.individuellgjennomforing.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.janzz.PamOntologiService
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
 import no.nav.mulighetsrommet.api.lagretfilter.LagretFilterService
@@ -99,6 +97,8 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddArrangorUtbet
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddBrukerUtbetalingConsumer
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
+import no.nav.mulighetsrommet.api.tiltakdokument.service.TiltakDokumentService
+import no.nav.mulighetsrommet.api.tiltakdokument.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
@@ -473,7 +473,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
     single { GjennomforingDetaljerService(get(), get(), get(), get()) }
-    single { IndividuellGjennomforingService(get(), get()) }
+    single { TiltakDokumentService(get(), get()) }
     single {
         GjennomforingEnkeltplassService(
             get(),
