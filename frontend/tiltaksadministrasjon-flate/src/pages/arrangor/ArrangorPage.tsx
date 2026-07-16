@@ -25,16 +25,14 @@ export function ArrangorPage() {
       <HeaderBanner heading={arrangor.navn} ikon={<ArrangorIkon />} />
       <ContentBox>
         <Accordion className="bg-ax-bg-default">
-          {!arrangor.overordnetEnhet ? (
-            <Accordion.Item open={openHovedenhet}>
-              <Accordion.Header onClick={() => setOpenHovedenhet(!openHovedenhet)}>
-                Arrangør - {arrangor.organisasjonsnummer} {arrangor.navn}
-              </Accordion.Header>
-              <Accordion.Content>
-                <ArrangorKort arrangor={arrangor} />
-              </Accordion.Content>
-            </Accordion.Item>
-          ) : null}
+          <Accordion.Item open={openHovedenhet}>
+            <Accordion.Header onClick={() => setOpenHovedenhet(!openHovedenhet)}>
+              Arrangør - {arrangor.organisasjonsnummer} {arrangor.navn}
+            </Accordion.Header>
+            <Accordion.Content>
+              <ArrangorKort arrangor={arrangor} />
+            </Accordion.Content>
+          </Accordion.Item>
         </Accordion>
       </ContentBox>
     </>

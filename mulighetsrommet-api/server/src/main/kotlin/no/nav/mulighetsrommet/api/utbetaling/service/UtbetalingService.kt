@@ -9,11 +9,12 @@ import arrow.core.nonEmptyListOf
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
+import no.nav.mulighetsrommet.admin.arrangor.HentBetalingsinformasjon
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
@@ -66,7 +67,7 @@ import java.util.UUID
 class UtbetalingService(
     private val config: Config,
     private val tilsagnService: TilsagnService,
-    private val arrangorService: ArrangorService,
+    private val betalingsinformasjon: BetalingsinformasjonQuery,
     private val navAnsattService: NavAnsattService,
 ) {
     data class Config(
@@ -626,7 +627,7 @@ class UtbetalingService(
     }
 
     private suspend fun getUtbetalingsinformasjon(arrangorId: UUID, kid: Kid?): Betalingsinformasjon? {
-        return arrangorService.getBetalingsinformasjon(arrangorId)?.let { betalingsinformasjon ->
+        return betalingsinformasjon.execute(HentBetalingsinformasjon(arrangorId))?.let { betalingsinformasjon ->
             when (betalingsinformasjon) {
                 is Betalingsinformasjon.BBan -> Betalingsinformasjon.BBan(betalingsinformasjon.kontonummer, kid)
                 is Betalingsinformasjon.IBan -> betalingsinformasjon

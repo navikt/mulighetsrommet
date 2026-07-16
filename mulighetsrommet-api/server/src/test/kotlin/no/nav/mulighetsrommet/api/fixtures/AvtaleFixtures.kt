@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.db.ArrangorDbo
+import no.nav.mulighetsrommet.api.avtale.db.AvtaleArrangorDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.PersonvernDbo
@@ -32,7 +32,7 @@ object AvtaleFixtures {
         navn = "Avtalenavn",
         sakarkivNummer = SakarkivNummer("24/1234"),
         tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
-        arrangor = ArrangorDbo(
+        arrangor = AvtaleArrangorDbo(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
             kontaktpersoner = emptyList(),

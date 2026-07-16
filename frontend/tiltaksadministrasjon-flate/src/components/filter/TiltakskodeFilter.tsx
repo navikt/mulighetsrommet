@@ -1,4 +1,4 @@
-import { CheckboxGroup } from "@mr/frontend-common";
+import { CheckboxDropdownGroup } from "@mr/frontend-common";
 import { Tiltakskode, TiltakstypeKompaktDto } from "@tiltaksadministrasjon/api-client";
 import { useMemo } from "react";
 
@@ -11,9 +11,8 @@ interface Props {
 export function TiltakskodeFilter({ tiltakstyper, value, onChange }: Props) {
   const groups = useTiltakskodeFilter(tiltakstyper);
   return (
-    <CheckboxGroup
+    <CheckboxDropdownGroup
       legend="Tiltakstyper"
-      hideLegend
       value={value}
       onChange={(tiltakskoder) => onChange(tiltakskoder as Tiltakskode[])}
       items={groups}

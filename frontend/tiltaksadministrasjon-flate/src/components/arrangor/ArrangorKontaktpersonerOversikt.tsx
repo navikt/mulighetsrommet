@@ -1,10 +1,10 @@
 import { useArrangorKontaktpersoner } from "@/api/arrangor/useArrangorKontaktpersoner";
 import { useUpsertArrangorKontaktperson } from "@/api/arrangor/useUpsertArrangorKontaktperson";
-import { ValidationError } from "@tiltaksadministrasjon/api-client";
 import {
-  ArrangorDto,
+  ArrangorHovedenhetDto,
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { jsonPointerToFieldPath } from "@mr/frontend-common/utils/utils";
 import {
@@ -23,7 +23,7 @@ import { navnForAnsvar } from "./ArrangorKontaktpersonUtils";
 import { SlettKontaktpersonModal } from "./SlettKontaktpersonModal";
 
 interface Props {
-  arrangor: ArrangorDto;
+  arrangor: ArrangorHovedenhetDto;
 }
 
 export function ArrangorKontaktpersonOversikt({ arrangor }: Props) {
@@ -192,7 +192,7 @@ function LeseRad({
 }
 
 interface RedigerbarRadProps extends Pick<ILeseRad, "setRedigerKontaktperson" | "kontaktperson"> {
-  arrangor: ArrangorDto;
+  arrangor: ArrangorHovedenhetDto;
 }
 
 const KontaktpersonSchema = z.object({

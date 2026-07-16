@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistError
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistRequest
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistResponse
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -59,14 +60,7 @@ class DistribuerTilsagnsbrev(
         val tilsagn = queries.tilsagn.getOrError(tilsagnId)
         require(tilsagn.journalpost?.id != null) { "Tilsagn med id=$tilsagnId har ingen journalpostId, distribuering ikke mulig" }
 
-        val arrangor = queries.arrangor.get(tilsagn.arrangor.organisasjonsnummer)
-        require(arrangor != null) { "Arrangør med orgnr=${tilsagn.arrangor.organisasjonsnummer} ikke funnet i database, distribuering ikke mulig" }
-
-        val adresse = if (arrangor.erUtenlandsk) {
-            hentUtenlandskArrangorAdresse(arrangor.id)
-        } else {
-            null
-        }
+        val adresse = utledArrangorAdresse(tilsagn.arrangor.id)
 
         dokdistClient.distribuerJournalpost(
             journalpostId = tilsagn.journalpost.id,
@@ -79,14 +73,24 @@ class DistribuerTilsagnsbrev(
         }
     }
 
-    fun hentUtenlandskArrangorAdresse(arrangorId: UUID): DokdistRequest.Adresse.UtenlandskPostadresse = db.session {
-        val utenlandskArrangor = queries.arrangor.getUtenlandskArrangor(arrangorId)
-        require(utenlandskArrangor != null) { "Utenlandsk arrangør med id=$arrangorId mangler informasjon, kunne ikke hente adresse" }
-        DokdistRequest.Adresse.UtenlandskPostadresse(
-            land = utenlandskArrangor.landKode,
-            adresselinje1 = utenlandskArrangor.gateNavn,
-            adresselinje2 = utenlandskArrangor.by,
-            adresselinje3 = null,
-        )
+    fun utledArrangorAdresse(arrangorId: UUID): DokdistRequest.Adresse? {
+        val arrangor = db.session { repository.arrangor.get(arrangorId) }
+
+        return when (arrangor) {
+            // Dokdist utleder adressen selv basert på organisasjonsnummer koblet til journalposten
+            is Arrangor.Norsk -> null
+
+            is Arrangor.Utenlandsk -> {
+                val adresse = requireNotNull(arrangor.adresse) {
+                    "Utenlandsk arrangør med id=${arrangor.id} mangler informasjon om adresse"
+                }
+                DokdistRequest.Adresse.UtenlandskPostadresse(
+                    land = adresse.landKode,
+                    adresselinje1 = adresse.gateNavn,
+                    adresselinje2 = adresse.by,
+                    adresselinje3 = null,
+                )
+            }
+        }
     }
 }

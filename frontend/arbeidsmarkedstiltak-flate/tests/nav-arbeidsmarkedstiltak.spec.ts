@@ -15,7 +15,7 @@ test.describe("Tiltaksoversikt", () => {
 
   test("Sjekk at det er gjennomføringer i oversikten", async ({ page }) => {
     await page.getByLabel(/Liten mulighet til å jobbe/).click();
-    await page.getByLabel("Nav Oslo").click();
+    await page.getByRole("checkbox", { name: "Nav Oslo" }).click();
     const rows = page.getByTestId("oversikt_gjennomforinger").getByRole("link");
     await expect(page.getByTestId("oversikt_gjennomforinger")).toContainText("Avklaring");
     expect(await rows.count()).toBeGreaterThan(5);
@@ -30,7 +30,7 @@ test.describe("Gjennomføringsdetaljer for alle Nav-ansatte", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/arbeidsmarkedstiltak/oversikt");
     await page.getByLabel(/Liten mulighet til å jobbe/).click();
-    await page.getByLabel("Nav Oslo").click();
+    await page.getByRole("checkbox", { name: "Nav Oslo" }).click();
     await page.getByRole("link", { name: "Sindres mentorordning med Yoda" }).click();
   });
 

@@ -22,13 +22,13 @@ import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -90,7 +90,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
     }
 
     var umiddelbarUtbetaling = TidligstTidspunktForUtbetalingCalculator { _, _ -> null }
-    val arrangorService: ArrangorService = mockk()
+    val betalingsinformasjon: BetalingsinformasjonQuery = mockk()
 
     fun createTilsagnService(): TilsagnService = TilsagnService(
         TilsagnService.Config(gyldigTilsagnPeriode = mapOf()),
@@ -109,7 +109,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 tidligstTidspunktForUtbetaling = tidligstTidspunktForUtbetaling,
             ),
             tilsagnService = tilsagnService,
-            arrangorService = arrangorService,
+            betalingsinformasjon = betalingsinformasjon,
             navAnsattService = mockk(relaxed = true),
         )
         return ArrangorflateUtbetalingService(
@@ -124,7 +124,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
         val periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1))
 
         beforeEach {
-            coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
+            coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
                 kontonummer = Kontonummer("12345678901"),
                 kid = null,
             )

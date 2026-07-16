@@ -2,15 +2,18 @@ package no.nav.mulighetsrommet.api.persistence
 
 import kotliquery.Session
 import no.nav.mulighetsrommet.admin.QueryContext
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorQueryHandler
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHandler
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
+import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.persistence.arrangor.db.ArrangorQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.db.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattDtoQueries
@@ -32,12 +35,14 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     val kostnadssted = KostnadsstedQueries(session)
     val navAnsattDto = NavAnsattDtoQueries(session)
     val totrinnskontroll = TotrinnskontrollQueries(session)
+    val arrangor = ArrangorQueries(session)
 
     override val repository = object : Repositories() {
         override val tiltakstype: TiltakstypeRepository = this@SqlQueryContext.tiltakstype
         override val redaksjoneltInnholdLenke: RedaksjoneltInnholdLenkeRepository = this@SqlQueryContext.redaksjoneltInnholdLenke
         override val navEnhet: NavEnhetRepository = this@SqlQueryContext.navEnhet
         override val navAnsatt: NavAnsattRepository = this@SqlQueryContext.navAnsatt
+        override val arrangor: ArrangorRepository = this@SqlQueryContext.arrangor
     }
 
     override val queries = object : Queries() {
@@ -46,6 +51,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val kostnadssted: KostnadsstedQueryHandler = this@SqlQueryContext.kostnadssted
         override val navAnsattDto: NavAnsattDtoQueryHandler = this@SqlQueryContext.navAnsattDto
         override val totrinnskontroll: TotrinnskontrollQueryHandler = this@SqlQueryContext.totrinnskontroll
+        override val arrangor: ArrangorQueryHandler = this@SqlQueryContext.arrangor
     }
 
     override val outbox = SqlAdminOutbox(session, topics)

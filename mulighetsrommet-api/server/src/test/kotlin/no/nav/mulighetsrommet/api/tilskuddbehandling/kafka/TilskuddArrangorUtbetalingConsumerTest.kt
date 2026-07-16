@@ -8,10 +8,10 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.Betalingsinformasjon
+import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -42,7 +42,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     val journalforVedtaksbrev = mockk<JournalforVedtaksbrev>()
-    val arrangorService = mockk<ArrangorService>()
+    val betalingsinformasjon = mockk<BetalingsinformasjonQuery>()
 
     beforeEach {
         MulighetsrommetTestDomain(
@@ -50,7 +50,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
         ).initialize(database.api)
 
-        coEvery { arrangorService.getBetalingsinformasjon(any()) } returns Betalingsinformasjon.BBan(
+        coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
             Kontonummer("12345678901"),
             null,
         )
@@ -114,7 +114,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
                 tidligstTidspunktForUtbetaling = { _, _ -> null },
             ),
             tilsagnService = tilsagnService,
-            arrangorService = arrangorService,
+            betalingsinformasjon = betalingsinformasjon,
             navAnsattService = mockk(relaxed = true),
         )
         return TilskuddArrangorUtbetalingConsumer(

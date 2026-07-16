@@ -12,15 +12,16 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorError
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.api.arrangor.ArrangorError
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
-import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -46,7 +47,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
     fun createConsumer(
         enkeltplasser: GjennomforingEnkeltplassService,
-        arrangorer: ArrangorService = mockk(),
+        arrangorer: SyncArrangorUseCase = mockk(),
         tiltakstypeConfig: TiltakstypeService.Config = TiltakstypeService.Config(
             features = mapOf(Tiltakskode.ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT)),
         ),
@@ -77,9 +78,9 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         val request = GjennomforingRequest.EnkeltplassUtkast(gjennomforingId, payload)
 
         test("oppretter gjennomforing uten å sende økonomi til godkjenning") {
-            val arrangorer = mockk<ArrangorService>()
+            val arrangorer = mockk<SyncArrangorUseCase>()
             coEvery {
-                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
+                arrangorer.execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
             } returns ArrangorFixtures.underenhet1.right()
 
             val consumer = createConsumer(service, arrangorer)
@@ -95,10 +96,10 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         }
 
         test("kaster feil dersom arrangør ikke kan hentes fra brreg") {
-            val arrangorer = mockk<ArrangorService>()
+            val arrangorer = mockk<SyncArrangorUseCase>()
             coEvery {
-                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
-            } returns ArrangorError.BrregError(BrregError.NotFound).left()
+                arrangorer.execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
+            } returns SyncArrangorError.Enhetsregister(EnhetsregisterError.IkkeFunnet).left()
 
             val consumer = createConsumer(service, arrangorer)
 
@@ -141,9 +142,9 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         val request = GjennomforingRequest.EnkeltplassSoktInn(gjennomforingId, totrinnskontroll, payload)
 
         test("oppretter gjennomforing og sender økonomi til godkjenning") {
-            val arrangorer = mockk<ArrangorService>()
+            val arrangorer = mockk<SyncArrangorUseCase>()
             coEvery {
-                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
+                arrangorer.execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
             } returns ArrangorFixtures.underenhet1.right()
 
             val consumer = createConsumer(service, arrangorer)
@@ -159,10 +160,10 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         }
 
         test("kaster feil dersom arrangør ikke kan hentes fra brreg") {
-            val arrangorer = mockk<ArrangorService>()
+            val arrangorer = mockk<SyncArrangorUseCase>()
             coEvery {
-                arrangorer.getArrangorOrSyncFromBrreg(ArrangorFixtures.underenhet1.organisasjonsnummer)
-            } returns ArrangorError.BrregError(BrregError.NotFound).left()
+                arrangorer.execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
+            } returns SyncArrangorError.Enhetsregister(EnhetsregisterError.IkkeFunnet).left()
 
             val consumer = createConsumer(service, arrangorer)
 

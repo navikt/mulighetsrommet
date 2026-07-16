@@ -1,4 +1,4 @@
-import { CheckboxGroup } from "@mr/frontend-common";
+import { CheckboxDropdownGroup } from "@mr/frontend-common";
 import { Kontorstruktur, KontorstrukturKontortype } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
@@ -10,13 +10,7 @@ interface Props {
 export function NavEnhetFilter({ value, onChange, regioner }: Props) {
   const groups = toCheckboxGroups(regioner);
   return (
-    <CheckboxGroup
-      legend="Nav-kontorer"
-      hideLegend
-      value={value}
-      onChange={onChange}
-      items={groups}
-    />
+    <CheckboxDropdownGroup legend="Nav-enheter" value={value} onChange={onChange} items={groups} />
   );
 }
 

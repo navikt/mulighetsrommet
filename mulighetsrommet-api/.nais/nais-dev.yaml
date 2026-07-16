@@ -164,6 +164,7 @@ spec:
               - arena-adapter
         - application: mulighetsrommet-arena-adapter-manager
         - application: mr-admin-flate
+        - application: tiltaksadministrasjon-flate
         - application: nav-arbeidsmarkedstiltak
         - application: veilarbpersonflate
           namespace: poao

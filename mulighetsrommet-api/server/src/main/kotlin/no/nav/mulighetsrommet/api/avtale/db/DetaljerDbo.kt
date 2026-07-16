@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.avtale.db
 
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavIdent
@@ -14,7 +13,7 @@ data class DetaljerDbo(
     val navn: String,
     val tiltakstypeId: UUID,
     val sakarkivNummer: SakarkivNummer?,
-    val arrangor: ArrangorDbo?,
+    val arrangor: AvtaleArrangorDbo?,
     val startDato: LocalDate,
     val sluttDato: LocalDate?,
     val status: AvtaleStatusType,
@@ -24,14 +23,8 @@ data class DetaljerDbo(
     val opsjonsmodell: Opsjonsmodell,
 )
 
-data class ArrangorDbo(
+data class AvtaleArrangorDbo(
     val hovedenhet: UUID,
     val underenheter: List<UUID>,
     val kontaktpersoner: List<UUID>,
-)
-
-data class OpsjonsmodellDbo(
-    val type: OpsjonsmodellType,
-    val opsjonMaksVarighet: LocalDate?,
-    val customOpsjonsmodellNavn: String? = null,
 )

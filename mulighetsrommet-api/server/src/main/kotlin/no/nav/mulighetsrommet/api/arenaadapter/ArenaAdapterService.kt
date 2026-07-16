@@ -1,10 +1,13 @@
 package no.nav.mulighetsrommet.api.arenaadapter
 
 import arrow.core.getOrElse
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorError
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
@@ -17,7 +20,6 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
-import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -30,7 +32,7 @@ import java.util.UUID
 class ArenaAdapterService(
     private val db: ApiDatabase,
     private val sanityService: SanityService,
-    private val arrangorService: ArrangorService,
+    private val arrangor: SyncArrangorUseCase,
     private val tiltakstypeService: TiltakstypeService,
     private val gjennomforingEnkeltplassService: GjennomforingEnkeltplassService,
     private val gjennomforingAvtaleService: GjennomforingAvtaleService,
@@ -126,12 +128,12 @@ class ArenaAdapterService(
         }
     }
 
-    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): ArrangorDto {
-        return arrangorService.getArrangorOrSyncFromBrreg(orgnr).getOrElse { error ->
-            if (error == BrregError.NotFound) {
-                logger.warn("Virksomhet med orgnr=$orgnr finnes ikke i brreg. Er dette en utenlandsk arrangør?")
+    private suspend fun syncArrangorFromBrreg(orgnr: Organisasjonsnummer): Arrangor {
+        return arrangor.execute(SyncArrangorIfMissing(orgnr)).getOrElse { error ->
+            if (error is SyncArrangorError.Enhetsregister && error.error is EnhetsregisterError.IkkeFunnet) {
+                logger.warn("Virksomhet med orgnr=$orgnr finnes ikke i enhetsregisteret. Er dette en utenlandsk arrangør?")
             }
-            throw IllegalArgumentException("Klarte ikke hente virksomhet med orgnr=$orgnr fra brreg: $error")
+            throw IllegalArgumentException("Klarte ikke hente virksomhet med orgnr=$orgnr fra enhetsregisteret: $error")
         }
     }
 }

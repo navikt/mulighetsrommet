@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.database.utils.parameters
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -202,7 +203,7 @@ class AvtaleQueries(private val session: Session) {
         )
     }
 
-    private fun upsertArrangor(avtaleId: UUID, arrangor: ArrangorDbo?) = withTransaction(session) {
+    private fun upsertArrangor(avtaleId: UUID, arrangor: AvtaleArrangorDbo?) = withTransaction(session) {
         @Language("PostgreSQL")
         val setArrangorUnderenhet = """
              insert into avtale_arrangor_underenhet (avtale_id, arrangor_id)

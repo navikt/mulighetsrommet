@@ -1,6 +1,6 @@
 import { useTiltakstyper } from "@/api/queries/useTiltakstyper";
 import { Tiltakskode, VeilederflateTiltakstype } from "@arbeidsmarkedstiltak/api-client";
-import { CheckboxGroup } from "@mr/frontend-common";
+import { CheckboxDropdownGroup } from "@mr/frontend-common";
 import { useMemo } from "react";
 
 interface TiltakstypeOption {
@@ -30,13 +30,7 @@ export function TiltakstypeFilter(props: Props) {
   }
 
   return (
-    <CheckboxGroup
-      legend="Tiltakstyper"
-      hideLegend
-      value={value}
-      onChange={onChange}
-      items={groups}
-    />
+    <CheckboxDropdownGroup legend="Tiltakstyper" value={value} onChange={onChange} items={groups} />
   );
 }
 

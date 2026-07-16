@@ -9,6 +9,8 @@ import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
+import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.navenhet.toDto
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
@@ -16,8 +18,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
-import no.nav.mulighetsrommet.api.arrangor.ArrangorService
-import no.nav.mulighetsrommet.api.arrangor.model.ArrangorDto
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
@@ -39,6 +39,7 @@ import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
@@ -71,7 +72,7 @@ import kotlin.io.path.outputStream
 class AvtaleService(
     private val config: Config,
     private val db: ApiDatabase,
-    private val arrangorService: ArrangorService,
+    private val syncArrangor: SyncArrangorUseCase,
     private val tiltakstypeService: TiltakstypeService,
     private val gjennomforingPublisher: InitialLoadGjennomforinger,
 ) {
@@ -460,8 +461,8 @@ class AvtaleService(
         val navEnheter = navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() }
 
         val arrangor = request.arrangor?.let {
-            val (arrangor, underenheter) = syncArrangorerFromBrreg(it.hovedenhet, it.underenheter).bind()
-            arrangor.copy(underenheter = underenheter)
+            val (hovedenhet, underenheter) = syncArrangorerFromBrreg(it.hovedenhet, it.underenheter).bind()
+            AvtaleValidator.Ctx.AvtaleArrangor(hovedenhet, underenheter)
         }
 
         val systembestemtPrismodell = queries.prismodell.getBySystemId(request.tiltakskode.name)
@@ -552,7 +553,7 @@ class AvtaleService(
     private suspend fun syncArrangorerFromBrreg(
         orgnr: Organisasjonsnummer,
         underenheterOrgnummere: List<Organisasjonsnummer>,
-    ): Either<List<FieldError>, Pair<ArrangorDto, List<ArrangorDto>>> = either {
+    ): Either<List<FieldError>, Pair<Arrangor, List<Arrangor>>> = either {
         val arrangor = syncArrangorFromBrreg(orgnr).bind()
         val underenheter = underenheterOrgnummere.mapOrAccumulate({ e1, e2 -> e1 + e2 }) {
             syncArrangorFromBrreg(it).bind()
@@ -562,16 +563,14 @@ class AvtaleService(
 
     private suspend fun syncArrangorFromBrreg(
         orgnr: Organisasjonsnummer,
-    ): Either<List<FieldError>, ArrangorDto> = arrangorService
-        .getArrangorOrSyncFromBrreg(orgnr)
-        .mapLeft {
-            FieldError.of(
-                "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
-                OpprettAvtaleRequest::detaljer,
-                DetaljerRequest::arrangor,
-                DetaljerRequest.Arrangor::hovedenhet,
-            ).nel()
-        }
+    ): Either<List<FieldError>, Arrangor> = syncArrangor.execute(SyncArrangorIfMissing(orgnr)).mapLeft {
+        FieldError.of(
+            "Tiltaksarrangøren finnes ikke i Brønnøysundregistrene",
+            OpprettAvtaleRequest::detaljer,
+            DetaljerRequest::arrangor,
+            DetaljerRequest.Arrangor::hovedenhet,
+        ).nel()
+    }
 
     fun handlinger(avtale: Avtale, ansatt: NavAnsatt): Set<AvtaleHandling> {
         return setOfNotNull(

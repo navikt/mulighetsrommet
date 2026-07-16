@@ -7,6 +7,7 @@ import arrow.core.nel
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -145,8 +146,8 @@ class AdminUtbetalingService(
         when (opprett) {
             is UpsertUtbetaling.Anskaffelse if opprett.journalpostId == null -> {
                 val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(opprett.gjennomforingId)
-                val arrangor = queries.arrangor.getById(gjennomforing.arrangor.id)
-                if (!arrangor.erUtenlandsk) {
+                val arrangor = repository.arrangor.get(gjennomforing.arrangor.id)
+                if (arrangor is Arrangor.Norsk) {
                     return FieldError.of("Journalpost-ID er påkrevd", UpsertUtbetaling.Anskaffelse::journalpostId)
                         .nel()
                         .left()

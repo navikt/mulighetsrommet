@@ -6,7 +6,7 @@ enum class OpenApiSpec(
     val version: Int,
 ) {
     PUBLIC("/api/v\\d(?!/intern)".toRegex(), "public", 1),
-    TILTAKSADMINISTRASJON("/api/tiltaksadministrasjon".toRegex(), "tiltaksadministrasjon", 21),
+    TILTAKSADMINISTRASJON("/api/tiltaksadministrasjon".toRegex(), "tiltaksadministrasjon", 22),
     VEILEDERFLATE("/api/veilederflate".toRegex(), "arbeidsmarkedstiltak", 1),
     ARRANGORFLATE("/api/arrangorflate".toRegex(), "arrangor-utbetalinger", 1),
     ;
