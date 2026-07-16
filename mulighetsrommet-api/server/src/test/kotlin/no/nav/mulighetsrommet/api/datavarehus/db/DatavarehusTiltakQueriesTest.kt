@@ -356,7 +356,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingFixtures.EnkelAmo.id)
 
-                tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
+                tiltak.shouldBeTypeOf<DatavarehusTiltakV1AmoDto>().should {
                     it.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
                     it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
                     it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
@@ -378,8 +378,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
         test("henter bare tiltaksnummer fra Arena-data") {
             val domain = MulighetsrommetTestDomain(
-                tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                tiltakstyper = listOf(TiltakstypeFixtures.EnkelFagOgYrke),
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelFagOgYrke),
             )
 
             database.runAndRollback {
@@ -387,16 +387,16 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 queries.gjennomforing.setArenaData(
                     GjennomforingArenaDataDbo(
-                        id = GjennomforingFixtures.EnkelAmo.id,
+                        id = GjennomforingFixtures.EnkelFagOgYrke.id,
                         tiltaksnummer = Tiltaksnummer("2024#456"),
                         arenaAnsvarligEnhet = "0400",
                     ),
                 )
 
-                val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingFixtures.EnkelAmo.id)
+                val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingFixtures.EnkelFagOgYrke.id)
 
-                tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
-                    it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
+                tiltak.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().should {
+                    it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelFagOgYrke.id
                     it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
                     it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
                     it.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(

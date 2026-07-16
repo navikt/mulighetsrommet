@@ -34,6 +34,8 @@ class DatavarehusTiltakQueries(private val session: Session) {
 
         // TODO: inkluder utdanningsløp/amo-kategorisering når vi har dette for enkeltplasser
         return when (dto.tiltakskode) {
+            Tiltakskode.FAG_OG_YRKESOPPLAERING,
+            Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
             -> {
                 val kategorisering = context(session) {
@@ -47,6 +49,10 @@ class DatavarehusTiltakQueries(private val session: Session) {
                 )
             }
 
+            Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+            Tiltakskode.STUDIESPESIALISERING,
+            Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
             -> {
                 val kategorisering = context(session) {
