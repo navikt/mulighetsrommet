@@ -14,22 +14,24 @@ export function GjennomforingUtdanningslopForm({ avtale }: Props) {
     return null;
   }
 
-  if (!avtale.utdanningslop) {
+  if (!avtale.opplaring?.utdanningslop) {
     return (
       <Alert variant="warning">{avtaletekster.utdanning.utdanningsprogramManglerForAvtale}</Alert>
     );
   }
 
+  const utdanningslop = avtale.opplaring.utdanningslop;
+
   return (
     <>
       <Select size="small" readOnly label={avtaletekster.utdanning.utdanningsprogram.label}>
-        <option>{avtale.utdanningslop.utdanningsprogram.navn}</option>
+        <option>{utdanningslop.utdanningsprogram.navn}</option>
       </Select>
       <FormComboboxMulti<GjennomforingFormValues>
         label={avtaletekster.utdanning.laerefag.label}
         placeholder={avtaletekster.utdanning.laerefag.velg}
         name="utdanningslop.utdanninger"
-        options={avtale.utdanningslop.utdanninger.map((utdanning) => ({
+        options={utdanningslop.utdanninger.map((utdanning) => ({
           value: utdanning.id,
           label: utdanning.navn,
         }))}

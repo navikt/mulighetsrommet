@@ -6,7 +6,7 @@ import { AvtaleBransjeForm } from "./AvtaleBransjeForm";
 import { NorksopplaeringForm } from "./NorskopplaeringForm";
 import { InnholdElementerForm } from "./InnholdElementerForm";
 import { AvtaleFormValues } from "@/pages/avtaler/form/validation";
-import { AmoKurstype, Tiltakskode } from "@tiltaksadministrasjon/api-client";
+import { KurstypeKode, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { FormSelect } from "@/components/skjema/FormSelect";
 
 interface Props {
@@ -37,25 +37,25 @@ function NorskopplaeringGrunnleggendeGerdigheterFOVForm() {
         label={gjennomforingTekster.kurstypeLabel}
       >
         <option value="">Velg kurstype</option>
-        <option value={AmoKurstype.NORSKOPPLAERING}>
-          {kurstypeToString(AmoKurstype.NORSKOPPLAERING)}
+        <option value={KurstypeKode.NORSKOPPLAERING}>
+          {kurstypeToString(KurstypeKode.NORSKOPPLAERING)}
         </option>
-        <option value={AmoKurstype.GRUNNLEGGENDE_FERDIGHETER}>
-          {kurstypeToString(AmoKurstype.GRUNNLEGGENDE_FERDIGHETER)}
+        <option value={KurstypeKode.GRUNNLEGGENDE_FERDIGHETER}>
+          {kurstypeToString(KurstypeKode.GRUNNLEGGENDE_FERDIGHETER)}
         </option>
-        <option value={AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE}>
-          {kurstypeToString(AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE)}
+        <option value={KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE}>
+          {kurstypeToString(KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE)}
         </option>
       </FormSelect>
-      {amoKategorisering?.kurstype === AmoKurstype.NORSKOPPLAERING && (
+      {amoKategorisering?.kurstype === KurstypeKode.NORSKOPPLAERING && (
         <NorksopplaeringForm<AvtaleFormValues>
           norskprovePath="detaljer.amoKategorisering.norskprove"
           innholdElementerPath="detaljer.amoKategorisering.innholdElementer"
           tiltakskode={Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV}
         />
       )}
-      {(amoKategorisering?.kurstype === AmoKurstype.GRUNNLEGGENDE_FERDIGHETER ||
-        amoKategorisering?.kurstype === AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE) && (
+      {(amoKategorisering?.kurstype === KurstypeKode.GRUNNLEGGENDE_FERDIGHETER ||
+        amoKategorisering?.kurstype === KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE) && (
         <InnholdElementerForm<AvtaleFormValues>
           path="detaljer.amoKategorisering.innholdElementer"
           tiltakskode={Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV}
@@ -77,33 +77,33 @@ function GruppeAmoForm() {
         label={gjennomforingTekster.kurstypeLabel}
       >
         <option value="">Velg kurstype</option>
-        <option value={AmoKurstype.BRANSJE_OG_YRKESRETTET}>
-          {kurstypeToString(AmoKurstype.BRANSJE_OG_YRKESRETTET)}
+        <option value={KurstypeKode.BRANSJE_OG_YRKESRETTET}>
+          {kurstypeToString(KurstypeKode.BRANSJE_OG_YRKESRETTET)}
         </option>
-        <option value={AmoKurstype.NORSKOPPLAERING}>
-          {kurstypeToString(AmoKurstype.NORSKOPPLAERING)}
+        <option value={KurstypeKode.NORSKOPPLAERING}>
+          {kurstypeToString(KurstypeKode.NORSKOPPLAERING)}
         </option>
-        <option value={AmoKurstype.GRUNNLEGGENDE_FERDIGHETER}>
-          {kurstypeToString(AmoKurstype.GRUNNLEGGENDE_FERDIGHETER)}
+        <option value={KurstypeKode.GRUNNLEGGENDE_FERDIGHETER}>
+          {kurstypeToString(KurstypeKode.GRUNNLEGGENDE_FERDIGHETER)}
         </option>
-        <option value={AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE}>
-          {kurstypeToString(AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE)}
+        <option value={KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE}>
+          {kurstypeToString(KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE)}
         </option>
-        <option value={AmoKurstype.STUDIESPESIALISERING}>
-          {kurstypeToString(AmoKurstype.STUDIESPESIALISERING)}
+        <option value={KurstypeKode.STUDIESPESIALISERING}>
+          {kurstypeToString(KurstypeKode.STUDIESPESIALISERING)}
         </option>
       </FormSelect>
-      {amoKategorisering?.kurstype === AmoKurstype.BRANSJE_OG_YRKESRETTET && (
+      {amoKategorisering?.kurstype === KurstypeKode.BRANSJE_OG_YRKESRETTET && (
         <AvtaleBransjeForm tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING} />
       )}
-      {amoKategorisering?.kurstype === AmoKurstype.NORSKOPPLAERING && (
+      {amoKategorisering?.kurstype === KurstypeKode.NORSKOPPLAERING && (
         <NorksopplaeringForm<AvtaleFormValues>
           norskprovePath="detaljer.amoKategorisering.norskprove"
           innholdElementerPath="detaljer.amoKategorisering.innholdElementer"
           tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING}
         />
       )}
-      {amoKategorisering?.kurstype === AmoKurstype.GRUNNLEGGENDE_FERDIGHETER && (
+      {amoKategorisering?.kurstype === KurstypeKode.GRUNNLEGGENDE_FERDIGHETER && (
         <InnholdElementerForm<AvtaleFormValues>
           path="detaljer.amoKategorisering.innholdElementer"
           tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING}

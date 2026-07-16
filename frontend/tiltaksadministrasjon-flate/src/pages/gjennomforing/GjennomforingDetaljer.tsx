@@ -8,15 +8,8 @@ import { GjennomforingEnkeltplassDetaljer } from "@/components/gjennomforing/Gje
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const detaljer = useGjennomforing(gjennomforingId);
-  const {
-    gjennomforing,
-    veilederinfo,
-    utdanningslop,
-    amoKategorisering,
-    prismodell,
-    okonomi,
-    enkeltplassDeltaker,
-  } = detaljer;
+  const { gjennomforing, veilederinfo, opplaring, prismodell, okonomi, enkeltplassDeltaker } =
+    detaljer;
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
 
   if (isGruppetiltak(gjennomforing)) {
@@ -26,8 +19,7 @@ export function GjennomforingDetaljer() {
         gjennomforing={gjennomforing}
         veilederinfo={veilederinfo}
         prismodell={prismodell}
-        amoKategorisering={amoKategorisering}
-        utdanningslop={utdanningslop}
+        opplaring={opplaring}
       />
     );
   } else if (isEnkeltplass(gjennomforing)) {
@@ -39,8 +31,7 @@ export function GjennomforingDetaljer() {
         prismodell={prismodell}
         enkeltplassDeltaker={enkeltplassDeltaker}
         okonomi={okonomi}
-        amoKategorisering={amoKategorisering}
-        utdanningslop={utdanningslop}
+        opplaring={opplaring}
       />
     );
   }

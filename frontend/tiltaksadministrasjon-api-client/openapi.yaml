@@ -4194,33 +4194,33 @@ components:
         kurstype:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKurstype"
+          - $ref: "#/components/schemas/Kurstype.Kode"
         bransje:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Bransje"
+          - $ref: "#/components/schemas/Bransje.Kode"
+        forerkort:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/ForerkortKlasse.Kode"
+        innholdElementer:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/InnholdElement.Kode"
+        norskprove:
+          type:
+          - "null"
+          - boolean
         sertifiseringer:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/Sertifisering"
-        forerkort:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse"
-        innholdElementer:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-        norskprove:
-          type:
-          - "null"
-          - boolean
       required:
       - bransje
       - forerkort
@@ -4228,15 +4228,15 @@ components:
       - kurstype
       - norskprove
       - sertifiseringer
-    AmoKurstype:
+    Kurstype.Kode:
       type: string
       enum:
-      - BRANSJE_OG_YRKESRETTET
       - NORSKOPPLAERING
       - GRUNNLEGGENDE_FERDIGHETER
       - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
+      - BRANSJE_OG_YRKESRETTET
       - STUDIESPESIALISERING
-    AmoKategorisering.BransjeOgYrkesrettet.Bransje:
+    Bransje.Kode:
       type: string
       enum:
       - INGENIOR_OG_IKT_FAG
@@ -4249,18 +4249,7 @@ components:
       - REISELIV_SERVERING_OG_TRANSPORT
       - SERVICEYRKER_OG_ANNET_ARBEID
       - ANDRE_BRANSJER
-    Sertifisering:
-      type: object
-      properties:
-        konseptId:
-          type: integer
-          format: int64
-        label:
-          type: string
-      required:
-      - konseptId
-      - label
-    AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse:
+    ForerkortKlasse.Kode:
       type: string
       enum:
       - A
@@ -4281,7 +4270,7 @@ components:
       - DE
       - S
       - T
-    AmoKategorisering.InnholdElement:
+    InnholdElement.Kode:
       type: string
       enum:
       - GRUNNLEGGENDE_FERDIGHETER
@@ -4291,6 +4280,17 @@ components:
       - PRAKSIS
       - ARBEIDSMARKEDSKUNNSKAP
       - NORSKOPPLAERING
+    Sertifisering:
+      type: object
+      properties:
+        konseptId:
+          type: integer
+          format: int64
+        label:
+          type: string
+      required:
+      - konseptId
+      - label
     UtdanningslopDbo:
       type: object
       properties:
@@ -4725,39 +4725,40 @@ components:
       - sortKey
       - title
       - type
-    AmoKategoriseringDto:
+    OpplaringKategorisering:
       type: object
       properties:
         kurstype:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKurstype"
+          - $ref: "#/components/schemas/Kurstype"
         bransje:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Bransje"
-        innholdElementer:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-        sertifiseringer:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/Sertifisering"
+          - $ref: "#/components/schemas/Bransje"
         forerkort:
-          type:
-          - "null"
-          - array
+          type: array
           items:
-            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse"
+            $ref: "#/components/schemas/ForerkortKlasse"
+          uniqueItems: true
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/InnholdElement"
+          uniqueItems: true
         norskprove:
           type:
           - "null"
           - boolean
+        sertifiseringer:
+          type: array
+          items:
+            $ref: "#/components/schemas/Sertifisering"
+          uniqueItems: true
+        utdanningslop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtdanningslopDto"
       required:
       - bransje
       - forerkort
@@ -4765,36 +4766,63 @@ components:
       - kurstype
       - norskprove
       - sertifiseringer
-    Avtale.OpsjonLoggDto:
+      - utdanningslop
+    Kurstype:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        createdAt:
+        kode:
+          $ref: "#/components/schemas/Kurstype.Kode"
+        navn:
           type: string
-          format: date-time
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        forrigeSluttDato:
-          type: string
-          format: date
-        status:
-          $ref: "#/components/schemas/OpsjonLoggStatus"
       required:
-      - createdAt
-      - forrigeSluttDato
       - id
-      - sluttDato
-      - status
-    OpsjonLoggStatus:
-      type: string
-      enum:
-      - OPSJON_UTLOST
-      - SKAL_IKKE_UTLOSE_OPSJON
+      - kode
+      - navn
+    Bransje:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kode:
+          $ref: "#/components/schemas/Bransje.Kode"
+        navn:
+          type: string
+      required:
+      - id
+      - kode
+      - navn
+    ForerkortKlasse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kode:
+          $ref: "#/components/schemas/ForerkortKlasse.Kode"
+        navn:
+          type: string
+      required:
+      - id
+      - kode
+      - navn
+    InnholdElement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kode:
+          $ref: "#/components/schemas/InnholdElement.Kode"
+        navn:
+          type: string
+      required:
+      - id
+      - kode
+      - navn
     UtdanningslopDto:
       type: object
       properties:
@@ -4829,6 +4857,36 @@ components:
       required:
       - id
       - navn
+    Avtale.OpsjonLoggDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        forrigeSluttDato:
+          type: string
+          format: date
+        status:
+          $ref: "#/components/schemas/OpsjonLoggStatus"
+      required:
+      - createdAt
+      - forrigeSluttDato
+      - id
+      - sluttDato
+      - status
+    OpsjonLoggStatus:
+      type: string
+      enum:
+      - OPSJON_UTLOST
+      - SKAL_IKKE_UTLOSE_OPSJON
     PrismodellDto:
       type: object
       properties:
@@ -4992,27 +5050,22 @@ components:
             $ref: "#/components/schemas/Personopplysning"
         personvernBekreftet:
           type: boolean
-        amoKategorisering:
+        opplaring:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategoriseringDto"
+          - $ref: "#/components/schemas/OpplaringKategorisering"
         opsjonsmodell:
           $ref: "#/components/schemas/Opsjonsmodell"
         opsjonerRegistrert:
           type: array
           items:
             $ref: "#/components/schemas/Avtale.OpsjonLoggDto"
-        utdanningslop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDto"
         prismodeller:
           type: array
           items:
             $ref: "#/components/schemas/PrismodellDto"
       required:
       - administratorer
-      - amoKategorisering
       - arrangor
       - avtalenummer
       - avtaletype
@@ -5021,6 +5074,7 @@ components:
       - id
       - kontorstruktur
       - navn
+      - opplaring
       - opsjonerRegistrert
       - opsjonsmodell
       - personopplysninger
@@ -5031,7 +5085,6 @@ components:
       - startDato
       - status
       - tiltakstype
-      - utdanningslop
     AvbrytAvtaleAarsak:
       type: string
       enum:
@@ -6192,14 +6245,10 @@ components:
           - $ref: "#/components/schemas/GjennomforingVeilederinfoDto"
         prismodell:
           $ref: "#/components/schemas/PrismodellDto"
-        amoKategorisering:
+        opplaring:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategoriseringDto"
-        utdanningslop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDto"
+          - $ref: "#/components/schemas/OpplaringKategorisering"
         okonomi:
           oneOf:
           - type: "null"
@@ -6209,13 +6258,12 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/DeltakerDto"
       required:
-      - amoKategorisering
       - enkeltplassDeltaker
       - gjennomforing
       - okonomi
+      - opplaring
       - prismodell
       - tiltakstype
-      - utdanningslop
       - veilederinfo
     TiltaksnummerResponse:
       type: object

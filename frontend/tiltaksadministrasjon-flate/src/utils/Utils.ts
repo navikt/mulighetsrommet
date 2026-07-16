@@ -1,22 +1,20 @@
 import {
-  AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje,
-  AmoKategoriseringBransjeOgYrkesrettetForerkortKlasse as ForerkortKlasse,
-  AmoKategoriseringInnholdElement as InnholdElement,
-  AvtaleDto,
-  Avtaletype,
-  UtbetalingLinjeReturnertAarsak,
-  TilsagnStatusAarsak,
-  TilsagnType,
-  ValidationError,
   AvbrytGjennomforingAarsak,
-  AmoKategoriseringDto,
-  AmoKurstype,
-  Tiltakskode,
+  Avtaletype,
+  BransjeKode as Bransje,
+  ForerkortKlasseKode as ForerkortKlasse,
   GjennomforingType,
-  TilskuddBehandlingStatusAarsak,
-  TilskuddMottaker,
+  InnholdElementKode as InnholdElement,
+  KurstypeKode,
   OpplaeringtilskuddKode,
   PrismodellIngenKostnaderAarsak,
+  TilsagnStatusAarsak,
+  TilsagnType,
+  TilskuddBehandlingStatusAarsak,
+  TilskuddMottaker,
+  Tiltakskode,
+  UtbetalingLinjeReturnertAarsak,
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -84,10 +82,6 @@ export function validEmail(email: string | undefined): boolean {
   );
 }
 
-export function avtaleHarRegioner(avtale: AvtaleDto): boolean {
-  return avtale.kontorstruktur.length > 0;
-}
-
 export function formaterNavEnheter(
   navEnheter: {
     navn: string;
@@ -153,20 +147,18 @@ export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
   }
 }
 
-export function kurstypeToString(kurstype: AmoKategoriseringDto["kurstype"]): string {
+export function kurstypeToString(kurstype: KurstypeKode): string {
   switch (kurstype) {
-    case AmoKurstype.BRANSJE_OG_YRKESRETTET:
+    case KurstypeKode.BRANSJE_OG_YRKESRETTET:
       return "Bransje";
-    case AmoKurstype.NORSKOPPLAERING:
+    case KurstypeKode.NORSKOPPLAERING:
       return "Norskopplæring";
-    case AmoKurstype.STUDIESPESIALISERING:
+    case KurstypeKode.STUDIESPESIALISERING:
       return "Studiespesialisering";
-    case AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
+    case KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
       return "FOV (Forberedende opplæring for voksne)";
-    case AmoKurstype.GRUNNLEGGENDE_FERDIGHETER:
+    case KurstypeKode.GRUNNLEGGENDE_FERDIGHETER:
       return "Grunnleggende ferdigheter";
-    case null:
-      throw new Error("Kurstype is missing");
   }
 }
 
@@ -350,11 +342,11 @@ export function extractValidationErrors(errors: FieldErrors): ValidationMessage[
 }
 
 export function kursOgTiltakErStudiespesialisering(
-  amo: AmoKurstype | null,
+  amo: KurstypeKode | null,
   tiltakskode: Tiltakskode,
 ) {
   return (
-    amo === AmoKurstype.STUDIESPESIALISERING && tiltakskode === Tiltakskode.STUDIESPESIALISERING
+    amo === KurstypeKode.STUDIESPESIALISERING && tiltakskode === Tiltakskode.STUDIESPESIALISERING
   );
 }
 

@@ -21,12 +21,11 @@ import { GjennomforingAvtaleVarighet } from "@/pages/gjennomforing/Gjennomforing
 import { GjennomforingDetaljerAdministratorer } from "@/pages/gjennomforing/GjennomforingDetaljerAdministratorer";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import {
-  AmoKategoriseringDto,
   GjennomforingAvtaleDto,
   GjennomforingVeilederinfoDto,
+  OpplaringKategorisering,
   PrismodellDto,
   TiltakstypeDto,
-  UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
 import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
@@ -37,13 +36,11 @@ interface Props {
   gjennomforing: GjennomforingAvtaleDto;
   veilederinfo: null | GjennomforingVeilederinfoDto;
   prismodell: PrismodellDto;
-  amoKategorisering: null | AmoKategoriseringDto;
-  utdanningslop: null | UtdanningslopDto;
+  opplaring: null | OpplaringKategorisering;
 }
 
 export function GjennomforingAvtaleDetaljer(props: Props) {
-  const { tiltakstype, gjennomforing, veilederinfo, utdanningslop, amoKategorisering, prismodell } =
-    props;
+  const { tiltakstype, gjennomforing, veilederinfo, opplaring, prismodell } = props;
   const { data: avtale } = useAvtale(gjennomforing.avtaleId);
 
   const gjennomforingMeta: Definition[] = [
@@ -114,12 +111,14 @@ export function GjennomforingAvtaleDetaljer(props: Props) {
         <DetaljerLayout>
           <Definisjonsliste title="Gjennomføring" definitions={gjennomforingMeta} />
           <GjennomforingDetaljerAvtale avtale={avtale} />
-          {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
-          {amoKategorisering &&
+          {opplaring?.utdanningslop && (
+            <UtdanningslopDetaljer utdanningslop={opplaring.utdanningslop} />
+          )}
+          {opplaring?.kurstype &&
             !kursOgTiltakErStudiespesialisering(
-              amoKategorisering.kurstype,
+              opplaring.kurstype.kode,
               tiltakstype.tiltakskode,
-            ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+            ) && <AmoKategoriseringDetaljer opplaring={opplaring} />}
           <GjennomforingAvtaleVarighet
             tiltakstype={tiltakstype}
             gjennomforing={gjennomforing}

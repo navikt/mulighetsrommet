@@ -6,15 +6,19 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
+import no.nav.mulighetsrommet.api.amo.models.Bransje
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.InnholdElement
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DvhAmoKategorisering
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
@@ -157,7 +161,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                        .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.Studiespesialisering)
+                        .amoKategorisering.shouldNotBeNull()
+                        .shouldBe(DvhAmoKategorisering(kurstype = Kurstype.Kode.STUDIESPESIALISERING))
                 }
             }
             test("fov") {
@@ -169,8 +174,9 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
-                            AmoKategorisering.ForberedendeOpplaeringForVoksne(
-                                innholdElementer = listOf(AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING),
+                            DvhAmoKategorisering(
+                                kurstype = Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+                                innholdElementer = listOf(InnholdElement.Kode.BRANSJERETTET_OPPLARING),
                             ),
                         )
                 }
@@ -189,7 +195,12 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull()
-                        .shouldBe(AmoKategorisering.GrunnleggendeFerdigheter(innholdElementer = listOf(AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER)))
+                        .shouldBe(
+                            DvhAmoKategorisering(
+                                kurstype = Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
+                                innholdElementer = listOf(InnholdElement.Kode.GRUNNLEGGENDE_FERDIGHETER),
+                            ),
+                        )
                 }
             }
             test("norskopplaering") {
@@ -206,9 +217,10 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
-                            AmoKategorisering.Norskopplaering(
+                            DvhAmoKategorisering(
+                                kurstype = Kurstype.Kode.NORSKOPPLAERING,
                                 norskprove = false,
-                                innholdElementer = listOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING),
+                                innholdElementer = listOf(InnholdElement.Kode.NORSKOPPLAERING),
                             ),
                         )
                 }
@@ -229,10 +241,11 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                         .amoKategorisering.shouldNotBeNull()
 
                     bransjeOgYrkesrettet.shouldBe(
-                        AmoKategorisering.BransjeOgYrkesrettet(
-                            bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID,
-                            innholdElementer = listOf(AmoKategorisering.InnholdElement.PRAKSIS),
-                            forerkort = listOf(AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A),
+                        DvhAmoKategorisering(
+                            kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET,
+                            bransje = Bransje.Kode.KONTORARBEID,
+                            innholdElementer = listOf(InnholdElement.Kode.PRAKSIS),
+                            forerkort = listOf(ForerkortKlasse.Kode.A),
                             sertifiseringer = listOf(
                                 Sertifisering(konseptId = 1, label = "Jobb"),
                             ),
@@ -343,7 +356,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingFixtures.EnkelAmo.id)
 
-                tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
+                tiltak.shouldBeTypeOf<DatavarehusTiltakV1AmoDto>().should {
                     it.tiltakskode shouldBe Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
                     it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
                     it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
@@ -365,8 +378,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
         test("henter bare tiltaksnummer fra Arena-data") {
             val domain = MulighetsrommetTestDomain(
-                tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+                tiltakstyper = listOf(TiltakstypeFixtures.EnkelFagOgYrke),
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelFagOgYrke),
             )
 
             database.runAndRollback {
@@ -374,16 +387,16 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 queries.gjennomforing.setArenaData(
                     GjennomforingArenaDataDbo(
-                        id = GjennomforingFixtures.EnkelAmo.id,
+                        id = GjennomforingFixtures.EnkelFagOgYrke.id,
                         tiltaksnummer = Tiltaksnummer("2024#456"),
                         arenaAnsvarligEnhet = "0400",
                     ),
                 )
 
-                val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingFixtures.EnkelAmo.id)
+                val tiltak = queries.dvh.getDatavarehusTiltak(GjennomforingFixtures.EnkelFagOgYrke.id)
 
-                tiltak.shouldBeTypeOf<DatavarehusTiltakV1Dto>().should {
-                    it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
+                tiltak.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().should {
+                    it.gjennomforing.id shouldBe GjennomforingFixtures.EnkelFagOgYrke.id
                     it.gjennomforing.opprettetTidspunkt.shouldNotBeNull()
                     it.gjennomforing.oppdatertTidspunkt.shouldNotBeNull()
                     it.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(

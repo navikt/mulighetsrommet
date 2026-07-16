@@ -14,16 +14,15 @@ import {
 } from "@mr/frontend-common/components/datadriven/Metadata";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import {
-  AmoKategoriseringDto,
   DeltakerDto,
   GjennomforingEnkeltplassDto,
   GjennomforingHandling,
   GjennomforingVeilederinfoDto,
+  OpplaringKategorisering,
   PrismodellDto,
   TiltakstypeDto,
   TotrinnskontrollDto,
   TotrinnskontrollDtoBesluttet,
-  UtdanningslopDto,
 } from "@tiltaksadministrasjon/api-client";
 import { erSattPaVent } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
@@ -43,20 +42,11 @@ interface Props {
   prismodell: PrismodellDto;
   okonomi: null | TotrinnskontrollDto;
   enkeltplassDeltaker: null | DeltakerDto;
-  amoKategorisering: null | AmoKategoriseringDto;
-  utdanningslop: null | UtdanningslopDto;
+  opplaring: null | OpplaringKategorisering;
 }
 
 export function GjennomforingEnkeltplassDetaljer(props: Props) {
-  const {
-    tiltakstype,
-    gjennomforing,
-    prismodell,
-    enkeltplassDeltaker,
-    okonomi,
-    amoKategorisering,
-    utdanningslop,
-  } = props;
+  const { tiltakstype, gjennomforing, prismodell, enkeltplassDeltaker, okonomi, opplaring } = props;
   const handlinger = useGjennomforingHandlinger(gjennomforing.id);
   const [godkjennOpen, setGodkjennOpen] = useState(false);
   const [settPaVentOpen, setSettPaVentOpen] = useState(false);
@@ -116,14 +106,14 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
         <TwoColumnGrid separator>
           <DetaljerLayout>
             <Definisjonsliste title="Gjennomføring" definitions={gjennomforingMeta} />
-            {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
-            {amoKategorisering &&
+            {opplaring?.utdanningslop && (
+              <UtdanningslopDetaljer utdanningslop={opplaring.utdanningslop} />
+            )}
+            {opplaring?.kurstype &&
               !kursOgTiltakErStudiespesialisering(
-                amoKategorisering.kurstype,
+                opplaring.kurstype.kode,
                 tiltakstype.tiltakskode,
-              ) && (
-                <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} erEnkeltplass />
-              )}
+              ) && <AmoKategoriseringDetaljer opplaring={opplaring} erEnkeltplass />}
             <GjennomforingEnkeltplassVarighet gjennomforing={gjennomforing} />
           </DetaljerLayout>
           <DetaljerLayout>

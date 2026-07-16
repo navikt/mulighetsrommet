@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.datavarehus.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -76,7 +75,7 @@ data class DatavarehusTiltakV1AmoDto(
     override val tiltakskode: Tiltakskode,
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
-    val amoKategorisering: AmoKategorisering?,
+    val amoKategorisering: DvhAmoKategorisering?,
 ) : DatavarehusTiltakV1()
 
 @Serializable
@@ -84,15 +83,5 @@ data class DatavarehusTiltakV1YrkesfagDto(
     override val tiltakskode: Tiltakskode,
     override val avtale: Avtale?,
     override val gjennomforing: Gjennomforing,
-    val utdanningslop: Utdanningslop?,
-) : DatavarehusTiltakV1() {
-    @Serializable
-    data class Utdanningslop(
-        @Serializable(with = UUIDSerializer::class)
-        val utdanningsprogram: UUID,
-        val utdanninger: Set<
-            @Serializable(with = UUIDSerializer::class)
-            UUID,
-            >,
-    )
-}
+    val utdanningslop: DvhUtdanningslop?,
+) : DatavarehusTiltakV1()
