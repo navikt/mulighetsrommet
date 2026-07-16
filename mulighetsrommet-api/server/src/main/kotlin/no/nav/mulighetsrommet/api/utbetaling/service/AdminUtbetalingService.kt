@@ -222,22 +222,22 @@ class AdminUtbetalingService(
         }
     }
 
-    fun sendTilAvbrytning(
+    fun sendTilAvbrytelse(
         id: UUID,
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>,
     ): Either<List<FieldError>, Unit> = db.transaction {
-        utbetalingService.sendTilAvbrytning(
+        utbetalingService.sendTilAvbrytelse(
             id = id,
             agent = navIdent,
-            operation = "Utbetaling sendt til avbrytning ved behandling av utbetaling",
+            operation = "Utbetaling sendt til avbrytelse ved behandling av utbetaling",
             aarsaker = request.aarsaker.map { it.name },
             forklaring = request.forklaring,
         )
     }
 
-    fun godkjennAvbrytning(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
-        return utbetalingService.godkjennAvbrytning(id, navIdent)
+    fun godkjennAvbrytelse(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
+        return utbetalingService.godkjennAvbrytelse(id, navIdent)
     }
 
     fun avslaAvbrytelse(
@@ -245,7 +245,7 @@ class AdminUtbetalingService(
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>,
     ): Either<List<FieldError>, Unit> = db.transaction {
-        return utbetalingService.avslaAvbrytning(
+        return utbetalingService.avslaAvbrytelse(
             id = id,
             besluttetAv = navIdent,
             aarsaker = request.aarsaker.map { it.name },

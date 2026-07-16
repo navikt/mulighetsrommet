@@ -595,7 +595,7 @@ class UtbetalingQueries(private val session: Session) {
                    tiltakstype.tiltakskode,
                    kostnadssteder_json,
                    blokkeringer,
-                   coalesce(avbrytelse.behandlet, false) as til_avbrytelse
+                   coalesce(avbrytelse.til_behandling, false) as til_avbrytelse
             from utbetaling
                      inner join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
                      inner join arrangor on gjennomforing.arrangor_id = arrangor.id
@@ -615,7 +615,7 @@ class UtbetalingQueries(private val session: Session) {
                                                  join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
                                         where utbetaling.gjennomforing_id = tilsagn.gjennomforing_id and utbetaling.periode && tilsagn.periode) on true
                      left join lateral (
-                        select behandlet_av is not null as behandlet
+                        select besluttet_av is null as til_behandling
                         from totrinnskontroll t
                         where t.entity_id = utbetaling.id
                           and t.type = 'UTBETALING_AVBRYTELSE'

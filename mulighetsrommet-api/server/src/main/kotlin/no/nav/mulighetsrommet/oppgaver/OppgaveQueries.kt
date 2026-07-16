@@ -374,7 +374,7 @@ class OppgaveQueries(private val session: Session) {
                 arrangor.navn as arrangor_navn,
                 arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
-                coalesce(avbrytelse.behandlet, false) as til_avbrytelse
+                coalesce(avbrytelse.til_behandling, false) as til_avbrytelse
             from utbetaling
                 join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
                 inner join arrangor on gjennomforing.arrangor_id = arrangor.id
@@ -386,7 +386,7 @@ class OppgaveQueries(private val session: Session) {
                       and tilsagn.periode && utbetaling.periode
                 ) ks on true
                 left join lateral (
-                    select behandlet_av is not null as behandlet
+                    select besluttet_av is null as til_behandling
                     from totrinnskontroll t
                     where t.entity_id = utbetaling.id
                       and t.type = 'UTBETALING_AVBRYTELSE'

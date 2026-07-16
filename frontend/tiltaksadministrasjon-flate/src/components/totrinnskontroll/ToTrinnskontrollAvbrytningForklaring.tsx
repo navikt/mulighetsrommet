@@ -20,7 +20,7 @@ export function ToTrinnsAvbrytelseForklaring({ avbrytelse }: Props) {
           <AarsakerOgForklaring
             heading="Avbrytelse av utbetalingskrav ble avslått"
             tekster={[
-              `${avbrytelse.besluttetAv.navn} avslo avbrytningen ${formaterDato(avbrytelse.besluttetTidspunkt)}.`,
+              `${avbrytelse.besluttetAv.navn} avslo avbrytelsen ${formaterDato(avbrytelse.besluttetTidspunkt)}.`,
             ]}
             aarsaker={avbrytelse.aarsaker.map((aarsak) =>
               aarsakTilTekst(aarsak as UtbetalingStatusAarsak),
@@ -33,7 +33,7 @@ export function ToTrinnsAvbrytelseForklaring({ avbrytelse }: Props) {
           <AarsakerOgForklaring
             heading="Avbrytelse av utbetalingskrav ble godkjent"
             tekster={[
-              `${avbrytelse.behandletAv.navn} sendte kravet til avbrytning den ${formaterDato(avbrytelse.behandletTidspunkt)}.`,
+              `${avbrytelse.behandletAv.navn} sendte kravet til avbrytelse den ${formaterDato(avbrytelse.behandletTidspunkt)}.`,
               `Godkjent av ${avbrytelse.besluttetAv.navn} `,
             ]}
             aarsaker={avbrytelse.aarsaker.map((aarsak) =>
@@ -50,7 +50,7 @@ export function ToTrinnsAvbrytelseForklaring({ avbrytelse }: Props) {
     <AarsakerOgForklaring
       heading="Utbetalingskrav til avbrytelse"
       tekster={[
-        `${avbrytelse.behandletAv.navn} sendte kravet til avbrytning den ${formaterDato(avbrytelse.behandletTidspunkt)}.`,
+        `${avbrytelse.behandletAv.navn} sendte kravet til avbrytelse den ${formaterDato(avbrytelse.behandletTidspunkt)}.`,
       ]}
       aarsaker={avbrytelse.aarsaker.map((aarsak) =>
         aarsakTilTekst(aarsak as UtbetalingStatusAarsak),

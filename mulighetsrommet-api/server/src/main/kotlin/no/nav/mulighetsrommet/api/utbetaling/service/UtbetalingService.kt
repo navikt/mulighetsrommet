@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -66,6 +67,7 @@ class UtbetalingService(
     private val config: Config,
     private val tilsagnService: TilsagnService,
     private val arrangorService: ArrangorService,
+    private val navAnsattService: NavAnsattService,
 ) {
     data class Config(
         val tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator,
@@ -284,12 +286,12 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun sendTilAvbrytning(id: UUID, agent: Agent, operation: String, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Unit> = with(tx) {
+    fun sendTilAvbrytelse(id: UUID, agent: Agent, operation: String, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
         if (!utbetaling.kanAvbrytes()) {
-            return FieldError.of("Utbetaling kan ikke settes til avbrutt").nel().left()
+            return FieldError.of("Utbetaling kan ikke settes til avbrytelse").nel().left()
         }
-        val avbrytningTilGodkjenning = Totrinnskontroll.opprett(
+        val avbrytelseTilGodkjenning = Totrinnskontroll.opprett(
             id = UUID.randomUUID(),
             entityId = utbetaling.id,
             type = TotrinnskontrollType.UTBETALING_AVBRYTELSE,
@@ -297,14 +299,14 @@ class UtbetalingService(
             aarsaker = aarsaker,
             forklaring = forklaring,
         )
-        queries.totrinnskontroll.upsert(avbrytningTilGodkjenning)
-        outbox.publish(avbrytningTilGodkjenning)
+        queries.totrinnskontroll.upsert(avbrytelseTilGodkjenning)
+        outbox.publish(avbrytelseTilGodkjenning)
         logEndring(operation, utbetaling.id, agent)
         return Unit.right()
     }
 
     context(tx: TransactionalQueryContext)
-    fun godkjennAvbrytning(id: UUID, agent: Agent): Either<List<FieldError>, Unit> = with(tx) {
+    fun godkjennAvbrytelse(id: UUID, agent: Agent): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
         if (!utbetaling.kanAvbrytes()) {
             return FieldError.of("Utbetalingen kan ikke avbrytes")
@@ -323,7 +325,7 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun avslaAvbrytning(id: UUID, besluttetAv: NavIdent, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Unit> = with(tx) {
+    fun avslaAvbrytelse(id: UUID, besluttetAv: NavIdent, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
         if (!utbetaling.kanAvbrytes()) {
             // TODO: Her forsøker man å avslå en totrinnskontroll av avbrytelse. En kontroll på rett satus her er gjerne ikke nødvendig?
@@ -332,41 +334,46 @@ class UtbetalingService(
                 .left()
         }
 
-        val avbrytning = queries.totrinnskontroll.getOrError(utbetaling.id, TotrinnskontrollType.UTBETALING_AVBRYTELSE)
-        return avbrytning.returner(besluttetAv, aarsaker, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
+        val avbrytelse = queries.totrinnskontroll.getOrError(utbetaling.id, TotrinnskontrollType.UTBETALING_AVBRYTELSE)
+        return avbrytelse.returner(besluttetAv, aarsaker, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
             queries.totrinnskontroll.upsert(returnert)
             outbox.publish(returnert)
 
-            val behandletAv = avbrytning.behandletAv
+            val behandletAv = avbrytelse.behandletAv
             if (behandletAv is NavIdent) {
-                sendNotifikasjonOmAvvistAvbrytning(utbetaling, besluttetAv, behandletAv)
+                sendNotifikasjonOmAvslattAvbrytelse(utbetaling, besluttetAv, behandletAv)
             }
 
-            logEndring("Avbrytning avvist", utbetaling.id, besluttetAv)
+            logEndring("Avbrytelse avvist", utbetaling.id, besluttetAv)
         }
     }
 
-    private fun TransactionalQueryContext.sendNotifikasjonOmAvvistAvbrytning(
+    private fun TransactionalQueryContext.sendNotifikasjonOmAvslattAvbrytelse(
         utbetaling: Utbetaling,
         besluttetAv: NavIdent,
         behandletAv: NavIdent,
     ) {
-        // TODO: Flytt på dette, eller trekk inn NavAnsattService
-        val beslutterNavn = besluttetAv.value
+        val beslutterNavn = getAnsattNavn(besluttetAv)
         val notification = ScheduledNotification(
-            title = "Et utbetalingskrav du sendte til avbrytning er blitt avvist",
+            title = "Et utbetalingskrav du sendte til avbrytelse er blitt avslått",
             description = listOf(
-                "$beslutterNavn avviste avbrytningen av utbetalingen til ${utbetaling.arrangor.navn} for tiltaket ${utbetaling.getTiltaksnavn()}.",
+                "$beslutterNavn avslo avbrytelsen av utbetalingen til ${utbetaling.arrangor.navn} for tiltaket ${utbetaling.getTiltaksnavn()}.",
+                "Gjelder utbetalingsperioden ${utbetaling.periode.formatPeriode()}.",
                 "Kontakt $beslutterNavn om dette er feil.",
             ).joinToString(" "),
             metadata = NotificationMetadata(
                 linkText = "Gå til utbetaling",
-                link = "/gjennomforinger/${utbetaling.gjennomforing.id}/utbetaling/${utbetaling.id}",
+                link = "/gjennomforinger/${utbetaling.gjennomforing.id}/utbetalinger/${utbetaling.id}",
             ),
             createdAt = Instant.now(),
             targets = nonEmptyListOf(behandletAv),
         )
         queries.notifications.insert(notification)
+    }
+
+    private fun getAnsattNavn(navIdent: NavIdent): String {
+        val beslutterAnsatt = navAnsattService.getNavAnsattByNavIdent(navIdent)
+        return beslutterAnsatt?.displayName() ?: navIdent.value
     }
 
     context(tx: TransactionalQueryContext)
@@ -809,6 +816,7 @@ class UtbetalingService(
         queries.utbetaling.setStatus(linje.utbetalingId, UtbetalingStatusType.RETURNERT)
         return logEndring("Utbetaling returnert", linje.utbetalingId, besluttetAv)
     }
+
 
     private fun TransactionalQueryContext.setReturnertUtbetalingLinje(
         utbetalingLinjeId: UUID,

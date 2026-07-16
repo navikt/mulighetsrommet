@@ -275,7 +275,7 @@ fun Route.utbetalingRoutes() {
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Utbetaling ble sendt til avbrytning (totrinnskontroll)"
+                        description = "Utbetaling ble sendt til avbrytelse (totrinnskontroll)"
                     }
                     default {
                         description = "Problem details"
@@ -288,7 +288,7 @@ fun Route.utbetalingRoutes() {
                 val navIdent = getNavIdent()
 
                 request.validate().flatMap {
-                    utbetalingService.sendTilAvbrytning(id, navIdent, it)
+                    utbetalingService.sendTilAvbrytelse(id, navIdent, it)
                 }
                     .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
                     .onRight {
@@ -316,7 +316,7 @@ fun Route.utbetalingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                utbetalingService.godkjennAvbrytning(id, navIdent)
+                utbetalingService.godkjennAvbrytelse(id, navIdent)
                     .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
                     .onRight { call.respond(HttpStatusCode.OK) }
             }
