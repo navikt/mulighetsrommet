@@ -8254,6 +8254,31 @@ components:
       - AVTALE
       - GJENNOMFORING
       - OKONOMI
+    DokumentKoblingForKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+    KoblingerForKontaktperson:
+      type: object
+      properties:
+        gjennomforinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
+        avtaler:
+          type: array
+          items:
+            $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
+      required:
+      - avtaler
+      - gjennomforinger
     ArrangorKontaktpersonRequest:
       type: object
       properties:
@@ -8283,31 +8308,6 @@ components:
       - id
       - navn
       - telefon
-    DokumentKoblingForKontaktperson:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-      required:
-      - id
-      - navn
-    KoblingerForKontaktperson:
-      type: object
-      properties:
-        gjennomforinger:
-          type: array
-          items:
-            $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
-        avtaler:
-          type: array
-          items:
-            $ref: "#/components/schemas/DokumentKoblingForKontaktperson"
-      required:
-      - avtaler
-      - gjennomforinger
     Virksomhet.Hovedenhet:
       type: object
       properties:
