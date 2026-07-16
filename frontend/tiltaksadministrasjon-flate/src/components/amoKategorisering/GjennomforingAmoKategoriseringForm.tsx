@@ -1,5 +1,5 @@
 import { bransjeToString } from "@/utils/Utils";
-import { AmoKurstype, AvtaleDto } from "@tiltaksadministrasjon/api-client";
+import { KurstypeKode, AvtaleDto } from "@tiltaksadministrasjon/api-client";
 import { Alert, HGrid, Select } from "@navikt/ds-react";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
 import { ForerkortForm } from "./ForerkortForm";
@@ -25,7 +25,7 @@ export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
 
   return (
     <HGrid gap="space-16" columns={1}>
-      {avtaleAmo.kurstype === AmoKurstype.BRANSJE_OG_YRKESRETTET && (
+      {avtaleAmo.kurstype === KurstypeKode.BRANSJE_OG_YRKESRETTET && (
         <>
           <Select readOnly size="small" label="Bransje">
             <option>{avtaleAmo.bransje ? bransjeToString(avtaleAmo.bransje) : "-"}</option>
@@ -45,15 +45,15 @@ export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
           />
         </>
       )}
-      {avtaleAmo.kurstype === AmoKurstype.NORSKOPPLAERING && (
+      {avtaleAmo.kurstype === KurstypeKode.NORSKOPPLAERING && (
         <NorksopplaeringForm
           norskprovePath="amoKategorisering.norskprove"
           innholdElementerPath="amoKategorisering.innholdElementer"
           tiltakskode={avtale.tiltakstype.tiltakskode}
         />
       )}
-      {(avtaleAmo.kurstype === AmoKurstype.GRUNNLEGGENDE_FERDIGHETER ||
-        avtaleAmo.kurstype === AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE) && (
+      {(avtaleAmo.kurstype === KurstypeKode.GRUNNLEGGENDE_FERDIGHETER ||
+        avtaleAmo.kurstype === KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE) && (
         <InnholdElementerForm
           path="amoKategorisering.innholdElementer"
           tiltakskode={avtale.tiltakstype.tiltakskode}

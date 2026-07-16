@@ -6,11 +6,13 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering
-import no.nav.mulighetsrommet.api.amo.AmoKurstype
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
+import no.nav.mulighetsrommet.api.amo.models.Bransje
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.InnholdElement
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.AmoKategoriseringDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
@@ -160,7 +162,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull()
-                        .shouldBe(AmoKategoriseringDto(kurstype = AmoKurstype.STUDIESPESIALISERING))
+                        .shouldBe(AmoKategoriseringDto(kurstype = Kurstype.Kode.STUDIESPESIALISERING))
                 }
             }
             test("fov") {
@@ -173,8 +175,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
                             AmoKategoriseringDto(
-                                kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-                                innholdElementer = listOf(AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING),
+                                kurstype = Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+                                innholdElementer = listOf(InnholdElement.Kode.BRANSJERETTET_OPPLARING),
                             ),
                         )
                 }
@@ -195,8 +197,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                         .amoKategorisering.shouldNotBeNull()
                         .shouldBe(
                             AmoKategoriseringDto(
-                                kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
-                                innholdElementer = listOf(AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER),
+                                kurstype = Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
+                                innholdElementer = listOf(InnholdElement.Kode.GRUNNLEGGENDE_FERDIGHETER),
                             ),
                         )
                 }
@@ -216,9 +218,9 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
                             AmoKategoriseringDto(
-                                kurstype = AmoKurstype.NORSKOPPLAERING,
+                                kurstype = Kurstype.Kode.NORSKOPPLAERING,
                                 norskprove = false,
-                                innholdElementer = listOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING),
+                                innholdElementer = listOf(InnholdElement.Kode.NORSKOPPLAERING),
                             ),
                         )
                 }
@@ -240,10 +242,10 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                     bransjeOgYrkesrettet.shouldBe(
                         AmoKategoriseringDto(
-                            kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
-                            bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID,
-                            innholdElementer = listOf(AmoKategorisering.InnholdElement.PRAKSIS),
-                            forerkort = listOf(AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A),
+                            kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET,
+                            bransje = Bransje.Kode.KONTORARBEID,
+                            innholdElementer = listOf(InnholdElement.Kode.PRAKSIS),
+                            forerkort = listOf(ForerkortKlasse.Kode.A),
                             sertifiseringer = listOf(
                                 Sertifisering(konseptId = 1, label = "Jobb"),
                             ),

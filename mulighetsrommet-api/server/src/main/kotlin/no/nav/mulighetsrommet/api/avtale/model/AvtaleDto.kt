@@ -35,9 +35,9 @@ data class AvtaleDto(
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val amoKategorisering: AmoKategoriseringDto?,
+    val utdanningslop: UtdanningslopDto?,
     val opsjonsmodell: Opsjonsmodell,
     val opsjonerRegistrert: List<Avtale.OpsjonLoggDto>,
-    val utdanningslop: UtdanningslopDto?,
     val prismodeller: List<PrismodellDto>,
 ) {
     @Serializable

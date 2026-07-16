@@ -8,7 +8,7 @@ import {
 import {
   AmoKategoriseringDto,
   AmoKategoriseringRequest,
-  AmoKurstype,
+  KurstypeKode,
   DetaljerRequest,
   OpprettAvtaleRequest,
   PersonvernRequest,
@@ -91,45 +91,45 @@ export function toAmoKategoriseringRequest(
   amoKategorisering: AmoKategoriseringDto | null,
 ): AmoKategoriseringRequest | null {
   switch (amoKategorisering?.kurstype) {
-    case AmoKurstype.BRANSJE_OG_YRKESRETTET:
+    case KurstypeKode.BRANSJE_OG_YRKESRETTET:
       return {
-        kurstype: AmoKurstype.BRANSJE_OG_YRKESRETTET,
+        kurstype: KurstypeKode.BRANSJE_OG_YRKESRETTET,
         bransje: amoKategorisering.bransje,
         sertifiseringer: amoKategorisering.sertifiseringer,
         forerkort: amoKategorisering.forerkort,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
       };
-    case AmoKurstype.NORSKOPPLAERING:
+    case KurstypeKode.NORSKOPPLAERING:
       return {
-        kurstype: AmoKurstype.NORSKOPPLAERING,
+        kurstype: KurstypeKode.NORSKOPPLAERING,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: amoKategorisering.norskprove,
         bransje: null,
         sertifiseringer: null,
         forerkort: null,
       };
-    case AmoKurstype.GRUNNLEGGENDE_FERDIGHETER:
+    case KurstypeKode.GRUNNLEGGENDE_FERDIGHETER:
       return {
-        kurstype: AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+        kurstype: KurstypeKode.GRUNNLEGGENDE_FERDIGHETER,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
         bransje: null,
         sertifiseringer: null,
         forerkort: null,
       };
-    case AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
+    case KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
       return {
-        kurstype: AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+        kurstype: KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
         innholdElementer: amoKategorisering.innholdElementer,
         norskprove: null,
         bransje: null,
         sertifiseringer: null,
         forerkort: null,
       };
-    case AmoKurstype.STUDIESPESIALISERING:
+    case KurstypeKode.STUDIESPESIALISERING:
       return {
-        kurstype: AmoKurstype.STUDIESPESIALISERING,
+        kurstype: KurstypeKode.STUDIESPESIALISERING,
         innholdElementer: null,
         norskprove: null,
         bransje: null,
