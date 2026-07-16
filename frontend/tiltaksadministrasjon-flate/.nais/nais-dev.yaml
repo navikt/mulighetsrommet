@@ -1,7 +1,7 @@
 apiVersion: nais.io/v1alpha1
 kind: Application
 metadata:
-  name: mr-admin-flate
+  name: tiltaksadministrasjon-flate
   namespace: team-mulighetsrommet
   labels:
     team: team-mulighetsrommet
@@ -33,10 +33,6 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: nodejs
-  gcp:
-    buckets:
-      - name: mr-admin-flate-dev
-        cascadingDelete: false
   azure:
     application:
       enabled: true
@@ -67,7 +63,8 @@ spec:
       value: >
         {
           "gcs": {
-            "bucketName": "mr-admin-flate-dev"
+            "bucketName": "nais-cdn-nav-team-mulighetsrommet-4a92",
+            "bucketContextPath": "team-mulighetsrommet/dev/tiltaksadministrasjon-flate/dist/"
           },
           "auth": {
             "loginProvider": "AZURE_AD"
