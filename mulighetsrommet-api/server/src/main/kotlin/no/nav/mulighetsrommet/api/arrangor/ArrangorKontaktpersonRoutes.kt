@@ -16,6 +16,8 @@ import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonError
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonService
 import no.nav.mulighetsrommet.admin.arrangor.KoblingerForKontaktperson
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.StatusResponse
@@ -53,34 +55,6 @@ fun Route.arrangorKontaktpersonRoutes() {
             call.respond(arrangorKontaktpersoner.hentAlle(id))
         }
 
-        put("{id}/kontaktpersoner", {
-            tags = setOf("Arrangor")
-            operationId = "upsertArrangorKontaktperson"
-            request {
-                pathParameterUuid("id")
-                body<ArrangorKontaktpersonRequest>()
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Opprettet kontaktperson"
-                    body<ArrangorKontaktperson>()
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-            val virksomhetKontaktperson = call.receive<ArrangorKontaktpersonRequest>()
-
-            val result = virksomhetKontaktperson.toArrangorKontaktperson(id)
-                .onRight { arrangorKontaktpersoner.upsert(it) }
-                .onLeft { application.log.warn("Klarte ikke opprette kontaktperson: $it") }
-
-            call.respondWithStatusResponse(result)
-        }
-
         get("kontaktperson/{id}", {
             tags = setOf("Arrangor")
             operationId = "getKoblingerForKontaktperson"
@@ -105,39 +79,69 @@ fun Route.arrangorKontaktpersonRoutes() {
             call.respond(koblinger)
         }
 
-        delete("{id}/kontaktperson/{kontaktpersonId}", {
-            tags = setOf("Arrangor")
-            operationId = "deleteArrangorKontaktperson"
-            request {
-                pathParameterUuid("id")
-                pathParameterUuid("kontaktpersonId")
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Kontaktpersonen ble slettet"
+        authorize(anyOf = setOf(Rolle.AVTALER_SKRIV, Rolle.TILTAKSGJENNOMFORINGER_SKRIV)) {
+            put("{id}/kontaktpersoner", {
+                tags = setOf("Arrangor")
+                operationId = "upsertArrangorKontaktperson"
+                request {
+                    pathParameterUuid("id")
+                    body<ArrangorKontaktpersonRequest>()
                 }
-                code(HttpStatusCode.BadRequest) {
-                    description =
-                        "Kontaktpersonen kunne ikke slettes fordi den fortsatt er koblet mot enten avtale eller gjennomføring"
-                }
-                default {
-                    description = "Problem details"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val id: UUID by call.parameters
-            val kontaktpersonId: UUID by call.parameters
-
-            val result = arrangorKontaktpersoner.delete(id, kontaktpersonId)
-                .mapLeft {
-                    val error = when (it) {
-                        ArrangorKontaktpersonError.KontaktpersonErIBruk -> FieldError.of("Kontaktpersonen er i bruk og kan derfor ikke slettes")
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Opprettet kontaktperson"
+                        body<ArrangorKontaktperson>()
                     }
-                    ValidationError("Kunne ikke slette kontaktperson", listOf(error))
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
                 }
+            }) {
+                val id: UUID by call.parameters
+                val virksomhetKontaktperson = call.receive<ArrangorKontaktpersonRequest>()
 
-            call.respondWithStatusResponse(result)
+                val result = virksomhetKontaktperson.toArrangorKontaktperson(id)
+                    .onRight { arrangorKontaktpersoner.upsert(it) }
+                    .onLeft { application.log.warn("Klarte ikke opprette kontaktperson: $it") }
+
+                call.respondWithStatusResponse(result)
+            }
+
+            delete("{id}/kontaktperson/{kontaktpersonId}", {
+                tags = setOf("Arrangor")
+                operationId = "deleteArrangorKontaktperson"
+                request {
+                    pathParameterUuid("id")
+                    pathParameterUuid("kontaktpersonId")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Kontaktpersonen ble slettet"
+                    }
+                    code(HttpStatusCode.BadRequest) {
+                        description =
+                            "Kontaktpersonen kunne ikke slettes fordi den fortsatt er koblet mot enten avtale eller gjennomføring"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id: UUID by call.parameters
+                val kontaktpersonId: UUID by call.parameters
+
+                val result = arrangorKontaktpersoner.delete(id, kontaktpersonId)
+                    .mapLeft {
+                        val error = when (it) {
+                            ArrangorKontaktpersonError.KontaktpersonErIBruk -> FieldError.of("Kontaktpersonen er i bruk og kan derfor ikke slettes")
+                        }
+                        ValidationError("Kunne ikke slette kontaktperson", listOf(error))
+                    }
+
+                call.respondWithStatusResponse(result)
+            }
         }
     }
 }
