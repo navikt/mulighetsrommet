@@ -7,10 +7,12 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.amo.AmoKategorisering
+import no.nav.mulighetsrommet.api.amo.AmoKurstype
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.amo.toDbo
+import no.nav.mulighetsrommet.api.avtale.model.AmoKategoriseringDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
@@ -157,7 +159,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
-                        .amoKategorisering.shouldNotBeNull().shouldBe(AmoKategorisering.Studiespesialisering)
+                        .amoKategorisering.shouldNotBeNull()
+                        .shouldBe(AmoKategoriseringDto(kurstype = AmoKurstype.STUDIESPESIALISERING))
                 }
             }
             test("fov") {
@@ -169,7 +172,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
-                            AmoKategorisering.ForberedendeOpplaeringForVoksne(
+                            AmoKategoriseringDto(
+                                kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
                                 innholdElementer = listOf(AmoKategorisering.InnholdElement.BRANSJERETTET_OPPLARING),
                             ),
                         )
@@ -189,7 +193,12 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull()
-                        .shouldBe(AmoKategorisering.GrunnleggendeFerdigheter(innholdElementer = listOf(AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER)))
+                        .shouldBe(
+                            AmoKategoriseringDto(
+                                kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+                                innholdElementer = listOf(AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER),
+                            ),
+                        )
                 }
             }
             test("norskopplaering") {
@@ -206,7 +215,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
-                            AmoKategorisering.Norskopplaering(
+                            AmoKategoriseringDto(
+                                kurstype = AmoKurstype.NORSKOPPLAERING,
                                 norskprove = false,
                                 innholdElementer = listOf(AmoKategorisering.InnholdElement.NORSKOPPLAERING),
                             ),
@@ -229,7 +239,8 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                         .amoKategorisering.shouldNotBeNull()
 
                     bransjeOgYrkesrettet.shouldBe(
-                        AmoKategorisering.BransjeOgYrkesrettet(
+                        AmoKategoriseringDto(
+                            kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
                             bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID,
                             innholdElementer = listOf(AmoKategorisering.InnholdElement.PRAKSIS),
                             forerkort = listOf(AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A),

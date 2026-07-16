@@ -3,11 +3,9 @@ package no.nav.mulighetsrommet.api.datavarehus.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.api.avtale.model.toAmoKategoriseringDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
@@ -37,10 +35,8 @@ class DatavarehusTiltakQueries(private val session: Session) {
         return when (dto.tiltakskode) {
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
             -> {
-                val kategorisering = context(this.session) {
-                    OpplaringKategoriseringQueries.get(
-                        id,
-                    )
+                val kategorisering = context(session) {
+                    OpplaringKategoriseringQueries.get(id)
                 }
                 DatavarehusTiltakV1YrkesfagDto(
                     dto.tiltakskode,
@@ -52,16 +48,14 @@ class DatavarehusTiltakQueries(private val session: Session) {
 
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
             -> {
-                val kategorisering = context(this.session) {
-                    OpplaringKategoriseringQueries.get(
-                        id,
-                    )
+                val kategorisering = context(session) {
+                    OpplaringKategoriseringQueries.get(id)
                 }
                 DatavarehusTiltakV1AmoDto(
                     dto.tiltakskode,
                     dto.avtale,
                     dto.gjennomforing,
-                    kategorisering?.toAmoKategorisering(id),
+                    kategorisering?.toAmoKategoriseringDto(dto.tiltakskode),
                 )
             }
 
@@ -71,42 +65,6 @@ class DatavarehusTiltakQueries(private val session: Session) {
 }
 
 private fun UtdanningslopDto.toDatavarehusUtdanningslop() = DatavarehusTiltakV1YrkesfagDto.Utdanningslop(utdanningsprogram.id, utdanninger.map { it.id }.toSet())
-
-private fun OpplaringKategorisering.toAmoKategorisering(id: UUID): AmoKategorisering {
-    val mappedInnholdsElementer = innholdElementer.map { AmoKategorisering.InnholdElement.valueOf(it.kode.name) }
-    requireNotNull(kurstype) {
-        "Kurstype kan ikke være null for amo kategorisering gjennomforing_id=$id"
-    }
-    return when (kurstype.kode) {
-        Kurstype.Kode.BRANSJE_OG_YRKESRETTET -> {
-            requireNotNull(bransje) {
-                "Bransje kan ikke være null for kurstype BRANSJE_OG_YRKESRETTET gjennomforing_id=$id"
-            }
-            AmoKategorisering.BransjeOgYrkesrettet(
-                bransje = bransje.let { AmoKategorisering.BransjeOgYrkesrettet.Bransje.valueOf(it.kode.toString()) },
-                sertifiseringer = sertifiseringer.toList(),
-                forerkort = forerkort
-                    .map { AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.valueOf(it.kode.toString()) },
-                innholdElementer = mappedInnholdsElementer,
-            )
-        }
-
-        Kurstype.Kode.NORSKOPPLAERING -> AmoKategorisering.Norskopplaering(
-            norskprove = norskprove ?: false,
-            innholdElementer = mappedInnholdsElementer,
-        )
-
-        Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER -> AmoKategorisering.GrunnleggendeFerdigheter(
-            innholdElementer = mappedInnholdsElementer,
-        )
-
-        Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategorisering.ForberedendeOpplaeringForVoksne(
-            innholdElementer = mappedInnholdsElementer,
-        )
-
-        Kurstype.Kode.STUDIESPESIALISERING -> AmoKategorisering.Studiespesialisering
-    }
-}
 
 private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
     val tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode"))
