@@ -73,9 +73,9 @@ import { aarsakTilTekst } from "@/utils/Utils";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
-  const { utbetaling, handlinger, tilAvbrytelse } = useUtbetaling(utbetalingId);
+  const { utbetaling, handlinger } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
-  return { utbetaling, handlinger, beregning, tilAvbrytelse };
+  return { utbetaling, handlinger, beregning };
 }
 
 export function UtbetalingDetaljerPage() {
@@ -84,7 +84,7 @@ export function UtbetalingDetaljerPage() {
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [modalVariant, setModalVariant] = useState<UtbetalingHandling | null>(null);
 
-  const { utbetaling, handlinger, beregning, tilAvbrytelse } = useUtbetalingDetaljerData();
+  const { utbetaling, handlinger, beregning } = useUtbetalingDetaljerData();
   const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetaling.id);
 
   const { gjennomforingId, periode, tilskuddstype } = utbetaling;
@@ -121,9 +121,6 @@ export function UtbetalingDetaljerPage() {
       {
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
-        },
-        onSuccess: () => {
-          navigate(-1);
         },
       },
     );
@@ -198,8 +195,8 @@ export function UtbetalingDetaljerPage() {
         />
       </HStack>
       <VStack gap="space-12">
-        {utbetaling.status.type !== UtbetalingStatusDtoType.AVBRUTT && tilAvbrytelse && (
-          <ToTrinnsAvbrytelseForklaring avbrytelse={tilAvbrytelse} />
+        {utbetaling.status.type !== UtbetalingStatusDtoType.AVBRUTT && (
+          <ToTrinnsAvbrytelseForklaring avbrytelse={utbetaling.avbrytelse} />
         )}
         <HGrid columns="1fr auto" align="start">
           <TwoColumnGrid separator>
@@ -313,15 +310,15 @@ export function UtbetalingDetaljerPage() {
                 )}
               </VStack>
             </Box>
-            {utbetaling.status.type === UtbetalingStatusDtoType.AVBRUTT && tilAvbrytelse && (
+            {utbetaling.status.type === UtbetalingStatusDtoType.AVBRUTT && utbetaling.avbrytelse && (
               <>
                 <Separator />
                 <TotrinnsBegrunnelse
                   title="Begrunnelse for avbrytelse"
-                  aarsaker={tilAvbrytelse.aarsaker.map((arsak) =>
+                  aarsaker={utbetaling.avbrytelse.aarsaker.map((arsak) =>
                     aarsakTilTekst(arsak as UtbetalingStatusAarsak),
                   )}
-                  forklaring={tilAvbrytelse.forklaring}
+                  forklaring={utbetaling.avbrytelse.forklaring}
                 />
               </>
             )}

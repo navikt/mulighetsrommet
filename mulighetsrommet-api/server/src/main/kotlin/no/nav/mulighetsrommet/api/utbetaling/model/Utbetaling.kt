@@ -89,7 +89,7 @@ data class Utbetaling(
                     aarsaker = aarsaker,
                     forklaring = forklaring,
                 ),
-                returnert = UtbetalingStatusType.RETURNERT,
+                returnert = status,
                 godkjent = UtbetalingStatusType.AVBRUTT,
             ),
         ).right()

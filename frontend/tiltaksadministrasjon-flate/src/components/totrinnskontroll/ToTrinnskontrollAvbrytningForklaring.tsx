@@ -9,10 +9,13 @@ import { formaterDato } from "@mr/frontend-common/utils/date";
 import { erBesluttet } from "@/utils/totrinnskontroll";
 
 type Props = {
-  avbrytelse: TotrinnskontrollDto;
+  avbrytelse: TotrinnskontrollDto | null;
 };
 
 export function ToTrinnsAvbrytelseForklaring({ avbrytelse }: Props) {
+  if (!avbrytelse) {
+    return;
+  }
   if (erBesluttet(avbrytelse)) {
     switch (avbrytelse.beslutning) {
       case TotrinnskontrollDtoBeslutning.RETURNERT:

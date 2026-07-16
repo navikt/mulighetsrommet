@@ -7495,8 +7495,13 @@ components:
           - string
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
+        avbrytelse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
       - avbruttBegrunnelse
+      - avbrytelse
       - begrunnelseMindreBetalt
       - beregning
       - betalingsinformasjon
@@ -7588,13 +7593,8 @@ components:
           items:
             $ref: "#/components/schemas/UtbetalingHandling"
           uniqueItems: true
-        tilAvbrytelse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
       - handlinger
-      - tilAvbrytelse
       - utbetaling
     UtbetalingStatusAarsak:
       type: string

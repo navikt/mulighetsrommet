@@ -179,10 +179,10 @@ class UtbetalingQueries(private val session: Session) {
             """.trimIndent()
 
             val params = mapOf(
-                "id" to utbetalingId,
+                "utbetaling_id" to utbetalingId,
                 "totrinnskontroll_id" to avbrytelse.totrinnskontrollId,
-                "returnert" to avbrytelse.returnert,
-                "godkjent" to avbrytelse.godkjent,
+                "returnert" to avbrytelse.returnert.name,
+                "godkjent" to avbrytelse.godkjent.name,
             )
 
             execute(queryOf(utbetalingQuery, params))
