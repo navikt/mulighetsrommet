@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.avtale.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.DataElement
@@ -34,8 +35,7 @@ data class AvtaleDto(
     val faneinnhold: Faneinnhold?,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
-    val amoKategorisering: AmoKategoriseringDto?,
-    val utdanningslop: UtdanningslopDto?,
+    val opplaring: OpplaringKategorisering?,
     val opsjonsmodell: Opsjonsmodell,
     val opsjonerRegistrert: List<Avtale.OpsjonLoggDto>,
     val prismodeller: List<PrismodellDto>,

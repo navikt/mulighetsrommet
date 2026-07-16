@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.model.Tiltakskode
 
+// TODO: Flytte til datavarehustiltak-modul
 @Serializable
 data class AmoKategoriseringDto(
     val kurstype: Kurstype.Kode? = null,

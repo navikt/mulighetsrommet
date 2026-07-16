@@ -71,7 +71,6 @@ export function OpprettGjennomforingPage() {
           location.state?.dupliserGjennomforing?.veilederinfo,
           null,
           null,
-          null,
         )}
         onCancel={() => navigate(-1)}
         onSubmit={(data, form) => {

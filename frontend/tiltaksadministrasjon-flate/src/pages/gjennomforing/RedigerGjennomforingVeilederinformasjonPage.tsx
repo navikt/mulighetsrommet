@@ -65,8 +65,7 @@ function RedigerVeilederinformasjonForm({ gjennomforingId, gjennomforing }: Form
       gjennomforing,
       detaljer.veilederinfo,
       detaljer.prismodell,
-      detaljer.amoKategorisering,
-      detaljer.utdanningslop,
+      detaljer.opplaring,
     ),
   });
 

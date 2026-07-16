@@ -1,6 +1,5 @@
 import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpers";
 import {
-  AmoKategoriseringDto,
   AvtaleDto,
   GjennomforingAvtaleDto,
   GjennomforingDto,
@@ -8,6 +7,7 @@ import {
   GjennomforingPameldingType,
   GjennomforingVeilederinfoDto,
   NavAnsattDto,
+  OpplaringKategorisering,
   PrismodellDto,
   Tiltakskode,
   TiltakstypeDto,
@@ -26,13 +26,13 @@ export function defaultGjennomforingData(
   gjennomforing: Partial<GjennomforingAvtaleDto> | null,
   veilederinfo: Partial<GjennomforingVeilederinfoDto> | null,
   prismodell: PrismodellDto | null,
-  amoKategorisering: AmoKategoriseringDto | null,
-  utdanningslop: UtdanningslopDto | null,
+  opplaring: OpplaringKategorisering | null,
 ): DeepPartial<GjennomforingFormValues> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, veilederinfo);
 
   const defaultOppstart = getDefaultOppstart(tiltakstype);
   const oppstart = gjennomforing?.oppstart || defaultOppstart;
+  const effectiveOpplaring = opplaring ?? avtale.opplaring ?? null;
   return {
     navn: gjennomforing?.navn || avtale.navn,
     administratorer: gjennomforing?.administratorer?.map((admin) => admin.navIdent) || [
@@ -63,14 +63,10 @@ export function defaultGjennomforingData(
     },
     deltidsprosent: gjennomforing?.deltidsprosent ?? 100,
     tilgjengeligForArrangorDato: gjennomforing?.tilgjengeligForArrangorDato ?? null,
-    amoKategorisering: amoKategorisering
-      ? toAmoKategoriseringRequest(amoKategorisering)
-      : toAmoKategoriseringRequest(avtale.amoKategorisering),
-    utdanningslop: utdanningslop
-      ? toUtdanningslopDbo(utdanningslop)
-      : avtale.utdanningslop
-        ? toUtdanningslopDbo(avtale.utdanningslop)
-        : null,
+    amoKategorisering: toAmoKategoriseringRequest(effectiveOpplaring),
+    utdanningslop: effectiveOpplaring?.utdanningslop
+      ? toUtdanningslopDbo(effectiveOpplaring.utdanningslop)
+      : null,
     oppmoteSted: oppmoteSted(tiltakstype.tiltakskode, veilederinfo),
     pameldingType: gjennomforing?.pameldingType || getDefaultPameldingType(oppstart),
     prismodellId: prismodell?.id ?? avtale.prismodeller[0]?.id,

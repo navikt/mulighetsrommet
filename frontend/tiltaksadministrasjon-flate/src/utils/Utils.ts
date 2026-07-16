@@ -1,7 +1,5 @@
 import {
-  AmoKategoriseringDto,
   AvbrytGjennomforingAarsak,
-  AvtaleDto,
   Avtaletype,
   BransjeKode as Bransje,
   ForerkortKlasseKode as ForerkortKlasse,
@@ -84,10 +82,6 @@ export function validEmail(email: string | undefined): boolean {
   );
 }
 
-export function avtaleHarRegioner(avtale: AvtaleDto): boolean {
-  return avtale.kontorstruktur.length > 0;
-}
-
 export function formaterNavEnheter(
   navEnheter: {
     navn: string;
@@ -153,7 +147,7 @@ export function forerkortKlasseToString(klasse: ForerkortKlasse): string {
   }
 }
 
-export function kurstypeToString(kurstype: AmoKategoriseringDto["kurstype"]): string {
+export function kurstypeToString(kurstype: KurstypeKode): string {
   switch (kurstype) {
     case KurstypeKode.BRANSJE_OG_YRKESRETTET:
       return "Bransje";
@@ -165,8 +159,6 @@ export function kurstypeToString(kurstype: AmoKategoriseringDto["kurstype"]): st
       return "FOV (Forberedende opplæring for voksne)";
     case KurstypeKode.GRUNNLEGGENDE_FERDIGHETER:
       return "Grunnleggende ferdigheter";
-    case null:
-      throw new Error("Kurstype is missing");
   }
 }
 

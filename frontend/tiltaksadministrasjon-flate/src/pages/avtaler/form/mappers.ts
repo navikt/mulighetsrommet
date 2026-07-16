@@ -6,10 +6,10 @@ import {
   VeilederinfoOutputValues,
 } from "@/pages/avtaler/form/validation";
 import {
-  AmoKategoriseringDto,
   AmoKategoriseringRequest,
   KurstypeKode,
   DetaljerRequest,
+  OpplaringKategorisering,
   OpprettAvtaleRequest,
   PersonvernRequest,
   PrismodellRequest,
@@ -88,23 +88,23 @@ export function toVeilederinfoRequest(data: VeilederinfoOutputValues): Veilederi
 }
 
 export function toAmoKategoriseringRequest(
-  amoKategorisering: AmoKategoriseringDto | null,
+  opplaring: OpplaringKategorisering | null,
 ): AmoKategoriseringRequest | null {
-  switch (amoKategorisering?.kurstype) {
+  switch (opplaring?.kurstype?.kode) {
     case KurstypeKode.BRANSJE_OG_YRKESRETTET:
       return {
         kurstype: KurstypeKode.BRANSJE_OG_YRKESRETTET,
-        bransje: amoKategorisering.bransje,
-        sertifiseringer: amoKategorisering.sertifiseringer,
-        forerkort: amoKategorisering.forerkort,
-        innholdElementer: amoKategorisering.innholdElementer,
+        bransje: opplaring.bransje?.kode ?? null,
+        sertifiseringer: opplaring.sertifiseringer,
+        forerkort: opplaring.forerkort.map((f) => f.kode),
+        innholdElementer: opplaring.innholdElementer.map((e) => e.kode),
         norskprove: null,
       };
     case KurstypeKode.NORSKOPPLAERING:
       return {
         kurstype: KurstypeKode.NORSKOPPLAERING,
-        innholdElementer: amoKategorisering.innholdElementer,
-        norskprove: amoKategorisering.norskprove,
+        innholdElementer: opplaring.innholdElementer.map((e) => e.kode),
+        norskprove: opplaring.norskprove,
         bransje: null,
         sertifiseringer: null,
         forerkort: null,
@@ -112,7 +112,7 @@ export function toAmoKategoriseringRequest(
     case KurstypeKode.GRUNNLEGGENDE_FERDIGHETER:
       return {
         kurstype: KurstypeKode.GRUNNLEGGENDE_FERDIGHETER,
-        innholdElementer: amoKategorisering.innholdElementer,
+        innholdElementer: opplaring.innholdElementer.map((e) => e.kode),
         norskprove: null,
         bransje: null,
         sertifiseringer: null,
@@ -121,7 +121,7 @@ export function toAmoKategoriseringRequest(
     case KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE:
       return {
         kurstype: KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-        innholdElementer: amoKategorisering.innholdElementer,
+        innholdElementer: opplaring.innholdElementer.map((e) => e.kode),
         norskprove: null,
         bransje: null,
         sertifiseringer: null,
@@ -137,7 +137,6 @@ export function toAmoKategoriseringRequest(
         forerkort: null,
       };
 
-    case null:
     case undefined:
       return null;
   }

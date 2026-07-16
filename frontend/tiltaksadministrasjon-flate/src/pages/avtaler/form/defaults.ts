@@ -35,13 +35,15 @@ export function defaultAvtaleData(
       sluttDato: avtale?.sluttDato ?? null,
       sakarkivNummer: avtale?.sakarkivNummer ?? null,
       tiltakskode: avtale?.tiltakstype?.tiltakskode,
-      amoKategorisering: toAmoKategoriseringRequest(avtale?.amoKategorisering ?? null),
+      amoKategorisering: toAmoKategoriseringRequest(avtale?.opplaring ?? null),
       opsjonsmodell: {
         type: avtale?.opsjonsmodell?.type,
         opsjonMaksVarighet: avtale?.opsjonsmodell?.opsjonMaksVarighet,
         customOpsjonsmodellNavn: avtale?.opsjonsmodell?.customOpsjonsmodellNavn,
       },
-      utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
+      utdanningslop: avtale?.opplaring?.utdanningslop
+        ? toUtdanningslopDbo(avtale.opplaring.utdanningslop)
+        : undefined,
     },
     veilederinformasjon: {
       navRegioner: navRegioner,

@@ -1,4 +1,3 @@
-import { bransjeToString } from "@/utils/Utils";
 import { KurstypeKode, AvtaleDto } from "@tiltaksadministrasjon/api-client";
 import { Alert, HGrid, Select } from "@navikt/ds-react";
 import { gjennomforingTekster } from "../ledetekster/gjennomforingLedetekster";
@@ -17,23 +16,26 @@ export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
     return null;
   }
 
-  if (!avtale.amoKategorisering) {
+  if (!avtale.opplaring) {
     return <Alert variant="warning">{gjennomforingTekster.amoKategoriseringMangler}</Alert>;
   }
 
-  const avtaleAmo = avtale.amoKategorisering;
+  const avtaleAmo = avtale.opplaring;
 
   return (
     <HGrid gap="space-16" columns={1}>
-      {avtaleAmo.kurstype === KurstypeKode.BRANSJE_OG_YRKESRETTET && (
+      {avtaleAmo.kurstype?.kode === KurstypeKode.BRANSJE_OG_YRKESRETTET && (
         <>
           <Select readOnly size="small" label="Bransje">
-            <option>{avtaleAmo.bransje ? bransjeToString(avtaleAmo.bransje) : "-"}</option>
+            <option>{avtaleAmo.bransje ? avtaleAmo.bransje.navn : "-"}</option>
           </Select>
-          {avtaleAmo.forerkort && avtaleAmo.forerkort.length > 0 && (
-            <ForerkortForm path="amoKategorisering.forerkort" options={avtaleAmo.forerkort} />
+          {avtaleAmo.forerkort.length > 0 && (
+            <ForerkortForm
+              path="amoKategorisering.forerkort"
+              options={avtaleAmo.forerkort.map((f) => f.kode)}
+            />
           )}
-          {avtaleAmo.sertifiseringer && avtaleAmo.sertifiseringer.length > 0 && (
+          {avtaleAmo.sertifiseringer.length > 0 && (
             <SertifiseringerSkjema
               path="amoKategorisering.sertifiseringer"
               options={avtaleAmo.sertifiseringer}
@@ -45,15 +47,15 @@ export function GjennomforingAmoKategoriseringForm({ avtale }: Props) {
           />
         </>
       )}
-      {avtaleAmo.kurstype === KurstypeKode.NORSKOPPLAERING && (
+      {avtaleAmo.kurstype?.kode === KurstypeKode.NORSKOPPLAERING && (
         <NorksopplaeringForm
           norskprovePath="amoKategorisering.norskprove"
           innholdElementerPath="amoKategorisering.innholdElementer"
           tiltakskode={avtale.tiltakstype.tiltakskode}
         />
       )}
-      {(avtaleAmo.kurstype === KurstypeKode.GRUNNLEGGENDE_FERDIGHETER ||
-        avtaleAmo.kurstype === KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE) && (
+      {(avtaleAmo.kurstype?.kode === KurstypeKode.GRUNNLEGGENDE_FERDIGHETER ||
+        avtaleAmo.kurstype?.kode === KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE) && (
         <InnholdElementerForm
           path="amoKategorisering.innholdElementer"
           tiltakskode={avtale.tiltakstype.tiltakskode}
