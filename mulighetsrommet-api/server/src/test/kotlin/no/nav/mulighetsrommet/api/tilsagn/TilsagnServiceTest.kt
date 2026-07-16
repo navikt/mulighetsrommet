@@ -740,6 +740,7 @@ class TilsagnServiceTest : FunSpec({
                         tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
                         innsendtAvArrangorTidspunkt = null,
                         utbetalesTidligstTidspunkt = null,
+                        avbrytelse = null,
                     ),
                 )
                 queries.utbetalingLinje.upsert(

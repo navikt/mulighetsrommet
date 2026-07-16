@@ -110,7 +110,6 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             ),
             tilsagnService = tilsagnService,
             betalingsinformasjon = betalingsinformasjon,
-            navAnsattService = mockk(relaxed = true),
         )
         return ArrangorflateUtbetalingService(
             db = database.api,

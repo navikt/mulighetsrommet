@@ -23,6 +23,9 @@ select utbetaling.id,
        utbetaling.korreksjon_gjelder_utbetaling_id,
        utbetaling.korreksjon_begrunnelse,
        utbetaling.innsendt_av_arrangor_tidspunkt,
+       utbetaling_avbrytelse.totrinnskontroll_id as utbetaling_avbrytelse_totrinnskontroll_id,
+       utbetaling_avbrytelse.returnert as utbetaling_avbrytelse_returnert,
+       utbetaling_avbrytelse.godkjent as utbetaling_avbrytelse_godkjent,
        blokkeringer,
        gjennomforing.id                  as gjennomforing_id,
        gjennomforing.lopenummer          as gjennomforing_lopenummer,
@@ -37,6 +40,7 @@ from utbetaling
          inner join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
          inner join arrangor on gjennomforing.arrangor_id = arrangor.id
          inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
+         left join utbetaling_avbrytelse on utbetaling.id = utbetaling_avbrytelse.utbetaling_id
          left join lateral (select coalesce(array_agg(blokkering), '{}') as blokkeringer
                             from utbetaling_blokkering
                             where utbetaling_id = utbetaling.id) blokkeringer on true;

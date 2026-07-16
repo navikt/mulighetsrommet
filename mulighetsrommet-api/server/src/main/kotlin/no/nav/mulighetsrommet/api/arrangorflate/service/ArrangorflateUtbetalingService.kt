@@ -130,6 +130,7 @@ class ArrangorflateUtbetalingService(
             UtbetalingStatusType.FERDIG_BEHANDLET,
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.TIL_AVBRYTELSE,
             UtbetalingStatusType.AVBRUTT,
             -> emptyList()
         }

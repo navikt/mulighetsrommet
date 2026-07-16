@@ -52,19 +52,19 @@ class AdminUtbetalingService(
     fun getUtbetalingDetaljer(id: UUID, navIdent: NavIdent): UtbetalingDetaljerDto = db.session {
         val utbetaling = queries.utbetaling.getOrError(id)
         val linjer = queries.utbetalingLinje.getByUtbetalingId(id)
-        val tilAvbrytelse = queries.totrinnskontroll.getDto(utbetaling.id, TotrinnskontrollType.UTBETALING_AVBRYTELSE)
+        val avbrytelse = utbetaling.avbrytelse?.totrinnskontroll?.let { queries.totrinnskontroll.getDtoByIdOrError(it.id) }
         val dto = UtbetalingDto.fromUtbetaling(
             utbetaling = utbetaling,
             linjer = linjer,
-            tilAvbrytelse = utbetaling.kanAvbrytes() && tilAvbrytelse is TotrinnskontrollDto.TilBeslutning,
+            avbrytelse = avbrytelse,
         )
 
         val ansatt = queries.ansatt.getOrError(navIdent)
         val avbrytHandlingEnabled =
             featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING)
-        val handlinger = utbetalingHandlinger(utbetaling, ansatt, tilAvbrytelse, avbrytHandlingEnabled)
+        val handlinger = utbetalingHandlinger(utbetaling, ansatt, dto.avbrytelse, avbrytHandlingEnabled)
 
-        return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger, tilAvbrytelse = tilAvbrytelse)
+        return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
     }
 
     suspend fun getUtbetalingLinjer(
@@ -227,7 +227,7 @@ class AdminUtbetalingService(
         id: UUID,
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>,
-    ): Either<List<FieldError>, Unit> = db.transaction {
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
         utbetalingService.sendTilAvbrytelse(
             id = id,
             agent = navIdent,
@@ -237,7 +237,7 @@ class AdminUtbetalingService(
         )
     }
 
-    fun godkjennAvbrytelse(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
+    fun godkjennAvbrytelse(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Utbetaling> = db.transaction {
         return utbetalingService.godkjennAvbrytelse(id, navIdent)
     }
 
@@ -245,7 +245,7 @@ class AdminUtbetalingService(
         id: UUID,
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>,
-    ): Either<List<FieldError>, Unit> = db.transaction {
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
         return utbetalingService.avslaAvbrytelse(
             id = id,
             besluttetAv = navIdent,
@@ -290,7 +290,7 @@ class AdminUtbetalingService(
         fun utbetalingHandlinger(
             utbetaling: Utbetaling,
             ansatt: NavAnsatt,
-            tilAvbrytning: TotrinnskontrollDto?,
+            tilAvbrytelse: TotrinnskontrollDto?,
             avbrytHandlingEnabled: Boolean,
         ) = setOfNotNull(
             UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf { utbetaling.erTilBehandling() },
@@ -299,9 +299,9 @@ class AdminUtbetalingService(
             UtbetalingHandling.REDIGER.takeIf { kanRedigeres(utbetaling) },
             UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
-            UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { avbrytHandlingEnabled && utbetaling.kanAvbrytes() },
-            UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytning) },
-            UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytning) },
+            UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { avbrytHandlingEnabled && utbetaling.kanSettesTilAvbrytelse() },
+            UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytelse) },
+            UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytelse) },
         )
             .filter { handling ->
                 tilgangTilHandling(handling, ansatt)

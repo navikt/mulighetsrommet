@@ -92,6 +92,27 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
         return session.single(queryOf(query, params)) { it.toTotrinnskontroll() }
     }
 
+    override fun getByIdOrError(id: UUID): Totrinnskontroll {
+        return requireNotNull(getById(id)) {
+            "Totrinnskontroll mangler for $id"
+        }
+    }
+
+    override fun getById(id: UUID): Totrinnskontroll? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from totrinnskontroll
+            where id = :id::uuid
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+        )
+
+        return session.single(queryOf(query, params)) { it.toTotrinnskontroll() }
+    }
+
     override fun getDtoOrError(entityId: UUID, type: TotrinnskontrollType): TotrinnskontrollDto {
         return requireNotNull(getDto(entityId, type)) {
             "Totrinnskontroll mangler for type $type"
@@ -121,6 +142,34 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
         return session.single(queryOf(query, params)) { it.toDto() }
     }
 
+    override fun getDtoByIdOrError(id: UUID): TotrinnskontrollDto {
+        return requireNotNull(getDtoById(id)) {
+            "Totrinnskontroll mangler for $id"
+        }
+    }
+
+    override fun getDtoById(id: UUID): TotrinnskontrollDto? {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                totrinnskontroll.*,
+                nav_ansatt_behandlet.fornavn || ' ' || nav_ansatt_behandlet.etternavn AS behandlet_av_navn,
+                nav_ansatt_besluttet.fornavn || ' ' || nav_ansatt_besluttet.etternavn AS besluttet_av_navn
+            from totrinnskontroll
+                left join nav_ansatt nav_ansatt_behandlet on behandlet_av = nav_ansatt_behandlet.nav_ident
+                left join nav_ansatt nav_ansatt_besluttet on besluttet_av = nav_ansatt_besluttet.nav_ident
+            where id = :id::uuid
+            order by behandlet_tidspunkt desc
+            limit 1
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to id,
+        )
+
+        return session.single(queryOf(query, params)) { it.toDto() }
+    }
+
     fun getAll(entityId: UUID): List<Totrinnskontroll> {
         @Language("PostgreSQL")
         val query = """
@@ -137,7 +186,7 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
         return session.list(queryOf(query, params)) { it.toTotrinnskontroll() }
     }
 
-    private fun Row.toTotrinnskontroll(): Totrinnskontroll {
+    fun Row.toTotrinnskontroll(): Totrinnskontroll {
         return Totrinnskontroll(
             id = uuid("id"),
             entityId = uuid("entity_id"),

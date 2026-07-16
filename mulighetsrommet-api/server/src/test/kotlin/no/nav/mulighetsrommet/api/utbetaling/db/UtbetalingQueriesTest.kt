@@ -85,6 +85,7 @@ class UtbetalingQueriesTest : FunSpec({
         journalpostId = JournalpostId("12345"),
         innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
+        avbrytelse = null,
     )
 
     test("upsert and get utbetaling med fri beregning") {

@@ -17,11 +17,9 @@ import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -96,21 +94,9 @@ fun Route.utbetalingRoutes() {
                     Pair(null, emptyList())
                 }
 
-                val tilAvbrytelse = {
-                    val totrinn = queries.totrinnskontroll.getDto(utbetaling.id, TotrinnskontrollType.UTBETALING_AVBRYTELSE)
-                    val underGodkjenning = when (totrinn) {
-                        is TotrinnskontrollDto.TilBeslutning -> true
-
-                        is TotrinnskontrollDto.Besluttet,
-                        null,
-                        -> false
-                    }
-                    utbetaling.kanAvbrytes() && underGodkjenning
-                }
-
                 UtbetalingKompaktDto(
                     id = utbetaling.id,
-                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer, tilAvbrytelse()),
+                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer),
                     periode = utbetaling.periode,
                     kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhet(it) },
                     belopUtbetalt = belopUtbetalt,

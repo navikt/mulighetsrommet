@@ -91,9 +91,9 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         entityId = behandlingId,
         type = TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
         status = TotrinnskontrollHendelse.Status.GODKJENT,
-        behandletAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.DonaldDuck.navIdent.value),
+        behandletAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.DonaldDuck.navIdent),
         behandletTidspunkt = Instant.now(),
-        besluttetAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.MikkeMus.navIdent.value),
+        besluttetAv = TotrinnskontrollAgent.NavAnsatt(NavAnsattFixture.MikkeMus.navIdent),
         besluttetTidspunkt = Instant.now(),
         aarsaker = emptyList(),
         forklaring = null,
@@ -115,7 +115,6 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             ),
             tilsagnService = tilsagnService,
             betalingsinformasjon = betalingsinformasjon,
-            navAnsattService = mockk(relaxed = true),
         )
         return TilskuddArrangorUtbetalingConsumer(
             db = database.api,

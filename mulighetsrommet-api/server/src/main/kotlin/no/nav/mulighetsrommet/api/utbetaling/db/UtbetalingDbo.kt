@@ -26,4 +26,5 @@ data class UtbetalingDbo(
     val tilskuddstype: Tilskuddstype,
     val innsendtAvArrangorTidspunkt: LocalDateTime?,
     val utbetalesTidligstTidspunkt: Instant?,
+    val avbrytelse: UtbetalingTilstandsendringDbo?,
 )

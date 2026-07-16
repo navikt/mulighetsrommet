@@ -96,7 +96,6 @@ class GenererUtbetalingServiceTest : FunSpec({
             config = UtbetalingService.Config(tidligstTidspunktForUtbetaling),
             tilsagnService = tilsagnService,
             betalingsinformasjon = betalingsinformasjon,
-            navAnsattService = mockk(relaxed = true),
         )
         return GenererUtbetalingService(
             config = GenererUtbetalingService.Config(gyldigTilsagnPeriode),

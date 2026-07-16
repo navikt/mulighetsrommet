@@ -127,17 +127,18 @@ class UtbetalingLinjeQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setStatusForLinjer(utbetalingId: UUID, status: UtbetalingLinjeStatus) {
+    fun setAvbruttStatusLinjer(utbetalingId: UUID) {
         @Language("PostgreSQL")
         val query = """
             update utbetaling_linje
             set status = :status
             where utbetaling_id = :utbetaling_id::uuid
+            and status in ('TIL_ATTESTERING', 'RETURNERT')
         """.trimIndent()
 
         val params = mapOf(
             "utbetaling_id" to utbetalingId,
-            "status" to status.name,
+            "status" to UtbetalingLinjeStatus.AVBRUTT.name,
         )
 
         session.execute(queryOf(query, params))

@@ -101,7 +101,6 @@ class AdminUtbetalingServiceTest : FunSpec({
             ),
             tilsagnService = tilsagnService,
             betalingsinformasjon = betalingsinformasjon,
-            navAnsattService = mockk(relaxed = true),
         )
         return AdminUtbetalingService(
             db = database.api,

@@ -89,6 +89,7 @@ class ArrangorflateService(
             UtbetalingStatusType.FERDIG_BEHANDLET,
             UtbetalingStatusType.DELVIS_UTBETALT,
             UtbetalingStatusType.UTBETALT,
+            UtbetalingStatusType.TIL_AVBRYTELSE,
             UtbetalingStatusType.AVBRUTT,
             -> emptyList()
         }
@@ -222,6 +223,7 @@ fun arrangorAvbrytStatus(utbetaling: ArrangorflateUtbetaling): ArrangorAvbrytSta
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_AVBRYTELSE,
         -> ArrangorAvbrytStatus.DEACTIVATED
 
         UtbetalingStatusType.FERDIG_BEHANDLET,

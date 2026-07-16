@@ -103,6 +103,7 @@ import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerDeltakerKafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerFakturaStatusConsumer
+import no.nav.mulighetsrommet.api.utbetaling.kafka.UtbetalingAvbruttNotifierConsumer
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerAvtaltTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
@@ -244,6 +245,7 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.replicateFakturaStatus to ReplikerFakturaStatusConsumer(get(), get()),
             config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(get()),
             config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get()),
+            config.clients.utbetalingAvbruttNotifier to UtbetalingAvbruttNotifierConsumer(get(), get()),
         )
         KafkaConsumerOrchestrator(
             db = get(),
@@ -529,7 +531,6 @@ private fun services(appConfig: AppConfig) = module {
             UtbetalingService.Config(
                 tidligstTidspunktForUtbetaling = appConfig.okonomi.tidligstTidspunktForUtbetaling,
             ),
-            get(),
             get(),
             get(),
         )

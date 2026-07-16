@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
@@ -36,6 +37,7 @@ data class UtbetalingDto(
     val avbruttBegrunnelse: String?,
     val journalpostId: JournalpostId?,
     val tilskuddstype: Tilskuddstype,
+    val avbrytelse: TotrinnskontrollDto?,
 ) {
     @Serializable
     data class Korreksjon(
@@ -45,11 +47,11 @@ data class UtbetalingDto(
     )
 
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling, linjer: List<UtbetalingLinje>, tilAvbrytelse: Boolean): UtbetalingDto {
+        fun fromUtbetaling(utbetaling: Utbetaling, linjer: List<UtbetalingLinje>, avbrytelse: TotrinnskontrollDto?): UtbetalingDto {
             return UtbetalingDto(
                 id = utbetaling.id,
                 gjennomforingId = utbetaling.gjennomforing.id,
-                status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer, tilAvbrytelse),
+                status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer),
                 periode = utbetaling.periode,
                 beregning = utbetaling.beregning.output.pris,
                 utbetalt = getUtbetaltBelop(utbetaling, linjer),
@@ -63,6 +65,7 @@ data class UtbetalingDto(
                 tilskuddstype = utbetaling.tilskuddstype,
                 type = UtbetalingType.from(utbetaling).toDto(),
                 avbruttBegrunnelse = utbetaling.avbruttBegrunnelse,
+                avbrytelse = avbrytelse,
             )
         }
     }

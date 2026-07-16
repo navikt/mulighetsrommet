@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
@@ -91,8 +90,8 @@ class TilskuddBrukerUtbetalingConsumer(
                         },
                         kostnadssted = behandling.kostnadssted.enhetsnummer,
                         tilskuddstype = t.tilskuddOpplaeringType.toHelVedTilskuddstype(),
-                        saksbehandler = NavIdent(saksbehandler),
-                        beslutter = NavIdent(beslutter),
+                        saksbehandler = saksbehandler,
+                        beslutter = beslutter,
                         besluttetTidspunkt = requireNotNull(totrinnskontroll.besluttetTidspunkt),
                         tiltakskode = gjennomforing.tiltakstype.tiltakskode.toHelVedTiltakskode(),
                         dryrun = false,

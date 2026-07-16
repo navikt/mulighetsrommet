@@ -29,7 +29,7 @@ fun Totrinnskontroll.toTotrinnskontrollHendelse(): TotrinnskontrollHendelse = To
 )
 
 private fun Agent.toAgentHendelse(): TotrinnskontrollAgent = when (this) {
-    is NavIdent -> TotrinnskontrollAgent.NavAnsatt(value)
+    is NavIdent -> TotrinnskontrollAgent.NavAnsatt(NavIdent(value))
 
     Arena,
     Tiltaksadministrasjon,

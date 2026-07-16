@@ -48,6 +48,7 @@ object UtbetalingMapper {
             journalpostId = null,
             kommentar = null,
             blokkeringer = emptySet(),
+            avbrytelse = null,
         )
     }
 }
