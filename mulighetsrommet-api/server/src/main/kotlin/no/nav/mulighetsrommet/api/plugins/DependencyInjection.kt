@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.admin.tiltak.UpdateTiltakstypeUseCase
 import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentAdminService
+import no.nav.mulighetsrommet.admin.utdanning.SynkroniserUtdanningerUseCase
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -499,6 +500,7 @@ private fun services(appConfig: AppConfig) = module {
     single { RedaksjoneltInnholdLenkeService(get()) }
     single { SanityNavEnhetPublisher(get(), get()) }
     single { SynkroniserNavEnheterUseCase(get()) }
+    single { SynkroniserUtdanningerUseCase(get()) }
     single { NavEnhetDtoQuery(get()) }
     single { KontorstrukturQuery(get()) }
     single<NavEnhetRepository> { SqlNavEnhetRepository(get()) }

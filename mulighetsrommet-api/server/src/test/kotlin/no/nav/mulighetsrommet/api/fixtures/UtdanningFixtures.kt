@@ -2,17 +2,17 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import kotliquery.Query
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
+import no.nav.mulighetsrommet.admin.opplaring.UtdanningslopDetaljer
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 object UtdanningFixtures {
     object UtdanningsProgram {
-        val byggOgAnlegg = UtdanningslopDto.Utdanningsprogram(
+        val byggOgAnlegg = UtdanningslopDetaljer.Utdanningsprogram(
             id = UUID.fromString("1390a963-e9b2-4677-bb87-243f4638b7a1"),
             navn = "Bygg- og anleggsteknikk",
         )
-        val handVerkDesignOgProduktutvikling = UtdanningslopDto.Utdanningsprogram(
+        val handVerkDesignOgProduktutvikling = UtdanningslopDetaljer.Utdanningsprogram(
             id = UUID.fromString("1626096d-f1ac-4c34-aa93-741503bc5584"),
             navn = "Håndverk, design og produktutvikling",
         )
@@ -28,28 +28,28 @@ object UtdanningFixtures {
     }
 
     object Utdanninger {
-        val fjellOgBergverksfaget = UtdanningslopDto.Utdanning(
+        val fjellOgBergverksfaget = UtdanningslopDetaljer.Utdanning(
             id = UUID.fromString("c8ac69fa-6ba6-494f-95e1-6ec9be06086d"),
             navn = "Fjell- og bergverksfaget",
         )
-        val banemontorfaget = UtdanningslopDto.Utdanning(
+        val banemontorfaget = UtdanningslopDetaljer.Utdanning(
             id = UUID.fromString("d02ffbea-7f0e-42ff-91a0-88d56277699d"),
             navn = "Banemontørfaget",
         )
-        val byggdrifterfaget = UtdanningslopDto.Utdanning(
+        val byggdrifterfaget = UtdanningslopDetaljer.Utdanning(
             id = UUID.fromString("32fff4d1-ef8f-4990-8184-7a7b34febe3b"),
             navn = "Byggdrifterfaget",
         )
 
-        val glassblaserfaget = UtdanningslopDto.Utdanning(
+        val glassblaserfaget = UtdanningslopDetaljer.Utdanning(
             id = UUID.fromString("7a7a7c50-4800-4e97-be97-f4a87216c8f5"),
             navn = "Glassblåserfaget",
         )
-        val bunadstilvirkerfaget = UtdanningslopDto.Utdanning(
+        val bunadstilvirkerfaget = UtdanningslopDetaljer.Utdanning(
             id = UUID.fromString("649e9784-0422-4216-9cea-5af581a5c9c4"),
             navn = "Bunadstilvirkerfaget",
         )
-        val gjortlerfaget = UtdanningslopDto.Utdanning(
+        val gjortlerfaget = UtdanningslopDetaljer.Utdanning(
             id = UUID.fromString("74db0d0a-549f-4421-b30d-a11a34ede018"),
             navn = "Gjørtlerfaget",
         )

@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import kotliquery.Query
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
+import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 

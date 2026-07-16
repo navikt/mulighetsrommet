@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import kotliquery.Query
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse.Kode
+import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
+import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse.Kode
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 

@@ -6,14 +6,15 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
-import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringMapper
-import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringResponse
+import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringMapper
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringResponse
+import no.nav.mulighetsrommet.admin.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.api.avtale.model.AvtaletypeInfo
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellInfo
 import no.nav.mulighetsrommet.api.avtale.model.Prismodeller
+import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.janzz.PamOntologiService
-import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.model.Avtaletyper
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -21,7 +22,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import org.koin.ktor.ext.inject
 
 fun Route.kodeverkRoutes() {
-    val db: ApiDatabase by inject()
+    val db: AdminDatabase by inject()
     val pamService: PamOntologiService by inject()
 
     route("kodeverk") {
@@ -123,6 +124,27 @@ fun Route.kodeverkRoutes() {
                 val sertifiseringer = pamService.sokSertifiseringer(q)
 
                 call.respond(sertifiseringer)
+            }
+        }
+
+        route("utdanninger") {
+            get({
+                description = "Hent alle utdanningsløp"
+                tags = setOf("Utdanning")
+                operationId = "getUtdanningslop"
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Liste over utdanningsløp"
+                        body<List<UtdanningslopDetaljer>>()
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val utdanninger = db.session { queries.opplaringKategorisering.getUtdanningslop() }
+                call.respond(utdanninger)
             }
         }
     }

@@ -5,7 +5,7 @@ import {
   GjennomforingDetaljerRequest,
   GjennomforingRequest,
   GjennomforingVeilederinfoRequest,
-  UtdanningslopDbo,
+  Utdanningslop,
 } from "@tiltaksadministrasjon/api-client";
 import {
   GjennomforingDetaljerOutputValues,
@@ -43,7 +43,7 @@ export function toGjennomforingDetaljerRequest(
     deltidsprosent: data.deltidsprosent,
     tilgjengeligForArrangorDato: data.tilgjengeligForArrangorDato || null,
     amoKategorisering: data.amoKategorisering as AmoKategoriseringRequest | null,
-    utdanningslop: data.utdanningslop as UtdanningslopDbo | null,
+    utdanningslop: data.utdanningslop as Utdanningslop | null,
     prismodellId: data.prismodellId || null,
   };
 }

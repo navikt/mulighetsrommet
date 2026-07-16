@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
-import no.nav.mulighetsrommet.api.amo.toDbo
+import no.nav.mulighetsrommet.admin.opplaring.toOpplaringKategorisering
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
@@ -14,6 +13,7 @@ import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Personopplysning
 import java.util.UUID
@@ -36,7 +36,7 @@ object AvtaleDboMapper {
             startDato = avtale.startDato,
             sluttDato = avtale.sluttDato,
             status = avtale.status.type,
-            opplaringKategorisering = avtale.opplaringKategorisering?.toDbo(),
+            opplaringKategorisering = avtale.opplaringKategorisering?.toOpplaringKategorisering(),
             opsjonsmodell = avtale.opsjonsmodell,
             administratorer = avtale.administratorer.map { it.navIdent },
         ),
@@ -109,7 +109,7 @@ fun DetaljerRequest.toDbo(
     tiltakstypeId: UUID,
     arrangorDbo: AvtaleArrangorDbo?,
     status: AvtaleStatusType,
-    kategorisering: OpplaringKategoriseringDbo?,
+    kategorisering: OpplaringKategorisering?,
 ): DetaljerDbo = DetaljerDbo(
     navn = navn,
     status = status,

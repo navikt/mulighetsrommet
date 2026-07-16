@@ -20,10 +20,12 @@ import no.nav.mulighetsrommet.api.persistence.endringshistorikk.Endringshistorik
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.db.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.db.NavEnhetQueries
+import no.nav.mulighetsrommet.api.persistence.opplaring.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
+import no.nav.mulighetsrommet.api.persistence.utdanning.db.UtdanningQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingQueries
@@ -38,7 +40,6 @@ import no.nav.mulighetsrommet.database.queries.ScheduledTaskQueries
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 import no.nav.mulighetsrommet.notifications.NotificationQueries
 import no.nav.mulighetsrommet.oppgaver.OppgaveQueries
-import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import javax.sql.DataSource
 
 class ApiDatabase(
@@ -90,6 +91,7 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
         val deltakerForslag = DeltakerForslagQueries(session)
         val utbetaling = UtbetalingQueries(session)
         val utdanning = UtdanningQueries(session)
+        val opplaering = OpplaringKategoriseringQueries(session)
         val dvh = DatavarehusTiltakQueries(session)
         val altinnRettigheter = AltinnRettigheterQueries(session)
         val tilsagn = TilsagnQueries(session)

@@ -1,9 +1,9 @@
-import { OpplaringKategorisering } from "@tiltaksadministrasjon/api-client";
+import { OpplaringKategoriseringDetaljer } from "@tiltaksadministrasjon/api-client";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 
 interface Props {
-  opplaring: OpplaringKategorisering;
+  opplaring: OpplaringKategoriseringDetaljer;
   erEnkeltplass?: boolean;
 }
 

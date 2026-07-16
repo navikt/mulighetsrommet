@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.datavarehus.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.amo.models.Bransje
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
-import no.nav.mulighetsrommet.api.amo.models.InnholdElement
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
-import no.nav.mulighetsrommet.api.janzz.Sertifisering
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
+import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
+import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
+import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
+import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
+import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 @Serializable
@@ -19,7 +19,8 @@ data class DvhAmoKategorisering(
     val sertifiseringer: List<Sertifisering>? = null,
 )
 
-fun OpplaringKategorisering.toDvhAmoKategorisering(tiltakskode: Tiltakskode): DvhAmoKategorisering? {
+fun OpplaringKategoriseringDetaljer.toDvhAmoKategorisering(tiltakskode: Tiltakskode): DvhAmoKategorisering? {
+    val kurstype = this.kurstype
     val innholdsElementer = { innholdElementer.map { it.kode } }
     return when (tiltakskode) {
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ->
