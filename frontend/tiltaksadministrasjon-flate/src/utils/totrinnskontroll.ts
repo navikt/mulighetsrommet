@@ -5,13 +5,13 @@ import {
 
 type TotrinnskontrollBesluttet = Extract<
   TotrinnskontrollDto,
-  { type: "TotrinnskontrollDto.Besluttet" }
+  { type?: "TotrinnskontrollDto.Besluttet" }
 >;
 
 type TotrinnskontrollTilBeslutning = Extract<
   TotrinnskontrollDto,
   {
-    type: "TotrinnskontrollDto.TilBeslutning";
+    type?: "TotrinnskontrollDto.TilBeslutning";
   }
 >;
 

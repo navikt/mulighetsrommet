@@ -10,8 +10,8 @@ import {
 import { Box, Button, Heading, HGrid, HStack, Show, Spacer, VStack } from "@navikt/ds-react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { AarsakerOgForklaring } from "../AarsakerOgForklaring";
-import { ToTrinnsOpprettelsesForklaring } from "../ToTrinnsOpprettelseForklaring";
+import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
+import { ToTrinnsOpprettelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollOpprettelseForklaring";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useTilsagn } from "./tilsagnDetaljerLoader";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
@@ -34,6 +34,7 @@ import { TilsagnDeltakerCompact } from "@/components/personalia/TilsagnDeltakerC
 import { aarsakTilTekst } from "@/utils/Utils";
 import { TilsagnStengtePerioder } from "@/components/tilsagn/beregning/TilsagnStengtePerioder";
 import { formaterNavEnhet } from "@/utils/nav-enhet";
+import { TotrinnsBegrunnelse } from "@/components/totrinnskontroll/TotrinnsBegrunnelse";
 
 export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);
@@ -75,7 +76,7 @@ export function TilsagnDetaljer() {
 
   return (
     <>
-      <ToTrinnsOpprettelsesForklaring heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
+      <ToTrinnsOpprettelseForklaring heading="Tilsagnet ble returnert" opprettelse={opprettelse} />
       {erTilBeslutning(annullering) && (
         <AarsakerOgForklaring
           heading="Tilsagnet annulleres"
@@ -234,7 +235,7 @@ export function TilsagnDetaljer() {
             {status.type === TilsagnStatus.ANNULLERT && (
               <>
                 <Separator />
-                <Begrunnelse
+                <TotrinnsBegrunnelse
                   title="Begrunnelse for annullering"
                   aarsaker={(annullering?.aarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
@@ -246,7 +247,7 @@ export function TilsagnDetaljer() {
             {status.type === TilsagnStatus.OPPGJORT && (
               <>
                 <Separator />
-                <Begrunnelse
+                <TotrinnsBegrunnelse
                   title="Begrunnelse for oppgjør"
                   aarsaker={(tilOppgjor?.aarsaker ?? []).map((arsak) =>
                     aarsakTilTekst(arsak as TilsagnStatusAarsak),
@@ -365,28 +366,6 @@ export function TilsagnDetaljer() {
           onConfirm={returnerTilsagn}
         />
       </VStack>
-    </>
-  );
-}
-
-interface BegrunnelseProps {
-  title: string;
-  aarsaker: string[];
-  forklaring?: string | null;
-}
-
-function Begrunnelse({ title, aarsaker, forklaring }: BegrunnelseProps) {
-  if (aarsaker.length === 0 && !forklaring) {
-    return null;
-  }
-
-  return (
-    <>
-      <Heading level="4" spacing size="small">
-        {title}
-      </Heading>
-      <MetadataVStack label="Årsaker" value={aarsaker.join(", ")} />
-      <MetadataFritekstfelt label="Forklaring" value={forklaring} />
     </>
   );
 }

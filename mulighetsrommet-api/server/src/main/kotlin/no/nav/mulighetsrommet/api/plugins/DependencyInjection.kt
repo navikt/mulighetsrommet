@@ -531,6 +531,7 @@ private fun services(appConfig: AppConfig) = module {
             ),
             get(),
             get(),
+            get(),
         )
     }
     single { AdminUtbetalingService(get(), get(), get(), get()) }

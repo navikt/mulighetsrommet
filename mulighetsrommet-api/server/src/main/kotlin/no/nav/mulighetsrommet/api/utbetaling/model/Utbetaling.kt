@@ -108,6 +108,10 @@ data class Utbetaling(
             false
     }
 
+    fun getTiltaksnavn(): String {
+        return "${tiltakstype.navn} (${gjennomforing.lopenummer.value})"
+    }
+
     @Serializable
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)

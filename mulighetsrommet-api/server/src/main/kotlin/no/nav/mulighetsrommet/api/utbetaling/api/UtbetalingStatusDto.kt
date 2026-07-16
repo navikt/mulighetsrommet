@@ -11,7 +11,10 @@ data class UtbetalingStatusDto(
     val status: DataElement.Status,
 ) {
     companion object {
-        fun fromUtbetalingStatus(utbetalingStatus: UtbetalingStatusType, blokkeringer: Set<Utbetaling.Blokkering>): UtbetalingStatusDto {
+        fun fromUtbetalingStatus(utbetalingStatus: UtbetalingStatusType, blokkeringer: Set<Utbetaling.Blokkering>, tilAvbrytelse: Boolean): UtbetalingStatusDto {
+            if (tilAvbrytelse) {
+                return UtbetalingStatusDto(Type.TIL_AVBRYTELSE, DataElement.Status(Type.TIL_AVBRYTELSE.beskrivelse, Type.TIL_AVBRYTELSE.variant))
+            }
             val type = when (utbetalingStatus) {
                 UtbetalingStatusType.GENERERT -> if (blokkeringer.isEmpty()) {
                     Type.VENTER_PA_ARRANGOR
@@ -48,5 +51,6 @@ data class UtbetalingStatusDto(
         DELVIS_UTBETALT("Delvis utbetalt", DataElement.Status.Variant.SUCCESS),
         UTBETALT("Utbetalt", DataElement.Status.Variant.SUCCESS),
         AVBRUTT("Avbrutt av arrangør", DataElement.Status.Variant.ERROR),
+        TIL_AVBRYTELSE("Til avbrytelse", DataElement.Status.Variant.NEUTRAL),
     }
 }

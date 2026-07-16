@@ -84,6 +84,34 @@ export function useAvbrytUtbetaling() {
     },
   });
 }
+
+export function useGodkjennAvbrytelseUtbetaling() {
+  const queryClient = useQueryClient();
+
+  return useApiMutation<unknown, ProblemDetail, { id: string }>({
+    mutationFn: ({ id }) => UtbetalingService.godkjennAvbrytelseUtbetaling({ path: { id } }),
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
+    },
+  });
+}
+
+export function useAvslaAvbrytelseUtbetaling() {
+  const queryClient = useQueryClient();
+
+  return useApiMutation<
+    unknown,
+    ProblemDetail,
+    { id: string; body: AarsakerOgForklaringRequestUtbetalingStatusAarsak }
+  >({
+    mutationFn: ({ id, body }) =>
+      UtbetalingService.avslaAvbrytelseUtbetaling({ path: { id }, body }),
+    async onSuccess() {
+      await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
+    },
+  });
+}
+
 export function useSlettKorreksjon() {
   return useApiMutation<unknown, ProblemDetail, { id: string }>({
     mutationFn: ({ id }) => UtbetalingService.slettKorreksjon({ path: { id } }),

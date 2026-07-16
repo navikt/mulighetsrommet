@@ -594,7 +594,8 @@ class UtbetalingQueries(private val session: Session) {
                    tiltakstype.navn as tiltakstype_navn,
                    tiltakstype.tiltakskode,
                    kostnadssteder_json,
-                   blokkeringer
+                   blokkeringer,
+                   coalesce(avbrytelse.til_behandling, false) as til_avbrytelse
             from utbetaling
                      inner join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
                      inner join arrangor on gjennomforing.arrangor_id = arrangor.id
@@ -613,6 +614,13 @@ class UtbetalingQueries(private val session: Session) {
                                         from tilsagn
                                                  join nav_enhet on nav_enhet.enhetsnummer = tilsagn.kostnadssted
                                         where utbetaling.gjennomforing_id = tilsagn.gjennomforing_id and utbetaling.periode && tilsagn.periode) on true
+                     left join lateral (
+                        select besluttet_av is null as til_behandling
+                        from totrinnskontroll t
+                        where t.entity_id = utbetaling.id
+                          and t.type = 'UTBETALING_AVBRYTELSE'
+                          and t.status = 'TIL_BEHANDLING'
+                    ) avbrytelse on true
             where (utbetaling.status = 'GENERERT')
               and (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any (:tiltakskoder))
               and (:nav_enheter::text[] is null or (
@@ -724,8 +732,9 @@ class UtbetalingQueries(private val session: Session) {
         periode = periode("periode"),
         pris = intOrNull("belop_beregnet")?.withValuta(string("valuta").let { Valuta.valueOf(it) }),
         status = UtbetalingStatusDto.fromUtbetalingStatus(
-            UtbetalingStatusType.valueOf(string("status")),
-            array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
+            utbetalingStatus = UtbetalingStatusType.valueOf(string("status")),
+            blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
+            tilAvbrytelse = boolean("til_avbrytelse"),
         ),
         arrangor = string("arrangor_navn"),
         tiltakstype = Utbetaling.Tiltakstype(

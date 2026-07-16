@@ -14,6 +14,7 @@ import java.util.UUID
 data class UtbetalingDetaljerDto(
     val utbetaling: UtbetalingDto,
     val handlinger: Set<UtbetalingHandling>,
+    val tilAvbrytelse: TotrinnskontrollDto?,
 )
 
 @Serializable
@@ -22,7 +23,9 @@ enum class UtbetalingHandling {
     REDIGER,
     SEND_TIL_ATTESTERING,
     SLETT,
-    AVBRYT,
+    SEND_TIL_AVBRYTELSE,
+    GODKJENN_AVBRYTELSE,
+    AVSLA_AVBRYTELSE,
     HENT_GODKJENTE_TILSAGN,
     OPPRETT_TILSAGN,
 }

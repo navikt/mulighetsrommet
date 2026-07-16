@@ -17,6 +17,7 @@ import {
   TilskuddMottaker,
   OpplaeringtilskuddKode,
   PrismodellIngenKostnaderAarsak,
+  UtbetalingStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
 import { FieldErrors } from "react-hook-form";
 
@@ -249,7 +250,7 @@ export function getPublisertStatus(statuser: string[] = []): boolean | undefined
 }
 
 export function aarsakTilTekst(
-  aarsak: TilsagnStatusAarsak | TilskuddBehandlingStatusAarsak,
+  aarsak: TilsagnStatusAarsak | TilskuddBehandlingStatusAarsak | UtbetalingStatusAarsak,
 ): string {
   switch (aarsak) {
     case TilskuddBehandlingStatusAarsak.FEIL_SAKSOPPLYSNINGER:
@@ -271,8 +272,11 @@ export function aarsakTilTekst(
       return "Tiltaket skal ikke gjennomføres";
     case TilsagnStatusAarsak.ARRANGOR_HAR_IKKE_SENDT_KRAV:
       return "Arrangør har ikke sendt krav";
+    case UtbetalingStatusAarsak.TILSAGN_GJORT_OPP:
+      return "Tilsagnet er gjort opp";
     case TilsagnStatusAarsak.ANNET:
     case TilskuddBehandlingStatusAarsak.ANNET:
+    case UtbetalingStatusAarsak.ANNET:
       return "Annet";
   }
 }

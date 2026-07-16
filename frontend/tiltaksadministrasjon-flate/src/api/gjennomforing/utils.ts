@@ -4,8 +4,8 @@ import {
   GjennomforingType,
 } from "@tiltaksadministrasjon/api-client";
 
-type GjennomforingAvtale = Extract<GjennomforingDto, { type: "GjennomforingAvtaleDto" }>;
-type GjennomforingEnkeltplass = Extract<GjennomforingDto, { type: "GjennomforingEnkeltplassDto" }>;
+type GjennomforingAvtale = Extract<GjennomforingDto, { type?: "GjennomforingAvtaleDto" }>;
+type GjennomforingEnkeltplass = Extract<GjennomforingDto, { type?: "GjennomforingEnkeltplassDto" }>;
 
 export function isEnkeltplassKompakt(gjennomforing: GjennomforingKompaktDto): boolean {
   return gjennomforing.type === GjennomforingType.ENKELTPLASS;

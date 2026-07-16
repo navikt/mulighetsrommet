@@ -6,7 +6,7 @@ import { isEnkeltplass } from "@/api/gjennomforing/utils";
 
 type EnkeltplassGjennomforing = Extract<
   GjennomforingDetaljerDto["gjennomforing"],
-  { type: "GjennomforingEnkeltplassDto" }
+  { type?: "GjennomforingEnkeltplassDto" }
 >;
 
 type EnkeltplassGjennomforingDetaljer = Omit<GjennomforingDetaljerDto, "gjennomforing"> & {

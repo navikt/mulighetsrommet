@@ -45,11 +45,11 @@ data class UtbetalingDto(
     )
 
     companion object {
-        fun fromUtbetaling(utbetaling: Utbetaling, linjer: List<UtbetalingLinje>): UtbetalingDto {
+        fun fromUtbetaling(utbetaling: Utbetaling, linjer: List<UtbetalingLinje>, tilAvbrytelse: Boolean): UtbetalingDto {
             return UtbetalingDto(
                 id = utbetaling.id,
                 gjennomforingId = utbetaling.gjennomforing.id,
-                status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer),
+                status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer, tilAvbrytelse),
                 periode = utbetaling.periode,
                 beregning = utbetaling.beregning.output.pris,
                 utbetalt = getUtbetaltBelop(utbetaling, linjer),

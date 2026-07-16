@@ -8,18 +8,20 @@ import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.HttpStatusCode
-import io.ktor.server.http.content.default
 import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
+import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -94,9 +96,21 @@ fun Route.utbetalingRoutes() {
                     Pair(null, emptyList())
                 }
 
+                val tilAvbrytelse = {
+                    val totrinn = queries.totrinnskontroll.getDto(utbetaling.id, TotrinnskontrollType.UTBETALING_AVBRYTELSE)
+                    val underGodkjenning = when (totrinn) {
+                        is TotrinnskontrollDto.TilBeslutning -> true
+
+                        is TotrinnskontrollDto.Besluttet,
+                        null,
+                        -> false
+                    }
+                    utbetaling.kanAvbrytes() && underGodkjenning
+                }
+
                 UtbetalingKompaktDto(
                     id = utbetaling.id,
-                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer),
+                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer, tilAvbrytelse()),
                     periode = utbetaling.periode,
                     kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhet(it) },
                     belopUtbetalt = belopUtbetalt,
@@ -261,7 +275,7 @@ fun Route.utbetalingRoutes() {
                 }
                 response {
                     code(HttpStatusCode.OK) {
-                        description = "Utbetaling ble sendt til avbrytning (totrinnskontroll)"
+                        description = "Utbetaling ble sendt til avbrytelse (totrinnskontroll)"
                     }
                     default {
                         description = "Problem details"
@@ -269,11 +283,70 @@ fun Route.utbetalingRoutes() {
                     }
                 }
             }) {
-                // val id = call.parameters.getOrFail<UUID>("id")
-                // val request = call.receive<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
-                // val navIdent = getNavIdent()
+                val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
+                val navIdent = getNavIdent()
 
-                call.respond(HttpStatusCode.OK)
+                request.validate().flatMap {
+                    utbetalingService.sendTilAvbrytelse(id, navIdent, it)
+                }
+                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
+                    .onRight {
+                        call.respond(HttpStatusCode.OK)
+                    }
+            }
+
+            put("/avbryt/godkjenn", {
+                description = "Godkjenn avbrytelse av utbetaling"
+                tags = setOf("Utbetaling")
+                operationId = "godkjennAvbrytelseUtbetaling"
+                request {
+                    pathParameterUuid("id")
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Utbetaling ble avbrutt"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val navIdent = getNavIdent()
+
+                utbetalingService.godkjennAvbrytelse(id, navIdent)
+                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
+                    .onRight { call.respond(HttpStatusCode.OK) }
+            }
+
+            put("/avbryt/avsla", {
+                description = "Avslå avbrytelse av utbetaling"
+                tags = setOf("Utbetaling")
+                operationId = "avslaAvbrytelseUtbetaling"
+                request {
+                    pathParameterUuid("id")
+                    body<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        description = "Avbrytelse av utbetaling ble avslått, returnert til saksbehandling"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
+                val navIdent = getNavIdent()
+                request.validate().flatMap {
+                    utbetalingService.avslaAvbrytelse(id, navIdent, it)
+                }
+                    .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
+                    .onRight { call.respond(HttpStatusCode.OK) }
             }
         }
 
