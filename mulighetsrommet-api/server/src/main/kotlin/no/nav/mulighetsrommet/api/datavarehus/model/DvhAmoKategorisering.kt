@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.avtale.model
+package no.nav.mulighetsrommet.api.datavarehus.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
@@ -9,9 +9,8 @@ import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.model.Tiltakskode
 
-// TODO: Flytte til datavarehustiltak-modul
 @Serializable
-data class AmoKategoriseringDto(
+data class DvhAmoKategorisering(
     val kurstype: Kurstype.Kode? = null,
     val bransje: Bransje.Kode? = null,
     val forerkort: List<ForerkortKlasse.Kode>? = null,
@@ -20,13 +19,13 @@ data class AmoKategoriseringDto(
     val sertifiseringer: List<Sertifisering>? = null,
 )
 
-fun OpplaringKategorisering.toAmoKategoriseringDto(tiltakskode: Tiltakskode): AmoKategoriseringDto? {
+fun OpplaringKategorisering.toDvhAmoKategorisering(tiltakskode: Tiltakskode): DvhAmoKategorisering? {
     val innholdsElementer = { innholdElementer.map { it.kode } }
     return when (tiltakskode) {
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING ->
             when (kurstype?.kode) {
                 Kurstype.Kode.BRANSJE_OG_YRKESRETTET ->
-                    AmoKategoriseringDto(
+                    DvhAmoKategorisering(
                         kurstype = kurstype.kode,
                         bransje = bransje?.kode,
                         sertifiseringer = sertifiseringer.toList(),
@@ -35,26 +34,26 @@ fun OpplaringKategorisering.toAmoKategoriseringDto(tiltakskode: Tiltakskode): Am
                     )
 
                 Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE ->
-                    AmoKategoriseringDto(
+                    DvhAmoKategorisering(
                         kurstype = kurstype.kode,
                         innholdElementer = innholdsElementer(),
                     )
 
                 Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER ->
-                    AmoKategoriseringDto(
+                    DvhAmoKategorisering(
                         kurstype = kurstype.kode,
                         innholdElementer = innholdsElementer(),
                     )
 
                 Kurstype.Kode.NORSKOPPLAERING ->
-                    AmoKategoriseringDto(
+                    DvhAmoKategorisering(
                         kurstype = kurstype.kode,
                         norskprove = norskprove,
                         innholdElementer = innholdsElementer(),
                     )
 
                 Kurstype.Kode.STUDIESPESIALISERING ->
-                    AmoKategoriseringDto(
+                    DvhAmoKategorisering(
                         kurstype = kurstype.kode,
                     )
 
@@ -63,7 +62,7 @@ fun OpplaringKategorisering.toAmoKategoriseringDto(tiltakskode: Tiltakskode): Am
 
         Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
             require(kurstype?.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET)
-            AmoKategoriseringDto(
+            DvhAmoKategorisering(
                 kurstype = kurstype.kode,
                 bransje = bransje?.kode,
                 sertifiseringer = sertifiseringer.toList(),
@@ -73,17 +72,17 @@ fun OpplaringKategorisering.toAmoKategoriseringDto(tiltakskode: Tiltakskode): Am
         }
 
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> when (kurstype?.kode) {
-            Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> AmoKategoriseringDto(
+            Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> DvhAmoKategorisering(
                 kurstype = kurstype.kode,
                 innholdElementer = innholdsElementer(),
             )
 
-            Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER -> AmoKategoriseringDto(
+            Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER -> DvhAmoKategorisering(
                 kurstype = kurstype.kode,
                 innholdElementer = innholdsElementer(),
             )
 
-            Kurstype.Kode.NORSKOPPLAERING -> AmoKategoriseringDto(
+            Kurstype.Kode.NORSKOPPLAERING -> DvhAmoKategorisering(
                 kurstype = kurstype.kode,
                 norskprove = norskprove,
                 innholdElementer = innholdsElementer(),
@@ -96,7 +95,7 @@ fun OpplaringKategorisering.toAmoKategoriseringDto(tiltakskode: Tiltakskode): Am
             else -> null
         }
 
-        Tiltakskode.STUDIESPESIALISERING -> AmoKategoriseringDto(kurstype = kurstype?.kode)
+        Tiltakskode.STUDIESPESIALISERING -> DvhAmoKategorisering(kurstype = kurstype?.kode)
 
         else -> null
     }

@@ -14,11 +14,11 @@ import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
 import no.nav.mulighetsrommet.api.amo.models.InnholdElement
 import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.amo.toDbo
-import no.nav.mulighetsrommet.api.avtale.model.AmoKategoriseringDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DvhAmoKategorisering
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
@@ -162,7 +162,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull()
-                        .shouldBe(AmoKategoriseringDto(kurstype = Kurstype.Kode.STUDIESPESIALISERING))
+                        .shouldBe(DvhAmoKategorisering(kurstype = Kurstype.Kode.STUDIESPESIALISERING))
                 }
             }
             test("fov") {
@@ -174,7 +174,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
-                            AmoKategoriseringDto(
+                            DvhAmoKategorisering(
                                 kurstype = Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
                                 innholdElementer = listOf(InnholdElement.Kode.BRANSJERETTET_OPPLARING),
                             ),
@@ -196,7 +196,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull()
                         .shouldBe(
-                            AmoKategoriseringDto(
+                            DvhAmoKategorisering(
                                 kurstype = Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
                                 innholdElementer = listOf(InnholdElement.Kode.GRUNNLEGGENDE_FERDIGHETER),
                             ),
@@ -217,7 +217,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
                         .amoKategorisering.shouldNotBeNull().shouldBe(
-                            AmoKategoriseringDto(
+                            DvhAmoKategorisering(
                                 kurstype = Kurstype.Kode.NORSKOPPLAERING,
                                 norskprove = false,
                                 innholdElementer = listOf(InnholdElement.Kode.NORSKOPPLAERING),
@@ -241,7 +241,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                         .amoKategorisering.shouldNotBeNull()
 
                     bransjeOgYrkesrettet.shouldBe(
-                        AmoKategoriseringDto(
+                        DvhAmoKategorisering(
                             kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET,
                             bransje = Bransje.Kode.KONTORARBEID,
                             innholdElementer = listOf(InnholdElement.Kode.PRAKSIS),

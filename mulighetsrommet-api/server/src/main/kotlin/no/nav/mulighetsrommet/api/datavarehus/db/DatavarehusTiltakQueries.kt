@@ -5,11 +5,12 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
-import no.nav.mulighetsrommet.api.avtale.model.toAmoKategoriseringDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
+import no.nav.mulighetsrommet.api.datavarehus.model.DvhUtdanningslop
+import no.nav.mulighetsrommet.api.datavarehus.model.toDvhAmoKategorisering
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -42,7 +43,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
                     dto.tiltakskode,
                     dto.avtale,
                     dto.gjennomforing,
-                    kategorisering?.utdanningslop?.toDatavarehusUtdanningslop(),
+                    kategorisering?.utdanningslop?.toDvhUtdanningslop(),
                 )
             }
 
@@ -55,7 +56,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
                     dto.tiltakskode,
                     dto.avtale,
                     dto.gjennomforing,
-                    kategorisering?.toAmoKategoriseringDto(dto.tiltakskode),
+                    kategorisering?.toDvhAmoKategorisering(dto.tiltakskode),
                 )
             }
 
@@ -64,7 +65,10 @@ class DatavarehusTiltakQueries(private val session: Session) {
     }
 }
 
-private fun UtdanningslopDto.toDatavarehusUtdanningslop() = DatavarehusTiltakV1YrkesfagDto.Utdanningslop(utdanningsprogram.id, utdanninger.map { it.id }.toSet())
+private fun UtdanningslopDto.toDvhUtdanningslop() = DvhUtdanningslop(
+    utdanningsprogram.id,
+    utdanninger.map { it.id }.toSet(),
+)
 
 private fun Row.toDatavarehusTiltakDto(): DatavarehusTiltakV1Dto {
     val tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode"))
