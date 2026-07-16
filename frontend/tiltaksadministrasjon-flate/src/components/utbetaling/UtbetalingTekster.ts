@@ -47,7 +47,7 @@ export const utbetalingTekster = {
   },
   avbrutt: {
     handling: {
-      sendTilAvbrytning: {
+      sendTilAvbrytelse: {
         label: "Avbryt utbetalingskrav",
       },
       godkjenn: {

@@ -85,11 +85,11 @@ export function useAvbrytUtbetaling() {
   });
 }
 
-export function useGodkjennAvbrytUtbetaling() {
+export function useGodkjennAvbrytelseUtbetaling() {
   const queryClient = useQueryClient();
 
   return useApiMutation<unknown, ProblemDetail, { id: string }>({
-    mutationFn: ({ id }) => UtbetalingService.godkjennAvbrytningUtbetaling({ path: { id } }),
+    mutationFn: ({ id }) => UtbetalingService.godkjennAvbrytelseUtbetaling({ path: { id } }),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
     },

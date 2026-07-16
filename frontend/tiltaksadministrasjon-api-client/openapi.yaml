@@ -2346,7 +2346,7 @@ paths:
       tags:
       - Utbetaling
       description: Godkjenn avbrytelse av utbetaling
-      operationId: godkjennAvbrytningUtbetaling
+      operationId: godkjennAvbrytelseUtbetaling
       parameters:
       - name: id
         in: path

@@ -299,7 +299,7 @@ fun Route.utbetalingRoutes() {
             put("/avbryt/godkjenn", {
                 description = "Godkjenn avbrytelse av utbetaling"
                 tags = setOf("Utbetaling")
-                operationId = "godkjennAvbrytningUtbetaling"
+                operationId = "godkjennAvbrytelseUtbetaling"
                 request {
                     pathParameterUuid("id")
                 }

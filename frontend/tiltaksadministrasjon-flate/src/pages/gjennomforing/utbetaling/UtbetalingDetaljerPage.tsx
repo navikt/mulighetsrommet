@@ -65,7 +65,7 @@ import { useForm, UseFormReturn } from "react-hook-form";
 import { SlettKorreksjonModal } from "@/components/utbetaling/SlettKorreksjonModal";
 import { AvbrytUtbetalingModal } from "@/components/utbetaling/AvbrytUtbetalingModal";
 import { AvslaAvbrytelseUtbetalingModal } from "@/components/utbetaling/AvslaAvbrytelseUtbetalingModal";
-import { useGodkjennAvbrytUtbetaling } from "@/api/utbetaling/mutations";
+import { useGodkjennAvbrytelseUtbetaling } from "@/api/utbetaling/mutations";
 import { ErrorFieldSummary } from "@/components/skjema/ValideringsfeilOppsummering";
 import { ToTrinnsAvbrytelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollAvbrytningForklaring";
 import { TotrinnsBegrunnelse } from "@/components/totrinnskontroll/TotrinnsBegrunnelse";
@@ -75,16 +75,16 @@ function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
   const { utbetaling, handlinger, tilAvbrytelse } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
-  return { utbetaling, handlinger, beregning, tilAvbrytning: tilAvbrytelse };
+  return { utbetaling, handlinger, beregning, tilAvbrytelse };
 }
 
 export function UtbetalingDetaljerPage() {
   const navigate = useNavigate();
-  const godkjennAvbyrtUtbetalingMutation = useGodkjennAvbrytUtbetaling();
+  const godkjennAvbyrtUtbetalingMutation = useGodkjennAvbrytelseUtbetaling();
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [modalVariant, setModalVariant] = useState<UtbetalingHandling | null>(null);
 
-  const { utbetaling, handlinger, beregning, tilAvbrytning } = useUtbetalingDetaljerData();
+  const { utbetaling, handlinger, beregning, tilAvbrytelse } = useUtbetalingDetaljerData();
   const { data: utbetalingLinjer } = useUtbetalingsLinjer(utbetaling.id);
 
   const { gjennomforingId, periode, tilskuddstype } = utbetaling;
@@ -181,7 +181,7 @@ export function UtbetalingDetaljerPage() {
               items: [
                 {
                   handling: UtbetalingHandling.SEND_TIL_AVBRYTELSE,
-                  label: utbetalingTekster.avbrutt.handling.sendTilAvbrytning.label,
+                  label: utbetalingTekster.avbrutt.handling.sendTilAvbrytelse.label,
                   onClick: () => setModalVariant(UtbetalingHandling.SEND_TIL_AVBRYTELSE),
                   variant: "danger",
                   icon: <XMarkIcon />,
@@ -198,8 +198,8 @@ export function UtbetalingDetaljerPage() {
         />
       </HStack>
       <VStack gap="space-12">
-        {utbetaling.status.type !== UtbetalingStatusDtoType.AVBRUTT && tilAvbrytning && (
-          <ToTrinnsAvbrytelseForklaring avbrytelse={tilAvbrytning} />
+        {utbetaling.status.type !== UtbetalingStatusDtoType.AVBRUTT && tilAvbrytelse && (
+          <ToTrinnsAvbrytelseForklaring avbrytelse={tilAvbrytelse} />
         )}
         <HGrid columns="1fr auto" align="start">
           <TwoColumnGrid separator>
@@ -313,15 +313,15 @@ export function UtbetalingDetaljerPage() {
                 )}
               </VStack>
             </Box>
-            {utbetaling.status.type === UtbetalingStatusDtoType.AVBRUTT && tilAvbrytning && (
+            {utbetaling.status.type === UtbetalingStatusDtoType.AVBRUTT && tilAvbrytelse && (
               <>
                 <Separator />
                 <TotrinnsBegrunnelse
                   title="Begrunnelse for avbrytelse"
-                  aarsaker={tilAvbrytning.aarsaker.map((arsak) =>
+                  aarsaker={tilAvbrytelse.aarsaker.map((arsak) =>
                     aarsakTilTekst(arsak as UtbetalingStatusAarsak),
                   )}
-                  forklaring={tilAvbrytning.forklaring}
+                  forklaring={tilAvbrytelse.forklaring}
                 />
               </>
             )}
