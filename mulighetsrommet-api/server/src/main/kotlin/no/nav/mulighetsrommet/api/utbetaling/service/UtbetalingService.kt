@@ -817,7 +817,6 @@ class UtbetalingService(
         return logEndring("Utbetaling returnert", linje.utbetalingId, besluttetAv)
     }
 
-
     private fun TransactionalQueryContext.setReturnertUtbetalingLinje(
         utbetalingLinjeId: UUID,
         aarsaker: List<UtbetalingLinjeReturnertAarsak>,

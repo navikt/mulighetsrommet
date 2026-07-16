@@ -35,7 +35,7 @@ export const utbetalingHandlers = [
           mockUtbetaling.status.type === "KLAR_TIL_BEHANDLING"
             ? [UtbetalingHandling.SEND_TIL_ATTESTERING]
             : [],
-        tilAvbrytning: null,
+        tilAvbrytelse: null,
       });
     },
   ),

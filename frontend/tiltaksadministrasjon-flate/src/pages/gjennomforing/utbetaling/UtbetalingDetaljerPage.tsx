@@ -73,9 +73,9 @@ import { aarsakTilTekst } from "@/utils/Utils";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
-  const { utbetaling, handlinger, tilAvbrytning } = useUtbetaling(utbetalingId);
+  const { utbetaling, handlinger, tilAvbrytelse } = useUtbetaling(utbetalingId);
   const { data: beregning } = useUtbetalingBeregning({ navEnheter: [] }, utbetalingId);
-  return { utbetaling, handlinger, beregning, tilAvbrytning };
+  return { utbetaling, handlinger, beregning, tilAvbrytning: tilAvbrytelse };
 }
 
 export function UtbetalingDetaljerPage() {

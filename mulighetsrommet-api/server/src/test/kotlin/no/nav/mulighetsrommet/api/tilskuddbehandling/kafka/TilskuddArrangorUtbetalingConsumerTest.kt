@@ -115,6 +115,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             ),
             tilsagnService = tilsagnService,
             arrangorService = arrangorService,
+            navAnsattService = mockk(relaxed = true),
         )
         return TilskuddArrangorUtbetalingConsumer(
             db = database.api,

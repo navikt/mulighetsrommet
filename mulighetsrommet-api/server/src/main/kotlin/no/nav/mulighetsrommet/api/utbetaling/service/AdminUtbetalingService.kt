@@ -63,7 +63,7 @@ class AdminUtbetalingService(
             featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING)
         val handlinger = utbetalingHandlinger(utbetaling, ansatt, tilAvbrytelse, avbrytHandlingEnabled)
 
-        return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger, tilAvbrytning = tilAvbrytelse)
+        return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger, tilAvbrytelse = tilAvbrytelse)
     }
 
     suspend fun getUtbetalingLinjer(
