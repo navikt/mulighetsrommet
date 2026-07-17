@@ -1,17 +1,17 @@
 import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import {
+  AarsakerOgForklaringRequestUtbetalingStatusAarsak,
   EndringshistorikkType,
+  FieldError,
+  OpprettUtbetalingLinjerRequest,
+  TilsagnType,
+  Tilskuddstype,
   UtbetalingDto,
   UtbetalingHandling,
-  UtbetalingStatusDtoType,
-  UtbetalingStatusAarsak,
-  FieldError,
-  Tilskuddstype,
-  TilsagnType,
   UtbetalingLinjeDto,
-  OpprettUtbetalingLinjerRequest,
+  UtbetalingStatusAarsak,
+  UtbetalingStatusDtoType,
   ValidationError,
-  AarsakerOgForklaringRequestUtbetalingStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import {
@@ -102,9 +102,10 @@ export function UtbetalingDetaljerPage() {
       defaultValues: {
         utbetalingId: utbetaling.id,
         utbetalingLinjer: utbetalingLinjer.map((linje) => ({
-          pris: linje.pris,
           id: linje.id,
           tilsagnId: linje.tilsagn.id,
+          pris: linje.pris,
+          gjorOppTilsagn: linje.gjorOppTilsagn,
         })),
         begrunnelseMindreBetalt: null,
       },

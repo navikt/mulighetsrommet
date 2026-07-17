@@ -62,9 +62,10 @@ export function RedigerUtbetalingLinjeView({
     reset({
       utbetalingId: utbetaling.id,
       utbetalingLinjer: utbetalingLinjer.map((linje) => ({
-        pris: linje.pris,
         id: linje.id,
         tilsagnId: linje.tilsagn.id,
+        pris: linje.pris,
+        gjorOppTilsagn: linje.gjorOppTilsagn,
       })),
       begrunnelseMindreBetalt: null,
     });
