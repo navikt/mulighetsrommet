@@ -66,7 +66,8 @@ import {
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjonModal";
 import { useAvbrytUtbetaling, useSlettKorreksjon } from "@/api/utbetaling/mutations";
-import { useForm, UseFormReturn } from "react-hook-form";
+import { UseFormReturn } from "react-hook-form";
+import { useUtbetalingLinjeForm } from "@/components/utbetaling/form/useUtbetalingLinjeForm";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
@@ -97,19 +98,7 @@ export function UtbetalingDetaljerPage() {
     );
   }
 
-  const form: UseFormReturn<OpprettUtbetalingLinjerRequest> =
-    useForm<OpprettUtbetalingLinjerRequest>({
-      defaultValues: {
-        utbetalingId: utbetaling.id,
-        utbetalingLinjer: utbetalingLinjer.map((linje) => ({
-          id: linje.id,
-          tilsagnId: linje.tilsagn.id,
-          pris: linje.pris,
-          gjorOppTilsagn: linje.gjorOppTilsagn,
-        })),
-        begrunnelseMindreBetalt: null,
-      },
-    });
+  const { form, hentGodkjenteTilsagn } = useUtbetalingLinjeForm(utbetaling, utbetalingLinjer);
 
   return (
     <VStack className="pb-6">
@@ -152,16 +141,7 @@ export function UtbetalingDetaljerPage() {
                 {
                   handling: UtbetalingHandling.HENT_GODKJENTE_TILSAGN,
                   label: utbetalingTekster.linje.handlinger.hentGodkjenteTilsagn,
-                  onClick: () =>
-                    form.setValue(
-                      "utbetalingLinjer",
-                      utbetalingLinjer.map((linje) => ({
-                        id: linje.id,
-                        pris: linje.pris,
-                        tilsagnId: linje.tilsagn.id,
-                        gjorOppTilsagn: linje.gjorOppTilsagn,
-                      })),
-                    ),
+                  onClick: hentGodkjenteTilsagn,
                   icon: <FileCheckmarkIcon />,
                 },
                 {
