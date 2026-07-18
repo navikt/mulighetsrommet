@@ -91,9 +91,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         arrangorId = GjennomforingFixtures.EnkelAmo.arrangorId,
         ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
-        prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(
-            totalbelop = 1000,
-        ),
+        prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(1000),
         kategorisering = kategorisering,
     )
 
@@ -121,9 +119,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
-            val oppdatertPris = UpsertEnkeltplass.Prismodell.Anskaffelse(
-                totalbelop = 999,
-            )
+            val oppdatertPris = UpsertEnkeltplass.Prismodell.Anskaffelse(999)
             val (gjennomforing) = service.opprettUtkast(utkast.copy(prismodell = oppdatertPris), opprettetAv)
                 .shouldBeRight()
 
@@ -378,9 +374,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             sluttDato = LocalDate.of(2025, 6, 1),
             status = GjennomforingStatusType.GJENNOMFORES,
             ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
-            prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(
-                totalbelop = 1000,
-            ),
+            prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(1000),
             navn = navn,
         )
 
@@ -782,7 +776,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
                 }
 
-                val nyPrismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000)
+                val nyPrismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(5000)
                 service.endrePrisinformasjon(soktInn.id, nyPrismodell, behandling(opprettetAv))
                     .shouldBeRight()
 
@@ -807,7 +801,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 val enkeltplass = service.endrePrisinformasjon(
                     soktInn.id,
-                    UpsertEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
                     behandling(opprettetAv),
                 ).shouldBeRight()
 
@@ -830,7 +824,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 service.endrePrisinformasjon(
                     soktInn.id,
-                    UpsertEnkeltplass.Prismodell.Anskaffelse(totalbelop = 3000),
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
                     behandling(opprettetAv),
                 ).shouldBeRight()
 
@@ -851,14 +845,14 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val forsteBehandling = behandling(opprettetAv)
                 service.endrePrisinformasjon(
                     soktInn.id,
-                    UpsertEnkeltplass.Prismodell.Anskaffelse(totalbelop = 3000),
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
                     forsteBehandling,
                 ).shouldBeRight()
 
                 val andreBehandling = behandling(opprettetAv)
                 service.endrePrisinformasjon(
                     soktInn.id,
-                    UpsertEnkeltplass.Prismodell.Anskaffelse(totalbelop = 4000),
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(4000),
                     andreBehandling,
                 ).shouldBeRight()
 
@@ -879,9 +873,73 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 service.endrePrisinformasjon(
                     soktInn.id,
-                    UpsertEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
                     behandling(opprettetAv),
                 ) shouldBeLeft listOf(FieldError.of("Kan ikke endre prismodell på en enkeltplass med returnert økonomi"))
+            }
+
+            test("kaster feil dersom enkeltplass ikke er søkt inn") {
+                val utkast = createRequest()
+                service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
+
+                shouldThrow<IllegalStateException> {
+                    service.endrePrisinformasjon(
+                        utkast.id,
+                        UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                        behandling(opprettetAv),
+                    )
+                }
+            }
+
+            test("oppretter prisendring med status TIL_BEHANDLING når økonomi er GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val behandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
+                    behandling,
+                ).shouldBeRight()
+
+                database.run {
+                    queries.totrinnskontroll.getById(behandling.id).should {
+                        it.entityId shouldBe soktInn.id
+                        it.type shouldBe TotrinnskontrollType.ENKELTPLASS_PRISENDRING
+                        it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                        it.behandletAv shouldBe opprettetAv
+                    }
+                }
+            }
+
+            test("setter eksisterende prisendring til RETURNERT ved ny prisendring når økonomi er GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val forsteBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
+                    forsteBehandling,
+                ).shouldBeRight()
+
+                val andreBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(4000),
+                    andreBehandling,
+                ).shouldBeRight()
+
+                database.run {
+                    queries.totrinnskontroll.getById(forsteBehandling.id).should {
+                        it.status shouldBe TotrinnskontrollStatus.RETURNERT
+                    }
+                    queries.totrinnskontroll.getById(andreBehandling.id).should {
+                        it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                    }
+                }
             }
         }
 
@@ -895,7 +953,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 service.endrePrisinformasjon(
                     soktInn.id,
-                    UpsertEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
                     behandling(opprettetAv),
                 ).shouldBeRight()
 
@@ -916,30 +974,89 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 }
             }
 
-            test("settOkonomiPaVent setter prisendring på vent") {
+            test("settOkonomiGodkjent setter prisendring-totrinnskontroll til GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val behandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    behandling,
+                ).shouldBeRight()
+
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                database.run {
+                    queries.totrinnskontroll.getById(behandling.id).should {
+                        it.status shouldBe TotrinnskontrollStatus.GODKJENT
+                        it.besluttetAv shouldBe besluttetAv
+                    }
+                }
+            }
+
+            test("settOkonomiGodkjent godkjenner prisendring som er satt på vent") {
                 val soktInn = createRequest()
                 service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
                 service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
 
                 service.endrePrisinformasjon(
                     soktInn.id,
-                    UpsertEnkeltplass.Prismodell.Anskaffelse(totalbelop = 5000),
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
                     behandling(opprettetAv),
                 ).shouldBeRight()
 
                 service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
 
-                database.run {
-                    val pending = queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldNotBeNull()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
 
-                    queries.totrinnskontroll.getOrError(
-                        soktInn.id,
-                        TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
-                    ).should {
+                service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
+                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                }
+
+                database.run {
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+                }
+            }
+
+            test("settOkonomiPaVent setter prisendring på vent") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val behandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    behandling,
+                ).shouldBeRight()
+
+                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+
+                database.run {
+                    queries.totrinnskontroll.getById(behandling.id).should {
                         it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
-                        it.id shouldBe pending.totrinnskontrollId
                     }
                 }
+            }
+
+            test("settOkonomiGodkjent returnerer feil dersom ingen okonomi finnes") {
+                val utkast = createRequest()
+                service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
+
+                service.settOkonomiGodkjent(utkast.id, besluttetAv)
+                    .shouldBeLeft()
+                    .first().detail shouldBe "Økonomi har ikke blitt sendt til godkjenning"
+            }
+
+            test("settOkonomiPaVent returnerer feil dersom ingen okonomi finnes") {
+                val utkast = createRequest()
+                service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
+
+                service.settOkonomiPaVent(utkast.id, besluttetAv, forklaring = null)
+                    .shouldBeLeft()
+                    .first().detail shouldBe "Økonomi har ikke blitt sendt til godkjenning"
             }
         }
 
