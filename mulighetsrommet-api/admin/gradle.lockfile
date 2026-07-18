@@ -3,10 +3,7 @@
 # This file is expected to be part of source control.
 # To regenerate this file, run: ./gradlew :mulighetsrommet-api:admin:dependencies --write-locks
 ch.qos.logback:logback-classic:1.3.16=ktlint
-ch.qos.logback:logback-classic:1.5.38=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 ch.qos.logback:logback-core:1.3.16=ktlint
-ch.qos.logback:logback-core:1.5.38=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
-com.fasterxml.jackson.core:jackson-annotations:2.20=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 com.github.ajalt.clikt:clikt-jvm:5.0.3=ktlint
 com.github.ajalt.clikt:clikt:5.0.3=ktlint
 com.github.ben-manes.caffeine:caffeine:3.2.4=compileClasspath,runtimeClasspath,testCompileClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
@@ -77,7 +74,6 @@ net.bytebuddy:byte-buddy-agent:1.18.2=testCompileClasspath,testFixturesCompileCl
 net.bytebuddy:byte-buddy:1.18.2=testCompileClasspath,testFixturesCompileClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 net.java.dev.jna:jna-platform:5.9.0=testCompileClasspath,testRuntimeClasspath
 net.java.dev.jna:jna:5.9.0=testCompileClasspath,testRuntimeClasspath
-net.logstash.logback:logstash-logback-encoder:9.0=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.apiguardian:apiguardian-api:1.1.2=testCompileClasspath
 org.ec4j.core:ec4j-core:1.1.1=ktlint,ktlintBaselineReporter,ktlintRuleset
 org.jetbrains.kotlin:abi-tools-api:2.3.21=kotlinInternalAbiValidation
@@ -153,9 +149,5 @@ org.junit.platform:junit-platform-suite-api:1.13.4=testCompileClasspath,testRunt
 org.junit:junit-bom:5.13.4=testCompileClasspath,testRuntimeClasspath
 org.objenesis:objenesis:3.4=testCompileClasspath,testFixturesCompileClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.opentest4j:opentest4j:1.3.0=testCompileClasspath,testRuntimeClasspath
-org.slf4j:slf4j-api:2.0.18=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 org.slf4j:slf4j-api:2.0.7=ktlint
-tools.jackson.core:jackson-core:3.0.1=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
-tools.jackson.core:jackson-databind:3.0.1=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
-tools.jackson:jackson-bom:3.0.1=runtimeClasspath,testFixturesRuntimeClasspath,testRuntimeClasspath
 empty=annotationProcessor,implementationDependenciesMetadata,kotlinCompilerPluginClasspath,kotlinNativeCompilerPluginClasspath,kotlinScriptDefExtensions,testAnnotationProcessor,testFixturesAnnotationProcessor,testFixturesImplementationDependenciesMetadata,testFixturesKotlinScriptDefExtensions,testImplementationDependenciesMetadata,testKotlinScriptDefExtensions
