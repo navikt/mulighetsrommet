@@ -14,6 +14,4 @@ fun Logger.teamLogsError(message: String, throwable: Throwable) = this.error(Tea
 
 fun Logger.teamLogsWarn(message: String) = this.warn(TeamLogsMarker, message)
 
-fun Logger.teamLogsWarn(format: String, obj: Any) = this.warn(TeamLogsMarker, format, obj)
-
 fun Logger.teamLogsWarn(message: String, throwable: Throwable) = this.error(TeamLogsMarker, message, throwable)
