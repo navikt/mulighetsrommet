@@ -132,7 +132,7 @@ mockk = "io.mockk:mockk:1.14.11"
 
 nav-common-auditLog = { module = "no.nav.common:audit-log", version.ref = "common-java-modules" }
 nav-common-kafka = { module = "no.nav.common:kafka", version.ref = "common-java-modules" }
-nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:4.0.0"
+nav-mockOauth2Server = "no.nav.security:mock-oauth2-server:5.0.2"
 nav-poaoTilgang-client = "no.nav.poao-tilgang:client:2025.11.03_13.40-18456d0598be"
 
 netty-codec-http2 = { module = "io.netty:netty-codec-http2", version.ref = "netty" }
