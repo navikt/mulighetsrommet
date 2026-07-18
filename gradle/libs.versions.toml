@@ -1,12 +1,12 @@
 [versions]
 common-java-modules = "4.2026.07.17_11.36-f5bba2c96561"
-flyway = "12.10.0"
+flyway = "12.11.0"
 koin-bom = "4.2.2"
-kotest = "6.2.1"
+kotest = "6.2.2"
 kotlin = "2.4.0"
 ktor = "3.4.3"
-netty = "4.2.15.Final"
-logback = "1.5.37"
+netty = "4.2.16.Final"
+logback = "1.5.38"
 metrics = "4.2.39"
 arrow = "2.2.3"
 micrometer = "1.17.0"
@@ -67,7 +67,7 @@ flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
 flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
 
 google-cloud-postgresSocketFactory = "com.google.cloud.sql:postgres-socket-factory:1.28.6"
-google-cloud-storage = "com.google.cloud:google-cloud-storage:2.69.0"
+google-cloud-storage = "com.google.cloud:google-cloud-storage:2.70.0"
 
 hikaricp = "com.zaxxer:HikariCP:7.1.0"
 
@@ -142,9 +142,9 @@ netty-transport-native-kqueue = { module = "io.netty:netty-transport-native-kque
 netty-transport-native-unix-common = { module = "io.netty:netty-transport-native-unix-common", version.ref = "netty" }
 netty-transport = { module = "io.netty:netty-transport", version.ref = "netty" }
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.63.0"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.64.0"
 
-postgresql = "org.postgresql:postgresql:42.7.12"
+postgresql = "org.postgresql:postgresql:42.7.13"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
