@@ -101,7 +101,7 @@ spec:
     - name: Kafka
       rules:
         - alert: "Stale Kafka consumer records detected"
-          expr: max by (app) (kafka_consumer_records_stale_count{namespace="team-mulighetsrommet"}) > 0
+          expr: max by (app) (kafka_consumer_failed_or_backedoff_messages_in_batch{namespace="team-mulighetsrommet"}) > 0
           for: 30m
           annotations:
             summary: |

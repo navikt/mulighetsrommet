@@ -12,6 +12,6 @@
     <logger name="io.netty" level="WARN"/>
     <logger name="org.apache.kafka" level="WARN"/>
     <logger name="com.github.kagkarlsson.scheduler" level="WARN"/>
-    <logger name="no.nav.common" level="WARN"/>
+    <logger name="no.nav.common" level="INFO"/>
     <logger name="no.nav.mulighetsrommet" level="DEBUG"/>
 </included>

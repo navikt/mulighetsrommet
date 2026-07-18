@@ -77,6 +77,7 @@ class KafkaConsumerOrchestrator(
             .withRecordBatchSize(config.consumerRecordProcessorBatchSize)
             .withBackoffStrategy(config.consumerRecordProcessorBackoffStrategy)
             .withKafkaConsumerRepository(kafkaConsumerRepository)
+            .withMetrics(Metrics.micrometerRegistry)
             .withLockProvider(JdbcLockProvider(db.getDatasource()))
             .withConsumerConfigs(findConsumerConfigsWithStoreOnFailure(topicConfigs))
             .build()
