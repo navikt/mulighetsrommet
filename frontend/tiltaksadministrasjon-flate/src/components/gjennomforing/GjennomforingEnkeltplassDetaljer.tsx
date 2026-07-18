@@ -1,5 +1,6 @@
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { GodkjennOkonomiModal } from "@/components/gjennomforing/GodkjennOkonomiModal";
+import { GodkjennPrisendringModal } from "@/components/gjennomforing/GodkjennPrisendringModal";
 import { SettPaVentOkonomiModal } from "@/components/gjennomforing/SettPaVentOkonomiModal";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
@@ -15,6 +16,7 @@ import {
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import {
   DeltakerDto,
+  GjennomforingDetaljerDtoPrisendring,
   GjennomforingEnkeltplassDto,
   GjennomforingHandling,
   GjennomforingVeilederinfoDto,
@@ -23,8 +25,9 @@ import {
   TiltakstypeDto,
   TotrinnskontrollDto,
   TotrinnskontrollDtoBesluttet,
+  TotrinnskontrollDtoTilBeslutning,
 } from "@tiltaksadministrasjon/api-client";
-import { erSattPaVent } from "@/utils/totrinnskontroll";
+import { erSattPaVent, erTilBeslutning } from "@/utils/totrinnskontroll";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { useState } from "react";
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
@@ -34,6 +37,7 @@ import { AmoKategoriseringDetaljer } from "../amoKategorisering/AmoKategoriserin
 import { BetalingsbetingelserEnkeltplass } from "./BetalingsbetingelserEnkeltplass";
 import { GjennomforingEnkeltplassVarighet } from "@/pages/gjennomforing/GjennomforingEnkeltplassVarighet";
 import { formaterNavEnhet } from "@/utils/nav-enhet";
+import { SettPaVentPrisendringModal } from "@/components/gjennomforing/SettPaVentPrisendringModal";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -41,19 +45,36 @@ interface Props {
   veilederinfo: null | GjennomforingVeilederinfoDto;
   prismodell: PrismodellDto;
   okonomi: null | TotrinnskontrollDto;
+  prisendring: null | GjennomforingDetaljerDtoPrisendring;
   enkeltplassDeltaker: null | DeltakerDto;
   opplaring: null | OpplaringKategorisering;
 }
 
 export function GjennomforingEnkeltplassDetaljer(props: Props) {
-  const { tiltakstype, gjennomforing, prismodell, enkeltplassDeltaker, okonomi, opplaring } = props;
+  const {
+    tiltakstype,
+    gjennomforing,
+    prismodell,
+    enkeltplassDeltaker,
+    okonomi,
+    prisendring,
+    opplaring,
+  } = props;
   const handlinger = useGjennomforingHandlinger(gjennomforing.id);
   const [godkjennOpen, setGodkjennOpen] = useState(false);
   const [settPaVentOpen, setSettPaVentOpen] = useState(false);
+  const [godkjennPrisendringOpen, setGodkjennPrisendringOpen] = useState(false);
+  const [settPrisendringPaVentOpen, setSettPrisendringPaVentOpen] = useState(false);
 
   const kanGodkjenne = handlinger.includes(GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI);
   const kanSettePaVent = handlinger.includes(
     GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
+  );
+  const kanGodkjennePrisendring = handlinger.includes(
+    GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING,
+  );
+  const kanSettePrisendringPaVent = handlinger.includes(
+    GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING,
   );
 
   const gjennomforingMeta: Definition[] = [
@@ -120,6 +141,15 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
             {enkeltplassDeltaker && <BetalingsbetingelserEnkeltplass prismodell={prismodell} />}
             {erSattPaVent(okonomi) && <OkonomiStatusSattPaVent okonomi={okonomi} />}
+            {prisendring && erTilBeslutning(prisendring.totrinnskontroll) && (
+              <PrisendringTilGodkjenning {...prisendring} />
+            )}
+            {prisendring && erSattPaVent(prisendring.totrinnskontroll) && (
+              <PrisendringPaVent
+                totrinnskontroll={prisendring.totrinnskontroll}
+                prismodell={prisendring.prismodell}
+              />
+            )}
           </DetaljerLayout>
         </TwoColumnGrid>
         <Separator />
@@ -141,6 +171,20 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
             Godkjenn enkeltplass
           </Button>
         )}
+        {kanSettePrisendringPaVent && (
+          <Button
+            size="small"
+            variant="secondary"
+            onClick={() => setSettPrisendringPaVentOpen(true)}
+          >
+            Sett prisendring på vent
+          </Button>
+        )}
+        {kanGodkjennePrisendring && (
+          <Button size="small" onClick={() => setGodkjennPrisendringOpen(true)}>
+            Godkjenn prisendring
+          </Button>
+        )}
       </HStack>
       <GodkjennOkonomiModal
         open={godkjennOpen}
@@ -151,6 +195,19 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
       <SettPaVentOkonomiModal
         open={settPaVentOpen}
         setOpen={setSettPaVentOpen}
+        gjennomforingId={gjennomforing.id}
+      />
+      {prisendring && (
+        <GodkjennPrisendringModal
+          open={godkjennPrisendringOpen}
+          setOpen={setGodkjennPrisendringOpen}
+          gjennomforingId={gjennomforing.id}
+          prismodell={prisendring.prismodell}
+        />
+      )}
+      <SettPaVentPrisendringModal
+        open={settPrisendringPaVentOpen}
+        setOpen={setSettPrisendringPaVentOpen}
         gjennomforingId={gjennomforing.id}
       />
     </VStack>
@@ -171,6 +228,60 @@ function OkonomiStatusSattPaVent({ okonomi }: { okonomi: TotrinnskontrollDtoBesl
         {okonomi.forklaring && (
           <MetadataFritekstfelt label="Forklaring" value={okonomi.forklaring} />
         )}
+      </InfoCard.Content>
+    </InfoCard>
+  );
+}
+
+interface PrisendringTilGodkjenningProps {
+  totrinnskontroll: TotrinnskontrollDtoTilBeslutning;
+  prismodell: PrismodellDto;
+}
+
+function PrisendringTilGodkjenning({
+  totrinnskontroll,
+  prismodell,
+}: PrisendringTilGodkjenningProps) {
+  return (
+    <InfoCard data-color="info">
+      <InfoCard.Header>
+        <InfoCard.Title>Prisendring til godkjenning</InfoCard.Title>
+      </InfoCard.Header>
+      <InfoCard.Content>
+        <VStack gap="space-8">
+          <BodyShort>
+            {totrinnskontroll.behandletAv.navn} sendte en prisendring til godkjenning den{" "}
+            {formaterDato(totrinnskontroll.behandletTidspunkt)}.
+          </BodyShort>
+          <BetalingsbetingelserEnkeltplass prismodell={prismodell} />
+        </VStack>
+      </InfoCard.Content>
+    </InfoCard>
+  );
+}
+
+interface PrisendringPaVentProps {
+  totrinnskontroll: TotrinnskontrollDtoBesluttet;
+  prismodell: PrismodellDto;
+}
+
+function PrisendringPaVent({ totrinnskontroll, prismodell }: PrisendringPaVentProps) {
+  return (
+    <InfoCard data-color="warning">
+      <InfoCard.Header>
+        <InfoCard.Title>Prisendring satt på vent</InfoCard.Title>
+      </InfoCard.Header>
+      <InfoCard.Content>
+        <VStack gap="space-8">
+          <BodyShort>
+            {totrinnskontroll.besluttetAv.navn} satte prisendringen på vent den{" "}
+            {formaterDato(totrinnskontroll.besluttetTidspunkt)}.
+          </BodyShort>
+          {totrinnskontroll.forklaring && (
+            <MetadataFritekstfelt label="Forklaring" value={totrinnskontroll.forklaring} />
+          )}
+          <BetalingsbetingelserEnkeltplass prismodell={prismodell} />
+        </VStack>
       </InfoCard.Content>
     </InfoCard>
   );

@@ -6114,6 +6114,16 @@ components:
       - behandletAv
       - behandletTidspunkt
       - forklaring
+    GjennomforingDetaljerDto.Prisendring:
+      type: object
+      properties:
+        totrinnskontroll:
+          $ref: "#/components/schemas/TotrinnskontrollDto"
+        prismodell:
+          $ref: "#/components/schemas/PrismodellDto"
+      required:
+      - prismodell
+      - totrinnskontroll
     DeltakerDto:
       type: object
       properties:
@@ -6253,6 +6263,10 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/TotrinnskontrollDto"
+        prisendring:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingDetaljerDto.Prisendring"
         enkeltplassDeltaker:
           oneOf:
           - type: "null"
@@ -6262,6 +6276,7 @@ components:
       - gjennomforing
       - okonomi
       - opplaring
+      - prisendring
       - prismodell
       - tiltakstype
       - veilederinfo
@@ -6315,6 +6330,8 @@ components:
       - OPPRETT_UTBETALING
       - GODKJENN_ENKELTPLASS_OKONOMI
       - SETT_PA_VENT_ENKELTPLASS_OKONOMI
+      - GODKJENN_ENKELTPLASS_PRISENDRING
+      - SETT_PA_VENT_ENKELTPLASS_PRISENDRING
     AvtaletypeInfo:
       type: object
       properties:

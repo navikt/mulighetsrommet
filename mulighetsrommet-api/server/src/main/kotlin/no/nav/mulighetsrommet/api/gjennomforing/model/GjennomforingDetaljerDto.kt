@@ -35,8 +35,15 @@ data class GjennomforingDetaljerDto(
     val prismodell: PrismodellDto,
     val opplaring: OpplaringKategorisering?,
     val okonomi: TotrinnskontrollDto?,
+    val prisendring: Prisendring?,
     val enkeltplassDeltaker: DeltakerDto?,
-)
+) {
+    @Serializable
+    data class Prisendring(
+        val totrinnskontroll: TotrinnskontrollDto,
+        val prismodell: PrismodellDto,
+    )
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

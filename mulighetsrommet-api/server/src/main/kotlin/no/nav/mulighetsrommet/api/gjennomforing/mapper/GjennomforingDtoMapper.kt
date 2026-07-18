@@ -58,12 +58,14 @@ object GjennomforingDtoMapper {
         prismodell = fromPrismodell(gjennomforing.prismodell),
         opplaring = detaljer.opplaringKategorisering,
         okonomi = null,
+        prisendring = null,
         enkeltplassDeltaker = null,
     )
 
     fun fromEnkeltplass(
         gjennomforing: GjennomforingEnkeltplass,
         okonomi: TotrinnskontrollDto?,
+        prisendring: GjennomforingDetaljerDto.Prisendring?,
         deltakerDto: DeltakerDto?,
         kategorisering: OpplaringKategorisering?,
     ) = GjennomforingDetaljerDto(
@@ -91,6 +93,7 @@ object GjennomforingDtoMapper {
         veilederinfo = null,
         prismodell = fromPrismodell(gjennomforing.prismodell),
         okonomi = okonomi,
+        prisendring = prisendring,
         opplaring = kategorisering,
         enkeltplassDeltaker = deltakerDto,
     )

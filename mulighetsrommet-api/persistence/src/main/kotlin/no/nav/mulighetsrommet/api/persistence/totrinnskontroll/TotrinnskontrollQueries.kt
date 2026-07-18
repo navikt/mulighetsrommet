@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.database.createTextArray
+import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.textRepr
 import no.nav.mulighetsrommet.model.toAgent
 import org.intellij.lang.annotations.Language
@@ -66,6 +67,17 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
         )
 
         session.execute(queryOf(query, params))
+    }
+
+    fun getById(id: UUID): Totrinnskontroll {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from totrinnskontroll
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.requireSingle(queryOf(query, id)) { it.toTotrinnskontroll() }
     }
 
     override fun getOrError(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll {

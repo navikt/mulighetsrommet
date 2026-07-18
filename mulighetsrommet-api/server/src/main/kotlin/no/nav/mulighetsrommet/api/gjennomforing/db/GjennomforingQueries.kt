@@ -512,6 +512,17 @@ class GjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toPrismodell() }
     }
 
+    fun setPrismodellId(gjennomforingId: UUID, prismodellId: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            update gjennomforing
+            set prismodell_id = ?::uuid
+            where id = ?::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, prismodellId, gjennomforingId))
+    }
+
     fun setFreeTextSearch(id: UUID, content: List<String>) {
         @Language("PostgreSQL")
         val query = """

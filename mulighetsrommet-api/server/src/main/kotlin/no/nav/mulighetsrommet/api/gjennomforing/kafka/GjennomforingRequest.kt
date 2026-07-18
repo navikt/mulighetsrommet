@@ -50,65 +50,65 @@ sealed interface GjennomforingRequest {
     ) : GjennomforingRequest
 
     @Serializable
+    data class UpsertEnkeltplass(
+        val tiltakskode: Tiltakskode,
+        val organisasjonsnummer: Organisasjonsnummer,
+        val ansvarligEnhet: NavEnhetNummer,
+        val prisinformasjon: EnkeltplassPrisinformasjon,
+        val kategorisering: OpplaringKategorisering?,
+        val opprettetAv: NavIdent,
+    )
+
+    @Serializable
     data class Totrinnskontroll(
         @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val behandletAv: NavIdent,
     )
-}
-
-@Serializable
-data class UpsertEnkeltplass(
-    val tiltakskode: Tiltakskode,
-    val organisasjonsnummer: Organisasjonsnummer,
-    val ansvarligEnhet: NavEnhetNummer,
-    val prisinformasjon: EnkeltplassPrisinformasjon,
-    val kategorisering: OpplaringKategorisering?,
-    val opprettetAv: NavIdent,
-)
-
-@Serializable
-sealed interface EnkeltplassPrisinformasjon {
-    @Serializable
-    @SerialName("Anskaffelse")
-    data class Anskaffelse(
-        val pris: Int,
-    ) : EnkeltplassPrisinformasjon
 
     @Serializable
-    @SerialName("Tilskudd")
-    data class Tilskudd(
-        val tilskudd: Map<Opplaeringtilskudd.Kode, Int>,
-        val tilleggsopplysninger: String?,
-    ) : EnkeltplassPrisinformasjon
+    sealed interface EnkeltplassPrisinformasjon {
+        @Serializable
+        @SerialName("Anskaffelse")
+        data class Anskaffelse(
+            val pris: Int,
+        ) : EnkeltplassPrisinformasjon
 
-    @Serializable
-    @SerialName("IngenKostnader")
-    data class IngenKostnader(
-        val aarsak: Aarsak,
-        val tilleggsopplysninger: String?,
-    ) : EnkeltplassPrisinformasjon {
-        enum class Aarsak {
-            OPPLAERINGEN_ER_KOSTNADSFRI,
-            OPPLAERINGEN_ER_EGENFINANSIERT,
+        @Serializable
+        @SerialName("Tilskudd")
+        data class Tilskudd(
+            val tilskudd: Map<Opplaeringtilskudd.Kode, Int>,
+            val tilleggsopplysninger: String?,
+        ) : EnkeltplassPrisinformasjon
+
+        @Serializable
+        @SerialName("IngenKostnader")
+        data class IngenKostnader(
+            val aarsak: Aarsak,
+            val tilleggsopplysninger: String?,
+        ) : EnkeltplassPrisinformasjon {
+            enum class Aarsak {
+                OPPLAERINGEN_ER_KOSTNADSFRI,
+                OPPLAERINGEN_ER_EGENFINANSIERT,
+            }
         }
     }
-}
 
-@Serializable
-data class OpplaringKategorisering(
-    val verdier: Map<
-        OpplaringKategoriseringResponse.Representerer,
-        List<
-            @Serializable(with = UUIDSerializer::class)
-            UUID,
-            >,
-        >,
-    val sertifiseringer: List<SertifiseringValg>,
-) {
     @Serializable
-    data class SertifiseringValg(
-        val id: Long,
-        val navn: String,
-    )
+    data class OpplaringKategorisering(
+        val verdier: Map<
+            OpplaringKategoriseringResponse.Representerer,
+            List<
+                @Serializable(with = UUIDSerializer::class)
+                UUID,
+                >,
+            >,
+        val sertifiseringer: List<SertifiseringValg>,
+    ) {
+        @Serializable
+        data class SertifiseringValg(
+            val id: Long,
+            val navn: String,
+        )
+    }
 }
