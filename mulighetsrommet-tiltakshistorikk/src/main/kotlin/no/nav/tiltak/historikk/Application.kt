@@ -14,10 +14,8 @@ import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
-import no.nav.mulighetsrommet.kafka.monitoring.KafkaMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
-import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.tokenprovider.AzureAdTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
@@ -111,13 +109,12 @@ fun Application.configureKafka(
     db: TiltakshistorikkDatabase,
     virksomheter: VirksomhetService,
 ): KafkaConsumerOrchestrator {
-    KafkaMetrics(db.db)
-        .withCountStaleConsumerRecords(retriesMoreThan = 5)
-        .register(Metrics.micrometerRegistry)
-
     val consumers = mapOf(
         config.consumers.replikerSisteTiltakstyper to ReplikerSisteTiltakstyperV3KafkaConsumer(db),
-        config.consumers.replikerSisteTiltaksgjennomforinger to ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter),
+        config.consumers.replikerSisteTiltaksgjennomforinger to ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(
+            db,
+            virksomheter,
+        ),
         config.consumers.replikerAmtDeltaker to ReplikerAmtDeltakerV1KafkaConsumer(db),
         config.consumers.replikerAmtVirksomhet to ReplikerAmtVirksomheterV1KafkaConsumer(virksomheter),
     )
