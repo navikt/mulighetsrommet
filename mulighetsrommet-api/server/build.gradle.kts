@@ -59,6 +59,7 @@ dependencies {
     implementation(projects.common.tokenProvider)
     implementation(projects.common.metrics)
     implementation(projects.common.slack)
+    implementation(projects.common.validation)
     implementation(projects.common.tasks)
     implementation(projects.common.tiltakshistorikkClient)
     implementation(projects.common.tiltaksokonomiClient)

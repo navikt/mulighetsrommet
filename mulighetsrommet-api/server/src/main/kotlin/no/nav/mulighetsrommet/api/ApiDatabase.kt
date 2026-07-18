@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
 import no.nav.mulighetsrommet.api.persistence.arrangor.db.ArrangorQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
@@ -20,11 +21,11 @@ import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
+import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingQueries
-import no.nav.mulighetsrommet.api.tiltakdokument.db.TiltakDokumentQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeQueries
@@ -110,6 +111,7 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
     inner class Repositories {
         val tiltakstype: TiltakstypeRepository = queries.tiltakstype
         val arrangor: ArrangorRepository = queries.arrangor
+        val tiltakDokument: TiltakDokumentRepository = queries.tiltakDokument
     }
 }
 

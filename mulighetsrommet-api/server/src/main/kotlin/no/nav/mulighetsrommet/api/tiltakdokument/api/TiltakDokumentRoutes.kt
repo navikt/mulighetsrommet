@@ -10,63 +10,29 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentDto
+import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentHandling
+import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentAdminService
+import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
-import no.nav.mulighetsrommet.api.tiltakdokument.model.TiltakDokument
-import no.nav.mulighetsrommet.api.tiltakdokument.service.TiltakDokumentService
-import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.UUID
-
-@Serializable
-enum class TiltakDokumentHandling {
-    PUBLISER,
-    REDIGER,
-    FORHANDSVIS_I_MODIA,
-}
+import kotlin.collections.emptySet
 
 @Serializable
 data class TiltakDokumentPublisertRequest(
     val publisert: Boolean,
 )
-
-@Serializable
-data class TiltakDokumentRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val navn: String,
-    @Serializable(with = UUIDSerializer::class)
-    val tiltakstypeId: UUID,
-    val stedForGjennomforing: String? = null,
-    @Serializable(with = UUIDSerializer::class)
-    val arrangorId: UUID? = null,
-    val arrangorKontaktpersoner: Set<
-        @Serializable(with = UUIDSerializer::class)
-        UUID,
-        > = emptySet(),
-    val faneinnhold: Faneinnhold? = null,
-    val beskrivelse: String? = null,
-    val administratorer: Set<NavIdent> = emptySet(),
-    val navRegioner: Set<NavEnhetNummer> = emptySet(),
-    val navKontorer: Set<NavEnhetNummer> = emptySet(),
-    val navAndreEnheter: Set<NavEnhetNummer> = emptySet(),
-    val kontaktpersoner: Set<Kontaktperson> = emptySet(),
-) {
-    @Serializable
-    data class Kontaktperson(
-        val navIdent: NavIdent,
-        val beskrivelse: String? = null,
-    )
-}
 
 @Serializable
 data class GetTiltakDokumenterRequest(
@@ -75,7 +41,8 @@ data class GetTiltakDokumenterRequest(
 )
 
 fun Route.tiltakDokumentRoutes() {
-    val service: TiltakDokumentService by inject()
+    val db: AdminDatabase by inject()
+    val service: TiltakDokumentAdminService by inject()
 
     route("tiltak-dokumenter") {
         authorize(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) {
@@ -88,7 +55,7 @@ fun Route.tiltakDokumentRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Individuell gjennomføring ble opprettet/oppdatert"
-                        body<TiltakDokument>()
+                        body<TiltakDokumentDto>()
                     }
                     code(HttpStatusCode.BadRequest) {
                         description = "Valideringsfeil"
@@ -129,7 +96,7 @@ fun Route.tiltakDokumentRoutes() {
             }
         }
 
-        post("filter", {
+        post({
             tags = setOf("TiltakDokument")
             operationId = "getTiltakDokumenter"
             request {
@@ -143,25 +110,15 @@ fun Route.tiltakDokumentRoutes() {
             }
         }) {
             val request = call.receive<GetTiltakDokumenterRequest>()
-            call.respond(
-                service.getAll(
-                    navEnheter = request.navEnheter.map { it.value },
-                    tiltakstyper = request.tiltakstyper,
-                ),
-            )
-        }
 
-        get({
-            tags = setOf("TiltakDokument")
-            operationId = "getAllTiltakDokumenter"
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Liste over tiltak-dokumentøringer (uten filter)"
-                    body<List<TiltakDokument>>()
-                }
+            val result = db.session {
+                queries.tiltakDokument.getAllKompaktDto(
+                    navEnheter = request.navEnheter,
+                    tiltakstyper = request.tiltakstyper,
+                )
             }
-        }) {
-            call.respond(service.getAll())
+
+            call.respond(result)
         }
 
         get("{id}", {
@@ -182,13 +139,10 @@ fun Route.tiltakDokumentRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-            val gjennomforing = service.get(id)
+            val tiltakDokument = db.session { queries.tiltakDokument.getTiltakDokumentDto(id) }
+                ?: call.respond(HttpStatusCode.NotFound)
 
-            if (gjennomforing == null) {
-                call.respond(HttpStatusCode.NotFound)
-            } else {
-                call.respond(gjennomforing)
-            }
+            call.respond(tiltakDokument)
         }
 
         get("{id}/handlinger", {
@@ -208,9 +162,10 @@ fun Route.tiltakDokumentRoutes() {
                 }
             }
         }) {
-            val id: UUID by call.parameters
             val navIdent = getNavIdent()
-            call.respond(service.getHandlinger(id, navIdent))
+            db.session { repository.navAnsatt.get(navIdent) }
+                ?.let { call.respond(service.getHandlinger(it)) }
+                ?: call.respond(emptySet<TiltakDokumentHandling>())
         }
     }
 }

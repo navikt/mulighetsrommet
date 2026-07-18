@@ -6,12 +6,13 @@ import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
-import no.nav.mulighetsrommet.api.tiltakdokument.model.TiltakDokument
 import no.nav.mulighetsrommet.api.veilederflate.db.Tiltaksgjennomforing
+import no.nav.mulighetsrommet.api.veilederflate.db.VeilederflateTiltakDokument
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangorKontaktperson
@@ -109,10 +110,7 @@ class VeilederflateService(
         db.session { queries.veilderTiltak.get(id) }
             ?.let { return toVeilederflateTiltak(it) }
 
-        db.session { queries.tiltakDokument.get(id) }
-            ?.let { return toVeilederflateTiltak(it) }
-
-        db.session { queries.tiltakDokument.getBySanityId(id) }
+        db.session { queries.veilderTiltak.getTiltakDokument(id) }
             ?.let { return toVeilederflateTiltak(it) }
 
         val gjennomforing = sanityService.getTiltak(id, sanityPerspective, cacheUsage)
@@ -157,25 +155,18 @@ class VeilederflateService(
             return emptyList()
         }
 
-        val alleTiltakstyper = getAllTiltakstyper()
-
-        val tiltakstypeIds = tiltakskoder?.let { koder ->
-            alleTiltakstyper.filter { it.tiltakskode in koder }.map { it.id }
-        }
-
         // Hent publiserte rader fra vår database
-        val dbGjennomforinger = db.session {
-            queries.tiltakDokument.getAll(
-                navEnheter = enheter.toList(),
-                tiltakstyper = tiltakstypeIds ?: emptyList(),
-                publisert = true,
+        val tiltakDokumenter = db.session {
+            queries.veilderTiltak.getAllTiltakDokument(
+                brukersEnheter = enheter.toList(),
+                tiltakskoder = tiltakskoder,
             )
         }
 
         // Sanity-IDer som finnes i databasen — disse skal ikke hentes fra Sanity i tillegg
-        val sanityIderIDb = dbGjennomforinger.mapNotNull { it.sanityId }.toSet()
+        val sanityIderIDb = tiltakDokumenter.mapNotNull { it.sanityId }.toSet()
 
-        val dbTiltak = dbGjennomforinger
+        val dbTiltak = tiltakDokumenter
             .map { toVeilederflateTiltak(it) }
             .filter { it.tiltakstype.innsatsgrupper.orEmpty().contains(innsatsgruppe) }
 
@@ -183,6 +174,7 @@ class VeilederflateService(
             navEnhetService.hentOverordnetFylkesenhet(it)?.enhetsnummer
         }
 
+        val alleTiltakstyper = getAllTiltakstyper()
         val sanitySanityTiltakstypeIds = tiltakskoder?.let { koder ->
             alleTiltakstyper.filter { it.tiltakskode in koder }.map { it.sanityId }
         }
@@ -227,15 +219,11 @@ class VeilederflateService(
             .map { toVeilederflateTiltak(it) }
     }
 
-    private suspend fun toVeilederflateTiltak(gjennomforing: TiltakDokument): VeilederflateTiltak {
-        val tiltakskode = gjennomforing.tiltakstype.tiltakskode
-        val tiltakstype = getAllTiltakstyper().singleOrNull { it.tiltakskode == tiltakskode }
-            ?: error("Tiltakstype mangler for tiltakskode=$tiltakskode")
+    private suspend fun toVeilederflateTiltak(tiltakDokument: VeilederflateTiltakDokument): VeilederflateTiltak {
+        val tiltakstype = getAllTiltakstyper().singleOrNull { it.tiltakskode == tiltakDokument.tiltakskode }
+            ?: error("Tiltakstype mangler for tiltakskode=${tiltakDokument.tiltakskode}")
 
-        val fylker = gjennomforing.kontorstruktur.map { it.region.enhetsnummer }.distinct()
-        val enheter = gjennomforing.kontorstruktur.flatMap { it.kontorer }.map { it.enhetsnummer }.distinct()
-
-        val tiltaksansvarlige = gjennomforing.kontaktpersoner.map {
+        val tiltaksansvarlige = tiltakDokument.kontaktpersoner.map {
             VeilederflateKontaktinfoTiltaksansvarlig(
                 navn = it.navn,
                 telefon = it.mobilnummer,
@@ -245,11 +233,14 @@ class VeilederflateService(
         }
         val kontaktinfo = VeilederflateKontaktinfo(tiltaksansvarlige)
 
-        // Bruk sanityId som ekstern ID dersom det finnes, ellers bruk vår interne UUID
-        val eksternId = (gjennomforing.sanityId ?: gjennomforing.id).toString()
+        val fylker = tiltakDokument.navEnheter.filter { it.type == NavEnhetType.FYLKE }.map { it.enhetsnummer }
+        val enheter = tiltakDokument.navEnheter.filter { it.type != NavEnhetType.FYLKE }.map { it.enhetsnummer }
 
-        return if (gjennomforing.arrangor != null) {
-            val arrangorKontaktpersoner = gjennomforing.arrangorKontaktpersoner.map {
+        // Bruk sanityId som ekstern ID dersom det finnes, ellers bruk vår interne UUID
+        val eksternId = (tiltakDokument.sanityId ?: tiltakDokument.id).toString()
+
+        return if (tiltakDokument.arrangor != null) {
+            val arrangorKontaktpersoner = tiltakDokument.arrangorKontaktpersoner.map {
                 VeilederflateArrangorKontaktperson(
                     id = it.id,
                     navn = it.navn,
@@ -260,35 +251,35 @@ class VeilederflateService(
             }
             VeilederflateTiltakEnkeltplassAnskaffet(
                 tiltakstype = tiltakstype,
-                navn = gjennomforing.navn,
-                beskrivelse = gjennomforing.beskrivelse,
-                faneinnhold = gjennomforing.faneinnhold,
+                navn = tiltakDokument.navn,
+                beskrivelse = tiltakDokument.beskrivelse,
+                faneinnhold = tiltakDokument.faneinnhold,
                 kontaktinfo = kontaktinfo,
                 oppstart = GjennomforingOppstartstype.LOPENDE,
-                oppmoteSted = gjennomforing.stedForGjennomforing,
+                oppmoteSted = tiltakDokument.stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
                 sanityId = eksternId,
-                tiltaksnummer = gjennomforing.tiltaksnummer,
+                tiltaksnummer = tiltakDokument.tiltaksnummer,
                 arrangor = VeilederflateArrangor(
-                    selskapsnavn = gjennomforing.arrangor.navn,
-                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                    selskapsnavn = tiltakDokument.arrangor.navn,
+                    organisasjonsnummer = tiltakDokument.arrangor.organisasjonsnummer,
                     kontaktpersoner = arrangorKontaktpersoner,
                 ),
             )
         } else {
             VeilederflateTiltakEnkeltplass(
                 tiltakstype = tiltakstype,
-                navn = gjennomforing.navn,
-                beskrivelse = gjennomforing.beskrivelse,
-                faneinnhold = gjennomforing.faneinnhold,
+                navn = tiltakDokument.navn,
+                beskrivelse = tiltakDokument.beskrivelse,
+                faneinnhold = tiltakDokument.faneinnhold,
                 kontaktinfo = kontaktinfo,
                 oppstart = GjennomforingOppstartstype.LOPENDE,
-                oppmoteSted = gjennomforing.stedForGjennomforing,
+                oppmoteSted = tiltakDokument.stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
                 sanityId = eksternId,
-                tiltaksnummer = gjennomforing.tiltaksnummer,
+                tiltaksnummer = tiltakDokument.tiltaksnummer,
             )
         }
     }

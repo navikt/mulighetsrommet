@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.admin.tiltak.UpdateTiltakstypeUseCase
+import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentAdminService
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -87,6 +88,7 @@ import no.nav.mulighetsrommet.api.persistence.OutboxTopics
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabase
 import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
 import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.api.sanity.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
@@ -97,8 +99,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddArrangorUtbet
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddBrukerUtbetalingConsumer
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
-import no.nav.mulighetsrommet.api.tiltakdokument.service.TiltakDokumentService
-import no.nav.mulighetsrommet.api.tiltakdokument.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
@@ -126,7 +126,6 @@ import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.NavEnhetService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
-import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
@@ -146,6 +145,7 @@ import no.nav.mulighetsrommet.tokenprovider.MaskinportenTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
+import no.nav.mulighetsrommet.validation.BrregClient
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import no.nav.tiltak.historikk.TiltakshistorikkClient
@@ -473,7 +473,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
     single { GjennomforingDetaljerService(get(), get(), get(), get()) }
-    single { TiltakDokumentService(get(), get()) }
+    single { TiltakDokumentAdminService(get()) }
     single {
         GjennomforingEnkeltplassService(
             get(),

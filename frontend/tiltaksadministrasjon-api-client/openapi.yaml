@@ -1619,22 +1619,6 @@ paths:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
   /api/tiltaksadministrasjon/tiltak-dokumenter:
-    get:
-      tags:
-      - TiltakDokument
-      operationId: getAllTiltakDokumenter
-      parameters: []
-      responses:
-        "200":
-          description: Liste over tiltak-dokumentøringer (uten filter)
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TiltakDokument"
-      deprecated: false
     put:
       tags:
       - TiltakDokument
@@ -1653,7 +1637,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TiltakDokument"
+                $ref: "#/components/schemas/TiltakDokumentDto"
         "400":
           description: Valideringsfeil
           headers: {}
@@ -1668,6 +1652,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    post:
+      tags:
+      - TiltakDokument
+      operationId: getTiltakDokumenter
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetTiltakDokumenterRequest"
+        required: false
+      responses:
+        "200":
+          description: Liste over tiltak-dokumentøringer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
       deprecated: false
   /api/tiltaksadministrasjon/tiltak-dokumenter/{id}/tilgjengelig-for-veileder:
     put:
@@ -1701,29 +1705,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tiltak-dokumenter/filter:
-    post:
-      tags:
-      - TiltakDokument
-      operationId: getTiltakDokumenter
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetTiltakDokumenterRequest"
-        required: false
-      responses:
-        "200":
-          description: Liste over tiltak-dokumentøringer
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TiltakDokument"
-      deprecated: false
   /api/tiltaksadministrasjon/tiltak-dokumenter/{id}:
     get:
       tags:
@@ -1745,7 +1726,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TiltakDokument"
+                type: object
         "404":
           description: Ikke funnet
           headers: {}
@@ -6521,7 +6502,7 @@ components:
       - navn
       - stedForGjennomforing
       - tiltakstypeId
-    TiltakDokument.Tiltakstype:
+    TiltakDokumentDto.Tiltakstype:
       type: object
       properties:
         id:
@@ -6535,7 +6516,7 @@ components:
       - id
       - navn
       - tiltakskode
-    TiltakDokument.Arrangor:
+    TiltakDokumentDto.Arrangor:
       type: object
       properties:
         id:
@@ -6549,7 +6530,7 @@ components:
       - id
       - navn
       - organisasjonsnummer
-    TiltakDokument.Administrator:
+    TiltakDokumentDto.Administrator:
       type: object
       properties:
         navIdent:
@@ -6559,7 +6540,7 @@ components:
       required:
       - navIdent
       - navn
-    TiltakDokument.Kontaktperson:
+    TiltakDokumentDto.Kontaktperson:
       type: object
       properties:
         navIdent:
@@ -6587,7 +6568,7 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    TiltakDokument.ArrangorKontaktperson:
+    TiltakDokumentDto.ArrangorKontaktperson:
       type: object
       properties:
         id:
@@ -6613,7 +6594,7 @@ components:
       - id
       - navn
       - telefon
-    TiltakDokument:
+    TiltakDokumentDto:
       type: object
       properties:
         id:
@@ -6631,7 +6612,7 @@ components:
           - "null"
           - string
         tiltakstype:
-          $ref: "#/components/schemas/TiltakDokument.Tiltakstype"
+          $ref: "#/components/schemas/TiltakDokumentDto.Tiltakstype"
         stedForGjennomforing:
           type:
           - "null"
@@ -6639,7 +6620,7 @@ components:
         arrangor:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/TiltakDokument.Arrangor"
+          - $ref: "#/components/schemas/TiltakDokumentDto.Arrangor"
         faneinnhold:
           oneOf:
           - type: "null"
@@ -6653,7 +6634,7 @@ components:
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokument.Administrator"
+            $ref: "#/components/schemas/TiltakDokumentDto.Administrator"
         kontorstruktur:
           type: array
           items:
@@ -6661,11 +6642,11 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokument.Kontaktperson"
+            $ref: "#/components/schemas/TiltakDokumentDto.Kontaktperson"
         arrangorKontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/TiltakDokument.ArrangorKontaktperson"
+            $ref: "#/components/schemas/TiltakDokumentDto.ArrangorKontaktperson"
       required:
       - administratorer
       - arrangor

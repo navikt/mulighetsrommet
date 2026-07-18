@@ -7,12 +7,14 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
+import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentAdminQueries
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
 import no.nav.mulighetsrommet.api.persistence.arrangor.db.ArrangorQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.db.KostnadsstedQueries
@@ -21,6 +23,7 @@ import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
+import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 
 /**
@@ -36,6 +39,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     val navAnsattDto = NavAnsattDtoQueries(session)
     val totrinnskontroll = TotrinnskontrollQueries(session)
     val arrangor = ArrangorQueries(session)
+    val tiltakDokument = TiltakDokumentQueries(session)
 
     override val repository = object : Repositories() {
         override val tiltakstype: TiltakstypeRepository = this@SqlQueryContext.tiltakstype
@@ -43,6 +47,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val navEnhet: NavEnhetRepository = this@SqlQueryContext.navEnhet
         override val navAnsatt: NavAnsattRepository = this@SqlQueryContext.navAnsatt
         override val arrangor: ArrangorRepository = this@SqlQueryContext.arrangor
+        override val tiltakDokument: TiltakDokumentRepository = this@SqlQueryContext.tiltakDokument
     }
 
     override val queries = object : Queries() {
@@ -52,6 +57,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val navAnsattDto: NavAnsattDtoQueryHandler = this@SqlQueryContext.navAnsattDto
         override val totrinnskontroll: TotrinnskontrollQueryHandler = this@SqlQueryContext.totrinnskontroll
         override val arrangor: ArrangorQueryHandler = this@SqlQueryContext.arrangor
+        override val tiltakDokument: TiltakDokumentAdminQueries = this@SqlQueryContext.tiltakDokument
     }
 
     override val outbox = SqlAdminOutbox(session, topics)
