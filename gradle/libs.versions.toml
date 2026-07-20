@@ -24,6 +24,8 @@ logging = [
     "logback-core",
     "logback-classic",
     "logback-logstashLogbackEncoder",
+    # Jackson benyttes av logstash-logback-encoder og er inkludert her slik at vi har kontroll
+    # på hvilken versjon vi inkluderer
     "jackson-bom"
 ]
 ktor-openapi = [
