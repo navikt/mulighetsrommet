@@ -80,6 +80,17 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
         return session.requireSingle(queryOf(query, id)) { it.toTotrinnskontroll() }
     }
 
+    fun findById(id: UUID): Totrinnskontroll? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from totrinnskontroll
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.single(queryOf(query, id)) { it.toTotrinnskontroll() }
+    }
+
     override fun getOrError(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll {
         return requireNotNull(get(entityId, type)) {
             "Totrinnskontroll mangler for type $type"
