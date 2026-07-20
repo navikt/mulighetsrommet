@@ -35,7 +35,7 @@ export const ArbeidsmarkedstiltakFilterSchema = z.object({
       tittel: z.string(),
     })
     .array(),
-  apentForPamelding: z.custom<ApentForPamelding>(),
+  apentForPamelding: z.custom<ApentForPamelding>().array(),
   erSykmeldtMedArbeidsgiver: z.boolean(),
 });
 
@@ -69,7 +69,7 @@ export function useArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
 
   const filterHasChanged =
     filter.search !== "" ||
-    filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT ||
+    filter.apentForPamelding.length > 0 ||
     filter.innsatsgruppe?.nokkel !== brukerdata.innsatsgruppe ||
     brukersEnhetFilterHasChanged(filter, brukerdata) ||
     filter.tiltakstyper.length > 0;
@@ -223,7 +223,7 @@ const defaultTiltakfilter: ArbeidsmarkedstiltakFilter = {
   navEnheter: [],
   innsatsgruppe: undefined,
   tiltakstyper: [],
-  apentForPamelding: ApentForPamelding.APENT_ELLER_STENGT,
+  apentForPamelding: [],
   erSykmeldtMedArbeidsgiver: false,
 };
 

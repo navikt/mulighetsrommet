@@ -427,9 +427,11 @@ paths:
         in: query
         required: false
         deprecated: false
-        explode: false
+        explode: true
         schema:
-          $ref: "#/components/schemas/ApentForPamelding"
+          type: array
+          items:
+            $ref: "#/components/schemas/ApentForPamelding"
       - name: tiltakstyper
         in: query
         required: false
@@ -564,9 +566,11 @@ paths:
         in: query
         required: false
         deprecated: false
-        explode: false
+        explode: true
         schema:
-          $ref: "#/components/schemas/ApentForPamelding"
+          type: array
+          items:
+            $ref: "#/components/schemas/ApentForPamelding"
       - name: tiltakstyper
         in: query
         required: false
@@ -663,9 +667,11 @@ paths:
         in: query
         required: false
         deprecated: false
-        explode: false
+        explode: true
         schema:
-          $ref: "#/components/schemas/ApentForPamelding"
+          type: array
+          items:
+            $ref: "#/components/schemas/ApentForPamelding"
       - name: tiltakstyper
         in: query
         required: false
@@ -1595,7 +1601,6 @@ components:
       enum:
       - APENT
       - STENGT
-      - APENT_ELLER_STENGT
     VeilederflateTiltak:
       anyOf:
       - $ref: "#/components/schemas/VeilederflateTiltakEnkeltplass"

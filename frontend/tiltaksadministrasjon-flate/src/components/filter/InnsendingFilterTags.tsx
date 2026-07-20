@@ -1,9 +1,9 @@
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterTagsContainer } from "@mr/frontend-common";
-import { InnsendingFilterType } from "./filter";
 import { KostnadsstedFilterTag } from "@/components/filter/KostnadsstedFilterTag";
 import { Chips } from "@navikt/ds-react";
 import { TiltakskodeFilterTags } from "@/components/filter/TiltakskodeFilterTags";
+import { InnsendingFilterType } from "@/pages/innsendinger/filter";
 
 interface Props {
   filter: InnsendingFilterType;
