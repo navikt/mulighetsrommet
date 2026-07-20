@@ -8,7 +8,7 @@ import {
 } from "./components/filter/CheckboxDropdownGroup";
 import { MultiLabelFilterTag } from "./components/filter/filterTag/MultiLabelFilterTag";
 import { FilterTagsContainer } from "./components/filter/filterTag/FilterTagsContainer";
-import { FilterAccordionHeader } from "./components/filter/accordionHeader/FilterAccordionHeader";
+import { FilterAccordion } from "./components/filter/filterAccordion/FilterAccordion";
 import { FilterSkeleton } from "./components/skeleton/FilterSkeleton";
 import {
   InlineErrorBoundary,
@@ -40,7 +40,7 @@ export {
   type CheckboxGroupSubItem,
   MultiLabelFilterTag,
   FilterTagsContainer,
-  FilterAccordionHeader,
+  FilterAccordion,
   FilterSkeleton,
   ReloadAppErrorBoundary,
   InlineErrorBoundary,
