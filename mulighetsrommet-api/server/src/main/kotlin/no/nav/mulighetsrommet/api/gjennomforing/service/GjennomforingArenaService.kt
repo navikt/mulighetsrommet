@@ -86,7 +86,7 @@ class GjennomforingArenaService(
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingArena) {
-        outbox.publish(TiltaksgjennomforingV2Mapper.fromGjennomforingArena(gjennomforing))
+        outbox.publish(gjennomforing.id, TiltaksgjennomforingV2Mapper.fromGjennomforingArena(gjennomforing))
     }
 }
 

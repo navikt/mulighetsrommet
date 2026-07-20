@@ -58,6 +58,6 @@ fun Row.toStoredProducerRecord() = StoredProducerRecord(
     long("id"),
     string("topic"),
     bytes("key"),
-    bytes("value"),
+    bytesOrNull("value"),
     stringOrNull("headers_json"),
 )

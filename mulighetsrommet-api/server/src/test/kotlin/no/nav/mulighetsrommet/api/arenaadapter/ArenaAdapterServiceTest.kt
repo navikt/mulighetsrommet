@@ -4,6 +4,8 @@ import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coVerify
@@ -420,6 +422,47 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2025#1")
                     it.arena?.ansvarligNavEnhet shouldBe "0400"
                 }
+            }
+        }
+    }
+
+    context("removeTiltaksgjennomforing") {
+        val arenaEnkelAmo = GjennomforingFixtures.ArenaEnkelAmo
+        val arenaArbeidsrettetRehabilitering = GjennomforingFixtures.ArenaArbeidsrettetRehabilitering
+
+        beforeEach {
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(arenaEnkelAmo, arenaArbeidsrettetRehabilitering),
+            ).initialize(database.api)
+        }
+
+        afterEach {
+            database.truncateAll()
+        }
+
+        test("sletter enkeltplass Arena-gjennomforing fra databasen og publiserer tombstone til kafka") {
+            val service = createArenaAdapterService()
+            service.removeTiltaksgjennomforing(arenaEnkelAmo.id)
+
+            database.run {
+                queries.gjennomforing.getGjennomforing(arenaEnkelAmo.id).shouldBeNull()
+
+                val record = queries.kafkaProducerRecord.getRecords(10).shouldHaveSize(1).first()
+                record.topic shouldBe ApplicationConfigTest.kafka.topics.sisteTiltaksgjennomforingerV2Topic
+                record.key.decodeToString() shouldBe arenaEnkelAmo.id.toString()
+                record.value.shouldBeNull()
+            }
+        }
+
+        test("kaster feil og sletter ikke gjennomforing som ikke er enkeltplass Arena-tiltak") {
+            val service = createArenaAdapterService()
+
+            shouldThrowExactly<IllegalArgumentException> {
+                service.removeTiltaksgjennomforing(arenaArbeidsrettetRehabilitering.id)
+            }
+
+            database.run {
+                queries.gjennomforing.getGjennomforing(arenaArbeidsrettetRehabilitering.id).shouldNotBeNull()
             }
         }
     }

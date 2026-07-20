@@ -555,7 +555,7 @@ class GjennomforingEnkeltplassService(
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingEnkeltplass) {
-        outbox.publish(TiltaksgjennomforingV2Mapper.fromGjennomforingEnkeltplass(gjennomforing))
+        outbox.publish(gjennomforing.id, TiltaksgjennomforingV2Mapper.fromGjennomforingEnkeltplass(gjennomforing))
     }
 
     private fun TransactionalQueryContext.settOkonomiTilGodkjenning(
