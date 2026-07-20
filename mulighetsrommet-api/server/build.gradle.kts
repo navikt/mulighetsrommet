@@ -71,6 +71,7 @@ dependencies {
 
     // Logging
     implementation(libs.bundles.logging)
+    implementation(libs.nav.common.auditLog)
 
     // Ktor
     implementation(libs.ktor.client.mock)
@@ -101,8 +102,6 @@ dependencies {
 
     // Metrics
     implementation(libs.prometheus.caffeine)
-
-    implementation(libs.nav.common.auditLog)
 
     // Dependency injection
     implementation(platform(libs.koin.bom))

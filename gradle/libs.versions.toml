@@ -1,7 +1,7 @@
 [versions]
 common-java-modules = "4.2026.07.17_11.36-f5bba2c96561"
 flyway = "12.11.0"
-jackson = "3.1.4"
+jackson = "3.2.1"
 koin-bom = "4.2.2"
 kotest = "6.2.2"
 kotlin = "2.4.0"
@@ -24,6 +24,8 @@ logging = [
     "logback-core",
     "logback-classic",
     "logback-logstashLogbackEncoder",
+    # Jackson benyttes av logstash-logback-encoder og er inkludert her slik at vi har kontroll
+    # på hvilken versjon vi inkluderer
     "jackson-bom"
 ]
 ktor-openapi = [
