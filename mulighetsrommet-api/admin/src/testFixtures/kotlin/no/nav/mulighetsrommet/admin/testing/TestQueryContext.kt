@@ -10,6 +10,13 @@ import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandle
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
+import no.nav.mulighetsrommet.api.domain.testing.FakeArrangorRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeNavAnsattRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeNavEnhetRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeRedaksjoneltInnholdLenkeRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeTiltakDokumentRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeTiltakstypeRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeUtdanningRepository
 
 class TestQueryContext : QueryContext() {
     private val redaksjoneltInnholdLenkeRepository = FakeRedaksjoneltInnholdLenkeRepository()
