@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.validation
+package no.nav.mulighetsrommet.brreg
 
 sealed interface BrregError {
     data class FjernetAvJuridiskeArsaker(val enhet: FjernetBrregEnhetDto) : BrregError

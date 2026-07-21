@@ -126,6 +126,7 @@ import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.api.veilederflate.services.NavEnhetService
 import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
+import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
@@ -145,7 +146,6 @@ import no.nav.mulighetsrommet.tokenprovider.MaskinportenTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
-import no.nav.mulighetsrommet.validation.BrregClient
 import no.nav.poao_tilgang.client.PoaoTilgangClient
 import no.nav.poao_tilgang.client.PoaoTilgangHttpClient
 import no.nav.tiltak.historikk.TiltakshistorikkClient

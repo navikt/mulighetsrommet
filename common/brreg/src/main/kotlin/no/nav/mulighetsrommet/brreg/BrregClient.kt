@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.validation
+package no.nav.mulighetsrommet.brreg
 
 import arrow.core.Either
 import arrow.core.left

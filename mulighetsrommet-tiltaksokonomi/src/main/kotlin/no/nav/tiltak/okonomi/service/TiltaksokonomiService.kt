@@ -6,9 +6,9 @@ import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
+import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.validation.BrregAdresse
-import no.nav.mulighetsrommet.validation.BrregClient
 import no.nav.mulighetsrommet.validation.BrregHovedenhetDto
 import no.nav.mulighetsrommet.validation.BrregUnderenhetDto
 import no.nav.mulighetsrommet.validation.SlettetBrregHovedenhetDto

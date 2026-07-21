@@ -11,9 +11,9 @@ import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.plugins.AppRoles
 import no.nav.mulighetsrommet.api.withTestApplication
+import no.nav.mulighetsrommet.brreg.testFixture.BrregFixtures
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
-import no.nav.mulighetsrommet.validation.testFixture.BrregFixtures
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 class EnhetsregisterRoutesTest : FunSpec({

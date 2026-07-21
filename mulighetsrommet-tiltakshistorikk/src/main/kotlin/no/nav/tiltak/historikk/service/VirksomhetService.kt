@@ -4,10 +4,10 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.right
+import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.validation.BrregClient
 import no.nav.mulighetsrommet.validation.BrregEnhet
-import no.nav.mulighetsrommet.validation.BrregError
 import no.nav.mulighetsrommet.validation.BrregHovedenhetDto
 import no.nav.mulighetsrommet.validation.BrregUnderenhetDto
 import no.nav.mulighetsrommet.validation.FjernetBrregEnhetDto

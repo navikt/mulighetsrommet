@@ -13,9 +13,9 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
+import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.validation.BrregClient
-import no.nav.mulighetsrommet.validation.BrregError
 import no.nav.mulighetsrommet.validation.BrregHovedenhetDto
 import no.nav.mulighetsrommet.validation.BrregUnderenhetDto
 import no.nav.mulighetsrommet.validation.FjernetBrregEnhetDto
