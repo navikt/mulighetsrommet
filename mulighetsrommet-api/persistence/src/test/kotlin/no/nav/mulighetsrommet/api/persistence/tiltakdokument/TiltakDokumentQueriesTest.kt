@@ -111,20 +111,6 @@ class TiltakDokumentQueriesTest : FunSpec({
         }
     }
 
-    test("getBySanityId") {
-        database.runAndRollback {
-            repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
-
-            val sanityId = UUID.randomUUID()
-            repository.tiltakDokument.save(minimalDokument(id = gjennomforingId).copy(sanityId = sanityId))
-
-            val result = repository.tiltakDokument.getBySanityId(sanityId)
-            result.shouldNotBeNull().id shouldBe gjennomforingId
-
-            repository.tiltakDokument.getBySanityId(UUID.randomUUID()).shouldBeNull()
-        }
-    }
-
     test("getAll uten filter returnerer alle") {
         database.runAndRollback {
             repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)

@@ -1,4 +1,3 @@
-drop view if exists view_individuell_gjennomforing;
 drop view if exists view_tiltak_dokument;
 
 create or replace view view_tiltak_dokument as
