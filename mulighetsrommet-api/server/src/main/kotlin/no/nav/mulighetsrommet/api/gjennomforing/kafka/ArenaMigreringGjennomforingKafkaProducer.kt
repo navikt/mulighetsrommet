@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjenn
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.UUID
 
@@ -32,9 +31,9 @@ class ArenaMigreringGjennomforingKafkaProducer(
     )
 
     override suspend fun consume(key: String, message: JsonElement) {
-        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV2Dto>(message)
+        val gjennomforing = Json.decodeFromJsonElement<TiltaksgjennomforingV2Dto?>(message)
 
-        if (gjennomforingSkalDelesMedArena(gjennomforing)) {
+        if (gjennomforing != null && gjennomforingSkalDelesMedArena(gjennomforing)) {
             publishMigrertGjennomforing(gjennomforing.id)
         }
     }
