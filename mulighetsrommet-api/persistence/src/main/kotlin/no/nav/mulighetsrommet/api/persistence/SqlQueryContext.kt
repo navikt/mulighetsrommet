@@ -17,18 +17,18 @@ import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnhold
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
 import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramRepository
-import no.nav.mulighetsrommet.api.persistence.arrangor.db.ArrangorQueries
+import no.nav.mulighetsrommet.api.persistence.arrangor.ArrangorQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
-import no.nav.mulighetsrommet.api.persistence.kostnadssted.db.KostnadsstedQueries
-import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattDtoQueries
-import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattQueries
-import no.nav.mulighetsrommet.api.persistence.navenhet.db.NavEnhetQueries
-import no.nav.mulighetsrommet.api.persistence.opplaring.db.OpplaringKategoriseringQueries
+import no.nav.mulighetsrommet.api.persistence.kostnadssted.KostnadsstedQueries
+import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattDtoQueries
+import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattQueries
+import no.nav.mulighetsrommet.api.persistence.navenhet.NavEnhetQueries
+import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
-import no.nav.mulighetsrommet.api.persistence.utdanning.db.UtdanningQueries
+import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
 
 /**
  * Concrete [QueryContext] backed by JDBC/kotliquery.

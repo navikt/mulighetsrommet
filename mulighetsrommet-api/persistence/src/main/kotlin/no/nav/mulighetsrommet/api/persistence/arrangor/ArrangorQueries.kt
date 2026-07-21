@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.persistence.arrangor.db
+package no.nav.mulighetsrommet.api.persistence.arrangor
 
 import kotliquery.Row
 import kotliquery.Session

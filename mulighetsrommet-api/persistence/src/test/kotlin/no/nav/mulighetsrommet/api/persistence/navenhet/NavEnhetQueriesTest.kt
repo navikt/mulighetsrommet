@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.persistence.navenhet.db
+package no.nav.mulighetsrommet.api.persistence.navenhet
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder

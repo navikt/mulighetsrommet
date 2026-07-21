@@ -4,7 +4,6 @@ import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
-import no.nav.mulighetsrommet.api.persistence.navenhet.db.NavEnhetQueries
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 

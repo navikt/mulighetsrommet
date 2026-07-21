@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.persistence.kostnadssted.db
+package no.nav.mulighetsrommet.api.persistence.kostnadssted
 
 import kotliquery.Row
 import kotliquery.Session

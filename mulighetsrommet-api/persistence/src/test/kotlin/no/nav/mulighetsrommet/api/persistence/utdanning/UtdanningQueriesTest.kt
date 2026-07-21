@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.persistence.utdanning.db
+package no.nav.mulighetsrommet.api.persistence.utdanning
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull

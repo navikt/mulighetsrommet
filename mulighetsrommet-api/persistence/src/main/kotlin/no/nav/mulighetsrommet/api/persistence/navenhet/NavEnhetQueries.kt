@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.persistence.navenhet.db
+package no.nav.mulighetsrommet.api.persistence.navenhet
 
 import kotliquery.Row
 import kotliquery.Session

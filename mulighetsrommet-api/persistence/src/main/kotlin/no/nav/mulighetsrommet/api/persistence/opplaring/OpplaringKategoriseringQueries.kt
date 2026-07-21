@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.persistence.opplaring.db
+package no.nav.mulighetsrommet.api.persistence.opplaring
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
