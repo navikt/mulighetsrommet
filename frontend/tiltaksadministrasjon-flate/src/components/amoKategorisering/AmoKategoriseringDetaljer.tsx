@@ -1,48 +1,42 @@
-import { AmoKategoriseringDto } from "@tiltaksadministrasjon/api-client";
+import { OpplaringKategorisering } from "@tiltaksadministrasjon/api-client";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
-import {
-  forerkortKlasseToString,
-  innholdElementToString,
-  kurstypeToString,
-  bransjeToString,
-} from "@/utils/Utils";
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 
 interface Props {
-  amoKategorisering: AmoKategoriseringDto;
+  opplaring: OpplaringKategorisering;
   erEnkeltplass?: boolean;
 }
 
-export function AmoKategoriseringDetaljer({ amoKategorisering, erEnkeltplass }: Props) {
+export function AmoKategoriseringDetaljer({ opplaring, erEnkeltplass }: Props) {
   return (
     <Definisjonsliste
       title="Kursdetaljer"
       definitions={[
-        amoKategorisering.kurstype && {
+        opplaring.kurstype && {
           key: gjennomforingTekster.kurstypeLabel,
-          value: `${kurstypeToString(amoKategorisering.kurstype)}${amoKategorisering.bransje ? `- ${bransjeToString(amoKategorisering.bransje)}` : ""}`,
+          value: `${opplaring.kurstype.navn}${opplaring.bransje ? `- ${opplaring.bransje.navn}` : ""}`,
         },
-        ...(amoKategorisering.forerkort && amoKategorisering.forerkort.length > 0
+        ...(opplaring.forerkort.length > 0
           ? [
               {
                 key: gjennomforingTekster.forerkortLabel,
                 value: (
                   <ul>
-                    {amoKategorisering.forerkort.map((klasse) => (
-                      <li key={klasse}>{forerkortKlasseToString(klasse)}</li>
+                    {opplaring.forerkort.map((klasse) => (
+                      <li key={klasse.id}>{klasse.navn}</li>
                     ))}
                   </ul>
                 ),
               },
             ]
           : []),
-        ...(amoKategorisering.sertifiseringer && amoKategorisering.sertifiseringer.length > 0
+        ...(opplaring.sertifiseringer.length > 0
           ? [
               {
                 key: gjennomforingTekster.sertifiseringerLabel,
                 value: (
                   <ul>
-                    {amoKategorisering.sertifiseringer.map((s) => (
+                    {opplaring.sertifiseringer.map((s) => (
                       <li key={s.konseptId}>{s.label}</li>
                     ))}
                   </ul>
@@ -51,23 +45,22 @@ export function AmoKategoriseringDetaljer({ amoKategorisering, erEnkeltplass }: 
             ]
           : []),
         !erEnkeltplass &&
-          amoKategorisering.norskprove !== null && {
+          opplaring.norskprove !== null && {
             key: gjennomforingTekster.norskproveLabel,
-            value: amoKategorisering.norskprove ? "Ja" : "Nei",
+            value: opplaring.norskprove ? "Ja" : "Nei",
           },
-        !erEnkeltplass &&
-          amoKategorisering.innholdElementer && {
-            key: gjennomforingTekster.innholdElementerLabel,
-            value: (
-              <ul>
-                {amoKategorisering.innholdElementer.map((element) => (
-                  <li key={element} className="list-disc list-inside">
-                    {innholdElementToString(element)}
-                  </li>
-                ))}
-              </ul>
-            ),
-          },
+        !erEnkeltplass && {
+          key: gjennomforingTekster.innholdElementerLabel,
+          value: (
+            <ul>
+              {opplaring.innholdElementer.map((element) => (
+                <li key={element.id} className="list-disc list-inside">
+                  {element.navn}
+                </li>
+              ))}
+            </ul>
+          ),
+        },
       ].filter((definition) => !!definition)}
     />
   );

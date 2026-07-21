@@ -493,6 +493,6 @@ class GjennomforingAvtaleService(
     private fun QueryContext.publishToKafka(gjennomforing: GjennomforingAvtale) {
         val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
         val gjennomforingV2 = TiltaksgjennomforingV2Mapper.fromGjennomforingAvtale(gjennomforing, detaljer)
-        outbox.publish(gjennomforingV2)
+        outbox.publish(gjennomforing.id, gjennomforingV2)
     }
 }

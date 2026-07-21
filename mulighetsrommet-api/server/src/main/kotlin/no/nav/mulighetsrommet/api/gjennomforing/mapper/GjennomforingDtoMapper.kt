@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
-import no.nav.mulighetsrommet.api.avtale.model.toAmoKategoriseringDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytelseDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.DeltakerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
@@ -57,15 +56,16 @@ object GjennomforingDtoMapper {
             estimertVentetid = detaljer.estimertVentetid?.toEstimertVentetidDto(),
         ),
         prismodell = fromPrismodell(gjennomforing.prismodell),
-        amoKategorisering = detaljer.opplaringKategorisering?.toAmoKategoriseringDto(gjennomforing.tiltakstype.tiltakskode),
-        utdanningslop = detaljer.utdanningslop,
+        opplaring = detaljer.opplaringKategorisering,
         okonomi = null,
+        prisendring = null,
         enkeltplassDeltaker = null,
     )
 
     fun fromEnkeltplass(
         gjennomforing: GjennomforingEnkeltplass,
         okonomi: TotrinnskontrollDto?,
+        prisendring: GjennomforingDetaljerDto.Prisendring?,
         deltakerDto: DeltakerDto?,
         kategorisering: OpplaringKategorisering?,
     ) = GjennomforingDetaljerDto(
@@ -93,8 +93,8 @@ object GjennomforingDtoMapper {
         veilederinfo = null,
         prismodell = fromPrismodell(gjennomforing.prismodell),
         okonomi = okonomi,
-        amoKategorisering = kategorisering?.toAmoKategoriseringDto(gjennomforing.tiltakstype.tiltakskode),
-        utdanningslop = kategorisering?.utdanningslop,
+        prisendring = prisendring,
+        opplaring = kategorisering,
         enkeltplassDeltaker = deltakerDto,
     )
 

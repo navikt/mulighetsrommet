@@ -10,9 +10,9 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.KategoriseringMapper
-import no.nav.mulighetsrommet.api.gjennomforing.service.EnkeltplassRequest
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
-import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertGjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.service.TotrinnskontrollBehandling
+import no.nav.mulighetsrommet.api.gjennomforing.service.UpsertEnkeltplass
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -33,8 +33,8 @@ class GjennomforingRequestKafkaConsumer(
         when (val request = JsonIgnoreUnknownKeys.decodeFromJsonElement<GjennomforingRequest>(message)) {
             is GjennomforingRequest.EnkeltplassUtkast -> handterEnkeltplassUtkast(request)
             is GjennomforingRequest.EnkeltplassSoktInn -> handterEnkeltplassSoktInn(request)
-            is GjennomforingRequest.EnkeltplassEndreInnhold -> TODO("Ikke støttet enda")
-            is GjennomforingRequest.EnkeltplassEndrePrisinformasjon -> TODO("Ikke støttet enda")
+            is GjennomforingRequest.EnkeltplassEndreInnhold -> handterEnkeltplassEndreInnhold(request)
+            is GjennomforingRequest.EnkeltplassEndrePrisinformasjon -> handterEnkeltplassEndrePrisinformasjon(request)
         }
     }
 
@@ -54,7 +54,8 @@ class GjennomforingRequestKafkaConsumer(
 
         val arrangor = getArrangor(payload.organisasjonsnummer)
         val soktInn = toRequest(gjennomforingId, arrangor.id, payload)
-        enkeltplasser.soktInn(soktInn, totrinnskontroll.behandletAv)
+        val behandling = TotrinnskontrollBehandling(totrinnskontroll.id, totrinnskontroll.behandletAv)
+        enkeltplasser.soktInn(soktInn, behandling)
             .onLeft { errors -> error("Klarte ikke opprette enkeltplass: $errors") }
     }
 
@@ -70,13 +71,28 @@ class GjennomforingRequestKafkaConsumer(
     private suspend fun getArrangor(organisasjonsnummer: Organisasjonsnummer): Arrangor = arrangorer
         .execute(SyncArrangorIfMissing(organisasjonsnummer))
         .getOrElse { error("Klarte ikke hente arrangør fra brreg $it") }
+
+    private fun handterEnkeltplassEndreInnhold(request: GjennomforingRequest.EnkeltplassEndreInnhold) {
+        enkeltplasser.endreInnhold(
+            request.gjennomforingId,
+            request.payload?.let(KategoriseringMapper::fromKafkaPayload),
+        )
+    }
+
+    private fun handterEnkeltplassEndrePrisinformasjon(request: GjennomforingRequest.EnkeltplassEndrePrisinformasjon) {
+        enkeltplasser.endrePrisinformasjon(
+            gjennomforingId = request.gjennomforingId,
+            behandling = TotrinnskontrollBehandling(request.totrinnskontroll.id, request.totrinnskontroll.behandletAv),
+            prisinformasjon = toPrismodell(request.payload),
+        ).onLeft { errors -> error("Klarte ikke håndtere endring av prisinformasjon: $errors") }
+    }
 }
 
 private fun toRequest(
     gjennomforingId: UUID,
     arrangorId: UUID,
-    payload: UpsertEnkeltplass,
-) = EnkeltplassRequest(
+    payload: GjennomforingRequest.UpsertEnkeltplass,
+) = UpsertEnkeltplass(
     id = gjennomforingId,
     tiltakskode = payload.tiltakskode,
     arrangorId = arrangorId,
@@ -86,22 +102,22 @@ private fun toRequest(
 )
 
 private fun toPrismodell(
-    prisinformasjon: EnkeltplassPrisinformasjon,
-): UpsertGjennomforingEnkeltplass.Prismodell {
+    prisinformasjon: GjennomforingRequest.EnkeltplassPrisinformasjon,
+): UpsertEnkeltplass.Prismodell {
     return when (prisinformasjon) {
-        is EnkeltplassPrisinformasjon.Tilskudd -> UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering(
+        is GjennomforingRequest.EnkeltplassPrisinformasjon.Tilskudd -> UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
             tilskudd = prisinformasjon.tilskudd,
             tilleggsopplysninger = prisinformasjon.tilleggsopplysninger,
         )
 
-        is EnkeltplassPrisinformasjon.Anskaffelse -> UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(
+        is GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse -> UpsertEnkeltplass.Prismodell.Anskaffelse(
             totalbelop = prisinformasjon.pris,
         )
 
-        is EnkeltplassPrisinformasjon.IngenKostnader -> UpsertGjennomforingEnkeltplass.Prismodell.IngenKostnader(
+        is GjennomforingRequest.EnkeltplassPrisinformasjon.IngenKostnader -> UpsertEnkeltplass.Prismodell.IngenKostnader(
             aarsak = when (prisinformasjon.aarsak) {
-                EnkeltplassPrisinformasjon.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT -> Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT
-                EnkeltplassPrisinformasjon.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI -> Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI
+                GjennomforingRequest.EnkeltplassPrisinformasjon.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT -> Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_EGENFINANSIERT
+                GjennomforingRequest.EnkeltplassPrisinformasjon.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI -> Prismodell.IngenKostnader.Aarsak.OPPLAERINGEN_ER_KOSTNADSFRI
             },
             tilleggsopplysninger = prisinformasjon.tilleggsopplysninger,
         )

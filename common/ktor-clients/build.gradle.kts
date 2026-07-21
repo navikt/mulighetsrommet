@@ -12,6 +12,9 @@ dependencies {
     testImplementation(libs.ktor.client.mock)
     api(libs.ktor.serialization.json)
 
+    // Logging
+    implementation(libs.slf4j)
+
     // Test
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)

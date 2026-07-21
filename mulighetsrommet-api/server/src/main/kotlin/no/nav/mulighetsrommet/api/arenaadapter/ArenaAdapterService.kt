@@ -86,6 +86,15 @@ class ArenaAdapterService(
         return null
     }
 
+    fun removeTiltaksgjennomforing(id: UUID) = db.transaction {
+        val gjennomforing = queries.gjennomforing.getGjennomforing(id)
+        require(gjennomforing is GjennomforingArena && gjennomforing.oppstart == GjennomforingOppstartstype.ENKELTPLASS) {
+            "Gjennomføring med id=$id er ikke et enkeltplass-tiltak fra Arena"
+        }
+        queries.gjennomforing.delete(id)
+        outbox.publish(id, null)
+    }
+
     suspend fun removeSanityTiltaksgjennomforing(sanityId: UUID) {
         sanityService.deleteSanityTiltaksgjennomforing(sanityId)
     }

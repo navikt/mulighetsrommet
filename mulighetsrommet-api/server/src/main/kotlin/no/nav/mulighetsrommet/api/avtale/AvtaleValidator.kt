@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.right
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.AmoKurstype
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.models.Bransje
 import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
@@ -579,7 +578,7 @@ object AvtaleValidator {
                     AmoKategoriseringRequest::kurstype,
                 )
             }
-            if (amoKategorisering.kurstype == AmoKurstype.BRANSJE_OG_YRKESRETTET) {
+            if (amoKategorisering.kurstype == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
                 requireValid(amoKategorisering.bransje != null) {
                     FieldError.of(
                         "Du må velge en bransje",
@@ -599,7 +598,7 @@ object AvtaleValidator {
                     AmoKategoriseringRequest::bransje,
                 )
             }
-            amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET).toOpplaringKategoriseringDbo()
+            amoKategorisering.copy(kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET).toOpplaringKategoriseringDbo()
         }
 
         Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
@@ -612,9 +611,9 @@ object AvtaleValidator {
             }
             validate(
                 amoKategorisering.kurstype in listOf(
-                    AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
-                    AmoKurstype.NORSKOPPLAERING,
-                    AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+                    Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+                    Kurstype.Kode.NORSKOPPLAERING,
+                    Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
                 ),
             ) {
                 FieldError.of(
@@ -627,7 +626,7 @@ object AvtaleValidator {
         }
 
         Tiltakskode.STUDIESPESIALISERING,
-        -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING).toOpplaringKategoriseringDbo()
+        -> AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING).toOpplaringKategoriseringDbo()
 
         Tiltakskode.FAG_OG_YRKESOPPLAERING,
         Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,

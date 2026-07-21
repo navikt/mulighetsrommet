@@ -8,6 +8,7 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
@@ -17,6 +18,7 @@ import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
+import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -45,9 +47,15 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         database.truncateAll()
     }
 
+    val mockSyncArrangor = mockk<SyncArrangorUseCase> {
+        coEvery {
+            execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
+        } returns ArrangorFixtures.underenhet1.right()
+    }
+
     fun createConsumer(
         enkeltplasser: GjennomforingEnkeltplassService,
-        arrangorer: SyncArrangorUseCase = mockk(),
+        arrangorer: SyncArrangorUseCase = mockSyncArrangor,
         tiltakstypeConfig: TiltakstypeService.Config = TiltakstypeService.Config(
             features = mapOf(Tiltakskode.ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT)),
         ),
@@ -59,31 +67,31 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         )
     }
 
-    context("EnkeltplassUtkast") {
-        val service = GjennomforingEnkeltplassService(
+    fun createService(): GjennomforingEnkeltplassService {
+        return GjennomforingEnkeltplassService(
             database.api,
             mockk(),
             TiltakstypeService(TiltakstypeService.Config(), database.admin),
         )
+    }
+
+    context("EnkeltplassUtkast") {
+        val service = createService()
 
         val gjennomforingId = UUID.randomUUID()
-        val payload = UpsertEnkeltplass(
+        val payload = GjennomforingRequest.UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
             opprettetAv = NavIdent("B123456"),
-            prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
         )
         val request = GjennomforingRequest.EnkeltplassUtkast(gjennomforingId, payload)
 
         test("oppretter gjennomforing uten å sende økonomi til godkjenning") {
-            val arrangorer = mockk<SyncArrangorUseCase>()
-            coEvery {
-                arrangorer.execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
-            } returns ArrangorFixtures.underenhet1.right()
 
-            val consumer = createConsumer(service, arrangorer)
+            val consumer = createConsumer(service)
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
 
             service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, okonomi) ->
@@ -96,12 +104,13 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         }
 
         test("kaster feil dersom arrangør ikke kan hentes fra brreg") {
-            val arrangorer = mockk<SyncArrangorUseCase>()
-            coEvery {
-                arrangorer.execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
-            } returns SyncArrangorError.Enhetsregister(EnhetsregisterError.IkkeFunnet).left()
+            val mockArrangorIkkeFunnet = mockk<SyncArrangorUseCase> {
+                coEvery {
+                    execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
+                } returns SyncArrangorError.Enhetsregister(EnhetsregisterError.IkkeFunnet).left()
+            }
 
-            val consumer = createConsumer(service, arrangorer)
+            val consumer = createConsumer(service, mockArrangorIkkeFunnet)
 
             shouldThrowExactly<IllegalStateException> {
                 consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
@@ -123,31 +132,22 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
     }
 
     context("EnkeltplassSoktInn") {
-        val service = GjennomforingEnkeltplassService(
-            database.api,
-            mockk(),
-            TiltakstypeService(TiltakstypeService.Config(), database.admin),
-        )
+        val service = createService()
 
         val gjennomforingId = UUID.randomUUID()
-        val payload = UpsertEnkeltplass(
+        val payload = GjennomforingRequest.UpsertEnkeltplass(
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
             opprettetAv = NavIdent("B123456"),
-            prisinformasjon = EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
         )
         val totrinnskontroll = GjennomforingRequest.Totrinnskontroll(UUID.randomUUID(), NavIdent("B123456"))
         val request = GjennomforingRequest.EnkeltplassSoktInn(gjennomforingId, totrinnskontroll, payload)
 
         test("oppretter gjennomforing og sender økonomi til godkjenning") {
-            val arrangorer = mockk<SyncArrangorUseCase>()
-            coEvery {
-                arrangorer.execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
-            } returns ArrangorFixtures.underenhet1.right()
-
-            val consumer = createConsumer(service, arrangorer)
+            val consumer = createConsumer(service)
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
 
             service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, okonomi) ->
@@ -160,12 +160,13 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         }
 
         test("kaster feil dersom arrangør ikke kan hentes fra brreg") {
-            val arrangorer = mockk<SyncArrangorUseCase>()
-            coEvery {
-                arrangorer.execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
-            } returns SyncArrangorError.Enhetsregister(EnhetsregisterError.IkkeFunnet).left()
+            val mockArrangorIkkeFunnet = mockk<SyncArrangorUseCase> {
+                coEvery {
+                    execute(SyncArrangorIfMissing(ArrangorFixtures.underenhet1.organisasjonsnummer))
+                } returns SyncArrangorError.Enhetsregister(EnhetsregisterError.IkkeFunnet).left()
+            }
 
-            val consumer = createConsumer(service, arrangorer)
+            val consumer = createConsumer(service, mockArrangorIkkeFunnet)
 
             shouldThrowExactly<IllegalStateException> {
                 consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
@@ -183,6 +184,93 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             }
 
             service.get(gjennomforingId).shouldBeNull()
+        }
+    }
+
+    context("EnkeltplassEndreInnhold") {
+        val service = createService()
+
+        val consumer = createConsumer(service)
+
+        val gjennomforingId = UUID.randomUUID()
+        val utkastPayload = GjennomforingRequest.UpsertEnkeltplass(
+            tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            ansvarligEnhet = NavEnhetNummer("0400"),
+            opprettetAv = NavIdent("B123456"),
+            prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            kategorisering = null,
+        )
+
+        test("oppdaterer kategorisering på eksisterende enkeltplass") {
+            val utkast = GjennomforingRequest.EnkeltplassUtkast(gjennomforingId, utkastPayload)
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(utkast))
+            service.get(gjennomforingId).shouldNotBeNull()
+
+            val endreInnholdRequest = GjennomforingRequest.EnkeltplassEndreInnhold(gjennomforingId, payload = null)
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(endreInnholdRequest))
+
+            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, _) ->
+                gjennomforing.id shouldBe gjennomforingId
+            }
+        }
+
+        test("kaster feil dersom gjennomforing ikke eksisterer") {
+            val ikkeEksisterendeId = UUID.randomUUID()
+            val request = GjennomforingRequest.EnkeltplassEndreInnhold(ikkeEksisterendeId, payload = null)
+
+            shouldThrowExactly<IllegalStateException> {
+                consumer.consume(ikkeEksisterendeId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+            }
+        }
+    }
+
+    context("EnkeltplassEndrePrisinformasjon") {
+        val service = createService()
+
+        val consumer = createConsumer(service)
+
+        val gjennomforingId = UUID.randomUUID()
+        val utkastPayload = GjennomforingRequest.UpsertEnkeltplass(
+            tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            ansvarligEnhet = NavEnhetNummer("0400"),
+            opprettetAv = NavIdent("B123456"),
+            prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            kategorisering = null,
+        )
+        val totrinnskontroll = GjennomforingRequest.Totrinnskontroll(UUID.randomUUID(), NavIdent("B123456"))
+
+        beforeEach {
+            val soktInn = GjennomforingRequest.EnkeltplassSoktInn(gjennomforingId, totrinnskontroll, utkastPayload)
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(soktInn))
+        }
+
+        test("oppdaterer prismodell automatisk når økonomi ikke er godkjent") {
+            val request = GjennomforingRequest.EnkeltplassEndrePrisinformasjon(
+                gjennomforingId = gjennomforingId,
+                totrinnskontroll = GjennomforingRequest.Totrinnskontroll(UUID.randomUUID(), NavIdent("B123456")),
+                payload = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 20000),
+            )
+
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+
+            service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, _) ->
+                gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 20000
+            }
+        }
+
+        test("kaster feil dersom gjennomforing ikke eksisterer") {
+            val ikkeEksisterendeId = UUID.randomUUID()
+            val request = GjennomforingRequest.EnkeltplassEndrePrisinformasjon(
+                gjennomforingId = ikkeEksisterendeId,
+                totrinnskontroll = GjennomforingRequest.Totrinnskontroll(UUID.randomUUID(), NavIdent("B123456")),
+                payload = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 5000),
+            )
+
+            shouldThrowExactly<IllegalStateException> {
+                consumer.consume(ikkeEksisterendeId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+            }
         }
     }
 })

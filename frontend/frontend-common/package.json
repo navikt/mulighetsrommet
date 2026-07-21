@@ -21,7 +21,7 @@
     "date-fns": "4.4.0",
     "date-fns-tz": "^3.2.0",
     "react-error-boundary": "6.1.2",
-    "react-hook-form": "7.80.0",
+    "react-hook-form": "7.81.0",
     "zod": "4.4.3"
   },
   "peerDependencies": {
@@ -34,18 +34,18 @@
   },
   "devDependencies": {
     "@mr/eslint-config-react-app": "workspace:*",
-    "@navikt/aksel-icons": "8.14.0",
-    "@navikt/ds-css": "8.14.0",
-    "@navikt/ds-react": "8.14.0",
+    "@navikt/aksel-icons": "8.15.0",
+    "@navikt/ds-css": "8.15.0",
+    "@navikt/ds-react": "8.15.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.3",
-    "eslint": "10.6.0",
-    "postcss": "8.5.16",
+    "eslint": "10.7.0",
+    "postcss": "8.5.18",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-router": "8.1.0",
-    "vitest": "4.1.9"
+    "react-router": "8.2.0",
+    "vitest": "4.1.10"
   },
   "repository": {
     "type": "git",

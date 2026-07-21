@@ -11,9 +11,11 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.admin.navenhet.toDto
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.AmoKurstype
+import no.nav.mulighetsrommet.api.amo.models.Bransje
+import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
+import no.nav.mulighetsrommet.api.amo.models.InnholdElement
+import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
@@ -62,7 +64,7 @@ class AvtaleValidatorTest : FunSpec({
     val gruppeAmo = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-        amo = AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING),
+        amo = AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING),
     )
     val forhaandsgodkjent = AvtaleFixtures.createAvtaleRequest(
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -1067,7 +1069,7 @@ class AvtaleValidatorTest : FunSpec({
                     detaljer = gruppeAmo.detaljer.copy(
                         tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
                         amoKategorisering = AmoKategoriseringRequest(
-                            kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
+                            kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET,
                         ),
                     ),
                 ),
@@ -1104,7 +1106,7 @@ class AvtaleValidatorTest : FunSpec({
                     detaljer = gruppeAmo.detaljer.copy(
                         tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
                         amoKategorisering = AmoKategoriseringRequest(
-                            kurstype = AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+                            kurstype = Kurstype.Kode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
 
                         ),
                     ),
@@ -1119,9 +1121,9 @@ class AvtaleValidatorTest : FunSpec({
                     detaljer = gruppeAmo.detaljer.copy(
                         tiltakskode = Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
                         amoKategorisering = AmoKategoriseringRequest(
-                            kurstype = AmoKurstype.GRUNNLEGGENDE_FERDIGHETER,
+                            kurstype = Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
                             innholdElementer = listOf(
-                                AmoKategorisering.InnholdElement.GRUNNLEGGENDE_FERDIGHETER,
+                                InnholdElement.Kode.GRUNNLEGGENDE_FERDIGHETER,
                             ),
                         ),
                     ),
@@ -1138,11 +1140,11 @@ class AvtaleValidatorTest : FunSpec({
                 gruppeAmo.copy(
                     detaljer = gruppeAmo.detaljer.copy(
                         amoKategorisering = AmoKategoriseringRequest(
-                            kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET,
-                            bransje = AmoKategorisering.BransjeOgYrkesrettet.Bransje.KONTORARBEID,
+                            kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET,
+                            bransje = Bransje.Kode.KONTORARBEID,
                             forerkort = listOf(
-                                AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.A,
-                                AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse.B,
+                                ForerkortKlasse.Kode.A,
+                                ForerkortKlasse.Kode.B,
                             ),
                             sertifiseringer = listOf(
                                 Sertifisering(

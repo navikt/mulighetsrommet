@@ -1,13 +1,5 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering.BransjeOgYrkesrettet
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering.ForberedendeOpplaeringForVoksne
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering.GrunnleggendeFerdigheter
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering.Norskopplaering
-import no.nav.mulighetsrommet.api.amo.AmoKategorisering.Studiespesialisering
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.AmoKurstype
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator
@@ -138,31 +130,3 @@ fun PersonvernRequest.toDbo(): PersonvernDbo = PersonvernDbo(
     annetChecked = annetChecked ?: false,
     annetBeskrivelse = annetBeskrivelse,
 )
-
-fun AmoKategoriseringRequest.toDbo(): AmoKategorisering {
-    return when (this.kurstype) {
-        AmoKurstype.BRANSJE_OG_YRKESRETTET -> BransjeOgYrkesrettet(
-            bransje = requireNotNull(this.bransje),
-            sertifiseringer = this.sertifiseringer ?: emptyList(),
-            innholdElementer = this.innholdElementer ?: emptyList(),
-            forerkort = this.forerkort ?: emptyList(),
-        )
-
-        AmoKurstype.NORSKOPPLAERING -> Norskopplaering(
-            norskprove = this.norskprove ?: false,
-            innholdElementer = this.innholdElementer ?: emptyList(),
-        )
-
-        AmoKurstype.GRUNNLEGGENDE_FERDIGHETER -> GrunnleggendeFerdigheter(
-            innholdElementer = this.innholdElementer ?: emptyList(),
-        )
-
-        AmoKurstype.FORBEREDENDE_OPPLAERING_FOR_VOKSNE -> ForberedendeOpplaeringForVoksne(
-            innholdElementer = this.innholdElementer ?: emptyList(),
-        )
-
-        AmoKurstype.STUDIESPESIALISERING -> Studiespesialisering
-
-        else -> throw IllegalArgumentException("Kurstype må være satt")
-    }
-}

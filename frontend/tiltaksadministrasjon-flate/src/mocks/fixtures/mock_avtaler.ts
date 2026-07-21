@@ -64,14 +64,13 @@ export const mockAvtaler: AvtaleDto[] = [
     ],
     personopplysninger: [],
     personvernBekreftet: false,
-    amoKategorisering: null,
+    opplaring: null,
     opsjonsmodell: {
       type: OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
       opsjonMaksVarighet: "2026-08-02",
       customOpsjonsmodellNavn: null,
     },
     opsjonerRegistrert: [],
-    utdanningslop: null,
     prismodeller: [
       {
         id: "d136d6a4-c812-4d28-81db-b688187e4e32",
@@ -140,14 +139,13 @@ export const mockAvtaler: AvtaleDto[] = [
     ],
     personopplysninger: [],
     personvernBekreftet: false,
-    amoKategorisering: null,
+    opplaring: null,
     opsjonsmodell: {
       type: OpsjonsmodellType.TO_PLUSS_EN,
       opsjonMaksVarighet: "2026-08-01",
       customOpsjonsmodellNavn: null,
     },
     opsjonerRegistrert: [],
-    utdanningslop: null,
     prismodeller: [
       {
         aarsak: null,
@@ -203,14 +201,13 @@ export const mockAvtaler: AvtaleDto[] = [
     ],
     personopplysninger: [],
     personvernBekreftet: false,
-    amoKategorisering: null,
+    opplaring: null,
     opsjonsmodell: {
       type: OpsjonsmodellType.TO_PLUSS_EN,
       opsjonMaksVarighet: "2025-06-30",
       customOpsjonsmodellNavn: null,
     },
     opsjonerRegistrert: [],
-    utdanningslop: null,
     prismodeller: [
       {
         aarsak: null,
@@ -266,14 +263,13 @@ export const mockAvtaler: AvtaleDto[] = [
     ],
     personopplysninger: [],
     personvernBekreftet: false,
-    amoKategorisering: null,
+    opplaring: null,
     opsjonsmodell: {
       type: OpsjonsmodellType.ANNET,
       opsjonMaksVarighet: "2021-06-30",
       customOpsjonsmodellNavn: "1 år + 6 mnd",
     },
     opsjonerRegistrert: [],
-    utdanningslop: null,
     prismodeller: [
       {
         aarsak: null,

@@ -11,10 +11,10 @@ export function GjennomforingDetaljer() {
   const {
     gjennomforing,
     veilederinfo,
-    utdanningslop,
-    amoKategorisering,
+    opplaring,
     prismodell,
     okonomi,
+    prisendring,
     enkeltplassDeltaker,
   } = detaljer;
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
@@ -26,8 +26,7 @@ export function GjennomforingDetaljer() {
         gjennomforing={gjennomforing}
         veilederinfo={veilederinfo}
         prismodell={prismodell}
-        amoKategorisering={amoKategorisering}
-        utdanningslop={utdanningslop}
+        opplaring={opplaring}
       />
     );
   } else if (isEnkeltplass(gjennomforing)) {
@@ -39,8 +38,8 @@ export function GjennomforingDetaljer() {
         prismodell={prismodell}
         enkeltplassDeltaker={enkeltplassDeltaker}
         okonomi={okonomi}
-        amoKategorisering={amoKategorisering}
-        utdanningslop={utdanningslop}
+        prisendring={prisendring}
+        opplaring={opplaring}
       />
     );
   }

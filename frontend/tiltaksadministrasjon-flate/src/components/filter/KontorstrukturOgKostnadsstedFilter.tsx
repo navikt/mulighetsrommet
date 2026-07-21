@@ -1,6 +1,6 @@
 import { useKontorstruktur } from "@/api/enhet/useKontorstruktur";
 import { useKostnadssteder } from "@/api/enhet/useKostnadssteder";
-import { CheckboxGroup, CheckboxGroupItem } from "@mr/frontend-common";
+import { CheckboxDropdownGroup, CheckboxGroupItem } from "@mr/frontend-common";
 import {
   Kontorstruktur,
   KontorstrukturKontortype,
@@ -17,13 +17,7 @@ export function KontorstrukturOgKostnadsstedFilter({ value, onChange }: Props) {
   const { data: kostnadsstedRegioner } = useKostnadssteder();
   const groups = toCheckboxGroups(regioner, kostnadsstedRegioner);
   return (
-    <CheckboxGroup
-      legend="Nav-kontorer"
-      hideLegend
-      value={value}
-      onChange={onChange}
-      items={groups}
-    />
+    <CheckboxDropdownGroup legend="Nav-enheter" value={value} onChange={onChange} items={groups} />
   );
 }
 

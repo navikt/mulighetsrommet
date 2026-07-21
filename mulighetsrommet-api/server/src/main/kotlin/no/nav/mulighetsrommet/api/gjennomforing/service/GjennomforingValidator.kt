@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.right
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.AmoKurstype
 import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.amo.models.Bransje
 import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
@@ -449,7 +448,7 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::kurstype,
                     )
                 }
-                if (amoKategorisering.kurstype == AmoKurstype.BRANSJE_OG_YRKESRETTET) {
+                if (amoKategorisering.kurstype == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
                     requireValid(amoKategorisering.bransje != null) {
                         FieldError.of(
                             "Du må velge en bransje",
@@ -469,7 +468,7 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::bransje,
                     )
                 }
-                amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET).toOpplaringKategoriseringDbo()
+                amoKategorisering.copy(kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET).toOpplaringKategoriseringDbo()
             }
 
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
@@ -484,7 +483,7 @@ object GjennomforingValidator {
             }
 
             Tiltakskode.STUDIESPESIALISERING,
-            -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING).toOpplaringKategoriseringDbo()
+            -> AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING).toOpplaringKategoriseringDbo()
 
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,

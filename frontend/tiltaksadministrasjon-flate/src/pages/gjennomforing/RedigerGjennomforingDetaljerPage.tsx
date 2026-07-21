@@ -67,8 +67,7 @@ function RedigerDetaljerForm({ gjennomforingId, gjennomforing }: FormProps) {
       gjennomforing,
       detaljer.veilederinfo,
       detaljer.prismodell,
-      detaljer.amoKategorisering,
-      detaljer.utdanningslop,
+      detaljer.opplaring,
     ),
   });
 
