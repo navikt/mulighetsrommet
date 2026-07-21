@@ -27,9 +27,10 @@ import { HStack, Label, HelpText } from "@navikt/ds-react";
 import { useDebounce } from "@mr/frontend-common";
 import { ArrangorKontaktpersonerModal } from "@/components/arrangor/ArrangorKontaktpersonerModal";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
+import { FormSelect } from "../skjema/FormSelect";
 
 export function TiltakDokumentForm() {
-  const { watch, setValue } = useFormContext<TiltakDokumentFormValues>();
+  const { watch, setValue, formState: { errors } } = useFormContext<TiltakDokumentFormValues>();
   const arrangorKontaktpersonerModalRef = useRef<HTMLDialogElement>(null);
 
   const tiltakstyper = useTiltakstyperForGjennomforinger();
@@ -65,17 +66,24 @@ export function TiltakDokumentForm() {
   const kontorOptions = getLokaleUnderenheterAsSelectOptions(navRegioner, kontorstruktur);
   const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(navRegioner, kontorstruktur);
 
+  console.log('tt', watch("tiltakstypeId"))
+  console.log('ee', errors)
+
   return (
     <VStack gap="space-16">
       <FormTextField<TiltakDokumentFormValues> name="navn" label="Navn" required />
 
-      <FormCombobox<TiltakDokumentFormValues>
+      <FormSelect<TiltakDokumentFormValues>
         name="tiltakstypeId"
         label="Tiltakstype"
-        placeholder="Velg tiltakstype"
-        options={tiltakstypeOptions}
-        required
-      />
+      >
+        <option value="">-- Velg en --</option>
+        {tiltakstypeOptions.map((type) => (
+          <option key={type.value} value={type.value}>
+            {type.label}
+          </option>
+        ))}
+      </FormSelect>
 
       <FormTextarea<TiltakDokumentFormValues>
         name="stedForGjennomforing"

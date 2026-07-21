@@ -1,9 +1,10 @@
 import { Alert, Button, Link, Table } from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
-import { TiltakDokument, useTiltakDokumenter } from "@/api/tiltak-dokument/useTiltakDokumenter";
+import { useTiltakDokumenter } from "@/api/tiltak-dokument/useTiltakDokumenter";
 import { PlusIcon } from "@navikt/aksel-icons";
 import { useNavigate } from "react-router";
 import { TiltakDokumentFilterType } from "@/pages/tiltak-dokument/filter";
+import { TiltakDokumentKompaktDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   filter: TiltakDokumentFilterType;
@@ -36,7 +37,7 @@ export function TiltakDokumentTabell({ filter }: Props) {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {gjennomforinger.map((gjennomforing: TiltakDokument) => (
+            {gjennomforinger.map((gjennomforing: TiltakDokumentKompaktDto) => (
               <Table.Row key={gjennomforing.id}>
                 <Table.DataCell>
                   <Link as={ReactRouterLink} to={`/tiltak-dokumenter/${gjennomforing.id}`}>

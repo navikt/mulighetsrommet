@@ -1671,7 +1671,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltakDokumentKompaktDto"
       deprecated: false
   /api/tiltaksadministrasjon/tiltak-dokumenter/{id}/tilgjengelig-for-veileder:
     put:
@@ -1726,7 +1728,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: "#/components/schemas/TiltakDokumentDto"
         "404":
           description: Ikke funnet
           headers: {}
@@ -6748,6 +6750,66 @@ components:
       required:
       - navEnheter
       - tiltakstyper
+    TiltakDokumentKompaktDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltaksnummer:
+          type:
+          - "null"
+          - string
+        tiltakstype:
+          $ref: "#/components/schemas/TiltakDokumentKompaktDto.Tiltakstype"
+        arrangor:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TiltakDokumentKompaktDto.Arrangor"
+        publisert:
+          type: boolean
+        navEnheter:
+          type: array
+          items:
+            type: string
+      required:
+      - arrangor
+      - id
+      - navEnheter
+      - navn
+      - publisert
+      - tiltaksnummer
+      - tiltakstype
+    TiltakDokumentKompaktDto.Tiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - id
+      - navn
+      - tiltakskode
+    TiltakDokumentKompaktDto.Arrangor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        organisasjonsnummer:
+          type: string
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
     TiltakDokumentHandling:
       type: string
       enum:
@@ -9268,6 +9330,7 @@ components:
       - TILSAGN
       - UTBETALING
       - TILSKUDD_BEHANDLING
+      - TILTAK_DOKUMENT
     EndringshistorikkDto.Entry:
       type: object
       properties:
