@@ -28,3 +28,5 @@ include(
     "mulighetsrommet-tiltakshistorikk",
     "mulighetsrommet-tiltaksokonomi",
 )
+
+include("common:validation")

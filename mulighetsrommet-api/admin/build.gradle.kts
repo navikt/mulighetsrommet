@@ -11,6 +11,7 @@ base {
 dependencies {
     implementation(projects.mulighetsrommetApi.domain)
     implementation(projects.common.domain)
+    implementation(projects.common.validation)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.arrow.core)
     implementation(libs.caffeine)

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.validation
+package no.nav.mulighetsrommet.validation
 
 import arrow.core.Either
 import arrow.core.left
@@ -6,7 +6,7 @@ import arrow.core.raise.Raise
 import arrow.core.raise.either
 import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
-import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.model.FieldError
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.reflect.KProperty1

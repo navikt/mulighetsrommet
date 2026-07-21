@@ -20,11 +20,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDetaljerDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
-import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.validation.FieldValidator
-import no.nav.mulighetsrommet.api.validation.Validated
-import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -34,6 +31,9 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
+import no.nav.mulighetsrommet.validation.FieldValidator
+import no.nav.mulighetsrommet.validation.Validated
+import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts

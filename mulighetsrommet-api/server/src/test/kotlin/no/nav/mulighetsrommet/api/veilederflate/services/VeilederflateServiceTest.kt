@@ -14,6 +14,7 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -101,6 +102,7 @@ class VeilederflateServiceTest : FunSpec({
             TiltakstypeFixtures.Oppfolging,
             TiltakstypeFixtures.EnkelAmo,
             TiltakstypeFixtures.Arbeidstrening,
+            TiltakstypeFixtures.IPS,
         ),
         avtaler = listOf(AvtaleFixtures.oppfolging),
         gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
@@ -117,6 +119,9 @@ class VeilederflateServiceTest : FunSpec({
         repository.tiltakstype.save(TiltakstypeFixtures.Arbeidstrening.copy(sanityId = tiltakstypeArbeidstrening._id.toUUID(), innsatsgrupper = innsatsgrupper))
 
         repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging.copy(sanityId = tiltakstypeOppfolging._id.toUUID(), innsatsgrupper = innsatsgrupper))
+
+        repository.tiltakstype.save(TiltakstypeFixtures.IPS.copy(innsatsgrupper = innsatsgrupper))
+
         queries.gjennomforing.setPublisert(GjennomforingFixtures.Oppfolging1.id, true)
         queries.gjennomforing.setNavEnheter(
             GjennomforingFixtures.Oppfolging1.id,
@@ -334,6 +339,200 @@ class VeilederflateServiceTest : FunSpec({
             oppfolging.shouldNotBeNull()
             oppfolging.beskrivelse shouldBe dbBeskrivelse
             oppfolging.faneinnhold shouldBe dbFaneinnhold
+        }
+    }
+
+    context("tiltak_dokument — DB-first for sanity-tiltak") {
+        afterEach {
+            database.run {
+                queries.tiltakDokument.getAllKompaktDto().forEach { g ->
+                    queries.tiltakDokument.delete(g.id)
+                }
+            }
+        }
+
+        val veilederFlateService by lazy {
+            createService(
+                features = mapOf(
+                    Tiltakskode.INDIVIDUELL_JOBBSTOTTE to setOf(TiltakstypeFeature.VISES_I_MODIA),
+                ),
+            )
+        }
+
+        test("returnerer rad fra DB når individuell gjennomforing er publisert og matcher enhet") {
+            val sanityId = tiltakEnkelAmo._id.toUUID()
+            val tiltakDokumentId = UUID.randomUUID()
+            database.run {
+                queries.tiltakDokument.save(
+                    TiltakDokument(
+                        id = tiltakDokumentId,
+                        navn = "IPS Innlandet",
+                        tiltakstypeId = TiltakstypeFixtures.IPS.id,
+                        tiltaksnummer = "2024#99001",
+                        sanityId = sanityId,
+                        stedForGjennomforing = null,
+                        arrangorId = null,
+                        faneinnhold = null,
+                        beskrivelse = null,
+                        administratorer = emptyList(),
+                        kontaktpersoner = emptyList(),
+                        arrangorKontaktpersoner = emptyList(),
+                        navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                        publisert = true,
+                    ),
+                )
+            }
+
+            val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
+                enheter = nonEmptyListOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
+                apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
+                cacheUsage = CacheUsage.NoCache,
+                erSykmeldtMedArbeidsgiver = false,
+            )
+
+            tiltak.shouldHaveSize(1).first().shouldBeInstanceOf<VeilederflateTiltakEnkeltplass>().should {
+                it.navn shouldBe "IPS Innlandet"
+                it.tiltaksnummer shouldBe "2024#99001"
+            }
+        }
+
+        test("returnerer ikke rad fra DB når individuell gjennomforing ikke er publisert") {
+            val sanityId = UUID.randomUUID()
+            database.run {
+                queries.tiltakDokument.save(
+                    TiltakDokument(
+                        id = UUID.randomUUID(),
+                        navn = "Upublisert IPS",
+                        tiltakstypeId = TiltakstypeFixtures.IPS.id,
+                        tiltaksnummer = "2024#99002",
+                        sanityId = sanityId,
+                        stedForGjennomforing = null,
+                        arrangorId = null,
+                        faneinnhold = null,
+                        beskrivelse = null,
+                        publisert = false,
+                        administratorer = emptyList(),
+                        kontaktpersoner = emptyList(),
+                        arrangorKontaktpersoner = emptyList(),
+                        navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+                    ),
+                )
+            }
+
+            val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
+                enheter = nonEmptyListOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
+                apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
+                cacheUsage = CacheUsage.NoCache,
+                erSykmeldtMedArbeidsgiver = false,
+            )
+
+            tiltak.shouldBeEmpty()
+        }
+
+        test("DB-rad skygger over Sanity-doc med samme sanityId") {
+            // tiltakArbeidstrening1 finnes i Sanity-mocken — vi lager en DB-rad med samme sanityId
+            val overlappendeSanityId = tiltakArbeidstrening1._id.toUUID()
+            val serviceWithArbeidstrening = createService() // default: inkluderer ARBEIDSTRENING
+            val dbId = UUID.randomUUID()
+            database.run {
+                queries.tiltakDokument.save(
+                    TiltakDokument(
+                        id = dbId,
+                        navn = "DB-versjon av Arbeidstrening",
+                        tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
+                        tiltaksnummer = "2024#99003",
+                        sanityId = overlappendeSanityId,
+                        stedForGjennomforing = null,
+                        arrangorId = null,
+                        faneinnhold = null,
+                        beskrivelse = null,
+                        administratorer = emptyList(),
+                        kontaktpersoner = emptyList(),
+                        arrangorKontaktpersoner = emptyList(),
+                        navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                        publisert = true,
+                    ),
+                )
+            }
+
+            val tiltak = serviceWithArbeidstrening.hentTiltaksgjennomforinger(
+                enheter = nonEmptyListOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
+                apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
+                cacheUsage = CacheUsage.NoCache,
+                erSykmeldtMedArbeidsgiver = false,
+            )
+
+            // Kun én rad — DB-versjonen. Sanity-doc med samme sanityId skal ikke dukke opp i tillegg.
+            tiltak.filter { it.navn == "Arbeidstrening Innlandet" || it.navn == "DB-versjon av Arbeidstrening" }
+                .shouldHaveSize(1)
+                .first() should {
+                it.navn shouldBe "DB-versjon av Arbeidstrening"
+            }
+        }
+
+        test("hentTiltaksgjennomforing finner rad direkte på intern id") {
+            val internId = UUID.randomUUID()
+            database.run {
+                queries.tiltakDokument.save(
+                    TiltakDokument(
+                        id = internId,
+                        navn = "IPS direkte oppslag",
+                        tiltakstypeId = TiltakstypeFixtures.IPS.id,
+                        tiltaksnummer = "2024#99004",
+                        sanityId = null,
+                        stedForGjennomforing = null,
+                        arrangorId = null,
+                        faneinnhold = null,
+                        beskrivelse = null,
+                        administratorer = emptyList(),
+                        kontaktpersoner = emptyList(),
+                        arrangorKontaktpersoner = emptyList(),
+                        navEnheter = emptyList(),
+                        publisert = true,
+                    ),
+                )
+            }
+
+            val tiltak = veilederFlateService.hentTiltaksgjennomforing(
+                internId,
+                SanityPerspective.PUBLISHED,
+                CacheUsage.NoCache,
+            )
+            tiltak.navn shouldBe "IPS direkte oppslag"
+        }
+
+        test("hentTiltaksgjennomforing finner rad via sanityId") {
+            val sanityId = UUID.randomUUID()
+            database.run {
+                queries.tiltakDokument.save(
+                    TiltakDokument(
+                        id = UUID.randomUUID(),
+                        navn = "IPS via sanityId",
+                        tiltakstypeId = TiltakstypeFixtures.IPS.id,
+                        tiltaksnummer = "2024#99005",
+                        sanityId = sanityId,
+                        stedForGjennomforing = null,
+                        arrangorId = null,
+                        faneinnhold = null,
+                        beskrivelse = null,
+                        administratorer = emptyList(),
+                        kontaktpersoner = emptyList(),
+                        arrangorKontaktpersoner = emptyList(),
+                        navEnheter = emptyList(),
+                        publisert = true,
+                    ),
+                )
+            }
+
+            val tiltak = veilederFlateService.hentTiltaksgjennomforing(
+                sanityId,
+                SanityPerspective.PUBLISHED,
+                CacheUsage.NoCache,
+            )
+            tiltak.navn shouldBe "IPS via sanityId"
         }
     }
 })

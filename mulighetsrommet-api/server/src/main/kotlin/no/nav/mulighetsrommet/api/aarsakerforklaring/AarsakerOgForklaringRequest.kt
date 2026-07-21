@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.aarsakerforklaring
 
 import arrow.core.Either
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.validation.validation
+import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.validation.validation
 
 private const val FORKLARING_MAX_LENGTH = 500
 

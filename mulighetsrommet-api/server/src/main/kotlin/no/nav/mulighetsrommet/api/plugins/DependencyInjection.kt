@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.admin.tiltak.UpdateTiltakstypeUseCase
+import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentAdminService
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -87,6 +88,7 @@ import no.nav.mulighetsrommet.api.persistence.OutboxTopics
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabase
 import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
 import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.api.sanity.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
@@ -471,6 +473,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get(), get()) }
     single { GjennomforingDetaljerService(get(), get(), get(), get()) }
+    single { TiltakDokumentAdminService(get()) }
     single {
         GjennomforingEnkeltplassService(
             get(),
@@ -588,6 +591,7 @@ private fun tasks(config: AppConfig) = module {
     }
     single { SynchronizeNavAnsatte(tasks.synchronizeNavAnsatte, get(), get()) }
     single { SynchronizeUtdanninger(tasks.synchronizeUtdanninger, get(), get()) }
+    single { MigrerSanityTiltaksgjennomforinger(get(), get()) }
     single { GenerateUtbetaling(tasks.generateUtbetaling, get()) }
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
@@ -632,6 +636,7 @@ private fun tasks(config: AppConfig) = module {
         val journalforVedtaksbrev: JournalforVedtaksbrev by inject()
         val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
         val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
+        val migrerSanityTiltaksgjennomforinger: MigrerSanityTiltaksgjennomforinger by inject()
 
         val db: Database by inject()
 
@@ -649,6 +654,7 @@ private fun tasks(config: AppConfig) = module {
                 journalforVedtaksbrev.task,
                 distribuerVedtaksbrev.task,
                 updateGjennomforingAvtaleFreeTextSearch.task,
+                migrerSanityTiltaksgjennomforinger.task,
             )
             .addSchedulerListener(SlackNotifierSchedulerListener(get()))
             .addSchedulerListener(OpenTelemetrySchedulerListener())

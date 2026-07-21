@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.AvtaltPrisPerTimeOppfolgingData
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
@@ -33,11 +32,13 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
-import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.validation.Validated
+import no.nav.mulighetsrommet.validation.validation
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -67,7 +68,7 @@ class ArrangorflateUtbetalingService(
 
     suspend fun opprettUtbetaling(
         opprett: ArrangorflateOpprettUtbetaling,
-    ): Either<List<FieldError>, Utbetaling> {
+    ): Validated<Utbetaling> {
         return beregnUtbetaling(opprett).flatMap { (tilskuddstype, beregning) ->
             val utbetaling = UpsertUtbetaling.Innsending(
                 id = UUID.randomUUID(),
@@ -88,7 +89,7 @@ class ArrangorflateUtbetalingService(
         utbetalingId: UUID,
         kid: Kid?,
         today: LocalDate = LocalDate.now(),
-    ): Either<List<FieldError>, AutomatisertUtbetalingResult> {
+    ): Validated<AutomatisertUtbetalingResult> {
         val result = db.transaction {
             val utbetaling = getOrError(utbetalingId)
             if (utbetaling.periode.slutt > today) {

@@ -62,6 +62,10 @@ import { TilskuddBehandlingFormPage } from "./pages/tilskudd-behandling/Tilskudd
 import { TilskuddBehandlingerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingerPage";
 import { isProduction } from "./environment";
 import { TilskuddUtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/TilskuddUtbetalingerForGjennomforingContainer";
+import { TiltakDokumenterPage } from "./pages/tiltak-dokument/TiltakDokumenterPage";
+import { OpprettTiltakDokumentPage } from "./pages/tiltak-dokument/OpprettTiltakDokumentPage";
+import { TiltakDokumentPage } from "./pages/tiltak-dokument/TiltakDokumentPage";
+import { RedigerTiltakDokumentPage } from "./pages/tiltak-dokument/RedigerTiltakDokumentPage";
 
 const basename = import.meta.env.BASE_URL;
 
@@ -280,6 +284,19 @@ const routes: RouteObject[] = [
       }),
       route({ path: "arrangorer", element: <ArrangorerPage /> }),
       route({ path: "arrangorer/:arrangorId", element: <ArrangorPage /> }),
+      route({ path: "tiltak-dokumenter", element: <TiltakDokumenterPage /> }),
+      route({
+        path: "tiltak-dokumenter/opprett",
+        element: <OpprettTiltakDokumentPage />,
+      }),
+      route({
+        path: "tiltak-dokumenter/:tiltakDokumentId",
+        element: <TiltakDokumentPage />,
+      }),
+      route({
+        path: "tiltak-dokumenter/:tiltakDokumentId/rediger",
+        element: <RedigerTiltakDokumentPage />,
+      }),
       route({
         path: "oppgaveoversikt",
         element: <OppgaveoversiktPage />,

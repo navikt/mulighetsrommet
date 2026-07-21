@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
-import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Valuta
 
 class RammedetaljerValidatorTest : FunSpec({

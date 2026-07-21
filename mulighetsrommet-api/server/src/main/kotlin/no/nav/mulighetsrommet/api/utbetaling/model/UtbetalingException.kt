@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import arrow.core.Either
-import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.model.FieldError
 
 /**
  * Ved unntakstilfeller så kan operasjoner (opprettelse, godkjenning etc) på utbetalinger feile

@@ -5,6 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.veilederflate.models.EstimertVentetid
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
@@ -79,6 +80,39 @@ class VeilederflateTiltakQueries(private val session: Session) {
 
         return list(queryOf(query, parameters)) { it.toTiltaksgjennomforing() }
     }
+
+    fun getAllTiltakDokument(
+        brukersEnheter: List<NavEnhetNummer>,
+        tiltakskoder: List<Tiltakskode>? = null,
+    ): List<VeilederflateTiltakDokument> = with(session) {
+        val parameters = mapOf(
+            "brukers_enheter" to createArrayOfValue(brukersEnheter) { it.value },
+            "tiltakskoder" to tiltakskoder?.let { createTextArray(it) },
+        )
+
+        @Language("PostgreSQL")
+        val query = """
+        select *
+        from view_tiltak_dokument
+        where publisert
+            and (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any(:tiltakskoder))
+            and exists(select true
+            from jsonb_array_elements(nav_enheter_json) as nav_enhet
+                where nav_enhet ->> 'enhetsnummer' = any(:brukers_enheter))
+        """.trimIndent()
+
+        return list(queryOf(query, parameters)) { toVeilederflateTiltakDokument(it) }
+    }
+
+    fun getTiltakDokument(id: UUID): VeilederflateTiltakDokument? = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            select * from view_tiltak_dokument
+            where id = ?::uuid or sanity_id = ?::uuid
+        """.trimIndent()
+
+        return single(queryOf(query, id, id)) { toVeilederflateTiltakDokument(it) }
+    }
 }
 
 private fun Row.toTiltaksgjennomforing(): Tiltaksgjennomforing {
@@ -138,5 +172,38 @@ private fun Row.toTiltaksgjennomforing(): Tiltaksgjennomforing {
         ),
         lopenummer = string("lopenummer"),
         stengt = stengt,
+    )
+}
+
+private fun toVeilederflateTiltakDokument(row: Row): VeilederflateTiltakDokument {
+    val arrangorId = row.uuidOrNull("arrangor_id")
+
+    val navEnheter = row.stringOrNull("nav_enheter_json")
+        ?.let { Json.decodeFromString<List<VeilederflateTiltakDokument.NavEnhet>>(it) }
+        ?: emptyList()
+
+    return VeilederflateTiltakDokument(
+        id = row.uuid("id"),
+        sanityId = row.uuidOrNull("sanity_id"),
+        navn = row.string("navn"),
+        beskrivelse = row.stringOrNull("beskrivelse"),
+        faneinnhold = row.stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+        tiltaksnummer = row.stringOrNull("tiltaksnummer"),
+        tiltakskode = Tiltakskode.valueOf(row.string("tiltakstype_tiltakskode")),
+        stedForGjennomforing = row.stringOrNull("sted_for_gjennomforing"),
+        navEnheter = navEnheter,
+        kontaktpersoner = row.stringOrNull("kontaktpersoner_json")
+            ?.let { Json.decodeFromString<List<VeilederflateTiltakDokument.Kontaktperson>>(it) }
+            ?: emptyList(),
+        arrangor = arrangorId?.let {
+            VeilederflateTiltakDokument.Arrangor(
+                id = it,
+                navn = row.string("arrangor_navn"),
+                organisasjonsnummer = row.string("arrangor_organisasjonsnummer"),
+            )
+        },
+        arrangorKontaktpersoner = row.stringOrNull("arrangor_kontaktpersoner_json")
+            ?.let { Json.decodeFromString<List<VeilederflateTiltakDokument.ArrangorKontaktperson>>(it) }
+            ?: emptyList(),
     )
 }

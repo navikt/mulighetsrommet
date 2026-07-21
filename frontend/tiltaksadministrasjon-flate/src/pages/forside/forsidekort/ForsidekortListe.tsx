@@ -6,6 +6,7 @@ import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { HGrid } from "@navikt/ds-react";
 import { UtbetalingerIkon } from "@/components/ikoner/UtbetalingerIkon";
 import { previewArbeidsmarkedstiltakUrl, sanityStudioUrl } from "@/constants";
+import { isProduction } from "@/environment";
 
 const forsidekortData: ForsideKortProps[] = [
   {
@@ -31,12 +32,22 @@ const forsidekortData: ForsideKortProps[] = [
     tekst: "Her finner du informasjon om Gjennomføringer for gruppetiltak",
   },
   {
-    navn: "Individuelle gjennomføringer",
+    navn: "Tiltaksdokumenter i Sanity",
     ikon: <img className="h-16 w-16 rounded-full" src="./sanity_logo.png" alt="Sanity-logo" />,
     url: sanityStudioUrl(),
+    tekst: "Her administrerer du tiltaksdokumenter",
     apneINyTab: true,
-    tekst: "Her administrerer du individuelle gjennomføringer",
   },
+  ...(!isProduction()
+    ? [
+        {
+          navn: "Tiltaksdokumenter (tidligere Sanity)",
+          ikon: <GjennomforingAvtaleIkon inkluderBakgrunn />,
+          url: "/tiltak-dokumenter",
+          tekst: "Her administrerer du tiltaksdokumenter",
+        } satisfies ForsideKortProps,
+      ]
+    : []),
   {
     navn: "Veilederflate forhåndsvisning",
     ikon: <ForhandsvisningIkon inkluderBakgrunn aria-label="Preview" />,
