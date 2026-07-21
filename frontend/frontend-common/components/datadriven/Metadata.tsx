@@ -54,11 +54,11 @@ export interface MetadataFritekstfeltProps {
 
 export function MetadataFritekstfelt({ label, value }: MetadataFritekstfeltProps) {
   return (
-    <dl className={`flex flex-col gap-2`}>
+    <VStack as="dl" gap="space-8" maxWidth="650px">
       <dt className="font-bold">{label}:</dt>
       <dd>
         <BodyLong className="whitespace-pre-wrap">{value ?? "-"}</BodyLong>
       </dd>
-    </dl>
+    </VStack>
   );
 }

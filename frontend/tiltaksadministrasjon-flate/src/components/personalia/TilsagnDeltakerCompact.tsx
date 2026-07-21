@@ -8,7 +8,7 @@ interface Props {
 
 export function TilsagnDeltakerCompact({ deltaker }: Props) {
   return (
-    <HStack gap="space-8" align="start">
+    <HStack gap="space-8" align="start" wrap={false}>
       <NavnOgGradering
         navn={deltaker.navn}
         gradering={deltaker.gradering}
