@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.persistence.kostnadssted.db
+package no.nav.mulighetsrommet.api.persistence.kostnadssted
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder

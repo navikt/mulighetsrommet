@@ -10,7 +10,7 @@ import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DvhUtdanningslop
 import no.nav.mulighetsrommet.api.datavarehus.model.toDvhAmoKategorisering
-import no.nav.mulighetsrommet.api.persistence.opplaring.db.OpplaringKategoriseringQueries
+import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType

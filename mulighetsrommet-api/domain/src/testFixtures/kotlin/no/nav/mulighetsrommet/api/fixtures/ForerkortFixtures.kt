@@ -1,10 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import kotliquery.Query
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse.Kode
-import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 object ForerkortFixtures {
@@ -119,16 +116,4 @@ object ForerkortFixtures {
     fun all() = setOf(
         A, A1, A2, AM, AM_147, B, B_78, BE, C, C1, C1E, CE, D, D1, D1E, DE, S, T,
     )
-
-    fun query(): Query {
-        val inserts = all().joinToString(",\n") { "('${it.id}','${it.kode.name}', '${it.navn}')" }
-
-        @Language("PostgreSQL")
-        val query = """
-        insert into public.opplaring_forerkort (id, kode, navn)
-            values $inserts
-       on conflict (id) do nothing;
-        """
-        return queryOf(query)
-    }
 }

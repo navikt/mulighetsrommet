@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.persistence.utdanning.db
+package no.nav.mulighetsrommet.api.persistence.utdanning
 
 import kotliquery.Session
 import kotliquery.queryOf

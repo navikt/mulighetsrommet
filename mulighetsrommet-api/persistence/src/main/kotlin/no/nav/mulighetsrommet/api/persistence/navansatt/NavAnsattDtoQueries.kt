@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.persistence.navansatt.db
+package no.nav.mulighetsrommet.api.persistence.navansatt
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
