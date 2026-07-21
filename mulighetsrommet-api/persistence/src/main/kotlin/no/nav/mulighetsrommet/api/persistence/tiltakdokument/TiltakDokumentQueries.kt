@@ -6,9 +6,9 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentAdminQueries
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentDto
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentKompaktDto
+import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -19,7 +19,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
-class TiltakDokumentQueries(private val session: Session) : TiltakDokumentRepository, TiltakDokumentAdminQueries {
+class TiltakDokumentQueries(private val session: Session) : TiltakDokumentRepository, TiltakDokumentQueryHandler {
     override fun save(tiltakDokument: TiltakDokument): Unit = with(session) {
         @Language("PostgreSQL")
         val query = """

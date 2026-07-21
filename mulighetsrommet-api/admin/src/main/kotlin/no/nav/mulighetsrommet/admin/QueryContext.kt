@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
-import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentAdminQueries
+import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
@@ -37,7 +37,7 @@ abstract class QueryContext {
         abstract val navAnsattDto: NavAnsattDtoQueryHandler
         abstract val totrinnskontroll: TotrinnskontrollQueryHandler
         abstract val arrangor: ArrangorQueryHandler
-        abstract val tiltakDokument: TiltakDokumentAdminQueries
+        abstract val tiltakDokument: TiltakDokumentQueryHandler
     }
 
     interface Outbox {

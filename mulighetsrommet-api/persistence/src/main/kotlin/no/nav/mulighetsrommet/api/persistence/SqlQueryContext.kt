@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
-import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentAdminQueries
+import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
@@ -57,7 +57,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val navAnsattDto: NavAnsattDtoQueryHandler = this@SqlQueryContext.navAnsattDto
         override val totrinnskontroll: TotrinnskontrollQueryHandler = this@SqlQueryContext.totrinnskontroll
         override val arrangor: ArrangorQueryHandler = this@SqlQueryContext.arrangor
-        override val tiltakDokument: TiltakDokumentAdminQueries = this@SqlQueryContext.tiltakDokument
+        override val tiltakDokument: TiltakDokumentQueryHandler = this@SqlQueryContext.tiltakDokument
     }
 
     override val outbox = SqlAdminOutbox(session, topics)

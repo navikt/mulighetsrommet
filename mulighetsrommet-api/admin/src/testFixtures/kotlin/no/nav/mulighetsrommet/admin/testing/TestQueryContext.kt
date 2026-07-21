@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
-import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentAdminQueries
+import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 
 class TestQueryContext : QueryContext() {
@@ -24,7 +24,7 @@ class TestQueryContext : QueryContext() {
     private var navAnsattDto: NavAnsattDtoQueryHandler = mockk(relaxed = true)
     private var totrinnskontroll: TotrinnskontrollQueryHandler = mockk(relaxed = true)
     private var arrangor: ArrangorQueryHandler = mockk(relaxed = true)
-    private var tiltakDokument: TiltakDokumentAdminQueries = mockk(relaxed = true)
+    private var tiltakDokument: TiltakDokumentQueryHandler = mockk(relaxed = true)
 
     override val repository = object : Repositories() {
         override val tiltakstype get() = tiltakstypeRepository

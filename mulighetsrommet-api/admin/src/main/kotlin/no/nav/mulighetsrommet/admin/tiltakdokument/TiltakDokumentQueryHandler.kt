@@ -4,7 +4,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
-interface TiltakDokumentAdminQueries {
+interface TiltakDokumentQueryHandler {
     fun getTiltakDokumentDto(id: UUID): TiltakDokumentDto?
 
     fun getAllKompaktDto(
