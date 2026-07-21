@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.admin.testing
+package no.nav.mulighetsrommet.api.domain.testing
 
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
