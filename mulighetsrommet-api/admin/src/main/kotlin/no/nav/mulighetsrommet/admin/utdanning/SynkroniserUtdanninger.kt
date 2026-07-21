@@ -31,12 +31,18 @@ class SynkroniserUtdanningerUseCase(
             .mapNotNull { programomrade ->
                 val utdanningerForProgram = relevanteUtdanninger[programomrade.programomradekode].orEmpty()
 
-                Utdanningsprogram.opprett(
-                    programomradekode = programomrade.programomradekode,
-                    navn = sanitizeNavn(programomrade.navn),
-                    type = programomrade.type,
-                    utdanninger = utdanningerForProgram,
-                ).fold(
+                val navn = sanitizeNavn(programomrade.navn)
+
+                val utdanningsprogram = repository.utdanning.findByProgramomradekode(programomrade.programomradekode)
+                    ?.oppdater(navn = navn, type = programomrade.type, utdanninger = utdanningerForProgram)
+                    ?: Utdanningsprogram.opprett(
+                        programomradekode = programomrade.programomradekode,
+                        navn = navn,
+                        type = programomrade.type,
+                        utdanninger = utdanningerForProgram,
+                    )
+
+                utdanningsprogram.fold(
                     { error -> error },
                     { utdanningsprogram ->
                         repository.utdanning.save(utdanningsprogram)

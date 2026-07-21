@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.domain.utdanning.Utdanning
 import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
 import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramType
+import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 
 class OpplaringKategoriseringQueriesTest : FunSpec({
@@ -31,33 +32,23 @@ class OpplaringKategoriseringQueriesTest : FunSpec({
 
     test("henter flere utdanningsprogram med tilhørende utdanninger korrekt gruppert") {
         database.runAndRollback {
-            val byggOgAnlegg = Utdanningsprogram.opprett(
-                programomradekode = "BABAT1----",
-                navn = "Bygg- og anleggsteknikk",
-                type = UtdanningsprogramType.YRKESFAGLIG,
-                utdanninger = listOf(
-                    utdanning(programomradekode = "BABAT1----", utdanningId = "u1", navn = "Tømrerfaget"),
-                    utdanning(programomradekode = "BABAT1----", utdanningId = "u2", navn = "Betongfaget"),
-                ),
-            ).getOrNull().shouldNotBeNull()
-            repository.utdanning.save(byggOgAnlegg)
+            repository.utdanning.save(UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg)
+            repository.utdanning.save(UtdanningFixtures.Utdanningsprogrammer.handVerkDesignOgProduktutvikling)
 
-            val elektro = Utdanningsprogram.opprett(
-                programomradekode = "ELELE1----",
-                navn = "Elektro og datateknologi",
-                type = UtdanningsprogramType.YRKESFAGLIG,
-                utdanninger = listOf(
-                    utdanning(programomradekode = "ELELE1----", utdanningId = "u3", navn = "Elektrikerfaget"),
-                ),
-            ).getOrNull().shouldNotBeNull()
-            repository.utdanning.save(elektro)
-
-            queries.opplaringKategorisering.getUtdanningslop().should { (first, second) ->
+            queries.opplaering.getUtdanningslop().should { (first, second) ->
                 first.utdanningsprogram.navn shouldBe "Bygg- og anleggsteknikk"
-                first.utdanninger.map { it.navn } shouldContainExactlyInAnyOrder listOf("Tømrerfaget", "Betongfaget")
+                first.utdanninger.map { it.navn } shouldContainExactlyInAnyOrder listOf(
+                    "Banemontørfaget",
+                    "Byggdrifterfaget",
+                    "Fjell- og bergverksfaget",
+                )
 
-                second.utdanningsprogram.navn shouldBe "Elektro og datateknologi"
-                second.utdanninger.map { it.navn } shouldContainExactlyInAnyOrder listOf("Elektrikerfaget")
+                second.utdanningsprogram.navn shouldBe "Håndverk, design og produktutvikling"
+                second.utdanninger.map { it.navn } shouldContainExactlyInAnyOrder listOf(
+                    "Bunadstilvirkerfaget",
+                    "Gjørtlerfaget",
+                    "Glassblåserfaget",
+                )
             }
         }
     }
@@ -107,7 +98,7 @@ class OpplaringKategoriseringQueriesTest : FunSpec({
             ).getOrNull().shouldNotBeNull()
             repository.utdanning.save(aapenhet)
 
-            val utdanningslop = queries.opplaringKategorisering.getUtdanningslop()
+            val utdanningslop = queries.opplaering.getUtdanningslop()
 
             utdanningslop.map { it.utdanningsprogram.navn } shouldBe listOf(
                 "Aprikosprogrammet",

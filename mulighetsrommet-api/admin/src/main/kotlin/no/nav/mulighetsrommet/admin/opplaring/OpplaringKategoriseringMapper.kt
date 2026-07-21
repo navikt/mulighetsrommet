@@ -54,7 +54,7 @@ object OpplaringKategoriseringMapper {
     private fun ingenValg(tiltakskode: Tiltakskode): OpplaringKategoriseringResponse = OpplaringKategoriseringResponse(tiltakskode = tiltakskode, alternativer = emptyList())
 
     private fun QueryContext.norskOpplaringGrunnleggendeFerdigheterFov(): OpplaringKategoriseringResponse {
-        val kurstyper = queries.opplaringKategorisering.getKurstyper(
+        val kurstyper = queries.opplaering.getKurstyper(
             setOf(
                 Kurstype.Kode.NORSKOPPLAERING,
                 Kurstype.Kode.GRUNNLEGGENDE_FERDIGHETER,
@@ -83,7 +83,7 @@ object OpplaringKategoriseringMapper {
     }
 
     private fun QueryContext.fagOgYrkesOpplaring(tiltakskode: Tiltakskode): OpplaringKategoriseringResponse {
-        val utdanningslop = queries.opplaringKategorisering.getUtdanningslop()
+        val utdanningslop = queries.opplaering.getUtdanningslop()
         return OpplaringKategoriseringResponse(
             tiltakskode = tiltakskode,
             alternativer = listOf(
@@ -118,17 +118,17 @@ object OpplaringKategoriseringMapper {
     }
 
     private fun QueryContext.arenaGruppeAmo(): OpplaringKategoriseringResponse {
-        val kurstyper = queries.opplaringKategorisering.getKurstyper().toMutableList()
+        val kurstyper = queries.opplaering.getKurstyper().toMutableList()
         val yrkesrettetKurs = kurstyper.first {
             it.kode == Kurstype.Kode.BRANSJE_OG_YRKESRETTET
         }.also { kurstyper.remove(it) }
 
-        val bransjer = queries.opplaringKategorisering.getBransjer().toMutableList()
+        val bransjer = queries.opplaering.getBransjer().toMutableList()
         bransjer.find { it.kode == Bransje.Kode.ANDRE_BRANSJER }?.let {
             bransjer.remove(it)
             bransjer.addLast(it)
         }
-        val forerkort = queries.opplaringKategorisering.getForerkortKlasser()
+        val forerkort = queries.opplaering.getForerkortKlasser()
 
         return OpplaringKategoriseringResponse(
             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
@@ -163,12 +163,12 @@ object OpplaringKategoriseringMapper {
     }
 
     private fun QueryContext.arbeidsmarkedsopplaring(tiltakskode: Tiltakskode): OpplaringKategoriseringResponse {
-        val bransjer = queries.opplaringKategorisering.getBransjer().toMutableList()
+        val bransjer = queries.opplaering.getBransjer().toMutableList()
         bransjer.find { it.kode == Bransje.Kode.ANDRE_BRANSJER }?.let {
             bransjer.remove(it)
             bransjer.addLast(it)
         }
-        val forerkort = queries.opplaringKategorisering.getForerkortKlasser()
+        val forerkort = queries.opplaering.getForerkortKlasser()
         return OpplaringKategoriseringResponse(
             tiltakskode = tiltakskode,
             alternativer = amoBransjeForerkortSertifisering(bransjer, forerkort),

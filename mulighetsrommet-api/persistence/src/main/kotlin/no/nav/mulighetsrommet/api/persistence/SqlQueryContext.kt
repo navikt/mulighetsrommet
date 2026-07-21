@@ -64,7 +64,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val navAnsattDto: NavAnsattDtoQueryHandler = this@SqlQueryContext.navAnsattDto
         override val totrinnskontroll: TotrinnskontrollQueryHandler = this@SqlQueryContext.totrinnskontroll
         override val arrangor: ArrangorQueryHandler = this@SqlQueryContext.arrangor
-        override val opplaringKategorisering: OpplaringKategoriseringQueryHandler = this@SqlQueryContext.opplaering
+        override val opplaering: OpplaringKategoriseringQueryHandler = this@SqlQueryContext.opplaering
         override val tiltakDokument: TiltakDokumentQueryHandler = this@SqlQueryContext.tiltakDokument
     }
 

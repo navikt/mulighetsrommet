@@ -26,14 +26,21 @@ class UtdanningQueries(private val session: Session) : UtdanningsprogramReposito
             select * from utdanningsprogram where programomradekode = ?
         """.trimIndent()
 
+        data class Programomrade(
+            val id: UUID,
+            val navn: String,
+            val type: UtdanningsprogramType?,
+            val nusKoder: List<String>,
+        )
+
         val programomrade = single(queryOf(programomradeQuery, programomradekode)) { row ->
-            Triple(
-                row.string("navn"),
-                row.stringOrNull("utdanningsprogram_type")?.let { UtdanningsprogramType.valueOf(it) },
-                row.array<String>("nus_koder").toList(),
+            Programomrade(
+                id = row.uuid("id"),
+                navn = row.string("navn"),
+                type = row.stringOrNull("utdanningsprogram_type")?.let { UtdanningsprogramType.valueOf(it) },
+                nusKoder = row.array<String>("nus_koder").toList(),
             )
         } ?: return null
-        val (navn, type, nusKoder) = programomrade
 
         @Language("PostgreSQL")
         val utdanningerQuery = """
@@ -45,6 +52,7 @@ class UtdanningQueries(private val session: Session) : UtdanningsprogramReposito
 
         val utdanninger = list(queryOf(utdanningerQuery, programomradekode)) { row ->
             Utdanning(
+                id = row.uuid("id"),
                 programomradekode = row.string("programomradekode"),
                 utdanningId = row.string("utdanning_id"),
                 navn = row.string("navn"),
@@ -57,10 +65,11 @@ class UtdanningQueries(private val session: Session) : UtdanningsprogramReposito
         }
 
         return Utdanningsprogram.fromStorage(
+            id = programomrade.id,
             programomradekode = programomradekode,
-            navn = navn,
-            type = type,
-            nusKoder = nusKoder,
+            navn = programomrade.navn,
+            type = programomrade.type,
+            nusKoder = programomrade.nusKoder,
             utdanninger = utdanninger,
         )
     }
@@ -68,8 +77,8 @@ class UtdanningQueries(private val session: Session) : UtdanningsprogramReposito
     private fun upsertUtdanningsprogram(utdanningsprogram: Utdanningsprogram): UUID = with(session) {
         @Language("PostgreSQL")
         val query = """
-            insert into utdanningsprogram (navn, programomradekode, utdanningsprogram_type, nus_koder)
-            values (:navn, :programomradekode, :utdanningsprogram_type::utdanningsprogram_type, :nus_koder)
+            insert into utdanningsprogram (id, navn, programomradekode, utdanningsprogram_type, nus_koder)
+            values (:id::uuid, :navn, :programomradekode, :utdanningsprogram_type::utdanningsprogram_type, :nus_koder)
             on conflict (programomradekode) do update set
                 navn = excluded.navn,
                 utdanningsprogram_type = excluded.utdanningsprogram_type,
@@ -78,6 +87,7 @@ class UtdanningQueries(private val session: Session) : UtdanningsprogramReposito
         """.trimIndent()
 
         val params = mapOf(
+            "id" to utdanningsprogram.id,
             "navn" to utdanningsprogram.navn,
             "programomradekode" to utdanningsprogram.programomradekode,
             "utdanningsprogram_type" to utdanningsprogram.type?.name,
@@ -90,8 +100,8 @@ class UtdanningQueries(private val session: Session) : UtdanningsprogramReposito
     private fun upsertUtdanning(programomradeId: UUID, utdanning: Utdanning) = with(session) {
         @Language("PostgreSQL")
         val upsertUtdanning = """
-            insert into utdanning (utdanning_id, programomradekode, navn, sluttkompetanse, aktiv, utdanningstatus, utdanningslop, programlop_start, nus_koder)
-            values (:utdanning_id, :programomradekode, :navn, :sluttkompetanse::utdanning_sluttkompetanse, :aktiv, :utdanningstatus::utdanning_status, :utdanningslop, :programlop_start::uuid, :nus_koder)
+            insert into utdanning (id, utdanning_id, programomradekode, navn, sluttkompetanse, aktiv, utdanningstatus, utdanningslop, programlop_start, nus_koder)
+            values (:id::uuid, :utdanning_id, :programomradekode, :navn, :sluttkompetanse::utdanning_sluttkompetanse, :aktiv, :utdanningstatus::utdanning_status, :utdanningslop, :programlop_start::uuid, :nus_koder)
             on conflict (utdanning_id) do update set
                 programomradekode = excluded.programomradekode,
                 navn = excluded.navn,
@@ -104,6 +114,7 @@ class UtdanningQueries(private val session: Session) : UtdanningsprogramReposito
         """.trimIndent()
 
         val params = mapOf(
+            "id" to utdanning.id,
             "utdanning_id" to utdanning.utdanningId,
             "programomradekode" to utdanning.programomradekode,
             "navn" to utdanning.navn,
@@ -116,23 +127,5 @@ class UtdanningQueries(private val session: Session) : UtdanningsprogramReposito
         )
 
         execute(queryOf(upsertUtdanning, params))
-    }
-
-    fun getIdForUtdanningsprogram(programomradekode: String): UUID = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select id from utdanningsprogram where programomradekode = ?
-        """.trimIndent()
-
-        return requireSingle(queryOf(query, programomradekode)) { it.uuid("id") }
-    }
-
-    fun getIdForUtdanning(utdanningId: String): UUID = with(session) {
-        @Language("PostgreSQL")
-        val query = """
-            select id from utdanning where utdanning_id = ?
-        """.trimIndent()
-
-        return requireSingle(queryOf(query, utdanningId)) { it.uuid("id") }
     }
 }
