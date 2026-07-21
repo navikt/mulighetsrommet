@@ -3844,7 +3844,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 22
+        - 23
     RedaksjoneltInnholdLenke:
       type: object
       properties:
