@@ -1,3 +1,4 @@
+import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import { ExternalLinkIcon } from "@navikt/aksel-icons";
 import { Switch } from "@navikt/ds-react";
 import React from "react";
@@ -7,35 +8,39 @@ import {
   TiltakDokumentHandling,
   useTiltakDokumentHandlinger,
 } from "@/api/tiltak-dokument/useTiltakDokumentHandlinger";
-import { TiltakDokument } from "@/api/tiltak-dokument/useTiltakDokumenter";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { previewArbeidsmarkedstiltakUrl } from "@/constants";
-import { NavAnsattDto } from "@tiltaksadministrasjon/api-client";
+import {
+  EndringshistorikkType,
+  NavAnsattDto,
+  TiltakDokumentDto,
+} from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  gjennomforing: TiltakDokument;
+  tiltakDokument: TiltakDokumentDto;
   ansatt: NavAnsattDto;
 }
 
-export function TiltakDokumentHandlinger({ gjennomforing, ansatt }: Props) {
+export function TiltakDokumentHandlinger({ tiltakDokument, ansatt }: Props) {
   const navigate = useNavigate();
-  const { data: handlinger } = useTiltakDokumentHandlinger(gjennomforing.id);
-  const { mutate: setPublisert } = useSetPublisertTiltakDokument(gjennomforing.id);
+  const { data: handlinger } = useTiltakDokumentHandlinger(tiltakDokument.id);
+  const { mutate: setPublisert } = useSetPublisertTiltakDokument(tiltakDokument.id);
 
   function togglePublisert(e: React.MouseEvent<HTMLInputElement>) {
     setPublisert({ publisert: e.currentTarget.checked });
   }
 
-  const administratorer = gjennomforing.administratorer.map((a) => a.navIdent);
+  const administratorer = tiltakDokument.administratorer.map((a) => a.navIdent);
 
   return (
     <KnapperadContainer>
       {handlinger.includes("PUBLISER") && (
-        <Switch name="publiser" checked={gjennomforing.publisert} onClick={togglePublisert}>
+        <Switch name="publiser" checked={tiltakDokument.publisert} onClick={togglePublisert}>
           Publiser
         </Switch>
       )}
+      <Endringshistorikk id={tiltakDokument.id} type={EndringshistorikkType.TILTAK_DOKUMENT} />
       <Handlinger<TiltakDokumentHandling>
         handlinger={handlinger}
         navIdent={ansatt.navIdent}
@@ -45,7 +50,7 @@ export function TiltakDokumentHandlinger({ gjennomforing, ansatt }: Props) {
             items: [
               {
                 label: "Rediger",
-                onClick: () => navigate(`/tiltak-dokumenter/${gjennomforing.id}/rediger`),
+                onClick: () => navigate(`/tiltak-dokumenter/${tiltakDokument.id}/rediger`),
                 handling: "REDIGER",
                 administratorer,
               },
@@ -56,7 +61,7 @@ export function TiltakDokumentHandlinger({ gjennomforing, ansatt }: Props) {
             items: [
               {
                 label: "Forhåndsvis i Modia",
-                href: `${previewArbeidsmarkedstiltakUrl()}/tiltak/${gjennomforing.id}`,
+                href: `${previewArbeidsmarkedstiltakUrl()}/tiltak/${tiltakDokument.id}`,
                 isExternal: true,
                 icon: <ExternalLinkIcon aria-hidden />,
                 handling: "FORHANDSVIS_I_MODIA",

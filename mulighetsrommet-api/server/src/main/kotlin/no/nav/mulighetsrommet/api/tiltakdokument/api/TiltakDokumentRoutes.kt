@@ -13,10 +13,10 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentDto
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentHandling
+import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentKompaktDto
 import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentAdminService
 import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -68,7 +68,8 @@ fun Route.tiltakDokumentRoutes() {
                 }
             }) {
                 val request = call.receive<TiltakDokumentRequest>()
-                val result = service.upsert(request).mapLeft { ValidationError(errors = it) }
+                val navIdent = getNavIdent()
+                val result = service.upsert(request, navIdent).mapLeft { ValidationError(errors = it) }
                 call.respondWithStatusResponse(result)
             }
 
@@ -91,7 +92,8 @@ fun Route.tiltakDokumentRoutes() {
             }) {
                 val id: UUID by call.parameters
                 val request = call.receive<TiltakDokumentPublisertRequest>()
-                service.setPublisert(id, request.publisert)
+                val navIdent = getNavIdent()
+                service.setPublisert(id, request.publisert, navIdent)
                 call.respond(HttpStatusCode.OK)
             }
         }
@@ -105,7 +107,7 @@ fun Route.tiltakDokumentRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Liste over tiltak-dokumentøringer"
-                    body<List<TiltakDokument>>()
+                    body<List<TiltakDokumentKompaktDto>>()
                 }
             }
         }) {
@@ -130,7 +132,7 @@ fun Route.tiltakDokumentRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Individuell gjennomføring"
-                    body<TiltakDokument>()
+                    body<TiltakDokumentDto>()
                 }
                 code(HttpStatusCode.NotFound) {
                     description = "Ikke funnet"

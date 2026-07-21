@@ -1,4 +1,3 @@
-import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltakDokumentForm } from "@/components/tiltak-dokument/TiltakDokumentForm";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -11,6 +10,8 @@ import { TiltakDokumentFormInput, TiltakDokumentSchema } from "./TiltakDokumentF
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Faneinnhold } from "@tiltaksadministrasjon/api-client";
+import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
 
 const brodsmuler: Brodsmule[] = [
   { tittel: "Tiltaksdokumenter", lenke: "/tiltak-dokumenter" },
@@ -52,7 +53,7 @@ export function OpprettTiltakDokumentPage() {
         arrangorId: data.arrangorId ?? null,
         arrangorKontaktpersoner: data.arrangorKontaktpersoner ?? [],
         beskrivelse: data.veilederinformasjon.beskrivelse ?? null,
-        faneinnhold: data.veilederinformasjon.faneinnhold ?? null,
+        faneinnhold: (data.veilederinformasjon.faneinnhold as Faneinnhold | null) ?? null,
         administratorer: data.administratorer,
         navRegioner: data.veilederinformasjon.navRegioner ?? [],
         navKontorer: data.veilederinformasjon.navKontorer ?? [],
@@ -73,7 +74,7 @@ export function OpprettTiltakDokumentPage() {
     <>
       <title>Opprett tiltaksdokument</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <HeaderBanner ikon={<GjennomforingAvtaleIkon />} heading="Opprett tiltaksdokument" />
+      <HeaderBanner ikon={<TiltakDokumentIkon />} heading="Opprett tiltaksdokument" />
       <ContentBox>
         <WhitePaddedBox>
           <FormProvider {...form}>

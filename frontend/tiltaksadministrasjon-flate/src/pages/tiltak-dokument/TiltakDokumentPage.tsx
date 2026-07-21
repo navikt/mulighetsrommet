@@ -1,4 +1,3 @@
-import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -21,27 +20,28 @@ import { TiltakDokumentHandlinger } from "@/components/tiltak-dokument/TiltakDok
 import { Laster } from "@/components/laster/Laster";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
 
 export function TiltakDokumentPage() {
   const { tiltakDokumentId } = useRequiredParams(["tiltakDokumentId"]);
-  const { data: gjennomforing } = useTiltakDokument(tiltakDokumentId);
+  const { data: tiltakDokument } = useTiltakDokument(tiltakDokumentId);
   const { data: ansatt } = useHentAnsatt();
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Tiltaksdokumenter", lenke: "/tiltak-dokumenter" },
-    { tittel: gjennomforing.navn },
+    { tittel: tiltakDokument.navn },
   ];
 
   return (
     <>
-      <title>{`Tiltaksdokument | ${gjennomforing.navn}`}</title>
+      <title>{`Tiltaksdokument | ${tiltakDokument.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <HeaderBanner ikon={<GjennomforingAvtaleIkon />} heading={gjennomforing.navn} />
+      <HeaderBanner ikon={<TiltakDokumentIkon />} heading={tiltakDokument.navn} />
       <ContentBox>
         <WhitePaddedBox>
           <InlineErrorBoundary>
             <Suspense fallback={<Laster tekst="Laster handlinger..." />}>
-              <TiltakDokumentHandlinger ansatt={ansatt} gjennomforing={gjennomforing} />
+              <TiltakDokumentHandlinger ansatt={ansatt} tiltakDokument={tiltakDokument} />
             </Suspense>
           </InlineErrorBoundary>
           <Separator />
@@ -52,43 +52,43 @@ export function TiltakDokumentPage() {
                   <Heading size="small" level="2">
                     Tiltakstype
                   </Heading>
-                  <BodyShort>{gjennomforing.tiltakstype.navn}</BodyShort>
+                  <BodyShort>{tiltakDokument.tiltakstype.navn}</BodyShort>
                 </div>
-                {gjennomforing.stedForGjennomforing && (
+                {tiltakDokument.stedForGjennomforing && (
                   <div>
                     <Heading size="small" level="2">
                       Sted for gjennomføring
                     </Heading>
-                    <BodyShort>{gjennomforing.stedForGjennomforing}</BodyShort>
+                    <BodyShort>{tiltakDokument.stedForGjennomforing}</BodyShort>
                   </div>
                 )}
-                {gjennomforing.arrangor && (
+                {tiltakDokument.arrangor && (
                   <div>
                     <Heading size="small" level="2">
                       Arrangør
                     </Heading>
                     <BodyShort>
-                      {gjennomforing.arrangor.navn} — {gjennomforing.arrangor.organisasjonsnummer}
+                      {tiltakDokument.arrangor.navn} — {tiltakDokument.arrangor.organisasjonsnummer}
                     </BodyShort>
-                    {gjennomforing.arrangorKontaktpersoner.length > 0 && (
+                    {tiltakDokument.arrangorKontaktpersoner.length > 0 && (
                       <VStack gap="space-4" className="mt-2">
                         <Heading size="xsmall" level="3">
                           {gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
                         </Heading>
-                        {gjennomforing.arrangorKontaktpersoner.map((kp) => (
+                        {tiltakDokument.arrangorKontaktpersoner.map((kp) => (
                           <ArrangorKontaktpersonDetaljer key={kp.id} kontaktperson={kp} />
                         ))}
                       </VStack>
                     )}
                   </div>
                 )}
-                {gjennomforing.administratorer.length > 0 && (
+                {tiltakDokument.administratorer.length > 0 && (
                   <div>
                     <Heading size="small" level="2">
                       Administratorer
                     </Heading>
                     <VStack gap="space-4">
-                      {gjennomforing.administratorer.map((admin) => (
+                      {tiltakDokument.administratorer.map((admin) => (
                         <BodyShort key={admin.navIdent}>
                           {admin.navn} ({admin.navIdent})
                         </BodyShort>
@@ -103,25 +103,27 @@ export function TiltakDokumentPage() {
 
             <TwoColumnGrid separator>
               <RedaksjoneltInnhold
-                beskrivelse={gjennomforing.beskrivelse ?? null}
-                faneinnhold={gjennomforing.faneinnhold ?? null}
+                beskrivelse={tiltakDokument.beskrivelse ?? null}
+                faneinnhold={tiltakDokument.faneinnhold ?? null}
               />
               <RedaksjoneltInnholdContainer>
-                {gjennomforing.kontorstruktur.length > 0 && (
+                {tiltakDokument.kontorstruktur.length > 0 && (
                   <Bolk aria-label={gjennomforingTekster.tilgjengeligIModiaLabel}>
                     <MetadataVStack
                       label={gjennomforingTekster.tilgjengeligIModiaLabel}
-                      value={<RegionOgUnderenheter kontorstruktur={gjennomforing.kontorstruktur} />}
+                      value={
+                        <RegionOgUnderenheter kontorstruktur={tiltakDokument.kontorstruktur} />
+                      }
                     />
                   </Bolk>
                 )}
-                {gjennomforing.kontaktpersoner.length > 0 && (
+                {tiltakDokument.kontaktpersoner.length > 0 && (
                   <Bolk>
                     <MetadataVStack
                       label={gjennomforingTekster.kontaktpersonNav.mainLabel}
                       value={
                         <VStack gap="space-8">
-                          {gjennomforing.kontaktpersoner.map((kp, index) => (
+                          {tiltakDokument.kontaktpersoner.map((kp, index) => (
                             <Kontaktperson key={index} kontaktperson={kp} />
                           ))}
                         </VStack>

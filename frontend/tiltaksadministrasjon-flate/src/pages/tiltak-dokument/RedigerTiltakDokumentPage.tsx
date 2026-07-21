@@ -1,4 +1,3 @@
-import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltakDokumentForm } from "@/components/tiltak-dokument/TiltakDokumentForm";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -12,37 +11,44 @@ import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useTiltakDokument } from "@/api/tiltak-dokument/useTiltakDokument";
-import { TiltakDokument } from "@/api/tiltak-dokument/useTiltakDokumenter";
-import { KontorstrukturKontortype } from "@tiltaksadministrasjon/api-client";
+import {
+  Faneinnhold,
+  KontorstrukturKontortype,
+  TiltakDokumentDto,
+  TiltakDokumentDtoAdministrator,
+  TiltakDokumentDtoArrangorKontaktperson,
+  TiltakDokumentDtoKontaktperson,
+} from "@tiltaksadministrasjon/api-client";
+import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
 
 export function RedigerTiltakDokumentPage() {
   const { tiltakDokumentId } = useRequiredParams(["tiltakDokumentId"]);
-  const { data: gjennomforing } = useTiltakDokument(tiltakDokumentId);
+  const { data: tiltakDokument } = useTiltakDokument(tiltakDokumentId);
 
   const brodsmuler: Brodsmule[] = [
     { tittel: "Tiltaksdokumenter", lenke: "/tiltak-dokumenter" },
     {
-      tittel: gjennomforing.navn,
-      lenke: `/tiltak-dokumenter/${gjennomforing.id}`,
+      tittel: tiltakDokument.navn,
+      lenke: `/tiltak-dokumenter/${tiltakDokument.id}`,
     },
     { tittel: "Rediger" },
   ];
 
   return (
     <>
-      <title>{`Rediger | ${gjennomforing.navn}`}</title>
+      <title>{`Rediger | ${tiltakDokument.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <HeaderBanner ikon={<GjennomforingAvtaleIkon />} heading={gjennomforing.navn} />
+      <HeaderBanner ikon={<TiltakDokumentIkon />} heading={tiltakDokument.navn} />
       <ContentBox>
         <WhitePaddedBox>
-          <RedigerForm gjennomforing={gjennomforing} />
+          <RedigerForm tiltakDokument={tiltakDokument} />
         </WhitePaddedBox>
       </ContentBox>
     </>
   );
 }
 
-function toDefaultValues(ig: TiltakDokument): TiltakDokumentFormInput {
+function toDefaultValues(ig: TiltakDokumentDto): TiltakDokumentFormInput {
   const navRegioner = ig.kontorstruktur.map((k) => k.region.enhetsnummer);
   const navKontorer = ig.kontorstruktur
     .flatMap((k) => k.kontorer)
@@ -58,15 +64,17 @@ function toDefaultValues(ig: TiltakDokument): TiltakDokumentFormInput {
     tiltakstypeId: ig.tiltakstype.id,
     stedForGjennomforing: ig.stedForGjennomforing ?? null,
     arrangorId: ig.arrangor?.id ?? null,
-    arrangorKontaktpersoner: ig.arrangorKontaktpersoner.map((kp) => kp.id),
-    administratorer: ig.administratorer.map((a) => a.navIdent),
+    arrangorKontaktpersoner: ig.arrangorKontaktpersoner.map(
+      (kp: TiltakDokumentDtoArrangorKontaktperson) => kp.id,
+    ),
+    administratorer: ig.administratorer.map((a: TiltakDokumentDtoAdministrator) => a.navIdent),
     veilederinformasjon: {
       beskrivelse: ig.beskrivelse ?? null,
       faneinnhold: ig.faneinnhold ?? null,
       navRegioner,
       navKontorer,
       navAndreEnheter,
-      kontaktpersoner: ig.kontaktpersoner.map((kp) => ({
+      kontaktpersoner: ig.kontaktpersoner.map((kp: TiltakDokumentDtoKontaktperson) => ({
         navIdent: kp.navIdent,
         beskrivelse: kp.beskrivelse ?? null,
       })),
@@ -74,26 +82,26 @@ function toDefaultValues(ig: TiltakDokument): TiltakDokumentFormInput {
   };
 }
 
-function RedigerForm({ gjennomforing }: { gjennomforing: TiltakDokument }) {
+function RedigerForm({ tiltakDokument }: { tiltakDokument: TiltakDokumentDto }) {
   const navigate = useNavigate();
   const upsert = useUpsertTiltakDokument();
 
   const form = useForm<TiltakDokumentFormInput>({
     resolver: zodResolver(TiltakDokumentSchema),
-    defaultValues: toDefaultValues(gjennomforing),
+    defaultValues: toDefaultValues(tiltakDokument),
   });
 
   const onSubmit: SubmitHandler<TiltakDokumentFormInput> = (data) => {
     upsert.mutate(
       {
-        id: gjennomforing.id,
+        id: tiltakDokument.id,
         navn: data.navn,
         tiltakstypeId: data.tiltakstypeId,
         stedForGjennomforing: data.stedForGjennomforing ?? null,
         arrangorId: data.arrangorId ?? null,
         arrangorKontaktpersoner: data.arrangorKontaktpersoner ?? [],
         beskrivelse: data.veilederinformasjon.beskrivelse ?? null,
-        faneinnhold: data.veilederinformasjon.faneinnhold ?? null,
+        faneinnhold: (data.veilederinformasjon.faneinnhold as Faneinnhold | null) ?? null,
         administratorer: data.administratorer,
         navRegioner: data.veilederinformasjon.navRegioner ?? [],
         navKontorer: data.veilederinformasjon.navKontorer ?? [],
@@ -105,7 +113,7 @@ function RedigerForm({ gjennomforing }: { gjennomforing: TiltakDokument }) {
           })) ?? [],
       },
       {
-        onSuccess: () => navigate(`/tiltak-dokumenter/${gjennomforing.id}`),
+        onSuccess: () => navigate(`/tiltak-dokumenter/${tiltakDokument.id}`),
       },
     );
   };
@@ -123,7 +131,7 @@ function RedigerForm({ gjennomforing }: { gjennomforing: TiltakDokument }) {
               type="button"
               variant="tertiary"
               size="small"
-              onClick={() => navigate(`/tiltak-dokumenter/${gjennomforing.id}`)}
+              onClick={() => navigate(`/tiltak-dokumenter/${tiltakDokument.id}`)}
             >
               Avbryt
             </Button>

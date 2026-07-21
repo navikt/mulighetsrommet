@@ -7,6 +7,7 @@ import { HGrid } from "@navikt/ds-react";
 import { UtbetalingerIkon } from "@/components/ikoner/UtbetalingerIkon";
 import { previewArbeidsmarkedstiltakUrl, sanityStudioUrl } from "@/constants";
 import { isProduction } from "@/environment";
+import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
 
 const forsidekortData: ForsideKortProps[] = [
   {
@@ -42,7 +43,7 @@ const forsidekortData: ForsideKortProps[] = [
     ? [
         {
           navn: "Tiltaksdokumenter (tidligere Sanity)",
-          ikon: <GjennomforingAvtaleIkon inkluderBakgrunn />,
+          ikon: <TiltakDokumentIkon inkluderBakgrunn />,
           url: "/tiltak-dokumenter",
           tekst: "Her administrerer du tiltaksdokumenter",
         } satisfies ForsideKortProps,
