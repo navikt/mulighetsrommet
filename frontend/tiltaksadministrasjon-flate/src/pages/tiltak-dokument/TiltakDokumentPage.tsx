@@ -1,4 +1,3 @@
-import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -21,6 +20,7 @@ import { TiltakDokumentHandlinger } from "@/components/tiltak-dokument/TiltakDok
 import { Laster } from "@/components/laster/Laster";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
+import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
 
 export function TiltakDokumentPage() {
   const { tiltakDokumentId } = useRequiredParams(["tiltakDokumentId"]);
@@ -36,7 +36,7 @@ export function TiltakDokumentPage() {
     <>
       <title>{`Tiltaksdokument | ${tiltakDokument.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <HeaderBanner ikon={<GjennomforingAvtaleIkon />} heading={tiltakDokument.navn} />
+      <HeaderBanner ikon={<TiltakDokumentIkon />} heading={tiltakDokument.navn} />
       <ContentBox>
         <WhitePaddedBox>
           <InlineErrorBoundary>

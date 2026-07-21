@@ -1,4 +1,3 @@
-import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { TiltakDokumentTabell } from "@/components/tiltak-dokument/TiltakDokumentTabell";
 import { TiltakDokumentFilter } from "@/components/tiltak-dokument/TiltakDokumentFilter";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
@@ -11,6 +10,7 @@ import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/Ti
 import { Suspense } from "react";
 import { tiltakDokumentFilterStateAtom } from "@/pages/tiltak-dokument/filter";
 import { useFilterState } from "@/filter/useFilterState";
+import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
 
 export function TiltakDokumenterPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -21,7 +21,7 @@ export function TiltakDokumenterPage() {
   return (
     <>
       <title>Tiltaksdokumenter</title>
-      <HeaderBanner heading="Oversikt over tiltaksdokumenter" ikon={<GjennomforingAvtaleIkon />} />
+      <HeaderBanner heading="Oversikt over tiltaksdokumenter" ikon={<TiltakDokumentIkon />} />
       <ContentBox>
         <FilterAndTableLayout
           filter={<TiltakDokumentFilter filter={filter.values} updateFilter={updateFilter} />}

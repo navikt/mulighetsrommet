@@ -1,4 +1,3 @@
-import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { Brodsmule, Brodsmuler } from "@/components/navigering/Brodsmuler";
 import { TiltakDokumentForm } from "@/components/tiltak-dokument/TiltakDokumentForm";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -20,6 +19,7 @@ import {
   TiltakDokumentDtoArrangorKontaktperson,
   TiltakDokumentDtoKontaktperson,
 } from "@tiltaksadministrasjon/api-client";
+import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
 
 export function RedigerTiltakDokumentPage() {
   const { tiltakDokumentId } = useRequiredParams(["tiltakDokumentId"]);
@@ -38,7 +38,7 @@ export function RedigerTiltakDokumentPage() {
     <>
       <title>{`Rediger | ${tiltakDokument.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
-      <HeaderBanner ikon={<GjennomforingAvtaleIkon />} heading={tiltakDokument.navn} />
+      <HeaderBanner ikon={<TiltakDokumentIkon />} heading={tiltakDokument.navn} />
       <ContentBox>
         <WhitePaddedBox>
           <RedigerForm tiltakDokument={tiltakDokument} />
