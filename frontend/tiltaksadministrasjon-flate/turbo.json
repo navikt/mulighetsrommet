@@ -1,6 +1,9 @@
 {
   "extends": ["//"],
   "tasks": {
+    "build": {
+      "env": ["VITE_BASE"]
+    },
     "build:lokal": {
       "dependsOn": ["^build"],
       "outputs": ["dist"]

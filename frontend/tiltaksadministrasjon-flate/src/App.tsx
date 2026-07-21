@@ -67,7 +67,7 @@ import { OpprettTiltakDokumentPage } from "./pages/tiltak-dokument/OpprettTiltak
 import { TiltakDokumentPage } from "./pages/tiltak-dokument/TiltakDokumentPage";
 import { RedigerTiltakDokumentPage } from "./pages/tiltak-dokument/RedigerTiltakDokumentPage";
 
-const basename = import.meta.env.BASE_URL;
+import { APPLICATION_NAME } from "./constants";
 
 const head = createHead();
 
@@ -75,7 +75,7 @@ if (import.meta.env.VITE_FARO_URL) {
   initializeFaro({
     url: import.meta.env.VITE_FARO_URL,
     app: {
-      name: "mr-admin-flate",
+      name: APPLICATION_NAME,
     },
     instrumentations: [...getWebInstrumentations({ captureConsole: true })],
     isolate: true,
@@ -96,7 +96,7 @@ const SPORING_DATA_DOMAINS = isProduction()
   : "tiltaksadministrasjon.intern.dev.nav.no";
 
 export function App() {
-  const router = createBrowserRouter(routes, { basename });
+  const router = createBrowserRouter(routes);
   return <RouterProvider router={router} />;
 }
 
