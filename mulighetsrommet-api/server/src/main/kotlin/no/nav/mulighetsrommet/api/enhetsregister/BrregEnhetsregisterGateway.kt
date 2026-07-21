@@ -9,13 +9,13 @@ import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregError
+import no.nav.mulighetsrommet.brreg.BrregHovedenhet
+import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.BrregUnderenhet
+import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.validation.BrregHovedenhet
-import no.nav.mulighetsrommet.validation.BrregHovedenhetDto
-import no.nav.mulighetsrommet.validation.BrregUnderenhet
-import no.nav.mulighetsrommet.validation.BrregUnderenhetDto
-import no.nav.mulighetsrommet.validation.SlettetBrregHovedenhetDto
-import no.nav.mulighetsrommet.validation.SlettetBrregUnderenhetDto
 
 class BrregEnhetsregisterGateway(
     private val brregClient: BrregClient,

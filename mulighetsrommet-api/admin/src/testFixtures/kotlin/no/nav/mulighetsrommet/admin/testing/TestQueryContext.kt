@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
+import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentAdminQueries
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 
 class TestQueryContext : QueryContext() {
@@ -15,6 +16,7 @@ class TestQueryContext : QueryContext() {
     private val navEnhetRepository = FakeNavEnhetRepository()
     private val navAnsattRepository = FakeNavAnsattRepository()
     private val arrangorRepository = FakeArrangorRepository()
+    private val tiltakDokumentRepository = FakeTiltakDokumentRepository()
 
     private var tiltakstype: TiltakstypeQueryHandler = mockk(relaxed = true)
     private var endringshistorikk: EndringshistorikkQueryHandler = mockk(relaxed = true)
@@ -22,6 +24,7 @@ class TestQueryContext : QueryContext() {
     private var navAnsattDto: NavAnsattDtoQueryHandler = mockk(relaxed = true)
     private var totrinnskontroll: TotrinnskontrollQueryHandler = mockk(relaxed = true)
     private var arrangor: ArrangorQueryHandler = mockk(relaxed = true)
+    private var tiltakDokument: TiltakDokumentAdminQueries = mockk(relaxed = true)
 
     override val repository = object : Repositories() {
         override val tiltakstype get() = tiltakstypeRepository
@@ -29,6 +32,7 @@ class TestQueryContext : QueryContext() {
         override val navEnhet get() = navEnhetRepository
         override val navAnsatt get() = navAnsattRepository
         override val arrangor get() = arrangorRepository
+        override val tiltakDokument get() = tiltakDokumentRepository
     }
 
     override val queries = object : Queries() {
@@ -38,6 +42,7 @@ class TestQueryContext : QueryContext() {
         override val navAnsattDto get() = this@TestQueryContext.navAnsattDto
         override val totrinnskontroll get() = this@TestQueryContext.totrinnskontroll
         override val arrangor get() = this@TestQueryContext.arrangor
+        override val tiltakDokument get() = this@TestQueryContext.tiltakDokument
     }
 
     override val outbox: Outbox = mockk(relaxed = true)
