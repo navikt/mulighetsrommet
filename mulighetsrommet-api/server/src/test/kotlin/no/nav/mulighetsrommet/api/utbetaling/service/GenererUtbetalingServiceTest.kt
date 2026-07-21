@@ -15,9 +15,9 @@ import io.mockk.mockk
 import no.nav.amt.model.AmtArrangorMelding
 import no.nav.amt.model.EndringAarsak
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures

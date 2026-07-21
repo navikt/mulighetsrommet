@@ -41,7 +41,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingV
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerUtenFaktor
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonCells
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonColumns
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse

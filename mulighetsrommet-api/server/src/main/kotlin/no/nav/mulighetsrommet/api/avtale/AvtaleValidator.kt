@@ -17,16 +17,12 @@ import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.fromValidatedAvt
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.Avtale.OpsjonLoggDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggDbo
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodeller
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
@@ -36,6 +32,10 @@ import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodeller
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.ArrangorUnderenhet
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.AvtaleStatusType

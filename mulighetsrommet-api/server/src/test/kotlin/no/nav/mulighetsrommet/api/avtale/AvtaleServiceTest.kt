@@ -32,7 +32,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures

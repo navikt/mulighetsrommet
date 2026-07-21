@@ -5,8 +5,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.model.FieldError

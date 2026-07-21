@@ -19,13 +19,13 @@ import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures

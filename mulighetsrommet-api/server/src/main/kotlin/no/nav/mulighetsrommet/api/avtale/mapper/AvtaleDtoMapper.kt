@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
+import no.nav.mulighetsrommet.admin.tiltak.fromPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
-import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.model.DataElement
 
 object AvtaleDtoMapper {

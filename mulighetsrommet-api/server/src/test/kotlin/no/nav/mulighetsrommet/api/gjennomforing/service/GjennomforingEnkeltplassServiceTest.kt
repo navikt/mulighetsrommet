@@ -18,8 +18,9 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -33,7 +34,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType

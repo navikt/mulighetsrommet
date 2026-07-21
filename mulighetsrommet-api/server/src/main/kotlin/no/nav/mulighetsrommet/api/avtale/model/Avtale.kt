@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.avtale.model
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavIdent

@@ -12,7 +12,7 @@ import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray

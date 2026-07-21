@@ -11,7 +11,7 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.AvtaltPrisPerTimeOppfolgingData
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel

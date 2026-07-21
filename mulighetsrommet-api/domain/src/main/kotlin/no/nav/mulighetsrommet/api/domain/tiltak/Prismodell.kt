@@ -1,9 +1,8 @@
-package no.nav.mulighetsrommet.api.avtale.model
+package no.nav.mulighetsrommet.api.domain.tiltak
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import no.nav.mulighetsrommet.api.avtale.mapper.satser
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -125,6 +124,18 @@ sealed interface Prismodell {
             OPPLAERINGEN_ER_KOSTNADSFRI,
             OPPLAERINGEN_ER_EGENFINANSIERT,
         }
+    }
+
+    fun satser(): List<AvtaltSats> = when (this) {
+        is AnnenAvtaltPris -> emptyList()
+        is AvtaltPrisPerManedsverk -> satser
+        is AvtaltPrisPerUkesverk -> satser
+        is AvtaltPrisPerHeleUkesverk -> satser
+        is AvtaltPrisPerTimeOppfolgingPerDeltaker -> satser
+        is ForhandsgodkjentPrisPerManedsverk -> satser
+        is ForhandsgodkjentPrisPerAvtaltTiltaksplass -> satser
+        is TilskuddTilOpplaering -> emptyList()
+        is IngenKostnader -> emptyList()
     }
 
     fun findAvtaltSats(dato: LocalDate): AvtaltSats? {

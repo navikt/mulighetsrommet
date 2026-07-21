@@ -27,8 +27,8 @@ import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures

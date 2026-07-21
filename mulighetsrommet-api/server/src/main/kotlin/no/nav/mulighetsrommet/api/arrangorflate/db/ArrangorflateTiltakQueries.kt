@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
