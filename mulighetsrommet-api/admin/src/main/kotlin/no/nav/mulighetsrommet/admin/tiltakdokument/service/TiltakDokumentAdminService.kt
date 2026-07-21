@@ -2,7 +2,11 @@ package no.nav.mulighetsrommet.admin.tiltakdokument.service
 
 import arrow.core.Either
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.QueryContext
+import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentDto
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentHandling
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
@@ -12,6 +16,7 @@ import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Serializable
@@ -46,24 +51,41 @@ data class TiltakDokumentRequest(
 class TiltakDokumentAdminService(
     private val db: AdminDatabase,
 ) {
-    fun upsert(request: TiltakDokumentRequest): Either<List<FieldError>, TiltakDokumentDto> {
+    fun upsert(request: TiltakDokumentRequest, navIdent: NavIdent): Either<List<FieldError>, TiltakDokumentDto> {
         return TiltakDokumentValidator.validate(request)
             .map { tiltakDokument ->
                 db.transaction {
+                    val isNew = queries.tiltakDokument.getTiltakDokumentDto(request.id) == null
                     repository.tiltakDokument.save(tiltakDokument)
-                    queries.tiltakDokument.getTiltakDokumentDto(request.id)!!
+                    val dto = queries.tiltakDokument.getTiltakDokumentDto(request.id)!!
+                    val operation = if (isNew) "Opprettet tiltaksdokument" else "Endret tiltaksdokument"
+                    logEndring(operation, dto, navIdent)
+                    dto
                 }
             }
     }
 
-    fun setPublisert(id: UUID, publisert: Boolean): Unit = db.transaction {
+    fun setPublisert(id: UUID, publisert: Boolean, navIdent: NavIdent): Unit = db.transaction {
         queries.tiltakDokument.setPublisert(id, publisert)
+        val dto = queries.tiltakDokument.getTiltakDokumentDto(id)!!
+        val operation = if (publisert) "Publiserte tiltaksdokument" else "Avpubliserte tiltaksdokument"
+        logEndring(operation, dto, navIdent)
     }
 
     fun getHandlinger(ansatt: NavAnsatt): Set<TiltakDokumentHandling> {
         return TiltakDokumentHandling.entries
             .filter { tilgangTilHandling(ansatt, it) }
             .toSet()
+    }
+
+    internal fun QueryContext.logEndring(tekst: String, tiltakDokument: TiltakDokumentDto, endretAv: NavIdent) {
+        queries.endringshistorikk.logEndring(
+            EndringshistorikkType.TILTAK_DOKUMENT,
+            tekst,
+            endretAv,
+            tiltakDokument.id,
+            LocalDateTime.now(),
+        ) { Json.encodeToJsonElement(tiltakDokument) }
     }
 
     companion object {
