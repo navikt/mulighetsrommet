@@ -65,8 +65,6 @@ data class MulighetsrommetTestDomain(
             session.execute(BransjeFixtures.query())
             session.execute(InnholdElementFixtures.query())
             session.execute(ForerkortFixtures.query())
-            session.execute(UtdanningFixtures.UtdanningsProgram.query())
-            session.execute(UtdanningFixtures.Utdanninger.query())
 
             navEnheter.forEach { queries.enhet.save(it) }
             ansatte.forEach { queries.ansatt.save(it) }

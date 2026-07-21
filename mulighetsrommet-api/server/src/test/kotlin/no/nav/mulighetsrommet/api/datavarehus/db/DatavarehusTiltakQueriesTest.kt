@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.datavarehus.db
 
-import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -19,9 +18,6 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
-import no.nav.mulighetsrommet.api.domain.utdanning.Utdanning
-import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
-import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
@@ -34,6 +30,7 @@ import no.nav.mulighetsrommet.api.fixtures.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -230,34 +227,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
 
         test("henter Gruppe Fag/Yrke med informasjon om utdanningsprogram") {
-            val utdanninger = listOf(
-                Utdanning(
-                    programomradekode = "BABAT1----",
-                    utdanningId = "u_sveisefag",
-                    navn = "Sveisefag",
-                    sluttkompetanse = Utdanning.Sluttkompetanse.FAGBREV,
-                    aktiv = true,
-                    utdanningstatus = Utdanning.Status.GYLDIG,
-                    utdanningslop = listOf("BABAT1----"),
-                    nusKoder = listOf("12345"),
-                ),
-                Utdanning(
-                    programomradekode = "BABAT1----",
-                    utdanningId = "u_sveisefag_under_vann",
-                    navn = "Sveisefag under vann",
-                    sluttkompetanse = Utdanning.Sluttkompetanse.SVENNEBREV,
-                    aktiv = true,
-                    utdanningstatus = Utdanning.Status.GYLDIG,
-                    utdanningslop = listOf("BABAT1----"),
-                    nusKoder = listOf("23456"),
-                ),
-            )
-            val utdanningsprogram = Utdanningsprogram.opprett(
-                programomradekode = "BABAT1----",
-                navn = "Sveiseprogram",
-                type = UtdanningsprogramType.YRKESFAGLIG,
-                utdanninger = utdanninger,
-            ).shouldBeRight()
+            val utdanningsprogram = UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg
 
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeFagOgYrkesopplaering),
@@ -265,7 +235,10 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 gjennomforinger = listOf(GruppeFagYrke1),
                 utdanningsprogram = listOf(utdanningsprogram),
             ) {
-                val utdanningslop = Utdanningslop(utdanningsprogram.id, utdanninger.map { it.id }.toSet())
+                val utdanningslop = Utdanningslop(
+                    utdanningsprogram.id,
+                    utdanningsprogram.utdanninger.map { it.id }.toSet(),
+                )
                 queries.opplaering.upsert(
                     GruppeFagYrke1.id,
                     OpplaringKategorisering(utdanningslop = utdanningslop),
@@ -279,7 +252,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldNotBeNull().should {
                     it.utdanningsprogram shouldBe utdanningsprogram.id
-                    it.utdanninger shouldBe utdanninger.map { u -> u.id }.toSet()
+                    it.utdanninger shouldBe utdanningsprogram.utdanninger.map { u -> u.id }.toSet()
                 }
             }
         }

@@ -56,6 +56,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
         prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.copy(totalbelop = 1000)),
         gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+        utdanningsprogram = listOf(UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg),
     )
 
     beforeEach {
@@ -172,7 +173,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("lagrer kategorisering fag og yrke") {
             val request = OpplaringKategoriseringRequest(
-                utdanningsprogramId = UtdanningFixtures.UtdanningsProgram.byggOgAnlegg.id,
+                utdanningsprogramId = UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg.id,
                 larefag = listOf(UtdanningFixtures.Utdanninger.fjellOgBergverksfaget.id),
             )
             val utkast = createRequest(request)
