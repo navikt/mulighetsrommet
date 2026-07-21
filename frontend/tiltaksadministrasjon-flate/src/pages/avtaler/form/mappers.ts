@@ -7,9 +7,9 @@ import {
 } from "@/pages/avtaler/form/validation";
 import {
   AmoKategoriseringRequest,
-  KurstypeKode,
   DetaljerRequest,
-  OpplaringKategorisering,
+  KurstypeKode,
+  OpplaringKategoriseringDetaljer,
   OpprettAvtaleRequest,
   PersonvernRequest,
   PrismodellRequest,
@@ -88,7 +88,7 @@ export function toVeilederinfoRequest(data: VeilederinfoOutputValues): Veilederi
 }
 
 export function toAmoKategoriseringRequest(
-  opplaring: OpplaringKategorisering | null,
+  opplaring: OpplaringKategoriseringDetaljer | null,
 ): AmoKategoriseringRequest | null {
   switch (opplaring?.kurstype?.kode) {
     case KurstypeKode.BRANSJE_OG_YRKESRETTET:

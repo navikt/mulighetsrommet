@@ -3,55 +3,59 @@ package no.nav.mulighetsrommet.api.amo
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.equals.shouldBeEqual
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringMapper
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Tiltakskode
 
 class OpplaringKategoriseringMapperTest : FunSpec({
-    val dbListener = extension(ApiDatabaseTestListener())
+    val database = extension(ApiDatabaseTestListener())
     val jsonPrettyPrint = Json {
         prettyPrint = true
         prettyPrintIndent = "  "
     }
+
     beforeSpec {
-        MulighetsrommetTestDomain().initialize(dbListener.api)
+        MulighetsrommetTestDomain(
+            utdanningsprogram = listOf(
+                UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg,
+                UtdanningFixtures.Utdanningsprogrammer.handVerkDesignOgProduktutvikling,
+            ),
+        ).initialize(database.api)
     }
 
     test("STUDIESPESIALISERING") {
-        dbListener.api.session {
-            val kodeverk =
-                context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.STUDIESPESIALISERING) }
+        database.admin.session {
+            val kodeverk = OpplaringKategoriseringMapper.from(Tiltakskode.STUDIESPESIALISERING)
             jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual STUDIESPESIALISERING_JSON
         }
     }
 
     test("NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV") {
-        dbListener.api.session {
-            val kodeverk =
-                context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV) }
+        database.admin.session {
+            val kodeverk = OpplaringKategoriseringMapper.from(Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV)
             jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV_JSON
         }
     }
 
     test("FAG_OG_YRKESOPPLAERING") {
-        dbListener.api.session {
-            val kodeverk = context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.FAG_OG_YRKESOPPLAERING) }
+        database.admin.session {
+            val kodeverk = OpplaringKategoriseringMapper.from(Tiltakskode.FAG_OG_YRKESOPPLAERING)
             jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual FAG_OG_YRKESOPPLAERING_JSON
         }
     }
 
     test("ARBEIDSMARKEDSOPPLAERING") {
-        dbListener.api.session {
-            val kodeverk =
-                context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.ARBEIDSMARKEDSOPPLAERING) }
+        database.admin.session {
+            val kodeverk = OpplaringKategoriseringMapper.from(Tiltakskode.ARBEIDSMARKEDSOPPLAERING)
             jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual ARBEIDSMARKEDSOPPLAERING_JSON
         }
     }
 
     test("GRUPPE_ARBEIDSMARKEDSOPPLAERING") {
-        dbListener.api.session {
-            val kodeverk =
-                context(this.session) { OpplaringKategoriseringMapper.from(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING) }
+        database.admin.session {
+            val kodeverk = OpplaringKategoriseringMapper.from(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING)
             jsonPrettyPrint.encodeToString(kodeverk) shouldBeEqual GRUPPE_ARBEIDSMARKEDSOPPLAERING_JSON
         }
     }

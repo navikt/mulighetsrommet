@@ -7,6 +7,9 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.get
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.utdanning.SynkroniserUtdanningerCommand
+import no.nav.mulighetsrommet.api.domain.utdanning.Utdanning
+import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramType
 import no.nav.mulighetsrommet.ktor.clients.httpJsonClient
 
 class UtdanningClient(engine: HttpClientEngine = CIO.create(), val baseUrl: String) {
@@ -69,4 +72,44 @@ data class UtdanningNoProgramomraade(
         UTGAAENDE,
         UTGAATT,
     }
+}
+
+fun UtdanningNoProgramomraade.toProgramomrade(): SynkroniserUtdanningerCommand.Programomrade {
+    val type = when (utdanningsprogram) {
+        UtdanningNoProgramomraade.Utdanningsprogram.YRKESFAGLIG -> UtdanningsprogramType.YRKESFAGLIG
+        UtdanningNoProgramomraade.Utdanningsprogram.STUDIEFORBEREDENDE -> UtdanningsprogramType.STUDIEFORBEREDENDE
+        null -> null
+    }
+
+    return SynkroniserUtdanningerCommand.Programomrade(
+        programomradekode = programomradekode,
+        navn = navn,
+        type = type,
+    )
+}
+
+fun UtdanningNoProgramomraade.toUtdanning(): Utdanning {
+    return Utdanning(
+        navn = navn,
+        programomradekode = programomradekode,
+        utdanningId = requireNotNull(utdanningId) {
+            "klarte ikke lese utdanningId for utdanning=$this"
+        },
+        sluttkompetanse = when (sluttkompetanse) {
+            UtdanningNoProgramomraade.Sluttkompetanse.Fagbrev -> Utdanning.Sluttkompetanse.FAGBREV
+            UtdanningNoProgramomraade.Sluttkompetanse.Svennebrev -> Utdanning.Sluttkompetanse.SVENNEBREV
+            UtdanningNoProgramomraade.Sluttkompetanse.Yrkeskompetanse -> Utdanning.Sluttkompetanse.YRKESKOMPETANSE
+            UtdanningNoProgramomraade.Sluttkompetanse.Studiekompetanse -> Utdanning.Sluttkompetanse.STUDIEKOMPETANSE
+            null -> null
+        },
+        aktiv = aktiv,
+        utdanningstatus = when (utdanningstatus) {
+            UtdanningNoProgramomraade.Status.KOMMENDE -> Utdanning.Status.KOMMENDE
+            UtdanningNoProgramomraade.Status.GYLDIG -> Utdanning.Status.GYLDIG
+            UtdanningNoProgramomraade.Status.UTGAAENDE -> Utdanning.Status.UTGAAENDE
+            UtdanningNoProgramomraade.Status.UTGAATT -> Utdanning.Status.UTGAATT
+        },
+        utdanningslop = utdanningslop,
+        nusKoder = nusKodeverk.map { it.kode },
+    )
 }

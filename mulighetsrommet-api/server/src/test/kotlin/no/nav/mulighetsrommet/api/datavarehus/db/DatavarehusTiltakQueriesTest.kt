@@ -6,19 +6,18 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
-import no.nav.mulighetsrommet.api.amo.models.Bransje
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
-import no.nav.mulighetsrommet.api.amo.models.InnholdElement
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
-import no.nav.mulighetsrommet.api.amo.toDbo
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
 import no.nav.mulighetsrommet.api.datavarehus.model.DvhAmoKategorisering
+import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
+import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
+import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
+import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
+import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
@@ -31,19 +30,14 @@ import no.nav.mulighetsrommet.api.fixtures.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingArenaDataDbo
-import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
-import no.nav.mulighetsrommet.utdanning.model.Utdanning
-import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
-import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramType
 import java.util.UUID
 
 class DatavarehusTiltakQueriesTest : FunSpec({
@@ -108,37 +102,34 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
 
         context("henter Gruppe AMO med amo-kategorisering") {
-            val studiespesialisering = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering)
+            val studiespesialisering = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering.id)
             val fov = OpplaringKategorisering(
-                kurstype = KurstypeFixtures.fov,
+                kurstype = KurstypeFixtures.fov.id,
                 innholdElementer = setOf(
-                    InnholdElementFixtures.bransjerettetOpplaring,
+                    InnholdElementFixtures.bransjerettetOpplaring.id,
                 ),
             )
-            val grunnleggende =
-                OpplaringKategorisering(
-                    kurstype = KurstypeFixtures.grunnleggendeFerdigheter,
-                    innholdElementer = setOf(
-                        InnholdElementFixtures.grunnleggendeFerdigheter,
-                    ),
-                )
-            val norskopplaering =
-                OpplaringKategorisering(
-                    kurstype = KurstypeFixtures.norskopplaering,
-                    innholdElementer = setOf(
-                        InnholdElementFixtures.norskopplaring,
-                    ),
-                )
-            val bransje =
-                OpplaringKategorisering(
-                    kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
-                    bransje = BransjeFixtures.kontorarbeid,
-                    forerkort = setOf(ForerkortFixtures.A),
-                    innholdElementer = setOf(InnholdElementFixtures.praksis),
-                    sertifiseringer = setOf(
-                        Sertifisering(konseptId = 1, label = "Jobb"),
-                    ),
-                )
+            val grunnleggende = OpplaringKategorisering(
+                kurstype = KurstypeFixtures.grunnleggendeFerdigheter.id,
+                innholdElementer = setOf(
+                    InnholdElementFixtures.grunnleggendeFerdigheter.id,
+                ),
+            )
+            val norskopplaering = OpplaringKategorisering(
+                kurstype = KurstypeFixtures.norskopplaering.id,
+                innholdElementer = setOf(
+                    InnholdElementFixtures.norskopplaring.id,
+                ),
+            )
+            val bransje = OpplaringKategorisering(
+                kurstype = KurstypeFixtures.bransjeOgYrkesrettet.id,
+                bransje = BransjeFixtures.kontorarbeid.id,
+                forerkort = setOf(ForerkortFixtures.A.id),
+                innholdElementer = setOf(InnholdElementFixtures.praksis.id),
+                sertifiseringer = setOf(
+                    Sertifisering(konseptId = 1, label = "Jobb"),
+                ),
+            )
             val amoGjennomforing = GruppeAmo1.copy(id = UUID.randomUUID())
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeAmo),
@@ -152,12 +143,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 database.runAndRollback {
                     domain.initialize()
 
-                    context(session) {
-                        OpplaringKategoriseringQueries.upsert(
-                            amoGjennomforing.id,
-                            studiespesialisering.toDbo(),
-                        )
-                    }
+                    queries.opplaering.upsert(amoGjennomforing.id, studiespesialisering)
 
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
@@ -169,7 +155,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 database.runAndRollback {
                     domain.initialize()
 
-                    context(session) { OpplaringKategoriseringQueries.upsert(amoGjennomforing.id, fov.toDbo()) }
+                    queries.opplaering.upsert(amoGjennomforing.id, fov)
 
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
@@ -185,12 +171,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 database.runAndRollback {
                     domain.initialize()
 
-                    context(session) {
-                        OpplaringKategoriseringQueries.upsert(
-                            amoGjennomforing.id,
-                            grunnleggende.toDbo(),
-                        )
-                    }
+                    queries.opplaering.upsert(amoGjennomforing.id, grunnleggende)
 
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
@@ -207,12 +188,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 database.runAndRollback {
                     domain.initialize()
 
-                    context(session) {
-                        OpplaringKategoriseringQueries.upsert(
-                            amoGjennomforing.id,
-                            norskopplaering.toDbo(),
-                        )
-                    }
+                    queries.opplaering.upsert(amoGjennomforing.id, norskopplaering)
 
                     queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
@@ -229,12 +205,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 database.runAndRollback {
                     domain.initialize()
 
-                    context(session) {
-                        OpplaringKategoriseringQueries.upsert(
-                            amoGjennomforing.id,
-                            bransje.toDbo(),
-                        )
-                    }
+                    queries.opplaering.upsert(amoGjennomforing.id, bransje)
 
                     val bransjeOgYrkesrettet = queries.dvh.getDatavarehusTiltak(amoGjennomforing.id)
                         .shouldBeTypeOf<DatavarehusTiltakV1AmoDto>()
@@ -256,73 +227,32 @@ class DatavarehusTiltakQueriesTest : FunSpec({
         }
 
         test("henter Gruppe Fag/Yrke med informasjon om utdanningsprogram") {
+            val utdanningsprogram = UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg
+
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeFagOgYrkesopplaering),
                 avtaler = listOf(AvtaleFixtures.gruppeFagYrke),
                 gjennomforinger = listOf(GruppeFagYrke1),
+                utdanningsprogram = listOf(utdanningsprogram),
             ) {
-                queries.utdanning.upsertUtdanningsprogram(
-                    Utdanningsprogram(
-                        navn = "Sveiseprogram",
-                        nusKoder = listOf("1234", "2345"),
-                        programomradekode = "BABAN3----",
-                        UtdanningsprogramType.YRKESFAGLIG,
-                    ),
+                val utdanningslop = Utdanningslop(
+                    utdanningsprogram.id,
+                    utdanningsprogram.utdanninger.map { it.id }.toSet(),
                 )
-
-                queries.utdanning.upsertUtdanning(
-                    Utdanning(
-                        programomradekode = "BABAN3----",
-                        utdanningId = "u_sveisefag",
-                        navn = "Sveisefag",
-                        sluttkompetanse = Utdanning.Sluttkompetanse.FAGBREV,
-                        aktiv = true,
-                        utdanningstatus = Utdanning.Status.GYLDIG,
-                        utdanningslop = listOf("BABAN3----"),
-                        nusKoder = listOf("12345"),
-                    ),
+                queries.opplaering.upsert(
+                    GruppeFagYrke1.id,
+                    OpplaringKategorisering(utdanningslop = utdanningslop),
                 )
-
-                queries.utdanning.upsertUtdanning(
-                    Utdanning(
-                        programomradekode = "BABAN3----",
-                        utdanningId = "u_sveisefag_under_vann",
-                        navn = "Sveisefag under vann",
-                        sluttkompetanse = Utdanning.Sluttkompetanse.SVENNEBREV,
-                        aktiv = true,
-                        utdanningstatus = Utdanning.Status.GYLDIG,
-                        utdanningslop = listOf("BABAN3----"),
-                        nusKoder = listOf("23456"),
-                    ),
-                )
-
-                val utdanningslop = UtdanningslopDbo(
-                    queries.utdanning.getIdForUtdanningsprogram("BABAN3----"),
-                    setOf(
-                        queries.utdanning.getIdForUtdanning("u_sveisefag"),
-                        queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann"),
-                    ),
-                )
-                withTransaction(session) {
-                    OpplaringKategoriseringQueries.upsert(
-                        GruppeFagYrke1.id,
-                        OpplaringKategoriseringDbo(utdanningslop = utdanningslop),
-                    )
-                }
             }
 
             database.runAndRollback {
                 domain.initialize()
 
-                val idForUtdanningsprogram = queries.utdanning.getIdForUtdanningsprogram("BABAN3----")
-                val idForSveisefag = queries.utdanning.getIdForUtdanning("u_sveisefag")
-                val idForSveisefagUnderVann = queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann")
-
                 val gjennomforing = queries.dvh.getDatavarehusTiltak(GruppeFagYrke1.id)
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldNotBeNull().should {
-                    it.utdanningsprogram shouldBe idForUtdanningsprogram
-                    it.utdanninger shouldBe setOf(idForSveisefag, idForSveisefagUnderVann)
+                    it.utdanningsprogram shouldBe utdanningsprogram.id
+                    it.utdanninger shouldBe utdanningsprogram.utdanninger.map { u -> u.id }.toSet()
                 }
             }
         }

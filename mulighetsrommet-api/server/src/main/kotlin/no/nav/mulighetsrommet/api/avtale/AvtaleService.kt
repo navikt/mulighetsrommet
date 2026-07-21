@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
@@ -146,9 +145,7 @@ class AvtaleService(
                     AvtaleValidator.Ctx.Gjennomforing(
                         arrangor = it.arrangor,
                         startDato = it.startDato,
-                        utdanningslop = context(this.session) {
-                            OpplaringKategoriseringQueries.get(it.id)?.utdanningslop
-                        },
+                        utdanningslop = queries.opplaering.get(it.id)?.utdanningslop,
                         status = it.status,
                         prismodellId = it.prismodell.id,
                     )
@@ -467,15 +464,13 @@ class AvtaleService(
 
         val systembestemtPrismodell = queries.prismodell.getBySystemId(request.tiltakskode.name)
 
-        val kategorisering = context(session) {
-            AvtaleValidator.Ctx.Kategorisering(
-                kurstyper = OpplaringKategoriseringQueries.getKurstyper(),
-                bransjer = OpplaringKategoriseringQueries.getBransjer(),
-                forerkort = OpplaringKategoriseringQueries.getForerkortKlasser(),
-                innholdElementer = OpplaringKategoriseringQueries.getInnholdElementer(),
-                utdanninger = queries.utdanning.getUtdanningsprogrammer(),
-            )
-        }
+        val kategorisering = AvtaleValidator.Ctx.Kategorisering(
+            kurstyper = queries.opplaering.getKurstyper(),
+            bransjer = queries.opplaering.getBransjer(),
+            forerkort = queries.opplaering.getForerkortKlasser(),
+            innholdElementer = queries.opplaering.getInnholdElementer(),
+            utdanninger = queries.opplaering.getUtdanningslop(),
+        )
 
         AvtaleValidator.Ctx(
             previous = previous,

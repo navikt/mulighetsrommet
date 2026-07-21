@@ -15,6 +15,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.arrow.core)
     implementation(libs.caffeine)
+    implementation(libs.slf4j)
 
     testFixturesImplementation(projects.mulighetsrommetApi.domain)
     testFixturesImplementation(libs.mockk)

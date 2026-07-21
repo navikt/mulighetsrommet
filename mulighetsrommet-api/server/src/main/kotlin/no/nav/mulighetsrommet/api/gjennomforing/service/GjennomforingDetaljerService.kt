@@ -6,7 +6,6 @@ import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
@@ -112,9 +111,7 @@ class GjennomforingDetaljerService(
                     DeltakerDto.from(deltaker, personalia, veilederNavn)
                 }
 
-                val opplaringKategorisering = context(session) {
-                    OpplaringKategoriseringQueries.get(gjennomforing.id)
-                }
+                val opplaringKategorisering = queries.opplaering.get(gjennomforing.id)
 
                 GjennomforingDtoMapper.fromEnkeltplass(
                     gjennomforing,

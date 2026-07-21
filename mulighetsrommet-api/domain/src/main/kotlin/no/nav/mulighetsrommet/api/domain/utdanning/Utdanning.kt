@@ -1,17 +1,13 @@
-package no.nav.mulighetsrommet.utdanning.model
+package no.nav.mulighetsrommet.api.domain.utdanning
 
 import kotlinx.serialization.Serializable
-
-@Serializable
-data class Utdanningsprogram(
-    val navn: String,
-    val nusKoder: List<String>,
-    val programomradekode: String,
-    val type: UtdanningsprogramType?,
-)
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.util.UUID
 
 @Serializable
 data class Utdanning(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID = UUID.randomUUID(),
     val programomradekode: String,
     val utdanningId: String,
     val navn: String,
@@ -36,10 +32,4 @@ data class Utdanning(
         UTGAAENDE,
         UTGAATT,
     }
-}
-
-@Serializable
-enum class UtdanningsprogramType {
-    YRKESFAGLIG,
-    STUDIEFORBEREDENDE,
 }

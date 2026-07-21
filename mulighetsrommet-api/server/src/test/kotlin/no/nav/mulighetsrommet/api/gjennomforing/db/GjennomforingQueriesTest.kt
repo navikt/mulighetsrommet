@@ -12,10 +12,9 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
-import no.nav.mulighetsrommet.api.amo.toDbo
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
@@ -416,22 +415,29 @@ class GjennomforingQueriesTest : FunSpec({
 
         test("lagre amoKategoriserng") {
             val kategorisering = OpplaringKategorisering(
-                kurstype = KurstypeFixtures.norskopplaering,
+                kurstype = KurstypeFixtures.norskopplaering.id,
                 norskprove = true,
                 innholdElementer = setOf(
-                    InnholdElementFixtures.arbeidsmarkedskunnskap,
-                    InnholdElementFixtures.praksis,
+                    InnholdElementFixtures.arbeidsmarkedskunnskap.id,
+                    InnholdElementFixtures.praksis.id,
                 ),
             )
 
             database.runAndRollback {
                 queries.gjennomforing.upsert(GruppeAmo1)
-                context(this.session) { OpplaringKategoriseringQueries.upsert(GruppeAmo1.id, kategorisering.toDbo()) }
+                queries.opplaering.upsert(GruppeAmo1.id, kategorisering)
                 queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(GruppeAmo1.id).should {
-                    it.opplaringKategorisering shouldBe kategorisering
+                    it.opplaringKategorisering shouldBe OpplaringKategoriseringDetaljer(
+                        kurstype = KurstypeFixtures.norskopplaering,
+                        norskprove = true,
+                        innholdElementer = setOf(
+                            InnholdElementFixtures.arbeidsmarkedskunnskap,
+                            InnholdElementFixtures.praksis,
+                        ),
+                    )
                 }
 
-                context(this.session) { OpplaringKategoriseringQueries.upsert(GruppeAmo1.id, null) }
+                queries.opplaering.upsert(GruppeAmo1.id, null)
                 queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(GruppeAmo1.id).should {
                     it.opplaringKategorisering shouldBe null
                 }

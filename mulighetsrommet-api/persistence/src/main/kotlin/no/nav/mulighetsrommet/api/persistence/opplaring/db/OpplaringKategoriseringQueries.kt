@@ -1,31 +1,31 @@
-package no.nav.mulighetsrommet.api.amo.db
+package no.nav.mulighetsrommet.api.persistence.opplaring.db
 
+import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.amo.models.Bransje
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
-import no.nav.mulighetsrommet.api.amo.models.InnholdElement
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
-import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
-import no.nav.mulighetsrommet.api.janzz.Sertifisering
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
+import no.nav.mulighetsrommet.admin.opplaring.UtdanningslopDetaljer
+import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
+import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
+import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
+import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
+import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createBigintArray
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.withTransaction
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import org.intellij.lang.annotations.Language
 import java.util.UUID
-import kotlin.collections.ifEmpty
 
-object OpplaringKategoriseringQueries {
-    context(session: TransactionalSession)
+class OpplaringKategoriseringQueries(private val session: Session) : OpplaringKategoriseringQueryHandler {
     fun upsert(
         kategoriseringId: UUID,
-        kategorisering: OpplaringKategoriseringDbo?,
+        kategorisering: OpplaringKategorisering?,
     ): Unit = withTransaction(session) {
         if (kategorisering == null) {
             delete(kategoriseringId)
@@ -56,8 +56,8 @@ object OpplaringKategoriseringQueries {
 
         val params = mapOf(
             "id" to kategoriseringId,
-            "kurstype_id" to kategorisering.kurstypeId,
-            "bransje_id" to kategorisering.bransjeId,
+            "kurstype_id" to kategorisering.kurstype,
+            "bransje_id" to kategorisering.bransje,
             "norskprove" to kategorisering.norskprove,
             "utdanningsprogram_id" to kategorisering.utdanningslop?.utdanningsprogram,
         )
@@ -172,7 +172,7 @@ object OpplaringKategoriseringQueries {
         )
     }
 
-    private fun TransactionalSession.upsertUtdanning(kategoriseringId: UUID, utdanningslopDbo: UtdanningslopDbo?) {
+    private fun TransactionalSession.upsertUtdanning(kategoriseringId: UUID, utdanningslop: Utdanningslop?) {
         @Language("PostgreSQL")
         val upsertJoinTable = """
         insert into opplaring_kategorisering_utdanning (
@@ -189,7 +189,7 @@ object OpplaringKategoriseringQueries {
             where opplaring_kategorisering_id = ? and not (utdanning_id = any (?))
         """.trimIndent()
 
-        val utdannninger = utdanningslopDbo?.utdanninger ?: emptyList()
+        val utdannninger = utdanningslop?.utdanninger ?: emptyList()
 
         batchPreparedStatement(
             upsertJoinTable,
@@ -210,8 +210,7 @@ object OpplaringKategoriseringQueries {
         update(queryOf(query, kategoriseringId))
     }
 
-    context(session: Session)
-    fun get(kategoriseringId: UUID): OpplaringKategorisering? {
+    fun get(kategoriseringId: UUID): OpplaringKategoriseringDetaljer? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -219,11 +218,42 @@ object OpplaringKategoriseringQueries {
             where id = ?
         """.trimIndent()
 
-        return session.single(queryOf(query, kategoriseringId)) { it.toOpplaringKategorisering() }
+        return session.single(queryOf(query, kategoriseringId)) { it.toOpplaringKategoriseringDetaljer() }
     }
 
-    context(session: Session)
-    fun getKurstyper(filter: Set<Kurstype.Kode> = emptySet()): Set<Kurstype> {
+    override fun getUtdanningslop(): List<UtdanningslopDetaljer> {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                utdanningsprogram.id as utdanningsprogram_id,
+                utdanningsprogram.navn as utdanningsprogram_navn,
+                utdanninger_json
+            from utdanningsprogram
+                left join lateral (
+                    select jsonb_agg(
+                        jsonb_build_object('id', utdanning.id, 'navn', utdanning.navn)
+                        order by utdanning.navn
+                    ) as utdanninger_json
+                    from utdanning
+                    where utdanning.programlop_start = utdanningsprogram.id
+                ) utdanninger on true
+            order by utdanningsprogram.navn
+        """.trimIndent()
+
+        return session.list(queryOf(query)) { row ->
+            UtdanningslopDetaljer(
+                utdanningsprogram = UtdanningslopDetaljer.Utdanningsprogram(
+                    id = row.uuid("utdanningsprogram_id"),
+                    navn = row.string("utdanningsprogram_navn"),
+                ),
+                utdanninger = row.stringOrNull("utdanninger_json")
+                    ?.let { Json.decodeFromString<List<UtdanningslopDetaljer.Utdanning>>(it) }
+                    ?: emptyList(),
+            )
+        }
+    }
+
+    override fun getKurstyper(filter: Set<Kurstype.Kode>): Set<Kurstype> {
         @Language("PostgreSQL")
         val query = """
             select id, kode, navn, aktiv
@@ -239,8 +269,7 @@ object OpplaringKategoriseringQueries {
         return kurstyper.toSet()
     }
 
-    context(session: Session)
-    fun getForerkortKlasser(): Set<ForerkortKlasse> {
+    override fun getForerkortKlasser(): Set<ForerkortKlasse> {
         @Language("PostgreSQL")
         val query = """
             select id, kode, navn
@@ -252,8 +281,7 @@ object OpplaringKategoriseringQueries {
         return forerkortKlasser.toSet()
     }
 
-    context(session: Session)
-    fun getBransjer(): Set<Bransje> {
+    override fun getBransjer(): Set<Bransje> {
         @Language("PostgreSQL")
         val query = """
             select id, kode, navn
@@ -265,8 +293,7 @@ object OpplaringKategoriseringQueries {
         return bransjer.toSet()
     }
 
-    context(session: Session)
-    fun getInnholdElementer(): Set<InnholdElement> {
+    override fun getInnholdElementer(): Set<InnholdElement> {
         @Language("PostgreSQL")
         val query = """
             select id, kode, navn
@@ -278,42 +305,36 @@ object OpplaringKategoriseringQueries {
     }
 }
 
-fun Row.toKurstype() = Kurstype(
+private fun Row.toKurstype() = Kurstype(
     id = uuid("id"),
     kode = string("kode").let { Kurstype.Kode.valueOf(it) },
     navn = string("navn"),
 )
 
-fun Row.toForerkortKlasse() = ForerkortKlasse(
+private fun Row.toForerkortKlasse() = ForerkortKlasse(
     id = uuid("id"),
     kode = string("kode").let { ForerkortKlasse.Kode.valueOf(it) },
     navn = string("navn"),
 )
 
-fun Row.toBransje() = Bransje(
+private fun Row.toBransje() = Bransje(
     id = uuid("id"),
     kode = string("kode").let { Bransje.Kode.valueOf(it) },
     navn = string("navn"),
 )
 
-fun Row.toInnholdElement() = InnholdElement(
+private fun Row.toInnholdElement() = InnholdElement(
     id = uuid("id"),
     kode = string("kode").let { InnholdElement.Kode.valueOf(it) },
     navn = string("navn"),
 )
 
-fun Row.toOpplaringKategorisering(): OpplaringKategorisering = OpplaringKategorisering(
-    kurstype = stringOrNull("kurstype")?.let { JsonIgnoreUnknownKeys.decodeFromString<Kurstype>(it) },
-    bransje = stringOrNull("bransje")?.let { JsonIgnoreUnknownKeys.decodeFromString<Bransje>(it) },
-    forerkort = string("forerkort").let { JsonIgnoreUnknownKeys.decodeFromString<List<ForerkortKlasse>>(it) }
-        .toSet(),
-    sertifiseringer = string("sertifiseringer").let { JsonIgnoreUnknownKeys.decodeFromString<List<Sertifisering>>(it) }
-        .toSet(),
-    innholdElementer = string("innhold_elementer").let {
-        JsonIgnoreUnknownKeys.decodeFromString<List<InnholdElement>>(
-            it,
-        )
-    }.toSet(),
+private fun Row.toOpplaringKategoriseringDetaljer(): OpplaringKategoriseringDetaljer = OpplaringKategoriseringDetaljer(
+    kurstype = stringOrNull("kurstype")?.let { Json.decodeFromString<Kurstype>(it) },
+    bransje = stringOrNull("bransje")?.let { Json.decodeFromString<Bransje>(it) },
+    forerkort = string("forerkort").let { Json.decodeFromString<List<ForerkortKlasse>>(it) }.toSet(),
+    sertifiseringer = string("sertifiseringer").let { Json.decodeFromString<List<Sertifisering>>(it) }.toSet(),
+    innholdElementer = string("innhold_elementer").let { Json.decodeFromString<List<InnholdElement>>(it) }.toSet(),
     norskprove = boolean("norskprove"),
-    utdanningslop = stringOrNull("utdanningslop")?.let { JsonIgnoreUnknownKeys.decodeFromString<UtdanningslopDto>(it) },
+    utdanningslop = stringOrNull("utdanningslop")?.let { Json.decodeFromString<UtdanningslopDetaljer>(it) },
 )

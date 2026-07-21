@@ -3,19 +3,17 @@ package no.nav.mulighetsrommet.api.avtale.db
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
-import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.persistence.opplaring.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
@@ -40,7 +38,6 @@ import java.sql.Array
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.String
 
 class AvtaleQueries(private val session: Session) {
     fun create(avtale: AvtaleDbo) = withTransaction(session) {
@@ -93,7 +90,7 @@ class AvtaleQueries(private val session: Session) {
 
         upsertAdministratorer(avtale.id, avtale.detaljerDbo.administratorer)
         upsertArrangor(avtale.id, avtale.detaljerDbo.arrangor)
-        upsertOpplaringKategorisering(avtale.id, avtale.detaljerDbo.opplaringKategorisering)
+        OpplaringKategoriseringQueries(session).upsert(avtale.id, avtale.detaljerDbo.opplaringKategorisering)
         updateVeilederinfo(avtale.id, avtale.veilederinformasjonDbo)
         updatePersonvern(avtale.id, avtale.personvernDbo)
         avtale.prismodeller.forEach { upsertPrismodell(avtale.id, it) }
@@ -106,7 +103,7 @@ class AvtaleQueries(private val session: Session) {
         upsertDetaljer(avtaleId, detaljerDbo)
         upsertAdministratorer(avtaleId, detaljerDbo.administratorer)
         upsertArrangor(avtaleId, detaljerDbo.arrangor)
-        upsertOpplaringKategorisering(avtaleId, detaljerDbo.opplaringKategorisering)
+        OpplaringKategoriseringQueries(session).upsert(avtaleId, detaljerDbo.opplaringKategorisering)
     }
 
     fun updatePersonvern(avtaleId: UUID, personvernDbo: PersonvernDbo) = withTransaction(session) {
@@ -249,11 +246,6 @@ class AvtaleQueries(private val session: Session) {
                 arrangor?.kontaktpersoner?.let { createUuidArray(it) },
             ),
         )
-    }
-
-    context(session: TransactionalSession)
-    private fun upsertOpplaringKategorisering(avtaleId: UUID, kategorisering: OpplaringKategoriseringDbo?) = withTransaction(session) {
-        OpplaringKategoriseringQueries.upsert(avtaleId, kategorisering)
     }
 
     private fun upsertDetaljer(id: UUID, detaljer: DetaljerDbo) = withTransaction(session) {
@@ -539,7 +531,7 @@ private fun Row.toAvtale(): Avtale {
         customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
     )
     val opplaringKategorisering = stringOrNull("opplaring_kategorisering_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategorisering>(it) }
+        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategoriseringDetaljer>(it) }
 
     val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
         val underenheter = stringOrNull("arrangor_underenheter_json")

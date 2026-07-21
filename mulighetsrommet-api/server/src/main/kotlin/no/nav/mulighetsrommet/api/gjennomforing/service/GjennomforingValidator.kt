@@ -3,15 +3,17 @@ package no.nav.mulighetsrommet.api.gjennomforing.service
 import arrow.core.Either
 import arrow.core.right
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
-import no.nav.mulighetsrommet.api.amo.models.Bransje
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
-import no.nav.mulighetsrommet.api.amo.models.InnholdElement
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
+import no.nav.mulighetsrommet.admin.opplaring.UtdanningslopDetaljer
+import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
+import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
+import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
+import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
@@ -29,8 +31,6 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
-import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
 import no.nav.mulighetsrommet.validation.FieldValidator
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
@@ -63,7 +63,7 @@ object GjennomforingValidator {
             val bransjer: Set<Bransje>,
             val forerkort: Set<ForerkortKlasse>,
             val innholdElementer: Set<InnholdElement>,
-            val utdanninger: List<UtdanningsprogramMedUtdanninger>,
+            val utdanninger: List<UtdanningslopDetaljer>,
         )
 
         fun harEgenskap(vararg egenskap: TiltakstypeEgenskap): Boolean {
@@ -136,7 +136,7 @@ object GjennomforingValidator {
         val detaljer: GjennomforingDetaljerDbo,
         val administratorer: Set<NavIdent>,
         val arrangorKontaktpersoner: Set<UUID>,
-        val kategorisering: OpplaringKategoriseringDbo?,
+        val kategorisering: OpplaringKategorisering?,
     )
 
     fun validateUpdateDetaljer(
@@ -390,8 +390,8 @@ object GjennomforingValidator {
 
     private fun FieldValidator.validateUtdanningslop(
         avtale: Avtale,
-        utdanningslop: UtdanningslopDbo?,
-    ): Validated<UtdanningslopDbo?> {
+        utdanningslop: Utdanningslop?,
+    ): Validated<Utdanningslop?> {
         requireValid(utdanningslop != null) {
             FieldError.of(
                 "Du må velge utdanningsprogram og lærefag på avtalen",
@@ -425,8 +425,8 @@ object GjennomforingValidator {
     context(avtale: Avtale, kategorisering: Context.Kategorisering)
     fun validateAmoKategorisering(
         amoKategorisering: AmoKategoriseringRequest?,
-        utdanningslop: UtdanningslopDbo?,
-    ): Either<List<FieldError>, OpplaringKategoriseringDbo?> = validation {
+        utdanningslop: Utdanningslop?,
+    ): Either<List<FieldError>, OpplaringKategorisering?> = validation {
         when (avtale.tiltakstype.tiltakskode) {
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
             Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
@@ -457,7 +457,7 @@ object GjennomforingValidator {
                         )
                     }
                 }
-                amoKategorisering.toOpplaringKategoriseringDbo()
+                amoKategorisering.toOpplaringKategorisering()
             }
 
             Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
@@ -468,7 +468,7 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::bransje,
                     )
                 }
-                amoKategorisering.copy(kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET).toOpplaringKategoriseringDbo()
+                amoKategorisering.copy(kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET).toOpplaringKategorisering()
             }
 
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
@@ -479,18 +479,18 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::kurstype,
                     )
                 }
-                amoKategorisering.toOpplaringKategoriseringDbo()
+                amoKategorisering.toOpplaringKategorisering()
             }
 
             Tiltakskode.STUDIESPESIALISERING,
-            -> AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING).toOpplaringKategoriseringDbo()
+            -> AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING).toOpplaringKategorisering()
 
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
             Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
             -> {
                 val validatedUtdanningslop = validateUtdanningslop(avtale, utdanningslop).bind()
-                OpplaringKategoriseringDbo(utdanningslop = validatedUtdanningslop)
+                OpplaringKategorisering(utdanningslop = validatedUtdanningslop)
             }
 
             else -> null
@@ -536,28 +536,26 @@ object GjennomforingValidator {
     }
 
     context(ctx: Context.Kategorisering)
-    private fun AmoKategoriseringRequest.toOpplaringKategoriseringDbo(): OpplaringKategoriseringDbo {
-        val forerkortStrings = this.forerkort?.map { it.toString() }
-        val innholdElementerStrings = this.innholdElementer?.map { it.toString() }
-        return OpplaringKategoriseringDbo(
-            kurstypeId = ctx.kurstyper.find { it.kode.toString() == this.kurstype.toString() }?.id,
-            bransjeId = ctx.bransjer.find { it.kode.toString() == this.bransje.toString() }?.id,
-            forerkort = ctx.forerkort.mapNotNull { forerkort ->
-                if (forerkortStrings?.contains(forerkort.kode.toString()) ?: false) {
-                    forerkort.id
+    private fun AmoKategoriseringRequest.toOpplaringKategorisering(): OpplaringKategorisering {
+        return OpplaringKategorisering(
+            kurstype = ctx.kurstyper.find { it.kode == kurstype }?.id,
+            bransje = ctx.bransjer.find { it.kode == bransje }?.id,
+            forerkort = ctx.forerkort.mapNotNull {
+                if (forerkort?.contains(it.kode) == true) {
+                    it.id
                 } else {
                     null
                 }
             }.toSet(),
-            innholdElementer = ctx.innholdElementer.mapNotNull { innholdElement ->
-                if (innholdElementerStrings?.contains(innholdElement.kode.name) ?: false) {
-                    innholdElement.id
+            innholdElementer = ctx.innholdElementer.mapNotNull {
+                if (innholdElementer?.contains(it.kode) == true) {
+                    it.id
                 } else {
                     null
                 }
             }.toSet(),
-            norskprove = this.norskprove,
-            sertifiseringer = this.sertifiseringer?.toSet() ?: emptySet(),
+            norskprove = norskprove,
+            sertifiseringer = sertifiseringer?.toSet() ?: emptySet(),
             utdanningslop = null, // TODO: Håndteres seperat per nå, så lenge AmoKategoriseringRequest består
         )
     }

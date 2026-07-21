@@ -13,12 +13,12 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
 import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -50,7 +50,6 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
 import no.nav.mulighetsrommet.validation.Validated
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -521,7 +520,7 @@ class GjennomforingEnkeltplassService(
         tiltakskode: Tiltakskode,
         kategorisering: OpplaringKategoriseringRequest?,
     ) {
-        val kurstyper = context(session) { OpplaringKategoriseringQueries.getKurstyper() }
+        val kurstyper = queries.opplaering.getKurstyper()
         val kurstypeId = when (tiltakskode) {
             Tiltakskode.STUDIESPESIALISERING,
             -> kurstyper.find { it.kode == Kurstype.Kode.STUDIESPESIALISERING }?.id
@@ -536,21 +535,19 @@ class GjennomforingEnkeltplassService(
 
             else -> null
         }
-        val opplaringKategoriseringDbo = OpplaringKategoriseringDbo(
-            kurstypeId = kurstypeId,
-            bransjeId = kategorisering?.bransjeId,
+        val opplaringKategorisering = OpplaringKategorisering(
+            kurstype = kurstypeId,
+            bransje = kategorisering?.bransjeId,
             forerkort = kategorisering?.forerkort?.toSet() ?: emptySet(),
             sertifiseringer = kategorisering?.sertifiseringer ?: emptySet(),
             utdanningslop = kategorisering?.utdanningsprogramId?.let { programId ->
-                UtdanningslopDbo(
+                Utdanningslop(
                     utdanningsprogram = programId,
                     utdanninger = kategorisering.larefag?.toSet() ?: emptySet(),
                 )
             },
         )
-        context(session) {
-            OpplaringKategoriseringQueries.upsert(id, opplaringKategoriseringDbo)
-        }
+        queries.opplaering.upsert(id, opplaringKategorisering)
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingEnkeltplass) {

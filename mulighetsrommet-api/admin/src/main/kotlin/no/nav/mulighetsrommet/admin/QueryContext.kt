@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.admin.arrangor.ArrangorQueryHandler
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHandler
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
@@ -15,6 +16,7 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
+import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramRepository
 
 abstract class QueryContext {
     abstract val repository: Repositories
@@ -27,6 +29,7 @@ abstract class QueryContext {
         abstract val navEnhet: NavEnhetRepository
         abstract val navAnsatt: NavAnsattRepository
         abstract val arrangor: ArrangorRepository
+        abstract val utdanning: UtdanningsprogramRepository
         abstract val tiltakDokument: TiltakDokumentRepository
     }
 
@@ -37,6 +40,7 @@ abstract class QueryContext {
         abstract val navAnsattDto: NavAnsattDtoQueryHandler
         abstract val totrinnskontroll: TotrinnskontrollQueryHandler
         abstract val arrangor: ArrangorQueryHandler
+        abstract val opplaering: OpplaringKategoriseringQueryHandler
         abstract val tiltakDokument: TiltakDokumentQueryHandler
     }
 

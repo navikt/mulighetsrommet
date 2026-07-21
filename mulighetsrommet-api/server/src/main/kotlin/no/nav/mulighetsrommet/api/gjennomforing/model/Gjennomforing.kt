@@ -2,9 +2,8 @@ package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.avtale.model.UtdanningslopDto
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -78,8 +77,7 @@ data class GjennomforingAvtaleDetaljer(
     val oppmoteSted: String?,
     val estimertVentetid: EstimertVentetid?,
     val administratorer: List<Administrator>,
-    val opplaringKategorisering: OpplaringKategorisering?,
-    val utdanningslop: UtdanningslopDto?,
+    val opplaringKategorisering: OpplaringKategoriseringDetaljer?,
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val arrangorKontaktpersoner: List<ArrangorKontaktperson>,

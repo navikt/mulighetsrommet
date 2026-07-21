@@ -7,12 +7,12 @@ import {
   GjennomforingPameldingType,
   GjennomforingVeilederinfoDto,
   NavAnsattDto,
-  OpplaringKategorisering,
+  OpplaringKategoriseringDetaljer,
   PrismodellDto,
   Tiltakskode,
   TiltakstypeDto,
-  UtdanningslopDbo,
-  UtdanningslopDto,
+  Utdanningslop,
+  UtdanningslopDetaljer,
 } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 import { kreverDirekteVedtak } from "@/utils/tiltakstype";
@@ -26,7 +26,7 @@ export function defaultGjennomforingData(
   gjennomforing: Partial<GjennomforingAvtaleDto> | null,
   veilederinfo: Partial<GjennomforingVeilederinfoDto> | null,
   prismodell: PrismodellDto | null,
-  opplaring: OpplaringKategorisering | null,
+  opplaring: OpplaringKategoriseringDetaljer | null,
 ): DeepPartial<GjennomforingFormValues> {
   const { navKontorEnheter, navAndreEnheter } = defaultNavEnheter(avtale, veilederinfo);
 
@@ -98,7 +98,7 @@ function oppmoteSted(
   return veilederinfo?.oppmoteSted ?? null;
 }
 
-function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {
+function toUtdanningslopDbo(data: UtdanningslopDetaljer): Utdanningslop {
   return {
     utdanningsprogram: data.utdanningsprogram.id,
     utdanninger: data.utdanninger.map((utdanning) => utdanning.id),

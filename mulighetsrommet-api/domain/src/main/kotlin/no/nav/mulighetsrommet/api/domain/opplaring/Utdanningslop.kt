@@ -1,11 +1,11 @@
-package no.nav.mulighetsrommet.utdanning.db
+package no.nav.mulighetsrommet.api.domain.opplaring
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
 @Serializable
-data class UtdanningslopDbo(
+data class Utdanningslop(
     @Serializable(with = UUIDSerializer::class)
     val utdanningsprogram: UUID,
     val utdanninger: Set<

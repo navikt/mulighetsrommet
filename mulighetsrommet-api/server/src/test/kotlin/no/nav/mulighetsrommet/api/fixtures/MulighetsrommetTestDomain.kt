@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
+import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
@@ -50,6 +51,7 @@ data class MulighetsrommetTestDomain(
     val tilsagn: List<TilsagnDbo> = listOf(),
     val utbetalinger: List<UtbetalingDbo> = listOf(),
     val utbetalingLinjer: List<UtbetalingLinjeDbo> = listOf(),
+    val utdanningsprogram: List<Utdanningsprogram> = listOf(),
     val additionalSetup: (QueryContext.(MulighetsrommetTestDomain) -> Unit)? = null,
 ) {
     fun initialize(database: ApiDatabase): MulighetsrommetTestDomain = database.transaction {
@@ -63,8 +65,6 @@ data class MulighetsrommetTestDomain(
             session.execute(BransjeFixtures.query())
             session.execute(InnholdElementFixtures.query())
             session.execute(ForerkortFixtures.query())
-            session.execute(UtdanningFixtures.UtdanningsProgram.query())
-            session.execute(UtdanningFixtures.Utdanninger.query())
 
             navEnheter.forEach { queries.enhet.save(it) }
             ansatte.forEach { queries.ansatt.save(it) }
@@ -83,6 +83,7 @@ data class MulighetsrommetTestDomain(
             tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
             utbetalingLinjer.forEach { queries.utbetalingLinje.upsert(it) }
+            utdanningsprogram.forEach { queries.utdanning.save(it) }
         }
 
         additionalSetup?.invoke(tx, this)
