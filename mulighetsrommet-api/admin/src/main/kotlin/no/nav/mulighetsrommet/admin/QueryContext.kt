@@ -40,7 +40,7 @@ abstract class QueryContext {
         abstract val navAnsattDto: NavAnsattDtoQueryHandler
         abstract val totrinnskontroll: TotrinnskontrollQueryHandler
         abstract val arrangor: ArrangorQueryHandler
-        abstract val opplaringKategorisering: OpplaringKategoriseringQueryHandler
+        abstract val opplaering: OpplaringKategoriseringQueryHandler
         abstract val tiltakDokument: TiltakDokumentQueryHandler
     }
 

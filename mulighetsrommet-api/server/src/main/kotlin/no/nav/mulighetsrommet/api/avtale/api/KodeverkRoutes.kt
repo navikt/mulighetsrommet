@@ -143,7 +143,7 @@ fun Route.kodeverkRoutes() {
                     }
                 }
             }) {
-                val utdanninger = db.session { queries.opplaringKategorisering.getUtdanningslop() }
+                val utdanninger = db.session { queries.opplaering.getUtdanningslop() }
                 call.respond(utdanninger)
             }
         }

@@ -46,7 +46,7 @@ class TestQueryContext : QueryContext() {
         override val navAnsattDto get() = this@TestQueryContext.navAnsattDto
         override val totrinnskontroll get() = this@TestQueryContext.totrinnskontroll
         override val arrangor get() = this@TestQueryContext.arrangor
-        override val opplaringKategorisering get() = this@TestQueryContext.opplaringKategorisering
+        override val opplaering get() = this@TestQueryContext.opplaringKategorisering
         override val tiltakDokument get() = this@TestQueryContext.tiltakDokument
     }
 

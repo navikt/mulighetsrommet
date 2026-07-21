@@ -52,7 +52,7 @@ class OpplaringKategoriseringQueriesTest : FunSpec({
             ).getOrNull().shouldNotBeNull()
             repository.utdanning.save(elektro)
 
-            queries.opplaringKategorisering.getUtdanningslop().should { (first, second) ->
+            queries.opplaering.getUtdanningslop().should { (first, second) ->
                 first.utdanningsprogram.navn shouldBe "Bygg- og anleggsteknikk"
                 first.utdanninger.map { it.navn } shouldContainExactlyInAnyOrder listOf("Tømrerfaget", "Betongfaget")
 
@@ -107,7 +107,7 @@ class OpplaringKategoriseringQueriesTest : FunSpec({
             ).getOrNull().shouldNotBeNull()
             repository.utdanning.save(aapenhet)
 
-            val utdanningslop = queries.opplaringKategorisering.getUtdanningslop()
+            val utdanningslop = queries.opplaering.getUtdanningslop()
 
             utdanningslop.map { it.utdanningsprogram.navn } shouldBe listOf(
                 "Aprikosprogrammet",
