@@ -114,8 +114,10 @@ class UtdanningQueriesTest : FunSpec({
 
             utdanning.save(program)
 
-            utdanning.getIdForUtdanningsprogram("BABAT1----").shouldNotBeNull()
-            utdanning.getIdForUtdanning("u1").shouldNotBeNull()
+            utdanning.findByProgramomradekode("BABAT1----").shouldNotBeNull().should {
+                it.id shouldBe program.id
+                it.utdanninger.single().id shouldBe program.utdanninger.single().id
+            }
         }
     }
 })

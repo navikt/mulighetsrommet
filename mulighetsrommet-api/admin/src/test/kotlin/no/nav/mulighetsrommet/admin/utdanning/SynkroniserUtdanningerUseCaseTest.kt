@@ -92,6 +92,35 @@ class SynkroniserUtdanningerUseCaseTest : FunSpec({
             db.repository.utdanning.findByProgramomradekode("STUSF1----").shouldBeNull()
         }
 
+        test("beholder id på programområde og utdanninger ved påfølgende synkroniseringer") {
+            val db = TestAdminDatabase()
+            val useCase = SynkroniserUtdanningerUseCase(db)
+
+            useCase.execute(
+                SynkroniserUtdanningerCommand(
+                    programomrader = listOf(byggOgAnleggsteknikk),
+                    utdanninger = listOf(utdanning(utdanningId = "u1")),
+                ),
+            )
+
+            val forsteSynkronisering = db.repository.utdanning.findByProgramomradekode("BABAT1----").shouldNotBeNull()
+
+            useCase.execute(
+                SynkroniserUtdanningerCommand(
+                    programomrader = listOf(byggOgAnleggsteknikk),
+                    utdanninger = listOf(
+                        utdanning(utdanningId = "u1"),
+                        utdanning(utdanningId = "u2", navn = "Nytt fag (opplæring i bedrift)"),
+                    ),
+                ),
+            )
+
+            val andreSynkronisering = db.repository.utdanning.findByProgramomradekode("BABAT1----").shouldNotBeNull()
+
+            andreSynkronisering.id shouldBe forsteSynkronisering.id
+            andreSynkronisering.utdanninger.single { it.utdanningId == "u1" }.id shouldBe forsteSynkronisering.utdanninger.single { it.utdanningId == "u1" }.id
+        }
+
         test("hopper over ukjente programområdekoder uten å feile") {
             val db = TestAdminDatabase()
             val useCase = SynkroniserUtdanningerUseCase(db)

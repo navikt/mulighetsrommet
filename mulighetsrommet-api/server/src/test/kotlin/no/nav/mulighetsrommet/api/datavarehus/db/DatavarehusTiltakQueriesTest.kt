@@ -265,13 +265,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 gjennomforinger = listOf(GruppeFagYrke1),
                 utdanningsprogram = listOf(utdanningsprogram),
             ) {
-                val utdanningslop = Utdanningslop(
-                    queries.utdanning.getIdForUtdanningsprogram("BABAT1----"),
-                    setOf(
-                        queries.utdanning.getIdForUtdanning("u_sveisefag"),
-                        queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann"),
-                    ),
-                )
+                val utdanningslop = Utdanningslop(utdanningsprogram.id, utdanninger.map { it.id }.toSet())
                 queries.opplaering.upsert(
                     GruppeFagYrke1.id,
                     OpplaringKategorisering(utdanningslop = utdanningslop),
@@ -281,15 +275,11 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val idForUtdanningsprogram = queries.utdanning.getIdForUtdanningsprogram("BABAT1----")
-                val idForSveisefag = queries.utdanning.getIdForUtdanning("u_sveisefag")
-                val idForSveisefagUnderVann = queries.utdanning.getIdForUtdanning("u_sveisefag_under_vann")
-
                 val gjennomforing = queries.dvh.getDatavarehusTiltak(GruppeFagYrke1.id)
 
                 gjennomforing.shouldBeTypeOf<DatavarehusTiltakV1YrkesfagDto>().utdanningslop.shouldNotBeNull().should {
-                    it.utdanningsprogram shouldBe idForUtdanningsprogram
-                    it.utdanninger shouldBe setOf(idForSveisefag, idForSveisefagUnderVann)
+                    it.utdanningsprogram shouldBe utdanningsprogram.id
+                    it.utdanninger shouldBe utdanninger.map { u -> u.id }.toSet()
                 }
             }
         }
