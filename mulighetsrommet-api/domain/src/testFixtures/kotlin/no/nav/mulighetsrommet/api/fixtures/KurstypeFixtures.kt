@@ -1,9 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import kotliquery.Query
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
-import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 object KurstypeFixtures {
@@ -34,16 +31,4 @@ object KurstypeFixtures {
     )
 
     fun all() = setOf(norskopplaering, grunnleggendeFerdigheter, fov, bransjeOgYrkesrettet, studiespesialisering)
-
-    fun query(): Query {
-        val inserts = all().joinToString(",\n") { "('${it.id}','${it.kode.name}', '${it.navn}')" }
-
-        @Language("PostgreSQL")
-        val query = """
-            insert into opplaring_kategorisering_kurstype (id, kode, navn)
-            values $inserts
-            on conflict (id) do nothing;
-        """.trimIndent()
-        return queryOf(query)
-    }
 }

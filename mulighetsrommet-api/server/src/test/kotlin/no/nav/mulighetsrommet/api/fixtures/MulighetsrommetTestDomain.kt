@@ -61,11 +61,7 @@ data class MulighetsrommetTestDomain(
     context(tx: QueryContext)
     fun initialize(): MulighetsrommetTestDomain {
         with(tx) {
-            session.execute(KurstypeFixtures.query())
-            session.execute(BransjeFixtures.query())
-            session.execute(InnholdElementFixtures.query())
-            session.execute(ForerkortFixtures.query())
-
+            utdanningsprogram.forEach { queries.utdanning.save(it) }
             navEnheter.forEach { queries.enhet.save(it) }
             ansatte.forEach { queries.ansatt.save(it) }
             arrangorer.forEach { repository.arrangor.save(it) }
@@ -83,7 +79,6 @@ data class MulighetsrommetTestDomain(
             tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
             utbetalingLinjer.forEach { queries.utbetalingLinje.upsert(it) }
-            utdanningsprogram.forEach { queries.utdanning.save(it) }
         }
 
         additionalSetup?.invoke(tx, this)
