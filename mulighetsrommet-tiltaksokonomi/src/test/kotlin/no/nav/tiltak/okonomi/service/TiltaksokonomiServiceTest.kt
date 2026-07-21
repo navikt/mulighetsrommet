@@ -18,7 +18,12 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
+import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
+import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.kafka.toStoredProducerRecord
@@ -30,11 +35,6 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.validation.BrregAdresse
-import no.nav.mulighetsrommet.validation.BrregHovedenhetDto
-import no.nav.mulighetsrommet.validation.BrregUnderenhetDto
-import no.nav.mulighetsrommet.validation.SlettetBrregHovedenhetDto
-import no.nav.mulighetsrommet.validation.SlettetBrregUnderenhetDto
 import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.BestillingStatus
 import no.nav.tiltak.okonomi.BestillingStatusType
