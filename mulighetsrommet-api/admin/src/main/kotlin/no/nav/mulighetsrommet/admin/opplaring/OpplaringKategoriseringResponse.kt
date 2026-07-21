@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.amo
+package no.nav.mulighetsrommet.admin.opplaring
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName

@@ -15,11 +15,11 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -33,7 +33,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -139,17 +138,15 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
             database.run {
-                context(this.session) {
-                    OpplaringKategoriseringQueries.get(utkast.id).shouldBe(
-                        OpplaringKategorisering(
-                            kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
-                            bransje = BransjeFixtures.byggOgAnlegg,
-                            forerkort = setOf(ForerkortFixtures.B, ForerkortFixtures.BE),
-                            sertifiseringer = setOf(Sertifisering(konseptId = 1234, label = "Truckførerkurs")),
-                            norskprove = false,
-                        ),
-                    )
-                }
+                queries.opplaering.get(utkast.id).shouldBe(
+                    OpplaringKategoriseringDetaljer(
+                        kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                        bransje = BransjeFixtures.byggOgAnlegg,
+                        forerkort = setOf(ForerkortFixtures.B, ForerkortFixtures.BE),
+                        sertifiseringer = setOf(Sertifisering(konseptId = 1234, label = "Truckførerkurs")),
+                        norskprove = false,
+                    ),
+                )
             }
         }
 
@@ -164,11 +161,12 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
             database.run {
-                context(this.session) {
-                    OpplaringKategoriseringQueries.get(utkast.id).shouldBe(
-                        OpplaringKategorisering(kurstype = KurstypeFixtures.fov, norskprove = false),
-                    )
-                }
+                queries.opplaering.get(utkast.id).shouldBe(
+                    OpplaringKategoriseringDetaljer(
+                        kurstype = KurstypeFixtures.fov,
+                        norskprove = false,
+                    ),
+                )
             }
         }
 
@@ -182,9 +180,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
             database.run {
-                val utdanningslop = context(this.session) {
-                    OpplaringKategoriseringQueries.get(utkast.id)?.utdanningslop.shouldNotBeNull()
-                }
+                val utdanningslop = queries.opplaering.get(utkast.id)?.utdanningslop.shouldNotBeNull()
                 utdanningslop.utdanningsprogram.id.shouldBe(request.utdanningsprogramId)
                 utdanningslop.utdanninger.map { it.id }.shouldContainExactly(request.larefag?.first())
             }

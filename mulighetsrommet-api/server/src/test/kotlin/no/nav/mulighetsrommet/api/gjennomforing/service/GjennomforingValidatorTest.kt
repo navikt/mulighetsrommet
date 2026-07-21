@@ -10,7 +10,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.admin.arrangor.toDto
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
@@ -293,7 +293,7 @@ class GjennomforingValidatorTest : FunSpec({
                 id = TiltakstypeFixtures.GruppeAmo.id,
                 navn = TiltakstypeFixtures.GruppeAmo.navn,
             ),
-            opplaringKategorisering = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering),
+            opplaringKategorisering = OpplaringKategoriseringDetaljer(kurstype = KurstypeFixtures.studiespesialisering),
         )
 
         context(avtaleUtenAmokategorisering, kategoriseringCtx) {

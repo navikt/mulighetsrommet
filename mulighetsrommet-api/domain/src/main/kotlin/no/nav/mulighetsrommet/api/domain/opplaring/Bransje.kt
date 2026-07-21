@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.amo.models
+package no.nav.mulighetsrommet.api.domain.opplaring
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.serializers.UUIDSerializer

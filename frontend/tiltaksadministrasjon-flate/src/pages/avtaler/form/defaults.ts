@@ -1,4 +1,4 @@
-import { AvtaleFormValues, toUtdanningslopDbo } from "@/pages/avtaler/form/validation";
+import { AvtaleFormValues, toUtdanningslop } from "@/pages/avtaler/form/validation";
 import {
   AvtaleArrangorKontaktperson,
   AvtaleDto,
@@ -42,7 +42,7 @@ export function defaultAvtaleData(
         customOpsjonsmodellNavn: avtale?.opsjonsmodell?.customOpsjonsmodellNavn,
       },
       utdanningslop: avtale?.opplaring?.utdanningslop
-        ? toUtdanningslopDbo(avtale.opplaring.utdanningslop)
+        ? toUtdanningslop(avtale.opplaring.utdanningslop)
         : undefined,
     },
     veilederinformasjon: {

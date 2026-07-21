@@ -44,7 +44,6 @@ import no.nav.mulighetsrommet.api.veilederflate.routes.veilederRoutes
 import no.nav.mulighetsrommet.featuretoggle.api.featureTogglesRoute
 import no.nav.mulighetsrommet.notifications.notificationRoutes
 import no.nav.mulighetsrommet.oppgaver.oppgaverRoutes
-import no.nav.mulighetsrommet.utdanning.utdanningRoutes
 
 fun Route.apiRoutes(config: AppConfig) {
     authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
@@ -144,7 +143,6 @@ fun Route.tiltaksadministrasjonRoutes() {
     arrangorKontaktpersonRoutes()
     enhetsregisterRoutes()
     janzzRoutes()
-    utdanningRoutes()
     notificationRoutes()
     opplaeringtilskuddRoutes()
     tilskuddBehandlingRoutes()

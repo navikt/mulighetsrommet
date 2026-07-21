@@ -15,8 +15,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.amo.toDbo
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
@@ -25,6 +24,8 @@ import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
@@ -38,7 +39,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.api.janzz.Sertifisering
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -430,10 +430,10 @@ class AvtaleQueriesTest : FunSpec({
                 domain.initialize()
 
                 val kategorisering = OpplaringKategorisering(
-                    kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
-                    bransje = BransjeFixtures.industriarbeid,
+                    kurstype = KurstypeFixtures.bransjeOgYrkesrettet.id,
+                    bransje = BransjeFixtures.industriarbeid.id,
                     forerkort = emptySet(),
-                    innholdElementer = setOf(InnholdElementFixtures.teoretiskOpplaring),
+                    innholdElementer = setOf(InnholdElementFixtures.teoretiskOpplaring.id),
                     norskprove = null,
                     sertifiseringer = setOf(
                         Sertifisering(
@@ -444,28 +444,39 @@ class AvtaleQueriesTest : FunSpec({
                     utdanningslop = null,
                 )
                 val avtale = AvtaleFixtures.oppfolging.copy(
-                    detaljerDbo = AvtaleFixtures.detaljerDbo().copy(opplaringKategorisering = kategorisering.toDbo()),
+                    detaljerDbo = AvtaleFixtures.detaljerDbo().copy(opplaringKategorisering = kategorisering),
                 )
                 queries.avtale.create(avtale)
                 queries.avtale.getOrError(avtale.id).should {
-                    it.opplaringKategorisering shouldBe kategorisering
+                    it.opplaringKategorisering shouldBe OpplaringKategoriseringDetaljer(
+                        kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                        bransje = BransjeFixtures.industriarbeid,
+                        innholdElementer = setOf(InnholdElementFixtures.teoretiskOpplaring),
+                        sertifiseringer = setOf(Sertifisering(1, "label")),
+                    )
                 }
 
-                val amoEndring = kategorisering.copy(
-                    bransje = BransjeFixtures.helseOgPleier,
-                    sertifiseringer = setOf(
-                        Sertifisering(
-                            konseptId = 2,
-                            label = "label2",
+                queries.avtale.updateDetaljer(
+                    avtale.id,
+                    AvtaleFixtures.detaljerDbo().copy(
+                        opplaringKategorisering = kategorisering.copy(
+                            bransje = BransjeFixtures.helseOgPleier.id,
+                            sertifiseringer = setOf(
+                                Sertifisering(
+                                    konseptId = 2,
+                                    label = "label2",
+                                ),
+                            ),
                         ),
                     ),
                 )
-                queries.avtale.updateDetaljer(
-                    avtale.id,
-                    AvtaleFixtures.detaljerDbo().copy(opplaringKategorisering = amoEndring.toDbo()),
-                )
                 queries.avtale.getOrError(avtale.id).should {
-                    it.opplaringKategorisering shouldBe amoEndring
+                    it.opplaringKategorisering shouldBe OpplaringKategoriseringDetaljer(
+                        kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                        bransje = BransjeFixtures.helseOgPleier,
+                        innholdElementer = setOf(InnholdElementFixtures.teoretiskOpplaring),
+                        sertifiseringer = setOf(Sertifisering(2, "label2")),
+                    )
                 }
 
                 queries.avtale.updateDetaljer(

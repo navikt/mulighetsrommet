@@ -6,7 +6,7 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
@@ -800,7 +800,7 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
         ?.let { Json.decodeFromString<List<GjennomforingAvtaleDetaljer.ArrangorKontaktperson>>(it) }
         ?: emptyList()
     val opplaringKategorisering = stringOrNull("opplaring_kategorisering_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategorisering>(it) }
+        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategoriseringDetaljer>(it) }
     return GjennomforingAvtaleDetaljer(
         administratorer = toAdministratorer(),
         kontorstruktur = Kontorstruktur.fromNavEnheter(toNavEnheter()),
@@ -817,7 +817,6 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
         },
         tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
         opplaringKategorisering = opplaringKategorisering,
-        utdanningslop = opplaringKategorisering?.utdanningslop,
         arrangorKontaktpersoner = arrangorKontaktpersoner,
         avbrytelse = when (GjennomforingStatusType.valueOf(string("status"))) {
             GjennomforingStatusType.GJENNOMFORES,

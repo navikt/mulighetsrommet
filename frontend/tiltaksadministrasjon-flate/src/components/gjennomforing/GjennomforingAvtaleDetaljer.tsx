@@ -23,7 +23,7 @@ import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import {
   GjennomforingAvtaleDto,
   GjennomforingVeilederinfoDto,
-  OpplaringKategorisering,
+  OpplaringKategoriseringDetaljer,
   PrismodellDto,
   TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
@@ -36,7 +36,7 @@ interface Props {
   gjennomforing: GjennomforingAvtaleDto;
   veilederinfo: null | GjennomforingVeilederinfoDto;
   prismodell: PrismodellDto;
-  opplaring: null | OpplaringKategorisering;
+  opplaring: null | OpplaringKategoriseringDetaljer;
 }
 
 export function GjennomforingAvtaleDetaljer(props: Props) {

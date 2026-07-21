@@ -1883,6 +1883,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/kodeverk/utdanninger:
+    get:
+      tags:
+      - Utdanning
+      description: Hent alle utdanningsløp
+      operationId: getUtdanningslop
+      parameters: []
+      responses:
+        "200":
+          description: Liste over utdanningsløp
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UtdanningslopDetaljer"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/kodeverk/kontorstruktur:
     get:
       tags:
@@ -3453,31 +3478,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/utdanninger:
-    get:
-      tags:
-      - Utdanning
-      description: Hent alle utdanningsprogrammer
-      operationId: getUtdanningsprogrammer
-      parameters: []
-      responses:
-        "200":
-          description: Liste over utdanningsprogrammer
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/UtdanningsprogramMedUtdanningerDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/notifications:
     get:
       tags:
@@ -4273,7 +4273,7 @@ components:
         utdanningslop:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDbo"
+          - $ref: "#/components/schemas/Utdanningslop"
       required:
       - administratorer
       - amoKategorisering
@@ -4441,7 +4441,7 @@ components:
       required:
       - konseptId
       - label
-    UtdanningslopDbo:
+    Utdanningslop:
       type: object
       properties:
         utdanningsprogram:
@@ -4875,7 +4875,7 @@ components:
       - sortKey
       - title
       - type
-    OpplaringKategorisering:
+    OpplaringKategoriseringDetaljer:
       type: object
       properties:
         kurstype:
@@ -4908,7 +4908,7 @@ components:
         utdanningslop:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDto"
+          - $ref: "#/components/schemas/UtdanningslopDetaljer"
       required:
       - bransje
       - forerkort
@@ -4973,19 +4973,19 @@ components:
       - id
       - kode
       - navn
-    UtdanningslopDto:
+    UtdanningslopDetaljer:
       type: object
       properties:
         utdanningsprogram:
-          $ref: "#/components/schemas/UtdanningslopDto.Utdanningsprogram"
+          $ref: "#/components/schemas/UtdanningslopDetaljer.Utdanningsprogram"
         utdanninger:
           type: array
           items:
-            $ref: "#/components/schemas/UtdanningslopDto.Utdanning"
+            $ref: "#/components/schemas/UtdanningslopDetaljer.Utdanning"
       required:
       - utdanninger
       - utdanningsprogram
-    UtdanningslopDto.Utdanningsprogram:
+    UtdanningslopDetaljer.Utdanningsprogram:
       type: object
       properties:
         id:
@@ -4996,7 +4996,7 @@ components:
       required:
       - id
       - navn
-    UtdanningslopDto.Utdanning:
+    UtdanningslopDetaljer.Utdanning:
       type: object
       properties:
         id:
@@ -5203,7 +5203,7 @@ components:
         opplaring:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/OpplaringKategorisering"
+          - $ref: "#/components/schemas/OpplaringKategoriseringDetaljer"
         opsjonsmodell:
           $ref: "#/components/schemas/Opsjonsmodell"
         opsjonerRegistrert:
@@ -5507,7 +5507,7 @@ components:
         utdanningslop:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDbo"
+          - $ref: "#/components/schemas/Utdanningslop"
         prismodellId:
           type:
           - "null"
@@ -6408,7 +6408,7 @@ components:
         opplaring:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/OpplaringKategorisering"
+          - $ref: "#/components/schemas/OpplaringKategoriseringDetaljer"
         okonomi:
           oneOf:
           - type: "null"
@@ -8847,40 +8847,6 @@ components:
       - organisasjonsnummer
       - overordnetEnhet
       - slettetDato
-    UtdanningsprogramMedUtdanningerDto:
-      type: object
-      properties:
-        utdanningsprogram:
-          $ref: "#/components/schemas/UtdanningsprogramMedUtdanningerDto.Utdanningsprogram"
-        utdanninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtdanningsprogramMedUtdanningerDto.Utdanning"
-      required:
-      - utdanninger
-      - utdanningsprogram
-    UtdanningsprogramMedUtdanningerDto.Utdanningsprogram:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-      required:
-      - id
-      - navn
-    UtdanningsprogramMedUtdanningerDto.Utdanning:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-      required:
-      - id
-      - navn
     NotificationStatus:
       type: string
       enum:

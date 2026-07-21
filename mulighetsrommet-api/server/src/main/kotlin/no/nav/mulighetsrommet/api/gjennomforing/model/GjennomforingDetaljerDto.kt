@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
@@ -33,7 +33,7 @@ data class GjennomforingDetaljerDto(
     val gjennomforing: GjennomforingDto,
     val veilederinfo: GjennomforingVeilederinfoDto?,
     val prismodell: PrismodellDto,
-    val opplaring: OpplaringKategorisering?,
+    val opplaring: OpplaringKategoriseringDetaljer?,
     val okonomi: TotrinnskontrollDto?,
     val prisendring: Prisendring?,
     val enkeltplassDeltaker: DeltakerDto?,

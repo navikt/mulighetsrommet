@@ -2,7 +2,7 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import kotliquery.Query
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.amo.models.Bransje
+import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 

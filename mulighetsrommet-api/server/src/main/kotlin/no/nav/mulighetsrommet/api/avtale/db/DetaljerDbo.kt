@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavIdent
@@ -19,7 +19,7 @@ data class DetaljerDbo(
     val status: AvtaleStatusType,
     val avtaletype: Avtaletype,
     val administratorer: List<NavIdent>,
-    val opplaringKategorisering: OpplaringKategoriseringDbo?,
+    val opplaringKategorisering: OpplaringKategorisering?,
     val opsjonsmodell: Opsjonsmodell,
 )
 

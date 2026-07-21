@@ -1,65 +1,71 @@
-package no.nav.mulighetsrommet.utdanning.db
+package no.nav.mulighetsrommet.api.persistence.utdanning.db
 
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.utdanning.Utdanning
+import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
+import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramRepository
+import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramType
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.requireSingle
-import no.nav.mulighetsrommet.utdanning.model.Utdanning
-import no.nav.mulighetsrommet.utdanning.model.Utdanningsprogram
-import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
-class UtdanningQueries(private val session: Session) {
+class UtdanningQueries(private val session: Session) : UtdanningsprogramRepository {
 
-    fun getUtdanningsprogrammer(): List<UtdanningsprogramMedUtdanninger> = with(session) {
+    override fun save(utdanningsprogram: Utdanningsprogram) {
+        val programomradeId = upsertUtdanningsprogram(utdanningsprogram)
+        utdanningsprogram.utdanninger.forEach { utdanning ->
+            upsertUtdanning(programomradeId, utdanning)
+        }
+    }
+
+    override fun findByProgramomradekode(programomradekode: String): Utdanningsprogram? = with(session) {
         @Language("PostgreSQL")
-        val utdanningsprogrammerQuery = """
-            select *
-            from utdanningsprogram
-            where utdanningsprogram_type = 'YRKESFAGLIG' and array_length(nus_koder, 1) > 0
-            order by navn
+        val programomradeQuery = """
+            select * from utdanningsprogram where programomradekode = ?
         """.trimIndent()
+
+        val programomrade = single(queryOf(programomradeQuery, programomradekode)) { row ->
+            Triple(
+                row.string("navn"),
+                row.stringOrNull("utdanningsprogram_type")?.let { UtdanningsprogramType.valueOf(it) },
+                row.array<String>("nus_koder").toList(),
+            )
+        } ?: return null
+        val (navn, type, nusKoder) = programomrade
 
         @Language("PostgreSQL")
         val utdanningerQuery = """
-            select
-                utdanning.id,
-                utdanning.navn,
-                utdanning.programlop_start,
-                nus_koder as nusKoder
+            select utdanning.*
             from utdanning
-            where nus_koder <> '{}'
-            group by utdanning.id
-            order by utdanning.navn;
+            join utdanningsprogram on utdanningsprogram.id = utdanning.programlop_start
+            where utdanningsprogram.programomradekode = ?
         """.trimIndent()
 
-        val utdanningsprogrammer = list(queryOf(utdanningsprogrammerQuery)) { row ->
-            UtdanningsprogramMedUtdanninger.Utdanningsprogram(
-                id = row.uuid("id"),
+        val utdanninger = list(queryOf(utdanningerQuery, programomradekode)) { row ->
+            Utdanning(
+                programomradekode = row.string("programomradekode"),
+                utdanningId = row.string("utdanning_id"),
                 navn = row.string("navn"),
+                sluttkompetanse = row.stringOrNull("sluttkompetanse")?.let { Utdanning.Sluttkompetanse.valueOf(it) },
+                aktiv = row.boolean("aktiv"),
+                utdanningstatus = Utdanning.Status.valueOf(row.string("utdanningstatus")),
+                utdanningslop = row.array<String>("utdanningslop").toList(),
                 nusKoder = row.array<String>("nus_koder").toList(),
             )
         }
 
-        val utdanninger = list(queryOf(utdanningerQuery)) { row ->
-            UtdanningsprogramMedUtdanninger.Utdanning(
-                id = row.uuid("id"),
-                navn = row.string("navn"),
-                programlopStart = row.uuid("programlop_start"),
-                nusKoder = row.array<String>("nusKoder").toList(),
-            )
-        }
-
-        return utdanningsprogrammer.map { utdanningsprogram ->
-            UtdanningsprogramMedUtdanninger(
-                utdanningsprogram = utdanningsprogram,
-                utdanninger = utdanninger.filter { it.programlopStart == utdanningsprogram.id },
-            )
-        }
+        return Utdanningsprogram.fromStorage(
+            programomradekode = programomradekode,
+            navn = navn,
+            type = type,
+            nusKoder = nusKoder,
+            utdanninger = utdanninger,
+        )
     }
 
-    fun upsertUtdanningsprogram(utdanningsprogram: Utdanningsprogram) = with(session) {
+    private fun upsertUtdanningsprogram(utdanningsprogram: Utdanningsprogram): UUID = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into utdanningsprogram (navn, programomradekode, utdanningsprogram_type, nus_koder)
@@ -68,6 +74,7 @@ class UtdanningQueries(private val session: Session) {
                 navn = excluded.navn,
                 utdanningsprogram_type = excluded.utdanningsprogram_type,
                 nus_koder = excluded.nus_koder
+            returning id
         """.trimIndent()
 
         val params = mapOf(
@@ -77,12 +84,10 @@ class UtdanningQueries(private val session: Session) {
             "nus_koder" to createTextArray(utdanningsprogram.nusKoder),
         )
 
-        execute(queryOf(query, params))
+        return requireSingle(queryOf(query, params)) { it.uuid("id") }
     }
 
-    fun upsertUtdanning(utdanning: Utdanning) = with(session) {
-        val programomradeId = getIdForUtdanningsprogram(utdanning.utdanningslop.first())
-
+    private fun upsertUtdanning(programomradeId: UUID, utdanning: Utdanning) = with(session) {
         @Language("PostgreSQL")
         val upsertUtdanning = """
             insert into utdanning (utdanning_id, programomradekode, navn, sluttkompetanse, aktiv, utdanningstatus, utdanningslop, programlop_start, nus_koder)

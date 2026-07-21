@@ -20,7 +20,7 @@ import {
   GjennomforingEnkeltplassDto,
   GjennomforingHandling,
   GjennomforingVeilederinfoDto,
-  OpplaringKategorisering,
+  OpplaringKategoriseringDetaljer,
   PrismodellDto,
   TiltakstypeDto,
   TotrinnskontrollDto,
@@ -47,7 +47,7 @@ interface Props {
   okonomi: null | TotrinnskontrollDto;
   prisendring: null | GjennomforingDetaljerDtoPrisendring;
   enkeltplassDeltaker: null | DeltakerDto;
-  opplaring: null | OpplaringKategorisering;
+  opplaring: null | OpplaringKategoriseringDetaljer;
 }
 
 export function GjennomforingEnkeltplassDetaljer(props: Props) {

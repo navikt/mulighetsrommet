@@ -1,14 +1,6 @@
-package no.nav.mulighetsrommet.utdanning.model
+package no.nav.mulighetsrommet.api.domain.utdanning
 
 import kotlinx.serialization.Serializable
-
-@Serializable
-data class Utdanningsprogram(
-    val navn: String,
-    val nusKoder: List<String>,
-    val programomradekode: String,
-    val type: UtdanningsprogramType?,
-)
 
 @Serializable
 data class Utdanning(
@@ -36,10 +28,4 @@ data class Utdanning(
         UTGAAENDE,
         UTGAATT,
     }
-}
-
-@Serializable
-enum class UtdanningsprogramType {
-    YRKESFAGLIG,
-    STUDIEFORBEREDENDE,
 }

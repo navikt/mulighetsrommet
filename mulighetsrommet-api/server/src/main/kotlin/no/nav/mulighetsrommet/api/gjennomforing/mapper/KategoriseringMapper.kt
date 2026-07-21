@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringResponse
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringResponse
+import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.GjennomforingRequest
-import no.nav.mulighetsrommet.api.janzz.Sertifisering
 
 object KategoriseringMapper {
     fun fromKafkaPayload(kategorisering: GjennomforingRequest.OpplaringKategorisering): OpplaringKategoriseringRequest {
