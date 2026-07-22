@@ -90,7 +90,11 @@ class TiltakDokumentQueriesTest : FunSpec({
             repository.tiltakDokument.save(minimalDokument(id = gjennomforingId, navn = "Originalt navn"))
 
             repository.tiltakDokument.save(
-                minimalDokument(id = gjennomforingId, tiltakstypeId = TiltakstypeFixtures.AFT.id, navn = "Oppdatert navn").copy(
+                minimalDokument(
+                    id = gjennomforingId,
+                    tiltakstypeId = TiltakstypeFixtures.AFT.id,
+                    navn = "Oppdatert navn",
+                ).copy(
                     stedForGjennomforing = "Bergen",
                     beskrivelse = "Ny beskrivelse",
                 ),
@@ -117,9 +121,14 @@ class TiltakDokumentQueriesTest : FunSpec({
             repository.tiltakstype.save(TiltakstypeFixtures.AFT)
 
             repository.tiltakDokument.save(minimalDokument(navn = "Gjennomføring 1"))
-            repository.tiltakDokument.save(minimalDokument(tiltakstypeId = TiltakstypeFixtures.AFT.id, navn = "Gjennomføring 2"))
+            repository.tiltakDokument.save(
+                minimalDokument(
+                    tiltakstypeId = TiltakstypeFixtures.AFT.id,
+                    navn = "Gjennomføring 2",
+                ),
+            )
 
-            queries.tiltakDokument.getAllKompaktDto() shouldHaveSize 2
+            queries.tiltakDokument.getAllKompaktDto().items shouldHaveSize 2
         }
     }
 
@@ -134,8 +143,8 @@ class TiltakDokumentQueriesTest : FunSpec({
             val result = queries.tiltakDokument.getAllKompaktDto(
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.tiltakskode),
             )
-            result shouldHaveSize 1
-            result[0].tiltakstype.id shouldBe TiltakstypeFixtures.Oppfolging.id
+            result.items shouldHaveSize 1
+            result.items[0].tiltakstype.id shouldBe TiltakstypeFixtures.Oppfolging.id
         }
     }
 
@@ -150,9 +159,9 @@ class TiltakDokumentQueriesTest : FunSpec({
             repository.tiltakDokument.save(minimalDokument(id = publisertId, navn = "Publisert"))
             queries.tiltakDokument.setPublisert(publisertId, true)
 
-            queries.tiltakDokument.getAllKompaktDto(publisert = true) shouldHaveSize 1
-            queries.tiltakDokument.getAllKompaktDto(publisert = false) shouldHaveSize 1
-            queries.tiltakDokument.getAllKompaktDto() shouldHaveSize 2
+            queries.tiltakDokument.getAllKompaktDto(publisert = true).items shouldHaveSize 1
+            queries.tiltakDokument.getAllKompaktDto(publisert = false).items shouldHaveSize 1
+            queries.tiltakDokument.getAllKompaktDto().items shouldHaveSize 2
         }
     }
 
@@ -175,8 +184,8 @@ class TiltakDokumentQueriesTest : FunSpec({
             val result = queries.tiltakDokument.getAllKompaktDto(
                 navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
             )
-            result shouldHaveSize 1
-            result[0].id shouldBe medEnhetId
+            result.items shouldHaveSize 1
+            result.items[0].id shouldBe medEnhetId
         }
     }
 
@@ -231,7 +240,8 @@ class TiltakDokumentQueriesTest : FunSpec({
                     navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
                 ),
             )
-            queries.tiltakDokument.getTiltakDokumentDto(gjennomforingId)?.kontorstruktur.shouldNotBeNull().shouldNotBeEmpty()
+            queries.tiltakDokument.getTiltakDokumentDto(gjennomforingId)?.kontorstruktur.shouldNotBeNull()
+                .shouldNotBeEmpty()
 
             repository.tiltakDokument.save(
                 repository.tiltakDokument.get(gjennomforingId)!!.copy(navEnheter = emptyList()),

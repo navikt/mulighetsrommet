@@ -5,7 +5,7 @@ import React from "react";
 import { useNavigate } from "react-router";
 import { useSetPublisertTiltakDokument } from "@/api/tiltak-dokument/useSetPublisertTiltakDokument";
 import {
-  TiltakDokumentHandling,
+  type TiltakDokumentHandling,
   useTiltakDokumentHandlinger,
 } from "@/api/tiltak-dokument/useTiltakDokumentHandlinger";
 import { KnapperadContainer } from "@/layouts/KnapperadContainer";
