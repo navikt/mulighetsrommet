@@ -346,7 +346,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 status = DeltakerStatusType.DELTAR,
                 startDato = startDato,
                 sluttDato = sluttDato,
-                deltakelsesmengder = listOf(Deltakelsesmengde(startDato, 60.0, Instant.now())),
+                deltakelsesprosent = 60.0,
             )
             service.updateFromDeltaker(deltaker, NorskIdent("12345678910"))
 

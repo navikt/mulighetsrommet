@@ -9,6 +9,8 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslagRepository
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerRepository
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
@@ -31,6 +33,8 @@ abstract class QueryContext {
         abstract val arrangor: ArrangorRepository
         abstract val utdanning: UtdanningsprogramRepository
         abstract val tiltakDokument: TiltakDokumentRepository
+        abstract val deltaker: DeltakerRepository
+        abstract val deltakerForslag: DeltakerForslagRepository
     }
 
     abstract class Queries {

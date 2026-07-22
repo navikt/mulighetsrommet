@@ -14,6 +14,7 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerUseCase
 import no.nav.mulighetsrommet.api.deltaker.kafka.AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerDto
 import no.nav.mulighetsrommet.api.deltaker.kafka.AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerStatusDto
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
@@ -37,7 +38,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
         oppdaterUtbetaling: GenererUtbetalingService = mockk(relaxed = true),
     ): ReplikerDeltakerKafkaConsumer {
         return ReplikerDeltakerKafkaConsumer(
-            db = database.api,
+            replikerDeltaker = ReplikerDeltakerUseCase(database.admin),
             genererUtbetalingService = oppdaterUtbetaling,
         )
     }

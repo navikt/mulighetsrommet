@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -20,9 +21,11 @@ import java.util.UUID
 class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
-    fun createArrangorMeldingConsumer() = AmtArrangorMeldingV1KafkaConsumer(
-        db = database.api,
-        genererUtbetalingService = mockk<GenererUtbetalingService>(relaxed = true),
+    fun createArrangorMeldingConsumer(
+        genererUtbetalingService: GenererUtbetalingService = mockk(relaxed = true),
+    ) = AmtArrangorMeldingV1KafkaConsumer(
+        replikerDeltakerForslag = ReplikerDeltakerForslagUseCase(database.admin),
+        genererUtbetalingService = genererUtbetalingService,
     )
 
     afterEach {
@@ -244,7 +247,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
 
             val deltakerId = domain.deltakere[0].id
             val genererUtbetalingService = mockk<GenererUtbetalingService>(relaxed = true)
-            val consumer = AmtArrangorMeldingV1KafkaConsumer(db = database.api, genererUtbetalingService = genererUtbetalingService)
+            val consumer = createArrangorMeldingConsumer(genererUtbetalingService)
 
             consumer.consume(
                 UUID.randomUUID(),
@@ -273,7 +276,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
 
             val deltakerId = domain.deltakere[0].id
             val genererUtbetalingService = mockk<GenererUtbetalingService>(relaxed = true)
-            val consumer = AmtArrangorMeldingV1KafkaConsumer(db = database.api, genererUtbetalingService = genererUtbetalingService)
+            val consumer = createArrangorMeldingConsumer(genererUtbetalingService)
 
             // Sett opp forslag først
             consumer.consume(forslagId, Json.parseToJsonElement(venterPaSvarForslag(deltakerId, forslagId)))
@@ -288,7 +291,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
 
         test("oppdaterUtbetalingBlokkeringerForGjennomforing kalles ikke når deltaker ikke finnes") {
             val genererUtbetalingService = mockk<GenererUtbetalingService>(relaxed = true)
-            val consumer = AmtArrangorMeldingV1KafkaConsumer(db = database.api, genererUtbetalingService = genererUtbetalingService)
+            val consumer = createArrangorMeldingConsumer(genererUtbetalingService)
 
             consumer.consume(
                 UUID.randomUUID(),

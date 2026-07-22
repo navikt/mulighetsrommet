@@ -6,7 +6,9 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.amt.model.AmtArrangorMelding
 import no.nav.amt.model.EndringAarsak
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
-import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslag
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagResultat
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -15,7 +17,7 @@ import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class AmtArrangorMeldingV1KafkaConsumer(
-    private val db: ApiDatabase,
+    private val replikerDeltakerForslag: ReplikerDeltakerForslagUseCase,
     private val genererUtbetalingService: GenererUtbetalingService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
@@ -23,41 +25,20 @@ class AmtArrangorMeldingV1KafkaConsumer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
+    override suspend fun consume(key: UUID, message: JsonElement) {
         logger.info("Konsumerer arrangor-melding med id=$key")
 
-        val gjennomforingId = when (val melding = Json.decodeFromJsonElement<AmtArrangorMelding?>(message)) {
-            is AmtArrangorMelding.Forslag -> {
-                when (melding.status) {
-                    is AmtArrangorMelding.Forslag.Status.Avvist,
-                    is AmtArrangorMelding.Forslag.Status.Erstattet,
-                    is AmtArrangorMelding.Forslag.Status.Godkjent,
-                    is AmtArrangorMelding.Forslag.Status.Tilbakekalt,
-                    -> {
-                        val gjennomforingId = repository.deltakerForslag.get(key)?.let {
-                            repository.deltaker.get(it.deltakerId)?.gjennomforingId
-                        }
-                        repository.deltakerForslag.delete(melding.id)
-                        gjennomforingId
-                    }
+        val forslag = when (val melding = Json.decodeFromJsonElement<AmtArrangorMelding?>(message)) {
+            is AmtArrangorMelding.Forslag -> melding.toForslag()
+            null -> null
+        }
 
-                    AmtArrangorMelding.Forslag.Status.VenterPaSvar -> {
-                        val deltaker = repository.deltaker.get(melding.deltakerId)
-                        if (deltaker != null) {
-                            repository.deltakerForslag.save(melding.toForslag())
-                        }
-                        deltaker?.gjennomforingId
-                    }
-                }
-            }
+        val resultat = replikerDeltakerForslag.execute(ReplikerDeltakerForslag(key, forslag))
 
-            null -> {
-                val gjennomforingId = repository.deltakerForslag.get(key)?.let {
-                    repository.deltaker.get(it.deltakerId)?.gjennomforingId
-                }
-                repository.deltakerForslag.delete(key)
-                gjennomforingId
-            }
+        val gjennomforingId = when (resultat) {
+            is ReplikerDeltakerForslagResultat.Slettet -> resultat.gjennomforingId
+            is ReplikerDeltakerForslagResultat.Lagret -> resultat.gjennomforingId
+            ReplikerDeltakerForslagResultat.IngenEndring -> null
         }
 
         gjennomforingId?.let {
