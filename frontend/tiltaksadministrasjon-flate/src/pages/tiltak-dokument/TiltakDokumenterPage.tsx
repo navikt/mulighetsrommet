@@ -33,7 +33,7 @@ export function TiltakDokumenterPage() {
           table={
             <ReloadAppErrorBoundary>
               <Suspense fallback={<ListSkeleton />}>
-                <TiltakDokumentTable filter={filter.values} />
+                <TiltakDokumentTable filter={filter.values} updateFilter={updateFilter} />
               </Suspense>
             </ReloadAppErrorBoundary>
           }

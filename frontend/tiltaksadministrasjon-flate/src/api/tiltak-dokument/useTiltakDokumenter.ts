@@ -5,12 +5,18 @@ import { TiltakDokumentFilterType } from "@/pages/tiltak-dokument/filter";
 
 export function useTiltakDokumenter(filter?: Partial<TiltakDokumentFilterType>) {
   const request = {
-    navEnheter: filter?.navEnheter ?? [],
-    tiltakstyper: filter?.tiltakstyper ?? [],
+    body: {
+      navEnheter: filter?.navEnheter ?? [],
+      tiltakstyper: filter?.tiltakstyper ?? [],
+    },
+    query: {
+      page: filter?.page ?? 1,
+      size: filter?.pageSize,
+    },
   };
 
   return useApiSuspenseQuery({
     queryKey: QueryKeys.tiltakDokumenter(request),
-    queryFn: () => TiltakDokumentService.getTiltakDokumenter({ body: request }),
+    queryFn: () => TiltakDokumentService.getTiltakDokumenter(request),
   });
 }

@@ -13,6 +13,10 @@ import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createUuidArray
+import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.database.utils.mapPaginated
+import no.nav.mulighetsrommet.database.utils.parameters
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -180,13 +184,15 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
     }
 
     override fun getAllKompaktDto(
+        pagination: Pagination,
         navEnheter: List<NavEnhetNummer>,
         tiltakstyper: List<Tiltakskode>,
         publisert: Boolean?,
-    ): List<TiltakDokumentKompaktDto> = with(session) {
+    ): PaginatedResult<TiltakDokumentKompaktDto> = with(session) {
         @Language("PostgreSQL")
         val query = """
-        select *
+        select *,
+               count(*) over () as total_count
         from view_tiltak_dokument
         where (:nav_enheter::text[] is null or id in (
             select tiltak_dokument_id from tiltak_dokument_nav_enhet
@@ -195,6 +201,8 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
         and (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any (:tiltakskoder))
         and (:publisert::boolean is null or publisert = :publisert)
         order by created_at desc
+        limit :limit
+        offset :offset
         """.trimIndent()
 
         val params = mapOf(
@@ -203,7 +211,9 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
             "publisert" to publisert,
         )
 
-        list(queryOf(query, params), ::toTiltakDokumentKompakt)
+        return queryOf(query, params + pagination.parameters)
+            .mapPaginated { toTiltakDokumentKompakt(it) }
+            .runWithSession(this)
     }
 
     override fun setPublisert(id: UUID, publisert: Boolean) {
