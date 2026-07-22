@@ -41,13 +41,13 @@ const forsidekortData: ForsideKortProps[] = [
   },
   ...(!isProduction()
     ? [
-      {
-        navn: "Tiltaksdokumenter (tidligere Sanity)",
-        ikon: <TiltakDokumentIkon inkluderBakgrunn />,
-        url: "/tiltak-dokumenter",
-        tekst: "Her administrerer du tiltaksdokumenter",
-      } satisfies ForsideKortProps,
-    ]
+        {
+          navn: "Tiltaksdokumenter (tidligere Sanity)",
+          ikon: <TiltakDokumentIkon inkluderBakgrunn />,
+          url: "/tiltak-dokumenter",
+          tekst: "Her administrerer du tiltaksdokumenter",
+        } satisfies ForsideKortProps,
+      ]
     : []),
   {
     navn: "Veilederflate forhåndsvisning",
