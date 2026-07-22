@@ -1,5 +1,6 @@
-import { TiltakDokumentTabell } from "@/components/tiltak-dokument/TiltakDokumentTabell";
+import { TiltakDokumentTable } from "@/components/tiltak-dokument/TiltakDokumentTable";
 import { TiltakDokumentFilter } from "@/components/tiltak-dokument/TiltakDokumentFilter";
+import { TiltakDokumentFilterTags } from "@/components/tiltak-dokument/TiltakDokumentFilterTags";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
@@ -7,13 +8,14 @@ import { ListSkeleton, useOpenFilterWhenThreshold } from "@mr/frontend-common";
 import { FilterAndTableLayout } from "@mr/frontend-common/components/filterAndTableLayout/FilterAndTableLayout";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { tiltakDokumentFilterStateAtom } from "@/pages/tiltak-dokument/filter";
 import { useFilterState } from "@/filter/useFilterState";
 import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
 
 export function TiltakDokumenterPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
+  const [tagsHeight, setTagsHeight] = useState(0);
   const { filter, updateFilter, resetToDefault, hasChanged } = useFilterState(
     tiltakDokumentFilterStateAtom,
   );
@@ -28,12 +30,24 @@ export function TiltakDokumenterPage() {
           nullstillFilterButton={
             hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null
           }
-          tags={null}
+          tags={
+            <TiltakDokumentFilterTags
+              filter={filter.values}
+              updateFilter={updateFilter}
+              filterOpen={filterOpen}
+              setTagsHeight={setTagsHeight}
+            />
+          }
           buttons={null}
           table={
             <ReloadAppErrorBoundary>
               <Suspense fallback={<ListSkeleton />}>
-                <TiltakDokumentTabell filter={filter.values} />
+                <TiltakDokumentTable
+                  filter={filter.values}
+                  updateFilter={updateFilter}
+                  tagsHeight={tagsHeight}
+                  filterOpen={filterOpen}
+                />
               </Suspense>
             </ReloadAppErrorBoundary>
           }

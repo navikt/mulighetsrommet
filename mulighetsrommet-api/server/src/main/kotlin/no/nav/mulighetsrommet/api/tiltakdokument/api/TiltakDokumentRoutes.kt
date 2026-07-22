@@ -18,8 +18,10 @@ import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentAdminSe
 import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
+import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
+import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -38,6 +40,7 @@ data class TiltakDokumentPublisertRequest(
 data class GetTiltakDokumenterRequest(
     val navEnheter: List<NavEnhetNummer> = emptyList(),
     val tiltakstyper: List<Tiltakskode> = emptyList(),
+    val sort: String? = null,
 )
 
 fun Route.tiltakDokumentRoutes() {
@@ -102,25 +105,30 @@ fun Route.tiltakDokumentRoutes() {
             tags = setOf("TiltakDokument")
             operationId = "getTiltakDokumenter"
             request {
+                queryParameter<Int>("page")
+                queryParameter<Int>("size")
                 body<GetTiltakDokumenterRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
                     description = "Liste over tiltak-dokumentøringer"
-                    body<List<TiltakDokumentKompaktDto>>()
+                    body<PaginatedResponse<TiltakDokumentKompaktDto>>()
                 }
             }
         }) {
+            val pagination = getPaginationParams()
             val request = call.receive<GetTiltakDokumenterRequest>()
 
             val result = db.session {
                 queries.tiltakDokument.getAllKompaktDto(
+                    pagination = pagination,
                     navEnheter = request.navEnheter,
                     tiltakstyper = request.tiltakstyper,
+                    sortering = request.sort,
                 )
             }
 
-            call.respond(result)
+            call.respond(PaginatedResponse.of(pagination, result.totalCount, result.items))
         }
 
         get("{id}", {

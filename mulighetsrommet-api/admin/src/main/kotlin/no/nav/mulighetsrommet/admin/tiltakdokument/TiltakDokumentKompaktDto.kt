@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.admin.tiltakdokument
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
@@ -15,7 +15,7 @@ data class TiltakDokumentKompaktDto(
     val tiltakstype: Tiltakstype,
     val arrangor: Arrangor?,
     val publisert: Boolean,
-    val navEnheter: List<NavEnhetNummer>,
+    val kontorstruktur: List<Kontorstruktur>,
 ) {
     @Serializable
     data class Tiltakstype(

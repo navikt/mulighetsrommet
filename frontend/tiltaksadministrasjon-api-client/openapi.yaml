@@ -1657,7 +1657,23 @@ paths:
       tags:
       - TiltakDokument
       operationId: getTiltakDokumenter
-      parameters: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
       requestBody:
         content:
           application/json:
@@ -1671,9 +1687,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/TiltakDokumentKompaktDto"
+                $ref: "#/components/schemas/PaginatedResponse_TiltakDokumentKompaktDto"
       deprecated: false
   /api/tiltaksadministrasjon/tiltak-dokumenter/{id}/tilgjengelig-for-veileder:
     put:
@@ -6747,8 +6761,13 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Tiltakskode"
+        sort:
+          type:
+          - "null"
+          - string
       required:
       - navEnheter
+      - sort
       - tiltakstyper
     TiltakDokumentKompaktDto:
       type: object
@@ -6770,14 +6789,14 @@ components:
           - $ref: "#/components/schemas/TiltakDokumentKompaktDto.Arrangor"
         publisert:
           type: boolean
-        navEnheter:
+        kontorstruktur:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/Kontorstruktur"
       required:
       - arrangor
       - id
-      - navEnheter
+      - kontorstruktur
       - navn
       - publisert
       - tiltaksnummer
@@ -6810,6 +6829,18 @@ components:
       - id
       - navn
       - organisasjonsnummer
+    PaginatedResponse_TiltakDokumentKompaktDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakDokumentKompaktDto"
+      required:
+      - data
+      - pagination
     TiltakDokumentHandling:
       type: string
       enum:
