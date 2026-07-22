@@ -7,6 +7,7 @@ import {
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
+import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
 import { dequal } from "dequal";
@@ -65,7 +66,26 @@ export function useArbeidsmarkedstiltakFilterValue() {
 export function useArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
   const [{ brukerIKontekst, filter }, setValue] = useAtom(filterAtom);
 
+  const { data: innsatsgrupper } = useInnsatsgrupper();
   const { data: brukerdata } = useBrukerdata();
+
+  const brukersInnsatsgruppe = innsatsgrupper.find(
+    (gruppe) => gruppe.nokkel === brukerdata.innsatsgruppe,
+  );
+
+  const defaultFilterForBruker: ArbeidsmarkedstiltakFilter = {
+    search: "",
+    navEnheter: brukerdata.enheter.map((enhet) => enhet.enhetsnummer),
+    innsatsgruppe: brukersInnsatsgruppe
+      ? {
+          nokkel: brukersInnsatsgruppe.nokkel,
+          tittel: brukersInnsatsgruppe.tittel,
+        }
+      : undefined,
+    tiltakstyper: [],
+    apentForPamelding: [],
+    erSykmeldtMedArbeidsgiver: brukerdata.erSykmeldtMedArbeidsgiver,
+  };
 
   const filterHasChanged =
     filter.search !== "" ||
@@ -80,7 +100,7 @@ export function useArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
     resetFilterToDefaults() {
       setValue({
         brukerIKontekst,
-        filter: defaultTiltakfilter,
+        filter: defaultFilterForBruker,
       });
     },
   };
