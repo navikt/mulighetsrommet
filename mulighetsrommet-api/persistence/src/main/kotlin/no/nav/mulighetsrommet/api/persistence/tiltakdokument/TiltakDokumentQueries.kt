@@ -351,9 +351,8 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
                 )
             },
             publisert = row.boolean("publisert"),
-            navEnheter = row.stringOrNull("nav_enheter_json")
+            kontorstruktur = row.stringOrNull("nav_enheter_json")
                 ?.let { Kontorstruktur.fromNavEnheter(Json.decodeFromString<List<NavEnhetDto>>(it)) }
-                ?.flatMap { it.kontorer.map { it.enhetsnummer } + it.region.enhetsnummer }
                 ?: emptyList(),
         )
     }

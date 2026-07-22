@@ -6770,14 +6770,14 @@ components:
           - $ref: "#/components/schemas/TiltakDokumentKompaktDto.Arrangor"
         publisert:
           type: boolean
-        navEnheter:
+        kontorstruktur:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/Kontorstruktur"
       required:
       - arrangor
       - id
-      - navEnheter
+      - kontorstruktur
       - navn
       - publisert
       - tiltaksnummer

@@ -1,4 +1,4 @@
-import { TiltakDokumentTabell } from "@/components/tiltak-dokument/TiltakDokumentTabell";
+import { TiltakDokumentTable } from "@/components/tiltak-dokument/TiltakDokumentTable";
 import { TiltakDokumentFilter } from "@/components/tiltak-dokument/TiltakDokumentFilter";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
 import { ContentBox } from "@/layouts/ContentBox";
@@ -33,7 +33,7 @@ export function TiltakDokumenterPage() {
           table={
             <ReloadAppErrorBoundary>
               <Suspense fallback={<ListSkeleton />}>
-                <TiltakDokumentTabell filter={filter.values} />
+                <TiltakDokumentTable filter={filter.values} />
               </Suspense>
             </ReloadAppErrorBoundary>
           }
