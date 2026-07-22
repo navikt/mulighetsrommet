@@ -4,8 +4,9 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
-import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltaker
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerResultat
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerUseCase
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.deltaker.NavVeileder
@@ -13,7 +14,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.DeltakerStatus
-import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.time.Instant
@@ -23,7 +23,7 @@ import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class ReplikerDeltakerKafkaConsumer(
-    private val db: ApiDatabase,
+    private val replikerDeltaker: ReplikerDeltakerUseCase,
     private val genererUtbetalingService: GenererUtbetalingService,
 ) : KafkaTopicConsumer<UUID, JsonElement>(
     uuidDeserializer(),
@@ -31,26 +31,13 @@ class ReplikerDeltakerKafkaConsumer(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
+    override suspend fun consume(key: UUID, message: JsonElement) {
         val amtDeltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerEksternV1Dto?>(message)
 
-        if (amtDeltaker == null) {
-            logger.info("Mottok tombstone for deltaker deltakerId=$key, sletter deltakeren")
-            repository.deltaker.get(key)?.let { skedulerOppdaterUtbetalinger(it.gjennomforingId) }
-            repository.deltaker.delete(key)
-            return
-        }
-
-        if (amtDeltaker.status.type == DeltakerStatusType.FEILREGISTRERT) {
-            logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
-            repository.deltaker.delete(key)
-            return skedulerOppdaterUtbetalinger(amtDeltaker.gjennomforingId)
-        }
-
-        if (harEndringer(amtDeltaker)) {
-            logger.info("Lagrer deltaker deltakerId=$key")
-            repository.deltaker.save(amtDeltaker.toDeltaker())
-            return skedulerOppdaterUtbetalinger(amtDeltaker.gjennomforingId)
+        when (val resultat = replikerDeltaker.execute(ReplikerDeltaker(key, amtDeltaker?.toDeltaker()))) {
+            is ReplikerDeltakerResultat.Slettet -> skedulerOppdaterUtbetalinger(resultat.gjennomforingId)
+            is ReplikerDeltakerResultat.Lagret -> skedulerOppdaterUtbetalinger(resultat.gjennomforingId)
+            ReplikerDeltakerResultat.IngenEndring -> {}
         }
     }
 
@@ -60,16 +47,6 @@ class ReplikerDeltakerKafkaConsumer(
             gjennomforingId = gjennomforingId,
             tidspunkt = offsetITilfelleDetErMangeEndringerForGjennomforing,
         )
-    }
-
-    private fun QueryContext.harEndringer(deltakerEkstern: AmtDeltakerEksternV1Dto): Boolean {
-        val deltaker = repository.deltaker.get(deltakerEkstern.id) ?: return true
-
-        if (truncateMicros(deltakerEkstern.endretTidspunkt) < deltaker.endretTidspunkt) {
-            return false
-        }
-
-        return deltaker != deltakerEkstern.toDeltaker()
     }
 }
 

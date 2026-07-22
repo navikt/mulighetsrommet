@@ -11,6 +11,8 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslagRepository
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerRepository
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
@@ -18,6 +20,8 @@ import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
 import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramRepository
 import no.nav.mulighetsrommet.api.persistence.arrangor.ArrangorQueries
+import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerForslagQueries
+import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
 import no.nav.mulighetsrommet.api.persistence.kostnadssted.KostnadsstedQueries
 import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattDtoQueries
@@ -48,6 +52,8 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     val opplaering = OpplaringKategoriseringQueries(session)
     val utdanning = UtdanningQueries(session)
     val tiltakDokument = TiltakDokumentQueries(session)
+    val deltaker = DeltakerQueries(session)
+    val deltakerForslag = DeltakerForslagQueries(session)
 
     override val repository = object : Repositories() {
         override val tiltakstype: TiltakstypeRepository = this@SqlQueryContext.tiltakstype
@@ -57,6 +63,8 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
         override val arrangor: ArrangorRepository = this@SqlQueryContext.arrangor
         override val utdanning: UtdanningsprogramRepository = this@SqlQueryContext.utdanning
         override val tiltakDokument: TiltakDokumentRepository = this@SqlQueryContext.tiltakDokument
+        override val deltaker: DeltakerRepository = this@SqlQueryContext.deltaker
+        override val deltakerForslag: DeltakerForslagRepository = this@SqlQueryContext.deltakerForslag
     }
 
     override val queries = object : Queries() {

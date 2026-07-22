@@ -17,6 +17,8 @@ import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonService
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.arrangor.KontoregisterGateway
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
@@ -236,7 +238,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 get(),
             ),
             config.clients.replikerDeltakerEksternV1 to ReplikerDeltakerKafkaConsumer(
-                db = get(),
+                replikerDeltaker = get(),
                 genererUtbetalingService = get(),
             ),
             config.clients.replikerDeltakerEnkeltplass to ReplikerDeltakerEnkeltplassKafkaConsumer(get(), get()),
@@ -508,6 +510,8 @@ private fun services(appConfig: AppConfig) = module {
     single { KostnadsstedQuery(get()) }
     single { NavAnsattDtoQuery(get()) }
     single { SyncArrangorUseCase(get(), get()) }
+    single { ReplikerDeltakerUseCase(get()) }
+    single { ReplikerDeltakerForslagUseCase(get()) }
     single { ArrangorKontaktpersonService(get()) }
     single<KontoregisterGateway> { KontoregisterOrganisasjonGateway(get()) }
     single { BetalingsinformasjonQuery(get(), get()) }
