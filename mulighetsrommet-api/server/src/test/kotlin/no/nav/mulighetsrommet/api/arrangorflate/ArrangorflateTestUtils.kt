@@ -51,8 +51,8 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 object ArrangorflateTestUtils {
@@ -60,18 +60,18 @@ object ArrangorflateTestUtils {
     val hovedenhet = ArrangorFixtures.hovedenhet
     val underenhet = ArrangorFixtures.underenhet1
 
-    fun createTestDeltaker(): Deltaker = Deltaker(
+    fun createTestDeltaker(): Deltaker = Deltaker.opprett(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         startDato = GjennomforingFixtures.AFT1.startDato,
         sluttDato = GjennomforingFixtures.AFT1.sluttDato,
-        registrertTidspunkt = LocalDateTime.now(),
-        endretTidspunkt = LocalDateTime.now(),
+        registrertTidspunkt = Instant.now(),
+        endretTidspunkt = Instant.now(),
         deltakelsesmengder = listOf(),
         status = DeltakerStatus(
             type = DeltakerStatusType.DELTAR,
             aarsak = null,
-            opprettetTidspunkt = LocalDateTime.now(),
+            opprettetTidspunkt = Instant.now(),
         ),
         innholdAnnet = null,
         navVeileder = null,

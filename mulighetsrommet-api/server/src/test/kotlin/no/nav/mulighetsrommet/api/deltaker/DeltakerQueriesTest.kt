@@ -5,19 +5,17 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
-import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.deltaker.NavVeileder
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 // TODO: flyttes til "persistence" etter at avhengigheter også er flyttet (avtale, gjennomføring)
@@ -32,31 +30,28 @@ class DeltakerQueriesTest : FunSpec({
         ),
     )
 
-    val opprettetTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+    val opprettetTidspunkt = Instant.parse("2023-03-01T00:00:00Z")
     val mengdeOpprettetTidspunkt = Instant.parse("2023-03-01T00:00:00Z")
 
-    val deltaker1 = Deltaker(
+    val deltaker1 = DeltakerFixtures.createDeltaker(
         id = UUID.randomUUID(),
         gjennomforingId = domain.gjennomforinger[0].id,
-        startDato = null,
-        sluttDato = null,
-        registrertTidspunkt = opprettetTidspunkt,
         endretTidspunkt = opprettetTidspunkt,
-        status = DeltakerStatus(
-            DeltakerStatusType.VENTER_PA_OPPSTART,
-            aarsak = null,
-            opprettetTidspunkt = opprettetTidspunkt,
-        ),
-        deltakelsesmengder = emptyList(),
-        innholdAnnet = null,
-        navVeileder = NavVeileder(
+        status = DeltakerStatusType.VENTER_PA_OPPSTART,
+        innhold = null,
+        veileder = NavVeileder(
             navIdent = NavIdent("B123456"),
             enhetsnummer = NavEnhetNummer("0200"),
         ),
     )
-    val deltaker2 = deltaker1.copy(
+
+    val deltaker2 = DeltakerFixtures.createDeltaker(
         id = UUID.randomUUID(),
         gjennomforingId = domain.gjennomforinger[1].id,
+        endretTidspunkt = opprettetTidspunkt,
+        status = DeltakerStatusType.VENTER_PA_OPPSTART,
+        innhold = "Noe innhold",
+        veileder = null,
     )
 
     test("CRUD") {
@@ -69,12 +64,9 @@ class DeltakerQueriesTest : FunSpec({
             repository.deltaker.get(deltaker1.id) shouldBe deltaker1
             repository.deltaker.get(deltaker2.id) shouldBe deltaker2
 
-            val avsluttetDeltaker2 = deltaker2.copy(
-                status = DeltakerStatus(
-                    DeltakerStatusType.HAR_SLUTTET,
-                    aarsak = null,
-                    opprettetTidspunkt = LocalDateTime.of(2023, 3, 2, 0, 0, 0),
-                ),
+            val avsluttetDeltaker2 = deltaker2.registrerStatus(
+                type = DeltakerStatusType.HAR_SLUTTET,
+                endretTidspunkt = Instant.parse("2023-03-02T00:00:00Z"),
             )
             repository.deltaker.save(avsluttetDeltaker2)
 
@@ -92,7 +84,9 @@ class DeltakerQueriesTest : FunSpec({
         database.runAndRollback {
             domain.initialize()
 
-            val deltakerMedEnMengde = deltaker1.copy(
+            val deltakerMedEnMengde = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
+                id = deltaker1.id,
+                gjennomforingId = deltaker1.gjennomforingId,
                 deltakelsesmengder = listOf(
                     Deltakelsesmengde(
                         gyldigFra = LocalDate.of(2023, 3, 1),
@@ -107,7 +101,9 @@ class DeltakerQueriesTest : FunSpec({
                 deltakerMedEnMengde.deltakelsesmengder,
             )
 
-            val deltakerMedToMengder = deltaker1.copy(
+            val deltakerMedToMengder = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
+                id = deltaker1.id,
+                gjennomforingId = deltaker1.gjennomforingId,
                 deltakelsesmengder = listOf(
                     Deltakelsesmengde(
                         gyldigFra = LocalDate.of(2023, 3, 10),

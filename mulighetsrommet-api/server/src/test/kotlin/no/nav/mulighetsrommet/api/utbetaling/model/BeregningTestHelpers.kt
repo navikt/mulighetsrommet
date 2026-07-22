@@ -226,17 +226,17 @@ object BeregningTestHelpers {
         periode: Periode,
         deltakelsesmengder: List<Deltakelsesmengde> = emptyList(),
         status: DeltakerStatusType = DeltakerStatusType.DELTAR,
-    ): Deltaker = Deltaker(
+    ): Deltaker = Deltaker.opprett(
         id = UUID.randomUUID(),
         gjennomforingId = UUID.randomUUID(),
         startDato = periode.start,
         sluttDato = periode.getLastInclusiveDate(),
-        registrertTidspunkt = periode.start.atStartOfDay(),
-        endretTidspunkt = periode.start.atStartOfDay(),
+        registrertTidspunkt = Instant.now(),
+        endretTidspunkt = Instant.now(),
         status = DeltakerStatus(
             type = status,
             aarsak = null,
-            opprettetTidspunkt = periode.start.atStartOfDay(),
+            opprettetTidspunkt = Instant.now(),
         ),
         deltakelsesmengder = deltakelsesmengder,
         innholdAnnet = null,

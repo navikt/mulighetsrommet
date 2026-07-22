@@ -47,7 +47,6 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class GjennomforingEnkeltplassServiceTest : FunSpec({
@@ -702,7 +701,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val deltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     status = DeltakerStatusType.DELTAR,
-                ).copy(deltakelsesmengder = emptyList())
+                )
 
                 val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
@@ -1160,8 +1159,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         }
 
         context("relast av deltaker") {
-            val tidligereEndretTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0, 0)
-            val nyereEndretTidspunkt = LocalDateTime.of(2025, 6, 1, 12, 0, 0)
+            val tidligereEndretTidspunkt = Instant.parse("2025-01-01T12:00:00Z")
+            val nyereEndretTidspunkt = Instant.parse("2025-06-01T12:00:00Z")
 
             test("prosesserer når deltaker-eventet er samme eller nyere enn lagret") {
                 val lagretDeltaker = DeltakerFixtures.createDeltaker(

@@ -8,7 +8,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.model.DeltakerStatusType
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 
 class ReplikerDeltakerUseCaseTest : FunSpec({
@@ -52,9 +52,7 @@ class ReplikerDeltakerUseCaseTest : FunSpec({
         val eksisterende = DeltakerFixtures.createDeltaker(gjennomforingId = UUID.randomUUID())
         db.repository.deltaker.save(eksisterende)
 
-        val feilregistrert = eksisterende.copy(
-            status = eksisterende.status.copy(type = DeltakerStatusType.FEILREGISTRERT),
-        )
+        val feilregistrert = eksisterende.registrerStatus(DeltakerStatusType.FEILREGISTRERT)
 
         val replikerDeltaker = ReplikerDeltakerUseCase(db)
 
@@ -67,8 +65,8 @@ class ReplikerDeltakerUseCaseTest : FunSpec({
     test("overskriver ikke deltaker når tidspunkt for endring er eldre enn det som er lagret i databasen") {
         val db = TestAdminDatabase()
 
-        val nyereEndring = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
-        val eldreEndring = LocalDateTime.of(2023, 2, 1, 0, 0, 0)
+        val nyereEndring = Instant.parse("2023-03-01T00:00:00Z")
+        val eldreEndring = Instant.parse("2023-02-01T00:00:00Z")
 
         val id = UUID.randomUUID()
         val lagretDeltaker = DeltakerFixtures.createDeltaker(
@@ -79,8 +77,8 @@ class ReplikerDeltakerUseCaseTest : FunSpec({
         )
         db.repository.deltaker.save(lagretDeltaker)
 
-        val eldreDeltaker = lagretDeltaker.copy(
-            status = lagretDeltaker.status.copy(type = DeltakerStatusType.AVBRUTT),
+        val eldreDeltaker = lagretDeltaker.registrerStatus(
+            type = DeltakerStatusType.AVBRUTT,
             endretTidspunkt = eldreEndring,
         )
 
@@ -110,7 +108,7 @@ class ReplikerDeltakerUseCaseTest : FunSpec({
         val db = TestAdminDatabase()
 
         val id = UUID.randomUUID()
-        val endretTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+        val endretTidspunkt = Instant.parse("2023-03-01T00:00:00Z")
         val deltaker = DeltakerFixtures.createDeltaker(
             id = id,
             gjennomforingId = UUID.randomUUID(),
@@ -119,10 +117,7 @@ class ReplikerDeltakerUseCaseTest : FunSpec({
         )
         db.repository.deltaker.save(deltaker)
 
-        val oppdatertDeltaker = deltaker.copy(
-            status = deltaker.status.copy(type = DeltakerStatusType.AVBRUTT),
-            endretTidspunkt = endretTidspunkt,
-        )
+        val oppdatertDeltaker = deltaker.registrerStatus(DeltakerStatusType.AVBRUTT)
 
         val replikerDeltaker = ReplikerDeltakerUseCase(db)
 
