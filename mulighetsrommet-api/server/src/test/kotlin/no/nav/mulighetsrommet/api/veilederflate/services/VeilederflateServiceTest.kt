@@ -345,7 +345,7 @@ class VeilederflateServiceTest : FunSpec({
     context("tiltak_dokument — DB-first for sanity-tiltak") {
         afterEach {
             database.run {
-                queries.tiltakDokument.getAllKompaktDto().forEach { g ->
+                queries.tiltakDokument.getAllKompaktDto().items.forEach { g ->
                     queries.tiltakDokument.delete(g.id)
                 }
             }

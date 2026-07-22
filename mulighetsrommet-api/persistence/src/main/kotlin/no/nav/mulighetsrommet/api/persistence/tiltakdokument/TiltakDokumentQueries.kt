@@ -188,11 +188,21 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
         navEnheter: List<NavEnhetNummer>,
         tiltakstyper: List<Tiltakskode>,
         publisert: Boolean?,
+        sortering: String?,
     ): PaginatedResult<TiltakDokumentKompaktDto> = with(session) {
+        val order = when (sortering) {
+            "navn-ascending" -> "navn asc"
+            "navn-descending" -> "navn desc"
+            "tiltakstype-ascending" -> "tiltakstype_navn asc"
+            "tiltakstype-descending" -> "tiltakstype_navn desc"
+            "arrangor-ascending" -> "arrangor_navn asc"
+            "arrangor-descending" -> "arrangor_navn desc"
+            else -> "navn asc"
+        }
+
         @Language("PostgreSQL")
         val query = """
-        select *,
-               count(*) over () as total_count
+        select *, count(*) over () as total_count
         from view_tiltak_dokument
         where (:nav_enheter::text[] is null or id in (
             select tiltak_dokument_id from tiltak_dokument_nav_enhet
@@ -200,7 +210,7 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
         ))
         and (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any (:tiltakskoder))
         and (:publisert::boolean is null or publisert = :publisert)
-        order by created_at desc
+        order by $order
         limit :limit
         offset :offset
         """.trimIndent()

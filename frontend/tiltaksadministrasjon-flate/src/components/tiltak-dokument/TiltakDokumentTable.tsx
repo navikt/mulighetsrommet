@@ -9,20 +9,56 @@ import { formaterNavEnheter } from "@/utils/Utils";
 import { TabellWrapper } from "@/components/tabell/TabellWrapper";
 import { PagineringsOversikt } from "@/components/paginering/PagineringOversikt";
 import { PagineringContainer } from "@/components/paginering/PagineringContainer";
+import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
+import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
 
 interface Props {
   filter: TiltakDokumentFilterType;
   updateFilter: (values: Partial<TiltakDokumentFilterType>) => void;
+  tagsHeight: number;
+  filterOpen: boolean;
 }
 
-export function TiltakDokumentTable({ filter, updateFilter }: Props) {
+export function TiltakDokumentTable({ filter, updateFilter, tagsHeight, filterOpen }: Props) {
   const navigate = useNavigate();
+  const sort = filter.sortering.tableSort;
   const {
     data: { pagination, data: tiltakDokumenter },
   } = useTiltakDokumenter(filter);
 
+  const handleSort = (sortKey: string) => {
+    const direction =
+      sort.orderBy === sortKey
+        ? sort.direction === "descending"
+          ? "ascending"
+          : "descending"
+        : "ascending";
+
+    updateFilter({
+      sortering: {
+        sortString: `${sortKey}-${direction}`,
+        tableSort: { orderBy: sortKey, direction },
+      },
+      page: sort.orderBy !== sortKey || sort.direction !== direction ? 1 : filter.page,
+    });
+  };
+
   return (
     <>
+      <ToolbarContainer tagsHeight={tagsHeight} filterOpen={filterOpen}>
+        <ToolbarMeny>
+          <PagineringsOversikt
+            page={filter.page}
+            pageSize={filter.pageSize}
+            antall={tiltakDokumenter.length}
+            maksAntall={pagination.totalCount}
+            type="tiltaksdokumenter"
+            onChangePageSize={(size) => {
+              updateFilter({ page: 1, pageSize: size });
+            }}
+          />
+        </ToolbarMeny>
+      </ToolbarContainer>
       <div className="flex justify-end mb-4">
         <Button
           size="small"
@@ -36,13 +72,19 @@ export function TiltakDokumentTable({ filter, updateFilter }: Props) {
         {tiltakDokumenter.length === 0 ? (
           <Alert variant="info">Fant ingen tiltaksdokumenter</Alert>
         ) : (
-          <Table>
+          <Table sort={sort} onSortChange={(sortKey) => handleSort(sortKey)}>
             <Table.Header>
               <Table.Row>
-                <Table.ColumnHeader>Navn</Table.ColumnHeader>
-                <Table.ColumnHeader>Tiltakstype</Table.ColumnHeader>
+                <Table.ColumnHeader sortKey="navn" sortable>
+                  Navn
+                </Table.ColumnHeader>
+                <Table.ColumnHeader sortKey="tiltakstype" sortable>
+                  Tiltakstype
+                </Table.ColumnHeader>
                 <Table.ColumnHeader>Enhet</Table.ColumnHeader>
-                <Table.ColumnHeader>Arrangør</Table.ColumnHeader>
+                <Table.ColumnHeader sortKey="arrangor" sortable>
+                  Arrangør
+                </Table.ColumnHeader>
                 <Table.ColumnHeader />
               </Table.Row>
             </Table.Header>
@@ -100,9 +142,6 @@ export function TiltakDokumentTable({ filter, updateFilter }: Props) {
               antall={tiltakDokumenter.length}
               maksAntall={pagination.totalCount}
               type="tiltaksdokumenter"
-              onChangePageSize={(size) => {
-                updateFilter({ page: 1, pageSize: size });
-              }}
             />
             <Pagination
               size="small"

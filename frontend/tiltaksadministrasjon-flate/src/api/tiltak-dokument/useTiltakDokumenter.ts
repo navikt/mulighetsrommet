@@ -8,6 +8,7 @@ export function useTiltakDokumenter(filter?: Partial<TiltakDokumentFilterType>) 
     body: {
       navEnheter: filter?.navEnheter ?? [],
       tiltakstyper: filter?.tiltakstyper ?? [],
+      sort: filter?.sortering?.sortString ?? null,
     },
     query: {
       page: filter?.page ?? 1,

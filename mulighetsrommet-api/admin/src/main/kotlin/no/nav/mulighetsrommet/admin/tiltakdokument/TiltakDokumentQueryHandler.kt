@@ -14,6 +14,7 @@ interface TiltakDokumentQueryHandler {
         navEnheter: List<NavEnhetNummer> = emptyList(),
         tiltakstyper: List<Tiltakskode> = emptyList(),
         publisert: Boolean? = null,
+        sortering: String? = null,
     ): PaginatedResult<TiltakDokumentKompaktDto>
 
     fun setPublisert(id: UUID, publisert: Boolean)
