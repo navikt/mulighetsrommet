@@ -15,7 +15,7 @@ import java.util.UUID
 
 class PrismodellQueries(private val session: Session) {
 
-    fun upsert(prismodell: Prismodell, systemId: String? = null) {
+    fun upsert(prismodell: Prismodell) {
         @Language("PostgreSQL")
         val query = """
             insert into prismodell(id,
@@ -63,7 +63,11 @@ class PrismodellQueries(private val session: Session) {
 
         val params = mapOf(
             "id" to prismodell.id,
-            "system_id" to systemId,
+            "system_id" to when (prismodell) {
+                is Prismodell.ForhandsgodkjentPrisPerManedsverk -> prismodell.systemId
+                is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> prismodell.systemId
+                else -> null
+            },
             "prismodell" to prismodell.type.name,
             "prisbetingelser" to prisbetingelser,
             "satser" to Json.encodeToString(prismodell.satser()),

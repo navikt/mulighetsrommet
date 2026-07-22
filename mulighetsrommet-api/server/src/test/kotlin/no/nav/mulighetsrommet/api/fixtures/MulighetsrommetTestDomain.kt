@@ -66,7 +66,7 @@ data class MulighetsrommetTestDomain(
             ansatte.forEach { queries.ansatt.save(it) }
             arrangorer.forEach { repository.arrangor.save(it) }
             tiltakstyper.forEach { repository.tiltakstype.save(it) }
-            prismodeller.forEach { queries.prismodell.upsert(it, PrismodellFixtures.systemIds[it.id]) }
+            prismodeller.forEach { queries.prismodell.upsert(it) }
             regelverklenke.forEach { queries.regelverklenke.upsert(it) }
             avtaler.forEach { queries.avtale.create(it) }
             gjennomforinger.forEach { gjennomforing ->

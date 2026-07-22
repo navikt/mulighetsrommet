@@ -29,6 +29,11 @@ sealed interface Prismodell {
 
     @Serializable
     data class ForhandsgodkjentPrisPerManedsverk(
+        /**
+         * Prismodeller for forhåndsgodkjente tiltak er identifisert med en kjent system-id.
+         * Dette tillater systemet å finne riktig prismodell for alle tiltak for en gitt tiltakskode.
+         */
+        val systemId: String? = null,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
@@ -40,6 +45,11 @@ sealed interface Prismodell {
 
     @Serializable
     data class ForhandsgodkjentPrisPerAvtaltTiltaksplass(
+        /**
+         * Prismodeller for forhåndsgodkjente tiltak er identifisert med en kjent system-id.
+         * Dette tillater systemet å finne riktig prismodell for alle tiltak for en gitt tiltakskode.
+         */
+        val systemId: String? = null,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,

@@ -35,6 +35,7 @@ object PrismodellFixtures {
 
     val ForhandsgodkjentAft = Prismodell.ForhandsgodkjentPrisPerManedsverk(
         id = UUID.randomUUID(),
+        systemId = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING.name,
         valuta = Valuta.NOK,
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 20_975.NOK),
@@ -44,6 +45,7 @@ object PrismodellFixtures {
 
     val ForhandsgodkjentVtas = Prismodell.ForhandsgodkjentPrisPerManedsverk(
         id = UUID.randomUUID(),
+        systemId = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name,
         valuta = Valuta.NOK,
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 16_848.NOK),
@@ -53,6 +55,7 @@ object PrismodellFixtures {
 
     val ForhandsgodkjentVtao = Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass(
         id = UUID.randomUUID(),
+        systemId = Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER.name,
         valuta = Valuta.NOK,
         satser = listOf(
             AvtaltSats(LocalDate.of(2025, 1, 1), 7_321.NOK),
@@ -83,12 +86,5 @@ object PrismodellFixtures {
         tilsagnPerDeltaker = false,
         prisbetingelser = null,
         totalbelop = null,
-    )
-
-    // Maps prismodell IDs to their system IDs (for seeding in test databases)
-    val systemIds: Map<UUID, String> = mapOf(
-        ForhandsgodkjentAft.id to Tiltakskode.ARBEIDSFORBEREDENDE_TRENING.name,
-        ForhandsgodkjentVtas.id to Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET.name,
-        ForhandsgodkjentVtao.id to Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER.name,
     )
 }
