@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
@@ -81,7 +82,7 @@ fun AmtDeltakerEksternV1Dto.toDeltaker(): Deltaker = Deltaker(
     endretTidspunkt = truncateMicros(endretTidspunkt),
     status = status.toDeltakerStatus(),
     deltakelsesmengder = deltakelsesmengder.map {
-        Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble(), it.opprettetTidspunkt)
+        Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble(), it.opprettetTidspunkt.tilNorskInstant())
     },
     innholdAnnet = innhold?.let { innhold ->
         innhold.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
@@ -101,3 +102,5 @@ private fun AmtDeltakerEksternV1Dto.StatusDto.toDeltakerStatus(): DeltakerStatus
 )
 
 private fun truncateMicros(timestamp: LocalDateTime) = timestamp.truncatedTo(ChronoUnit.MICROS)
+
+private fun LocalDateTime.tilNorskInstant(): Instant = atZone(ZoneId.of("Europe/Oslo")).toInstant()

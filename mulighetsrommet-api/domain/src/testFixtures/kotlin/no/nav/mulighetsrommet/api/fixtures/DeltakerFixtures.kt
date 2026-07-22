@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -35,21 +36,22 @@ object DeltakerFixtures {
     )
 
     fun createDeltakerMedDeltakelsesmengder(
+        id: UUID = UUID.randomUUID(),
         gjennomforingId: UUID,
         startDato: LocalDate = LocalDate.now(),
         sluttDato: LocalDate? = LocalDate.now().plusMonths(1),
-        statusType: DeltakerStatusType = DeltakerStatusType.DELTAR,
-        statusOpprettet: LocalDateTime = LocalDateTime.now(),
+        status: DeltakerStatusType = DeltakerStatusType.DELTAR,
+        endretTidspunkt: LocalDateTime = LocalDateTime.now(),
         deltakelsesprosent: Double = 100.0,
         deltakelsesmengder: List<Deltakelsesmengde> = listOf(
             Deltakelsesmengde(
                 gyldigFra = startDato,
                 deltakelsesprosent = deltakelsesprosent,
-                opprettetTidspunkt = LocalDateTime.now(),
+                opprettetTidspunkt = Instant.now(),
             ),
         ),
     ) = Deltaker(
-        id = UUID.randomUUID(),
+        id = id,
         startDato = startDato,
         sluttDato = sluttDato,
         gjennomforingId = gjennomforingId,
@@ -57,9 +59,9 @@ object DeltakerFixtures {
         endretTidspunkt = LocalDateTime.now(),
         deltakelsesmengder = deltakelsesmengder,
         status = DeltakerStatus(
-            type = statusType,
+            type = status,
             aarsak = null,
-            opprettetTidspunkt = statusOpprettet,
+            opprettetTidspunkt = endretTidspunkt,
         ),
         innholdAnnet = null,
         navVeileder = null,

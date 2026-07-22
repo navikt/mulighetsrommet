@@ -45,6 +45,7 @@ import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -339,13 +340,14 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             val startDato = LocalDate.of(2025, 3, 1)
             val sluttDato = LocalDate.of(2025, 9, 1)
-            val deltaker = DeltakerFixtures.createDeltaker(
+            val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
                 id = UUID.randomUUID(),
                 gjennomforingId = soktInn.id,
                 status = DeltakerStatusType.DELTAR,
                 startDato = startDato,
                 sluttDato = sluttDato,
-            ).copy(deltakelsesmengder = listOf(Deltakelsesmengde(gyldigFra = startDato, deltakelsesprosent = 60.0)))
+                deltakelsesmengder = listOf(Deltakelsesmengde(startDato, 60.0, Instant.now())),
+            )
             service.updateFromDeltaker(deltaker, NorskIdent("12345678910"))
 
             service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
@@ -682,19 +684,12 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("bruker deltakelsesprosent fra siste deltakelsesmengde") {
-                val deltaker = DeltakerFixtures.createDeltaker(
+                val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     status = DeltakerStatusType.DELTAR,
-                ).copy(
                     deltakelsesmengder = listOf(
-                        Deltakelsesmengde(
-                            gyldigFra = LocalDate.of(2025, 1, 1),
-                            deltakelsesprosent = 50.0,
-                        ),
-                        Deltakelsesmengde(
-                            gyldigFra = LocalDate.of(2025, 3, 1),
-                            deltakelsesprosent = 75.0,
-                        ),
+                        Deltakelsesmengde(LocalDate.of(2025, 1, 1), 50.0, Instant.now()),
+                        Deltakelsesmengde(LocalDate.of(2025, 3, 1), 75.0, Instant.now()),
                     ),
                 )
 

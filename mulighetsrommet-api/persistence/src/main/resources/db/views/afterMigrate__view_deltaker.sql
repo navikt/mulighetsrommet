@@ -17,7 +17,7 @@ from deltaker
                                            jsonb_build_object(
                                                    'gyldigFra', gyldig_fra,
                                                    'deltakelsesprosent', deltakelsesprosent,
-                                                   'opprettetTidspunkt', opprettet_tidspunkt::timestamp
+                                                   'opprettetTidspunkt', opprettet_tidspunkt
                                            ) order by gyldig_fra
                                    ) as deltakelsesmengder_json
                             from deltaker_deltakelsesmengde

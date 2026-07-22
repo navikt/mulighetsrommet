@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 
 object BeregningTestHelpers {
@@ -214,6 +215,12 @@ object BeregningTestHelpers {
             prismodell = prismodell,
         )
     }
+
+    fun deltakelsesmengde(gyldigFra: LocalDate, deltakelsesprosent: Double): Deltakelsesmengde = Deltakelsesmengde(
+        gyldigFra = gyldigFra,
+        deltakelsesprosent = deltakelsesprosent,
+        opprettetTidspunkt = Instant.now(),
+    )
 
     fun createDeltaker(
         periode: Periode,

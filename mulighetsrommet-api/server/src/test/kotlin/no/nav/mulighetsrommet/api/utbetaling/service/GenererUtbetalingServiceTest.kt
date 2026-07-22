@@ -120,10 +120,10 @@ class GenererUtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 2, 28),
-                        statusType = DeltakerStatusType.DELTAR,
+                        status = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -196,10 +196,10 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2025, 2, 1),
                         sluttDato = LocalDate.of(2025, 2, 28),
-                        statusType = DeltakerStatusType.DELTAR,
+                        status = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -218,10 +218,10 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2024, 12, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
-                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                        status = DeltakerStatusType.HAR_SLUTTET,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -234,10 +234,10 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 1, 31),
-                        statusType = DeltakerStatusType.DELTAR,
+                        status = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -259,10 +259,10 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 2, 28),
-                        statusType = DeltakerStatusType.DELTAR,
+                        status = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -291,17 +291,17 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2023, 2, 1),
                         sluttDato = LocalDate.of(2026, 6, 1),
-                        statusType = DeltakerStatusType.DELTAR,
+                        status = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2026, 2, 1),
-                        statusType = DeltakerStatusType.DELTAR,
+                        status = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -322,10 +322,10 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2026, 2, 1),
-                        statusType = DeltakerStatusType.DELTAR,
+                        status = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -515,10 +515,10 @@ class GenererUtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1.copy(sluttDato = LocalDate.of(2025, 1, 31))),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2024, 12, 1),
                         sluttDato = LocalDate.of(2025, 1, 31),
-                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                        status = DeltakerStatusType.HAR_SLUTTET,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -540,10 +540,10 @@ class GenererUtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1.copy(sluttDato = LocalDate.of(2025, 1, 31))),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2024, 12, 1),
                         sluttDato = LocalDate.of(2025, 1, 31),
-                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                        status = DeltakerStatusType.HAR_SLUTTET,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -570,10 +570,10 @@ class GenererUtbetalingServiceTest : FunSpec({
                 ),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = LocalDate.of(2025, 1, 1),
-                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                        status = DeltakerStatusType.HAR_SLUTTET,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -595,17 +595,17 @@ class GenererUtbetalingServiceTest : FunSpec({
                 gjennomforinger = listOf(AFT1),
                 deltakere = listOf(
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = null,
-                        statusType = DeltakerStatusType.DELTAR,
+                        status = DeltakerStatusType.DELTAR,
                         deltakelsesprosent = 100.0,
                     ),
                     DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-                        AFT1.id,
+                        gjennomforingId = AFT1.id,
                         startDato = LocalDate.of(2025, 1, 1),
                         sluttDato = null,
-                        statusType = DeltakerStatusType.HAR_SLUTTET,
+                        status = DeltakerStatusType.HAR_SLUTTET,
                         deltakelsesprosent = 100.0,
                     ),
                 ),
@@ -636,10 +636,10 @@ class GenererUtbetalingServiceTest : FunSpec({
         val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
 
         val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-            gjennomforing.id,
+            gjennomforingId = gjennomforing.id,
             startDato = LocalDate.of(2026, 2, 1),
             sluttDato = LocalDate.of(2026, 2, 15),
-            statusType = DeltakerStatusType.DELTAR,
+            status = DeltakerStatusType.DELTAR,
             deltakelsesprosent = 100.0,
         )
 
@@ -964,10 +964,10 @@ class GenererUtbetalingServiceTest : FunSpec({
         val service = createUtbetalingService()
 
         val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
-            AFT1.id,
+            gjennomforingId = AFT1.id,
             startDato = LocalDate.of(2025, 1, 1),
             sluttDato = LocalDate.of(2025, 1, 31),
-            statusType = DeltakerStatusType.DELTAR,
+            status = DeltakerStatusType.DELTAR,
             deltakelsesprosent = 100.0,
         )
 

@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -32,6 +33,7 @@ class DeltakerQueriesTest : FunSpec({
     )
 
     val opprettetTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+    val mengdeOpprettetTidspunkt = Instant.parse("2023-03-01T00:00:00Z")
 
     val deltaker1 = Deltaker(
         id = UUID.randomUUID(),
@@ -95,7 +97,7 @@ class DeltakerQueriesTest : FunSpec({
                     Deltakelsesmengde(
                         gyldigFra = LocalDate.of(2023, 3, 1),
                         deltakelsesprosent = 100.0,
-                        opprettetTidspunkt = opprettetTidspunkt,
+                        opprettetTidspunkt = mengdeOpprettetTidspunkt,
                     ),
                 ),
             )
@@ -110,12 +112,12 @@ class DeltakerQueriesTest : FunSpec({
                     Deltakelsesmengde(
                         gyldigFra = LocalDate.of(2023, 3, 10),
                         deltakelsesprosent = 100.0,
-                        opprettetTidspunkt = opprettetTidspunkt,
+                        opprettetTidspunkt = mengdeOpprettetTidspunkt,
                     ),
                     Deltakelsesmengde(
                         gyldigFra = LocalDate.of(2023, 3, 5),
                         deltakelsesprosent = 100.0,
-                        opprettetTidspunkt = opprettetTidspunkt,
+                        opprettetTidspunkt = mengdeOpprettetTidspunkt,
                     ),
                 ),
             )
@@ -123,8 +125,8 @@ class DeltakerQueriesTest : FunSpec({
 
             repository.deltaker.get(deltaker1.id).shouldNotBeNull().deltakelsesmengder.shouldContainExactly(
                 listOf(
-                    Deltakelsesmengde(LocalDate.of(2023, 3, 5), 100.0, opprettetTidspunkt),
-                    Deltakelsesmengde(LocalDate.of(2023, 3, 10), 100.0, opprettetTidspunkt),
+                    Deltakelsesmengde(LocalDate.of(2023, 3, 5), 100.0, mengdeOpprettetTidspunkt),
+                    Deltakelsesmengde(LocalDate.of(2023, 3, 10), 100.0, mengdeOpprettetTidspunkt),
                 ),
             )
 
