@@ -653,7 +653,7 @@ fun Route.gjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = db.session {
-                queries.deltaker.getByGjennomforingId(id)
+                repository.deltaker.getByGjennomforing(id)
             }
 
             val deltakereByStatus = deltakereForGjennomforing

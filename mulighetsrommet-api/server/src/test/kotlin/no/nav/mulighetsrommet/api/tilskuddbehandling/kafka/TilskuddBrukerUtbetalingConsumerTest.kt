@@ -55,7 +55,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             deltakere = listOf(
-                DeltakerFixtures.createDeltakerDbo(GjennomforingFixtures.EnkelAmo.id).copy(id = deltakerId),
+                DeltakerFixtures.createDeltaker(deltakerId, GjennomforingFixtures.EnkelAmo.id),
             ),
         ).initialize(database.api)
 

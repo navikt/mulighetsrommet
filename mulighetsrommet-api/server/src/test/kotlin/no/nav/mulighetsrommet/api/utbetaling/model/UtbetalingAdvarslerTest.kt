@@ -5,8 +5,7 @@ import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import no.nav.amt.model.AmtArrangorMelding
-import no.nav.amt.model.EndringAarsak
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
@@ -68,7 +67,7 @@ class UtbetalingAdvarslerTest : FunSpec({
     context("isForslagRelevantForPeriode") {
         test("Sluttaarsak") {
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Sluttarsak(EndringAarsak.Syk),
+                endring = DeltakerForslag.Endring.Sluttarsak(DeltakerForslag.EndringAarsak.Syk),
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 deltakelsePeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             ) shouldBe false
@@ -77,7 +76,7 @@ class UtbetalingAdvarslerTest : FunSpec({
         test("ForlengDeltakelse") {
             // Forlenger slutt midt i periode blokkerer
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.ForlengDeltakelse(
+                endring = DeltakerForslag.Endring.ForlengDeltakelse(
                     sluttdato = LocalDate.of(2025, 3, 31),
                 ),
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -86,7 +85,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
             // Forlenger en allerede full periode blokkerer ikke
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.ForlengDeltakelse(
+                endring = DeltakerForslag.Endring.ForlengDeltakelse(
                     sluttdato = LocalDate.of(2025, 3, 31),
                 ),
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -95,7 +94,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
             // Forleng mot formodning er forkorting blokkerer
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.ForlengDeltakelse(
+                endring = DeltakerForslag.Endring.ForlengDeltakelse(
                     sluttdato = LocalDate.of(2025, 1, 12),
                 ),
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -106,7 +105,7 @@ class UtbetalingAdvarslerTest : FunSpec({
         test("Sluttdato") {
             // Endrer slutt midt i periode blokkerer
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Sluttdato(
+                endring = DeltakerForslag.Endring.Sluttdato(
                     sluttdato = LocalDate.of(2025, 3, 31),
                 ),
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -115,7 +114,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
             // Forlenger en allerede full periode blokkerer ikke
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Sluttdato(
+                endring = DeltakerForslag.Endring.Sluttdato(
                     sluttdato = LocalDate.of(2025, 3, 31),
                 ),
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -124,7 +123,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
             // Endre sluttdato tilbake i tid blokkerer
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Sluttdato(
+                endring = DeltakerForslag.Endring.Sluttdato(
                     sluttdato = LocalDate.of(2025, 1, 12),
                 ),
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -135,7 +134,7 @@ class UtbetalingAdvarslerTest : FunSpec({
         test("Deltakelsesmengde") {
             // Endrer deltakelsesmengde etter deltakelse blokkerer ikke
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Deltakelsesmengde(
+                endring = DeltakerForslag.Endring.Deltakelsesmengde(
                     deltakelsesprosent = 20,
                     gyldigFra = LocalDate.of(2025, 3, 31),
                 ),
@@ -145,7 +144,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
             // Endrer deltakelsesmengde inni deltakelse blokkerer
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Deltakelsesmengde(
+                endring = DeltakerForslag.Endring.Deltakelsesmengde(
                     deltakelsesprosent = 20,
                     gyldigFra = LocalDate.of(2025, 1, 7),
                 ),
@@ -155,7 +154,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
             // Endrer deltakelsesmengde før deltakelse blokkerer
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Deltakelsesmengde(
+                endring = DeltakerForslag.Endring.Deltakelsesmengde(
                     deltakelsesprosent = 20,
                     gyldigFra = LocalDate.of(2025, 1, 15),
                 ),
@@ -165,7 +164,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
             // Endrer deltakelsesmengde uten dato blokkerer
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Deltakelsesmengde(
+                endring = DeltakerForslag.Endring.Deltakelsesmengde(
                     deltakelsesprosent = 20,
                 ),
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
@@ -175,7 +174,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
         test("AvsluttDeltakelse") {
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse(
+                endring = DeltakerForslag.Endring.AvsluttDeltakelse(
                     harDeltatt = false,
                     aarsak = null,
                 ),
@@ -184,7 +183,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe true
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse(
+                endring = DeltakerForslag.Endring.AvsluttDeltakelse(
                     sluttdato = LocalDate.of(2025, 3, 31),
                     harDeltatt = false,
                     aarsak = null,
@@ -194,7 +193,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe true
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse(
+                endring = DeltakerForslag.Endring.AvsluttDeltakelse(
                     sluttdato = LocalDate.of(2025, 3, 31),
                     harDeltatt = true,
                     aarsak = null,
@@ -204,7 +203,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe false
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse(
+                endring = DeltakerForslag.Endring.AvsluttDeltakelse(
                     sluttdato = LocalDate.of(2025, 1, 1),
                     harDeltatt = true,
                     aarsak = null,
@@ -214,7 +213,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe true
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse(
+                endring = DeltakerForslag.Endring.AvsluttDeltakelse(
                     sluttdato = LocalDate.of(2024, 1, 1),
                     aarsak = null,
                 ),
@@ -225,7 +224,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
         test("EndreAvslutning") {
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.EndreAvslutning(
+                endring = DeltakerForslag.Endring.EndreAvslutning(
                     harDeltatt = false,
                     aarsak = null,
                     harFullfort = true,
@@ -235,7 +234,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe true
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.EndreAvslutning(
+                endring = DeltakerForslag.Endring.EndreAvslutning(
                     sluttdato = LocalDate.of(2025, 3, 31),
                     harDeltatt = false,
                     aarsak = null,
@@ -246,7 +245,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe true
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.EndreAvslutning(
+                endring = DeltakerForslag.Endring.EndreAvslutning(
                     sluttdato = LocalDate.of(2025, 3, 31),
                     harDeltatt = true,
                     aarsak = null,
@@ -257,7 +256,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe false
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.EndreAvslutning(
+                endring = DeltakerForslag.Endring.EndreAvslutning(
                     sluttdato = LocalDate.of(2025, 1, 1),
                     harDeltatt = true,
                     aarsak = null,
@@ -268,7 +267,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe true
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.EndreAvslutning(
+                endring = DeltakerForslag.Endring.EndreAvslutning(
                     sluttdato = LocalDate.of(2024, 1, 1),
                     aarsak = null,
                     harFullfort = false,
@@ -281,7 +280,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
         test("Startdato") {
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Startdato(
+                endring = DeltakerForslag.Endring.Startdato(
                     startdato = LocalDate.of(2025, 1, 12),
                 ),
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -289,7 +288,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe true
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Startdato(
+                endring = DeltakerForslag.Endring.Startdato(
                     startdato = LocalDate.of(2024, 1, 12),
                 ),
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
@@ -297,7 +296,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe false
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Startdato(
+                endring = DeltakerForslag.Endring.Startdato(
                     startdato = LocalDate.of(2025, 1, 1),
                     sluttdato = LocalDate.of(2025, 1, 12),
                 ),
@@ -306,7 +305,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe true
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Startdato(
+                endring = DeltakerForslag.Endring.Startdato(
                     startdato = LocalDate.of(2025, 1, 1),
                     sluttdato = LocalDate.of(2025, 1, 12),
                 ),
@@ -315,7 +314,7 @@ class UtbetalingAdvarslerTest : FunSpec({
             ) shouldBe true
 
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.Startdato(
+                endring = DeltakerForslag.Endring.Startdato(
                     startdato = LocalDate.of(2025, 1, 1),
                     sluttdato = LocalDate.of(2025, 1, 12),
                 ),
@@ -326,7 +325,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
         test("IkkeAktuell") {
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.IkkeAktuell(EndringAarsak.Syk),
+                endring = DeltakerForslag.Endring.IkkeAktuell(DeltakerForslag.EndringAarsak.Syk),
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 deltakelsePeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             ) shouldBe true
@@ -334,7 +333,7 @@ class UtbetalingAdvarslerTest : FunSpec({
 
         test("FjernOppstartsdato") {
             UtbetalingAdvarsler.isForslagRelevantForPeriode(
-                endring = AmtArrangorMelding.Forslag.Endring.FjernOppstartsdato,
+                endring = DeltakerForslag.Endring.FjernOppstartsdato,
                 utbetalingPeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 deltakelsePeriode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             ) shouldBe true

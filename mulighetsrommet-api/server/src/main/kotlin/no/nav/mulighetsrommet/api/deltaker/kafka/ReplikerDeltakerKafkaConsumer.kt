@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling.kafka
+package no.nav.mulighetsrommet.api.deltaker.kafka
 
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -6,9 +6,9 @@ import no.nav.amt.model.AmtDeltakerEksternV1Dto
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.deltaker.NavVeileder
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -35,20 +35,20 @@ class ReplikerDeltakerKafkaConsumer(
 
         if (amtDeltaker == null) {
             logger.info("Mottok tombstone for deltaker deltakerId=$key, sletter deltakeren")
-            queries.deltaker.get(key)?.let { skedulerOppdaterUtbetalinger(it.gjennomforingId) }
-            queries.deltaker.delete(key)
+            repository.deltaker.get(key)?.let { skedulerOppdaterUtbetalinger(it.gjennomforingId) }
+            repository.deltaker.delete(key)
             return
         }
 
         if (amtDeltaker.status.type == DeltakerStatusType.FEILREGISTRERT) {
             logger.info("Sletter deltaker deltakerId=$key fordi den var feilregistrert")
-            queries.deltaker.delete(key)
+            repository.deltaker.delete(key)
             return skedulerOppdaterUtbetalinger(amtDeltaker.gjennomforingId)
         }
 
         if (harEndringer(amtDeltaker)) {
             logger.info("Lagrer deltaker deltakerId=$key")
-            queries.deltaker.upsert(amtDeltaker.toDeltakerDbo())
+            repository.deltaker.save(amtDeltaker.toDeltaker())
             return skedulerOppdaterUtbetalinger(amtDeltaker.gjennomforingId)
         }
     }
@@ -62,7 +62,7 @@ class ReplikerDeltakerKafkaConsumer(
     }
 
     private fun QueryContext.harEndringer(deltakerEkstern: AmtDeltakerEksternV1Dto): Boolean {
-        val deltaker = queries.deltaker.get(deltakerEkstern.id) ?: return true
+        val deltaker = repository.deltaker.get(deltakerEkstern.id) ?: return true
 
         if (truncateMicros(deltakerEkstern.endretTidspunkt) < deltaker.endretTidspunkt) {
             return false
@@ -81,39 +81,13 @@ fun AmtDeltakerEksternV1Dto.toDeltaker(): Deltaker = Deltaker(
     endretTidspunkt = truncateMicros(endretTidspunkt),
     status = status.toDeltakerStatus(),
     deltakelsesmengder = deltakelsesmengder.map {
-        Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble())
+        Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble(), it.opprettetTidspunkt)
     },
     innholdAnnet = innhold?.let { innhold ->
         innhold.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
     },
     navVeileder = navVeileder?.let {
-        no.nav.mulighetsrommet.api.utbetaling.model.NavVeileder(
-            navIdent = it.navIdent,
-            enhetsnummer = it.enhetsnummer,
-        )
-    },
-)
-
-fun AmtDeltakerEksternV1Dto.toDeltakerDbo(): DeltakerDbo = DeltakerDbo(
-    id = id,
-    gjennomforingId = gjennomforingId,
-    startDato = startDato,
-    sluttDato = sluttDato,
-    registrertTidspunkt = registrertTidspunkt,
-    endretTidspunkt = truncateMicros(endretTidspunkt),
-    status = status.toDeltakerStatus(),
-    deltakelsesmengder = deltakelsesmengder.map {
-        DeltakerDbo.Deltakelsesmengde(
-            gyldigFra = it.gyldigFraDato,
-            opprettetTidspunkt = it.opprettetTidspunkt,
-            deltakelsesprosent = it.deltakelsesprosent.toDouble(),
-        )
-    },
-    innholdAnnet = innhold?.let { innhold ->
-        innhold.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
-    },
-    navVeileder = navVeileder?.let {
-        DeltakerDbo.NavVeileder(
+        NavVeileder(
             navIdent = it.navIdent,
             enhetsnummer = it.enhetsnummer,
         )

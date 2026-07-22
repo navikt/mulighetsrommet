@@ -1,17 +1,15 @@
-package no.nav.mulighetsrommet.api.utbetaling.kafka
+package no.nav.mulighetsrommet.api.deltaker.kafka
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
-import no.nav.amt.model.AmtArrangorMelding
-import no.nav.amt.model.EndringAarsak
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -138,11 +136,11 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
             avtaler = listOf(AvtaleFixtures.AFT),
             gjennomforinger = listOf(GjennomforingFixtures.AFT1),
             deltakere = listOf(
-                DeltakerFixtures.createDeltakerDbo(
-                    GjennomforingFixtures.AFT1.id,
+                DeltakerFixtures.createDeltaker(
+                    gjennomforingId = GjennomforingFixtures.AFT1.id,
                     startDato = LocalDate.now(),
                     sluttDato = LocalDate.now().plusMonths(1),
-                    statusType = DeltakerStatusType.DELTAR,
+                    status = DeltakerStatusType.DELTAR,
                 ),
             ),
         ).initialize(database.api)
@@ -183,7 +181,7 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
         )
 
         val forslag = database.run {
-            queries.deltakerForslag.getForslagByGjennomforing(GjennomforingFixtures.AFT1.id)
+            repository.deltakerForslag.getByGjennomforing(GjennomforingFixtures.AFT1.id)
         }
 
         forslag shouldBe mapOf(
@@ -191,8 +189,8 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
                 DeltakerForslag(
                     id = UUID.fromString("26b2ef7f-2c33-4468-b9cd-98e935d747cc"),
                     deltakerId = deltakerId,
-                    endring = AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse(
-                        aarsak = EndringAarsak.TrengerAnnenStotte,
+                    endring = DeltakerForslag.Endring.AvsluttDeltakelse(
+                        aarsak = DeltakerForslag.EndringAarsak.TrengerAnnenStotte,
                         harDeltatt = false,
                     ),
                     status = DeltakerForslag.Status.VENTER_PA_SVAR,
@@ -235,9 +233,9 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(GjennomforingFixtures.AFT1),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
-                        GjennomforingFixtures.AFT1.id,
-                        statusType = DeltakerStatusType.DELTAR,
+                    DeltakerFixtures.createDeltaker(
+                        gjennomforingId = GjennomforingFixtures.AFT1.id,
+                        status = DeltakerStatusType.DELTAR,
                         startDato = LocalDate.now(),
                         sluttDato = null,
                     ),
@@ -264,9 +262,9 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(GjennomforingFixtures.AFT1),
                 deltakere = listOf(
-                    DeltakerFixtures.createDeltakerDbo(
-                        GjennomforingFixtures.AFT1.id,
-                        statusType = DeltakerStatusType.DELTAR,
+                    DeltakerFixtures.createDeltaker(
+                        gjennomforingId = GjennomforingFixtures.AFT1.id,
+                        status = DeltakerStatusType.DELTAR,
                         startDato = LocalDate.now(),
                         sluttDato = null,
                     ),

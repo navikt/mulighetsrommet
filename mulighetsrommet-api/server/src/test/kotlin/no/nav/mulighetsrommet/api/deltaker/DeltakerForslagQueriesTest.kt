@@ -1,9 +1,9 @@
-package no.nav.mulighetsrommet.api.utbetaling.db
+package no.nav.mulighetsrommet.api.deltaker
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.maps.shouldContainExactly
 import io.kotest.matchers.maps.shouldNotContainKey
-import no.nav.amt.model.AmtArrangorMelding
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -13,14 +13,15 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import java.time.LocalDate
 import java.util.UUID
 
+// TODO: flyttes til "persistence" etter at avhengigheter også er flyttet (avtale, gjennomføring)
 class DeltakerForslagQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
-    val deltaker = DeltakerFixtures.createDeltakerDbo(
-        GjennomforingFixtures.Oppfolging1.id,
+    val deltaker = DeltakerFixtures.createDeltaker(
+        gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
         startDato = LocalDate.now(),
         sluttDato = LocalDate.now().plusMonths(1),
-        statusType = DeltakerStatusType.VENTER_PA_OPPSTART,
+        status = DeltakerStatusType.VENTER_PA_OPPSTART,
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -36,20 +37,20 @@ class DeltakerForslagQueriesTest : FunSpec({
             val forslag = DeltakerForslag(
                 id = UUID.randomUUID(),
                 deltakerId = deltaker.id,
-                endring = AmtArrangorMelding.Forslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
+                endring = DeltakerForslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
                 status = DeltakerForslag.Status.GODKJENT,
             )
 
-            queries.deltakerForslag.upsert(forslag)
+            repository.deltakerForslag.save(forslag)
 
-            val forslagEtterUpsert = queries.deltakerForslag.getForslagByGjennomforing(
+            val forslagEtterUpsert = repository.deltakerForslag.getByGjennomforing(
                 GjennomforingFixtures.Oppfolging1.id,
             )
             forslagEtterUpsert shouldContainExactly mapOf(deltaker.id to listOf(forslag))
 
-            queries.deltakerForslag.delete(forslag.id)
+            repository.deltakerForslag.delete(forslag.id)
 
-            val forslagEtterDelete = queries.deltakerForslag.getForslagByGjennomforing(
+            val forslagEtterDelete = repository.deltakerForslag.getByGjennomforing(
                 GjennomforingFixtures.Oppfolging1.id,
             )
             forslagEtterDelete shouldNotContainKey deltaker.id

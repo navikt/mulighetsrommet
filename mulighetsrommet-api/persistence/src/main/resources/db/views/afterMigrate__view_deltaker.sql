@@ -16,7 +16,8 @@ from deltaker
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'gyldigFra', gyldig_fra,
-                                                   'deltakelsesprosent', deltakelsesprosent
+                                                   'deltakelsesprosent', deltakelsesprosent,
+                                                   'opprettetTidspunkt', opprettet_tidspunkt::timestamp
                                            ) order by gyldig_fra
                                    ) as deltakelsesmengder_json
                             from deltaker_deltakelsesmengde

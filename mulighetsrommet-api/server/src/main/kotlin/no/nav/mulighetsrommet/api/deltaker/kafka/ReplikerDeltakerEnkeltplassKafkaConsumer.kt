@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing.kafka
+package no.nav.mulighetsrommet.api.deltaker.kafka
 
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -7,7 +7,6 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
-import no.nav.mulighetsrommet.api.utbetaling.kafka.toDeltaker
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.NorskIdent

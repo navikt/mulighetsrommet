@@ -117,9 +117,9 @@ class ArrangorflateUtbetalingService(
     private fun getAdvarsler(utbetaling: ArrangorflateUtbetaling): List<DeltakerAdvarsel> = with(tx) {
         return when (utbetaling.status) {
             UtbetalingStatusType.GENERERT -> {
-                val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
-                val deltakere = queries.deltaker
-                    .getByGjennomforingId(utbetaling.gjennomforing.id)
+                val forslag = repository.deltakerForslag.getByGjennomforing(utbetaling.gjennomforing.id)
+                val deltakere = repository.deltaker
+                    .getByGjennomforing(utbetaling.gjennomforing.id)
                     .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
 
                 UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
@@ -218,7 +218,7 @@ class ArrangorflateUtbetalingService(
     ): AvtaltPrisPerTimeOppfolgingData {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
+        val deltakere = repository.deltaker.getByGjennomforing(gjennomforing.id)
         val deltakelsePerioder = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
         return AvtaltPrisPerTimeOppfolgingData(satser, stengtHosArrangor, deltakere, deltakelsePerioder)
     }

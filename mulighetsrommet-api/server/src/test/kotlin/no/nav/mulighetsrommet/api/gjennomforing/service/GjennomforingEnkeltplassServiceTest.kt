@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
@@ -34,7 +35,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.FieldError
@@ -556,7 +556,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         context("validering av én deltaker per enkeltplass") {
             test("godtar deltakeren som allerede er tilknyttet gjennomføringen") {
-                val eksisterendeDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val eksisterendeDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                 )
                 MulighetsrommetTestDomain(
@@ -573,7 +573,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("kaster exception når gjennomføringen allerede har en annen deltaker") {
-                val annenDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val annenDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                 )
                 MulighetsrommetTestDomain(
@@ -591,7 +591,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("ignorerer annen deltaker som er FEILREGISTRERT uten å kaste exception") {
-                val eksisterendeDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val eksisterendeDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                 )
                 MulighetsrommetTestDomain(
@@ -1169,7 +1169,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val nyereEndretTidspunkt = LocalDateTime.of(2025, 6, 1, 12, 0, 0)
 
             test("prosesserer når deltaker-eventet er samme eller nyere enn lagret") {
-                val lagretDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val lagretDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     endretTidspunkt = tidligereEndretTidspunkt,
                 )
@@ -1199,7 +1199,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("hopper over når deltaker-eventet er eldre enn lagret") {
-                val lagretDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val lagretDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     endretTidspunkt = nyereEndretTidspunkt,
                 )

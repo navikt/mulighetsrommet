@@ -96,7 +96,7 @@ class GjennomforingAvtaleService(
             }
             val avtale = queries.avtale.getOrError(previous.avtaleId)
             val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
-            val antallDeltakere = queries.deltaker.getByGjennomforingId(id).size
+            val antallDeltakere = repository.deltaker.getByGjennomforing(id).size
             val kategorisering = GjennomforingValidator.Context.Kategorisering(
                 kurstyper = queries.opplaering.getKurstyper(),
                 bransjer = queries.opplaering.getBransjer(),
