@@ -1,12 +1,10 @@
 import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { ApentForPamelding } from "@arbeidsmarkedstiltak/api-client";
-import { FilterAccordionHeader } from "@mr/frontend-common";
+import { FilterAccordion } from "@mr/frontend-common";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
-import { Accordion } from "@navikt/ds-react";
+import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
-import { FilterToggle } from "./FilterToggle";
 import { InnsatsgruppeFilter } from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
 import { TiltakstypeFilter } from "./TiltakstypeFilter";
@@ -28,73 +26,63 @@ export function FilterMenu({ lagredeFilterOversikt }: Props) {
       />
       <Accordion>
         {lagredeFilterOversikt && (
-          <Accordion.Item open={accordionsOpen.includes("lagrede-filter")}>
-            <Accordion.Header
-              onClick={() => {
-                setAccordionsOpen([...addOrRemove(accordionsOpen, "lagrede-filter")]);
-              }}
-            >
-              <FilterAccordionHeader tittel="Lagrede filter" />
-            </Accordion.Header>
-            <Accordion.Content>{lagredeFilterOversikt}</Accordion.Content>
-          </Accordion.Item>
+          <FilterAccordion
+            tittel="Lagrede filter"
+            open={accordionsOpen.includes("lagrede-filter")}
+            onClick={() => {
+              setAccordionsOpen([...addOrRemove(accordionsOpen, "lagrede-filter")]);
+            }}
+          >
+            {lagredeFilterOversikt}
+          </FilterAccordion>
         )}
-        <FilterToggle
-          accordionHeader={<FilterAccordionHeader tittel="Åpent for påmelding" />}
-          value={filter.apentForPamelding}
-          onChange={(apentForPamelding) => {
-            setFilter({ ...filter, apentForPamelding });
+        <FilterAccordion
+          tittel="Åpent for påmelding"
+          open={accordionsOpen.includes("apen-for-pamelding")}
+          onClick={() => {
+            setAccordionsOpen([...addOrRemove(accordionsOpen, "apen-for-pamelding")]);
           }}
-          venstreTekst="Åpent"
-          hoyreTekst={
-            <>
-              <PadlockLockedFillIcon aria-hidden />
-              Stengt
-            </>
-          }
-          venstreValue={ApentForPamelding.APENT}
-          midtValue={ApentForPamelding.APENT_ELLER_STENGT}
-          hoyreValue={ApentForPamelding.STENGT}
-          accordionIsOpenValue="apen-for-pamelding"
-        />
+        >
+          <CheckboxGroup
+            legend="Åpent for påmelding"
+            hideLegend
+            value={filter.apentForPamelding}
+            size="small"
+            onChange={(apentForPamelding) => {
+              setFilter({ ...filter, apentForPamelding: apentForPamelding });
+            }}
+          >
+            <Checkbox value={ApentForPamelding.APENT}>Åpent</Checkbox>
+            <Checkbox value={ApentForPamelding.STENGT}>Stengt</Checkbox>
+          </CheckboxGroup>
+        </FilterAccordion>
         <InnsatsgruppeFilter />
-        <Accordion.Item open={accordionsOpen.includes("tiltakstyper")}>
-          <Accordion.Header
-            onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstyper")]);
-            }}
-          >
-            <FilterAccordionHeader
-              tittel="Tiltakstype"
-              antallValgteFilter={filter.tiltakstyper.length}
-            />
-          </Accordion.Header>
-          <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
-            <TiltakstypeFilter
-              value={filter.tiltakstyper}
-              onChange={(tiltakstyper) => setFilter({ ...filter, tiltakstyper })}
-            />
-          </Accordion.Content>
-        </Accordion.Item>
-        <Accordion.Item open={accordionsOpen.includes("brukers-enhet")}>
-          <Accordion.Header
-            onClick={() => {
-              setAccordionsOpen([...addOrRemove(accordionsOpen, "brukers-enhet")]);
-            }}
-            data-testid="filter_accordionheader_brukers-enhet"
-          >
-            <FilterAccordionHeader
-              tittel="Nav-enhet"
-              antallValgteFilter={filter.navEnheter.length}
-            />
-          </Accordion.Header>
-          <Accordion.Content data-testid="filter_accordioncontent_brukers-enhet">
-            <NavEnhetFilter
-              value={filter.navEnheter}
-              onChange={(navEnheter) => setFilter({ ...filter, navEnheter })}
-            />
-          </Accordion.Content>
-        </Accordion.Item>
+        <FilterAccordion
+          tittel="Tiltakstype"
+          antallValgteFilter={filter.tiltakstyper.length}
+          open={accordionsOpen.includes("tiltakstyper")}
+          onClick={() => {
+            setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstyper")]);
+          }}
+        >
+          <TiltakstypeFilter
+            value={filter.tiltakstyper}
+            onChange={(tiltakstyper) => setFilter({ ...filter, tiltakstyper })}
+          />
+        </FilterAccordion>
+        <FilterAccordion
+          tittel="Nav-enhet"
+          antallValgteFilter={filter.navEnheter.length}
+          open={accordionsOpen.includes("brukers-enhet")}
+          onClick={() => {
+            setAccordionsOpen([...addOrRemove(accordionsOpen, "brukers-enhet")]);
+          }}
+        >
+          <NavEnhetFilter
+            value={filter.navEnheter}
+            onChange={(navEnheter) => setFilter({ ...filter, navEnheter })}
+          />
+        </FilterAccordion>
       </Accordion>
     </div>
   );
