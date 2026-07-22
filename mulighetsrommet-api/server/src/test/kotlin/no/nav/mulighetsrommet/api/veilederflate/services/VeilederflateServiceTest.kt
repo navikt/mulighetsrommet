@@ -230,7 +230,6 @@ class VeilederflateServiceTest : FunSpec({
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-            apentForPamelding = null,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldBeEmpty()
@@ -243,7 +242,6 @@ class VeilederflateServiceTest : FunSpec({
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-            apentForPamelding = null,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldHaveSize(1).should { (first) ->
@@ -386,7 +384,6 @@ class VeilederflateServiceTest : FunSpec({
             val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
                 enheter = nonEmptyListOf(NavEnhetFixtures.Gjovik.enhetsnummer),
                 innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
-                apentForPamelding = null,
                 cacheUsage = CacheUsage.NoCache,
                 erSykmeldtMedArbeidsgiver = false,
             )
@@ -460,7 +457,6 @@ class VeilederflateServiceTest : FunSpec({
             val tiltak = serviceWithArbeidstrening.hentTiltaksgjennomforinger(
                 enheter = nonEmptyListOf(NavEnhetFixtures.Gjovik.enhetsnummer),
                 innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
-                apentForPamelding = null,
                 cacheUsage = CacheUsage.NoCache,
                 erSykmeldtMedArbeidsgiver = false,
             )

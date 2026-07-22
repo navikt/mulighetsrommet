@@ -150,7 +150,7 @@ class VeilederflateService(
         search: String?,
         cacheUsage: CacheUsage,
     ): List<VeilederflateTiltak> {
-        if (apentForPamelding?.contains(ApentForPamelding.STENGT) == true) {
+        if (apentForPamelding?.toSet() == setOf(ApentForPamelding.STENGT)) {
             // Det er foreløpig ikke noe egen funksjonalitet for å markere tiltak som midlertidig stengt i Sanity
             return emptyList()
         }
