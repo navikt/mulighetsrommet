@@ -138,5 +138,5 @@ fun Row.toPrismodell(): Prismodell {
         Json.decodeFromString<Map<Opplaeringtilskudd.Kode, Int>>(it)
     }
     val aarsak = stringOrNull("prismodell_aarsak")
-    return Prismodell.from(type, id, valuta, prisbetingelser, satser, tilsagnPerDeltaker, totalbelop, tilskudd, aarsak)
+    return Prismodell.from(id, type, valuta, prisbetingelser, satser, tilsagnPerDeltaker, totalbelop, tilskudd, aarsak)
 }

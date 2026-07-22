@@ -156,8 +156,8 @@ sealed interface Prismodell {
 
     companion object {
         fun from(
-            type: PrismodellType,
             id: UUID,
+            type: PrismodellType,
             valuta: Valuta,
             prisbetingelser: String?,
             satser: List<AvtaltSats>?,

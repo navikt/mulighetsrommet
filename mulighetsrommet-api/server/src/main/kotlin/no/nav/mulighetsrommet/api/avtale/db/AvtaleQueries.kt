@@ -558,8 +558,8 @@ private fun Row.toAvtale(): Avtale {
     val prismodeller =
         JsonIgnoreUnknownKeys.decodeFromString<List<PrismodellRow>>(string("prismodeller_json")).map { row ->
             Prismodell.from(
-                row.type,
                 row.id,
+                row.type,
                 row.valuta,
                 row.prisbetingelser,
                 row.satser,
@@ -620,12 +620,12 @@ private data class PrismodellRow(
     val id: UUID,
     val type: PrismodellType,
     val valuta: Valuta,
-    val prisbetingelser: String? = null,
-    val satser: List<AvtaltSats>? = null,
-    val tilsagnPerDeltaker: Boolean? = null,
-    val totalbelop: Int? = null,
-    val tilskudd: Map<Opplaeringtilskudd.Kode, Int>? = null,
-    val aarsak: String? = null,
+    val prisbetingelser: String?,
+    val satser: List<AvtaltSats>?,
+    val tilsagnPerDeltaker: Boolean?,
+    val totalbelop: Int?,
+    val tilskudd: Map<Opplaeringtilskudd.Kode, Int>?,
+    val aarsak: String?,
 )
 
 fun Session.createArrayOfAvtaleStatus(
