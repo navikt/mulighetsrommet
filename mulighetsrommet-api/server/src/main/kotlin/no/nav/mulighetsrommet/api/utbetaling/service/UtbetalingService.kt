@@ -827,9 +827,9 @@ class UtbetalingService(
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = with(tx) {
         return when (utbetaling.status) {
             UtbetalingStatusType.GENERERT -> {
-                val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
-                val deltakere = queries.deltaker
-                    .getByGjennomforingId(utbetaling.gjennomforing.id)
+                val forslag = repository.deltakerForslag.getByGjennomforing(utbetaling.gjennomforing.id)
+                val deltakere = repository.deltaker
+                    .getByGjennomforing(utbetaling.gjennomforing.id)
                     .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
 
                 UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)

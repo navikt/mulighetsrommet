@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createDeltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.createGjennomforingForForhandsgodkjentPris
+import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.deltakelsesmengde
 import no.nav.mulighetsrommet.api.utbetaling.model.BeregningTestHelpers.toStengtPeriode
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NOK
@@ -23,47 +24,47 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakere = listOf(
                 createDeltaker(
                     periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                     status = DeltakerStatusType.DELTAR,
                 ),
                 createDeltaker(
                     periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                     status = DeltakerStatusType.HAR_SLUTTET,
                 ),
                 createDeltaker(
                     periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                     status = DeltakerStatusType.FULLFORT,
                 ),
                 createDeltaker(
                     periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                     status = DeltakerStatusType.AVBRUTT,
                 ),
                 createDeltaker(
                     periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                     status = DeltakerStatusType.IKKE_AKTUELL,
                 ),
                 createDeltaker(
                     periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                     status = DeltakerStatusType.FEILREGISTRERT,
                 ),
                 createDeltaker(
                     periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                     status = DeltakerStatusType.PABEGYNT_REGISTRERING,
                 ),
                 createDeltaker(
                     periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                     status = DeltakerStatusType.SOKT_INN,
                 ),
                 createDeltaker(
                     periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                     status = DeltakerStatusType.VENTER_PA_OPPSTART,
                 ),
             )
@@ -85,15 +86,15 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakere = listOf(
                 createDeltaker(
                     Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 4, 1)),
-                    deltakelsesmengder = listOf(Deltakelsesmengde(LocalDate.of(2026, 1, 1), 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(LocalDate.of(2026, 1, 1), 100.0)),
                 ),
                 createDeltaker(
                     Periode(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 2, 1)),
-                    deltakelsesmengder = listOf(Deltakelsesmengde(LocalDate.of(2026, 1, 1), 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(LocalDate.of(2026, 1, 1), 100.0)),
                 ),
                 createDeltaker(
                     Periode(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 4, 1)),
-                    deltakelsesmengder = listOf(Deltakelsesmengde(LocalDate.of(2026, 3, 1), 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(LocalDate.of(2026, 3, 1), 100.0)),
                 ),
             )
 
@@ -120,21 +121,21 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakere = listOf(
                 createDeltaker(
                     periode = periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periodeStart, 100.0)),
                 ),
                 createDeltaker(
                     periode = periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 50.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periodeStart, 50.0)),
                 ),
                 createDeltaker(
                     periode = Periode(periodeStart, periodeMidt),
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 40.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periodeStart, 40.0)),
                 ),
                 createDeltaker(
                     periode = periode,
                     deltakelsesmengder = listOf(
-                        Deltakelsesmengde(periodeStart, 49.0),
-                        Deltakelsesmengde(periodeMidt, 50.0),
+                        deltakelsesmengde(periodeStart, 49.0),
+                        deltakelsesmengde(periodeMidt, 50.0),
                     ),
                 ),
             )
@@ -221,18 +222,18 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakere = listOf(
                 createDeltaker(
                     periode = periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periodeStart, 100.0)),
                 ),
                 createDeltaker(
                     periode = periode,
                     deltakelsesmengder = listOf(
-                        Deltakelsesmengde(periodeStart, 49.0),
-                        Deltakelsesmengde(periodeMidt, 50.0),
+                        deltakelsesmengde(periodeStart, 49.0),
+                        deltakelsesmengde(periodeMidt, 50.0),
                     ),
                 ),
                 createDeltaker(
                     periode = Periode(periodeStart, periodeMidt),
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periodeStart, 49.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periodeStart, 49.0)),
                 ),
             )
 
@@ -321,7 +322,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakere = listOf(
                 createDeltaker(
                     periode = periode,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                 ),
             )
 
@@ -359,11 +360,11 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val deltakere = listOf(
                 createDeltaker(
                     periode = deltakelse1,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                 ),
                 createDeltaker(
                     periode = deltakelse2,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                 ),
             )
 
@@ -394,7 +395,7 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 val deltakere = listOf(
                     createDeltaker(
                         periode = deltakelsePeriode,
-                        deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0)),
+                        deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0)),
                     ),
                 )
 
@@ -422,8 +423,8 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             val gjennomforing =
                 createGjennomforingForForhandsgodkjentPris(periode = periode, sats = 10.NOK)
             val deltakere = listOf(
-                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0))),
-                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 100.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 100.0))),
             )
 
             val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, periode, deltakere)
@@ -454,14 +455,14 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
             val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = sats)
             val deltakere = listOf(
-                createDeltaker(heleUke37, deltakelsesmengder = listOf(Deltakelsesmengde(heleUke37.start, 100.0))),
+                createDeltaker(heleUke37, deltakelsesmengder = listOf(deltakelsesmengde(heleUke37.start, 100.0))),
                 createDeltaker(
                     hverdagerUke37,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(hverdagerUke37.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(hverdagerUke37.start, 100.0)),
                 ),
                 createDeltaker(
                     helgUke36HeleUke37,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(helgUke36HeleUke37.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(helgUke36HeleUke37.start, 100.0)),
                 ),
             )
 
@@ -494,14 +495,14 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
 
             val gjennomforing = createGjennomforingForForhandsgodkjentPris(periode = periode, sats = sats)
             val deltakere = listOf(
-                createDeltaker(heleUke37, deltakelsesmengder = listOf(Deltakelsesmengde(heleUke37.start, 100.0))),
+                createDeltaker(heleUke37, deltakelsesmengder = listOf(deltakelsesmengde(heleUke37.start, 100.0))),
                 createDeltaker(
                     hverdagerUke37,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(hverdagerUke37.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(hverdagerUke37.start, 100.0)),
                 ),
                 createDeltaker(
                     helgUke36HeleUke37,
-                    deltakelsesmengder = listOf(Deltakelsesmengde(helgUke36HeleUke37.start, 100.0)),
+                    deltakelsesmengder = listOf(deltakelsesmengde(helgUke36HeleUke37.start, 100.0)),
                 ),
             )
 
@@ -534,10 +535,10 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 sats = sats,
             )
             val deltakere = listOf(
-                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 20.0))),
-                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 50.0))),
-                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 51.0))),
-                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 80.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 20.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 50.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 51.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 80.0))),
             )
 
             val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, periode, deltakere)
@@ -571,10 +572,10 @@ class UtbetalingBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
                 sats = sats,
             )
             val deltakere = listOf(
-                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 20.0))),
-                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 49.0))),
-                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 50.0))),
-                createDeltaker(periode, deltakelsesmengder = listOf(Deltakelsesmengde(periode.start, 80.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 20.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 49.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 50.0))),
+                createDeltaker(periode, deltakelsesmengder = listOf(deltakelsesmengde(periode.start, 80.0))),
             )
 
             val result = FastSatsPerTiltaksplassPerManedBeregning.beregn(gjennomforing, periode, deltakere)

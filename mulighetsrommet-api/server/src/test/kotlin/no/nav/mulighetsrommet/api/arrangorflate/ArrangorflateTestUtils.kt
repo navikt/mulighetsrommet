@@ -7,12 +7,13 @@ import io.ktor.http.content.TextContent
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.deltaker.client.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -27,7 +28,6 @@ import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
@@ -60,7 +60,7 @@ object ArrangorflateTestUtils {
     val hovedenhet = ArrangorFixtures.hovedenhet
     val underenhet = ArrangorFixtures.underenhet1
 
-    fun createTestDeltaker(): DeltakerDbo = DeltakerDbo(
+    fun createTestDeltaker(): Deltaker = Deltaker(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         startDato = GjennomforingFixtures.AFT1.startDato,
@@ -182,7 +182,7 @@ object ArrangorflateTestUtils {
     )
 
     fun createTestDomain(
-        deltaker: DeltakerDbo = createTestDeltaker(),
+        deltaker: Deltaker = createTestDeltaker(),
         tilsagn: TilsagnDbo = createTestTilsagn(),
         utbetalinger: List<UtbetalingDbo> = listOf(createTestUtbetalingForhandsgodkjent(deltaker.id)),
     ): MulighetsrommetTestDomain = MulighetsrommetTestDomain(

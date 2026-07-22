@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.tiltak.PrismodellDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.DataElement

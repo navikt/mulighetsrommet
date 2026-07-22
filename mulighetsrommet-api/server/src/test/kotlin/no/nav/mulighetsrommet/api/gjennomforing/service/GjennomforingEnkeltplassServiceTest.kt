@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
@@ -34,7 +35,6 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.FieldError
@@ -45,6 +45,7 @@ import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -339,13 +340,14 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             val startDato = LocalDate.of(2025, 3, 1)
             val sluttDato = LocalDate.of(2025, 9, 1)
-            val deltaker = DeltakerFixtures.createDeltaker(
+            val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
                 id = UUID.randomUUID(),
                 gjennomforingId = soktInn.id,
                 status = DeltakerStatusType.DELTAR,
                 startDato = startDato,
                 sluttDato = sluttDato,
-            ).copy(deltakelsesmengder = listOf(Deltakelsesmengde(gyldigFra = startDato, deltakelsesprosent = 60.0)))
+                deltakelsesmengder = listOf(Deltakelsesmengde(startDato, 60.0, Instant.now())),
+            )
             service.updateFromDeltaker(deltaker, NorskIdent("12345678910"))
 
             service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
@@ -556,7 +558,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         context("validering av én deltaker per enkeltplass") {
             test("godtar deltakeren som allerede er tilknyttet gjennomføringen") {
-                val eksisterendeDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val eksisterendeDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                 )
                 MulighetsrommetTestDomain(
@@ -573,7 +575,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("kaster exception når gjennomføringen allerede har en annen deltaker") {
-                val annenDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val annenDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                 )
                 MulighetsrommetTestDomain(
@@ -591,7 +593,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("ignorerer annen deltaker som er FEILREGISTRERT uten å kaste exception") {
-                val eksisterendeDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val eksisterendeDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                 )
                 MulighetsrommetTestDomain(
@@ -682,19 +684,12 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("bruker deltakelsesprosent fra siste deltakelsesmengde") {
-                val deltaker = DeltakerFixtures.createDeltaker(
+                val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     status = DeltakerStatusType.DELTAR,
-                ).copy(
                     deltakelsesmengder = listOf(
-                        Deltakelsesmengde(
-                            gyldigFra = LocalDate.of(2025, 1, 1),
-                            deltakelsesprosent = 50.0,
-                        ),
-                        Deltakelsesmengde(
-                            gyldigFra = LocalDate.of(2025, 3, 1),
-                            deltakelsesprosent = 75.0,
-                        ),
+                        Deltakelsesmengde(LocalDate.of(2025, 1, 1), 50.0, Instant.now()),
+                        Deltakelsesmengde(LocalDate.of(2025, 3, 1), 75.0, Instant.now()),
                     ),
                 )
 
@@ -1169,7 +1164,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val nyereEndretTidspunkt = LocalDateTime.of(2025, 6, 1, 12, 0, 0)
 
             test("prosesserer når deltaker-eventet er samme eller nyere enn lagret") {
-                val lagretDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val lagretDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     endretTidspunkt = tidligereEndretTidspunkt,
                 )
@@ -1199,7 +1194,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("hopper over når deltaker-eventet er eldre enn lagret") {
-                val lagretDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val lagretDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     endretTidspunkt = nyereEndretTidspunkt,
                 )

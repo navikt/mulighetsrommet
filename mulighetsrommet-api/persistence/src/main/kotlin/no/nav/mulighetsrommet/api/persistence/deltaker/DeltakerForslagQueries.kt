@@ -1,18 +1,17 @@
-package no.nav.mulighetsrommet.api.utbetaling.db
+package no.nav.mulighetsrommet.api.persistence.deltaker
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.amt.model.AmtArrangorMelding
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslagRepository
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
-class DeltakerForslagQueries(private val session: Session) {
+class DeltakerForslagQueries(private val session: Session) : DeltakerForslagRepository {
 
-    fun upsert(forslag: DeltakerForslag) = with(session) {
+    override fun save(forslag: DeltakerForslag): Unit = with(session) {
         @Language("PostgreSQL")
         val query = """
             insert into deltaker_forslag (
@@ -41,7 +40,7 @@ class DeltakerForslagQueries(private val session: Session) {
         execute(queryOf(query, params))
     }
 
-    fun delete(id: UUID) = with(session) {
+    override fun delete(id: UUID): Unit = with(session) {
         @Language("PostgreSQL")
         val query = """
             delete from deltaker_forslag
@@ -51,7 +50,7 @@ class DeltakerForslagQueries(private val session: Session) {
         execute(queryOf(query, id))
     }
 
-    fun getForslagByGjennomforing(gjennomforingId: UUID): Map<UUID, List<DeltakerForslag>> = with(session) {
+    override fun getByGjennomforing(gjennomforingId: UUID): Map<UUID, List<DeltakerForslag>> = with(session) {
         @Language("PostgreSQL")
         val query = """
         select
@@ -64,11 +63,11 @@ class DeltakerForslagQueries(private val session: Session) {
         where deltaker.gjennomforing_id = ?::uuid
         """.trimIndent()
 
-        return list(queryOf(query, gjennomforingId)) { it.toForslagDbo() }
+        return list(queryOf(query, gjennomforingId)) { it.toForslag() }
             .groupBy { it.deltakerId }
     }
 
-    fun get(id: UUID): DeltakerForslag? = with(session) {
+    override fun get(id: UUID): DeltakerForslag? = with(session) {
         @Language("PostgreSQL")
         val query = """
         select
@@ -80,13 +79,13 @@ class DeltakerForslagQueries(private val session: Session) {
         where id = ?::uuid
         """.trimIndent()
 
-        return single(queryOf(query, id)) { it.toForslagDbo() }
+        return single(queryOf(query, id)) { it.toForslag() }
     }
 }
 
-private fun Row.toForslagDbo(): DeltakerForslag {
+private fun Row.toForslag(): DeltakerForslag {
     val endring = string("endring")
-        .let { Json.decodeFromString<AmtArrangorMelding.Forslag.Endring>(it) }
+        .let { Json.decodeFromString<DeltakerForslag.Endring>(it) }
 
     return DeltakerForslag(
         id = uuid("id"),
@@ -94,22 +93,4 @@ private fun Row.toForslagDbo(): DeltakerForslag {
         endring = endring,
         status = DeltakerForslag.Status.valueOf(string("status")),
     )
-}
-
-@Serializable
-data class DeltakerForslag(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val deltakerId: UUID,
-    val endring: AmtArrangorMelding.Forslag.Endring,
-    val status: Status,
-) {
-    enum class Status {
-        GODKJENT,
-        AVVIST,
-        TILBAKEKALT,
-        ERSTATTET,
-        VENTER_PA_SVAR,
-    }
 }

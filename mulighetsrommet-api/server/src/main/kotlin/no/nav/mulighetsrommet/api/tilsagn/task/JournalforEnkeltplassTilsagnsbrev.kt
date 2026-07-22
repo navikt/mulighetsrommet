@@ -88,7 +88,7 @@ class JournalforEnkeltplassTilsagnsbrev(
         }
 
         val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
-        val deltakere = queries.deltaker.getByGjennomforingId(enkeltplass.id)
+        val deltakere = repository.deltaker.getByGjennomforing(enkeltplass.id)
         val deltaker = when (deltakere.size) {
             1 -> deltakere.single()
             0 -> return@transaction Either.Left("Fant ingen deltaker for enkeltplas ${enkeltplass.id}")

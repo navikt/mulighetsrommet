@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.utbetaling.kafka
+package no.nav.mulighetsrommet.api.deltaker.kafka
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -14,15 +14,15 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
+import no.nav.mulighetsrommet.api.deltaker.kafka.AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerDto
+import no.nav.mulighetsrommet.api.deltaker.kafka.AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerStatusDto
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures.createAmtDeltakerDto
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures.createAmtDeltakerStatusDto
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
@@ -79,7 +79,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(amtDeltaker2.id, Json.encodeToJsonElement(amtDeltaker2))
 
             database.run {
-                queries.deltaker.getAll().shouldContainExactlyInAnyOrder(
+                repository.deltaker.getByGjennomforing(Oppfolging1.id).shouldContainExactlyInAnyOrder(
                     Deltaker(
                         id = amtDeltaker1.id,
                         gjennomforingId = Oppfolging1.id,
@@ -93,9 +93,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         registrertTidspunkt = opprettetTidspunkt,
                         endretTidspunkt = opprettetTidspunkt,
                         deltakelsesmengder = listOf(),
-                        innholdAnnet = amtDeltaker1.innhold?.let {
-                            it.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
-                        },
+                        innholdAnnet = "Prisinformasjon",
                         navVeileder = null,
                     ),
                     Deltaker(
@@ -111,9 +109,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         registrertTidspunkt = opprettetTidspunkt,
                         endretTidspunkt = opprettetTidspunkt,
                         deltakelsesmengder = listOf(),
-                        innholdAnnet = amtDeltaker1.innhold?.let {
-                            it.valgtInnhold.find { it.innholdskode == "annet" }?.tekst
-                        },
+                        innholdAnnet = "Prisinformasjon",
                         navVeileder = null,
                     ),
                 )
@@ -129,7 +125,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             )
 
             database.run {
-                queries.deltaker.getAll().shouldHaveSize(1).first().should {
+                repository.deltaker.getByGjennomforing(EnkelAmo.id).shouldHaveSize(1).first().should {
                     it.id shouldBe amtDeltaker1.id
                     it.gjennomforingId shouldBe EnkelAmo.id
                 }
@@ -138,20 +134,20 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
 
         test("sletter deltakere ved tombstone-meldinger") {
             database.run {
-                queries.deltaker.upsert(amtDeltaker1.toDeltakerDbo())
+                repository.deltaker.save(amtDeltaker1.toDeltaker())
             }
 
             val deltakerConsumer = createConsumer()
             deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
 
             database.run {
-                queries.deltaker.getAll().shouldBeEmpty()
+                repository.deltaker.getByGjennomforing(EnkelAmo.id).shouldBeEmpty()
             }
         }
 
         test("sletter deltakere med status FEILREGISTRERT") {
             database.run {
-                queries.deltaker.upsert(amtDeltaker1.toDeltakerDbo())
+                repository.deltaker.save(amtDeltaker1.toDeltaker())
             }
 
             val deltakerConsumer = createConsumer()
@@ -161,7 +157,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
             database.run {
-                queries.deltaker.getAll().shouldBeEmpty()
+                repository.deltaker.getByGjennomforing(EnkelAmo.id).shouldBeEmpty()
             }
         }
 
@@ -191,7 +187,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerAvbrutt))
 
             database.run {
-                queries.deltaker.get(id).shouldNotBeNull().should {
+                repository.deltaker.get(id).shouldNotBeNull().should {
                     it.status.type shouldBe DeltakerStatusType.AVBRUTT
                     it.endretTidspunkt shouldBe avbruttTidspunkt
                 }
@@ -200,7 +196,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerDeltar))
 
             database.run {
-                queries.deltaker.get(id).shouldNotBeNull().should {
+                repository.deltaker.get(id).shouldNotBeNull().should {
                     it.status.type shouldBe DeltakerStatusType.AVBRUTT
                     it.endretTidspunkt shouldBe avbruttTidspunkt
                 }
@@ -234,7 +230,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerDeltar))
 
             database.run {
-                queries.deltaker.get(id).shouldNotBeNull().should {
+                repository.deltaker.get(id).shouldNotBeNull().should {
                     it.status.type shouldBe DeltakerStatusType.DELTAR
                     it.endretTidspunkt shouldBe tidspunktDatabase
                 }
@@ -243,7 +239,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             deltakerConsumer.consume(id, Json.encodeToJsonElement(amtDeltakerAvbrutt))
 
             database.run {
-                queries.deltaker.get(id).shouldNotBeNull().should {
+                repository.deltaker.get(id).shouldNotBeNull().should {
                     it.status.type shouldBe DeltakerStatusType.AVBRUTT
                     it.endretTidspunkt shouldBe tidspunktDatabase
                 }
@@ -317,7 +313,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
 
         test("trigger ikke ny beregning når deltaker er uendret") {
             database.run {
-                queries.deltaker.upsert(amtDeltaker1.toDeltakerDbo())
+                repository.deltaker.save(amtDeltaker1.toDeltaker())
             }
 
             val deltakerConsumer = createConsumer(oppdaterUtbetaling = oppdaterUtbetaling)

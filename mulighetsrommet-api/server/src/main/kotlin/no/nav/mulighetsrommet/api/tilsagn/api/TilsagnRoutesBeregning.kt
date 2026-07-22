@@ -154,7 +154,7 @@ fun Route.tilsagnRoutesBeregning() {
         val tilsagnPerDeltaker = (gjennomforing.prismodell as? Prismodell.AnnenAvtaltPris)?.tilsagnPerDeltaker ?: false
 
         val deltakere = if (tilsagnPerDeltaker) {
-            val deltakelser = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
+            val deltakelser = db.session { repository.deltaker.getByGjennomforing(gjennomforing.id) }
                 .filter {
                     when (it.status.type) {
                         DeltakerStatusType.AVBRUTT_UTKAST,

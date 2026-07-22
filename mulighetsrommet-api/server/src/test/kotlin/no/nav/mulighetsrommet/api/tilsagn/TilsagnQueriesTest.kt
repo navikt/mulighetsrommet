@@ -41,11 +41,11 @@ import java.util.UUID
 class TilsagnQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
-    val deltaker = DeltakerFixtures.createDeltakerDbo(
+    val deltaker = DeltakerFixtures.createDeltaker(
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         startDato = GjennomforingFixtures.AFT1.startDato,
         sluttDato = null,
-        statusType = DeltakerStatusType.DELTAR,
+        status = DeltakerStatusType.DELTAR,
         innhold = Json.encodeToString(
             AmtDeltakerEksternV1Dto.DeltakelsesinnholdDto(
                 ledetekst = null,

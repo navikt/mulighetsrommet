@@ -10,12 +10,12 @@ import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Periode
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
@@ -107,7 +107,7 @@ class TilskuddBrukerUtbetalingConsumer(
     }
 
     private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker {
-        val deltakelser = queries.deltaker.getByGjennomforingId(gjennomforingId)
+        val deltakelser = repository.deltaker.getByGjennomforing(gjennomforingId)
         if (deltakelser.size != 1) {
             error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet akkurat én)")
         }

@@ -4,6 +4,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
@@ -12,7 +13,6 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 
@@ -47,7 +47,7 @@ data class MulighetsrommetTestDomain(
     ),
     val avtaler: List<AvtaleDbo> = listOf(),
     val gjennomforinger: List<GjennomforingDbo> = listOf(),
-    val deltakere: List<DeltakerDbo> = listOf(),
+    val deltakere: List<Deltaker> = listOf(),
     val tilsagn: List<TilsagnDbo> = listOf(),
     val utbetalinger: List<UtbetalingDbo> = listOf(),
     val utbetalingLinjer: List<UtbetalingLinjeDbo> = listOf(),
@@ -75,7 +75,7 @@ data class MulighetsrommetTestDomain(
                 val tiltakstypeNavn = tiltakstyper.first { gjennomforing.tiltakstypeId == it.id }.navn
                 queries.gjennomforing.setFreeTextSearch(gjennomforing.id, listOf(gjennomforing.navn, tiltakstypeNavn))
             }
-            deltakere.forEach { queries.deltaker.upsert(it) }
+            deltakere.forEach { repository.deltaker.save(it) }
             tilsagn.forEach { queries.tilsagn.upsert(it) }
             utbetalinger.forEach { queries.utbetaling.upsert(it) }
             utbetalingLinjer.forEach { queries.utbetalingLinje.upsert(it) }
