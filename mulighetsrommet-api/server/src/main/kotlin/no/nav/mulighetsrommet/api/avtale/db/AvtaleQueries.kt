@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.db
 
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -12,7 +13,10 @@ import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
@@ -32,7 +36,9 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.sql.Array
 import java.time.LocalDate
@@ -549,19 +555,20 @@ private fun Row.toAvtale(): Avtale {
         )
     }
 
-    val prismodeller = Json.decodeFromString<List<PrismodellDbo>>(string("prismodeller_json")).map { prismodell ->
-        Prismodell.from(
-            prismodell.type,
-            prismodell.id,
-            prismodell.valuta,
-            prismodell.prisbetingelser,
-            prismodell.satser,
-            prismodell.tilsagnPerDeltaker,
-            prismodell.totalbelop,
-            prismodell.tilskudd,
-            prismodell.aarsak,
-        )
-    }
+    val prismodeller =
+        JsonIgnoreUnknownKeys.decodeFromString<List<PrismodellRow>>(string("prismodeller_json")).map { row ->
+            Prismodell.from(
+                row.type,
+                row.id,
+                row.valuta,
+                row.prisbetingelser,
+                row.satser,
+                row.tilsagnPerDeltaker,
+                row.totalbelop,
+                row.tilskudd,
+                row.aarsak,
+            )
+        }
 
     val status = when (AvtaleStatusType.valueOf(string("status"))) {
         AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv
@@ -606,6 +613,20 @@ private fun Row.toAvtale(): Avtale {
         prismodeller = prismodeller,
     )
 }
+
+@Serializable
+private data class PrismodellRow(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val type: PrismodellType,
+    val valuta: Valuta,
+    val prisbetingelser: String? = null,
+    val satser: List<AvtaltSats>? = null,
+    val tilsagnPerDeltaker: Boolean? = null,
+    val totalbelop: Int? = null,
+    val tilskudd: Map<Opplaeringtilskudd.Kode, Int>? = null,
+    val aarsak: String? = null,
+)
 
 fun Session.createArrayOfAvtaleStatus(
     avtaletypes: List<AvtaleStatusType>,

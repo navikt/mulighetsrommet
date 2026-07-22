@@ -3,11 +3,11 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
@@ -39,7 +39,7 @@ data class MulighetsrommetTestDomain(
         TiltakstypeFixtures.EnkelFagOgYrke,
     ),
     val regelverklenke: List<RedaksjoneltInnholdLenke> = listOf(),
-    val prismodeller: List<PrismodellDbo> = listOf(
+    val prismodeller: List<Prismodell> = listOf(
         PrismodellFixtures.AnnenAvtaltPris,
         PrismodellFixtures.AvtaltPrisPerTimeOppfolging,
         PrismodellFixtures.ForhandsgodkjentAft,
@@ -66,7 +66,7 @@ data class MulighetsrommetTestDomain(
             ansatte.forEach { queries.ansatt.save(it) }
             arrangorer.forEach { repository.arrangor.save(it) }
             tiltakstyper.forEach { repository.tiltakstype.save(it) }
-            prismodeller.forEach { queries.prismodell.upsert(it) }
+            prismodeller.forEach { queries.prismodell.upsert(it, PrismodellFixtures.systemIds[it.id]) }
             regelverklenke.forEach { queries.regelverklenke.upsert(it) }
             avtaler.forEach { queries.avtale.create(it) }
             gjennomforinger.forEach { gjennomforing ->

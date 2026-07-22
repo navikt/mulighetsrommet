@@ -9,13 +9,13 @@ import no.nav.mulighetsrommet.api.avtale.db.AvtaleArrangorDbo
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.db.PersonvernDbo
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
 
@@ -176,7 +175,7 @@ object AvtaleFixtures {
             kontaktpersoner = emptyList(),
         ),
         administratorer: List<NavIdent> = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-        prismodell: List<PrismodellDbo> = listOf(PrismodellFixtures.AnnenAvtaltPris),
+        prismodell: List<Prismodell> = listOf(PrismodellFixtures.AnnenAvtaltPris),
         opsjonsmodell: Opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         amo: AmoKategoriseringRequest? = null,
     ): OpprettAvtaleRequest {
@@ -206,18 +205,26 @@ object AvtaleFixtures {
                 annetChecked = false,
                 annetBeskrivelse = null,
             ),
-            prismodeller = prismodell.map { prismodell ->
-                PrismodellRequest(
-                    id = prismodell.id,
-                    type = prismodell.type,
-                    valuta = Valuta.NOK,
-                    prisbetingelser = prismodell.prisbetingelser,
-                    satser = (prismodell.satser ?: listOf()).map {
-                        AvtaltSatsRequest(it.gjelderFra, it.sats.belop)
-                    },
-                    tilsagnPerDeltaker = false,
-                )
-            },
+            prismodeller = prismodell.map { it.toPrismodellRequest() },
         )
     }
 }
+
+private fun Prismodell.toPrismodellRequest(): PrismodellRequest = PrismodellRequest(
+    id = id,
+    type = type,
+    valuta = valuta,
+    prisbetingelser = when (this) {
+        is Prismodell.AnnenAvtaltPris -> prisbetingelser
+        is Prismodell.AvtaltPrisPerManedsverk -> prisbetingelser
+        is Prismodell.AvtaltPrisPerUkesverk -> prisbetingelser
+        is Prismodell.AvtaltPrisPerHeleUkesverk -> prisbetingelser
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
+        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> null
+        is Prismodell.TilskuddTilOpplaering -> tilleggsopplysninger
+        is Prismodell.IngenKostnader -> tilleggsopplysninger
+    },
+    satser = satser().map { AvtaltSatsRequest(it.gjelderFra, it.sats.belop) },
+    tilsagnPerDeltaker = (this as? Prismodell.AnnenAvtaltPris)?.tilsagnPerDeltaker ?: false,
+)

@@ -6,7 +6,6 @@ import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
 import no.nav.mulighetsrommet.api.arrangorflate.db.ArrangorflateQueries
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellQueries
 import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerQueries
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
@@ -22,6 +21,7 @@ import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.NavEnhetQueries
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
+import no.nav.mulighetsrommet.api.persistence.tiltak.PrismodellQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries

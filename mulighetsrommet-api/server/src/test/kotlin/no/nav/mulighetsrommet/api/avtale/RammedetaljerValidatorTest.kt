@@ -4,22 +4,18 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
-import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Valuta
 
 class RammedetaljerValidatorTest : FunSpec({
-    fun PrismodellDbo.toPrismodell() = Prismodell.from(this.type, this.id, this.valuta, this.prisbetingelser, this.satser ?: emptyList(), false)
-
     context("rammedetaljer") {
         test("må være anskaffet tiltak") {
             val ikkeAnskaffetCtx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.AFT.id,
-                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft.toPrismodell()),
+                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft),
             )
 
             RammedetaljerValidator.validateRammedetaljer(
@@ -39,8 +35,8 @@ class RammedetaljerValidatorTest : FunSpec({
             val ctx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
                 prismodeller = listOf(
-                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
-                    PrismodellFixtures.AnnenAvtaltPris.copy(valuta = Valuta.SEK).toPrismodell(),
+                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK),
+                    PrismodellFixtures.AnnenAvtaltPris.copy(valuta = Valuta.SEK),
                 ),
             )
 
@@ -61,7 +57,7 @@ class RammedetaljerValidatorTest : FunSpec({
             val ikkeAnskaffetCtx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
                 prismodeller = listOf(
-                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
+                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK),
                 ),
             )
 
@@ -82,7 +78,7 @@ class RammedetaljerValidatorTest : FunSpec({
             val ctx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
                 prismodeller = listOf(
-                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
+                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK),
                 ),
             )
 
@@ -103,7 +99,7 @@ class RammedetaljerValidatorTest : FunSpec({
             val ctx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
                 prismodeller = listOf(
-                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
+                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK),
                 ),
             )
 

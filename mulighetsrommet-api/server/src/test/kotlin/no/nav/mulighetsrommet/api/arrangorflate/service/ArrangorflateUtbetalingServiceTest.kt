@@ -197,10 +197,10 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
         }
 
         test("returnerer feil for prismodeller som ikke støttes") {
-            val prisPerUkesverk = PrismodellFixtures.createPrismodellDbo(
+            val prisPerUkesverk = PrismodellFixtures.createPrismodell(
                 type = PrismodellType.AVTALT_PRIS_PER_UKESVERK,
             )
-            val prisPerHeleUkesverk = PrismodellFixtures.createPrismodellDbo(
+            val prisPerHeleUkesverk = PrismodellFixtures.createPrismodell(
                 type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
             )
 

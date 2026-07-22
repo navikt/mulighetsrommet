@@ -7,7 +7,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
-import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
@@ -20,6 +19,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
+import no.nav.mulighetsrommet.api.persistence.tiltak.toPrismodell
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray

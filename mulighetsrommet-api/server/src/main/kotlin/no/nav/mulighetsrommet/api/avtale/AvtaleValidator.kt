@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
 import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.fromValidatedAvtaleRequest
@@ -243,7 +242,7 @@ object AvtaleValidator {
     fun validatePrismodeller(
         request: List<PrismodellRequest>,
         context: ValidatePrismodellerContext,
-    ): Either<List<FieldError>, List<PrismodellDbo>> = validation {
+    ): Either<List<FieldError>, List<Prismodell>> = validation {
         if (context.avtaletype == Avtaletype.FORHANDSGODKJENT) {
             requireValid(request.isEmpty()) {
                 FieldError.of(
@@ -304,17 +303,13 @@ object AvtaleValidator {
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                 -> validateSatser(context, prismodell.valuta, index, prismodell.satser)
             }
-            PrismodellDbo(
-                id = prismodell.id,
-                systemId = null,
+            Prismodell.from(
                 type = prismodell.type,
+                id = prismodell.id,
+                valuta = prismodell.valuta,
                 prisbetingelser = prismodell.prisbetingelser,
                 satser = satser,
-                valuta = prismodell.valuta,
                 tilsagnPerDeltaker = prismodell.tilsagnPerDeltaker,
-                totalbelop = null,
-                tilskudd = null,
-                aarsak = null,
             )
         }
     }

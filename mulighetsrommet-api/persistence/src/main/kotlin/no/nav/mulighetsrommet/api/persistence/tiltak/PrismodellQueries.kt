@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.avtale.db
+package no.nav.mulighetsrommet.api.persistence.tiltak
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
@@ -14,7 +14,8 @@ import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class PrismodellQueries(private val session: Session) {
-    fun upsert(dbo: PrismodellDbo) {
+
+    fun upsert(prismodell: Prismodell, systemId: String? = null) {
         @Language("PostgreSQL")
         val query = """
             insert into prismodell(id,
@@ -47,29 +48,31 @@ class PrismodellQueries(private val session: Session) {
                                            tilskudd             = excluded.tilskudd,
                                            aarsak               = excluded.aarsak
         """.trimIndent()
-        val params = mapOf(
-            "id" to dbo.id,
-            "system_id" to dbo.systemId,
-            "prismodell" to dbo.type.name,
-            "prisbetingelser" to dbo.prisbetingelser,
-            "satser" to Json.encodeToString(dbo.satser),
-            "valuta" to dbo.valuta.name,
-            "tilsagn_per_deltaker" to dbo.tilsagnPerDeltaker,
-            "totalbelop" to dbo.totalbelop,
-            "tilskudd" to dbo.tilskudd?.let { Json.encodeToString(it) },
-            "aarsak" to dbo.aarsak,
-        )
-        session.execute(queryOf(query, params))
-    }
 
-    fun setPrisbetingelser(id: UUID, prisbetingelser: String?) {
-        @Language("PostgreSQL")
-        val query = """
-            update prismodell
-            set prisbetingelser = :prisbetingelser
-            where id = :id::uuid
-        """.trimIndent()
-        val params = mapOf("id" to id, "prisbetingelser" to prisbetingelser)
+        val prisbetingelser: String? = when (prismodell) {
+            is Prismodell.AnnenAvtaltPris -> prismodell.prisbetingelser
+            is Prismodell.AvtaltPrisPerManedsverk -> prismodell.prisbetingelser
+            is Prismodell.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
+            is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.prisbetingelser
+            is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.prisbetingelser
+            is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
+            is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> null
+            is Prismodell.TilskuddTilOpplaering -> prismodell.tilleggsopplysninger
+            is Prismodell.IngenKostnader -> prismodell.tilleggsopplysninger
+        }
+
+        val params = mapOf(
+            "id" to prismodell.id,
+            "system_id" to systemId,
+            "prismodell" to prismodell.type.name,
+            "prisbetingelser" to prisbetingelser,
+            "satser" to Json.encodeToString(prismodell.satser()),
+            "valuta" to prismodell.valuta.name,
+            "tilsagn_per_deltaker" to (prismodell as? Prismodell.AnnenAvtaltPris)?.tilsagnPerDeltaker,
+            "totalbelop" to (prismodell as? Prismodell.AnnenAvtaltPris)?.totalbelop,
+            "tilskudd" to (prismodell as? Prismodell.TilskuddTilOpplaering)?.tilskudd?.let { Json.encodeToString(it) },
+            "aarsak" to (prismodell as? Prismodell.IngenKostnader)?.aarsak?.name,
+        )
         session.execute(queryOf(query, params))
     }
 

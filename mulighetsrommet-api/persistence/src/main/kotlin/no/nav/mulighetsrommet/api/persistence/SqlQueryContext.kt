@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.NavEnhetQueries
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
+import no.nav.mulighetsrommet.api.persistence.tiltak.PrismodellQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
@@ -35,6 +36,7 @@ import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
  */
 class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     val tiltakstype = TiltakstypeQueries(session)
+    val prismodell = PrismodellQueries(session)
     val endringshistorikk = EndringshistorikkQueries(session)
     val redaksjoneltInnholdLenke = RedaksjoneltInnholdLenkeQueries(session)
     val navEnhet = NavEnhetQueries(session)

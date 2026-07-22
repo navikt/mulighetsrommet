@@ -701,7 +701,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 getContext(),
-            ).shouldBeRight()[0].satser shouldBe listOf(
+            ).shouldBeRight()[0].satser() shouldBe listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 1.NOK),
             )
         }
@@ -776,7 +776,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 getContext(),
-            ).shouldBeRight()[0].satser shouldBe listOf(
+            ).shouldBeRight()[0].satser() shouldBe listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 1.NOK),
                 AvtaltSats(LocalDate.of(2025, 2, 1), 2.NOK),
                 AvtaltSats(LocalDate.of(2025, 3, 1), 3.NOK),
