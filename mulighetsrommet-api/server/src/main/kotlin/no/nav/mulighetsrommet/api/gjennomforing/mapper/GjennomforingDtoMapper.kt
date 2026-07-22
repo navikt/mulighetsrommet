@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
+import no.nav.mulighetsrommet.admin.tiltak.fromPrismodell
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytelseDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.DeltakerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale

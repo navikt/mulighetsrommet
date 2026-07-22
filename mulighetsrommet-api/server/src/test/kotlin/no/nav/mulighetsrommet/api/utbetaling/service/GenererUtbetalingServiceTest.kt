@@ -15,9 +15,9 @@ import io.mockk.mockk
 import no.nav.amt.model.AmtArrangorMelding
 import no.nav.amt.model.EndringAarsak
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -165,7 +165,7 @@ class GenererUtbetalingServiceTest : FunSpec({
 
         val organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer
 
-        val prismodellOppfolging = PrismodellFixtures.createPrismodellDbo(
+        val prismodellOppfolging = PrismodellFixtures.createPrismodell(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 100.NOK),
@@ -370,7 +370,13 @@ class GenererUtbetalingServiceTest : FunSpec({
                         statusType = DeltakerStatusType.DELTAR,
                     ),
                 ),
-                prismodeller = listOf(prismodellOppfolging.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK)),
+                prismodeller = listOf(
+                    PrismodellFixtures.createPrismodell(
+                        id = prismodellOppfolging.id,
+                        type = PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+                        satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 100.NOK)),
+                    ),
+                ),
             ).initialize(database.api)
 
             val utbetaling = service.genererUtbetalingerForPeriode(januar)
@@ -398,7 +404,11 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             database.run {
                 queries.prismodell.upsert(
-                    prismodellOppfolging.copy(type = PrismodellType.AVTALT_PRIS_PER_UKESVERK),
+                    PrismodellFixtures.createPrismodell(
+                        id = prismodellOppfolging.id,
+                        type = PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+                        satser = listOf(AvtaltSats(LocalDate.of(2025, 1, 1), 100.NOK)),
+                    ),
                 )
             }
 
@@ -447,10 +457,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     ),
                 ),
             ) {
-
-                queries.prismodell.upsert(
-                    prismodellOppfolging.copy(type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK),
-                )
+                queries.prismodell.upsert(prismodellOppfolging)
             }.initialize(database.api)
 
             service.oppdaterUtbetalingerForGjennomforing(oppfolging.id).shouldHaveSize(0)
@@ -478,7 +485,10 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             database.run {
                 queries.prismodell.upsert(
-                    prismodellOppfolging.copy(type = PrismodellType.ANNEN_AVTALT_PRIS),
+                    PrismodellFixtures.createPrismodell(
+                        id = prismodellOppfolging.id,
+                        type = PrismodellType.ANNEN_AVTALT_PRIS,
+                    ),
                 )
             }
 
@@ -616,7 +626,7 @@ class GenererUtbetalingServiceTest : FunSpec({
     context("rekalkulering av utbetalinger") {
         val service = createUtbetalingService()
 
-        val prismodell = PrismodellFixtures.createPrismodellDbo(
+        val prismodell = PrismodellFixtures.createPrismodell(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2026, 2, 1), 100.NOK),
@@ -716,7 +726,7 @@ class GenererUtbetalingServiceTest : FunSpec({
         val gyldigTilsagnPeriode = Periode(LocalDate.of(2024, 12, 1), LocalDate.of(2027, 1, 1))
         val service = createUtbetalingService(mapOf(Tiltakskode.OPPFOLGING to gyldigTilsagnPeriode))
 
-        val prismodell = PrismodellFixtures.createPrismodellDbo(
+        val prismodell = PrismodellFixtures.createPrismodell(
             type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2024, 1, 1), 100.NOK),
@@ -811,7 +821,7 @@ class GenererUtbetalingServiceTest : FunSpec({
     context("regenerering") {
         val service = createUtbetalingService()
 
-        val prismodell = PrismodellFixtures.createPrismodellDbo(
+        val prismodell = PrismodellFixtures.createPrismodell(
             type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
             satser = listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 100.NOK),

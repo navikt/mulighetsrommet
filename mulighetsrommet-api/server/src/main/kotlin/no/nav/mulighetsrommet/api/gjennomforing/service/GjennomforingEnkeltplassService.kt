@@ -13,12 +13,11 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -31,7 +30,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -418,7 +416,7 @@ class GjennomforingEnkeltplassService(
         behandling: TotrinnskontrollBehandling,
     ) {
         val prismodellId = UUID.randomUUID()
-        queries.prismodell.upsert(toPrismodellDbo(prismodellId, prisinformasjon))
+        queries.prismodell.upsert(toPrismodell(prismodellId, prisinformasjon))
 
         val prisendring = Totrinnskontroll.opprett(
             behandling.id,
@@ -483,35 +481,31 @@ class GjennomforingEnkeltplassService(
         prismodell: UpsertEnkeltplass.Prismodell,
     ): UUID {
         val prismodellId = queries.gjennomforing.getPrismodell(gjennomforingId)?.id ?: UUID.randomUUID()
-        val dbo = toPrismodellDbo(prismodellId, prismodell)
-        queries.prismodell.upsert(dbo)
-        return dbo.id
+        queries.prismodell.upsert(toPrismodell(prismodellId, prismodell))
+        return prismodellId
     }
 
-    private fun toPrismodellDbo(id: UUID, prismodell: UpsertEnkeltplass.Prismodell): PrismodellDbo = when (prismodell) {
-        is UpsertEnkeltplass.Prismodell.Anskaffelse -> PrismodellDbo(
+    private fun toPrismodell(id: UUID, prismodell: UpsertEnkeltplass.Prismodell): Prismodell = when (prismodell) {
+        is UpsertEnkeltplass.Prismodell.Anskaffelse -> Prismodell.AnnenAvtaltPris(
             id = id,
-            type = PrismodellType.ANNEN_AVTALT_PRIS,
             valuta = Valuta.NOK,
             prisbetingelser = null,
             tilsagnPerDeltaker = true,
             totalbelop = prismodell.totalbelop,
         )
 
-        is UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering -> PrismodellDbo(
+        is UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering -> Prismodell.TilskuddTilOpplaering(
             id = id,
-            type = PrismodellType.TILSKUDD_TIL_OPPLAERING,
             valuta = Valuta.NOK,
-            prisbetingelser = prismodell.tilleggsopplysninger,
+            tilleggsopplysninger = prismodell.tilleggsopplysninger,
             tilskudd = prismodell.tilskudd,
         )
 
-        is UpsertEnkeltplass.Prismodell.IngenKostnader -> PrismodellDbo(
+        is UpsertEnkeltplass.Prismodell.IngenKostnader -> Prismodell.IngenKostnader(
             id = id,
-            type = PrismodellType.INGEN_KOSTNADER,
             valuta = Valuta.NOK,
-            prisbetingelser = prismodell.tilleggsopplysninger,
-            aarsak = prismodell.aarsak.name,
+            tilleggsopplysninger = prismodell.tilleggsopplysninger,
+            aarsak = prismodell.aarsak,
         )
     }
 

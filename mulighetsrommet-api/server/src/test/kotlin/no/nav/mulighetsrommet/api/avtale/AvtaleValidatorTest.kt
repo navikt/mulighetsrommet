@@ -16,20 +16,20 @@ import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
 import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -701,7 +701,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 getContext(),
-            ).shouldBeRight()[0].satser shouldBe listOf(
+            ).shouldBeRight()[0].satser() shouldBe listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 1.NOK),
             )
         }
@@ -776,7 +776,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 getContext(),
-            ).shouldBeRight()[0].satser shouldBe listOf(
+            ).shouldBeRight()[0].satser() shouldBe listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 1.NOK),
                 AvtaltSats(LocalDate.of(2025, 2, 1), 2.NOK),
                 AvtaltSats(LocalDate.of(2025, 3, 1), 3.NOK),

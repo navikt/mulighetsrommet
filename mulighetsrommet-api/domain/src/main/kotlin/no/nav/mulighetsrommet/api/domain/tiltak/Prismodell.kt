@@ -1,9 +1,8 @@
-package no.nav.mulighetsrommet.api.avtale.model
+package no.nav.mulighetsrommet.api.domain.tiltak
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import no.nav.mulighetsrommet.api.avtale.mapper.satser
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -30,6 +29,11 @@ sealed interface Prismodell {
 
     @Serializable
     data class ForhandsgodkjentPrisPerManedsverk(
+        /**
+         * Prismodeller for forhåndsgodkjente tiltak er identifisert med en kjent system-id.
+         * Dette tillater systemet å finne riktig prismodell for alle tiltak for en gitt tiltakskode.
+         */
+        val systemId: String? = null,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
@@ -41,6 +45,11 @@ sealed interface Prismodell {
 
     @Serializable
     data class ForhandsgodkjentPrisPerAvtaltTiltaksplass(
+        /**
+         * Prismodeller for forhåndsgodkjente tiltak er identifisert med en kjent system-id.
+         * Dette tillater systemet å finne riktig prismodell for alle tiltak for en gitt tiltakskode.
+         */
+        val systemId: String? = null,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
@@ -127,6 +136,18 @@ sealed interface Prismodell {
         }
     }
 
+    fun satser(): List<AvtaltSats> = when (this) {
+        is AnnenAvtaltPris -> emptyList()
+        is AvtaltPrisPerManedsverk -> satser
+        is AvtaltPrisPerUkesverk -> satser
+        is AvtaltPrisPerHeleUkesverk -> satser
+        is AvtaltPrisPerTimeOppfolgingPerDeltaker -> satser
+        is ForhandsgodkjentPrisPerManedsverk -> satser
+        is ForhandsgodkjentPrisPerAvtaltTiltaksplass -> satser
+        is TilskuddTilOpplaering -> emptyList()
+        is IngenKostnader -> emptyList()
+    }
+
     fun findAvtaltSats(dato: LocalDate): AvtaltSats? {
         return satser()
             .sortedBy { it.gjelderFra }
@@ -135,8 +156,8 @@ sealed interface Prismodell {
 
     companion object {
         fun from(
-            type: PrismodellType,
             id: UUID,
+            type: PrismodellType,
             valuta: Valuta,
             prisbetingelser: String?,
             satser: List<AvtaltSats>?,

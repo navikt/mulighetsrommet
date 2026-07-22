@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorIfMissing
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain

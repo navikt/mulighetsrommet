@@ -10,23 +10,18 @@ import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
 import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
 import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.fromValidatedAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.Avtale.OpsjonLoggDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggDbo
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodeller
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
@@ -36,6 +31,10 @@ import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodeller
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.ArrangorUnderenhet
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -243,7 +242,7 @@ object AvtaleValidator {
     fun validatePrismodeller(
         request: List<PrismodellRequest>,
         context: ValidatePrismodellerContext,
-    ): Either<List<FieldError>, List<PrismodellDbo>> = validation {
+    ): Either<List<FieldError>, List<Prismodell>> = validation {
         if (context.avtaletype == Avtaletype.FORHANDSGODKJENT) {
             requireValid(request.isEmpty()) {
                 FieldError.of(
@@ -304,17 +303,13 @@ object AvtaleValidator {
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                 -> validateSatser(context, prismodell.valuta, index, prismodell.satser)
             }
-            PrismodellDbo(
-                id = prismodell.id,
-                systemId = null,
+            Prismodell.from(
                 type = prismodell.type,
+                id = prismodell.id,
+                valuta = prismodell.valuta,
                 prisbetingelser = prismodell.prisbetingelser,
                 satser = satser,
-                valuta = prismodell.valuta,
                 tilsagnPerDeltaker = prismodell.tilsagnPerDeltaker,
-                totalbelop = null,
-                tilskudd = null,
-                aarsak = null,
             )
         }
     }

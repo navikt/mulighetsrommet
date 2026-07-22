@@ -1,7 +1,9 @@
-package no.nav.mulighetsrommet.api.avtale.model
+package no.nav.mulighetsrommet.admin.tiltak
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
@@ -67,6 +69,7 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.IngenKostnader,
         -> null
     }
+
     val tilskudd = when (prismodell) {
         is Prismodell.TilskuddTilOpplaering -> prismodell.tilskudd.map {
             PrismodellDto.TilskuddOgBelop(it.key, it.value)
@@ -82,6 +85,7 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.IngenKostnader,
         -> emptyList()
     }
+
     val totalBelop = when (prismodell) {
         is Prismodell.AnnenAvtaltPris -> prismodell.totalbelop
 
@@ -95,6 +99,7 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         is Prismodell.TilskuddTilOpplaering,
         -> null
     }
+
     val aarsak = when (prismodell) {
         is Prismodell.IngenKostnader -> prismodell.aarsak
 

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.avtale.model
+package no.nav.mulighetsrommet.api.domain.tiltak
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
