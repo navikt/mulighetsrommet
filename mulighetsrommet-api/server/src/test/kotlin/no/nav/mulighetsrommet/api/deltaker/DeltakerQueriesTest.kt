@@ -66,8 +66,8 @@ class DeltakerQueriesTest : FunSpec({
             repository.deltaker.save(deltaker1)
             repository.deltaker.save(deltaker2)
 
-            repository.deltaker.getByGjennomforing(deltaker1.gjennomforingId).shouldContainExactly(deltaker1)
-            repository.deltaker.getByGjennomforing(deltaker2.gjennomforingId).shouldContainExactly(deltaker2)
+            repository.deltaker.get(deltaker1.id) shouldBe deltaker1
+            repository.deltaker.get(deltaker2.id) shouldBe deltaker2
 
             val avsluttetDeltaker2 = deltaker2.copy(
                 status = DeltakerStatus(
@@ -78,13 +78,13 @@ class DeltakerQueriesTest : FunSpec({
             )
             repository.deltaker.save(avsluttetDeltaker2)
 
-            repository.deltaker.getByGjennomforing(deltaker1.gjennomforingId).shouldContainExactly(deltaker1)
-            repository.deltaker.getByGjennomforing(deltaker2.gjennomforingId).shouldContainExactly(avsluttetDeltaker2)
+            repository.deltaker.get(deltaker1.id) shouldBe deltaker1
+            repository.deltaker.get(deltaker2.id) shouldBe avsluttetDeltaker2
 
             repository.deltaker.delete(deltaker1.id)
 
-            repository.deltaker.getByGjennomforing(deltaker1.gjennomforingId).shouldContainExactly()
-            repository.deltaker.getByGjennomforing(deltaker2.gjennomforingId).shouldContainExactly(avsluttetDeltaker2)
+            repository.deltaker.get(deltaker1.id) shouldBe null
+            repository.deltaker.get(deltaker2.id) shouldBe avsluttetDeltaker2
         }
     }
 
