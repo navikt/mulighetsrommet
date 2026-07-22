@@ -97,7 +97,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         val tidspunktMs = LocalDateTime.of(2025, 1, 1, 12, 0, 0, 123_456_000)
         val lagretDeltaker = DeltakerFixtures.createDeltaker(
             gjennomforingId = EnkelAmo.id,
-            endretTidspunkt = tidspunktMs,
+            endretTidspunkt = tidspunktMs.tilNorskInstant(),
         )
         MulighetsrommetTestDomain(
             gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.GJENNOMFORES)),

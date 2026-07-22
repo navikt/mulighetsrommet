@@ -2,11 +2,11 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.deltaker.NavVeileder
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 object DeltakerFixtures {
@@ -16,9 +16,10 @@ object DeltakerFixtures {
         status: DeltakerStatusType = DeltakerStatusType.DELTAR,
         startDato: LocalDate? = LocalDate.now(),
         sluttDato: LocalDate? = LocalDate.now().plusMonths(1),
-        endretTidspunkt: LocalDateTime = LocalDateTime.now(),
+        endretTidspunkt: Instant = Instant.now(),
         innhold: String? = null,
-    ) = Deltaker(
+        veileder: NavVeileder? = null,
+    ) = Deltaker.opprett(
         id = id,
         startDato = startDato,
         sluttDato = sluttDato,
@@ -32,7 +33,7 @@ object DeltakerFixtures {
         ),
         deltakelsesmengder = listOf(),
         innholdAnnet = innhold,
-        navVeileder = null,
+        navVeileder = veileder,
     )
 
     fun createDeltakerMedDeltakelsesmengder(
@@ -41,7 +42,7 @@ object DeltakerFixtures {
         startDato: LocalDate = LocalDate.now(),
         sluttDato: LocalDate? = LocalDate.now().plusMonths(1),
         status: DeltakerStatusType = DeltakerStatusType.DELTAR,
-        endretTidspunkt: LocalDateTime = LocalDateTime.now(),
+        endretTidspunkt: Instant = Instant.now(),
         deltakelsesprosent: Double = 100.0,
         deltakelsesmengder: List<Deltakelsesmengde> = listOf(
             Deltakelsesmengde(
@@ -50,13 +51,13 @@ object DeltakerFixtures {
                 opprettetTidspunkt = Instant.now(),
             ),
         ),
-    ) = Deltaker(
+    ) = Deltaker.opprett(
         id = id,
         startDato = startDato,
         sluttDato = sluttDato,
         gjennomforingId = gjennomforingId,
-        registrertTidspunkt = LocalDateTime.now(),
-        endretTidspunkt = LocalDateTime.now(),
+        registrertTidspunkt = Instant.now(),
+        endretTidspunkt = Instant.now(),
         deltakelsesmengder = deltakelsesmengder,
         status = DeltakerStatus(
             type = status,

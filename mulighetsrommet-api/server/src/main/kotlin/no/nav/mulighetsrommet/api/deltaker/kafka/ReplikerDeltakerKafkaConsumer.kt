@@ -15,11 +15,9 @@ import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class ReplikerDeltakerKafkaConsumer(
@@ -29,8 +27,6 @@ class ReplikerDeltakerKafkaConsumer(
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     override suspend fun consume(key: UUID, message: JsonElement) {
         val amtDeltaker = JsonIgnoreUnknownKeys.decodeFromJsonElement<AmtDeltakerEksternV1Dto?>(message)
 
@@ -50,13 +46,13 @@ class ReplikerDeltakerKafkaConsumer(
     }
 }
 
-fun AmtDeltakerEksternV1Dto.toDeltaker(): Deltaker = Deltaker(
+fun AmtDeltakerEksternV1Dto.toDeltaker(): Deltaker = Deltaker.opprett(
     id = id,
     gjennomforingId = gjennomforingId,
     startDato = startDato,
     sluttDato = sluttDato,
-    registrertTidspunkt = registrertTidspunkt,
-    endretTidspunkt = truncateMicros(endretTidspunkt),
+    registrertTidspunkt = registrertTidspunkt.tilNorskInstant(),
+    endretTidspunkt = endretTidspunkt.tilNorskInstant(),
     status = status.toDeltakerStatus(),
     deltakelsesmengder = deltakelsesmengder.map {
         Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble(), it.opprettetTidspunkt.tilNorskInstant())
@@ -75,9 +71,10 @@ fun AmtDeltakerEksternV1Dto.toDeltaker(): Deltaker = Deltaker(
 private fun AmtDeltakerEksternV1Dto.StatusDto.toDeltakerStatus(): DeltakerStatus = DeltakerStatus(
     type = type,
     aarsak = aarsak.type,
-    opprettetTidspunkt = opprettetTidspunkt,
+    opprettetTidspunkt = opprettetTidspunkt.tilNorskInstant(),
 )
 
-private fun truncateMicros(timestamp: LocalDateTime) = timestamp.truncatedTo(ChronoUnit.MICROS)
-
-private fun LocalDateTime.tilNorskInstant(): Instant = atZone(ZoneId.of("Europe/Oslo")).toInstant()
+/**
+ * Kafka-meldinger fra Komet er i lokal norsk tid.
+ */
+internal fun LocalDateTime.tilNorskInstant(): Instant = atZone(ZoneId.of("Europe/Oslo")).toInstant()

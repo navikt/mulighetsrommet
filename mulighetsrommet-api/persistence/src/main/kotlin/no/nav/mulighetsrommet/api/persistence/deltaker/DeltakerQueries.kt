@@ -129,17 +129,17 @@ class DeltakerQueries(private val session: Session) : DeltakerRepository {
     }
 }
 
-private fun Row.toDeltaker() = Deltaker(
+private fun Row.toDeltaker() = Deltaker.opprett(
     id = uuid("id"),
     gjennomforingId = uuid("gjennomforing_id"),
     startDato = localDateOrNull("start_dato"),
     sluttDato = localDateOrNull("slutt_dato"),
-    registrertTidspunkt = localDateTime("registrert_tidspunkt"),
-    endretTidspunkt = localDateTime("endret_tidspunkt"),
+    registrertTidspunkt = instant("registrert_tidspunkt"),
+    endretTidspunkt = instant("endret_tidspunkt"),
     status = DeltakerStatus(
         type = DeltakerStatusType.valueOf(string("status_type")),
         aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatusAarsakType.valueOf(it) },
-        opprettetTidspunkt = localDateTime("status_opprettet_tidspunkt"),
+        opprettetTidspunkt = instant("status_opprettet_tidspunkt"),
     ),
     deltakelsesmengder = stringOrNull("deltakelsesmengder_json")?.let { Json.decodeFromString(it) } ?: listOf(),
     innholdAnnet = stringOrNull("innhold_annet"),

@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -45,6 +46,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
 
     context("konsumering av deltakere") {
         val opprettetTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+        val opprettetInstant = opprettetTidspunkt.tilNorskInstant()
 
         val amtDeltaker1 = createAmtDeltakerDto(
             gjennomforingId = Oppfolging1.id,
@@ -81,7 +83,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
 
             database.run {
                 repository.deltaker.getByGjennomforing(Oppfolging1.id).shouldContainExactlyInAnyOrder(
-                    Deltaker(
+                    Deltaker.opprett(
                         id = amtDeltaker1.id,
                         gjennomforingId = Oppfolging1.id,
                         startDato = null,
@@ -89,15 +91,15 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         status = DeltakerStatus(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,
-                            opprettetTidspunkt = opprettetTidspunkt,
+                            opprettetTidspunkt = opprettetInstant,
                         ),
-                        registrertTidspunkt = opprettetTidspunkt,
-                        endretTidspunkt = opprettetTidspunkt,
+                        registrertTidspunkt = opprettetInstant,
+                        endretTidspunkt = opprettetInstant,
                         deltakelsesmengder = listOf(),
                         innholdAnnet = "Prisinformasjon",
                         navVeileder = null,
                     ),
-                    Deltaker(
+                    Deltaker.opprett(
                         id = amtDeltaker2.id,
                         gjennomforingId = Oppfolging1.id,
                         startDato = null,
@@ -105,10 +107,10 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
                         status = DeltakerStatus(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,
-                            opprettetTidspunkt = opprettetTidspunkt,
+                            opprettetTidspunkt = opprettetInstant,
                         ),
-                        registrertTidspunkt = opprettetTidspunkt,
-                        endretTidspunkt = opprettetTidspunkt,
+                        registrertTidspunkt = opprettetInstant,
+                        endretTidspunkt = opprettetInstant,
                         deltakelsesmengder = listOf(),
                         innholdAnnet = "Prisinformasjon",
                         navVeileder = null,
@@ -177,6 +179,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             )
 
             val avbruttTidspunkt = LocalDateTime.of(2023, 3, 1, 0, 0, 0)
+            val avbruttInstant = avbruttTidspunkt.tilNorskInstant()
             val amtDeltakerAvbrutt = createAmtDeltakerDto(
                 id = id,
                 gjennomforingId = AFT1.id,
@@ -190,7 +193,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             database.run {
                 repository.deltaker.get(id).shouldNotBeNull().should {
                     it.status.type shouldBe DeltakerStatusType.AVBRUTT
-                    it.endretTidspunkt shouldBe avbruttTidspunkt
+                    it.endretTidspunkt shouldBe avbruttInstant
                 }
             }
 
@@ -199,7 +202,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             database.run {
                 repository.deltaker.get(id).shouldNotBeNull().should {
                     it.status.type shouldBe DeltakerStatusType.AVBRUTT
-                    it.endretTidspunkt shouldBe avbruttTidspunkt
+                    it.endretTidspunkt shouldBe avbruttInstant
                 }
             }
         }
@@ -210,7 +213,7 @@ class ReplikerDeltakerKafkaConsumerTest : FunSpec({
             val id = UUID.randomUUID()
 
             val tidspunktKafka = LocalDateTime.parse("2023-03-01T00:00:00.123456789")
-            val tidspunktDatabase = LocalDateTime.parse("2023-03-01T00:00:00.123456")
+            val tidspunktDatabase = Instant.parse("2023-02-28T23:00:00.123456Z")
 
             val amtDeltakerDeltar = createAmtDeltakerDto(
                 id = id,

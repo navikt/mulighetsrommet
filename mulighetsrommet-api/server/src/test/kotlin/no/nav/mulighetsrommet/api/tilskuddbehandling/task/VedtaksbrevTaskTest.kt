@@ -52,7 +52,7 @@ class VedtaksbrevTaskTest : FunSpec({
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
             deltakere = listOf(
-                DeltakerFixtures.createDeltaker(gjennomforingId = GjennomforingFixtures.EnkelAmo.id).copy(id = deltakerId),
+                DeltakerFixtures.createDeltaker(id = deltakerId, gjennomforingId = GjennomforingFixtures.EnkelAmo.id),
             ),
         ).initialize(database.api)
 
