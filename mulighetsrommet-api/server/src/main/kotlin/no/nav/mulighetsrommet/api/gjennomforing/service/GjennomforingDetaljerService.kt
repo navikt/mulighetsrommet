@@ -4,7 +4,7 @@ import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.admin.tiltak.fromPrismodell
+import no.nav.mulighetsrommet.admin.tiltak.toPrismodellDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
@@ -95,7 +95,7 @@ class GjennomforingDetaljerService(
                             gjennomforing.id,
                             TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
                         )
-                        GjennomforingDetaljerDto.Prisendring(totrinnskontroll, fromPrismodell(prismodell))
+                        GjennomforingDetaljerDto.Prisendring(totrinnskontroll, prismodell.toPrismodellDto())
                     }
 
                 val deltaker = getDeltaker(gjennomforing.id)?.let { deltaker ->

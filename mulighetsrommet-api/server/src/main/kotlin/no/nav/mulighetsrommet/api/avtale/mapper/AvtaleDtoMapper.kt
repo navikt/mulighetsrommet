@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.mapper
 
-import no.nav.mulighetsrommet.admin.tiltak.fromPrismodell
+import no.nav.mulighetsrommet.admin.tiltak.toPrismodellDto
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
@@ -27,7 +27,7 @@ object AvtaleDtoMapper {
         opplaring = avtale.opplaringKategorisering,
         opsjonsmodell = avtale.opsjonsmodell,
         opsjonerRegistrert = avtale.opsjonerRegistrert,
-        prismodeller = avtale.prismodeller.map { fromPrismodell(it) },
+        prismodeller = avtale.prismodeller.map { it.toPrismodellDto() },
     )
 
     private fun fromAvtaleStatus(status: AvtaleStatus): AvtaleDto.Status {
