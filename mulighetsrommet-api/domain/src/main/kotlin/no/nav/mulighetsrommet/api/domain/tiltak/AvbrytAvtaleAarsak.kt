@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.avtale.model
+package no.nav.mulighetsrommet.api.domain.tiltak
 
 enum class AvbrytAvtaleAarsak {
     ENDRING_HOS_ARRANGOR,

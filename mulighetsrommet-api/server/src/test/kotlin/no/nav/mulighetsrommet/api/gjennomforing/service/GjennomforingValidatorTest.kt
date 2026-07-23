@@ -9,12 +9,11 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.admin.arrangor.toDto
-import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
+import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -75,19 +74,12 @@ class GjennomforingValidatorTest : FunSpec({
         status = AvtaleStatus.Aktiv,
         avtaletype = Avtaletype.RAMMEAVTALE,
         administratorer = emptyList(),
-        kontorstruktur = listOf(
-            Kontorstruktur(
-                region = Kontorstruktur.Region(Innlandet.navn, Innlandet.enhetsnummer),
-                kontorer = listOf(
-                    Kontorstruktur.Kontor(Gjovik.navn, Gjovik.enhetsnummer, Kontorstruktur.Kontortype.LOKAL),
-                ),
-            ),
-        ),
+        navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
         beskrivelse = null,
         faneinnhold = null,
         personopplysninger = emptyList(),
         personvernBekreftet = false,
-        opplaringKategorisering = null,
+        opplaring = null,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
         prismodeller = listOf(
             Prismodell.AnnenAvtaltPris(
@@ -270,7 +262,7 @@ class GjennomforingValidatorTest : FunSpec({
                 id = TiltakstypeFixtures.GruppeAmo.id,
                 navn = TiltakstypeFixtures.GruppeAmo.navn,
             ),
-            opplaringKategorisering = null,
+            opplaring = null,
         )
 
         context(avtaleUtenAmokategorisering, kategoriseringCtx) {
@@ -293,7 +285,7 @@ class GjennomforingValidatorTest : FunSpec({
                 id = TiltakstypeFixtures.GruppeAmo.id,
                 navn = TiltakstypeFixtures.GruppeAmo.navn,
             ),
-            opplaringKategorisering = OpplaringKategoriseringDetaljer(kurstype = KurstypeFixtures.studiespesialisering),
+            opplaring = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering.id),
         )
 
         context(avtaleUtenAmokategorisering, kategoriseringCtx) {

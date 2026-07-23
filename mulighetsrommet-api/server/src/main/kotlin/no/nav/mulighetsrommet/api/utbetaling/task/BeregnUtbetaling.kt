@@ -10,8 +10,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
-import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
@@ -25,6 +23,8 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUke
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.spreadsheet.ExcelWorkbookBuilder
+import no.nav.mulighetsrommet.spreadsheet.buildExcelWorkbook
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.poi.ss.usermodel.IndexedColors

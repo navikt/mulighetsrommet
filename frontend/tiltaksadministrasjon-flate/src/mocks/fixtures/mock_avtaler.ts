@@ -4,7 +4,7 @@ import { mockTiltakstyper } from "./mock_tiltakstyper";
 import {
   AvtaleDto,
   AvtaleStatusType,
-  AvtaleTiltakstype,
+  AvtaleDtoTiltakstype,
   Avtaletype,
   DataElementStatusVariant,
   OpsjonsmodellType,
@@ -288,7 +288,7 @@ export const mockAvtaler: AvtaleDto[] = [
   },
 ];
 
-function getAvtaleTiltakstype(dto: TiltakstypeDto): AvtaleTiltakstype {
+function getAvtaleTiltakstype(dto: TiltakstypeDto): AvtaleDtoTiltakstype {
   return {
     id: dto.id,
     navn: dto.navn,

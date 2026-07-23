@@ -4690,7 +4690,7 @@ components:
       required:
       - nySluttDato
       - type
-    Avtale.Tiltakstype:
+    AvtaleDto.Tiltakstype:
       type: object
       properties:
         id:
@@ -4704,7 +4704,7 @@ components:
       - id
       - navn
       - tiltakskode
-    Avtale.ArrangorHovedenhet:
+    AvtaleDto.ArrangorHovedenhet:
       type: object
       properties:
         id:
@@ -4719,11 +4719,11 @@ components:
         underenheter:
           type: array
           items:
-            $ref: "#/components/schemas/Avtale.ArrangorUnderenhet"
+            $ref: "#/components/schemas/AvtaleDto.ArrangorUnderenhet"
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/Avtale.ArrangorKontaktperson"
+            $ref: "#/components/schemas/AvtaleDto.ArrangorKontaktperson"
       required:
       - id
       - kontaktpersoner
@@ -4731,7 +4731,7 @@ components:
       - organisasjonsnummer
       - slettet
       - underenheter
-    Avtale.ArrangorUnderenhet:
+    AvtaleDto.ArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -4748,7 +4748,7 @@ components:
       - navn
       - organisasjonsnummer
       - slettet
-    Avtale.ArrangorKontaktperson:
+    AvtaleDto.ArrangorKontaktperson:
       type: object
       properties:
         id:
@@ -5023,7 +5023,7 @@ components:
       required:
       - id
       - navn
-    Avtale.OpsjonLoggDto:
+    Avtale.OpsjonLogg:
       type: object
       properties:
         id:
@@ -5167,7 +5167,7 @@ components:
           type: string
           format: uuid
         tiltakstype:
-          $ref: "#/components/schemas/Avtale.Tiltakstype"
+          $ref: "#/components/schemas/AvtaleDto.Tiltakstype"
         navn:
           type: string
         avtalenummer:
@@ -5181,7 +5181,7 @@ components:
         arrangor:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/Avtale.ArrangorHovedenhet"
+          - $ref: "#/components/schemas/AvtaleDto.ArrangorHovedenhet"
         startDato:
           type: string
           format: date
@@ -5225,7 +5225,7 @@ components:
         opsjonerRegistrert:
           type: array
           items:
-            $ref: "#/components/schemas/Avtale.OpsjonLoggDto"
+            $ref: "#/components/schemas/Avtale.OpsjonLogg"
         prismodeller:
           type: array
           items:

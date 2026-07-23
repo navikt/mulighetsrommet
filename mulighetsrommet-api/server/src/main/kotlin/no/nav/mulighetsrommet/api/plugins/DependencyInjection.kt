@@ -27,6 +27,7 @@ import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
 import no.nav.mulighetsrommet.admin.navenhet.SynkroniserNavEnheterUseCase
 import no.nav.mulighetsrommet.admin.redaksjoneltinnhold.RedaksjoneltInnholdLenkeService
+import no.nav.mulighetsrommet.admin.tiltak.AvtaleDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
@@ -460,6 +461,7 @@ private fun services(appConfig: AppConfig) = module {
             get(),
         )
     }
+    single { AvtaleDtoQuery(get(), get()) }
     single { TiltakshistorikkService(get(), get(), get()) }
     single {
         VeilederflateService(

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.services
+package no.nav.mulighetsrommet.spreadsheet
 
 import no.nav.mulighetsrommet.model.ValutaBelop
 import org.apache.poi.ss.usermodel.BorderStyle

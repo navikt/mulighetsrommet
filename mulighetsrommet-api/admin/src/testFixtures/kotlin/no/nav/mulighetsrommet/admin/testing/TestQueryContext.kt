@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
+import no.nav.mulighetsrommet.admin.tiltak.AvtaleQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
@@ -39,6 +40,7 @@ class TestQueryContext : QueryContext() {
     private var arrangor: ArrangorQueryHandler = mockk(relaxed = true)
     private var opplaringKategorisering: OpplaringKategoriseringQueryHandler = mockk(relaxed = true)
     private var tiltakDokument: TiltakDokumentQueryHandler = mockk(relaxed = true)
+    private var avtale: AvtaleQueryHandler = mockk(relaxed = true)
 
     override val repository = object : Repositories() {
         override val tiltakstype get() = tiltakstypeRepository
@@ -50,6 +52,7 @@ class TestQueryContext : QueryContext() {
         override val tiltakDokument get() = tiltakDokumentRepository
         override val deltaker get() = deltakerRepository
         override val deltakerForslag get() = deltakerForslagRepository
+        override val avtale get() = TODO("implementer FakeAvtaleRepository")
     }
 
     override val queries = object : Queries() {
@@ -61,6 +64,7 @@ class TestQueryContext : QueryContext() {
         override val arrangor get() = this@TestQueryContext.arrangor
         override val opplaering get() = this@TestQueryContext.opplaringKategorisering
         override val tiltakDokument get() = this@TestQueryContext.tiltakDokument
+        override val avtale get() = this@TestQueryContext.avtale
     }
 
     override val outbox: Outbox = mockk(relaxed = true)

@@ -5,8 +5,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
-import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.api.domain.tiltak.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures

@@ -5,17 +5,17 @@ import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleArrangorDbo
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
-import no.nav.mulighetsrommet.api.avtale.db.PersonvernDbo
-import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleArrangorDbo
+import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleDbo
+import no.nav.mulighetsrommet.api.persistence.tiltak.DetaljerDbo
+import no.nav.mulighetsrommet.api.persistence.tiltak.PersonvernDbo
+import no.nav.mulighetsrommet.api.persistence.tiltak.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -30,7 +30,7 @@ object AvtaleFixtures {
     fun detaljerDbo(): DetaljerDbo = DetaljerDbo(
         navn = "Avtalenavn",
         sakarkivNummer = SakarkivNummer("24/1234"),
-        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+        tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         arrangor = AvtaleArrangorDbo(
             hovedenhet = ArrangorFixtures.hovedenhet.id,
             underenheter = listOf(ArrangorFixtures.underenhet1.id),
@@ -76,7 +76,7 @@ object AvtaleFixtures {
     val gruppeAmo: AvtaleDbo = AvtaleDbo(
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo().copy(
-            tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
+            tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
             navn = "Gruppe Amo",
             avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
             opplaringKategorisering = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering.id),
@@ -90,7 +90,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo().copy(
             navn = "Fag Yrke",
-            tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
+            tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
             avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
 
         ),
@@ -103,7 +103,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo().copy(
             navn = "Avtalenavn for VTA",
-            tiltakstypeId = TiltakstypeFixtures.VTA.id,
+            tiltakskode = TiltakstypeFixtures.VTA.tiltakskode,
             avtaletype = Avtaletype.FORHANDSGODKJENT,
             opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
         ),
@@ -116,7 +116,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo().copy(
             navn = "Avtalenavn for AFT",
-            tiltakstypeId = TiltakstypeFixtures.AFT.id,
+            tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
             sluttDato = null,
             avtaletype = Avtaletype.FORHANDSGODKJENT,
             opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
@@ -130,7 +130,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo().copy(
             navn = "Avtalenavn for TJ",
-            tiltakstypeId = TiltakstypeFixtures.VTAO.id,
+            tiltakskode = TiltakstypeFixtures.VTAO.tiltakskode,
             sluttDato = null,
             avtaletype = Avtaletype.FORHANDSGODKJENT,
             opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
@@ -144,7 +144,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo().copy(
             navn = "Avtalenavn for EnkelAmo",
-            tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+            tiltakskode = TiltakstypeFixtures.EnkelAmo.tiltakskode,
             sluttDato = null,
             avtaletype = Avtaletype.FORHANDSGODKJENT,
 
@@ -158,7 +158,7 @@ object AvtaleFixtures {
         id = UUID.randomUUID(),
         detaljerDbo = detaljerDbo().copy(
             navn = "ARR avtale",
-            tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
+            tiltakskode = TiltakstypeFixtures.ArbeidsrettetRehabilitering.tiltakskode,
             sakarkivNummer = SakarkivNummer("24/3234"),
         ),
         personvernDbo = personvernDbo(),
