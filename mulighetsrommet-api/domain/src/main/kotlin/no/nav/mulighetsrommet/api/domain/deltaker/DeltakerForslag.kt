@@ -8,14 +8,45 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
-data class DeltakerForslag(
+data class DeltakerForslag private constructor(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID,
     val endring: Endring,
     val status: Status,
 ) {
+    companion object {
+        fun fraDeltaker(
+            deltaker: Deltaker,
+            id: UUID,
+            endring: Endring,
+            status: Status,
+        ) = DeltakerForslag(
+            id = id,
+            deltakerId = deltaker.id,
+            gjennomforingId = deltaker.gjennomforingId,
+            endring = endring,
+            status = status,
+        )
+
+        fun fraLagring(
+            id: UUID,
+            deltakerId: UUID,
+            gjennomforingId: UUID,
+            endring: Endring,
+            status: Status,
+        ) = DeltakerForslag(
+            id = id,
+            deltakerId = deltakerId,
+            gjennomforingId = gjennomforingId,
+            endring = endring,
+            status = status,
+        )
+    }
+
     enum class Status {
         GODKJENT,
         AVVIST,

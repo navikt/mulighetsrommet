@@ -29,11 +29,9 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
@@ -821,29 +819,6 @@ class UtbetalingService(
 
     private fun QueryContext.getOrError(id: UUID): Utbetaling {
         return queries.utbetaling.getOrError(id)
-    }
-
-    context(tx: TransactionalQueryContext)
-    fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = with(tx) {
-        return when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT -> {
-                val forslag = repository.deltakerForslag.getByGjennomforing(utbetaling.gjennomforing.id)
-                val deltakere = repository.deltaker
-                    .getByGjennomforing(utbetaling.gjennomforing.id)
-                    .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
-
-                UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
-            }
-
-            UtbetalingStatusType.TIL_BEHANDLING,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.AVBRUTT,
-            -> emptyList()
-        }
     }
 }
 

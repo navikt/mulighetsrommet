@@ -1,8 +1,7 @@
 package no.nav.mulighetsrommet.api.deltaker
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.maps.shouldContainExactly
-import io.kotest.matchers.maps.shouldNotContainKey
+import io.kotest.matchers.collections.shouldContainExactly
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
@@ -17,8 +16,10 @@ import java.util.UUID
 class DeltakerForslagQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
+    val gjennomforingId = GjennomforingFixtures.Oppfolging1.id
+
     val deltaker = DeltakerFixtures.createDeltaker(
-        gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
+        gjennomforingId = gjennomforingId,
         startDato = LocalDate.now(),
         sluttDato = LocalDate.now().plusMonths(1),
         status = DeltakerStatusType.VENTER_PA_OPPSTART,
@@ -34,26 +35,22 @@ class DeltakerForslagQueriesTest : FunSpec({
         database.runAndRollback {
             domain.initialize()
 
-            val forslag = DeltakerForslag(
+            val forslag = DeltakerForslag.fraDeltaker(
+                deltaker = deltaker,
                 id = UUID.randomUUID(),
-                deltakerId = deltaker.id,
                 endring = DeltakerForslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
                 status = DeltakerForslag.Status.GODKJENT,
             )
 
             repository.deltakerForslag.save(forslag)
 
-            val forslagEtterUpsert = repository.deltakerForslag.getByGjennomforing(
-                GjennomforingFixtures.Oppfolging1.id,
-            )
-            forslagEtterUpsert shouldContainExactly mapOf(deltaker.id to listOf(forslag))
+            val forslagEtterUpsert = repository.deltakerForslag.getByGjennomforing(gjennomforingId)
+            forslagEtterUpsert shouldContainExactly listOf(forslag)
 
             repository.deltakerForslag.delete(forslag.id)
 
-            val forslagEtterDelete = repository.deltakerForslag.getByGjennomforing(
-                GjennomforingFixtures.Oppfolging1.id,
-            )
-            forslagEtterDelete shouldNotContainKey deltaker.id
+            val forslagEtterDelete = repository.deltakerForslag.getByGjennomforing(gjennomforingId)
+            forslagEtterDelete shouldContainExactly emptyList()
         }
     }
 })

@@ -4,9 +4,7 @@ import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslagRepository
 import java.util.UUID
 
-class FakeDeltakerForslagRepository(
-    private val deltakerRepository: FakeDeltakerRepository,
-) : DeltakerForslagRepository {
+class FakeDeltakerForslagRepository : DeltakerForslagRepository {
     private val store = mutableMapOf<UUID, DeltakerForslag>()
 
     override fun save(forslag: DeltakerForslag) {
@@ -17,10 +15,8 @@ class FakeDeltakerForslagRepository(
         return store[id]
     }
 
-    override fun getByGjennomforing(gjennomforingId: UUID): Map<UUID, List<DeltakerForslag>> {
-        return store.values
-            .filter { deltakerRepository.get(it.deltakerId)?.gjennomforingId == gjennomforingId }
-            .groupBy { it.deltakerId }
+    override fun getByGjennomforing(gjennomforingId: UUID): List<DeltakerForslag> {
+        return store.values.filter { it.gjennomforingId == gjennomforingId }
     }
 
     override fun delete(id: UUID) {

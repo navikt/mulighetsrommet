@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.Kontoregiste
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -24,6 +23,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerMan
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
@@ -73,25 +73,12 @@ class ArrangorflateService(
     }
 
     fun getAdvarsler(utbetaling: ArrangorflateUtbetaling): List<DeltakerAdvarsel> = db.session {
-        return when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT -> {
-                val forslag = repository.deltakerForslag.getByGjennomforing(utbetaling.gjennomforing.id)
-                val deltakere = repository.deltaker
-                    .getByGjennomforing(utbetaling.gjennomforing.id)
-                    .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
-
-                UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
-            }
-
-            UtbetalingStatusType.TIL_BEHANDLING,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.AVBRUTT,
-            -> emptyList()
-        }
+        return hentDeltakerAdvarslerForUtbetaling(
+            status = utbetaling.status,
+            gjennomforingId = utbetaling.gjennomforing.id,
+            periode = utbetaling.periode,
+            beregning = utbetaling.beregning,
+        )
     }
 
     suspend fun toArrangorflateUtbetaling(

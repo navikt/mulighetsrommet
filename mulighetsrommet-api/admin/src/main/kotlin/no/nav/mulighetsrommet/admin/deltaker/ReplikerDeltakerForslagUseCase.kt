@@ -5,7 +5,16 @@ import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import java.util.UUID
 
-data class ReplikerDeltakerForslag(val id: UUID, val forslag: DeltakerForslag?)
+data class ReplikerDeltakerForslag(
+    val id: UUID,
+    val deltakerId: UUID,
+    val endring: DeltakerForslag.Endring,
+    val status: DeltakerForslag.Status,
+)
+
+data class SlettDeltakerForslag(
+    val id: UUID,
+)
 
 sealed interface ReplikerDeltakerForslagResultat {
     data class Slettet(val gjennomforingId: UUID) : ReplikerDeltakerForslagResultat
@@ -19,21 +28,13 @@ class ReplikerDeltakerForslagUseCase(
     private val db: AdminDatabase,
 ) {
     fun execute(command: ReplikerDeltakerForslag): ReplikerDeltakerForslagResultat = db.transaction {
-        val (id, forslag) = command
-
-        if (forslag == null) {
-            val eksisterende = repository.deltakerForslag.get(id)
-                ?: return@transaction ReplikerDeltakerForslagResultat.IngenEndring
-
-            return@transaction deleteForslag(id, eksisterende.deltakerId)
-        }
-
-        when (forslag.status) {
+        when (command.status) {
             DeltakerForslag.Status.VENTER_PA_SVAR -> {
-                val deltaker = repository.deltaker.get(forslag.deltakerId)
+                val deltaker = repository.deltaker.get(command.deltakerId)
                     ?: return@transaction ReplikerDeltakerForslagResultat.IngenEndring
 
-                repository.deltakerForslag.save(forslag)
+                val nyttForslag = DeltakerForslag.fraDeltaker(deltaker, command.id, command.endring, command.status)
+                repository.deltakerForslag.save(nyttForslag)
                 ReplikerDeltakerForslagResultat.Lagret(deltaker.gjennomforingId)
             }
 
@@ -41,14 +42,19 @@ class ReplikerDeltakerForslagUseCase(
             DeltakerForslag.Status.AVVIST,
             DeltakerForslag.Status.TILBAKEKALT,
             DeltakerForslag.Status.ERSTATTET,
-            -> deleteForslag(forslag.id, forslag.deltakerId)
+            -> deleteForslag(command.id)
         }
     }
 
-    private fun QueryContext.deleteForslag(forslagId: UUID, deltakerId: UUID): ReplikerDeltakerForslagResultat {
+    fun execute(command: SlettDeltakerForslag): ReplikerDeltakerForslagResultat = db.transaction {
+        deleteForslag(command.id)
+    }
+
+    private fun QueryContext.deleteForslag(forslagId: UUID): ReplikerDeltakerForslagResultat {
+        val eksisterende = repository.deltakerForslag.get(forslagId)
+            ?: return ReplikerDeltakerForslagResultat.IngenEndring
+
         repository.deltakerForslag.delete(forslagId)
-        return repository.deltaker.get(deltakerId)?.gjennomforingId
-            ?.let { ReplikerDeltakerForslagResultat.Slettet(it) }
-            ?: ReplikerDeltakerForslagResultat.IngenEndring
+        return ReplikerDeltakerForslagResultat.Slettet(eksisterende.gjennomforingId)
     }
 }

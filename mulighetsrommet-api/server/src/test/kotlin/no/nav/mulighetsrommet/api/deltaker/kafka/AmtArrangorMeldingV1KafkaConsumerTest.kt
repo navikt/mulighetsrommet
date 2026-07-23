@@ -187,17 +187,15 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
             repository.deltakerForslag.getByGjennomforing(GjennomforingFixtures.AFT1.id)
         }
 
-        forslag shouldBe mapOf(
-            deltakerId to listOf(
-                DeltakerForslag(
-                    id = UUID.fromString("26b2ef7f-2c33-4468-b9cd-98e935d747cc"),
-                    deltakerId = deltakerId,
-                    endring = DeltakerForslag.Endring.AvsluttDeltakelse(
-                        aarsak = DeltakerForslag.EndringAarsak.TrengerAnnenStotte,
-                        harDeltatt = false,
-                    ),
-                    status = DeltakerForslag.Status.VENTER_PA_SVAR,
+        forslag shouldBe listOf(
+            DeltakerForslag.fraDeltaker(
+                deltaker = domain.deltakere[0],
+                id = UUID.fromString("26b2ef7f-2c33-4468-b9cd-98e935d747cc"),
+                endring = DeltakerForslag.Endring.AvsluttDeltakelse(
+                    aarsak = DeltakerForslag.EndringAarsak.TrengerAnnenStotte,
+                    harDeltatt = false,
                 ),
+                status = DeltakerForslag.Status.VENTER_PA_SVAR,
             ),
         )
     }

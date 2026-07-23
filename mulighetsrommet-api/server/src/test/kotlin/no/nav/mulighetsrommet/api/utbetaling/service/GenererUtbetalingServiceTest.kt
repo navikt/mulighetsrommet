@@ -14,6 +14,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
@@ -971,9 +972,9 @@ class GenererUtbetalingServiceTest : FunSpec({
             deltakelsesprosent = 100.0,
         )
 
-        fun createForslag(deltakerId: UUID) = DeltakerForslag(
+        fun createForslag(deltaker: Deltaker) = DeltakerForslag.fraDeltaker(
+            deltaker = deltaker,
             id = UUID.randomUUID(),
-            deltakerId = deltakerId,
             endring = DeltakerForslag.Endring.AvsluttDeltakelse(
                 aarsak = DeltakerForslag.EndringAarsak.TrengerAnnenStotte,
                 harDeltatt = false,
@@ -1005,7 +1006,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 deltakere = listOf(deltaker),
             ) {
-                repository.deltakerForslag.save(createForslag(deltaker.id))
+                repository.deltakerForslag.save(createForslag(deltaker))
             }.initialize(database.api)
 
             val utbetaling = service.genererUtbetalingerForPeriode(januar)
@@ -1020,7 +1021,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 deltakere = listOf(deltaker),
             ).initialize(database.api)
 
-            val forslag = createForslag(deltaker.id)
+            val forslag = createForslag(deltaker)
 
             service.genererUtbetalingerForPeriode(januar).first().should {
                 it.blokkeringer.shouldBeEmpty()
