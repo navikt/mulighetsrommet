@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.kafka
 
 import arrow.core.left
 import arrow.core.right
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrowExactly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
@@ -20,6 +21,7 @@ import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -28,6 +30,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
@@ -270,6 +273,56 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
             shouldThrowExactly<IllegalStateException> {
                 consumer.consume(ikkeEksisterendeId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+            }
+        }
+    }
+
+    context("EnkeltplassTilbakekallPrisinformasjon") {
+        val service = createService()
+
+        val consumer = createConsumer(service)
+
+        val gjennomforingId = UUID.randomUUID()
+        val utkastPayload = GjennomforingRequest.UpsertEnkeltplass(
+            tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
+            organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
+            ansvarligEnhet = NavEnhetNummer("0400"),
+            opprettetAv = NavIdent("B123456"),
+            prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
+            kategorisering = null,
+        )
+        val totrinnskontroll = GjennomforingRequest.Totrinnskontroll(UUID.randomUUID(), NavIdent("B123456"))
+
+        beforeEach {
+            val soktInn = GjennomforingRequest.EnkeltplassSoktInn(gjennomforingId, totrinnskontroll, utkastPayload)
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(soktInn))
+        }
+
+        test("setter totrinnskontroll til RETURNERT") {
+            val request = GjennomforingRequest.EnkeltplassTilbakekallPrisinformasjon(
+                gjennomforingId = gjennomforingId,
+                totrinnskontroll = totrinnskontroll,
+            )
+
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+
+            database.run {
+                queries.totrinnskontroll.getById(totrinnskontroll.id).status shouldBe TotrinnskontrollStatus.RETURNERT
+            }
+        }
+
+        test("ignorerer tilbakekalling uten å kaste feil når totrinnskontroll allerede er godkjent") {
+            service.settOkonomiGodkjent(gjennomforingId, Tiltaksadministrasjon).shouldBeRight()
+
+            val request = GjennomforingRequest.EnkeltplassTilbakekallPrisinformasjon(
+                gjennomforingId = gjennomforingId,
+                totrinnskontroll = totrinnskontroll,
+            )
+
+            consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
+
+            database.run {
+                queries.totrinnskontroll.getById(totrinnskontroll.id).status shouldBe TotrinnskontrollStatus.GODKJENT
             }
         }
     }

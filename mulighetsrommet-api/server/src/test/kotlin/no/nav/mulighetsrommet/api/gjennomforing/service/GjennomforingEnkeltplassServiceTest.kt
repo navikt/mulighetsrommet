@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollError
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
@@ -1037,6 +1038,84 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     queries.totrinnskontroll.getById(andreBehandling.id).should {
                         it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                     }
+                }
+            }
+        }
+
+        context("tilbakekallPrisinformasjon") {
+            val service = createService()
+
+            test("setter status RETURNERT når økonomi er TIL_BEHANDLING") {
+                val soktInn = createRequest()
+                val forsteBehandling = behandling(opprettetAv)
+                service.soktInn(soktInn, forsteBehandling).shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeRight().should {
+                    it.okonomi?.status shouldBe TotrinnskontrollStatus.RETURNERT
+                }
+            }
+
+            test("setter status RETURNERT når økonomi er SATT_PA_VENT") {
+                val soktInn = createRequest()
+                val forsteBehandling = behandling(opprettetAv)
+                service.soktInn(soktInn, forsteBehandling).shouldBeRight()
+                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeRight().should {
+                    it.okonomi?.status shouldBe TotrinnskontrollStatus.RETURNERT
+                }
+            }
+
+            test("setter status RETURNERT og rydder opp ventende prisendring når økonomi allerede er GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val prisendringBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
+                    prisendringBehandling,
+                ).shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, prisendringBehandling).shouldBeRight().should {
+                    it.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 1000
+                }
+
+                database.run {
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+                    queries.totrinnskontroll.getById(prisendringBehandling.id).status shouldBe TotrinnskontrollStatus.RETURNERT
+                }
+            }
+
+            test("returnerer feil når totrinnskontroll allerede er GODKJENT") {
+                val soktInn = createRequest()
+                val forsteBehandling = behandling(opprettetAv)
+                service.soktInn(soktInn, forsteBehandling).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeLeft(
+                    TotrinnskontrollError.AlleredeBesluttet(TotrinnskontrollStatus.GODKJENT),
+                )
+            }
+
+            test("returnerer feil når totrinnskontroll allerede er RETURNERT") {
+                val soktInn = createRequest()
+                val forsteBehandling = behandling(opprettetAv)
+                service.soktInn(soktInn, forsteBehandling).shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeRight()
+                service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeLeft(
+                    TotrinnskontrollError.AlleredeBesluttet(TotrinnskontrollStatus.RETURNERT),
+                )
+            }
+
+            test("gjør ingenting når totrinnskontroll-id er ukjent") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, behandling(opprettetAv)).shouldBeRight().should {
+                    it.okonomi?.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
                 }
             }
         }

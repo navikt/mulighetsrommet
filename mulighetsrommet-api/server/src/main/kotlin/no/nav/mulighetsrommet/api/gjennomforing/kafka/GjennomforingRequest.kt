@@ -50,6 +50,14 @@ sealed interface GjennomforingRequest {
     ) : GjennomforingRequest
 
     @Serializable
+    @SerialName("EnkeltplassTilbakekallPrisinformasjon")
+    data class EnkeltplassTilbakekallPrisinformasjon(
+        @Serializable(with = UUIDSerializer::class)
+        override val gjennomforingId: UUID,
+        val totrinnskontroll: Totrinnskontroll,
+    ) : GjennomforingRequest
+
+    @Serializable
     data class UpsertEnkeltplass(
         val tiltakskode: Tiltakskode,
         val organisasjonsnummer: Organisasjonsnummer,
