@@ -189,9 +189,9 @@ class AmtArrangorMeldingV1KafkaConsumerTest : FunSpec({
 
         forslag shouldBe mapOf(
             deltakerId to listOf(
-                DeltakerForslag(
+                DeltakerForslag.fraDeltaker(
+                    deltaker = domain.deltakere[0],
                     id = UUID.fromString("26b2ef7f-2c33-4468-b9cd-98e935d747cc"),
-                    deltakerId = deltakerId,
                     endring = DeltakerForslag.Endring.AvsluttDeltakelse(
                         aarsak = DeltakerForslag.EndringAarsak.TrengerAnnenStotte,
                         harDeltatt = false,

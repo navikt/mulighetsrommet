@@ -9,6 +9,7 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslag
 import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagResultat
 import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
+import no.nav.mulighetsrommet.admin.deltaker.SlettDeltakerForslag
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -28,12 +29,10 @@ class AmtArrangorMeldingV1KafkaConsumer(
     override suspend fun consume(key: UUID, message: JsonElement) {
         logger.info("Konsumerer arrangor-melding med id=$key")
 
-        val forslag = when (val melding = Json.decodeFromJsonElement<AmtArrangorMelding?>(message)) {
-            is AmtArrangorMelding.Forslag -> melding.toForslag()
-            null -> null
+        val resultat = when (val melding = Json.decodeFromJsonElement<AmtArrangorMelding?>(message)) {
+            is AmtArrangorMelding.Forslag -> replikerDeltakerForslag.execute(melding.toForslag())
+            null -> replikerDeltakerForslag.execute(SlettDeltakerForslag(key))
         }
-
-        val resultat = replikerDeltakerForslag.execute(ReplikerDeltakerForslag(key, forslag))
 
         val gjennomforingId = when (resultat) {
             is ReplikerDeltakerForslagResultat.Slettet -> resultat.gjennomforingId
@@ -47,14 +46,12 @@ class AmtArrangorMeldingV1KafkaConsumer(
     }
 }
 
-fun AmtArrangorMelding.Forslag.toForslag(): DeltakerForslag {
-    return DeltakerForslag(
-        id = id,
-        deltakerId = deltakerId,
-        endring = endring.toEndring(),
-        status = status.toStatus(),
-    )
-}
+fun AmtArrangorMelding.Forslag.toForslag(): ReplikerDeltakerForslag = ReplikerDeltakerForslag(
+    id = id,
+    deltakerId = deltakerId,
+    endring = endring.toEndring(),
+    status = status.toStatus(),
+)
 
 fun AmtArrangorMelding.Forslag.Status.toStatus(): DeltakerForslag.Status = when (this) {
     is AmtArrangorMelding.Forslag.Status.Avvist -> DeltakerForslag.Status.AVVIST

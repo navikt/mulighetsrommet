@@ -34,9 +34,9 @@ class DeltakerForslagQueriesTest : FunSpec({
         database.runAndRollback {
             domain.initialize()
 
-            val forslag = DeltakerForslag(
+            val forslag = DeltakerForslag.fraDeltaker(
+                deltaker = deltaker,
                 id = UUID.randomUUID(),
-                deltakerId = deltaker.id,
                 endring = DeltakerForslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
                 status = DeltakerForslag.Status.GODKJENT,
             )

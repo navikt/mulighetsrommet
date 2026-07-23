@@ -29,7 +29,7 @@ class TestQueryContext : QueryContext() {
     private val utdanningRepository = FakeUtdanningRepository()
     private val tiltakDokumentRepository = FakeTiltakDokumentRepository()
     private val deltakerRepository = FakeDeltakerRepository()
-    private val deltakerForslagRepository = FakeDeltakerForslagRepository(deltakerRepository)
+    private val deltakerForslagRepository = FakeDeltakerForslagRepository()
 
     private var tiltakstype: TiltakstypeQueryHandler = mockk(relaxed = true)
     private var endringshistorikk: EndringshistorikkQueryHandler = mockk(relaxed = true)

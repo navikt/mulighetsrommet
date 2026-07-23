@@ -21,40 +21,41 @@ class ReplikerDeltakerForslagUseCaseTest : FunSpec({
         )
         db.repository.deltaker.save(deltaker)
 
-        val forslag = DeltakerForslag(
+        val forslag = ReplikerDeltakerForslag(
             id = UUID.randomUUID(),
             deltakerId = deltaker.id,
-            endring = DeltakerForslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
+            endring = DeltakerForslag.Endring.Sluttdato(LocalDate.now()),
             status = DeltakerForslag.Status.VENTER_PA_SVAR,
         )
 
         val replikerForslag = ReplikerDeltakerForslagUseCase(db)
 
-        replikerForslag.execute(ReplikerDeltakerForslag(forslag.id, forslag))
+        replikerForslag.execute(forslag)
             .shouldBe(ReplikerDeltakerForslagResultat.Lagret(deltaker.gjennomforingId))
 
-        db.repository.deltakerForslag.get(forslag.id) shouldBe forslag
+        val forventetForslag = DeltakerForslag.fraDeltaker(deltaker, forslag.id, forslag.endring, forslag.status)
+        db.repository.deltakerForslag.get(forslag.id) shouldBe forventetForslag
     }
 
     test("lagrer ikke forslag når deltakeren ikke finnes") {
         val db = TestAdminDatabase()
 
-        val forslag = DeltakerForslag(
+        val forslag = ReplikerDeltakerForslag(
             id = UUID.randomUUID(),
             deltakerId = UUID.randomUUID(),
-            endring = DeltakerForslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
+            endring = DeltakerForslag.Endring.Sluttdato(LocalDate.now()),
             status = DeltakerForslag.Status.VENTER_PA_SVAR,
         )
 
         val replikerForslag = ReplikerDeltakerForslagUseCase(db)
 
-        replikerForslag.execute(ReplikerDeltakerForslag(forslag.id, forslag))
+        replikerForslag.execute(forslag)
             .shouldBe(ReplikerDeltakerForslagResultat.IngenEndring)
 
         db.repository.deltakerForslag.get(forslag.id).shouldBeNull()
     }
 
-    test("sletter forslag ved tombstone (forslag = null)") {
+    test("sletter forslag ved tombstone") {
         val db = TestAdminDatabase()
         val deltaker = DeltakerFixtures.createDeltaker(
             gjennomforingId = UUID.randomUUID(),
@@ -62,17 +63,17 @@ class ReplikerDeltakerForslagUseCaseTest : FunSpec({
         )
         db.repository.deltaker.save(deltaker)
 
-        val forslag = DeltakerForslag(
+        val forslag = DeltakerForslag.fraDeltaker(
+            deltaker = deltaker,
             id = UUID.randomUUID(),
-            deltakerId = deltaker.id,
-            endring = DeltakerForslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
+            endring = DeltakerForslag.Endring.Sluttdato(LocalDate.now()),
             status = DeltakerForslag.Status.VENTER_PA_SVAR,
         )
         db.repository.deltakerForslag.save(forslag)
 
         val replikerForslag = ReplikerDeltakerForslagUseCase(db)
 
-        replikerForslag.execute(ReplikerDeltakerForslag(forslag.id, null))
+        replikerForslag.execute(SlettDeltakerForslag(forslag.id))
             .shouldBe(ReplikerDeltakerForslagResultat.Slettet(deltaker.gjennomforingId))
 
         db.repository.deltakerForslag.getByGjennomforing(deltaker.gjennomforingId).shouldBeEmpty()
@@ -82,7 +83,7 @@ class ReplikerDeltakerForslagUseCaseTest : FunSpec({
         val db = TestAdminDatabase()
         val replikerForslag = ReplikerDeltakerForslagUseCase(db)
 
-        replikerForslag.execute(ReplikerDeltakerForslag(UUID.randomUUID(), null))
+        replikerForslag.execute(SlettDeltakerForslag(UUID.randomUUID()))
             .shouldBe(ReplikerDeltakerForslagResultat.IngenEndring)
     }
 
@@ -100,19 +101,24 @@ class ReplikerDeltakerForslagUseCaseTest : FunSpec({
             )
             db.repository.deltaker.save(deltaker)
 
-            val forslag = DeltakerForslag(
+            val forslag = DeltakerForslag.fraDeltaker(
+                deltaker = deltaker,
                 id = UUID.randomUUID(),
-                deltakerId = deltaker.id,
                 endring = DeltakerForslag.Endring.Sluttdato(sluttdato = LocalDate.now()),
                 status = DeltakerForslag.Status.VENTER_PA_SVAR,
             )
             db.repository.deltakerForslag.save(forslag)
 
-            val avgjortForslag = forslag.copy(status = avsluttetStatus)
+            val avgjortForslag = ReplikerDeltakerForslag(
+                id = forslag.id,
+                deltakerId = forslag.deltakerId,
+                endring = forslag.endring,
+                status = avsluttetStatus,
+            )
 
             val replikerForslag = ReplikerDeltakerForslagUseCase(db)
 
-            replikerForslag.execute(ReplikerDeltakerForslag(forslag.id, avgjortForslag))
+            replikerForslag.execute(avgjortForslag)
                 .shouldBe(ReplikerDeltakerForslagResultat.Slettet(deltaker.gjennomforingId))
 
             db.repository.deltakerForslag.getByGjennomforing(deltaker.gjennomforingId)
