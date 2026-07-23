@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
-import no.nav.mulighetsrommet.admin.tiltak.fromPrismodell
+import no.nav.mulighetsrommet.admin.tiltak.toPrismodellDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytelseDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.DeltakerDto
@@ -55,7 +55,7 @@ object GjennomforingDtoMapper {
             publisert = detaljer.publisert,
             estimertVentetid = detaljer.estimertVentetid?.toEstimertVentetidDto(),
         ),
-        prismodell = fromPrismodell(gjennomforing.prismodell),
+        prismodell = gjennomforing.prismodell.toPrismodellDto(),
         opplaring = detaljer.opplaringKategorisering,
         okonomi = null,
         prisendring = null,
@@ -91,7 +91,7 @@ object GjennomforingDtoMapper {
             ansvarligEnhet = gjennomforing.toAnsvarligEnhetDto(),
         ),
         veilederinfo = null,
-        prismodell = fromPrismodell(gjennomforing.prismodell),
+        prismodell = gjennomforing.prismodell.toPrismodellDto(),
         okonomi = okonomi,
         prisendring = prisendring,
         opplaring = kategorisering,

@@ -31,33 +31,33 @@ data class PrismodellDto(
     )
 }
 
-fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
-    val satser = when (prismodell) {
+fun Prismodell.toPrismodellDto(): PrismodellDto {
+    val satser = when (this) {
         is Prismodell.AnnenAvtaltPris -> null
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> prismodell.satser
-        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> prismodell.satser
-        is Prismodell.AvtaltPrisPerManedsverk -> prismodell.satser
-        is Prismodell.AvtaltPrisPerUkesverk -> prismodell.satser
-        is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.satser
-        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.satser
+        is Prismodell.ForhandsgodkjentPrisPerManedsverk -> satser
+        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> satser
+        is Prismodell.AvtaltPrisPerManedsverk -> satser
+        is Prismodell.AvtaltPrisPerUkesverk -> satser
+        is Prismodell.AvtaltPrisPerHeleUkesverk -> satser
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> satser
         is Prismodell.TilskuddTilOpplaering -> null
         is Prismodell.IngenKostnader -> null
     }
 
-    val prisbetingelser = when (prismodell) {
-        is Prismodell.AnnenAvtaltPris -> prismodell.prisbetingelser
+    val prisbetingelser = when (this) {
+        is Prismodell.AnnenAvtaltPris -> prisbetingelser
         is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
         is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> null
-        is Prismodell.AvtaltPrisPerManedsverk -> prismodell.prisbetingelser
-        is Prismodell.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
-        is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.prisbetingelser
-        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.prisbetingelser
-        is Prismodell.TilskuddTilOpplaering -> prismodell.tilleggsopplysninger
-        is Prismodell.IngenKostnader -> prismodell.tilleggsopplysninger
+        is Prismodell.AvtaltPrisPerManedsverk -> prisbetingelser
+        is Prismodell.AvtaltPrisPerUkesverk -> prisbetingelser
+        is Prismodell.AvtaltPrisPerHeleUkesverk -> prisbetingelser
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
+        is Prismodell.TilskuddTilOpplaering -> tilleggsopplysninger
+        is Prismodell.IngenKostnader -> tilleggsopplysninger
     }
 
-    val tilsagnPerDeltaker = when (prismodell) {
-        is Prismodell.AnnenAvtaltPris -> prismodell.tilsagnPerDeltaker
+    val tilsagnPerDeltaker = when (this) {
+        is Prismodell.AnnenAvtaltPris -> tilsagnPerDeltaker
 
         is Prismodell.AvtaltPrisPerHeleUkesverk,
         is Prismodell.AvtaltPrisPerManedsverk,
@@ -70,8 +70,8 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         -> null
     }
 
-    val tilskudd = when (prismodell) {
-        is Prismodell.TilskuddTilOpplaering -> prismodell.tilskudd.map {
+    val tilskudd = when (this) {
+        is Prismodell.TilskuddTilOpplaering -> tilskudd.map {
             PrismodellDto.TilskuddOgBelop(it.key, it.value)
         }.toList()
 
@@ -86,8 +86,8 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         -> emptyList()
     }
 
-    val totalBelop = when (prismodell) {
-        is Prismodell.AnnenAvtaltPris -> prismodell.totalbelop
+    val totalbelop = when (this) {
+        is Prismodell.AnnenAvtaltPris -> totalbelop
 
         is Prismodell.AvtaltPrisPerHeleUkesverk,
         is Prismodell.AvtaltPrisPerManedsverk,
@@ -100,8 +100,8 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
         -> null
     }
 
-    val aarsak = when (prismodell) {
-        is Prismodell.IngenKostnader -> prismodell.aarsak
+    val aarsak = when (this) {
+        is Prismodell.IngenKostnader -> aarsak
 
         is Prismodell.AvtaltPrisPerHeleUkesverk,
         is Prismodell.AvtaltPrisPerManedsverk,
@@ -115,16 +115,16 @@ fun fromPrismodell(prismodell: Prismodell): PrismodellDto {
     }
 
     return PrismodellDto(
-        id = prismodell.id,
-        type = prismodell.type,
-        valuta = prismodell.valuta,
+        id = id,
+        type = type,
+        valuta = valuta,
         satser = (satser ?: listOf()).windowed(size = 2, partialWindows = true).map { sats ->
             AvtaltSatsDto.fromAvtaltSats(sats[0], sats.getOrNull(1))
         },
         prisbetingelser = prisbetingelser,
         tilsagnPerDeltaker = tilsagnPerDeltaker,
         tilskudd = tilskudd,
-        totalBelop = totalBelop,
+        totalBelop = totalbelop,
         aarsak = aarsak,
     )
 }
