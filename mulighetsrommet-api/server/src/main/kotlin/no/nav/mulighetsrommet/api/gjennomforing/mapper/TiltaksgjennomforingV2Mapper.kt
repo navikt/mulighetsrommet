@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
-import no.nav.mulighetsrommet.api.avtale.mapper.prisbetingelser
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
@@ -52,7 +51,6 @@ object TiltaksgjennomforingV2Mapper {
             status = gjennomforing.status,
             oppstart = gjennomforing.oppstart,
             pameldingType = gjennomforing.pameldingType,
-            prisinformasjon = gjennomforing.prismodell.prisbetingelser(),
         )
     }
 
@@ -92,7 +90,6 @@ object TiltaksgjennomforingV2Mapper {
                 status = gjennomforing.status,
                 oppstart = gjennomforing.oppstart,
                 pameldingType = gjennomforing.pameldingType,
-                prisinformasjon = null,
             )
         }
     }
