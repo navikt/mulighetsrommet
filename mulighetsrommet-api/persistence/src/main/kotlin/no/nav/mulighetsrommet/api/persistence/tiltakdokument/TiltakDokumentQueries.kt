@@ -330,21 +330,23 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
                     organisasjonsnummer = row.string("arrangor_organisasjonsnummer"),
                 )
             },
-            faneinnhold = row.stringOrNull("faneinnhold")?.let { Json.Default.decodeFromString(it) },
-            beskrivelse = row.stringOrNull("beskrivelse"),
-            publisert = row.boolean("publisert"),
             administratorer = row.stringOrNull("administratorer_json")
                 ?.let { Json.decodeFromString<List<TiltakDokumentDto.Administrator>>(it) }
-                ?: emptyList(),
-            kontorstruktur = row.stringOrNull("nav_enheter_json")
-                ?.let { Kontorstruktur.fromNavEnheter(Json.decodeFromString<List<NavEnhetDto>>(it)) }
-                ?: emptyList(),
-            kontaktpersoner = row.stringOrNull("kontaktpersoner_json")
-                ?.let { Json.decodeFromString<List<TiltakDokumentDto.Kontaktperson>>(it) }
                 ?: emptyList(),
             arrangorKontaktpersoner = row.stringOrNull("arrangor_kontaktpersoner_json")
                 ?.let { Json.decodeFromString<List<TiltakDokumentDto.ArrangorKontaktperson>>(it) }
                 ?: emptyList(),
+            veilederinfo = TiltakDokumentDto.Veilederinfo(
+                publisert = row.boolean("publisert"),
+                beskrivelse = row.stringOrNull("beskrivelse"),
+                faneinnhold = row.stringOrNull("faneinnhold")?.let { Json.Default.decodeFromString(it) },
+                kontorstruktur = row.stringOrNull("nav_enheter_json")
+                    ?.let { Kontorstruktur.fromNavEnheter(Json.decodeFromString<List<NavEnhetDto>>(it)) }
+                    ?: emptyList(),
+                kontaktpersoner = row.stringOrNull("kontaktpersoner_json")
+                    ?.let { Json.decodeFromString<List<TiltakDokumentDto.Kontaktperson>>(it) }
+                    ?: emptyList(),
+            ),
         )
     }
 

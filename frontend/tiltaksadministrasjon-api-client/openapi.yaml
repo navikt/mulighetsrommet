@@ -6621,6 +6621,59 @@ components:
       required:
       - navIdent
       - navn
+    TiltakDokumentDto.ArrangorKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        telefon:
+          type:
+          - "null"
+          - string
+        epost:
+          type:
+          - "null"
+          - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - epost
+      - id
+      - navn
+      - telefon
+    TiltakDokumentDto.Veilederinfo:
+      type: object
+      properties:
+        publisert:
+          type: boolean
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        kontorstruktur:
+          type: array
+          items:
+            $ref: "#/components/schemas/Kontorstruktur"
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakDokumentDto.Kontaktperson"
+      required:
+      - beskrivelse
+      - faneinnhold
+      - kontaktpersoner
+      - kontorstruktur
+      - publisert
     TiltakDokumentDto.Kontaktperson:
       type: object
       properties:
@@ -6649,32 +6702,6 @@ components:
       - mobilnummer
       - navIdent
       - navn
-    TiltakDokumentDto.ArrangorKontaktperson:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        telefon:
-          type:
-          - "null"
-          - string
-        epost:
-          type:
-          - "null"
-          - string
-        beskrivelse:
-          type:
-          - "null"
-          - string
-      required:
-      - beskrivelse
-      - epost
-      - id
-      - navn
-      - telefon
     TiltakDokumentDto:
       type: object
       properties:
@@ -6702,47 +6729,27 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/TiltakDokumentDto.Arrangor"
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
-        beskrivelse:
-          type:
-          - "null"
-          - string
-        publisert:
-          type: boolean
         administratorer:
           type: array
           items:
             $ref: "#/components/schemas/TiltakDokumentDto.Administrator"
-        kontorstruktur:
-          type: array
-          items:
-            $ref: "#/components/schemas/Kontorstruktur"
-        kontaktpersoner:
-          type: array
-          items:
-            $ref: "#/components/schemas/TiltakDokumentDto.Kontaktperson"
         arrangorKontaktpersoner:
           type: array
           items:
             $ref: "#/components/schemas/TiltakDokumentDto.ArrangorKontaktperson"
+        veilederinfo:
+          $ref: "#/components/schemas/TiltakDokumentDto.Veilederinfo"
       required:
       - administratorer
       - arrangor
       - arrangorKontaktpersoner
-      - beskrivelse
-      - faneinnhold
       - id
-      - kontaktpersoner
-      - kontorstruktur
       - navn
-      - publisert
       - sanityId
       - stedForGjennomforing
       - tiltaksnummer
       - tiltakstype
+      - veilederinfo
     TiltakDokumentPublisertRequest:
       type: object
       properties:

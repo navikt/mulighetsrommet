@@ -74,11 +74,11 @@ class TiltakDokumentQueriesTest : FunSpec({
             result.id shouldBe gjennomforingId
             result.navn shouldBe "Test gjennomføring"
             result.stedForGjennomforing shouldBe "Oslo"
-            result.beskrivelse shouldBe "En beskrivelse"
+            result.veilederinfo.beskrivelse shouldBe "En beskrivelse"
             result.tiltaksnummer shouldBe "2024/1"
             result.tiltakstype.id shouldBe TiltakstypeFixtures.Oppfolging.id
             result.arrangor.shouldNotBeNull().id shouldBe ArrangorFixtures.underenhet1.id
-            result.publisert shouldBe false
+            result.veilederinfo.publisert shouldBe false
         }
     }
 
@@ -101,7 +101,7 @@ class TiltakDokumentQueriesTest : FunSpec({
             result.navn shouldBe "Oppdatert navn"
             result.tiltakstype.id shouldBe TiltakstypeFixtures.AFT.id
             result.stedForGjennomforing shouldBe "Bergen"
-            result.beskrivelse shouldBe "Ny beskrivelse"
+            result.veilederinfo.beskrivelse shouldBe "Ny beskrivelse"
         }
     }
 
@@ -231,12 +231,12 @@ class TiltakDokumentQueriesTest : FunSpec({
                     navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer, NavEnhetFixtures.Gjovik.enhetsnummer),
                 ),
             )
-            queries.tiltakDokument.getTiltakDokumentDto(gjennomforingId)?.kontorstruktur.shouldNotBeNull().shouldNotBeEmpty()
+            queries.tiltakDokument.getTiltakDokumentDto(gjennomforingId)?.veilederinfo?.kontorstruktur.shouldNotBeNull().shouldNotBeEmpty()
 
             repository.tiltakDokument.save(
                 repository.tiltakDokument.get(gjennomforingId)!!.copy(navEnheter = emptyList()),
             )
-            queries.tiltakDokument.getTiltakDokumentDto(gjennomforingId)?.kontorstruktur.shouldBeEmpty()
+            queries.tiltakDokument.getTiltakDokumentDto(gjennomforingId)?.veilederinfo?.kontorstruktur.shouldBeEmpty()
         }
     }
 

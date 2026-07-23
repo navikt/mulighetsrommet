@@ -49,12 +49,12 @@ export function RedigerTiltakDokumentPage() {
 }
 
 function toDefaultValues(ig: TiltakDokumentDto): TiltakDokumentFormInput {
-  const navRegioner = ig.kontorstruktur.map((k) => k.region.enhetsnummer);
-  const navKontorer = ig.kontorstruktur
+  const navRegioner = ig.veilederinfo.kontorstruktur.map((k) => k.region.enhetsnummer);
+  const navKontorer = ig.veilederinfo.kontorstruktur
     .flatMap((k) => k.kontorer)
     .filter((k) => k.type === KontorstrukturKontortype.LOKAL)
     .map((k) => k.enhetsnummer);
-  const navAndreEnheter = ig.kontorstruktur
+  const navAndreEnheter = ig.veilederinfo.kontorstruktur
     .flatMap((k) => k.kontorer)
     .filter((k) => k.type === KontorstrukturKontortype.SPESIALENHET)
     .map((k) => k.enhetsnummer);
@@ -69,15 +69,17 @@ function toDefaultValues(ig: TiltakDokumentDto): TiltakDokumentFormInput {
     ),
     administratorer: ig.administratorer.map((a: TiltakDokumentDtoAdministrator) => a.navIdent),
     veilederinformasjon: {
-      beskrivelse: ig.beskrivelse ?? null,
-      faneinnhold: ig.faneinnhold ?? null,
+      beskrivelse: ig.veilederinfo.beskrivelse ?? null,
+      faneinnhold: ig.veilederinfo.faneinnhold ?? null,
       navRegioner,
       navKontorer,
       navAndreEnheter,
-      kontaktpersoner: ig.kontaktpersoner.map((kp: TiltakDokumentDtoKontaktperson) => ({
-        navIdent: kp.navIdent,
-        beskrivelse: kp.beskrivelse ?? null,
-      })),
+      kontaktpersoner: ig.veilederinfo.kontaktpersoner.map(
+        (kp: TiltakDokumentDtoKontaktperson) => ({
+          navIdent: kp.navIdent,
+          beskrivelse: kp.beskrivelse ?? null,
+        }),
+      ),
     },
   };
 }

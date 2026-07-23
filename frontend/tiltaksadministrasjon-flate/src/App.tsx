@@ -65,6 +65,8 @@ import { TilskuddUtbetalingerForGjennomforingContainer } from "./pages/gjennomfo
 import { TiltakDokumenterPage } from "./pages/tiltak-dokument/TiltakDokumenterPage";
 import { OpprettTiltakDokumentPage } from "./pages/tiltak-dokument/OpprettTiltakDokumentPage";
 import { TiltakDokumentPage } from "./pages/tiltak-dokument/TiltakDokumentPage";
+import { TiltakDokumentDetaljer } from "./pages/tiltak-dokument/TiltakDokumentDetaljer";
+import { TiltakDokumentRedaksjoneltInnhold } from "./pages/tiltak-dokument/TiltakDokumentRedaksjoneltInnhold";
 import { RedigerTiltakDokumentPage } from "./pages/tiltak-dokument/RedigerTiltakDokumentPage";
 
 import { APPLICATION_NAME } from "./constants";
@@ -292,6 +294,10 @@ const routes: RouteObject[] = [
       route({
         path: "tiltak-dokumenter/:tiltakDokumentId",
         element: <TiltakDokumentPage />,
+        children: [
+          { index: true, element: <TiltakDokumentDetaljer /> },
+          { path: "redaksjonelt-innhold", element: <TiltakDokumentRedaksjoneltInnhold /> },
+        ],
       }),
       route({
         path: "tiltak-dokumenter/:tiltakDokumentId/rediger",
