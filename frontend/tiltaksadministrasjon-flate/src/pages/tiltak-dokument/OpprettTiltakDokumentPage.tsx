@@ -10,8 +10,9 @@ import { TiltakDokumentFormInput, TiltakDokumentSchema } from "./TiltakDokumentF
 import { ContentBox } from "@/layouts/ContentBox";
 import { WhitePaddedBox } from "@/layouts/WhitePaddedBox";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Faneinnhold } from "@tiltaksadministrasjon/api-client";
+import { Faneinnhold, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 const brodsmuler: Brodsmule[] = [
   { tittel: "Tiltaksdokumenter", lenke: "/tiltak-dokumenter" },
@@ -52,20 +53,23 @@ export function OpprettTiltakDokumentPage() {
         stedForGjennomforing: data.stedForGjennomforing ?? null,
         arrangorId: data.arrangorId ?? null,
         arrangorKontaktpersoner: data.arrangorKontaktpersoner ?? [],
-        beskrivelse: data.veilederinformasjon.beskrivelse ?? null,
-        faneinnhold: (data.veilederinformasjon.faneinnhold as Faneinnhold | null) ?? null,
         administratorer: data.administratorer,
-        navRegioner: data.veilederinformasjon.navRegioner ?? [],
-        navKontorer: data.veilederinformasjon.navKontorer ?? [],
-        navAndreEnheter: data.veilederinformasjon.navAndreEnheter ?? [],
-        kontaktpersoner:
-          data.veilederinformasjon.kontaktpersoner?.map((k) => ({
-            navIdent: k.navIdent,
-            beskrivelse: k.beskrivelse ?? null,
-          })) ?? [],
+        veilederinformasjon: {
+          beskrivelse: data.veilederinformasjon.beskrivelse ?? null,
+          faneinnhold: (data.veilederinformasjon.faneinnhold as Faneinnhold | null) ?? null,
+          navRegioner: data.veilederinformasjon.navRegioner ?? [],
+          navKontorer: data.veilederinformasjon.navKontorer ?? [],
+          navAndreEnheter: data.veilederinformasjon.navAndreEnheter ?? [],
+          kontaktpersoner:
+            data.veilederinformasjon.kontaktpersoner?.map((k) => ({
+              navIdent: k.navIdent,
+              beskrivelse: k.beskrivelse ?? null,
+            })) ?? [],
+        },
       },
       {
         onSuccess: () => navigate(`/tiltak-dokumenter/${id}`),
+        onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
       },
     );
   };

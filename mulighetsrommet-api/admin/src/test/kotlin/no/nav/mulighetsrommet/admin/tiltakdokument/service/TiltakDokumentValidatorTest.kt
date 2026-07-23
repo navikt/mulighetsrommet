@@ -12,13 +12,16 @@ import no.nav.mulighetsrommet.model.NavIdent
 import java.util.UUID
 
 class TiltakDokumentValidatorTest : FunSpec({
+    val validVeilederinfo = TiltakDokumentRequest.VeilederinfoRequest(
+        navRegioner = setOf(NavEnhetNummer("0300")),
+        navKontorer = setOf(NavEnhetNummer("0301")),
+    )
     val validRequest = TiltakDokumentRequest(
         id = UUID.randomUUID(),
         navn = "Testtiltak",
         tiltakstypeId = UUID.randomUUID(),
         administratorer = setOf(NavIdent("Z999999")),
-        navRegioner = setOf(NavEnhetNummer("0300")),
-        navKontorer = setOf(NavEnhetNummer("0301")),
+        veilederinformasjon = validVeilederinfo,
     )
 
     context("validate") {
@@ -72,53 +75,87 @@ class TiltakDokumentValidatorTest : FunSpec({
 
     context("validateVeilederinfo") {
         test("ingen navRegioner gir valideringsfeil") {
-            val errors = TiltakDokumentValidator.validate(validRequest.copy(navRegioner = emptySet()))
-                .shouldBeLeft()
+            val errors = TiltakDokumentValidator.validate(
+                validRequest.copy(veilederinformasjon = validVeilederinfo.copy(navRegioner = emptySet())),
+            ).shouldBeLeft()
 
             errors shouldContain FieldError.of(
                 "Du må velge minst én Nav-region fra avtalen",
-                TiltakDokumentRequest::navRegioner,
+                TiltakDokumentRequest::veilederinformasjon,
+                TiltakDokumentRequest.VeilederinfoRequest::navRegioner,
             )
         }
 
         test("ingen navKontorer og ingen navAndreEnheter gir valideringsfeil") {
             val errors = TiltakDokumentValidator.validate(
-                validRequest.copy(navKontorer = emptySet(), navAndreEnheter = emptySet()),
+                validRequest.copy(
+                    veilederinformasjon = validVeilederinfo.copy(navKontorer = emptySet(), navAndreEnheter = emptySet()),
+                ),
             ).shouldBeLeft()
 
-            errors shouldContain FieldError.of("Du må velge minst én Nav-enhet", TiltakDokumentRequest::navKontorer)
+            errors shouldContain FieldError.of(
+                "Du må velge minst én Nav-enhet",
+                TiltakDokumentRequest::veilederinformasjon,
+                TiltakDokumentRequest.VeilederinfoRequest::navKontorer,
+            )
         }
 
         test("kun navAndreEnheter (uten navKontorer) er gyldig") {
             TiltakDokumentValidator.validate(
-                validRequest.copy(navKontorer = emptySet(), navAndreEnheter = setOf(NavEnhetNummer("1234"))),
+                validRequest.copy(
+                    veilederinformasjon = validVeilederinfo.copy(
+                        navKontorer = emptySet(),
+                        navAndreEnheter = setOf(NavEnhetNummer("1234")),
+                    ),
+                ),
             ).shouldBeRight()
         }
 
         test("kun navKontorer (uten navAndreEnheter) er gyldig") {
             TiltakDokumentValidator.validate(
-                validRequest.copy(navKontorer = setOf(NavEnhetNummer("0301")), navAndreEnheter = emptySet()),
+                validRequest.copy(
+                    veilederinformasjon = validVeilederinfo.copy(
+                        navKontorer = setOf(NavEnhetNummer("0301")),
+                        navAndreEnheter = emptySet(),
+                    ),
+                ),
             ).shouldBeRight()
         }
 
         test("både navKontorer og navAndreEnheter er gyldig") {
             TiltakDokumentValidator.validate(
                 validRequest.copy(
-                    navKontorer = setOf(NavEnhetNummer("0301")),
-                    navAndreEnheter = setOf(NavEnhetNummer("1234")),
+                    veilederinformasjon = validVeilederinfo.copy(
+                        navKontorer = setOf(NavEnhetNummer("0301")),
+                        navAndreEnheter = setOf(NavEnhetNummer("1234")),
+                    ),
                 ),
             ).shouldBeRight()
         }
 
         test("mangler både navRegioner og navEnheter gir to feil") {
             val errors = TiltakDokumentValidator.validate(
-                validRequest.copy(navRegioner = emptySet(), navKontorer = emptySet(), navAndreEnheter = emptySet()),
+                validRequest.copy(
+                    veilederinformasjon = validVeilederinfo.copy(
+                        navRegioner = emptySet(),
+                        navKontorer = emptySet(),
+                        navAndreEnheter = emptySet(),
+                    ),
+                ),
             ).shouldBeLeft()
 
             errors shouldHaveSize 2
             errors shouldContainAll listOf(
-                FieldError.of("Du må velge minst én Nav-region fra avtalen", TiltakDokumentRequest::navRegioner),
-                FieldError.of("Du må velge minst én Nav-enhet", TiltakDokumentRequest::navKontorer),
+                FieldError.of(
+                    "Du må velge minst én Nav-region fra avtalen",
+                    TiltakDokumentRequest::veilederinformasjon,
+                    TiltakDokumentRequest.VeilederinfoRequest::navRegioner,
+                ),
+                FieldError.of(
+                    "Du må velge minst én Nav-enhet",
+                    TiltakDokumentRequest::veilederinformasjon,
+                    TiltakDokumentRequest.VeilederinfoRequest::navKontorer,
+                ),
             )
         }
     }
