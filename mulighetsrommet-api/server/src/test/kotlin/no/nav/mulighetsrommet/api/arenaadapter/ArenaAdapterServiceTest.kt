@@ -109,16 +109,18 @@ class ArenaAdapterServiceTest : FunSpec({
             }
         }
 
-        test("should publish egen regi-tiltak to sanity") {
-            val sanityService = mockk<SanityService>(relaxed = true)
-            val service = createArenaAdapterService(
-                sanityService = sanityService,
-            )
+        test("should save egen regi-tiltak as tiltak_dokument") {
+            val service = createArenaAdapterService()
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
-            coVerify(exactly = 1) {
-                sanityService.createOrPatchSanityTiltaksgjennomforing(gjennomforing, any())
+            database.run {
+                queries.tiltakDokument.get(gjennomforing.id).shouldNotBeNull().should {
+                    it.id shouldBe gjennomforing.id
+                    it.navn shouldBe gjennomforing.navn
+                    it.tiltaksnummer shouldBe gjennomforing.tiltaksnummer
+                    it.publisert shouldBe false
+                }
             }
         }
 

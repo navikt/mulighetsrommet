@@ -4,6 +4,7 @@ import arrow.core.Either
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument.Kontaktperson
 import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.validation.validation
 
 object TiltakDokumentValidator {
@@ -17,6 +18,12 @@ object TiltakDokumentValidator {
         validate(request.administratorer.isNotEmpty()) {
             FieldError.of("Du må velge minst én administrator", TiltakDokumentRequest::administratorer)
         }
+
+        validateVeilederinfo(
+            navRegioner = request.navRegioner,
+            navKontorer = request.navKontorer,
+            navAndreEnheter = request.navAndreEnheter,
+        ).bind()
 
         val navEnheter = (request.navRegioner + request.navKontorer + request.navAndreEnheter)
         TiltakDokument(
@@ -40,5 +47,27 @@ object TiltakDokumentValidator {
             },
             arrangorKontaktpersoner = request.arrangorKontaktpersoner.toList(),
         )
+    }
+
+    fun validateVeilederinfo(
+        navRegioner: Set<NavEnhetNummer>,
+        navKontorer: Set<NavEnhetNummer>,
+        navAndreEnheter: Set<NavEnhetNummer>,
+    ): Either<List<FieldError>, Unit> = validation {
+        // TODO: Valider slettet navAnsatt i kontaktperson listen når NavAnsattService er flyttet ut av
+        // TODO: server modulen
+        validate(navRegioner.isNotEmpty()) {
+            FieldError.of(
+                "Du må velge minst én Nav-region fra avtalen",
+                TiltakDokumentRequest::navRegioner,
+            )
+        }
+
+        validate((navKontorer + navAndreEnheter).isNotEmpty()) {
+            FieldError.of(
+                "Du må velge minst én Nav-enhet",
+                TiltakDokumentRequest::navKontorer,
+            )
+        }
     }
 }

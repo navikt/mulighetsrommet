@@ -36,7 +36,11 @@ export function TiltakDokumentHandlinger({ tiltakDokument, ansatt }: Props) {
   return (
     <KnapperadContainer>
       {handlinger.includes("PUBLISER") && (
-        <Switch name="publiser" checked={tiltakDokument.publisert} onClick={togglePublisert}>
+        <Switch
+          name="publiser"
+          checked={tiltakDokument.veilederinfo.publisert}
+          onClick={togglePublisert}
+        >
           Publiser
         </Switch>
       )}

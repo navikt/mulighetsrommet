@@ -20,14 +20,19 @@ data class TiltakDokumentDto(
     val tiltakstype: Tiltakstype,
     val stedForGjennomforing: String?,
     val arrangor: Arrangor?,
-    val faneinnhold: Faneinnhold?,
-    val beskrivelse: String?,
-    val publisert: Boolean,
     val administratorer: List<Administrator>,
-    val kontorstruktur: List<Kontorstruktur>,
-    val kontaktpersoner: List<Kontaktperson>,
     val arrangorKontaktpersoner: List<ArrangorKontaktperson>,
+    val veilederinfo: Veilederinfo,
 ) {
+    @Serializable
+    data class Veilederinfo(
+        val publisert: Boolean,
+        val beskrivelse: String?,
+        val faneinnhold: Faneinnhold?,
+        val kontorstruktur: List<Kontorstruktur>,
+        val kontaktpersoner: List<Kontaktperson>,
+    )
+
     @Serializable
     data class Tiltakstype(
         @Serializable(with = UUIDSerializer::class)
