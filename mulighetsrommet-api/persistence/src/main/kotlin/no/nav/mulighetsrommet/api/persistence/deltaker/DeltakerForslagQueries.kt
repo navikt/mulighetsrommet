@@ -54,7 +54,7 @@ class DeltakerForslagQueries(private val session: Session) : DeltakerForslagRepo
         execute(queryOf(query, id))
     }
 
-    override fun getByGjennomforing(gjennomforingId: UUID): Map<UUID, List<DeltakerForslag>> = with(session) {
+    override fun getByGjennomforing(gjennomforingId: UUID): List<DeltakerForslag> = with(session) {
         @Language("PostgreSQL")
         val query = """
         select
@@ -68,7 +68,6 @@ class DeltakerForslagQueries(private val session: Session) : DeltakerForslagRepo
         """.trimIndent()
 
         return list(queryOf(query, gjennomforingId)) { it.toForslag() }
-            .groupBy { it.deltakerId }
     }
 
     override fun get(id: UUID): DeltakerForslag? = with(session) {

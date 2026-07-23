@@ -15,10 +15,8 @@ class FakeDeltakerForslagRepository : DeltakerForslagRepository {
         return store[id]
     }
 
-    override fun getByGjennomforing(gjennomforingId: UUID): Map<UUID, List<DeltakerForslag>> {
-        return store.values
-            .filter { it.gjennomforingId == gjennomforingId }
-            .groupBy { it.deltakerId }
+    override fun getByGjennomforing(gjennomforingId: UUID): List<DeltakerForslag> {
+        return store.values.filter { it.gjennomforingId == gjennomforingId }
     }
 
     override fun delete(id: UUID) {

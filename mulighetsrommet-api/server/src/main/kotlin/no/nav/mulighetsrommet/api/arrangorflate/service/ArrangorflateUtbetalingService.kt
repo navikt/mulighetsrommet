@@ -14,10 +14,8 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.AvtaltPrisPerTimeOppfolgin
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
@@ -29,6 +27,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUke
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
@@ -100,7 +99,12 @@ class ArrangorflateUtbetalingService(
                 return FieldError.of("Utbetalingen kan ikke godkjennes fordi kontonummer mangler.").nel().left()
             }
 
-            val advarsler = getAdvarsler(utbetaling)
+            val advarsler = hentDeltakerAdvarslerForUtbetaling(
+                status = utbetaling.status,
+                gjennomforingId = utbetaling.gjennomforing.id,
+                periode = utbetaling.periode,
+                beregning = utbetaling.beregning,
+            )
             if (utbetaling.blokkeringer.isNotEmpty() || advarsler.isNotEmpty()) {
                 return FieldError.of("Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.")
                     .nel()
@@ -111,29 +115,6 @@ class ArrangorflateUtbetalingService(
         }
 
         return result.map { tryAutomatisertUtbetaling(utbetalingId) }
-    }
-
-    context(tx: TransactionalQueryContext)
-    private fun getAdvarsler(utbetaling: ArrangorflateUtbetaling): List<DeltakerAdvarsel> = with(tx) {
-        return when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT -> {
-                val forslag = repository.deltakerForslag.getByGjennomforing(utbetaling.gjennomforing.id)
-                val deltakere = repository.deltaker
-                    .getByGjennomforing(utbetaling.gjennomforing.id)
-                    .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
-
-                UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
-            }
-
-            UtbetalingStatusType.TIL_BEHANDLING,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.AVBRUTT,
-            -> emptyList()
-        }
     }
 
     fun avbrytUtbetaling(

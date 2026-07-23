@@ -7,7 +7,7 @@ interface DeltakerForslagRepository {
 
     fun get(id: UUID): DeltakerForslag?
 
-    fun getByGjennomforing(gjennomforingId: UUID): Map<UUID, List<DeltakerForslag>>
+    fun getByGjennomforing(gjennomforingId: UUID): List<DeltakerForslag>
 
     fun delete(id: UUID)
 }

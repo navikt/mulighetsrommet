@@ -123,7 +123,6 @@ class GenererUtbetalingService(
 
     fun oppdaterUtbetalingBlokkeringerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> = db.transaction {
         val forslag = repository.deltakerForslag.getByGjennomforing(gjennomforingId)
-
         return hentGenererteUtbetalinger(gjennomforingId).map { utbetaling ->
             val blokkeringer = blokkeringer(utbetaling.periode, utbetaling.beregning, forslag)
             queries.utbetaling.setBlokkeringer(utbetaling.id, blokkeringer)
@@ -256,7 +255,7 @@ class GenererUtbetalingService(
     private fun blokkeringer(
         periode: Periode,
         beregning: UtbetalingBeregning,
-        forslag: Map<UUID, List<DeltakerForslag>>,
+        forslag: List<DeltakerForslag>,
     ): Set<Utbetaling.Blokkering> {
         val relevanteForslag = UtbetalingAdvarsler.relevanteForslag(periode, beregning, forslag)
 

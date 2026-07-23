@@ -1,8 +1,7 @@
 package no.nav.mulighetsrommet.admin.deltaker
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.maps.shouldBeEmpty
-import io.kotest.matchers.maps.shouldNotContainKey
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
@@ -121,8 +120,7 @@ class ReplikerDeltakerForslagUseCaseTest : FunSpec({
             replikerForslag.execute(avgjortForslag)
                 .shouldBe(ReplikerDeltakerForslagResultat.Slettet(deltaker.gjennomforingId))
 
-            db.repository.deltakerForslag.getByGjennomforing(deltaker.gjennomforingId)
-                .shouldNotContainKey(deltaker.id)
+            db.repository.deltakerForslag.getByGjennomforing(deltaker.gjennomforingId).shouldBeEmpty()
         }
     }
 })

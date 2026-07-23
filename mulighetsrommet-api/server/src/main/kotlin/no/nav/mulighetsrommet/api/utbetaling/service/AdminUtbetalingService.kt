@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.Agent
@@ -244,7 +245,12 @@ class AdminUtbetalingService(
     }
 
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.transaction {
-        utbetalingService.getAdvarsler(utbetaling)
+        hentDeltakerAdvarslerForUtbetaling(
+            status = utbetaling.status,
+            gjennomforingId = utbetaling.gjennomforing.id,
+            periode = utbetaling.periode,
+            beregning = utbetaling.beregning,
+        )
     }
 
     companion object {
