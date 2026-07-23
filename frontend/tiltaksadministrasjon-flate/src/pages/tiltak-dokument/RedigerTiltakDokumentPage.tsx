@@ -18,8 +18,10 @@ import {
   TiltakDokumentDtoAdministrator,
   TiltakDokumentDtoArrangorKontaktperson,
   TiltakDokumentDtoKontaktperson,
+  ValidationError,
 } from "@tiltaksadministrasjon/api-client";
 import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
+import { applyValidationErrors } from "@/components/skjema/helpers";
 
 export function RedigerTiltakDokumentPage() {
   const { tiltakDokumentId } = useRequiredParams(["tiltakDokumentId"]);
@@ -102,20 +104,23 @@ function RedigerForm({ tiltakDokument }: { tiltakDokument: TiltakDokumentDto }) 
         stedForGjennomforing: data.stedForGjennomforing ?? null,
         arrangorId: data.arrangorId ?? null,
         arrangorKontaktpersoner: data.arrangorKontaktpersoner ?? [],
-        beskrivelse: data.veilederinformasjon.beskrivelse ?? null,
-        faneinnhold: (data.veilederinformasjon.faneinnhold as Faneinnhold | null) ?? null,
         administratorer: data.administratorer,
-        navRegioner: data.veilederinformasjon.navRegioner ?? [],
-        navKontorer: data.veilederinformasjon.navKontorer ?? [],
-        navAndreEnheter: data.veilederinformasjon.navAndreEnheter ?? [],
-        kontaktpersoner:
-          data.veilederinformasjon.kontaktpersoner?.map((k) => ({
-            navIdent: k.navIdent,
-            beskrivelse: k.beskrivelse ?? null,
-          })) ?? [],
+        veilederinformasjon: {
+          beskrivelse: data.veilederinformasjon.beskrivelse ?? null,
+          faneinnhold: (data.veilederinformasjon.faneinnhold as Faneinnhold | null) ?? null,
+          navRegioner: data.veilederinformasjon.navRegioner ?? [],
+          navKontorer: data.veilederinformasjon.navKontorer ?? [],
+          navAndreEnheter: data.veilederinformasjon.navAndreEnheter ?? [],
+          kontaktpersoner:
+            data.veilederinformasjon.kontaktpersoner?.map((k) => ({
+              navIdent: k.navIdent,
+              beskrivelse: k.beskrivelse ?? null,
+            })) ?? [],
+        },
       },
       {
         onSuccess: () => navigate(`/tiltak-dokumenter/${tiltakDokument.id}`),
+        onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
       },
     );
   };

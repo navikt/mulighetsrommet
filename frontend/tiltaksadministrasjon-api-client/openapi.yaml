@@ -6498,6 +6498,44 @@ components:
       - SETT_PA_VENT_ENKELTPLASS_OKONOMI
       - GODKJENN_ENKELTPLASS_PRISENDRING
       - SETT_PA_VENT_ENKELTPLASS_PRISENDRING
+    TiltakDokumentRequest.VeilederinfoRequest:
+      type: object
+      properties:
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        navRegioner:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        navKontorer:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        navAndreEnheter:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakDokumentRequest.Kontaktperson"
+          uniqueItems: true
+      required:
+      - beskrivelse
+      - faneinnhold
+      - kontaktpersoner
+      - navAndreEnheter
+      - navKontorer
+      - navRegioner
     TiltakDokumentRequest.Kontaktperson:
       type: object
       properties:
@@ -6536,53 +6574,22 @@ components:
             type: string
             format: uuid
           uniqueItems: true
-        faneinnhold:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Faneinnhold"
-        beskrivelse:
-          type:
-          - "null"
-          - string
         administratorer:
           type: array
           items:
             type: string
           uniqueItems: true
-        navRegioner:
-          type: array
-          items:
-            type: string
-          uniqueItems: true
-        navKontorer:
-          type: array
-          items:
-            type: string
-          uniqueItems: true
-        navAndreEnheter:
-          type: array
-          items:
-            type: string
-          uniqueItems: true
-        kontaktpersoner:
-          type: array
-          items:
-            $ref: "#/components/schemas/TiltakDokumentRequest.Kontaktperson"
-          uniqueItems: true
+        veilederinformasjon:
+          $ref: "#/components/schemas/TiltakDokumentRequest.VeilederinfoRequest"
       required:
       - administratorer
       - arrangorId
       - arrangorKontaktpersoner
-      - beskrivelse
-      - faneinnhold
       - id
-      - kontaktpersoner
-      - navAndreEnheter
-      - navKontorer
-      - navRegioner
       - navn
       - stedForGjennomforing
       - tiltakstypeId
+      - veilederinformasjon
     TiltakDokumentDto.Tiltakstype:
       type: object
       properties:

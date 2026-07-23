@@ -33,14 +33,19 @@ data class TiltakDokumentRequest(
         @Serializable(with = UUIDSerializer::class)
         UUID,
         > = emptySet(),
-    val faneinnhold: Faneinnhold? = null,
-    val beskrivelse: String? = null,
     val administratorer: Set<NavIdent> = emptySet(),
-    val navRegioner: Set<NavEnhetNummer> = emptySet(),
-    val navKontorer: Set<NavEnhetNummer> = emptySet(),
-    val navAndreEnheter: Set<NavEnhetNummer> = emptySet(),
-    val kontaktpersoner: Set<Kontaktperson> = emptySet(),
+    val veilederinformasjon: VeilederinfoRequest = VeilederinfoRequest(),
 ) {
+    @Serializable
+    data class VeilederinfoRequest(
+        val faneinnhold: Faneinnhold? = null,
+        val beskrivelse: String? = null,
+        val navRegioner: Set<NavEnhetNummer> = emptySet(),
+        val navKontorer: Set<NavEnhetNummer> = emptySet(),
+        val navAndreEnheter: Set<NavEnhetNummer> = emptySet(),
+        val kontaktpersoner: Set<Kontaktperson> = emptySet(),
+    )
+
     @Serializable
     data class Kontaktperson(
         val navIdent: NavIdent,
