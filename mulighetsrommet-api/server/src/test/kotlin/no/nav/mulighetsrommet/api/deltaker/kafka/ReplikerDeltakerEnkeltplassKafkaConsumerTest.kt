@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.gjennomforing.kafka
+package no.nav.mulighetsrommet.api.deltaker.kafka
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -42,7 +42,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
             gjennomforinger = listOf(AFT1),
         ).initialize(database.api)
 
-        val deltaker = DeltakerFixtures.createAmtDeltakerDto(
+        val deltaker = AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerDto(
             gjennomforingId = AFT1.id,
             status = DeltakerStatusType.FULLFORT,
             personIdent = "12345678910",
@@ -61,7 +61,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
             gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.GJENNOMFORES)),
         ).initialize(database.api)
 
-        val deltaker = DeltakerFixtures.createAmtDeltakerDto(
+        val deltaker = AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerDto(
             gjennomforingId = EnkelAmo.id,
             status = DeltakerStatusType.FULLFORT,
             personIdent = "12345678910",
@@ -79,7 +79,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
             gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.GJENNOMFORES)),
         ).initialize(database.api)
 
-        val deltaker = DeltakerFixtures.createAmtDeltakerDto(
+        val deltaker = AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerDto(
             gjennomforingId = EnkelAmo.id,
             status = DeltakerStatusType.FULLFORT,
             personIdent = "12345678910",
@@ -95,9 +95,9 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
 
     test("oppdaterer ikke gjennomføring når hendelse er før endretTidspunkt på lagret deltaker") {
         val tidspunktMs = LocalDateTime.of(2025, 1, 1, 12, 0, 0, 123_456_000)
-        val lagretDeltaker = DeltakerFixtures.createDeltakerDbo(
+        val lagretDeltaker = DeltakerFixtures.createDeltaker(
             gjennomforingId = EnkelAmo.id,
-            endretTidspunkt = tidspunktMs,
+            endretTidspunkt = tidspunktMs.tilNorskInstant(),
         )
         MulighetsrommetTestDomain(
             gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.GJENNOMFORES)),
@@ -107,7 +107,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         val features = mapOf(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to setOf(TiltakstypeFeature.MIGRERT))
         val consumer = createConsumer(features)
 
-        val deltaker = DeltakerFixtures.createAmtDeltakerDto(
+        val deltaker = AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerDto(
             id = lagretDeltaker.id,
             gjennomforingId = EnkelAmo.id,
             status = DeltakerStatusType.FULLFORT,

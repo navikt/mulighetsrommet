@@ -123,7 +123,6 @@ object TestFixtures {
             status = GjennomforingStatusType.GJENNOMFORES,
             opprettetTidspunkt = Instant.now(),
             oppdatertTidspunkt = Instant.now(),
-            prisinformasjon = "Kursavgift på 100,-",
             oppstart = GjennomforingOppstartstype.ENKELTPLASS,
             pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
         )

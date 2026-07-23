@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.amtDeltaker
+package no.nav.mulighetsrommet.api.deltaker.client
 
 import arrow.core.Either
 import arrow.core.left

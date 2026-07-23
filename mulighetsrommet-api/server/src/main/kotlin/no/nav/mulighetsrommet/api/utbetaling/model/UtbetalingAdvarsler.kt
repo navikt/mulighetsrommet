@@ -1,9 +1,9 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
-import no.nav.amt.model.AmtArrangorMelding
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -65,45 +65,45 @@ object UtbetalingAdvarsler {
     }
 
     fun isForslagRelevantForPeriode(
-        endring: AmtArrangorMelding.Forslag.Endring,
+        endring: DeltakerForslag.Endring,
         utbetalingPeriode: Periode,
         deltakelsePeriode: Periode,
     ): Boolean {
         val deltakelseInclusiveSluttdato = deltakelsePeriode.getLastInclusiveDate()
 
         return when (endring) {
-            is AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse -> {
+            is DeltakerForslag.Endring.AvsluttDeltakelse -> {
                 val sluttDato = endring.sluttdato
                 endring.harDeltatt == false || (sluttDato != null && sluttdatoEndringErRelevant(sluttDato, utbetalingPeriode, deltakelsePeriode))
             }
 
-            is AmtArrangorMelding.Forslag.Endring.EndreAvslutning -> {
+            is DeltakerForslag.Endring.EndreAvslutning -> {
                 val sluttdato = endring.sluttdato
                 endring.harDeltatt == false || (sluttdato != null && sluttdatoEndringErRelevant(sluttdato, utbetalingPeriode, deltakelsePeriode))
             }
 
-            is AmtArrangorMelding.Forslag.Endring.Deltakelsesmengde -> {
+            is DeltakerForslag.Endring.Deltakelsesmengde -> {
                 endring.gyldigFra?.isBefore(deltakelseInclusiveSluttdato) ?: true
             }
 
-            is AmtArrangorMelding.Forslag.Endring.ForlengDeltakelse -> {
+            is DeltakerForslag.Endring.ForlengDeltakelse -> {
                 sluttdatoEndringErRelevant(endring.sluttdato, utbetalingPeriode, deltakelsePeriode)
             }
 
-            is AmtArrangorMelding.Forslag.Endring.Sluttdato -> {
+            is DeltakerForslag.Endring.Sluttdato -> {
                 sluttdatoEndringErRelevant(endring.sluttdato, utbetalingPeriode, deltakelsePeriode)
             }
 
-            is AmtArrangorMelding.Forslag.Endring.Startdato -> {
+            is DeltakerForslag.Endring.Startdato -> {
                 val sluttdato = endring.sluttdato
                 endring.startdato.isAfter(deltakelsePeriode.start) ||
                     (sluttdato != null && sluttdatoEndringErRelevant(sluttdato, utbetalingPeriode, deltakelsePeriode))
             }
 
-            is AmtArrangorMelding.Forslag.Endring.Sluttarsak -> false
+            is DeltakerForslag.Endring.Sluttarsak -> false
 
-            is AmtArrangorMelding.Forslag.Endring.IkkeAktuell,
-            is AmtArrangorMelding.Forslag.Endring.FjernOppstartsdato,
+            is DeltakerForslag.Endring.IkkeAktuell,
+            is DeltakerForslag.Endring.FjernOppstartsdato,
             -> true
         }
     }

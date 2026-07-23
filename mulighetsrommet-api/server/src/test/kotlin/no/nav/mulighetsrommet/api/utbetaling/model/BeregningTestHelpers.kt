@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
@@ -26,6 +28,7 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 
 object BeregningTestHelpers {
@@ -213,21 +216,27 @@ object BeregningTestHelpers {
         )
     }
 
+    fun deltakelsesmengde(gyldigFra: LocalDate, deltakelsesprosent: Double): Deltakelsesmengde = Deltakelsesmengde(
+        gyldigFra = gyldigFra,
+        deltakelsesprosent = deltakelsesprosent,
+        opprettetTidspunkt = Instant.now(),
+    )
+
     fun createDeltaker(
         periode: Periode,
         deltakelsesmengder: List<Deltakelsesmengde> = emptyList(),
         status: DeltakerStatusType = DeltakerStatusType.DELTAR,
-    ): Deltaker = Deltaker(
+    ): Deltaker = Deltaker.opprett(
         id = UUID.randomUUID(),
         gjennomforingId = UUID.randomUUID(),
         startDato = periode.start,
         sluttDato = periode.getLastInclusiveDate(),
-        registrertTidspunkt = periode.start.atStartOfDay(),
-        endretTidspunkt = periode.start.atStartOfDay(),
+        registrertTidspunkt = Instant.now(),
+        endretTidspunkt = Instant.now(),
         status = DeltakerStatus(
             type = status,
             aarsak = null,
-            opprettetTidspunkt = periode.start.atStartOfDay(),
+            opprettetTidspunkt = Instant.now(),
         ),
         deltakelsesmengder = deltakelsesmengder,
         innholdAnnet = null,

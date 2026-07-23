@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
@@ -31,7 +32,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Agent
@@ -324,7 +324,7 @@ class GjennomforingEnkeltplassService(
     }
 
     private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker? {
-        val deltakelser = queries.deltaker.getByGjennomforingId(gjennomforingId)
+        val deltakelser = repository.deltaker.getByGjennomforing(gjennomforingId)
         if (deltakelser.size > 1) {
             error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet kun én)")
         }

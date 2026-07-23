@@ -30,6 +30,7 @@ export function toOpprettAvtaleRequest(id: string, data: AvtaleFormValues): Oppr
 export function toPrismodellRequest(data: PrismodellValues): PrismodellRequest[] {
   return data.prismodeller.map((prismodell) => ({
     ...prismodell,
+    prisbetingelser: prismodell.prisbetingelser || null,
     id: prismodell.id ?? v4(),
     satser: prismodell.satser ?? [],
     tilsagnPerDeltaker: prismodell.tilsagnPerDeltaker,

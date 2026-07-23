@@ -11,6 +11,8 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
 import no.nav.mulighetsrommet.api.domain.testing.FakeArrangorRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeDeltakerForslagRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeDeltakerRepository
 import no.nav.mulighetsrommet.api.domain.testing.FakeNavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.testing.FakeNavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.testing.FakeRedaksjoneltInnholdLenkeRepository
@@ -26,6 +28,8 @@ class TestQueryContext : QueryContext() {
     private val arrangorRepository = FakeArrangorRepository()
     private val utdanningRepository = FakeUtdanningRepository()
     private val tiltakDokumentRepository = FakeTiltakDokumentRepository()
+    private val deltakerRepository = FakeDeltakerRepository()
+    private val deltakerForslagRepository = FakeDeltakerForslagRepository(deltakerRepository)
 
     private var tiltakstype: TiltakstypeQueryHandler = mockk(relaxed = true)
     private var endringshistorikk: EndringshistorikkQueryHandler = mockk(relaxed = true)
@@ -44,6 +48,8 @@ class TestQueryContext : QueryContext() {
         override val arrangor get() = arrangorRepository
         override val utdanning get() = utdanningRepository
         override val tiltakDokument get() = tiltakDokumentRepository
+        override val deltaker get() = deltakerRepository
+        override val deltakerForslag get() = deltakerForslagRepository
     }
 
     override val queries = object : Queries() {

@@ -20,18 +20,21 @@ export function ModiaFilterTags({ filterOpen, setTagsHeight }: Props) {
             {filter.search}
           </Chips.Removable>
         )}
-        {filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT && (
-          <Chips.Removable
-            onClick={() =>
-              setFilter({
-                ...filter,
-                apentForPamelding: ApentForPamelding.APENT_ELLER_STENGT,
-              })
-            }
-          >
-            {filter.apentForPamelding === ApentForPamelding.APENT ? "Åpent" : "Stengt"}
-          </Chips.Removable>
-        )}
+        {filter.apentForPamelding.length > 0 &&
+          filter.apentForPamelding.map((apentForPamelding) => (
+            <Chips.Removable
+              onClick={() =>
+                setFilter({
+                  ...filter,
+                  apentForPamelding: filter.apentForPamelding.filter(
+                    (value) => value !== apentForPamelding,
+                  ),
+                })
+              }
+            >
+              {apentForPamelding === ApentForPamelding.APENT ? "Åpent" : "Stengt"}
+            </Chips.Removable>
+          ))}
         {filter.innsatsgruppe && (
           <Chips.Removable
             onClick={() => {

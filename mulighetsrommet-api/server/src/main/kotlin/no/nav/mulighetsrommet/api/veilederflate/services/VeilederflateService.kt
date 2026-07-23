@@ -77,7 +77,7 @@ class VeilederflateService(
         enheter: NonEmptyList<NavEnhetNummer>,
         tiltakskoder: List<Tiltakskode>? = null,
         innsatsgruppe: Innsatsgruppe,
-        apentForPamelding: ApentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
+        apentForPamelding: List<ApentForPamelding>? = null,
         search: String? = null,
         erSykmeldtMedArbeidsgiver: Boolean,
         cacheUsage: CacheUsage,
@@ -146,11 +146,11 @@ class VeilederflateService(
         enheter: NonEmptyList<NavEnhetNummer>,
         tiltakskoder: List<Tiltakskode>?,
         innsatsgruppe: Innsatsgruppe,
-        apentForPamelding: ApentForPamelding,
+        apentForPamelding: List<ApentForPamelding>?,
         search: String?,
         cacheUsage: CacheUsage,
     ): List<VeilederflateTiltak> {
-        if (apentForPamelding == ApentForPamelding.STENGT) {
+        if (apentForPamelding?.toSet() == setOf(ApentForPamelding.STENGT)) {
             // Det er foreløpig ikke noe egen funksjonalitet for å markere tiltak som midlertidig stengt i Sanity
             return emptyList()
         }
@@ -199,7 +199,7 @@ class VeilederflateService(
         enheter: NonEmptyList<NavEnhetNummer>,
         tiltakskoder: List<Tiltakskode>?,
         innsatsgruppe: Innsatsgruppe,
-        apentForPamelding: ApentForPamelding,
+        apentForPamelding: List<ApentForPamelding>?,
         search: String?,
         erSykmeldtMedArbeidsgiver: Boolean,
     ): List<VeilederflateTiltak> = db.session {
@@ -209,10 +209,16 @@ class VeilederflateService(
                 tiltakskoder = tiltakskoder,
                 innsatsgruppe = innsatsgruppe,
                 brukersEnheter = enheter,
-                apentForPamelding = when (apentForPamelding) {
-                    ApentForPamelding.APENT -> true
-                    ApentForPamelding.STENGT -> false
-                    ApentForPamelding.APENT_ELLER_STENGT -> null
+                apentForPamelding = when {
+                    apentForPamelding?.contains(ApentForPamelding.APENT) == true && apentForPamelding.contains(
+                        ApentForPamelding.STENGT,
+                    ) -> null
+
+                    apentForPamelding?.contains(ApentForPamelding.APENT) == true -> true
+
+                    apentForPamelding?.contains(ApentForPamelding.STENGT) == true -> false
+
+                    else -> null
                 },
                 erSykmeldtMedArbeidsgiver = erSykmeldtMedArbeidsgiver,
             )

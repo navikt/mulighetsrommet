@@ -12,7 +12,6 @@ import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
 import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Personopplysning
 import java.util.UUID
@@ -72,18 +71,6 @@ object AvtaleDboMapper {
         personvernDbo = personvernDbo,
         veilederinformasjonDbo = veilederinformasjonDbo,
     )
-}
-
-fun Prismodell.prisbetingelser(): String? = when (this) {
-    is Prismodell.AnnenAvtaltPris -> prisbetingelser
-    is Prismodell.AvtaltPrisPerManedsverk -> prisbetingelser
-    is Prismodell.AvtaltPrisPerUkesverk -> prisbetingelser
-    is Prismodell.AvtaltPrisPerHeleUkesverk -> prisbetingelser
-    is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
-    is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
-    is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> null
-    is Prismodell.TilskuddTilOpplaering -> tilleggsopplysninger
-    is Prismodell.IngenKostnader -> tilleggsopplysninger
 }
 
 fun AvtaleValidator.Ctx.AvtaleArrangor.toDbo(kontaktpersoner: List<UUID>?): AvtaleArrangorDbo = AvtaleArrangorDbo(

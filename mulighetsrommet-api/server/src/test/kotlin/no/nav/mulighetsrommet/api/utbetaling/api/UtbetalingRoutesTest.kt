@@ -302,7 +302,7 @@ class UtbetalingRoutesTest : FunSpec({
     }
 
     context("personvern i beregning") {
-        val deltaker = DeltakerFixtures.createDeltakerDbo(AFT1.id)
+        val deltaker = DeltakerFixtures.createDeltaker(gjennomforingId = AFT1.id)
 
         val beregningPeriode = Periode.forMonthOf(LocalDate.of(2024, 8, 1))
         val utbetaling = UtbetalingFixtures.utbetaling1.copy(

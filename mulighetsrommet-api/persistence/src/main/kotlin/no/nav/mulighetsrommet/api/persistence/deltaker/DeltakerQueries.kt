@@ -1,14 +1,12 @@
-package no.nav.mulighetsrommet.api.utbetaling.db
+package no.nav.mulighetsrommet.api.persistence.deltaker
 
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
-import no.nav.mulighetsrommet.api.utbetaling.model.NavVeileder
-import no.nav.mulighetsrommet.database.utils.Pagination
-import no.nav.mulighetsrommet.database.utils.parameters
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerRepository
+import no.nav.mulighetsrommet.api.domain.deltaker.NavVeileder
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.DeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
@@ -17,10 +15,9 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
 import java.util.UUID
-import kotlin.collections.listOf
 
-class DeltakerQueries(private val session: Session) {
-    fun upsert(deltaker: DeltakerDbo) = withTransaction(session) {
+class DeltakerQueries(private val session: Session) : DeltakerRepository {
+    override fun save(deltaker: Deltaker): Unit = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into deltaker (id,
@@ -98,7 +95,7 @@ class DeltakerQueries(private val session: Session) {
         batchPreparedNamedStatement(insertDeltakelsesmengdeQuery, deltakelsesmengder)
     }
 
-    fun get(id: UUID): Deltaker? {
+    override fun get(id: UUID): Deltaker? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -109,24 +106,7 @@ class DeltakerQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toDeltaker() }
     }
 
-    fun getDeltakelsesmengder(id: UUID): List<Deltakelsesmengde> {
-        @Language("PostgreSQL")
-        val query = """
-            select gyldig_fra, deltakelsesprosent
-            from deltaker_deltakelsesmengde
-            where deltaker_id = ?::uuid
-            order by gyldig_fra
-        """.trimIndent()
-
-        return session.list(queryOf(query, id)) {
-            Deltakelsesmengde(
-                gyldigFra = it.localDate("gyldig_fra"),
-                deltakelsesprosent = it.double("deltakelsesprosent"),
-            )
-        }
-    }
-
-    fun getByGjennomforingId(gjennomforingId: UUID): List<Deltaker> {
+    override fun getByGjennomforing(gjennomforingId: UUID): List<Deltaker> {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -137,19 +117,7 @@ class DeltakerQueries(private val session: Session) {
         return session.list(queryOf(query, gjennomforingId)) { it.toDeltaker() }
     }
 
-    fun getAll(pagination: Pagination = Pagination.all()): List<Deltaker> {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from view_deltaker
-            limit :limit
-            offset :offset
-        """.trimIndent()
-
-        return session.list(queryOf(query, pagination.parameters)) { it.toDeltaker() }
-    }
-
-    fun delete(id: UUID) {
+    override fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """
             delete
@@ -161,24 +129,24 @@ class DeltakerQueries(private val session: Session) {
     }
 }
 
-private fun Row.toDeltaker() = Deltaker(
+private fun Row.toDeltaker() = Deltaker.opprett(
     id = uuid("id"),
     gjennomforingId = uuid("gjennomforing_id"),
     startDato = localDateOrNull("start_dato"),
     sluttDato = localDateOrNull("slutt_dato"),
-    registrertTidspunkt = localDateTime("registrert_tidspunkt"),
-    endretTidspunkt = localDateTime("endret_tidspunkt"),
+    registrertTidspunkt = instant("registrert_tidspunkt"),
+    endretTidspunkt = instant("endret_tidspunkt"),
     status = DeltakerStatus(
         type = DeltakerStatusType.valueOf(string("status_type")),
         aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatusAarsakType.valueOf(it) },
-        opprettetTidspunkt = localDateTime("status_opprettet_tidspunkt"),
+        opprettetTidspunkt = instant("status_opprettet_tidspunkt"),
     ),
     deltakelsesmengder = stringOrNull("deltakelsesmengder_json")?.let { Json.decodeFromString(it) } ?: listOf(),
     innholdAnnet = stringOrNull("innhold_annet"),
     navVeileder = stringOrNull("nav_veileder_nav_ident")?.let {
         NavVeileder(
             navIdent = NavIdent(it),
-            enhetsnummer = stringOrNull("nav_veileder_enhetsnummer")?.let { NavEnhetNummer(it) },
+            enhetsnummer = stringOrNull("nav_veileder_enhetsnummer")?.let { enhet -> NavEnhetNummer(enhet) },
         )
     },
 )

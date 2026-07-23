@@ -75,7 +75,8 @@ export function CheckboxDropdownGroup({ value, onChange, items, legend }: Checkb
                 <Box
                   borderRadius="8"
                   padding="space-1"
-                  className="text-ax-text-accent-subtle bg-ax-bg-accent-moderate-hover group-hover:bg-ax-bg-accent-strong-hover group-hover:text-ax-text-neutral-contrast"
+                  background="accent-moderateA"
+                  className="text-ax-text-accent-subtle group-hover:bg-ax-bg-accent-strong-hover group-hover:text-ax-text-neutral-contrast"
                 >
                   <ChevronDownIcon
                     aria-hidden

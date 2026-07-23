@@ -17,6 +17,8 @@ import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonService
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.arrangor.KontoregisterGateway
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
+import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
@@ -46,7 +48,6 @@ import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
@@ -60,12 +61,15 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
+import no.nav.mulighetsrommet.api.deltaker.client.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.deltaker.kafka.AmtArrangorMeldingV1KafkaConsumer
+import no.nav.mulighetsrommet.api.deltaker.kafka.ReplikerDeltakerEnkeltplassKafkaConsumer
+import no.nav.mulighetsrommet.api.deltaker.kafka.ReplikerDeltakerKafkaConsumer
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.enhetsregister.BrregEnhetsregisterGateway
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.AmtKoordinatorGjennomforingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.ArenaMigreringGjennomforingKafkaProducer
 import no.nav.mulighetsrommet.api.gjennomforing.kafka.GjennomforingRequestKafkaConsumer
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.ReplikerDeltakerEnkeltplassKafkaConsumer
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
@@ -101,10 +105,8 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddBrukerUtbetal
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
-import no.nav.mulighetsrommet.api.utbetaling.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
-import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerDeltakerKafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerFakturaStatusConsumer
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerAvtaltTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
@@ -236,7 +238,7 @@ private fun kafka(appConfig: AppConfig) = module {
                 get(),
             ),
             config.clients.replikerDeltakerEksternV1 to ReplikerDeltakerKafkaConsumer(
-                db = get(),
+                replikerDeltaker = get(),
                 genererUtbetalingService = get(),
             ),
             config.clients.replikerDeltakerEnkeltplass to ReplikerDeltakerEnkeltplassKafkaConsumer(get(), get()),
@@ -508,6 +510,8 @@ private fun services(appConfig: AppConfig) = module {
     single { KostnadsstedQuery(get()) }
     single { NavAnsattDtoQuery(get()) }
     single { SyncArrangorUseCase(get(), get()) }
+    single { ReplikerDeltakerUseCase(get()) }
+    single { ReplikerDeltakerForslagUseCase(get()) }
     single { ArrangorKontaktpersonService(get()) }
     single<KontoregisterGateway> { KontoregisterOrganisasjonGateway(get()) }
     single { BetalingsinformasjonQuery(get(), get()) }

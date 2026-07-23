@@ -178,7 +178,7 @@ class VeilederflateServiceTest : FunSpec({
         test("hentTiltaksgjennomforinger filtrerer bort gjennomføringer for tiltakstyper uten VISES_I_MODIA") {
             val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
                 enheter = nonEmptyListOf(NavEnhetNummer("0501")),
-                apentForPamelding = ApentForPamelding.APENT,
+                apentForPamelding = listOf(ApentForPamelding.APENT),
                 innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
                 cacheUsage = CacheUsage.NoCache,
                 erSykmeldtMedArbeidsgiver = false,
@@ -207,7 +207,7 @@ class VeilederflateServiceTest : FunSpec({
 
         val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0300")),
-            apentForPamelding = ApentForPamelding.APENT,
+            apentForPamelding = listOf(ApentForPamelding.APENT),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -230,7 +230,6 @@ class VeilederflateServiceTest : FunSpec({
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-            apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldBeEmpty()
@@ -243,7 +242,6 @@ class VeilederflateServiceTest : FunSpec({
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-            apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldHaveSize(1).should { (first) ->
@@ -258,7 +256,7 @@ class VeilederflateServiceTest : FunSpec({
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-            apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
+            apentForPamelding = null,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldHaveSize(1).should { (first) ->
@@ -269,7 +267,7 @@ class VeilederflateServiceTest : FunSpec({
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-            apentForPamelding = ApentForPamelding.STENGT,
+            apentForPamelding = listOf(ApentForPamelding.STENGT),
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldBeEmpty()
@@ -280,7 +278,7 @@ class VeilederflateServiceTest : FunSpec({
 
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0501")),
-            apentForPamelding = ApentForPamelding.APENT,
+            apentForPamelding = listOf(ApentForPamelding.APENT),
             innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -291,7 +289,7 @@ class VeilederflateServiceTest : FunSpec({
 
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0501")),
-            apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
+            apentForPamelding = null,
             innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -302,7 +300,7 @@ class VeilederflateServiceTest : FunSpec({
 
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0501")),
-            apentForPamelding = ApentForPamelding.STENGT,
+            apentForPamelding = listOf(ApentForPamelding.STENGT),
             innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
             cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
@@ -386,7 +384,6 @@ class VeilederflateServiceTest : FunSpec({
             val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
                 enheter = nonEmptyListOf(NavEnhetFixtures.Gjovik.enhetsnummer),
                 innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
-                apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
                 cacheUsage = CacheUsage.NoCache,
                 erSykmeldtMedArbeidsgiver = false,
             )
@@ -423,7 +420,7 @@ class VeilederflateServiceTest : FunSpec({
             val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
                 enheter = nonEmptyListOf(NavEnhetFixtures.Gjovik.enhetsnummer),
                 innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
-                apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
+                apentForPamelding = null,
                 cacheUsage = CacheUsage.NoCache,
                 erSykmeldtMedArbeidsgiver = false,
             )
@@ -460,7 +457,6 @@ class VeilederflateServiceTest : FunSpec({
             val tiltak = serviceWithArbeidstrening.hentTiltaksgjennomforinger(
                 enheter = nonEmptyListOf(NavEnhetFixtures.Gjovik.enhetsnummer),
                 innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
-                apentForPamelding = ApentForPamelding.APENT_ELLER_STENGT,
                 cacheUsage = CacheUsage.NoCache,
                 erSykmeldtMedArbeidsgiver = false,
             )

@@ -8,10 +8,10 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.SystemgenerertPrismodell
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
@@ -122,7 +122,7 @@ class GenererUtbetalingService(
     }
 
     fun oppdaterUtbetalingBlokkeringerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> = db.transaction {
-        val forslag = queries.deltakerForslag.getForslagByGjennomforing(gjennomforingId)
+        val forslag = repository.deltakerForslag.getByGjennomforing(gjennomforingId)
 
         return hentGenererteUtbetalinger(gjennomforingId).map { utbetaling ->
             val blokkeringer = blokkeringer(utbetaling.periode, utbetaling.beregning, forslag)
@@ -197,7 +197,7 @@ class GenererUtbetalingService(
             }
 
             is SystemgenerertPrismodell.FraDeltakelser -> {
-                val deltakere = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
+                val deltakere = db.session { repository.deltaker.getByGjennomforing(gjennomforing.id) }
                 prismodell.beregn(gjennomforing, periode, deltakere)
             }
 
@@ -220,7 +220,7 @@ class GenererUtbetalingService(
             is Betalingsinformasjon.BBan -> forrigeKrav.betalingsinformasjon.kid
             else -> null
         }
-        val forslag = db.session { queries.deltakerForslag.getForslagByGjennomforing(gjennomforingId) }
+        val forslag = db.session { repository.deltakerForslag.getByGjennomforing(gjennomforingId) }
         val blokkeringer = blokkeringer(periode, beregning, forslag)
         val opprett = UpsertUtbetaling.Generering(
             id = UUID.randomUUID(),

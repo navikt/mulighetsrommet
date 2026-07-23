@@ -6,12 +6,12 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelseFraKomet
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakelserResponse
 import no.nav.mulighetsrommet.api.clients.pdl.IdentGruppe
 import no.nav.mulighetsrommet.api.clients.pdl.IdentInformasjon
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
+import no.nav.mulighetsrommet.api.deltaker.client.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.deltaker.client.DeltakelseFraKomet
+import no.nav.mulighetsrommet.api.deltaker.client.DeltakelserResponse
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
