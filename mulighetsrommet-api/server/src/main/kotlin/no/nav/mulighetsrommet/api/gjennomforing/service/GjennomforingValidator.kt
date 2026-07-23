@@ -112,7 +112,7 @@ object GjennomforingValidator {
             gjennomforing = GjennomforingDbo(
                 id = id,
                 type = GjennomforingType.AVTALE,
-                tiltakstypeId = ctx.avtale.tiltakstype.id,
+                tiltakskode = ctx.avtale.tiltakstype.tiltakskode,
                 avtaleId = ctx.avtale.id,
                 arrangorId = result.detaljer.arrangorId,
                 navn = result.detaljer.navn,

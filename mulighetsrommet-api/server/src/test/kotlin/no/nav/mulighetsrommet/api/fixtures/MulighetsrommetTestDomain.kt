@@ -72,7 +72,7 @@ data class MulighetsrommetTestDomain(
             gjennomforinger.forEach { gjennomforing ->
                 queries.gjennomforing.upsert(gjennomforing)
                 // Sett gjennomforing FTS, siden den er brukt i andre søk (navn/tiltaksnavn)
-                val tiltakstypeNavn = tiltakstyper.first { gjennomforing.tiltakstypeId == it.id }.navn
+                val tiltakstypeNavn = tiltakstyper.first { gjennomforing.tiltakskode == it.tiltakskode }.navn
                 queries.gjennomforing.setFreeTextSearch(gjennomforing.id, listOf(gjennomforing.navn, tiltakstypeNavn))
             }
             deltakere.forEach { repository.deltaker.save(it) }

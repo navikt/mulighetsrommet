@@ -66,7 +66,7 @@ class GjennomforingQueries(private val session: Session) {
                                        arena_tiltaksnummer,
                                        arena_ansvarlig_enhet)
             values (:id::uuid,
-                    :tiltakstype_id::uuid,
+                    (select id from tiltakstype where tiltakskode = :tiltakskode),
                     :arrangor_id::uuid,
                     :gjennomforing_type::gjennomforing_type,
                     :oppstart::gjennomforing_oppstartstype,
@@ -102,7 +102,7 @@ class GjennomforingQueries(private val session: Session) {
 
         val params = mapOf(
             "id" to gjennomforing.id,
-            "tiltakstype_id" to gjennomforing.tiltakstypeId,
+            "tiltakskode" to gjennomforing.tiltakskode.name,
             "arrangor_id" to gjennomforing.arrangorId,
             "gjennomforing_type" to gjennomforing.type.name,
             "oppstart" to gjennomforing.oppstart.name,

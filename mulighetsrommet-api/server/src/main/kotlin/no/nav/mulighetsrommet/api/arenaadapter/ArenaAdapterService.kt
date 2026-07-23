@@ -70,7 +70,7 @@ class ArenaAdapterService(
 
         val upsert = OpprettGjennomforingArena(
             id = arenaGjennomforing.id,
-            tiltakstypeId = tiltakstype.id,
+            tiltakskode = tiltakstype.tiltakskode,
             arrangorId = arrangor.id,
             navn = arenaGjennomforing.navn,
             startDato = arenaGjennomforing.startDato,
