@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollError
 import no.nav.mulighetsrommet.api.gjennomforing.mapper.KategoriseringMapper
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.gjennomforing.service.TotrinnskontrollBehandling
@@ -19,6 +20,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class GjennomforingRequestKafkaConsumer(
@@ -29,12 +31,24 @@ class GjennomforingRequestKafkaConsumer(
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {
+    private val log = LoggerFactory.getLogger(javaClass)
+
     override suspend fun consume(key: UUID, message: JsonElement) {
         when (val request = JsonIgnoreUnknownKeys.decodeFromJsonElement<GjennomforingRequest>(message)) {
-            is GjennomforingRequest.EnkeltplassUtkast -> handterEnkeltplassUtkast(request)
-            is GjennomforingRequest.EnkeltplassSoktInn -> handterEnkeltplassSoktInn(request)
-            is GjennomforingRequest.EnkeltplassEndreInnhold -> handterEnkeltplassEndreInnhold(request)
-            is GjennomforingRequest.EnkeltplassEndrePrisinformasjon -> handterEnkeltplassEndrePrisinformasjon(request)
+            is GjennomforingRequest.EnkeltplassUtkast,
+            -> handterEnkeltplassUtkast(request)
+
+            is GjennomforingRequest.EnkeltplassSoktInn,
+            -> handterEnkeltplassSoktInn(request)
+
+            is GjennomforingRequest.EnkeltplassEndreInnhold,
+            -> handterEnkeltplassEndreInnhold(request)
+
+            is GjennomforingRequest.EnkeltplassEndrePrisinformasjon,
+            -> handterEnkeltplassEndrePrisinformasjon(request)
+
+            is GjennomforingRequest.EnkeltplassTilbakekallPrisinformasjon,
+            -> handterEnkeltplassTilbakekallPrisinformasjon(request)
         }
     }
 
@@ -85,6 +99,24 @@ class GjennomforingRequestKafkaConsumer(
             behandling = TotrinnskontrollBehandling(request.totrinnskontroll.id, request.totrinnskontroll.behandletAv),
             prisinformasjon = toPrismodell(request.payload),
         ).onLeft { errors -> error("Klarte ikke håndtere endring av prisinformasjon: $errors") }
+    }
+
+    private fun handterEnkeltplassTilbakekallPrisinformasjon(
+        request: GjennomforingRequest.EnkeltplassTilbakekallPrisinformasjon,
+    ) {
+        enkeltplasser.tilbakekallPrisinformasjon(
+            gjennomforingId = request.gjennomforingId,
+            behandling = TotrinnskontrollBehandling(request.totrinnskontroll.id, request.totrinnskontroll.behandletAv),
+        ).onLeft { error ->
+            when (error) {
+                is TotrinnskontrollError.AlleredeBesluttet,
+                -> log.info("Prisinformasjonen er allerede behandlet: ${error.status}")
+
+                TotrinnskontrollError.KanBareTilbakestillesNarSattPaVent,
+                TotrinnskontrollError.KanIkkeBesluttesAvBehandler,
+                -> error("Uventet feilscenario ved tilbakekalling av prisinformasjon: $error")
+            }
+        }
     }
 }
 

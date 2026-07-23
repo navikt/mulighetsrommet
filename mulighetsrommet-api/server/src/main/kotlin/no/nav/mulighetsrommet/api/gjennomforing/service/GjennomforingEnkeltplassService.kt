@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollError
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassPrisendringDbo
@@ -49,6 +50,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.validation.Validated
+import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -105,6 +107,8 @@ class GjennomforingEnkeltplassService(
     private val personaliaService: PersonaliaService,
     private val tiltakstyper: TiltakstypeService,
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     fun opprettUtkast(utkast: UpsertEnkeltplass, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
         val enkeltplass = getEnkeltplass(utkast.id)
         if (enkeltplass != null) {
@@ -191,6 +195,30 @@ class GjennomforingEnkeltplassService(
             -> return FieldError.of("Kan ikke endre prismodell på en enkeltplass med returnert økonomi")
                 .nel()
                 .left()
+        }
+    }
+
+    fun tilbakekallPrisinformasjon(
+        gjennomforingId: UUID,
+        behandling: TotrinnskontrollBehandling,
+    ): Either<TotrinnskontrollError, Enkeltplass> = db.transaction {
+        val enkeltplass = getAndAquireLock(gjennomforingId)
+
+        val totrinnskontroll = queries.totrinnskontroll.findById(behandling.id)
+            ?: return enkeltplass.right()
+
+        totrinnskontroll.returner(behandling.behandletAv).map { returnert ->
+            queries.totrinnskontroll.upsert(returnert)
+            outbox.publish(returnert)
+
+            if (returnert.type == TotrinnskontrollType.ENKELTPLASS_PRISENDRING) {
+                queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforingId)?.let { pending ->
+                    queries.enkeltplassPrisendring.deleteByTotrinnskontrollId(pending.totrinnskontrollId)
+                    queries.prismodell.deletePrismodell(pending.prismodellId)
+                }
+            }
+
+            logEndring("Prisinformasjon tilbakekalt", gjennomforingId, behandling.behandletAv)
         }
     }
 
