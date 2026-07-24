@@ -8,162 +8,173 @@ import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
 import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
-import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleArrangorDbo
-import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleDbo
-import no.nav.mulighetsrommet.api.persistence.tiltak.DetaljerDbo
-import no.nav.mulighetsrommet.api.persistence.tiltak.PersonvernDbo
-import no.nav.mulighetsrommet.api.persistence.tiltak.VeilederinformasjonDbo
-import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.time.LocalDate
 import java.util.UUID
 
 object AvtaleFixtures {
-    fun detaljerDbo(): DetaljerDbo = DetaljerDbo(
+    val defaultArrangor = Avtale.Arrangor(
+        hovedenhet = ArrangorFixtures.hovedenhet.id,
+        underenheter = listOf(ArrangorFixtures.underenhet1.id),
+    )
+
+    val defaultVeilederinfo = Avtale.VeilederInfo(
+        beskrivelse = null,
+        faneinnhold = null,
+        navEnheter = setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+    )
+
+    val defaultPersonvern = Avtale.Personvern(
+        personopplysninger = emptySet(),
+        annetBeskrivelse = null,
+        erBekreftet = false,
+    )
+
+    val defaultOpsjoner = Avtale.Opsjoner(
+        modell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
+        registreringer = listOf(),
+    )
+
+    val oppfolging: Avtale = Avtale(
+        id = UUID.randomUUID(),
+        tiltakskode = Tiltakskode.OPPFOLGING,
         navn = "Avtalenavn",
+        avtalenummer = null,
         sakarkivNummer = SakarkivNummer("24/1234"),
-        tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
-        arrangor = AvtaleArrangorDbo(
-            hovedenhet = ArrangorFixtures.hovedenhet.id,
-            underenheter = listOf(ArrangorFixtures.underenhet1.id),
-            kontaktpersoner = emptyList(),
-        ),
+        arrangor = defaultArrangor,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.now().plusMonths(3),
-        status = AvtaleStatusType.AKTIV,
         avtaletype = Avtaletype.RAMMEAVTALE,
-        administratorer = listOf(NavIdent("DD1")),
-        opplaringKategorisering = null,
-        opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
+        status = AvtaleStatus.Aktiv,
+        administratorer = setOf(NavIdent("DD1")),
+        veilederinfo = defaultVeilederinfo,
+        personvern = defaultPersonvern,
+        opplaring = null,
+        opsjoner = defaultOpsjoner,
+        prisinfo = Avtale.Prisinfo.Egendefinert(listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging)),
     )
 
-    fun personvernDbo(
-        personopplysninger: List<Personopplysning.Type> = emptyList(),
-        personvernBekreftet: Boolean = false,
-    ): PersonvernDbo = PersonvernDbo(
-        personopplysninger = personopplysninger,
-        annetChecked = false,
-        annetBeskrivelse = null,
-        personvernBekreftet = personvernBekreftet,
-    )
-
-    fun veilederinformasjonDbo(
-        navEnheter: Set<NavEnhetNummer> = setOf(
-            NavEnhetNummer("0400"),
-            NavEnhetNummer("0502"),
-        ),
-    ): VeilederinformasjonDbo = VeilederinformasjonDbo(
-        navEnheter = navEnheter,
-        redaksjoneltInnhold = null,
-    )
-
-    val oppfolging: AvtaleDbo = AvtaleDbo(
+    val gruppeAmo: Avtale = Avtale(
         id = UUID.randomUUID(),
-        detaljerDbo = detaljerDbo(),
-        veilederinformasjonDbo = veilederinformasjonDbo(),
-        personvernDbo = personvernDbo(),
-        prismodeller = listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id),
+        tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+        navn = "Gruppe Amo",
+        avtalenummer = null,
+        sakarkivNummer = SakarkivNummer("24/1234"),
+        arrangor = defaultArrangor,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
+        status = AvtaleStatus.Aktiv,
+        administratorer = setOf(NavIdent("DD1")),
+        veilederinfo = defaultVeilederinfo,
+        personvern = defaultPersonvern,
+        opplaring = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering.id),
+        opsjoner = defaultOpsjoner,
+        prisinfo = Avtale.Prisinfo.Egendefinert(listOf(PrismodellFixtures.AnnenAvtaltPris)),
     )
 
-    val gruppeAmo: AvtaleDbo = AvtaleDbo(
+    val gruppeFagYrke: Avtale = Avtale(
         id = UUID.randomUUID(),
-        detaljerDbo = detaljerDbo().copy(
-            tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
-            navn = "Gruppe Amo",
-            avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-            opplaringKategorisering = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering.id),
-        ),
-        personvernDbo = personvernDbo(),
-        veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.id),
+        tiltakskode = Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
+        navn = "Fag Yrke",
+        avtalenummer = null,
+        sakarkivNummer = SakarkivNummer("24/1234"),
+        arrangor = defaultArrangor,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
+        status = AvtaleStatus.Aktiv,
+        administratorer = setOf(NavIdent("DD1")),
+        veilederinfo = defaultVeilederinfo,
+        personvern = defaultPersonvern,
+        opplaring = null,
+        opsjoner = defaultOpsjoner,
+        prisinfo = Avtale.Prisinfo.Egendefinert(listOf(PrismodellFixtures.AnnenAvtaltPris)),
     )
 
-    val gruppeFagYrke: AvtaleDbo = AvtaleDbo(
+    val VTA: Avtale = Avtale(
         id = UUID.randomUUID(),
-        detaljerDbo = detaljerDbo().copy(
-            navn = "Fag Yrke",
-            tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
-            avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-
-        ),
-        personvernDbo = personvernDbo(),
-        veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.id),
+        tiltakskode = Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+        navn = "Avtalenavn for VTA",
+        avtalenummer = null,
+        sakarkivNummer = SakarkivNummer("24/1234"),
+        arrangor = defaultArrangor,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        avtaletype = Avtaletype.FORHANDSGODKJENT,
+        status = AvtaleStatus.Aktiv,
+        administratorer = setOf(NavIdent("DD1")),
+        veilederinfo = defaultVeilederinfo,
+        personvern = defaultPersonvern,
+        opplaring = null,
+        opsjoner = defaultOpsjoner,
+        prisinfo = Avtale.Prisinfo.Systembestemt(PrismodellFixtures.ForhandsgodkjentVtas),
     )
 
-    val VTA: AvtaleDbo = AvtaleDbo(
+    val AFT: Avtale = Avtale(
         id = UUID.randomUUID(),
-        detaljerDbo = detaljerDbo().copy(
-            navn = "Avtalenavn for VTA",
-            tiltakskode = TiltakstypeFixtures.VTA.tiltakskode,
-            avtaletype = Avtaletype.FORHANDSGODKJENT,
-            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
-        ),
-        veilederinformasjonDbo = veilederinformasjonDbo(),
-        personvernDbo = personvernDbo(),
-        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentVtas.id),
+        tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+        navn = "Avtalenavn for AFT",
+        avtalenummer = null,
+        sakarkivNummer = SakarkivNummer("24/1234"),
+        arrangor = defaultArrangor,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = null,
+        avtaletype = Avtaletype.FORHANDSGODKJENT,
+        status = AvtaleStatus.Aktiv,
+        administratorer = setOf(NavIdent("DD1")),
+        veilederinfo = defaultVeilederinfo,
+        personvern = defaultPersonvern,
+        opplaring = null,
+        opsjoner = defaultOpsjoner,
+        prisinfo = Avtale.Prisinfo.Systembestemt(PrismodellFixtures.ForhandsgodkjentAft),
     )
 
-    val AFT: AvtaleDbo = AvtaleDbo(
+    val TAO: Avtale = Avtale(
         id = UUID.randomUUID(),
-        detaljerDbo = detaljerDbo().copy(
-            navn = "Avtalenavn for AFT",
-            tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
-            sluttDato = null,
-            avtaletype = Avtaletype.FORHANDSGODKJENT,
-            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
-        ),
-        veilederinformasjonDbo = veilederinformasjonDbo(),
-        personvernDbo = personvernDbo(),
-        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft.id),
+        tiltakskode = Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER,
+        navn = "Avtalenavn for TAO",
+        avtalenummer = null,
+        sakarkivNummer = SakarkivNummer("24/1234"),
+        arrangor = defaultArrangor,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = null,
+        avtaletype = Avtaletype.FORHANDSGODKJENT,
+        status = AvtaleStatus.Aktiv,
+        administratorer = setOf(NavIdent("DD1")),
+        veilederinfo = defaultVeilederinfo,
+        personvern = defaultPersonvern,
+        opplaring = null,
+        opsjoner = defaultOpsjoner,
+        prisinfo = Avtale.Prisinfo.Systembestemt(PrismodellFixtures.ForhandsgodkjentTao),
     )
 
-    val TAO: AvtaleDbo = AvtaleDbo(
+    val ARR: Avtale = Avtale(
         id = UUID.randomUUID(),
-        detaljerDbo = detaljerDbo().copy(
-            navn = "Avtalenavn for TAO",
-            tiltakskode = TiltakstypeFixtures.TAO.tiltakskode,
-            sluttDato = null,
-            avtaletype = Avtaletype.FORHANDSGODKJENT,
-            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
-        ),
-        veilederinformasjonDbo = veilederinformasjonDbo(),
-        personvernDbo = personvernDbo(),
-        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTao.id),
-    )
-
-    val EnkelAmo: AvtaleDbo = AvtaleDbo(
-        id = UUID.randomUUID(),
-        detaljerDbo = detaljerDbo().copy(
-            navn = "Avtalenavn for EnkelAmo",
-            tiltakskode = TiltakstypeFixtures.EnkelAmo.tiltakskode,
-            sluttDato = null,
-            avtaletype = Avtaletype.FORHANDSGODKJENT,
-
-        ),
-        personvernDbo = personvernDbo(),
-        veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodeller = listOf(),
-    )
-
-    val ARR: AvtaleDbo = AvtaleDbo(
-        id = UUID.randomUUID(),
-        detaljerDbo = detaljerDbo().copy(
-            navn = "ARR avtale",
-            tiltakskode = TiltakstypeFixtures.ArbeidsrettetRehabilitering.tiltakskode,
-            sakarkivNummer = SakarkivNummer("24/3234"),
-        ),
-        personvernDbo = personvernDbo(),
-        veilederinformasjonDbo = veilederinformasjonDbo(),
-        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.id),
+        tiltakskode = Tiltakskode.ARBEIDSRETTET_REHABILITERING,
+        navn = "ARR avtale",
+        avtalenummer = null,
+        sakarkivNummer = SakarkivNummer("24/3234"),
+        arrangor = defaultArrangor,
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.now().plusMonths(3),
+        avtaletype = Avtaletype.RAMMEAVTALE,
+        status = AvtaleStatus.Aktiv,
+        administratorer = setOf(NavIdent("DD1")),
+        veilederinfo = defaultVeilederinfo,
+        personvern = defaultPersonvern,
+        opplaring = null,
+        opsjoner = defaultOpsjoner,
+        prisinfo = Avtale.Prisinfo.Egendefinert(listOf(PrismodellFixtures.AnnenAvtaltPris)),
     )
 
     fun createAvtaleRequest(

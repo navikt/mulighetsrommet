@@ -167,7 +167,7 @@ fun Route.rammedetaljerRoutes() {
             ) {
                 val id: UUID by call.parameters
                 val result = db.session {
-                    val prismodeller = queries.avtale.getOrError(id).prismodeller
+                    val prismodeller = queries.avtale.getOrError(id).prisinfo.toList()
                     val rammedetaljer = queries.rammedetaljer.get(id)
                     val valuta = prismodeller.first().valuta
                     RammedetaljerDefaults(

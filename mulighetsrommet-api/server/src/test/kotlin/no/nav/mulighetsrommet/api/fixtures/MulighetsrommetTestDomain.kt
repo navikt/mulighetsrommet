@@ -7,11 +7,11 @@ import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
-import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
@@ -45,7 +45,7 @@ data class MulighetsrommetTestDomain(
         PrismodellFixtures.ForhandsgodkjentAft,
         PrismodellFixtures.ForhandsgodkjentVtas,
     ),
-    val avtaler: List<AvtaleDbo> = listOf(),
+    val avtaler: List<Avtale> = listOf(),
     val gjennomforinger: List<GjennomforingDbo> = listOf(),
     val deltakere: List<Deltaker> = listOf(),
     val tilsagn: List<TilsagnDbo> = listOf(),
@@ -68,7 +68,7 @@ data class MulighetsrommetTestDomain(
             tiltakstyper.forEach { repository.tiltakstype.save(it) }
             prismodeller.forEach { queries.prismodell.upsert(it) }
             regelverklenke.forEach { queries.regelverklenke.upsert(it) }
-            avtaler.forEach { queries.avtale.create(it) }
+            avtaler.forEach { repository.avtale.save(it) }
             gjennomforinger.forEach { gjennomforing ->
                 queries.gjennomforing.upsert(gjennomforing)
                 // Sett gjennomforing FTS, siden den er brukt i andre søk (navn/tiltaksnavn)

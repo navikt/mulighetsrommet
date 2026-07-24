@@ -1,12 +1,14 @@
+@file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class, LocalDateTimeSerializer::class)
+
 package no.nav.mulighetsrommet.api.domain.tiltak
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -19,84 +21,86 @@ import java.util.UUID
 
 @Serializable
 data class Avtale(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val tiltakstype: Tiltakstype,
+    val tiltakskode: Tiltakskode,
     val navn: String,
     val avtalenummer: String?,
     val sakarkivNummer: SakarkivNummer?,
-    val arrangor: ArrangorHovedenhet?,
-    @Serializable(with = LocalDateSerializer::class)
+    val arrangor: Arrangor?,
     val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val avtaletype: Avtaletype,
     val status: AvtaleStatus,
-    val administratorer: List<Administrator>,
-    val navEnheter: Set<NavEnhetNummer>,
-    val beskrivelse: String?,
-    val faneinnhold: Faneinnhold?,
-    val personopplysninger: List<Personopplysning>,
-    val personvernBekreftet: Boolean,
+    val administratorer: Set<NavIdent>,
+    val veilederinfo: VeilederInfo,
+    val personvern: Personvern,
     val opplaring: OpplaringKategorisering?,
-    val opsjonsmodell: Opsjonsmodell,
-    val opsjonerRegistrert: List<OpsjonLogg>,
-    val prismodeller: List<Prismodell>,
+    val opsjoner: Opsjoner,
+    val prisinfo: Prisinfo,
 ) {
+    @Serializable
+    data class Arrangor(
+        val hovedenhet: UUID,
+        val underenheter: List<UUID>,
+        val kontaktpersoner: List<UUID> = emptyList(),
+    )
+
+    /**
+     * Skiller mellom prismodeller som avtalen selv eier ([Egendefinert]) og en prismodell som er eid av systemet
+     * og delt av alle avtaler for en gitt tiltakskode ([Systembestemt], for forhåndsgodkjente avtaler).
+     */
+    @Serializable
+    sealed interface Prisinfo {
+        @Serializable
+        data class Egendefinert(val prismodeller: List<Prismodell>) : Prisinfo
+
+        @Serializable
+        data class Systembestemt(val prismodell: Prismodell) : Prisinfo
+
+        fun toList(): List<Prismodell> = when (this) {
+            is Egendefinert -> prismodeller
+            is Systembestemt -> listOf(prismodell)
+        }
+    }
 
     @Serializable
-    data class Tiltakstype(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val navn: String,
-        val tiltakskode: Tiltakskode,
+    data class VeilederInfo(
+        val beskrivelse: String? = null,
+        val faneinnhold: Faneinnhold? = null,
+        val navEnheter: Set<NavEnhetNummer> = setOf(),
     )
 
     @Serializable
-    data class ArrangorHovedenhet(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val organisasjonsnummer: Organisasjonsnummer,
-        val navn: String,
-        val slettet: Boolean,
-        val underenheter: List<ArrangorUnderenhet>,
-        val kontaktpersoner: List<ArrangorKontaktperson>,
-    )
+    data class Personvern(
+        val personopplysninger: Set<Personopplysning.Type>,
+        val annetBeskrivelse: String?,
+        val erBekreftet: Boolean,
+    ) {
+        companion object {
+            fun bekreftet(
+                personopplysninger: Set<Personopplysning.Type> = setOf(),
+                annetBeskrivelse: String? = null,
+            ): Personvern {
+                return Personvern(
+                    personopplysninger = personopplysninger,
+                    annetBeskrivelse = annetBeskrivelse,
+                    erBekreftet = true,
+                )
+            }
+        }
+    }
 
     @Serializable
-    data class ArrangorUnderenhet(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val organisasjonsnummer: Organisasjonsnummer,
-        val navn: String,
-        val slettet: Boolean,
-    )
-
-    @Serializable
-    data class ArrangorKontaktperson(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val navn: String,
-        val beskrivelse: String?,
-        val telefon: String?,
-        val epost: String,
-    )
-
-    @Serializable
-    data class Administrator(
-        val navIdent: NavIdent,
-        val navn: String,
+    data class Opsjoner(
+        val modell: Opsjonsmodell,
+        val registreringer: List<OpsjonLogg>,
     )
 
     @Serializable
     data class OpsjonLogg(
-        @Serializable(with = UUIDSerializer::class)
         val id: UUID,
-        @Serializable(with = LocalDateTimeSerializer::class)
         val createdAt: LocalDateTime,
-        @Serializable(with = LocalDateSerializer::class)
         val sluttDato: LocalDate?,
-        @Serializable(with = LocalDateSerializer::class)
         val forrigeSluttDato: LocalDate,
         val status: OpsjonLoggStatus,
     )

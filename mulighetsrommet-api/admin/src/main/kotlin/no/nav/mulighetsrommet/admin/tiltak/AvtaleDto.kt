@@ -1,6 +1,9 @@
+@file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class)
+
 package no.nav.mulighetsrommet.admin.tiltak
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
@@ -9,6 +12,7 @@ import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
@@ -20,20 +24,17 @@ import java.util.UUID
 
 @Serializable
 data class AvtaleDto(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltakstype: Tiltakstype,
     val navn: String,
     val avtalenummer: String?,
     val sakarkivNummer: SakarkivNummer?,
     val arrangor: ArrangorHovedenhet?,
-    @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val avtaletype: Avtaletype,
     val status: Status,
-    val administratorer: List<Avtale.Administrator>,
+    val administratorer: List<Administrator>,
     val kontorstruktur: List<Kontorstruktur>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
@@ -52,7 +53,6 @@ data class AvtaleDto(
 
     @Serializable
     data class Tiltakstype(
-        @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
         val tiltakskode: Tiltakskode,
@@ -60,7 +60,6 @@ data class AvtaleDto(
 
     @Serializable
     data class ArrangorHovedenhet(
-        @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
@@ -71,7 +70,6 @@ data class AvtaleDto(
 
     @Serializable
     data class ArrangorUnderenhet(
-        @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
@@ -80,11 +78,16 @@ data class AvtaleDto(
 
     @Serializable
     data class ArrangorKontaktperson(
-        @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
         val beskrivelse: String?,
         val telefon: String?,
         val epost: String,
+    )
+
+    @Serializable
+    data class Administrator(
+        val navIdent: NavIdent,
+        val navn: String,
     )
 }

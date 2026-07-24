@@ -8,8 +8,6 @@ import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.fromValidatedAvtaleRequest
-import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggDbo
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
@@ -24,7 +22,6 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
-import no.nav.mulighetsrommet.api.domain.tiltak.Avtale.OpsjonLogg
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
@@ -33,10 +30,6 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodeller
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.ArrangorUnderenhet
-import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleDbo
-import no.nav.mulighetsrommet.api.persistence.tiltak.DetaljerDbo
-import no.nav.mulighetsrommet.api.persistence.tiltak.RedaksjoneltInnholdDbo
-import no.nav.mulighetsrommet.api.persistence.tiltak.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -46,6 +39,7 @@ import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
@@ -64,16 +58,13 @@ object AvtaleValidator {
         val kategorisering: Kategorisering,
         val tiltakstype: Tiltakstype,
         val navEnheter: List<NavEnhetDto>,
-        val systembestemtPrismodell: UUID?,
     ) {
         data class Avtale(
             val status: AvtaleStatusType,
-            val opsjonerRegistrert: List<OpsjonLogg>,
-            val opsjonsmodell: Opsjonsmodell,
+            val opsjoner: Avtale.Opsjoner,
             val avtaletype: Avtaletype,
             val tiltakskode: Tiltakskode,
             val gjennomforinger: List<Gjennomforing>,
-            val prismodeller: List<Prismodell>,
         )
 
         data class AvtaleArrangor(
@@ -103,51 +94,39 @@ object AvtaleValidator {
         )
     }
 
+    data class ValidatedDetaljer(
+        val tiltakskode: Tiltakskode,
+        val navn: String,
+        val sakarkivNummer: SakarkivNummer?,
+        val arrangor: Avtale.Arrangor?,
+        val startDato: LocalDate,
+        val sluttDato: LocalDate?,
+        val status: AvtaleStatusType,
+        val avtaletype: Avtaletype,
+        val administratorer: List<NavIdent>,
+        val opplaring: OpplaringKategorisering?,
+        val opsjonsmodell: Opsjonsmodell,
+    )
+
     fun validateCreateAvtale(
         request: OpprettAvtaleRequest,
         ctx: Ctx,
-    ): Either<List<FieldError>, AvtaleDbo> = validation {
-        val amoKategorisering = path(OpprettAvtaleRequest::detaljer) {
+    ): Either<List<FieldError>, ValidatedDetaljer> = validation {
+        val detaljer = path(OpprettAvtaleRequest::detaljer) {
             validateDetaljer(request.detaljer, ctx).bind()
         }
 
-        val detaljerDbo = request.detaljer.toDbo(
-            ctx.tiltakstype.tiltakskode,
-            ctx.arrangor?.toDbo(request.detaljer.arrangor?.kontaktpersoner),
-            resolveStatus(
-                request.detaljer,
-                ctx.previous,
-                LocalDate.now(),
-            ),
-            amoKategorisering,
-        )
-
-        val prismodeller = ctx.systembestemtPrismodell?.let { listOf(it) } ?: request.prismodeller.map { it.id }
-        validate(prismodeller.isNotEmpty()) {
-            FieldError.of("Minst én prismodell er påkrevd", OpprettAvtaleRequest::prismodeller)
-        }
-
-        val personvernDbo = request.personvern.toDbo()
-
-        val navEnheter = validateNavEnheter(ctx.navEnheter).bind()
-        val veilederinformasjonDbo = VeilederinformasjonDbo(
-            redaksjoneltInnhold = RedaksjoneltInnholdDbo(
-                beskrivelse = request.veilederinformasjon.beskrivelse,
-                faneinnhold = request.veilederinformasjon.faneinnhold,
-            ),
-            navEnheter = navEnheter,
-        )
-
-        fromValidatedAvtaleRequest(request.id, detaljerDbo, prismodeller, personvernDbo, veilederinformasjonDbo)
+        validateNavEnheter(ctx.navEnheter).bind()
+        detaljer
     }
 
     fun validateUpdateDetaljer(
         request: DetaljerRequest,
         ctx: Ctx,
-    ): Either<List<FieldError>, DetaljerDbo> = validation(OpprettAvtaleRequest::detaljer) {
-        val opplaringKategorisering = validateDetaljer(request, ctx).bind()
-
+    ): Either<List<FieldError>, ValidatedDetaljer> = validation(OpprettAvtaleRequest::detaljer) {
         val previous = requireNotNull(ctx.previous) { FieldError.of("Avtalen finnes ikke") }
+
+        val detaljer = validateDetaljer(request, ctx).bind()
 
         validate(request.tiltakskode == previous.tiltakskode) {
             FieldError.of(
@@ -156,14 +135,14 @@ object AvtaleValidator {
             )
         }
 
-        if (previous.opsjonerRegistrert.isNotEmpty()) {
+        if (previous.opsjoner.registreringer.isNotEmpty()) {
             validate(request.avtaletype == previous.avtaletype) {
                 FieldError.of(
                     "Du kan ikke endre avtaletype når opsjoner er registrert",
                     DetaljerRequest::avtaletype,
                 )
             }
-            validate(request.opsjonsmodell.type == previous.opsjonsmodell.type) {
+            validate(request.opsjonsmodell.type == previous.opsjoner.modell.type) {
                 FieldError.of(
                     "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
                     DetaljerRequest::opsjonsmodell,
@@ -223,12 +202,7 @@ object AvtaleValidator {
             }
         }
 
-        request.toDbo(
-            ctx.tiltakstype.tiltakskode,
-            ctx.arrangor?.toDbo(request.arrangor?.kontaktpersoner),
-            resolveStatus(request, previous, LocalDate.now()),
-            kategorisering = opplaringKategorisering,
-        )
+        detaljer
     }
 
     data class ValidatePrismodellerContext(
@@ -238,12 +212,13 @@ object AvtaleValidator {
         val avtaleStartDato: LocalDate,
         val gyldigTilsagnPeriode: Map<Tiltakskode, Periode>,
         val bruktePrismodeller: Set<UUID>,
+        val systembestemtPrismodell: Prismodell?,
     )
 
     fun validatePrismodeller(
         request: List<PrismodellRequest>,
         context: ValidatePrismodellerContext,
-    ): Either<List<FieldError>, List<Prismodell>> = validation {
+    ): Either<List<FieldError>, Avtale.Prisinfo> = validation {
         if (context.avtaletype == Avtaletype.FORHANDSGODKJENT) {
             requireValid(request.isEmpty()) {
                 FieldError.of(
@@ -251,7 +226,13 @@ object AvtaleValidator {
                     OpprettAvtaleRequest::prismodeller,
                 )
             }
-            return@validation listOf()
+            requireNotNull(context.systembestemtPrismodell) {
+                FieldError.of(
+                    "Systembestemt prismodell mangler for forhåndsgodkjent avtale",
+                    OpprettAvtaleRequest::prismodeller,
+                )
+            }
+            return@validation Avtale.Prisinfo.Systembestemt(context.systembestemtPrismodell)
         }
 
         requireValid(request.isNotEmpty()) {
@@ -276,7 +257,7 @@ object AvtaleValidator {
             }
         }
 
-        request.mapIndexed { index, prismodell ->
+        val prismodeller = request.mapIndexed { index, prismodell ->
             validate(prismodell.type in Prismodeller.getPrismodellerForTiltak(context.tiltakskode)) {
                 FieldError(
                     "/prismodeller/$index/type",
@@ -313,6 +294,8 @@ object AvtaleValidator {
                 tilsagnPerDeltaker = prismodell.tilsagnPerDeltaker,
             )
         }
+
+        Avtale.Prisinfo.Egendefinert(prismodeller)
     }
 
     data class ValidateOpprettOpsjonContext(
@@ -339,11 +322,11 @@ object AvtaleValidator {
             FieldError.of("Ny sluttdato må være satt", OpprettOpsjonLoggRequest::nySluttDato)
         }
 
-        val maksVarighet = context.avtale.opsjonsmodell.opsjonMaksVarighet
+        val maksVarighet = context.avtale.opsjoner.modell.opsjonMaksVarighet
         validate(!(nySluttDato != null && maksVarighet != null && nySluttDato.isAfter(maksVarighet))) {
             FieldError.of("Ny sluttdato er forbi maks varighet av avtalen", OpprettOpsjonLoggRequest::nySluttDato)
         }
-        val skalIkkeUtloseOpsjonerForAvtale = context.avtale.opsjonerRegistrert.any {
+        val skalIkkeUtloseOpsjonerForAvtale = context.avtale.opsjoner.registreringer.any {
             it.status == OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON
         }
         validate(!skalIkkeUtloseOpsjonerForAvtale) {
@@ -376,7 +359,7 @@ object AvtaleValidator {
     private fun FieldValidator.validateDetaljer(
         request: DetaljerRequest,
         ctx: Ctx,
-    ): Either<List<FieldError>, OpplaringKategorisering?> {
+    ): Either<List<FieldError>, ValidatedDetaljer> {
         validateNotNull(request.startDato) {
             FieldError.of("Du må legge inn startdato for avtalen", DetaljerRequest::navn)
         }
@@ -445,18 +428,24 @@ object AvtaleValidator {
                 }
             }
         }
-        val opplaringKategorisering =
-            context(ctx.kategorisering) {
-                validateOpplaringKategorisering(
-                    request.tiltakskode,
-                    request.amoKategorisering,
-                    request.utdanningslop,
-                )
-            }
 
         validateSlettetNavAnsatte(ctx.administratorer)
-        ctx.arrangor?.let { validateArrangor(it).bind() }
-        return opplaringKategorisering
+
+        val opplaring = context(ctx.kategorisering) {
+            validateOpplaringKategorisering(
+                request.tiltakskode,
+                request.amoKategorisering,
+                request.utdanningslop,
+            ).bind()
+        }
+
+        val arrangor = ctx.arrangor?.let {
+            validateArrangor(it, request.arrangor?.kontaktpersoner).bind()
+        }
+
+        val status = resolveStatus(request, ctx.previous, LocalDate.now())
+
+        return request.toValidatedDetaljer(arrangor, status, opplaring).right()
     }
 
     private fun resolveStatus(
@@ -473,9 +462,18 @@ object AvtaleValidator {
         AvtaleStatusType.AVSLUTTET
     }
 
-    private fun validateArrangor(arrangor: Ctx.AvtaleArrangor) = validation(DetaljerRequest::arrangor) {
+    private fun validateArrangor(
+        arrangor: Ctx.AvtaleArrangor,
+        kontaktpersoner: List<UUID>?,
+    ): Either<List<FieldError>, Avtale.Arrangor> = validation(DetaljerRequest::arrangor) {
+        val avtaleArrangor = Avtale.Arrangor(
+            hovedenhet = arrangor.hovedenhet.id,
+            underenheter = arrangor.underenheter.map { it.id },
+            kontaktpersoner = kontaktpersoner ?: emptyList(),
+        )
+
         if (arrangor.hovedenhet is Arrangor.Utenlandsk) {
-            return@validation
+            return@validation avtaleArrangor
         }
 
         validate(arrangor.hovedenhet.slettetDato == null) {
@@ -500,6 +498,8 @@ object AvtaleValidator {
                 )
             }
         }
+
+        avtaleArrangor
     }
 
     private fun FieldValidator.validateSatser(
@@ -673,3 +673,21 @@ object AvtaleValidator {
         return OpplaringKategorisering(utdanningslop = utdanningslop).right()
     }
 }
+
+private fun DetaljerRequest.toValidatedDetaljer(
+    arrangor: Avtale.Arrangor?,
+    status: AvtaleStatusType,
+    opplaring: OpplaringKategorisering?,
+): AvtaleValidator.ValidatedDetaljer = AvtaleValidator.ValidatedDetaljer(
+    tiltakskode = tiltakskode,
+    navn = navn,
+    sakarkivNummer = sakarkivNummer,
+    arrangor = arrangor,
+    startDato = startDato,
+    sluttDato = sluttDato,
+    status = status,
+    avtaletype = avtaletype,
+    administratorer = administratorer,
+    opplaring = opplaring,
+    opsjonsmodell = opsjonsmodell,
+)

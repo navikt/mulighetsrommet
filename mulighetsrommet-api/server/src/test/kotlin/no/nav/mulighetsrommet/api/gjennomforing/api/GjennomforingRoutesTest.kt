@@ -137,7 +137,7 @@ class GjennomforingRoutesTest : FunSpec({
 
     context("opprett gjennomføring") {
         val avtale = AvtaleFixtures.oppfolging.copy(
-            veilederinformasjonDbo = AvtaleFixtures.veilederinformasjonDbo(
+            veilederinfo = AvtaleFixtures.oppfolging.veilederinfo.copy(
                 navEnheter = setOf(
                     NavEnhetFixtures.Oslo.enhetsnummer,
                     NavEnhetFixtures.Sagene.enhetsnummer,

@@ -117,7 +117,7 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
 
     inner class Repositories {
         val tiltakstype: TiltakstypeRepository = queries.tiltakstype
-        val avtale: AvtaleRepository get() = TODO("not implemented")
+        val avtale: AvtaleRepository = queries.avtale
         val arrangor: ArrangorRepository = queries.arrangor
         val tiltakDokument: TiltakDokumentRepository = queries.tiltakDokument
         val deltaker: DeltakerRepository = queries.deltaker

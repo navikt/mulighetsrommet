@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -170,7 +171,8 @@ class GenererUtbetalingServiceTest : FunSpec({
                 AvtaltSats(LocalDate.of(2025, 1, 1), 100.NOK),
             ),
         )
-        val avtaleOppfolging = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodellOppfolging.id))
+        val avtaleOppfolging =
+            AvtaleFixtures.oppfolging.copy(prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodellOppfolging)))
         val oppfolging = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodellOppfolging.id)
 
         beforeEach {
@@ -632,7 +634,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell.id))
+        val avtale = AvtaleFixtures.oppfolging.copy(prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell)))
 
         val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
 
@@ -732,7 +734,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell.id))
+        val avtale = AvtaleFixtures.oppfolging.copy(prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell)))
 
         val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
             startDato = LocalDate.of(2024, 1, 1),
@@ -827,7 +829,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell.id))
+        val avtale = AvtaleFixtures.oppfolging.copy(prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell)))
 
         val oppfolging = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
 

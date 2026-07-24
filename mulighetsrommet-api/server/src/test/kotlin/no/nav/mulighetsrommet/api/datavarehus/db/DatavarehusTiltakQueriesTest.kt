@@ -74,7 +74,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 )
                 it.avtale.shouldNotBeNull().should { avtale ->
                     avtale.id shouldBe AvtaleFixtures.AFT.id
-                    avtale.navn shouldBe AvtaleFixtures.AFT.detaljerDbo.navn
+                    avtale.navn shouldBe AvtaleFixtures.AFT.navn
                     avtale.opprettetTidspunkt.shouldNotBeNull()
                     avtale.oppdatertTidspunkt.shouldNotBeNull()
                 }
