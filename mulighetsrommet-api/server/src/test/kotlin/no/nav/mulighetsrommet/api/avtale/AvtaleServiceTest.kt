@@ -495,15 +495,29 @@ class AvtaleServiceTest : FunSpec({
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
+            val endretAv = NavIdent("B123456")
             val request = AvtaleFixtures.createAvtaleRequest(
                 Tiltakskode.OPPFOLGING,
                 administratorer = listOf(identAnsatt2),
             )
-            avtaleService.create(request, identAnsatt1).shouldBeRight()
+            avtaleService.create(request, endretAv).shouldBeRight()
 
-            database.run {
-                queries.notifications.getAll().shouldHaveSize(1).first().should {
-                    it.user shouldBe identAnsatt2
+            database.api.session {
+                queries.notifications.getAll().shouldHaveSize(1).should { (first) ->
+                    first.user shouldBe identAnsatt2
+                }
+            }
+
+            avtaleService.upsertDetaljer(
+                request.id,
+                request = request.detaljer.copy(administratorer = listOf(identAnsatt1, identAnsatt2)),
+                navIdent = endretAv,
+            ).shouldBeRight()
+
+            database.api.session {
+                queries.notifications.getAll().shouldHaveSize(2).should { (first, second) ->
+                    first.user shouldBe identAnsatt1
+                    second.user shouldBe identAnsatt2
                 }
             }
         }
@@ -581,19 +595,23 @@ class AvtaleServiceTest : FunSpec({
                 nySluttDato = tomorrow,
                 type = OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
             )
-            val dto = avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeRight()
-            dto.should {
+            val avtale = avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeRight()
+            avtale.should {
                 it.status.type shouldBe AvtaleStatusType.AKTIV
                 it.sluttDato shouldBe tomorrow
                 it.opsjonerRegistrert.shouldNotBeNull().shouldHaveSize(1)
             }
 
-            avtaleService.slettOpsjon(avtale.id, dto.opsjonerRegistrert[0].id, bertilNavIdent, today).shouldBeRight()
-                .should {
-                    it.status.type shouldBe AvtaleStatusType.AVSLUTTET
-                    it.sluttDato shouldBe yesterday
-                    it.opsjonerRegistrert.shouldBeEmpty()
-                }
+            avtaleService.slettOpsjon(
+                avtale.id,
+                avtale.opsjonerRegistrert[0].id,
+                bertilNavIdent,
+                today,
+            ).shouldBeRight().should {
+                it.status.type shouldBe AvtaleStatusType.AVSLUTTET
+                it.sluttDato shouldBe yesterday
+                it.opsjonerRegistrert.shouldBeEmpty()
+            }
         }
 
         test("opsjon kan bare slettes hvis den er den siste registrerte") {
@@ -611,9 +629,9 @@ class AvtaleServiceTest : FunSpec({
                 nySluttDato = tomorrow,
                 type = OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
             )
-            val dto = avtaleService.registrerOpsjon(avtale.id, request2, bertilNavIdent, today).shouldBeRight()
+            val avtale = avtaleService.registrerOpsjon(avtale.id, request2, bertilNavIdent, today).shouldBeRight()
 
-            avtaleService.slettOpsjon(avtale.id, dto.opsjonerRegistrert[0].id, bertilNavIdent).shouldBeLeft(
+            avtaleService.slettOpsjon(avtale.id, avtale.opsjonerRegistrert[0].id, bertilNavIdent).shouldBeLeft(
                 FieldError.of("Opsjonen kan ikke slettes fordi det ikke er den siste utløste opsjonen"),
             )
         }
@@ -649,13 +667,18 @@ class AvtaleServiceTest : FunSpec({
                 nySluttDato = null,
                 type = OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON,
             )
-            val dto = avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeRight()
-            dto.opsjonerRegistrert.shouldNotBeNull().shouldHaveSize(1)
+            val avtale = avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeRight()
 
-            avtaleService.slettOpsjon(avtale.id, dto.opsjonerRegistrert[0].id, bertilNavIdent, today).shouldBeRight()
-                .should {
-                    it.opsjonerRegistrert.shouldBeEmpty()
-                }
+            avtale.opsjonerRegistrert.shouldNotBeNull().shouldHaveSize(1)
+
+            avtaleService.slettOpsjon(
+                avtale.id,
+                avtale.opsjonerRegistrert[0].id,
+                bertilNavIdent,
+                today,
+            ).shouldBeRight().should {
+                it.opsjonerRegistrert.shouldBeEmpty()
+            }
         }
     }
 })
