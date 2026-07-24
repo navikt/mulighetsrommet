@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
 import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
@@ -48,6 +49,7 @@ import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NOK
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
@@ -391,10 +393,25 @@ class AvtaleValidatorTest : FunSpec({
     }
 
     test("arrangørens underenheter må tilhøre hovedenhet i Brreg") {
+        val fretexHovedenhet = Arrangor.Norsk.opprett(
+            id = UUID.randomUUID(),
+            organisasjonsnummer = Organisasjonsnummer("983982433"),
+            organisasjonsform = "AS",
+            navn = "FRETEX AS",
+        )
+
+        val fretexUnderenhet = Arrangor.Norsk.opprett(
+            id = UUID.randomUUID(),
+            organisasjonsnummer = Organisasjonsnummer("992943084"),
+            organisasjonsform = "BEDR",
+            overordnetEnhet = Organisasjonsnummer("983982433"),
+            navn = "FRETEX AS AVD OSLO",
+        )
+
         AvtaleValidator.validateCreateAvtale(
             avtaleRequest,
             ctx.copy(
-                arrangor = Ctx.AvtaleArrangor(ArrangorFixtures.Fretex.hovedenhet, listOf(ArrangorFixtures.underenhet1)),
+                arrangor = Ctx.AvtaleArrangor(fretexHovedenhet, listOf(ArrangorFixtures.underenhet1)),
             ),
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
             FieldError(
@@ -406,10 +423,7 @@ class AvtaleValidatorTest : FunSpec({
         AvtaleValidator.validateCreateAvtale(
             avtaleRequest,
             ctx.copy(
-                arrangor = Ctx.AvtaleArrangor(
-                    ArrangorFixtures.Fretex.hovedenhet,
-                    listOf(ArrangorFixtures.Fretex.underenhet1),
-                ),
+                arrangor = Ctx.AvtaleArrangor(fretexHovedenhet, listOf(fretexUnderenhet)),
             ),
         ).shouldBeRight()
     }
@@ -419,18 +433,18 @@ class AvtaleValidatorTest : FunSpec({
             avtaleRequest,
             ctx.copy(
                 arrangor = Ctx.AvtaleArrangor(
-                    ArrangorFixtures.Fretex.hovedenhet.registrerSlettet(LocalDate.now()),
-                    listOf(ArrangorFixtures.Fretex.underenhet1.registrerSlettet(LocalDate.now())),
+                    ArrangorFixtures.hovedenhet.registrerSlettet(LocalDate.now()),
+                    listOf(ArrangorFixtures.underenhet1.registrerSlettet(LocalDate.now())),
                 ),
             ),
         ).shouldBeLeft().shouldContainExactlyInAnyOrder(
             FieldError(
                 "/detaljer/arrangor/hovedenhet",
-                "Arrangøren FRETEX AS er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                "Arrangøren Hovedenhet AS er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
             ),
             FieldError(
                 "/detaljer/arrangor/underenheter",
-                "Arrangøren FRETEX AS AVD OSLO er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
+                "Arrangøren Underenhet 1 AS er slettet i Brønnøysundregistrene. Avtaler kan ikke opprettes for slettede bedrifter.",
             ),
         )
     }
