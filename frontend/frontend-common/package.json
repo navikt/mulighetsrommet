@@ -37,6 +37,7 @@
     "@navikt/aksel-icons": "8.15.0",
     "@navikt/ds-css": "8.15.0",
     "@navikt/ds-react": "8.15.0",
+    "@navikt/ds-tailwind": "8.15.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.3",

@@ -12,6 +12,9 @@ import { Suspense, useState } from "react";
 import { tiltakDokumentFilterStateAtom } from "@/pages/tiltak-dokument/filter";
 import { useFilterState } from "@/filter/useFilterState";
 import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
+import { Button } from "@navikt/ds-react";
+import { PlusIcon } from "@navikt/aksel-icons";
+import { useNavigate } from "react-router";
 
 export function TiltakDokumenterPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
@@ -19,6 +22,7 @@ export function TiltakDokumenterPage() {
   const { filter, updateFilter, resetToDefault, hasChanged } = useFilterState(
     tiltakDokumentFilterStateAtom,
   );
+  const navigate = useNavigate();
 
   return (
     <>
@@ -38,7 +42,16 @@ export function TiltakDokumenterPage() {
               setTagsHeight={setTagsHeight}
             />
           }
-          buttons={null}
+          buttons={
+            <Button
+              size="small"
+              icon={<PlusIcon aria-hidden />}
+              onClick={() => navigate("/tiltak-dokumenter/opprett")}
+            >
+              Opprett tiltaksdokument
+            </Button>
+          }
+
           table={
             <ReloadAppErrorBoundary>
               <Suspense fallback={<ListSkeleton />}>

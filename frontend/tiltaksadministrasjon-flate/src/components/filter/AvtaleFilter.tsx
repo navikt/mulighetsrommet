@@ -31,14 +31,12 @@ export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Pr
   };
 
   return (
-    <VStack gap="space-8">
+    <VStack gap="space-16">
       <Search
         label="Søk etter tiltaksgjennomføring"
-        hideLabel
         size="small"
-        variant="simple"
+        variant="secondary"
         placeholder="Navn, tiltaksnr., tiltaksarrangør"
-        onBlur={() => {}}
         onChange={(search: string) => {
           updateFilter({
             sok: search,
@@ -46,7 +44,6 @@ export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Pr
           });
         }}
         value={filter.sok}
-        aria-label="Søk etter tiltaksgjennomføring"
       />
       <Switch
         position="left"
@@ -61,7 +58,7 @@ export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Pr
       >
         Vis kun mine avtaler
       </Switch>
-      <Accordion>
+      <Accordion size="small">
         <FilterAccordion
           tittel="Lagrede filter"
           open={accordionsOpen.includes("lagrede-filter")}
@@ -85,6 +82,19 @@ export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Pr
           />
         </FilterAccordion>
         <FilterAccordion
+          tittel="Tiltakstype"
+          antallValgteFilter={filter.tiltakstyper.length}
+          open={accordionsOpen.includes("tiltakstype")}
+          onClick={() => toggleAccordion("tiltakstype")}
+        >
+          <AvtaleTiltakstypeFilter
+            value={filter.tiltakstyper}
+            onChange={(tiltakstyper) => {
+              updateFilter({ tiltakstyper, page: 1 });
+            }}
+          />
+        </FilterAccordion>
+        <FilterAccordion
           tittel="Status"
           antallValgteFilter={filter.statuser.length}
           open={accordionsOpen.includes("status")}
@@ -100,19 +110,6 @@ export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Pr
             items={AVTALE_STATUS_OPTIONS}
             isChecked={(status) => filter.statuser.includes(status)}
             onChange={(status) => updateArrayFilter("statuser", status)}
-          />
-        </FilterAccordion>
-        <FilterAccordion
-          tittel="Tiltakstype"
-          antallValgteFilter={filter.tiltakstyper.length}
-          open={accordionsOpen.includes("tiltakstype")}
-          onClick={() => toggleAccordion("tiltakstype")}
-        >
-          <AvtaleTiltakstypeFilter
-            value={filter.tiltakstyper}
-            onChange={(tiltakstyper) => {
-              updateFilter({ tiltakstyper, page: 1 });
-            }}
           />
         </FilterAccordion>
         <FilterAccordion

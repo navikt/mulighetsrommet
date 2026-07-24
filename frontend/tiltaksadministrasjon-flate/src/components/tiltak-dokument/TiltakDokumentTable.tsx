@@ -1,8 +1,6 @@
-import { Alert, Button, Link, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
+import { Alert, Link, Pagination, Table, Tag, VStack } from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
 import { useTiltakDokumenter } from "@/api/tiltak-dokument/useTiltakDokumenter";
-import { PlusIcon } from "@navikt/aksel-icons";
-import { useNavigate } from "react-router";
 import { TiltakDokumentFilterType } from "@/pages/tiltak-dokument/filter";
 import { TiltakDokumentKompaktDto } from "@tiltaksadministrasjon/api-client";
 import { formaterNavEnheter } from "@/utils/Utils";
@@ -20,7 +18,6 @@ interface Props {
 }
 
 export function TiltakDokumentTable({ filter, updateFilter, tagsHeight, filterOpen }: Props) {
-  const navigate = useNavigate();
   const sort = filter.sortering.tableSort;
   const {
     data: { pagination, data: tiltakDokumenter },
@@ -59,15 +56,6 @@ export function TiltakDokumentTable({ filter, updateFilter, tagsHeight, filterOp
           />
         </ToolbarMeny>
       </ToolbarContainer>
-      <div className="flex justify-end mb-4">
-        <Button
-          size="small"
-          icon={<PlusIcon aria-hidden />}
-          onClick={() => navigate("/tiltak-dokumenter/opprett")}
-        >
-          Opprett tiltaksdokument
-        </Button>
-      </div>
       <TabellWrapper>
         {tiltakDokumenter.length === 0 ? (
           <Alert variant="info">Fant ingen tiltaksdokumenter</Alert>

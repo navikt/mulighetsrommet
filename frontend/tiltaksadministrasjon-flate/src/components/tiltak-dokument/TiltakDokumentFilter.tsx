@@ -23,7 +23,7 @@ export function TiltakDokumentFilter({ filter, updateFilter }: Props) {
   };
 
   return (
-    <Accordion>
+    <Accordion size="small">
       <FilterAccordion
         tittel="Nav-enhet"
         antallValgteFilter={filter.navEnheter.length}

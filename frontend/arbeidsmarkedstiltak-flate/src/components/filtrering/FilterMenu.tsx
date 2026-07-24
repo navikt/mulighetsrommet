@@ -3,7 +3,7 @@ import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFi
 import { ApentForPamelding } from "@arbeidsmarkedstiltak/api-client";
 import { FilterAccordion } from "@mr/frontend-common";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { Accordion, Checkbox, CheckboxGroup } from "@navikt/ds-react";
+import { Accordion, Checkbox, CheckboxGroup, VStack } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { InnsatsgruppeFilter } from "./InnsatsgruppeFilter";
 import Sokefelt from "./Sokefelt";
@@ -19,12 +19,12 @@ export function FilterMenu({ lagredeFilterOversikt }: Props) {
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
 
   return (
-    <div data-testid="filtertabs">
+    <VStack gap="space-16" data-testid="filtertabs">
       <Sokefelt
         sokefilter={filter.search}
         setSokefilter={(search: string) => setFilter({ ...filter, search })}
       />
-      <Accordion>
+      <Accordion size="small">
         {lagredeFilterOversikt && (
           <FilterAccordion
             tittel="Lagrede filter"
@@ -84,6 +84,6 @@ export function FilterMenu({ lagredeFilterOversikt }: Props) {
           />
         </FilterAccordion>
       </Accordion>
-    </div>
+    </VStack>
   );
 }

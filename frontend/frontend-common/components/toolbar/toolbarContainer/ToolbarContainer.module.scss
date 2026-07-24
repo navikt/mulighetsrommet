@@ -1,7 +1,7 @@
 .toolbar_container {
   display: grid;
   position: sticky;
-  background-color: var(--ax-bg-sunken);
+  background-color: var(--ax-bg-default);
   gap: 1rem;
 
   @media screen and (min-width: 1450px) {
