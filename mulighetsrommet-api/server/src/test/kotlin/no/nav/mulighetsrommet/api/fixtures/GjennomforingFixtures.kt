@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
@@ -8,7 +9,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleDbo
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -30,8 +30,8 @@ object GjennomforingFixtures {
         navn = "Oppfølging 1",
         tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
-        startDato = AvtaleFixtures.oppfolging.detaljerDbo.startDato,
-        sluttDato = AvtaleFixtures.oppfolging.detaljerDbo.sluttDato,
+        startDato = AvtaleFixtures.oppfolging.startDato,
+        sluttDato = AvtaleFixtures.oppfolging.sluttDato,
         status = GjennomforingStatusType.GJENNOMFORES,
         antallPlasser = 12,
         avtaleId = AvtaleFixtures.oppfolging.id,
@@ -291,12 +291,12 @@ object GjennomforingFixtures {
     }
 
     fun createGjennomforingRequest(
-        avtale: AvtaleDbo,
+        avtale: Avtale,
         id: UUID = UUID.randomUUID(),
-        prismodellId: UUID = avtale.prismodeller.single(),
+        prismodellId: UUID = avtale.prismodeller.single().id,
         arrangorId: UUID = ArrangorFixtures.underenhet1.id,
-        startDato: LocalDate = avtale.detaljerDbo.startDato,
-        sluttDato: LocalDate? = avtale.detaljerDbo.sluttDato,
+        startDato: LocalDate = avtale.startDato,
+        sluttDato: LocalDate? = avtale.sluttDato,
         oppstart: GjennomforingOppstartstype = GjennomforingOppstartstype.LOPENDE,
         pamelding: GjennomforingPameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         navRegioner: Set<NavEnhetNummer> = setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
@@ -307,7 +307,7 @@ object GjennomforingFixtures {
             id = id,
             avtaleId = avtale.id,
             detaljer = GjennomforingDetaljerRequest(
-                navn = "Gjennomføring for ${avtale.detaljerDbo.navn}",
+                navn = "Gjennomføring for ${avtale.navn}",
                 startDato = startDato,
                 sluttDato = sluttDato,
                 oppstart = oppstart,

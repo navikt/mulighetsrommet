@@ -170,7 +170,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 AvtaltSats(LocalDate.of(2025, 1, 1), 100.NOK),
             ),
         )
-        val avtaleOppfolging = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodellOppfolging.id))
+        val avtaleOppfolging = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodellOppfolging))
         val oppfolging = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodellOppfolging.id)
 
         beforeEach {
@@ -632,7 +632,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell.id))
+        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell))
 
         val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
 
@@ -732,7 +732,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell.id))
+        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell))
 
         val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
             startDato = LocalDate.of(2024, 1, 1),
@@ -827,7 +827,7 @@ class GenererUtbetalingServiceTest : FunSpec({
             ),
         )
 
-        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell.id))
+        val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell))
 
         val oppfolging = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
 

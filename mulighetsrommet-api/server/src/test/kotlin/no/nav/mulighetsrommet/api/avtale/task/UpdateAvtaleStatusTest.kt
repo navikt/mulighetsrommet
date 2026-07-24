@@ -32,24 +32,18 @@ class UpdateAvtaleStatusTest : FunSpec({
 
     val avtale1 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
-        detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-            startDato = LocalDate.of(2025, 5, 1),
-            sluttDato = LocalDate.of(2025, 5, 31),
-        ),
+        startDato = LocalDate.of(2025, 5, 1),
+        sluttDato = LocalDate.of(2025, 5, 31),
     )
     val avtale2 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
-        detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-            startDato = LocalDate.of(2025, 5, 1),
-            sluttDato = LocalDate.of(2025, 6, 30),
-        ),
+        startDato = LocalDate.of(2025, 5, 1),
+        sluttDato = LocalDate.of(2025, 6, 30),
     )
     val avtale3 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
-        detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-            startDato = LocalDate.of(2025, 5, 1),
-            sluttDato = null,
-        ),
+        startDato = LocalDate.of(2025, 5, 1),
+        sluttDato = null,
     )
 
     val domain = MulighetsrommetTestDomain(

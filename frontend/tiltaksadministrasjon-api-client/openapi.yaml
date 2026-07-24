@@ -4817,7 +4817,7 @@ components:
       - warning
       - error
       - error-border-strikethrough
-    Avtale.Administrator:
+    AvtaleDto.Administrator:
       type: object
       properties:
         navIdent:
@@ -5197,7 +5197,7 @@ components:
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/Avtale.Administrator"
+            $ref: "#/components/schemas/AvtaleDto.Administrator"
         kontorstruktur:
           type: array
           items:

@@ -36,7 +36,7 @@ object AvtaleDtoFixtures {
             type = AvtaleStatusType.AKTIV,
             status = DataElement.Status("Aktiv", DataElement.Status.Variant.SUCCESS),
         ),
-        administratorer: List<Avtale.Administrator> = emptyList(),
+        administratorer: List<AvtaleDto.Administrator> = emptyList(),
         kontorstruktur: List<Kontorstruktur> = emptyList(),
         beskrivelse: String? = null,
         faneinnhold: Faneinnhold? = null,

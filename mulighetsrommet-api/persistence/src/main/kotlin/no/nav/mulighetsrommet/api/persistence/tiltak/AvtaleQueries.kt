@@ -51,7 +51,185 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQueryHandler {
-    fun create(avtale: AvtaleDbo) = withTransaction(session) {
+    override fun save(avtale: Avtale) = withTransaction(session) {
+        upsertDetaljer(avtale.id, avtale)
+        upsertAdministratorer(avtale.id, avtale.administratorer)
+        upsertArrangor(avtale.id, avtale.arrangor)
+        OpplaringKategoriseringQueries(session).upsert(avtale.id, avtale.opplaring)
+        upsertRedaksjoneltInnhold(avtale.id, avtale.veilederinfo.beskrivelse, avtale.veilederinfo.faneinnhold)
+        upsertNavEnheter(avtale.id, avtale.veilederinfo.navEnheter)
+        updatePersonvern(avtale.id, avtale.personvern)
+        syncPrismodeller(avtale.id, avtale.prismodeller)
+    }
+
+    private fun syncPrismodeller(avtaleId: UUID, prismodeller: List<Prismodell>) {
+        val desiredIds = prismodeller.map { it.id }.toSet()
+
+        @Language("PostgreSQL")
+        val currentIdsQuery = "select prismodell_id from avtale_prismodell where avtale_id = ?::uuid"
+        val currentIds = session.list(queryOf(currentIdsQuery, avtaleId)) { it.uuid("prismodell_id") }.toSet()
+
+        val prismodellQueries = PrismodellQueries(session)
+        prismodeller.forEach { prismodell ->
+            prismodellQueries.upsert(prismodell)
+            upsertPrismodell(avtaleId, prismodell.id)
+        }
+
+        (currentIds - desiredIds).forEach { removedId ->
+            deletePrismodell(avtaleId, removedId)
+            prismodellQueries.deletePrismodell(removedId)
+        }
+    }
+
+    fun updatePersonvern(
+        avtaleId: UUID,
+        personvern: Avtale.Personvern,
+    ) = withTransaction(session) {
+        @Language("PostgreSQL")
+        val updatePersonvernBekreftet = """
+            update avtale
+            set personvern_bekreftet = :personvern_bekreftet::boolean
+            where id = :id::uuid
+        """.trimIndent()
+        execute(
+            queryOf(
+                updatePersonvernBekreftet,
+                mapOf("id" to avtaleId, "personvern_bekreftet" to personvern.erBekreftet),
+            ),
+        )
+
+        val nonAnnetTypes = personvern.personopplysninger.filter { it != Personopplysning.Type.ANNET }
+
+        @Language("PostgreSQL")
+        val updatePersonopplysninger = """
+            insert into avtale_personopplysning (avtale_id, personopplysning)
+            values (?::uuid, ?)
+            on conflict do nothing
+        """.trimIndent()
+        batchPreparedStatement(
+            updatePersonopplysninger,
+            nonAnnetTypes.map { listOf(avtaleId, it.name) },
+        )
+
+        @Language("PostgreSQL")
+        val updatePersonopplysningAnnet = """
+            insert into avtale_personopplysning (avtale_id, personopplysning, beskrivelse)
+            values (?::uuid, ?, ?)
+            on conflict (avtale_id, personopplysning) do update set beskrivelse = excluded.beskrivelse
+        """.trimIndent()
+        if (Personopplysning.Type.ANNET in personvern.personopplysninger) {
+            execute(
+                queryOf(
+                    updatePersonopplysningAnnet,
+                    avtaleId,
+                    Personopplysning.Type.ANNET.name,
+                    personvern.annetBeskrivelse,
+                ),
+            )
+        }
+
+        @Language("PostgreSQL")
+        val deletePersonopplysninger = """
+            delete from avtale_personopplysning
+            where avtale_id = ?::uuid and not (personopplysning = any (?))
+        """.trimIndent()
+        execute(
+            queryOf(
+                deletePersonopplysninger,
+                avtaleId,
+                createTextArray(personvern.personopplysninger.map { it.name }),
+            ),
+        )
+    }
+
+    private fun upsertAdministratorer(avtaleId: UUID, administratorer: Set<NavIdent>) = withTransaction(session) {
+        @Language("PostgreSQL")
+        val upsertAdministrator = """
+             insert into avtale_administrator(avtale_id, nav_ident)
+             values (?::uuid, ?)
+             on conflict (avtale_id, nav_ident) do nothing
+        """.trimIndent()
+        batchPreparedStatement(upsertAdministrator, administratorer.map { listOf(avtaleId, it.value) })
+
+        @Language("PostgreSQL")
+        val deleteAdministratorer = """
+             delete from avtale_administrator
+             where avtale_id = ?::uuid and not (nav_ident = any (?))
+        """.trimIndent()
+        execute(
+            queryOf(
+                deleteAdministratorer,
+                avtaleId,
+                createArrayOfValue(administratorer) { it.value },
+            ),
+        )
+    }
+
+    private fun upsertArrangor(avtaleId: UUID, arrangor: Avtale.Arrangor?) = withTransaction(session) {
+        @Language("PostgreSQL")
+        val setArrangorUnderenhet = """
+             insert into avtale_arrangor_underenhet (avtale_id, arrangor_id)
+             values (?::uuid, ?::uuid)
+             on conflict (avtale_id, arrangor_id) do nothing
+        """.trimIndent()
+        arrangor?.underenheter?.also { underenheter ->
+            batchPreparedStatement(setArrangorUnderenhet, underenheter.map { listOf(avtaleId, it) })
+        }
+
+        @Language("PostgreSQL")
+        val deleteUnderenheter = """
+             delete from avtale_arrangor_underenhet
+             where avtale_id = ?::uuid and not (arrangor_id = any (?))
+        """.trimIndent()
+        execute(
+            queryOf(
+                deleteUnderenheter,
+                avtaleId,
+                createUuidArray(arrangor?.underenheter.orEmpty()),
+            ),
+        )
+
+        @Language("PostgreSQL")
+        val upsertArrangorKontaktperson = """
+            insert into avtale_arrangor_kontaktperson (avtale_id, arrangor_kontaktperson_id)
+            values (?::uuid, ?::uuid)
+            on conflict do nothing
+        """.trimIndent()
+        arrangor?.kontaktpersoner?.also { kontaktpersoner ->
+            batchPreparedStatement(upsertArrangorKontaktperson, kontaktpersoner.map { listOf(avtaleId, it) })
+        }
+
+        @Language("PostgreSQL")
+        val deleteArrangorKontaktpersoner = """
+            delete from avtale_arrangor_kontaktperson
+            where avtale_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
+        """.trimIndent()
+        execute(
+            queryOf(
+                deleteArrangorKontaktpersoner,
+                avtaleId,
+                createUuidArray(arrangor?.kontaktpersoner.orEmpty()),
+            ),
+        )
+
+        @Language("PostgreSQL")
+        val updateAvtaleArrangor = """
+            update avtale
+            set arrangor_hovedenhet_id = :arrangor_hovedenhet_id
+            where id = :id::uuid
+        """.trimIndent()
+        execute(
+            queryOf(
+                updateAvtaleArrangor,
+                mapOf(
+                    "id" to avtaleId,
+                    "arrangor_hovedenhet_id" to arrangor?.hovedenhet,
+                ),
+            ),
+        )
+    }
+
+    private fun upsertDetaljer(id: UUID, avtale: Avtale) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
             insert into avtale (
@@ -79,231 +257,53 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
                 :avtaletype::avtaletype,
                 :opsjon_maks_varighet,
                 :opsjonsmodell::opsjonsmodell,
-                :opsjonCustomOpsjonsmodellNavn
+                :opsjon_custom_opsjonsmodell_navn
             )
+            on conflict (id) do update set
+                navn = excluded.navn,
+                sakarkiv_nummer = excluded.sakarkiv_nummer,
+                arrangor_hovedenhet_id = excluded.arrangor_hovedenhet_id,
+                start_dato = excluded.start_dato,
+                slutt_dato = excluded.slutt_dato,
+                status = excluded.status,
+                avtaletype = excluded.avtaletype,
+                opsjon_maks_varighet = excluded.opsjon_maks_varighet,
+                opsjonsmodell = excluded.opsjonsmodell,
+                opsjon_custom_opsjonsmodell_navn = excluded.opsjon_custom_opsjonsmodell_navn
         """.trimIndent()
-
         val params = mapOf(
-            "id" to avtale.id,
-            "navn" to avtale.detaljerDbo.navn,
-            "tiltakskode" to avtale.detaljerDbo.tiltakskode.name,
-            "sakarkiv_nummer" to avtale.detaljerDbo.sakarkivNummer?.value,
-            "arrangor_hovedenhet_id" to avtale.detaljerDbo.arrangor?.hovedenhet,
-            "start_dato" to avtale.detaljerDbo.startDato,
-            "slutt_dato" to avtale.detaljerDbo.sluttDato,
-            "status" to avtale.detaljerDbo.status.name,
-            "avtaletype" to avtale.detaljerDbo.avtaletype.name,
-            "opsjon_maks_varighet" to avtale.detaljerDbo.opsjonsmodell.opsjonMaksVarighet,
-            "opsjonsmodell" to avtale.detaljerDbo.opsjonsmodell.type.name,
-            "opsjonCustomOpsjonsmodellNavn" to avtale.detaljerDbo.opsjonsmodell.customOpsjonsmodellNavn,
+            "id" to id,
+            "navn" to avtale.navn,
+            "tiltakskode" to avtale.tiltakskode.name,
+            "sakarkiv_nummer" to avtale.sakarkivNummer?.value,
+            "arrangor_hovedenhet_id" to avtale.arrangor?.hovedenhet,
+            "start_dato" to avtale.startDato,
+            "slutt_dato" to avtale.sluttDato,
+            "avtaletype" to avtale.avtaletype.name,
+            "status" to avtale.status.type.name,
+            "opsjonsmodell" to avtale.opsjoner.modell.type.name,
+            "opsjon_maks_varighet" to avtale.opsjoner.modell.opsjonMaksVarighet,
+            "opsjon_custom_opsjonsmodell_navn" to avtale.opsjoner.modell.customOpsjonsmodellNavn,
         )
         execute(queryOf(query, params))
-
-        upsertAdministratorer(avtale.id, avtale.detaljerDbo.administratorer)
-        upsertArrangor(avtale.id, avtale.detaljerDbo.arrangor)
-        OpplaringKategoriseringQueries(session).upsert(avtale.id, avtale.detaljerDbo.opplaringKategorisering)
-        updateVeilederinfo(avtale.id, avtale.veilederinformasjonDbo)
-        updatePersonvern(avtale.id, avtale.personvernDbo)
-        avtale.prismodeller.forEach { upsertPrismodell(avtale.id, it) }
     }
 
-    fun updateDetaljer(
-        avtaleId: UUID,
-        detaljerDbo: DetaljerDbo,
-    ) = withTransaction(session) {
-        upsertDetaljer(avtaleId, detaljerDbo)
-        upsertAdministratorer(avtaleId, detaljerDbo.administratorer)
-        upsertArrangor(avtaleId, detaljerDbo.arrangor)
-        OpplaringKategoriseringQueries(session).upsert(avtaleId, detaljerDbo.opplaringKategorisering)
-    }
-
-    fun updatePersonvern(avtaleId: UUID, personvernDbo: PersonvernDbo) = withTransaction(session) {
+    private fun upsertRedaksjoneltInnhold(
+        id: UUID,
+        beskrivelse: String?,
+        faneinnhold: Faneinnhold?,
+    ) {
         @Language("PostgreSQL")
-        val updatePersonvernBekreftet = """
+        val query = """
             update avtale
-            set personvern_bekreftet = :personvern_bekreftet::boolean
+            set beskrivelse = :beskrivelse,
+                faneinnhold = :faneinnhold::jsonb
             where id = :id::uuid
         """.trimIndent()
-        execute(
-            queryOf(
-                updatePersonvernBekreftet,
-                mapOf("id" to avtaleId, "personvern_bekreftet" to personvernDbo.personvernBekreftet),
-            ),
-        )
-
-        @Language("PostgreSQL")
-        val updatePersonopplysninger = """
-            insert into avtale_personopplysning (avtale_id, personopplysning)
-            values (?::uuid, ?)
-            on conflict do nothing
-        """.trimIndent()
-        batchPreparedStatement(
-            updatePersonopplysninger,
-            personvernDbo.personopplysninger.map { listOf(avtaleId, it.name) },
-        )
-
-        @Language("PostgreSQL")
-        val updatePersonopplysningAnnet = """
-            insert into avtale_personopplysning (avtale_id, personopplysning, beskrivelse)
-            values (?::uuid, ?, ?)
-            on conflict (avtale_id, personopplysning) do update set beskrivelse = excluded.beskrivelse
-        """.trimIndent()
-        if (personvernDbo.annetChecked) {
-            execute(
-                queryOf(
-                    updatePersonopplysningAnnet,
-                    avtaleId,
-                    Personopplysning.Type.ANNET.name,
-                    personvernDbo.annetBeskrivelse,
-                ),
-            )
-        }
-
-        @Language("PostgreSQL")
-        val deletePersonopplysninger = """
-            delete from avtale_personopplysning
-            where avtale_id = ?::uuid and not (personopplysning = any (?))
-        """.trimIndent()
-        execute(
-            queryOf(
-                deletePersonopplysninger,
-                avtaleId,
-                createTextArray(
-                    personvernDbo.personopplysninger
-                        .plus(
-                            if (personvernDbo.annetChecked) {
-                                Personopplysning.Type.ANNET
-                            } else {
-                                null
-                            },
-                        )
-                        .mapNotNull { it?.name },
-                ),
-            ),
-        )
-    }
-
-    fun updateVeilederinfo(avtaleId: UUID, veilederinformasjonDbo: VeilederinformasjonDbo) = withTransaction(session) {
-        veilederinformasjonDbo.redaksjoneltInnhold?.let { upsertRedaksjoneltInnhold(avtaleId, it) }
-        upsertNavEnheter(avtaleId, veilederinformasjonDbo.navEnheter)
-    }
-
-    private fun upsertAdministratorer(avtaleId: UUID, administratorer: List<NavIdent>) = withTransaction(session) {
-        @Language("PostgreSQL")
-        val upsertAdministrator = """
-             insert into avtale_administrator(avtale_id, nav_ident)
-             values (?::uuid, ?)
-             on conflict (avtale_id, nav_ident) do nothing
-        """.trimIndent()
-        batchPreparedStatement(upsertAdministrator, administratorer.map { listOf(avtaleId, it.value) })
-
-        @Language("PostgreSQL")
-        val deleteAdministratorer = """
-             delete from avtale_administrator
-             where avtale_id = ?::uuid and not (nav_ident = any (?))
-        """.trimIndent()
-        execute(
-            queryOf(
-                deleteAdministratorer,
-                avtaleId,
-                createArrayOfValue(administratorer) { it.value },
-            ),
-        )
-    }
-
-    private fun upsertArrangor(avtaleId: UUID, arrangor: AvtaleArrangorDbo?) = withTransaction(session) {
-        @Language("PostgreSQL")
-        val setArrangorUnderenhet = """
-             insert into avtale_arrangor_underenhet (avtale_id, arrangor_id)
-             values (?::uuid, ?::uuid)
-             on conflict (avtale_id, arrangor_id) do nothing
-        """.trimIndent()
-        arrangor?.underenheter?.also { underenheter ->
-            batchPreparedStatement(setArrangorUnderenhet, underenheter.map { listOf(avtaleId, it) })
-        }
-
-        @Language("PostgreSQL")
-        val deleteUnderenheter = """
-             delete from avtale_arrangor_underenhet
-             where avtale_id = ?::uuid and not (arrangor_id = any (?))
-        """.trimIndent()
-        execute(
-            queryOf(
-                deleteUnderenheter,
-                avtaleId,
-                arrangor?.underenheter?.let { createUuidArray(it) },
-            ),
-        )
-
-        @Language("PostgreSQL")
-        val upsertArrangorKontaktperson = """
-            insert into avtale_arrangor_kontaktperson (avtale_id, arrangor_kontaktperson_id)
-            values (?::uuid, ?::uuid)
-            on conflict do nothing
-        """.trimIndent()
-        arrangor?.kontaktpersoner?.also { kontaktpersoner ->
-            batchPreparedStatement(upsertArrangorKontaktperson, kontaktpersoner.map { listOf(avtaleId, it) })
-        }
-
-        @Language("PostgreSQL")
-        val deleteArrangorKontaktpersoner = """
-            delete from avtale_arrangor_kontaktperson
-            where avtale_id = ?::uuid and not (arrangor_kontaktperson_id = any (?))
-        """.trimIndent()
-        execute(
-            queryOf(
-                deleteArrangorKontaktpersoner,
-                avtaleId,
-                arrangor?.kontaktpersoner?.let { createUuidArray(it) },
-            ),
-        )
-    }
-
-    private fun upsertDetaljer(id: UUID, detaljer: DetaljerDbo) = withTransaction(session) {
-        @Language("PostgreSQL")
-        val query = """
-            update avtale
-            set navn = :navn,
-                sakarkiv_nummer = :sakarkiv_nummer,
-                avtaletype = :avtaletype::avtaletype,
-                start_dato = :start_dato,
-                slutt_dato = :slutt_dato,
-                opsjon_maks_varighet = :opsjon_maks_varighet,
-                opsjonsmodell = coalesce(:opsjonsmodell::opsjonsmodell, opsjonsmodell),
-                opsjon_custom_opsjonsmodell_navn = :opsjon_custom_opsjonsmodell_navn,
-                arrangor_hovedenhet_id = :arrangor_hovedenhet_id,
-                status = :status::avtale_status
-             where id = :id::uuid
-        """.trimIndent()
         val params = mapOf(
             "id" to id,
-            "navn" to detaljer.navn,
-            "sakarkiv_nummer" to detaljer.sakarkivNummer?.value,
-            "arrangor_hovedenhet_id" to detaljer.arrangor?.hovedenhet,
-            "start_dato" to detaljer.startDato,
-            "slutt_dato" to detaljer.sluttDato,
-            "avtaletype" to detaljer.avtaletype.name,
-            "status" to detaljer.status.name,
-            "opsjonsmodell" to detaljer.opsjonsmodell.type.name,
-            "opsjon_maks_varighet" to detaljer.opsjonsmodell.opsjonMaksVarighet,
-            "opsjon_custom_opsjonsmodell_navn" to detaljer.opsjonsmodell.customOpsjonsmodellNavn,
-        )
-        execute(queryOf(query, params))
-    }
-
-    private fun upsertRedaksjoneltInnhold(id: UUID, redaksjoneltInnhold: RedaksjoneltInnholdDbo) {
-        @Language("PostgreSQL")
-        val query = """
-                update avtale
-                set
-                    beskrivelse = :beskrivelse,
-                    faneinnhold = :faneinnhold::jsonb
-                 where id = :id::uuid
-        """.trimIndent()
-        val params = mapOf(
-            "id" to id,
-            "beskrivelse" to redaksjoneltInnhold.beskrivelse,
-            "faneinnhold" to redaksjoneltInnhold.faneinnhold.let { Json.encodeToString<Faneinnhold?>(it) },
+            "beskrivelse" to beskrivelse,
+            "faneinnhold" to Json.encodeToString<Faneinnhold?>(faneinnhold),
         )
         session.execute(queryOf(query, params))
     }
@@ -325,7 +325,7 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
         execute(queryOf(deleteEnheter, avtaleId, createArrayOfValue(enheter) { it.value }))
     }
 
-    fun upsertPrismodell(avtaleId: UUID, prismodellId: UUID) {
+    private fun upsertPrismodell(avtaleId: UUID, prismodellId: UUID) {
         @Language("PostgreSQL")
         val updateAvtalenummer = """
             insert into avtale_prismodell (avtale_id, prismodell_id)
@@ -336,7 +336,7 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
         session.execute(queryOf(updateAvtalenummer, params))
     }
 
-    fun deletePrismodell(avtaleId: UUID, prismodellId: UUID) {
+    private fun deletePrismodell(avtaleId: UUID, prismodellId: UUID) {
         @Language("PostgreSQL")
         val query = """
             delete
@@ -358,9 +358,9 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
         session.execute(queryOf(updateAvtalenummer, params))
     }
 
-    fun getOrError(id: UUID): Avtale = checkNotNull(get(id)) { "Avtale med id=$id mangler" }
+    override fun getOrError(id: UUID): Avtale = checkNotNull(get(id)) { "Avtale med id=$id mangler" }
 
-    fun get(id: UUID): Avtale? {
+    override fun get(id: UUID): Avtale? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -585,18 +585,17 @@ private fun Row.toAvtaleDto(): AvtaleDto {
 private fun Row.toAvtale(): Avtale {
     val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
         val underenheter = stringOrNull("arrangor_underenheter_json")
-            ?.let { Json.decodeFromString<List<Avtale.ArrangorUnderenhet>>(it) }
+            ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorUnderenhet>>(it) }
+            ?.map { it.id }
             .orEmpty()
-        val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<Avtale.ArrangorKontaktperson>>(it) }
+        val kontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
+            ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorKontaktperson>>(it) }
+            ?.map { it.id }
             .orEmpty()
-        Avtale.ArrangorHovedenhet(
-            id = id,
-            organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
-            navn = string("arrangor_hovedenhet_navn"),
-            slettet = boolean("arrangor_hovedenhet_slettet"),
+        Avtale.Arrangor(
+            hovedenhet = id,
             underenheter = underenheter,
-            kontaktpersoner = arrangorKontaktpersoner,
+            kontaktpersoner = kontaktpersoner,
         )
     }
 
@@ -618,11 +617,7 @@ private fun Row.toAvtale(): Avtale {
 
     return Avtale(
         id = uuid("id"),
-        tiltakstype = Avtale.Tiltakstype(
-            id = uuid("tiltakstype_id"),
-            navn = string("tiltakstype_navn"),
-            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
-        ),
+        tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
         navn = string("navn"),
         avtalenummer = stringOrNull("avtalenummer"),
         sakarkivNummer = stringOrNull("sakarkiv_nummer")?.let { SakarkivNummer(it) },
@@ -631,15 +626,25 @@ private fun Row.toAvtale(): Avtale {
         sluttDato = localDateOrNull("slutt_dato"),
         avtaletype = Avtaletype.valueOf(string("avtaletype")),
         status = status,
-        administratorer = toAdministratorer(),
-        navEnheter = toNavEnheter().map { it.enhetsnummer }.toSet(),
-        beskrivelse = stringOrNull("beskrivelse"),
-        faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
-        personopplysninger = toPersonopplysninger(),
-        personvernBekreftet = boolean("personvern_bekreftet"),
+        administratorer = toAdministratorer().map { it.navIdent }.toSet(),
+        veilederinfo = Avtale.VeilederInfo(
+            beskrivelse = stringOrNull("beskrivelse"),
+            faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+            navEnheter = toNavEnheter().map { it.enhetsnummer }.toSet(),
+        ),
+        personvern = run {
+            val personopplysninger = toPersonopplysninger()
+            Avtale.Personvern(
+                personopplysninger = personopplysninger.map { it.type }.toSet(),
+                annetBeskrivelse = personopplysninger.find { it.type == Personopplysning.Type.ANNET }?.beskrivelse,
+                erBekreftet = boolean("personvern_bekreftet"),
+            )
+        },
         opplaring = toOpplaringKategoriseringDetaljer()?.toOpplaringKategorisering(),
-        opsjonsmodell = toOpsjonsmodell(),
-        opsjonerRegistrert = toOpsjonerRegistrert(),
+        opsjoner = Avtale.Opsjoner(
+            modell = toOpsjonsmodell(),
+            registreringer = toOpsjonerRegistrert(),
+        ),
         prismodeller = toPrismodeller(),
     )
 }
@@ -648,8 +653,8 @@ private fun Row.toNavEnheter(): List<NavEnhetDto> = stringOrNull("nav_enheter_js
     ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
     ?: emptyList()
 
-private fun Row.toAdministratorer(): List<Avtale.Administrator> = stringOrNull("administratorer_json")
-    ?.let { Json.decodeFromString<List<Avtale.Administrator>>(it) }
+private fun Row.toAdministratorer(): List<AvtaleDto.Administrator> = stringOrNull("administratorer_json")
+    ?.let { Json.decodeFromString<List<AvtaleDto.Administrator>>(it) }
     ?: emptyList()
 
 private fun Row.toPersonopplysninger(): List<Personopplysning> = stringOrNull("personopplysninger_json")

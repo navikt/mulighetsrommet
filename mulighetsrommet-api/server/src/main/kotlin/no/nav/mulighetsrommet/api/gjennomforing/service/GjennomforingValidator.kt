@@ -67,7 +67,7 @@ object GjennomforingValidator {
         )
 
         fun harEgenskap(vararg egenskap: TiltakstypeEgenskap): Boolean {
-            return avtale.tiltakstype.tiltakskode.harEgenskap(*egenskap)
+            return avtale.tiltakskode.harEgenskap(*egenskap)
         }
     }
 
@@ -112,7 +112,7 @@ object GjennomforingValidator {
             gjennomforing = GjennomforingDbo(
                 id = id,
                 type = GjennomforingType.AVTALE,
-                tiltakskode = ctx.avtale.tiltakstype.tiltakskode,
+                tiltakskode = ctx.avtale.tiltakskode,
                 avtaleId = ctx.avtale.id,
                 arrangorId = result.detaljer.arrangorId,
                 navn = result.detaljer.navn,
@@ -256,7 +256,7 @@ object GjennomforingValidator {
             GjennomforingOppstartstype.LOPENDE -> if (ctx.harEgenskap(TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART)) {
                 validate(detaljer.pameldingType == GjennomforingPameldingType.DIREKTE_VEDTAK) {
                     FieldError.of(
-                        "Påmeldingstype må være “direkte vedtak” når tiltaket har løpende oppstart (gjelder ${ctx.avtale.tiltakstype.navn})",
+                        "Påmeldingstype må være “direkte vedtak” når tiltaket har løpende oppstart",
                         GjennomforingDetaljerRequest::pameldingType,
                     )
                 }
@@ -287,7 +287,7 @@ object GjennomforingValidator {
             }
         }
 
-        validate(ctx.avtale.arrangor?.underenheter?.any { it.id == detaljer.arrangorId } ?: false) {
+        validate(detaljer.arrangorId in ctx.avtale.arrangor?.underenheter.orEmpty()) {
             FieldError.of("Du må velge en arrangør fra avtalen", GjennomforingDetaljerRequest::arrangorId)
         }
 
@@ -336,7 +336,7 @@ object GjennomforingValidator {
     ): Validated<VeilederinfoResult> = validation(GjennomforingRequest::veilederinformasjon) {
         validateSlettetNavAnsatte(kontaktpersoner, GjennomforingVeilederinfoRequest::kontaktpersoner)
 
-        val navRegioner = avtale.navEnheter.intersect(request.navRegioner.toSet())
+        val navRegioner = avtale.veilederinfo.navEnheter.intersect(request.navRegioner.toSet())
         validate(navRegioner.isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-region fra avtalen",
@@ -344,8 +344,8 @@ object GjennomforingValidator {
             )
         }
 
-        val navKontorer = avtale.navEnheter.intersect(request.navKontorer.toSet())
-        val navAndreEnheter = avtale.navEnheter.intersect(request.navAndreEnheter.toSet())
+        val navKontorer = avtale.veilederinfo.navEnheter.intersect(request.navKontorer.toSet())
+        val navAndreEnheter = avtale.veilederinfo.navEnheter.intersect(request.navAndreEnheter.toSet())
         validate((navKontorer + navAndreEnheter).isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-enhet fra avtalen",
@@ -424,7 +424,7 @@ object GjennomforingValidator {
         amoKategorisering: AmoKategoriseringRequest?,
         utdanningslop: Utdanningslop?,
     ): Either<List<FieldError>, OpplaringKategorisering?> = validation {
-        when (avtale.tiltakstype.tiltakskode) {
+        when (avtale.tiltakskode) {
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
             Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
@@ -436,7 +436,7 @@ object GjennomforingValidator {
             else -> Unit
         }
 
-        when (avtale.tiltakstype.tiltakskode) {
+        when (avtale.tiltakskode) {
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
                 requireValid(amoKategorisering?.kurstype != null) {
                     FieldError.of(

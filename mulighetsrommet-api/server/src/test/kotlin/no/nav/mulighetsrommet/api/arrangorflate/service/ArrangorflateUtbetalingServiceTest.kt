@@ -216,7 +216,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
                 MulighetsrommetTestDomain(
                     prismodeller = listOf(prismodell),
-                    avtaler = listOf(AvtaleFixtures.gruppeAmo.copy(prismodeller = listOf(prismodell.id))),
+                    avtaler = listOf(AvtaleFixtures.gruppeAmo.copy(prismodeller = listOf(prismodell))),
                     gjennomforinger = listOf(GjennomforingFixtures.GruppeAmo1.copy(prismodellId = prismodell.id)),
                 ).initialize(database.api)
 

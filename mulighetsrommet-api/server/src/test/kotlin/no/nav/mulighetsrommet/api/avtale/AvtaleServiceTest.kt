@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.domain.tiltak.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
 import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
@@ -171,12 +172,17 @@ class AvtaleServiceTest : FunSpec({
                 ),
             )
 
-            avtaleService.create(request, bertilNavIdent).shouldBeRight().arrangor.shouldNotBeNull().should {
-                it.organisasjonsnummer shouldBe orgnrHovedenhet
-                it.navn shouldBe "Ny arrangør hovedenhet"
-                it.underenheter.shouldHaveSize(1).first().should { underenhet ->
-                    underenhet.organisasjonsnummer shouldBe orgnrUnderenhet
-                    underenhet.navn shouldBe "Ny arrangør underenhet"
+            val avtale = avtaleService.create(request, bertilNavIdent).shouldBeRight()
+
+            database.run {
+                queries.avtale.getAvtaleDto(request.id).shouldNotBeNull().arrangor.shouldNotBeNull().should {
+                    it.id shouldBe avtale.arrangor?.hovedenhet
+                    it.organisasjonsnummer shouldBe orgnrHovedenhet
+                    it.navn shouldBe "Ny arrangør hovedenhet"
+                    it.underenheter.shouldHaveSize(1).first().should { underenhet ->
+                        underenhet.organisasjonsnummer shouldBe orgnrUnderenhet
+                        underenhet.navn shouldBe "Ny arrangør underenhet"
+                    }
                 }
             }
         }
@@ -370,15 +376,14 @@ class AvtaleServiceTest : FunSpec({
                     personvernBekreftet = true,
                 ),
                 bertilNavIdent,
-            ).shouldBeRight().should {
-                it.personvernBekreftet shouldBe true
-                it.personopplysninger.map { p -> p.type }.shouldContainExactlyInAnyOrder(
+            ).shouldBeRight().personvern.should {
+                it.erBekreftet shouldBe true
+                it.personopplysninger.shouldContainExactlyInAnyOrder(
                     Personopplysning.Type.NAVN,
                     Personopplysning.Type.FODSELSDATO,
                     Personopplysning.Type.ANNET,
                 )
-                it.personopplysninger.find { p -> p.type == Personopplysning.Type.ANNET }
-                    .shouldNotBeNull().beskrivelse shouldBe "Annen personopplysning"
+                it.annetBeskrivelse shouldBe "Annen personopplysning"
             }
 
             verify {
@@ -408,7 +413,7 @@ class AvtaleServiceTest : FunSpec({
                     faneinnhold = null,
                 ),
                 bertilNavIdent,
-            ).shouldBeRight().should {
+            ).shouldBeRight().veilederinfo.should {
                 it.beskrivelse shouldBe "Ny beskrivelse for veiledere"
                 it.navEnheter shouldContainExactlyInAnyOrder setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502"))
             }
@@ -511,10 +516,7 @@ class AvtaleServiceTest : FunSpec({
             avtaleService.upsertPrismodell(AvtaleFixtures.AFT.id, listOf(request), bertilNavIdent)
                 .shouldBeLeft()
                 .shouldContain(
-                    FieldError(
-                        "/prismodeller",
-                        "Prismodell kan ikke opprettes for forhåndsgodkjente avtaler",
-                    ),
+                    FieldError.of("Prismodell kan ikke endres for forhåndsgodkjente avtaler"),
                 )
         }
 
@@ -562,7 +564,7 @@ class AvtaleServiceTest : FunSpec({
             )
             val avsluttetAvtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
-                detaljerDbo = AvtaleFixtures.detaljerDbo().copy(status = AvtaleStatusType.AVSLUTTET),
+                status = AvtaleStatus.Avsluttet,
             )
 
             MulighetsrommetTestDomain(
@@ -667,7 +669,7 @@ class AvtaleServiceTest : FunSpec({
 
         test("kan bare avslutte avtale som er aktiv") {
             val avtale = AvtaleFixtures.oppfolging.copy(
-                detaljerDbo = AvtaleFixtures.oppfolging.detaljerDbo.copy(status = AvtaleStatusType.UTKAST),
+                status = AvtaleStatus.Utkast,
             )
             MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
 
@@ -689,7 +691,7 @@ class AvtaleServiceTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging
             MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
 
-            val avsluttetTidspunkt = avtale.detaljerDbo.sluttDato!!.plusDays(1).atStartOfDay()
+            val avsluttetTidspunkt = avtale.sluttDato!!.plusDays(1).atStartOfDay()
 
             avtaleService.avsluttAvtale(avtale.id, avsluttetTidspunkt, bertilNavIdent).should {
                 it.id shouldBe avtale.id
@@ -756,14 +758,12 @@ class AvtaleServiceTest : FunSpec({
         val theDayAfterTomorrow = today.plusDays(2)
 
         val avtale = AvtaleFixtures.oppfolging.copy(
-            detaljerDbo = AvtaleFixtures.oppfolging.detaljerDbo.copy(
-                startDato = yesterday,
-                sluttDato = yesterday,
-                status = AvtaleStatusType.AVSLUTTET,
-                opsjonsmodell = Opsjonsmodell(
-                    type = OpsjonsmodellType.TO_PLUSS_EN,
-                    opsjonMaksVarighet = theDayAfterTomorrow,
-                ),
+            startDato = yesterday,
+            sluttDato = yesterday,
+            status = AvtaleStatus.Avsluttet,
+            opsjoner = Avtale.Opsjoner(
+                modell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, theDayAfterTomorrow),
+                registreringer = listOf(),
             ),
         )
 
@@ -790,16 +790,14 @@ class AvtaleServiceTest : FunSpec({
             MulighetsrommetTestDomain(
                 avtaler = listOf(
                     avtale.copy(
-                        detaljerDbo = avtale.detaljerDbo.copy(
-                            opsjonsmodell = Opsjonsmodell(
-                                type = OpsjonsmodellType.TO_PLUSS_EN,
-                                opsjonMaksVarighet = avtale.detaljerDbo.startDato.plusYears(10),
-                            ),
+                        opsjoner = Avtale.Opsjoner(
+                            modell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, avtale.startDato.plusYears(10)),
+                            registreringer = listOf(),
                         ),
                     ),
                 ),
             ).initialize(database.api)
-            val sluttDato = avtale.detaljerDbo.sluttDato!!
+            val sluttDato = avtale.sluttDato!!
 
             val request = OpprettOpsjonLoggRequest(
                 nySluttDato = null,
@@ -823,18 +821,18 @@ class AvtaleServiceTest : FunSpec({
             avtale.should {
                 it.status.type shouldBe AvtaleStatusType.AKTIV
                 it.sluttDato shouldBe tomorrow
-                it.opsjonerRegistrert.shouldNotBeNull().shouldHaveSize(1)
+                it.opsjoner.registreringer.shouldHaveSize(1)
             }
 
             avtaleService.slettOpsjon(
                 avtale.id,
-                avtale.opsjonerRegistrert[0].id,
+                avtale.opsjoner.registreringer[0].id,
                 bertilNavIdent,
                 today,
             ).shouldBeRight().should {
                 it.status.type shouldBe AvtaleStatusType.AVSLUTTET
                 it.sluttDato shouldBe yesterday
-                it.opsjonerRegistrert.shouldBeEmpty()
+                it.opsjoner.registreringer.shouldBeEmpty()
             }
         }
 
@@ -855,7 +853,7 @@ class AvtaleServiceTest : FunSpec({
             )
             val avtale = avtaleService.registrerOpsjon(avtale.id, request2, bertilNavIdent, today).shouldBeRight()
 
-            avtaleService.slettOpsjon(avtale.id, avtale.opsjonerRegistrert[0].id, bertilNavIdent).shouldBeLeft(
+            avtaleService.slettOpsjon(avtale.id, avtale.opsjoner.registreringer[0].id, bertilNavIdent).shouldBeLeft(
                 FieldError.of("Opsjonen kan ikke slettes fordi det ikke er den siste utløste opsjonen"),
             )
         }
@@ -893,15 +891,15 @@ class AvtaleServiceTest : FunSpec({
             )
             val avtale = avtaleService.registrerOpsjon(avtale.id, request, bertilNavIdent, today).shouldBeRight()
 
-            avtale.opsjonerRegistrert.shouldNotBeNull().shouldHaveSize(1)
+            avtale.opsjoner.registreringer.shouldNotBeNull().shouldHaveSize(1)
 
             avtaleService.slettOpsjon(
                 avtale.id,
-                avtale.opsjonerRegistrert[0].id,
+                avtale.opsjoner.registreringer[0].id,
                 bertilNavIdent,
                 today,
             ).shouldBeRight().should {
-                it.opsjonerRegistrert.shouldBeEmpty()
+                it.opsjoner.registreringer.shouldBeEmpty()
             }
         }
     }
@@ -973,13 +971,6 @@ class AvtaleServiceTest : FunSpec({
 
         test("fjerner kontaktperson fra avtalens arrangør") {
             val p1 = ArrangorFixtures.kontaktperson(arrangorId = ArrangorFixtures.hovedenhet.id)
-            val avtale = AvtaleFixtures.oppfolging.copy(
-                detaljerDbo = AvtaleFixtures.oppfolging.detaljerDbo.copy(
-                    arrangor = AvtaleFixtures.oppfolging.detaljerDbo.arrangor?.copy(
-                        kontaktpersoner = listOf(p1.id),
-                    ),
-                ),
-            )
 
             MulighetsrommetTestDomain(
                 arrangorer = listOf(
@@ -987,14 +978,21 @@ class AvtaleServiceTest : FunSpec({
                     ArrangorFixtures.underenhet1,
                     ArrangorFixtures.underenhet2,
                 ),
-                avtaler = listOf(avtale),
             ).initialize(database.api)
 
-            avtaleService.get(avtale.id).shouldNotBeNull()
+            val request = AvtaleFixtures.createAvtaleRequest(
+                Tiltakskode.OPPFOLGING,
+                arrangor = DetaljerRequest.Arrangor(
+                    hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
+                    underenheter = listOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
+                    kontaktpersoner = listOf(p1.id),
+                ),
+            )
+            avtaleService.create(request, bertilNavIdent).shouldBeRight()
                 .arrangor.shouldNotBeNull()
                 .kontaktpersoner.shouldHaveSize(1)
 
-            avtaleService.frikobleKontaktpersonFraAvtale(p1.id, avtale.id, bertilNavIdent)
+            avtaleService.frikobleKontaktpersonFraAvtale(p1.id, request.id, bertilNavIdent)
                 .arrangor.shouldNotBeNull()
                 .kontaktpersoner.shouldBeEmpty()
         }

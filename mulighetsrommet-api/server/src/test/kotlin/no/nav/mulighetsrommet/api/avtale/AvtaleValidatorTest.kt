@@ -106,7 +106,6 @@ class AvtaleValidatorTest : FunSpec({
             tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         ),
         navEnheter = listOf(NavEnhetFixtures.Innlandet.toDto(), NavEnhetFixtures.Gjovik.toDto()),
-        systembestemtPrismodell = null,
     )
 
     val createForhandsgodkjentAvtaleContext = Ctx(
@@ -119,7 +118,6 @@ class AvtaleValidatorTest : FunSpec({
             tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
         ),
         navEnheter = listOf(NavEnhetFixtures.Innlandet.toDto(), NavEnhetFixtures.Gjovik.toDto()),
-        systembestemtPrismodell = UUID.randomUUID(),
     )
 
     test("skal akkumulere feil når forespørselen har flere problemer") {
@@ -480,30 +478,13 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
-    test("minst én prismodell er påkrevd") {
-        AvtaleValidator.validateCreateAvtale(
-            avtaleRequest.copy(prismodeller = listOf()),
-            ctx,
-        ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            FieldError("/prismodeller", "Minst én prismodell er påkrevd"),
-        )
-
-        AvtaleValidator.validateCreateAvtale(
-            forhaandsgodkjent,
-            createForhandsgodkjentAvtaleContext.copy(
-                systembestemtPrismodell = null,
-            ),
-        ).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            FieldError("/prismodeller", "Minst én prismodell er påkrevd"),
-        )
-    }
-
     context("prismodell") {
         fun getContext(
             tiltakstype: Tiltakstype = TiltakstypeFixtures.Oppfolging,
             avtaletype: Avtaletype = Avtaletype.AVTALE,
             gyldigTilsagnPeriode: Map<Tiltakskode, Periode> = mapOf(),
             avtaleStartDato: LocalDate = LocalDate.of(2025, 1, 1),
+            systembestemtPrismodell: Prismodell? = null,
         ) = AvtaleValidator.ValidatePrismodellerContext(
             avtaletype = avtaletype,
             tiltakskode = tiltakstype.tiltakskode,
@@ -511,6 +492,7 @@ class AvtaleValidatorTest : FunSpec({
             gyldigTilsagnPeriode = gyldigTilsagnPeriode,
             avtaleStartDato = avtaleStartDato,
             bruktePrismodeller = emptySet(),
+            systembestemtPrismodell = systembestemtPrismodell,
         )
 
         test("må ha minst én prismodell") {
@@ -523,6 +505,27 @@ class AvtaleValidatorTest : FunSpec({
                     "Minst én prismodell er påkrevd",
                 ),
             )
+
+            AvtaleValidator.validatePrismodeller(
+                listOf(),
+                getContext(TiltakstypeFixtures.AFT, avtaletype = Avtaletype.FORHANDSGODKJENT),
+            ).shouldBeLeft().shouldContain(
+                FieldError(
+                    "/prismodeller",
+                    "Systembestemt prismodell mangler for forhåndsgodkjent avtale",
+                ),
+            )
+        }
+
+        test("velger systembestemt prismodell for forhåndsgodkjent avtale") {
+            AvtaleValidator.validatePrismodeller(
+                listOf(),
+                getContext(
+                    TiltakstypeFixtures.AFT,
+                    avtaletype = Avtaletype.FORHANDSGODKJENT,
+                    systembestemtPrismodell = PrismodellFixtures.ForhandsgodkjentAft,
+                ),
+            ).shouldBeRight(listOf(PrismodellFixtures.ForhandsgodkjentAft))
         }
 
         test("må stemme overens med tiltakstypen") {
@@ -544,6 +547,7 @@ class AvtaleValidatorTest : FunSpec({
                     "Fast sats per benyttet tiltaksplass per måned er ikke tillatt for tiltakstype Oppfølging",
                 ),
             )
+
             AvtaleValidator.validatePrismodeller(
                 listOf(
                     PrismodellRequest(
@@ -801,8 +805,10 @@ class AvtaleValidatorTest : FunSpec({
     context("når avtalen allerede eksisterer") {
         val previous = Ctx.Avtale(
             status = AvtaleStatusType.AKTIV,
-            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
-            opsjonerRegistrert = emptyList(),
+            opsjoner = Avtale.Opsjoner(
+                modell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
+                registreringer = emptyList(),
+            ),
             avtaletype = Avtaletype.AVTALE,
             tiltakskode = Tiltakskode.OPPFOLGING,
             gjennomforinger = listOf(
@@ -846,13 +852,15 @@ class AvtaleValidatorTest : FunSpec({
                     previous = previous.copy(
                         tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                         avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-                        opsjonerRegistrert = listOf(
-                            Avtale.OpsjonLogg(
-                                id = UUID.randomUUID(),
-                                createdAt = LocalDateTime.now(),
-                                sluttDato = LocalDate.now(),
-                                forrigeSluttDato = LocalDate.now(),
-                                status = OpsjonLoggStatus.OPSJON_UTLOST,
+                        opsjoner = previous.opsjoner.copy(
+                            registreringer = listOf(
+                                Avtale.OpsjonLogg(
+                                    id = UUID.randomUUID(),
+                                    createdAt = LocalDateTime.now(),
+                                    sluttDato = LocalDate.now(),
+                                    forrigeSluttDato = LocalDate.now(),
+                                    status = OpsjonLoggStatus.OPSJON_UTLOST,
+                                ),
                             ),
                         ),
                         gjennomforinger = emptyList(),
@@ -946,6 +954,7 @@ class AvtaleValidatorTest : FunSpec({
                         gyldigTilsagnPeriode = emptyMap(),
                         avtaleStartDato = LocalDate.now().minusDays(1),
                         bruktePrismodeller = previous.gjennomforinger.map { it.prismodellId }.toSet(),
+                        systembestemtPrismodell = null,
                     ),
                 ).shouldBeLeft() shouldContain
                     FieldError(
@@ -974,8 +983,8 @@ class AvtaleValidatorTest : FunSpec({
                         tiltakstypeNavn = ctx.tiltakstype.navn,
                         gyldigTilsagnPeriode = emptyMap(),
                         avtaleStartDato = LocalDate.now().minusDays(1),
-                        bruktePrismodeller = previous.gjennomforinger.map { it.prismodellId }
-                            .toSet(),
+                        bruktePrismodeller = previous.gjennomforinger.map { it.prismodellId }.toSet(),
+                        systembestemtPrismodell = null,
                     ),
                 ).shouldBeLeft() shouldContain
                     FieldError(
@@ -1003,8 +1012,10 @@ class AvtaleValidatorTest : FunSpec({
     context("endring av status") {
         val previous = Ctx.Avtale(
             status = AvtaleStatusType.AKTIV,
-            opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
-            opsjonerRegistrert = emptyList(),
+            opsjoner = Avtale.Opsjoner(
+                modell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
+                registreringer = emptyList(),
+            ),
             avtaletype = Avtaletype.AVTALE,
             tiltakskode = Tiltakskode.OPPFOLGING,
             gjennomforinger = listOf(),
@@ -1016,13 +1027,13 @@ class AvtaleValidatorTest : FunSpec({
                 avtaleRequest.copy(detaljer = avtaleRequest.detaljer.copy(arrangor = null)),
                 ctx,
             ).shouldBeRight().should {
-                it.detaljerDbo.status shouldBe AvtaleStatusType.UTKAST
+                it.status shouldBe AvtaleStatusType.UTKAST
             }
         }
 
         test("status blir AKTIV når avtalen lagres med sluttdato i fremtiden") {
             AvtaleValidator.validateCreateAvtale(avtaleRequest, ctx).shouldBeRight().should {
-                it.detaljerDbo.status shouldBe AvtaleStatusType.AKTIV
+                it.status shouldBe AvtaleStatusType.AKTIV
             }
         }
 
@@ -1097,10 +1108,9 @@ class AvtaleValidatorTest : FunSpec({
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo,
                 ctx,
-            ).shouldBeRight().detaljerDbo.opplaringKategorisering
-                .shouldNotBeNull {
-                    kurstype shouldBe KurstypeFixtures.studiespesialisering.id
-                }
+            ).shouldBeRight().opplaring.shouldNotBeNull {
+                kurstype shouldBe KurstypeFixtures.studiespesialisering.id
+            }
 
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo.copy(
@@ -1110,10 +1120,9 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 ctx,
-            ).shouldBeRight().detaljerDbo.opplaringKategorisering
-                .shouldNotBeNull {
-                    kurstype shouldBe KurstypeFixtures.studiespesialisering.id
-                }
+            ).shouldBeRight().opplaring.shouldNotBeNull {
+                kurstype shouldBe KurstypeFixtures.studiespesialisering.id
+            }
 
             AvtaleValidator.validateCreateAvtale(
                 gruppeAmo.copy(
@@ -1126,7 +1135,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 ctx,
-            ).shouldBeRight().detaljerDbo.opplaringKategorisering.shouldNotBeNull {
+            ).shouldBeRight().opplaring.shouldNotBeNull {
                 kurstype shouldBe KurstypeFixtures.fov.id
             }
 
@@ -1143,7 +1152,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 ctx,
-            ).shouldBeRight().detaljerDbo.opplaringKategorisering.shouldNotBeNull {
+            ).shouldBeRight().opplaring.shouldNotBeNull {
                 this.kurstype shouldBe KurstypeFixtures.grunnleggendeFerdigheter.id
                 this.innholdElementer shouldContainExactly setOf(
                     InnholdElementFixtures.grunnleggendeFerdigheter.id,
@@ -1170,7 +1179,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 ctx,
-            ).shouldBeRight().detaljerDbo.opplaringKategorisering.shouldNotBeNull {
+            ).shouldBeRight().opplaring.shouldNotBeNull {
                 kurstype shouldBe KurstypeFixtures.bransjeOgYrkesrettet.id
                 bransje shouldBe BransjeFixtures.kontorarbeid.id
                 forerkort shouldContainExactlyInAnyOrder listOf(
