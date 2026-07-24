@@ -14,7 +14,6 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import kotliquery.Query
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.tiltak.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
@@ -45,7 +44,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NOK
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Valuta
@@ -698,44 +696,6 @@ class AvtaleQueriesTest : FunSpec({
                 ) { statuser, expected ->
                     val result = queries.avtale.getAllAvtaleDto(statuser = statuser)
                     result.items shouldContainExactlyIds expected
-                }
-            }
-        }
-
-        test("filtrering på ansvarlig enhet i Arena") {
-            val domain = MulighetsrommetTestDomain(
-                navEnheter = listOf(Oslo, Innlandet, Gjovik),
-                tiltakstyper = listOf(
-                    TiltakstypeFixtures.Oppfolging,
-                    TiltakstypeFixtures.AFT,
-                    TiltakstypeFixtures.VTA,
-                ),
-                avtaler = listOf(
-                    AvtaleFixtures.oppfolging.copy(
-                        veilederinformasjonDbo = AvtaleFixtures.veilederinformasjonDbo(
-                            navEnheter = setOf(),
-                        ),
-                    ),
-                    AvtaleFixtures.AFT.copy(veilederinformasjonDbo = AvtaleFixtures.veilederinformasjonDbo(navEnheter = setOf())),
-                    AvtaleFixtures.VTA.copy(veilederinformasjonDbo = AvtaleFixtures.veilederinformasjonDbo(navEnheter = setOf())),
-                ),
-            )
-
-            database.runAndRollback {
-                domain.initialize()
-
-                session.execute(Query("update avtale set arena_ansvarlig_enhet = '0300' where id = '${AvtaleFixtures.oppfolging.id}'"))
-                session.execute(Query("update avtale set arena_ansvarlig_enhet = '0400' where id = '${AvtaleFixtures.AFT.id}'"))
-                session.execute(Query("update avtale set arena_ansvarlig_enhet = '0502' where id = '${AvtaleFixtures.VTA.id}'"))
-
-                queries.avtale.getAllAvtaleDto(navEnheter = listOf(NavEnhetNummer("0300"))).should { (totalCount) ->
-                    totalCount shouldBe 1
-                }
-                queries.avtale.getAllAvtaleDto(navEnheter = listOf(NavEnhetNummer("0400"))).should { (totalCount) ->
-                    totalCount shouldBe 2
-                }
-                queries.avtale.getAllAvtaleDto(navEnheter = listOf(NavEnhetNummer("0502"))).should { (totalCount) ->
-                    totalCount shouldBe 1
                 }
             }
         }
