@@ -474,7 +474,7 @@ class AvtaleQueriesTest : FunSpec({
                 ),
             )
             val prismodell2 = PrismodellFixtures.createPrismodell(
-                type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+                type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
                 satser = listOf(
                     AvtaltSats(LocalDate.of(2025, 7, 1), 2000.NOK),
                 ),
@@ -501,7 +501,7 @@ class AvtaleQueriesTest : FunSpec({
                     prismodell2,
                 )
 
-                val prismodell3 = Prismodell.AvtaltPrisPerHeleUkesverk(
+                val prismodell3 = Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke(
                     id = prismodell2.id,
                     prisbetingelser = "$",
                     satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 2000.NOK)),

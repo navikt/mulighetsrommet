@@ -3,12 +3,12 @@ package no.nav.mulighetsrommet.api.tilsagn.api
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.DataDetails
@@ -28,7 +28,7 @@ data class TilsagnBeregningDto(
     companion object {
         fun from(beregning: TilsagnBeregning): TilsagnBeregningDto {
             return when (beregning) {
-                is TilsagnBeregningFri -> TilsagnBeregningDto(
+                is TilsagnBeregningAnnenAvtaltPris -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
@@ -86,11 +86,11 @@ data class TilsagnBeregningDto(
                     stengt = listOf(),
                 )
 
-                is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> TilsagnBeregningDto(
+                is TilsagnBeregningFastSatsPerBenyttetPlassPerManed -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text(PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK.navn)
+                            DataElement.text(PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED.navn)
                                 .label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.money(
@@ -108,15 +108,14 @@ data class TilsagnBeregningDto(
                     stengt = getStengtePerioder(beregning.input.stengt),
                 )
 
-                is TilsagnBeregningPrisPerManedsverk -> TilsagnBeregningDto(
+                is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_MANEDSVERK.navn).label("Prismodell"),
+                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED.navn)
+                                .label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
-                            DataElement.money(
-                                beregning.input.sats,
-                            ).label("Avtalt pris"),
+                            DataElement.money(beregning.input.sats).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
                                 .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
                         ),
@@ -133,15 +132,14 @@ data class TilsagnBeregningDto(
                     stengt = getStengtePerioder(beregning.input.stengt),
                 )
 
-                is TilsagnBeregningPrisPerUkesverk -> TilsagnBeregningDto(
+                is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_UKESVERK.navn).label("Prismodell"),
+                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE.navn)
+                                .label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
-                            DataElement.money(
-                                beregning.input.sats,
-                            ).label("Avtalt pris"),
+                            DataElement.money(beregning.input.sats).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
                                 .label("Pris- og betalingsbetingelser", LabeledDataElementType.MULTILINE),
                         ),
@@ -152,9 +150,7 @@ data class TilsagnBeregningDto(
                             DataElement.number(beregning.input.antallPlasser),
                             DataElement.text("plasser"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
-                            DataElement.money(
-                                beregning.input.sats,
-                            ),
+                            DataElement.money(beregning.input.sats),
                             DataElement.text("per tiltaksplass per uke"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.number(
@@ -174,11 +170,12 @@ data class TilsagnBeregningDto(
                     stengt = getStengtePerioder(beregning.input.stengt),
                 )
 
-                is TilsagnBeregningPrisPerHeleUkesverk -> TilsagnBeregningDto(
+                is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK.navn).label("Prismodell"),
+                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE.navn)
+                                .label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
                             DataElement.money(beregning.input.sats).label("Avtalt pris"),
                             DataElement.text(beregning.input.prisbetingelser)
@@ -191,9 +188,7 @@ data class TilsagnBeregningDto(
                             DataElement.number(beregning.input.antallPlasser),
                             DataElement.text("plasser"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
-                            DataElement.money(
-                                beregning.input.sats,
-                            ),
+                            DataElement.money(beregning.input.sats),
                             DataElement.text("per tiltaksplass per uke"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.number(
@@ -204,24 +199,21 @@ data class TilsagnBeregningDto(
                             ),
                             DataElement.text("uker"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
-                            DataElement.money(
-                                beregning.output.pris,
-                            ),
+                            DataElement.money(beregning.output.pris),
                         ),
                     ),
 
                     stengt = getStengtePerioder(beregning.input.stengt),
                 )
 
-                is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningDto(
+                is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningDto(
                     pris = beregning.output.pris,
                     prismodell = DataDetails(
                         entries = listOf(
-                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn).label("Prismodell"),
+                            DataElement.text(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn)
+                                .label("Prismodell"),
                             DataElement.number(beregning.input.antallPlasser).label("Antall plasser"),
-                            DataElement.money(
-                                beregning.input.sats,
-                            ).label("Avtalt pris per oppfølgingstime"),
+                            DataElement.money(beregning.input.sats).label("Avtalt pris per oppfølgingstime"),
                             DataElement.number(beregning.input.antallTimerOppfolgingPerDeltaker)
                                 .label("Antall oppfølgingstimer per deltaker"),
                             DataElement.text(beregning.input.prisbetingelser)
@@ -234,17 +226,13 @@ data class TilsagnBeregningDto(
                             DataElement.number(beregning.input.antallPlasser),
                             DataElement.text("plasser"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
-                            DataElement.money(
-                                beregning.input.sats,
-                            ),
+                            DataElement.money(beregning.input.sats),
                             DataElement.text("per oppfølgingstime"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.MULTIPLY),
                             DataElement.number(beregning.input.antallTimerOppfolgingPerDeltaker),
                             DataElement.text("oppfølgingstimer per deltaker"),
                             DataElement.MathOperator(DataElement.MathOperator.Type.EQUALS),
-                            DataElement.money(
-                                beregning.output.pris,
-                            ),
+                            DataElement.money(beregning.output.pris),
                         ),
                     ),
 

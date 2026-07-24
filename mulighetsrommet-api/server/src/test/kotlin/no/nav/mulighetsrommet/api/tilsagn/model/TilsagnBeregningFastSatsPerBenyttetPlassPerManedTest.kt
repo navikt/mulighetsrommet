@@ -7,33 +7,33 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
-class TilsagnBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
+class TilsagnBeregningFastSatsPerBenyttetPlassPerManedTest : FunSpec({
 
     test("en plass en måned = sats") {
-        val input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+        val input = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Input(
             periode = Periode.forMonthOf(LocalDate.of(2026, 1, 1)),
             sats = 100.NOK,
             antallPlasser = 1,
             stengt = setOf(),
         )
 
-        TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(input).output.pris shouldBe 100.NOK
+        TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 100.NOK
     }
 
     test("stengt hele perioden gir 0 i beløp") {
         val periode = Periode.forMonthOf(LocalDate.of(2026, 1, 1))
-        val input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+        val input = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Input(
             periode = periode,
             sats = 100.NOK,
             antallPlasser = 1,
             stengt = setOf(StengtPeriode(periode, "Vinterferie")),
         )
 
-        TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(input).output.pris shouldBe 0.NOK
+        TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 0.NOK
     }
 
     test("stengt deler av perioden reduserer beløpet") {
-        val input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+        val input = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Input(
             periode = Periode.forMonthOf(LocalDate.of(2026, 1, 1)),
             sats = 100.NOK,
             antallPlasser = 1,
@@ -46,11 +46,11 @@ class TilsagnBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
         )
 
         // 10/22 ukedager * 100 = 45.45... = 45 NOK
-        TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(input).output.pris shouldBe 45.NOK
+        TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 45.NOK
     }
 
     test("stengt periode utenfor tilsagnsperioden påvirker ikke beløpet") {
-        val input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+        val input = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Input(
             periode = Periode.forMonthOf(LocalDate.of(2026, 1, 1)),
             sats = 100.NOK,
             antallPlasser = 1,
@@ -59,6 +59,6 @@ class TilsagnBeregningFastSatsPerTiltaksplassPerManedTest : FunSpec({
             ),
         )
 
-        TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(input).output.pris shouldBe 100.NOK
+        TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 100.NOK
     }
 })

@@ -10,18 +10,19 @@ interface Props {
 
 export function BetalingsbetingelserEnkeltplass({ prismodell }: Props) {
   switch (prismodell.type) {
-    case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
-    case PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS:
-    case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
-    case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
-    case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
-    case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
     case PrismodellType.ANNEN_AVTALT_PRIS:
       return <BetalingsbetingelserAnskaffelse prismodell={prismodell} />;
     case PrismodellType.TILSKUDD_TIL_OPPLAERING:
       return <BetalingsbetingelserTilskudd prismodell={prismodell} />;
     case PrismodellType.INGEN_KOSTNADER:
       return <BetalingsbetingelserIngenKostnader prismodell={prismodell} />;
+    case PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED:
+    case PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED:
+    case PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED:
+    case PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE:
+    case PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE:
+    case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
+      return null;
   }
 }
 

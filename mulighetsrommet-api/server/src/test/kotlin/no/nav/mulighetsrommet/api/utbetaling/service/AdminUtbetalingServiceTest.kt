@@ -39,7 +39,7 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje2
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
@@ -1226,8 +1226,8 @@ class AdminUtbetalingServiceTest : FunSpec({
     context("validering av utbetalingslinjer") {
         test("totalt beløp kan ikke overstige innsendt beløp") {
             val tilsagnMedHoytBelop = Tilsagn1.copy(
-                beregning = (Tilsagn1.beregning as TilsagnBeregningFri).copy(
-                    output = TilsagnBeregningFri.Output(pris = 2000.NOK),
+                beregning = (Tilsagn1.beregning as TilsagnBeregningAnnenAvtaltPris).copy(
+                    output = TilsagnBeregningAnnenAvtaltPris.Output(pris = 2000.NOK),
                 ),
             )
             MulighetsrommetTestDomain(
@@ -1631,10 +1631,10 @@ private fun QueryContext.setRoller(ansatt: NavAnsatt, roller: Set<NavAnsattRolle
     queries.ansatt.save(ansatt.medRoller(roller))
 }
 
-fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri(
-    input = TilsagnBeregningFri.Input(
+fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningAnnenAvtaltPris(
+    input = TilsagnBeregningAnnenAvtaltPris.Input(
         linjer = listOf(
-            TilsagnBeregningFri.InputLinje(
+            TilsagnBeregningAnnenAvtaltPris.InputLinje(
                 id = UUID.randomUUID(),
                 beskrivelse = "Beskrivelse",
                 pris = pris,
@@ -1643,5 +1643,5 @@ fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri(
         ),
         prisbetingelser = null,
     ),
-    output = TilsagnBeregningFri.Output(pris),
+    output = TilsagnBeregningAnnenAvtaltPris.Output(pris),
 )

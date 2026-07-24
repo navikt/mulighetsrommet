@@ -15,13 +15,13 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.Kontoregiste
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -144,14 +144,14 @@ class ArrangorflateService(
             return false to null
         }
         when (utbetaling.beregning) {
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerHeleUkesverk,
-            is UtbetalingBeregningPrisPerManedsverk,
-            is UtbetalingBeregningPrisPerUkesverk,
+            is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
             -> Unit
 
+            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
             is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerTimeOppfolging,
             is UtbetalingBeregningFri,
             -> return false to null
         }

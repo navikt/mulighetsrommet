@@ -497,7 +497,7 @@ class AvtaleServiceTest : FunSpec({
 
             val request = PrismodellRequest(
                 id = UUID.randomUUID(),
-                type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                type = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                 valuta = Valuta.NOK,
                 prisbetingelser = null,
                 satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100)),

@@ -31,7 +31,7 @@ class PrismodellQueries(private val session: Session) {
             values (:id::uuid,
                     :system_id,
                     :prisbetingelser,
-                    :prismodell::prismodell_type,
+                    :prismodell,
                     :satser::jsonb,
                     :valuta::currency,
                     :tilsagn_per_deltaker,
@@ -49,27 +49,15 @@ class PrismodellQueries(private val session: Session) {
                                            aarsak               = excluded.aarsak
         """.trimIndent()
 
-        val prisbetingelser: String? = when (prismodell) {
-            is Prismodell.AnnenAvtaltPris -> prismodell.prisbetingelser
-            is Prismodell.AvtaltPrisPerManedsverk -> prismodell.prisbetingelser
-            is Prismodell.AvtaltPrisPerUkesverk -> prismodell.prisbetingelser
-            is Prismodell.AvtaltPrisPerHeleUkesverk -> prismodell.prisbetingelser
-            is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> prismodell.prisbetingelser
-            is Prismodell.ForhandsgodkjentPrisPerManedsverk -> null
-            is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> null
-            is Prismodell.TilskuddTilOpplaering -> prismodell.tilleggsopplysninger
-            is Prismodell.IngenKostnader -> prismodell.tilleggsopplysninger
-        }
-
         val params = mapOf(
             "id" to prismodell.id,
             "system_id" to when (prismodell) {
-                is Prismodell.ForhandsgodkjentPrisPerManedsverk -> prismodell.systemId
-                is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> prismodell.systemId
+                is Prismodell.FastSatsPerBenyttetPlassPerManed -> prismodell.systemId
+                is Prismodell.FastSatsPerAvtaltPlassPerManed -> prismodell.systemId
                 else -> null
             },
             "prismodell" to prismodell.type.name,
-            "prisbetingelser" to prisbetingelser,
+            "prisbetingelser" to prismodell.prisbetingelser(),
             "satser" to Json.encodeToString(prismodell.satser()),
             "valuta" to prismodell.valuta.name,
             "tilsagn_per_deltaker" to (prismodell as? Prismodell.AnnenAvtaltPris)?.tilsagnPerDeltaker,

@@ -28,7 +28,7 @@ sealed interface Prismodell {
     }
 
     @Serializable
-    data class ForhandsgodkjentPrisPerManedsverk(
+    data class FastSatsPerBenyttetPlassPerManed(
         /**
          * Prismodeller for forhåndsgodkjente tiltak er identifisert med en kjent system-id.
          * Dette tillater systemet å finne riktig prismodell for alle tiltak for en gitt tiltakskode.
@@ -40,11 +40,11 @@ sealed interface Prismodell {
         val satser: List<AvtaltSats>,
     ) : Prismodell {
         @Transient
-        override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+        override val type = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED
     }
 
     @Serializable
-    data class ForhandsgodkjentPrisPerAvtaltTiltaksplass(
+    data class FastSatsPerAvtaltPlassPerManed(
         /**
          * Prismodeller for forhåndsgodkjente tiltak er identifisert med en kjent system-id.
          * Dette tillater systemet å finne riktig prismodell for alle tiltak for en gitt tiltakskode.
@@ -56,11 +56,11 @@ sealed interface Prismodell {
         val satser: List<AvtaltSats>,
     ) : Prismodell {
         @Transient
-        override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS
+        override val type = PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED
     }
 
     @Serializable
-    data class AvtaltPrisPerManedsverk(
+    data class AvtaltPrisPerBenyttetPlassPerManed(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
@@ -68,11 +68,11 @@ sealed interface Prismodell {
         val satser: List<AvtaltSats>,
     ) : Prismodell {
         @Transient
-        override val type = PrismodellType.AVTALT_PRIS_PER_MANEDSVERK
+        override val type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED
     }
 
     @Serializable
-    data class AvtaltPrisPerUkesverk(
+    data class AvtaltPrisPerBenyttetPlassPerUke(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
@@ -80,11 +80,11 @@ sealed interface Prismodell {
         val satser: List<AvtaltSats>,
     ) : Prismodell {
         @Transient
-        override val type = PrismodellType.AVTALT_PRIS_PER_UKESVERK
+        override val type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE
     }
 
     @Serializable
-    data class AvtaltPrisPerHeleUkesverk(
+    data class AvtaltPrisPerBenyttetPlassPerHeleUke(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
@@ -92,7 +92,7 @@ sealed interface Prismodell {
         val satser: List<AvtaltSats>,
     ) : Prismodell {
         @Transient
-        override val type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK
+        override val type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE
     }
 
     @Serializable
@@ -138,14 +138,27 @@ sealed interface Prismodell {
 
     fun satser(): List<AvtaltSats> = when (this) {
         is AnnenAvtaltPris -> emptyList()
-        is AvtaltPrisPerManedsverk -> satser
-        is AvtaltPrisPerUkesverk -> satser
-        is AvtaltPrisPerHeleUkesverk -> satser
+        is AvtaltPrisPerBenyttetPlassPerManed -> satser
+        is AvtaltPrisPerBenyttetPlassPerUke -> satser
+        is AvtaltPrisPerBenyttetPlassPerHeleUke -> satser
         is AvtaltPrisPerTimeOppfolgingPerDeltaker -> satser
-        is ForhandsgodkjentPrisPerManedsverk -> satser
-        is ForhandsgodkjentPrisPerAvtaltTiltaksplass -> satser
+        is FastSatsPerBenyttetPlassPerManed -> satser
+        is FastSatsPerAvtaltPlassPerManed -> satser
         is TilskuddTilOpplaering -> emptyList()
         is IngenKostnader -> emptyList()
+    }
+
+    // TODO: enten behandle "prisbetingelser" og "tilleggsopplysninger" som to separate felter, eller benytte samme navn
+    fun prisbetingelser(): String? = when (this) {
+        is AnnenAvtaltPris -> prisbetingelser
+        is AvtaltPrisPerBenyttetPlassPerManed -> prisbetingelser
+        is AvtaltPrisPerBenyttetPlassPerUke -> prisbetingelser
+        is AvtaltPrisPerBenyttetPlassPerHeleUke -> prisbetingelser
+        is AvtaltPrisPerTimeOppfolgingPerDeltaker -> prisbetingelser
+        is FastSatsPerBenyttetPlassPerManed -> null
+        is FastSatsPerAvtaltPlassPerManed -> null
+        is TilskuddTilOpplaering -> tilleggsopplysninger
+        is IngenKostnader -> tilleggsopplysninger
     }
 
     fun findAvtaltSats(dato: LocalDate): AvtaltSats? {
@@ -175,33 +188,33 @@ sealed interface Prismodell {
                     totalbelop = totalbelop,
                 )
 
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> ForhandsgodkjentPrisPerManedsverk(
+                PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED -> FastSatsPerBenyttetPlassPerManed(
                     id = id,
                     valuta = valuta,
                     satser = requireNotNull(satser),
                 )
 
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS -> ForhandsgodkjentPrisPerAvtaltTiltaksplass(
+                PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED -> FastSatsPerAvtaltPlassPerManed(
                     id = id,
                     valuta = valuta,
                     satser = requireNotNull(satser),
                 )
 
-                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK -> AvtaltPrisPerManedsverk(
-                    id = id,
-                    valuta = valuta,
-                    prisbetingelser = prisbetingelser,
-                    satser = requireNotNull(satser),
-                )
-
-                PrismodellType.AVTALT_PRIS_PER_UKESVERK -> AvtaltPrisPerUkesverk(
+                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED -> AvtaltPrisPerBenyttetPlassPerManed(
                     id = id,
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     satser = requireNotNull(satser),
                 )
 
-                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK -> AvtaltPrisPerHeleUkesverk(
+                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE -> AvtaltPrisPerBenyttetPlassPerUke(
+                    id = id,
+                    valuta = valuta,
+                    prisbetingelser = prisbetingelser,
+                    satser = requireNotNull(satser),
+                )
+
+                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE -> AvtaltPrisPerBenyttetPlassPerHeleUke(
                     id = id,
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,

@@ -8,42 +8,43 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ValutaBelop
 
 @Serializable
-@SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
-data class TilsagnBeregningFastSatsPerTiltaksplassPerManed(
+@SerialName("PRIS_PER_HELE_UKESVERK")
+data class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke(
     override val input: Input,
     override val output: Output,
 ) : TilsagnBeregning() {
 
     @Serializable
-    @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
+    @SerialName("PRIS_PER_UKESVERK")
     data class Input(
         val periode: Periode,
         val sats: ValutaBelop,
         val antallPlasser: Int,
+        val prisbetingelser: String?,
         val stengt: Set<StengtPeriode>,
     ) : TilsagnBeregningInput()
 
     @Serializable
-    @SerialName("FAST_SATS_PER_TILTAKSPLASS_PER_MANED")
+    @SerialName("PRIS_PER_UKESVERK")
     data class Output(
         override val pris: ValutaBelop,
     ) : TilsagnBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): TilsagnBeregningFastSatsPerTiltaksplassPerManed {
+        fun beregn(input: Input): TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke {
             val aktivePerioder = input.periode.subtractPeriods(input.stengt.map { it.periode })
 
-            val totalMonths = aktivePerioder
-                .map { UtbetalingBeregningHelpers.calculateMonthsInPeriode(it) }
+            val totalWholeWeeks = aktivePerioder
+                .map { UtbetalingBeregningHelpers.calculateWholeWeeksInPeriode(it) }
                 .sumOf { it }
 
             val belop = UtbetalingBeregningHelpers.multiplyBySatsAndPlasser(
-                totalMonths,
+                totalWholeWeeks,
                 input.sats,
                 input.antallPlasser,
             )
 
-            return TilsagnBeregningFastSatsPerTiltaksplassPerManed(input, Output(pris = belop))
+            return TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke(input, Output(belop))
         }
     }
 }

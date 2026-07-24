@@ -17,13 +17,13 @@ import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
@@ -141,13 +141,13 @@ class ArrangorflateUtbetalingService(
         when (utbetaling.beregning) {
             is UtbetalingBeregningFri,
             is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerTimeOppfolging,
+            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
             -> error { FieldError.of("Utbetalingen kan ikke regenereres") }
 
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerHeleUkesverk,
-            is UtbetalingBeregningPrisPerManedsverk,
-            is UtbetalingBeregningPrisPerUkesverk,
+            is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
             -> Unit
         }
     }.map {
@@ -163,7 +163,7 @@ class ArrangorflateUtbetalingService(
     ): Either<List<FieldError>, Pair<Tilskuddstype, UtbetalingBeregning>> = db.session {
         val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(opprett.gjennomforingId)
         return when (gjennomforing.prismodell) {
-            is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+            is Prismodell.FastSatsPerBenyttetPlassPerManed,
             -> Pair(Tilskuddstype.TILTAK_INVESTERINGER, UtbetalingBeregningFri.from(opprett.pris)).right()
 
             is Prismodell.AnnenAvtaltPris,
@@ -175,10 +175,10 @@ class ArrangorflateUtbetalingService(
                 getBeregningPrisPerTimeOppfolging(opprett, gjennomforing),
             ).right()
 
-            is Prismodell.AvtaltPrisPerManedsverk,
-            is Prismodell.AvtaltPrisPerUkesverk,
-            is Prismodell.AvtaltPrisPerHeleUkesverk,
-            is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
+            is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
+            is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
+            is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
+            is Prismodell.FastSatsPerAvtaltPlassPerManed,
             is Prismodell.TilskuddTilOpplaering,
             is Prismodell.IngenKostnader,
             -> FieldError.of("Kan ikke opprette utbetaling for denne tiltaksgjennomføringen").nel().left()
@@ -188,9 +188,9 @@ class ArrangorflateUtbetalingService(
     private fun QueryContext.getBeregningPrisPerTimeOppfolging(
         opprett: ArrangorflateOpprettUtbetaling,
         gjennomforing: GjennomforingAvtale,
-    ): UtbetalingBeregningPrisPerTimeOppfolging {
+    ): UtbetalingBeregningAvtaltPrisPerTimeOppfolging {
         val (satser, stengt, _, deltakelser) = getAvtaltPrisPerTimeOppfolgingData(gjennomforing, opprett.periode)
-        return UtbetalingBeregningPrisPerTimeOppfolging.from(satser, stengt, deltakelser, opprett.pris)
+        return UtbetalingBeregningAvtaltPrisPerTimeOppfolging.from(satser, stengt, deltakelser, opprett.pris)
     }
 
     private fun QueryContext.getAvtaltPrisPerTimeOppfolgingData(
@@ -213,17 +213,17 @@ class ArrangorflateUtbetalingService(
         return try {
             when (utbetaling.beregning) {
                 is UtbetalingBeregningFri,
-                is UtbetalingBeregningPrisPerManedsverk,
-                is UtbetalingBeregningPrisPerUkesverk,
-                is UtbetalingBeregningPrisPerHeleUkesverk,
-                is UtbetalingBeregningPrisPerTimeOppfolging,
+                is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+                is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
+                is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+                is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
                 -> AutomatisertUtbetalingResult.FEIL_PRISMODELL
 
                 is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed -> db.transaction {
                     utbetalingService.automatisertUtbetalingFastSatsPerAvtaltTiltaksplassPerManed(utbetaling)
                 }
 
-                is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> db.transaction {
+                is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed -> db.transaction {
                     utbetalingService.automatisertUtbetalingVedEttRelevantTilsagn(utbetaling.id)
                 }
             }.also { result ->

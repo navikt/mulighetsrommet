@@ -35,22 +35,22 @@ export const avtaleHandlers = [
     () => {
       const prismodeller: PrismodellInfo[] = [
         {
-          type: PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+          type: PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
           navn: "Fast sats per benyttet tiltaksplass per måned",
           beskrivelse: [],
         },
         {
-          type: PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
+          type: PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
           navn: "Avtalt månedspris per tiltaksplass",
           beskrivelse: [],
         },
         {
-          type: PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+          type: PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
           navn: "Avtalt ukespris per tiltaksplass",
           beskrivelse: [],
         },
         {
-          type: PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+          type: PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE,
           navn: "Avtalt pris per uke med påbegynt oppfølging per deltaker",
           beskrivelse: [],
         },

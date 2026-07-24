@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 
 @Serializable
 @SerialName("PRIS_PER_MANEDSVERK")
-data class TilsagnBeregningPrisPerManedsverk(
+data class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed(
     override val input: Input,
     override val output: Output,
 ) : TilsagnBeregning() {
@@ -31,7 +31,7 @@ data class TilsagnBeregningPrisPerManedsverk(
     ) : TilsagnBeregningOutput()
 
     companion object {
-        fun beregn(input: Input): TilsagnBeregningPrisPerManedsverk {
+        fun beregn(input: Input): TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed {
             val aktivePerioder = input.periode.subtractPeriods(input.stengt.map { it.periode })
 
             val totalMonths = aktivePerioder
@@ -44,7 +44,7 @@ data class TilsagnBeregningPrisPerManedsverk(
                 input.antallPlasser,
             )
 
-            return TilsagnBeregningPrisPerManedsverk(input, Output(pris = belop))
+            return TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed(input, Output(pris = belop))
         }
     }
 }

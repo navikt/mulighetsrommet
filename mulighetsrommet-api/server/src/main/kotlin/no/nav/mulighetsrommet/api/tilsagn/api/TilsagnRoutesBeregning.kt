@@ -22,12 +22,12 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
@@ -221,16 +221,16 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
     val beregning = TilsagnBeregningRequest(
         type = beregningType,
         antallPlasser = when (tilsagn.beregning) {
-            is TilsagnBeregningFastSatsPerTiltaksplassPerManed -> tilsagn.beregning.input.antallPlasser
-            is TilsagnBeregningPrisPerManedsverk -> tilsagn.beregning.input.antallPlasser
-            is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallPlasser
-            is TilsagnBeregningPrisPerUkesverk -> tilsagn.beregning.input.antallPlasser
-            is TilsagnBeregningPrisPerHeleUkesverk -> tilsagn.beregning.input.antallPlasser
-            is TilsagnBeregningFri -> null
+            is TilsagnBeregningFastSatsPerBenyttetPlassPerManed -> tilsagn.beregning.input.antallPlasser
+            is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed -> tilsagn.beregning.input.antallPlasser
+            is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallPlasser
+            is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke -> tilsagn.beregning.input.antallPlasser
+            is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> tilsagn.beregning.input.antallPlasser
+            is TilsagnBeregningAnnenAvtaltPris -> null
         },
         prisbetingelser = prisbetingelser,
         linjer = when (tilsagn.beregning) {
-            is TilsagnBeregningFri ->
+            is TilsagnBeregningAnnenAvtaltPris ->
                 tilsagn.beregning.input.linjer.map {
                     TilsagnInputLinjeRequest(
                         id = it.id,
@@ -243,7 +243,7 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
             else -> emptyList()
         },
         antallTimerOppfolgingPerDeltaker = when (tilsagn.beregning) {
-            is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
+            is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
             else -> null
         },
     )
@@ -275,14 +275,14 @@ fun resolveTilsagnDefaults(
     val periode = when (gjennomforing.prismodell) {
         is Prismodell.AnnenAvtaltPris -> null
 
-        is Prismodell.ForhandsgodkjentPrisPerManedsverk,
-        is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
+        is Prismodell.FastSatsPerBenyttetPlassPerManed,
+        is Prismodell.FastSatsPerAvtaltPlassPerManed,
         -> getForhandsgodkjentTiltakPeriode(config, gjennomforing, tilsagn)
 
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
-        is Prismodell.AvtaltPrisPerUkesverk,
-        is Prismodell.AvtaltPrisPerHeleUkesverk,
-        is Prismodell.AvtaltPrisPerManedsverk,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
         -> getAnskaffetTiltakPeriode(config, gjennomforing, tilsagn)
 
         is Prismodell.TilskuddTilOpplaering,
@@ -307,7 +307,7 @@ fun resolveTilsagnDefaults(
             ),
         ),
         antallTimerOppfolgingPerDeltaker = when (tilsagn?.beregning) {
-            is TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
+            is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
             else -> null
         },
     )
@@ -402,15 +402,18 @@ private fun resolveEkstraTilsagnInvesteringDefaults(
 
 private fun resolveBeregningTypeAndPrisbetingelser(
     prismodell: Prismodell,
-): Pair<TilsagnBeregningType, String?> = when (prismodell) {
-    is Prismodell.AnnenAvtaltPris -> TilsagnBeregningType.FRI to prismodell.prisbetingelser
-    is Prismodell.AvtaltPrisPerManedsverk -> TilsagnBeregningType.PRIS_PER_MANEDSVERK to prismodell.prisbetingelser
-    is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING to prismodell.prisbetingelser
-    is Prismodell.AvtaltPrisPerUkesverk -> TilsagnBeregningType.PRIS_PER_UKESVERK to prismodell.prisbetingelser
-    is Prismodell.AvtaltPrisPerHeleUkesverk -> TilsagnBeregningType.PRIS_PER_HELE_UKESVERK to prismodell.prisbetingelser
-    is Prismodell.ForhandsgodkjentPrisPerManedsverk -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
-    is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED to null
-    is Prismodell.TilskuddTilOpplaering, is Prismodell.IngenKostnader -> stotterIkkeTilsagnError(prismodell)
+): Pair<TilsagnBeregningType, String?> {
+    val type = when (prismodell) {
+        is Prismodell.AnnenAvtaltPris -> TilsagnBeregningType.FRI
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerManed -> TilsagnBeregningType.PRIS_PER_MANEDSVERK
+        is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerUke -> TilsagnBeregningType.PRIS_PER_UKESVERK
+        is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke -> TilsagnBeregningType.PRIS_PER_HELE_UKESVERK
+        is Prismodell.FastSatsPerBenyttetPlassPerManed -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
+        is Prismodell.FastSatsPerAvtaltPlassPerManed -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
+        is Prismodell.TilskuddTilOpplaering, is Prismodell.IngenKostnader -> stotterIkkeTilsagnError(prismodell)
+    }
+    return type to prismodell.prisbetingelser()
 }
 
 private fun stotterIkkeTilsagnError(prismodell: Prismodell): Nothing {

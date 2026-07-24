@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.tiltak.okonomi.Tilskuddstype
 
 @Serializable
-data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
+data class UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(
     override val input: Input,
     override val output: Output,
 ) : UtbetalingBeregning() {
@@ -33,20 +33,20 @@ data class UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
 }
 
 object FastSatsPerTiltaksplassPerManedBeregning :
-    SystemgenerertPrismodell.FraDeltakelser<UtbetalingBeregningFastSatsPerTiltaksplassPerManed> {
+    SystemgenerertPrismodell.FraDeltakelser<UtbetalingBeregningFastSatsPerBenyttetPlassPerManed> {
 
-    override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
+    override val type = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED
     override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
     override fun beregn(
         gjennomforing: GjennomforingAvtale,
         periode: Periode,
         deltakere: List<Deltaker>,
-    ): UtbetalingBeregningFastSatsPerTiltaksplassPerManed {
+    ): UtbetalingBeregningFastSatsPerBenyttetPlassPerManed {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = resolveDeltakelserPerioderMedDeltakelsesmengder(deltakere, periode)
-        val input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(satser, stengt, deltakelser)
+        val input = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Input(satser, stengt, deltakelser)
 
         val manedsverk = deltakelser
             .map { deltakelse ->
@@ -59,9 +59,9 @@ object FastSatsPerTiltaksplassPerManedBeregning :
             }
             .toSet()
         val belop = UtbetalingBeregningHelpers.calculateBelopForDeltakelser(gjennomforing.prismodell.valuta, manedsverk)
-        val output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(belop, manedsverk)
+        val output = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Output(belop, manedsverk)
 
-        return UtbetalingBeregningFastSatsPerTiltaksplassPerManed(input, output)
+        return UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(input, output)
     }
 
     private fun resolveDeltakelserPerioderMedDeltakelsesmengder(

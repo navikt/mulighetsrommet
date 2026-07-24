@@ -25,12 +25,12 @@ import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -186,10 +186,10 @@ class TilsagnService(
         return try {
             when (request.beregning.type) {
                 TilsagnBeregningType.FRI ->
-                    TilsagnBeregningFri.beregn(
-                        TilsagnBeregningFri.Input(
+                    TilsagnBeregningAnnenAvtaltPris.beregn(
+                        TilsagnBeregningAnnenAvtaltPris.Input(
                             linjer = request.beregning.linjer.orEmpty().map {
-                                TilsagnBeregningFri.InputLinje(
+                                TilsagnBeregningAnnenAvtaltPris.InputLinje(
                                     id = it.id,
                                     beskrivelse = it.beskrivelse ?: "",
                                     pris = it.pris ?: 0.NOK,
@@ -202,8 +202,8 @@ class TilsagnService(
 
                 TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
                     beregnTilsagnFallbackResolver(request)?.let { fallback ->
-                        TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
-                            TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                        TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(
+                            TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
                                 antallPlasser = fallback.antallPlasser,
@@ -214,8 +214,8 @@ class TilsagnService(
 
                 TilsagnBeregningType.PRIS_PER_MANEDSVERK ->
                     beregnTilsagnFallbackResolver(request)?.let { fallback ->
-                        TilsagnBeregningPrisPerManedsverk.beregn(
-                            TilsagnBeregningPrisPerManedsverk.Input(
+                        TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(
+                            TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
                                 antallPlasser = fallback.antallPlasser,
@@ -227,8 +227,8 @@ class TilsagnService(
 
                 TilsagnBeregningType.PRIS_PER_UKESVERK ->
                     beregnTilsagnFallbackResolver(request)?.let { fallback ->
-                        TilsagnBeregningPrisPerUkesverk.beregn(
-                            TilsagnBeregningPrisPerUkesverk.Input(
+                        TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(
+                            TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
                                 antallPlasser = fallback.antallPlasser,
@@ -240,8 +240,8 @@ class TilsagnService(
 
                 TilsagnBeregningType.PRIS_PER_HELE_UKESVERK ->
                     beregnTilsagnFallbackResolver(request)?.let { fallback ->
-                        TilsagnBeregningPrisPerHeleUkesverk.beregn(
-                            TilsagnBeregningPrisPerHeleUkesverk.Input(
+                        TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.beregn(
+                            TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
                                 antallPlasser = fallback.antallPlasser,
@@ -253,8 +253,8 @@ class TilsagnService(
 
                 TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING ->
                     beregnTilsagnFallbackResolver(request)?.let { fallback ->
-                        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
-                            TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                        TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.beregn(
+                            TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
                                 antallPlasser = fallback.antallPlasser,

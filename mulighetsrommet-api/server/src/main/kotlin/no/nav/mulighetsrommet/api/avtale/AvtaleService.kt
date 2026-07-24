@@ -254,7 +254,7 @@ class AvtaleService(
             return@transaction deleteRammedetaljer(id, navIdent).right()
         }
         RammedetaljerValidator.validateRammedetaljer(
-            context = RammedetaljerValidator.Ctx(avtale.id, avtale.prisinfo.toList()),
+            context = RammedetaljerValidator.Ctx(avtale.id, avtale.prisinfo),
             request,
         ).map { rammedetalerDbo ->
             queries.rammedetaljer.upsert(rammedetalerDbo)

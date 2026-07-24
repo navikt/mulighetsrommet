@@ -5,13 +5,13 @@ import io.kotest.core.spec.style.FunSpec
 import no.nav.mulighetsrommet.model.NOK
 import java.util.UUID
 
-class TilsagnBeregningFriTest : FunSpec({
+class TilsagnBeregningAnnenAvtaltPrisTest : FunSpec({
     test("overflow kaster exception") {
         shouldThrow<ArithmeticException> {
-            val input = TilsagnBeregningFri.Input(
+            val input = TilsagnBeregningAnnenAvtaltPris.Input(
                 prisbetingelser = null,
                 linjer = listOf(
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "",
                         pris = 999_999_999.NOK,
@@ -20,7 +20,7 @@ class TilsagnBeregningFriTest : FunSpec({
                 ),
             )
 
-            TilsagnBeregningFri.beregn(input)
+            TilsagnBeregningAnnenAvtaltPris.beregn(input)
         }
     }
 })

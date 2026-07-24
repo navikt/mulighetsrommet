@@ -8,9 +8,9 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
-class TilsagnBeregningUkesverkTest : FunSpec({
+class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUkeTest : FunSpec({
     test("en hel uke gir full sats") {
-        val input = TilsagnBeregningPrisPerUkesverk.Input(
+        val input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
             periode = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 13)),
             sats = 100.NOK,
             antallPlasser = 1,
@@ -18,11 +18,11 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             stengt = setOf(),
         )
 
-        TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 100.NOK
+        TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 100.NOK
     }
 
     test("fem ukedager gir full sats") {
-        val input = TilsagnBeregningPrisPerUkesverk.Input(
+        val input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
             periode = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 11)),
             sats = 100.NOK,
             antallPlasser = 1,
@@ -30,11 +30,11 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             stengt = setOf(),
         )
 
-        TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 100.NOK
+        TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 100.NOK
     }
 
     test("helgedager gir ingen ingenting") {
-        val input = TilsagnBeregningPrisPerUkesverk.Input(
+        val input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
             periode = Periode(LocalDate.of(2025, 1, 11), LocalDate.of(2025, 1, 13)),
             sats = 100.NOK,
             antallPlasser = 1,
@@ -42,11 +42,11 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             stengt = setOf(),
         )
 
-        TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 0.NOK
+        TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 0.NOK
     }
 
     test("en hel måned gir flere ukesverk") {
-        val input = TilsagnBeregningPrisPerUkesverk.Input(
+        val input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             sats = 100.NOK,
             antallPlasser = 1,
@@ -54,11 +54,11 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             stengt = setOf(),
         )
 
-        TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 460.NOK
+        TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 460.NOK
     }
 
     test("flere antall plasser øker antall ukesverk") {
-        val input = TilsagnBeregningPrisPerUkesverk.Input(
+        val input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             sats = 100.NOK,
             antallPlasser = 10,
@@ -66,12 +66,12 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             stengt = setOf(),
         )
 
-        TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 4600.NOK
+        TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 4600.NOK
     }
 
     test("stengt hele perioden gir 0 i beløp") {
         val periode = Periode(LocalDate.of(2025, 1, 6), LocalDate.of(2025, 1, 13))
-        val input = TilsagnBeregningPrisPerUkesverk.Input(
+        val input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
             periode = periode,
             sats = 100.NOK,
             antallPlasser = 1,
@@ -79,11 +79,11 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             stengt = setOf(StengtPeriode(periode, "Ukestengt")),
         )
 
-        TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 0.NOK
+        TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 0.NOK
     }
 
     test("stengt i deler av perioden gir redusert beløp") {
-        val input = TilsagnBeregningPrisPerUkesverk.Input(
+        val input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             sats = 100.NOK,
             antallPlasser = 1,
@@ -96,13 +96,13 @@ class TilsagnBeregningUkesverkTest : FunSpec({
             ),
         )
 
-        TilsagnBeregningPrisPerUkesverk.beregn(input).output.pris shouldBe 360.NOK
+        TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 360.NOK
     }
 
     test("overflow kaster exception") {
         // overflow i en delberegning for én måned
         shouldThrow<ArithmeticException> {
-            val input = TilsagnBeregningPrisPerUkesverk.Input(
+            val input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205.NOK,
                 antallPlasser = Int.MAX_VALUE,
@@ -110,12 +110,12 @@ class TilsagnBeregningUkesverkTest : FunSpec({
                 stengt = setOf(),
             )
 
-            TilsagnBeregningPrisPerUkesverk.beregn(input)
+            TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input)
         }
 
         // overflow på summering av 12 måneder
         shouldThrow<ArithmeticException> {
-            val input = TilsagnBeregningPrisPerUkesverk.Input(
+            val input = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2025, 1, 1)),
                 sats = 20205.NOK,
                 antallPlasser = 9500,
@@ -123,7 +123,7 @@ class TilsagnBeregningUkesverkTest : FunSpec({
                 stengt = setOf(),
             )
 
-            TilsagnBeregningPrisPerUkesverk.beregn(input)
+            TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input)
         }
     }
 })

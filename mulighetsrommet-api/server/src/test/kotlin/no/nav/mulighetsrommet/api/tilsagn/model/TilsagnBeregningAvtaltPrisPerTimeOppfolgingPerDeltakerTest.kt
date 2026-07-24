@@ -7,11 +7,11 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
 
-class TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
+class TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
     test("overflow kaster exception") {
         // overflow i en delberegning for én måned
         shouldThrow<ArithmeticException> {
-            val input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+            val input = TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.Input(
                 periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
                 sats = 20205.NOK,
                 antallPlasser = Int.MAX_VALUE,
@@ -19,12 +19,12 @@ class TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
                 prisbetingelser = null,
             )
 
-            TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(input)
+            TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.beregn(input)
         }
 
         // overflow på summering av 12 måneder
         shouldThrow<ArithmeticException> {
-            val input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+            val input = TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.Input(
                 periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2025, 1, 1)),
                 sats = 20205.NOK,
                 antallPlasser = 9500,
@@ -32,12 +32,12 @@ class TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
                 prisbetingelser = null,
             )
 
-            TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(input)
+            TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.beregn(input)
         }
     }
 
     test("periode påvirker ikke beregning") {
-        val input = TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+        val input = TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.Input(
             periode = Periode.forMonthOf(LocalDate.of(2024, 1, 1)),
             sats = 2.NOK,
             antallPlasser = 2,
@@ -45,11 +45,11 @@ class TilsagnBeregningPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
             prisbetingelser = null,
         )
 
-        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(input).output.pris shouldBe 8.NOK
-        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
+        TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.beregn(input).output.pris shouldBe 8.NOK
+        TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.beregn(
             input.copy(periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))),
         ).output.pris shouldBe 8.NOK
-        TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
+        TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.beregn(
             input.copy(periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 2))),
         ).output.pris shouldBe 8.NOK
     }
