@@ -48,6 +48,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.createAvtaleRequest
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -115,7 +116,7 @@ class AvtaleServiceTest : FunSpec({
                 prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft),
             ).initialize(database.api)
 
-            val request = AvtaleFixtures.createAvtaleRequest(
+            val request = createAvtaleRequest(
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                 avtaletype = Avtaletype.FORHANDSGODKJENT,
                 opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
@@ -128,7 +129,7 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("oppretter avtale med prismodell") {
-            val request = AvtaleFixtures.createAvtaleRequest(
+            val request = createAvtaleRequest(
                 Tiltakskode.OPPFOLGING,
                 prismodell = listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging),
             )
@@ -163,7 +164,7 @@ class AvtaleServiceTest : FunSpec({
 
             val avtaleService = createAvtaleService(syncArrangor = syncArrangor)
 
-            val request = AvtaleFixtures.createAvtaleRequest(
+            val request = createAvtaleRequest(
                 Tiltakskode.OPPFOLGING,
                 arrangor = DetaljerRequest.Arrangor(
                     hovedenhet = orgnrHovedenhet,
@@ -188,7 +189,7 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("skedulerer publisering av gjennomføringer tilhørende avtalen") {
-            val request = AvtaleFixtures.createAvtaleRequest(Tiltakskode.OPPFOLGING)
+            val request = createAvtaleRequest(Tiltakskode.OPPFOLGING)
 
             avtaleService.create(request, bertilNavIdent).shouldBeRight()
 
@@ -202,7 +203,7 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("får ikke opprette avtale dersom tiltakstype er utfaset") {
-            val request = AvtaleFixtures.createAvtaleRequest(
+            val request = createAvtaleRequest(
                 Tiltakskode.OPPFOLGING,
                 prismodell = listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging),
             )
@@ -223,12 +224,12 @@ class AvtaleServiceTest : FunSpec({
                 tiltakstyper = listOf(TiltakstypeFixtures.Arbeidstrening),
             ).initialize(database.api)
 
-            val arbeidstrening = AvtaleFixtures.createAvtaleRequest(Tiltakskode.ARBEIDSTRENING)
+            val arbeidstrening = createAvtaleRequest(Tiltakskode.ARBEIDSTRENING)
             avtaleService.create(arbeidstrening, bertilNavIdent).shouldBeLeft() shouldBe listOf(
                 FieldError.of("Avtaler kan ikke opprettes for denne tiltakstypen"),
             )
 
-            val hoyereUtdanning = AvtaleFixtures.createAvtaleRequest(Tiltakskode.HOYERE_UTDANNING)
+            val hoyereUtdanning = createAvtaleRequest(Tiltakskode.HOYERE_UTDANNING)
             avtaleService.create(hoyereUtdanning, bertilNavIdent).shouldBeLeft() shouldBe listOf(
                 FieldError.of("Avtaler kan ikke opprettes for denne tiltakstypen"),
             )
@@ -243,7 +244,7 @@ class AvtaleServiceTest : FunSpec({
 
             val avtaleService = createAvtaleService(syncArrangor = syncArrangor)
 
-            val request = AvtaleFixtures.createAvtaleRequest(
+            val request = createAvtaleRequest(
                 Tiltakskode.OPPFOLGING,
                 arrangor = DetaljerRequest.Arrangor(
                     hovedenhet = Organisasjonsnummer("223442332"),
@@ -267,7 +268,7 @@ class AvtaleServiceTest : FunSpec({
         val avtaleService = createAvtaleService(gjennomforingPublisher)
 
         test("oppdaterer detaljer, returnerer oppdatert avtale og skedulerer publisering av gjennomføringer") {
-            val request = AvtaleFixtures.createAvtaleRequest(Tiltakskode.OPPFOLGING)
+            val request = createAvtaleRequest(Tiltakskode.OPPFOLGING)
             avtaleService.create(request, bertilNavIdent).shouldBeRight()
 
             avtaleService.upsertDetaljer(
@@ -286,7 +287,7 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("gjør ingen endring og skedulerer ikke ny publisering når detaljene er uendret") {
-            val request = AvtaleFixtures.createAvtaleRequest(Tiltakskode.OPPFOLGING)
+            val request = createAvtaleRequest(Tiltakskode.OPPFOLGING)
             avtaleService.create(request, bertilNavIdent).shouldBeRight()
 
             val noopPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
@@ -304,10 +305,10 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("kan ikke endre tiltakskode etter at avtalen er opprettet") {
-            val request = AvtaleFixtures.createAvtaleRequest(Tiltakskode.OPPFOLGING)
+            val request = createAvtaleRequest(Tiltakskode.OPPFOLGING)
             avtaleService.create(request, bertilNavIdent).shouldBeRight()
 
-            val aftDetaljer = AvtaleFixtures.createAvtaleRequest(
+            val aftDetaljer = createAvtaleRequest(
                 Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
                 avtaletype = Avtaletype.FORHANDSGODKJENT,
                 opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
@@ -706,7 +707,7 @@ class AvtaleServiceTest : FunSpec({
         test("Ingen administrator-notification hvis administrator er samme som opprettet") {
             val identAnsatt1 = NavAnsattFixture.DonaldDuck.navIdent
 
-            val avtale = AvtaleFixtures.createAvtaleRequest(
+            val avtale = createAvtaleRequest(
                 Tiltakskode.OPPFOLGING,
                 administratorer = listOf(identAnsatt1),
             )
@@ -722,7 +723,7 @@ class AvtaleServiceTest : FunSpec({
             val identAnsatt2 = NavAnsattFixture.MikkeMus.navIdent
 
             val endretAv = NavIdent("B123456")
-            val request = AvtaleFixtures.createAvtaleRequest(
+            val request = createAvtaleRequest(
                 Tiltakskode.OPPFOLGING,
                 administratorer = listOf(identAnsatt2),
             )
@@ -980,7 +981,7 @@ class AvtaleServiceTest : FunSpec({
                 ),
             ).initialize(database.api)
 
-            val request = AvtaleFixtures.createAvtaleRequest(
+            val request = createAvtaleRequest(
                 Tiltakskode.OPPFOLGING,
                 arrangor = DetaljerRequest.Arrangor(
                     hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
