@@ -244,16 +244,16 @@ class GjennomforingAvtaleService(
         id: UUID,
         avsluttetTidspunkt: LocalDateTime,
         endretAv: Agent,
-    ): GjennomforingAvtale = db.transaction {
+    ): Either<List<FieldError>, GjennomforingAvtale> = db.transaction {
         val gjennomforing = getOrError(id)
 
-        check(gjennomforing.status == GjennomforingStatusType.GJENNOMFORES) {
-            "Gjennomføringen må være aktiv for å kunne avsluttes"
+        if (gjennomforing.status != GjennomforingStatusType.GJENNOMFORES) {
+            return FieldError.of("Gjennomføringen må være aktiv for å kunne avsluttes").nel().left()
         }
 
         val tidspunktForSlutt = gjennomforing.sluttDato?.plusDays(1)?.atStartOfDay()
-        check(tidspunktForSlutt != null && !avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
-            "Gjennomføringen kan ikke avsluttes før sluttdato"
+        if (tidspunktForSlutt == null || avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
+            return FieldError.of("Gjennomføringen kan ikke avsluttes før sluttdato").nel().left()
         }
 
         queries.gjennomforing.setStatus(
@@ -266,7 +266,9 @@ class GjennomforingAvtaleService(
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)
 
-        logEndring("Gjennomføringen ble avsluttet", id, endretAv).also { publishToKafka(it) }
+        logEndring("Gjennomføringen ble avsluttet", id, endretAv)
+            .also { publishToKafka(it) }
+            .right()
     }
 
     fun avbrytGjennomforing(
@@ -292,7 +294,7 @@ class GjennomforingAvtaleService(
         } else if (gjennomforing.sluttDato == null || sluttDato.isBefore(gjennomforing.sluttDato)) {
             GjennomforingStatusType.AVBRUTT to sluttDato
         } else {
-            throw Exception("Gjennomføring allerede avsluttet")
+            return FieldError.of("Ny sluttdato må være før gjeldende sluttdato").nel().left()
         }
 
         queries.gjennomforing.setStatus(

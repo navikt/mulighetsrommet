@@ -53,7 +53,7 @@ object PrismodellFixtures {
         ),
     )
 
-    val ForhandsgodkjentVtao = Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass(
+    val ForhandsgodkjentTao = Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass(
         id = UUID.randomUUID(),
         systemId = Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER.name,
         valuta = Valuta.NOK,

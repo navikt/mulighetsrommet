@@ -426,14 +426,10 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
             from view_avtale
             where (:tiltakstype_ids::uuid[] is null or tiltakstype_id = any (:tiltakstype_ids))
               and (:search::text is null or (fts @@ to_tsquery('norwegian', :search) or arrangor_hovedenhet_navn ilike :search_arrangor))
-              and (:nav_enheter::text[] is null or (
+              and (:nav_enheter::text[] is null or
                    exists(select true
                           from jsonb_array_elements(nav_enheter_json) as nav_enhet
-                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)) or
-                   arena_nav_enhet_enhetsnummer = any (:nav_enheter) or
-                   arena_nav_enhet_enhetsnummer in (select enhetsnummer
-                                                    from nav_enhet
-                                                    where overordnet_enhet = any (:nav_enheter))))
+                          where nav_enhet ->> 'enhetsnummer' = any (:nav_enheter)))
               and (:arrangor_ids::text[] is null or arrangor_hovedenhet_id = any (:arrangor_ids))
               and (:administrator_nav_ident::text is null or administratorer_json @> :administrator_nav_ident::jsonb)
               and (:avtaletyper::avtaletype[] is null or avtaletype = any (:avtaletyper))

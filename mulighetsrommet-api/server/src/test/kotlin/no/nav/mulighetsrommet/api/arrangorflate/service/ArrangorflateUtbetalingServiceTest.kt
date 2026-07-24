@@ -208,7 +208,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             forAll(
                 row(PrismodellFixtures.AvtaltPrisPerManedsverk),
-                row(PrismodellFixtures.ForhandsgodkjentVtao),
+                row(PrismodellFixtures.ForhandsgodkjentTao),
                 row(prisPerUkesverk),
                 row(prisPerHeleUkesverk),
             ) { prismodell ->
@@ -746,7 +746,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val tilsagnForAvtaltSats = Tilsagn1.copy(
                 id = UUID.randomUUID(),
-                gjennomforingId = GjennomforingFixtures.VTAO.id,
+                gjennomforingId = GjennomforingFixtures.TAO.id,
                 periode = januar,
                 belopBrukt = 0.NOK,
                 beregning = TilsagnBeregningFastSatsPerTiltaksplassPerManed(
@@ -761,7 +761,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             )
 
             val utbetalingForAvtaltSats = utbetaling1.copy(
-                gjennomforingId = GjennomforingFixtures.VTAO.id,
+                gjennomforingId = GjennomforingFixtures.TAO.id,
                 periode = januar,
                 beregning = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed(
                     input = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.Input(
@@ -789,11 +789,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             )
 
             MulighetsrommetTestDomain(
-                tiltakstyper = listOf(TiltakstypeFixtures.VTAO),
+                tiltakstyper = listOf(TiltakstypeFixtures.TAO),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.VTAO),
-                gjennomforinger = listOf(GjennomforingFixtures.VTAO),
-                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentVtao),
+                avtaler = listOf(AvtaleFixtures.TAO),
+                gjennomforinger = listOf(GjennomforingFixtures.TAO),
+                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTao),
                 tilsagn = listOf(tilsagnForAvtaltSats),
                 utbetalinger = listOf(utbetalingForAvtaltSats),
             ) {
