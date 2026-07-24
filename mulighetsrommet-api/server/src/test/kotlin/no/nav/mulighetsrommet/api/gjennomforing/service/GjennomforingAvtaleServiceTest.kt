@@ -11,11 +11,9 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.beInstanceOf
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
-import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
@@ -44,7 +42,6 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -109,12 +106,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.create(request, bertilNavIdent).shouldBeRight()
 
             database.run {
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
-                    record.key.decodeToString().toUUID() shouldBe request.id
-                    val deserialized = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
-                    deserialized should beInstanceOf<TiltaksgjennomforingV2Dto.Gruppe>()
-                    deserialized.id shouldBe request.id
-                }
+                getGjennomforingKafkaRecords().shouldHaveSize(1).first().id shouldBe request.id
             }
         }
 
@@ -194,7 +186,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             updated.navn shouldBe "Oppdatert navn"
 
             database.run {
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 2)
+                getGjennomforingKafkaRecords().shouldHaveSize(2)
             }
         }
 
@@ -236,7 +228,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             }
 
             database.run {
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 2)
+                getGjennomforingKafkaRecords().shouldHaveSize(2)
             }
         }
 
@@ -394,17 +386,12 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             database.run {
                 queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id).publisert.shouldBe(false)
 
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
-                    val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
-                    val gruppe = decoded.shouldBeInstanceOf<TiltaksgjennomforingV2Dto.Gruppe>()
-                    gruppe.id shouldBe gjennomforing.id
-                    gruppe.apentForPamelding shouldBe false
+                getGjennomforingKafkaRecords().shouldHaveSize(1).should { (first) ->
+                    first.id shouldBe gjennomforing.id
+                    first.apentForPamelding shouldBe false
                 }
 
-                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
-                    .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
-                        it.operation shouldBe "Gjennomføringen ble avbrutt"
-                    }
+                getEndringshistorikkOperations(gjennomforing.id) shouldBe listOf("Gjennomføringen ble avbrutt")
             }
         }
 
@@ -514,17 +501,12 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             database.run {
                 queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id).publisert.shouldBe(false)
 
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
-                    val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
-                    val gruppe = decoded.shouldBeInstanceOf<TiltaksgjennomforingV2Dto.Gruppe>()
-                    gruppe.id shouldBe gjennomforing.id
-                    gruppe.status shouldBe GjennomforingStatusType.AVSLUTTET
+                getGjennomforingKafkaRecords().shouldHaveSize(1).should { (first) ->
+                    first.id shouldBe gjennomforing.id
+                    first.status shouldBe GjennomforingStatusType.AVSLUTTET
                 }
 
-                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
-                    .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
-                        it.operation shouldBe "Gjennomføringen ble avsluttet"
-                    }
+                getEndringshistorikkOperations(gjennomforing.id) shouldBe listOf("Gjennomføringen ble avsluttet")
             }
         }
     }
@@ -544,10 +526,9 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.updateArenaData(gjennomforing.id, arenaData).arena shouldBe arenaData
 
             database.run {
-                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
-                    .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
-                        it.operation shouldBe "Oppdatert med tiltaksnummer fra Arena"
-                    }
+                getEndringshistorikkOperations(gjennomforing.id) shouldBe listOf(
+                    "Oppdatert med tiltaksnummer fra Arena",
+                )
             }
         }
 
@@ -564,10 +545,10 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.updateArenaData(gjennomforing.id, nyArenaData).arena shouldBe nyArenaData
 
             database.run {
-                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
-                    .shouldNotBeNull().entries.shouldHaveSize(2).first().should {
-                        it.operation shouldBe "Endret i Arena"
-                    }
+                getEndringshistorikkOperations(gjennomforing.id) shouldBe listOf(
+                    "Endret i Arena",
+                    "Oppdatert med tiltaksnummer fra Arena",
+                )
             }
         }
 
@@ -584,10 +565,8 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.updateArenaData(gjennomforing.id, arenaData).arena shouldBe arenaData
 
             database.run {
-                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
-                    .shouldNotBeNull().entries.shouldHaveSize(1)
-
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1)
+                getGjennomforingKafkaRecords().shouldHaveSize(1)
+                getEndringshistorikkOperations(gjennomforing.id).shouldHaveSize(1)
             }
         }
     }
@@ -657,14 +636,8 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             }
 
             database.run {
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
-                    record.key.decodeToString().toUUID() shouldBe gjennomforing.id
-                }
-
-                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
-                    .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
-                        it.operation shouldBe "Gjennomføringen ble gjenåpnet"
-                    }
+                getGjennomforingKafkaRecords().shouldHaveSize(1).first().id shouldBe gjennomforing.id
+                getEndringshistorikkOperations(gjennomforing.id) shouldBe listOf("Gjennomføringen ble gjenåpnet")
             }
         }
     }
@@ -752,13 +725,8 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id).publisert shouldBe true
-
-                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
-                    .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
-                        it.operation shouldBe "Tiltak publisert"
-                    }
-
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 0)
+                getGjennomforingKafkaRecords().shouldBeEmpty()
+                getEndringshistorikkOperations(gjennomforing.id) shouldBe listOf("Tiltak publisert")
             }
         }
 
@@ -772,11 +740,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.setApentForPamelding(gjennomforing.id, apentForPamelding = false, agent = bertilNavIdent)
 
             database.run {
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
-                    val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
-                    val gruppe = decoded.shouldBeInstanceOf<TiltaksgjennomforingV2Dto.Gruppe>()
-                    gruppe.apentForPamelding shouldBe false
-                }
+                getGjennomforingKafkaRecords().shouldHaveSize(1).first().apentForPamelding shouldBe false
             }
         }
     }
@@ -805,7 +769,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             }
 
             database.run {
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1)
+                getGjennomforingKafkaRecords().shouldHaveSize(1)
             }
         }
 
@@ -848,7 +812,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.deleteStengtHosArrangor(gjennomforing.id, periodeId, bertilNavIdent).stengt.shouldBeEmpty()
 
             database.run {
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 2)
+                getGjennomforingKafkaRecords().shouldHaveSize(2)
             }
         }
     }
@@ -914,10 +878,8 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             ).shouldBeRight()
 
             database.run {
-                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
-                    val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
-                    val gruppe = decoded.shouldBeInstanceOf<TiltaksgjennomforingV2Dto.Gruppe>()
-                    gruppe.tilgjengeligForArrangorFraOgMedDato shouldBe tilgjengeligForArrangorDato
+                getGjennomforingKafkaRecords().shouldHaveSize(1).should { (first) ->
+                    first.tilgjengeligForArrangorFraOgMedDato shouldBe tilgjengeligForArrangorDato
                 }
             }
         }
@@ -978,6 +940,14 @@ class GjennomforingAvtaleServiceTest : FunSpec({
     }
 })
 
-private fun QueryContext.shouldHaveKafkaProducerRecords(topic: String, size: Int): List<StoredProducerRecord> {
-    return queries.kafkaProducerRecord.getRecords(100, listOf(topic)).shouldHaveSize(size)
+private fun QueryContext.getGjennomforingKafkaRecords(): List<TiltaksgjennomforingV2Dto.Gruppe> {
+    return queries.kafkaProducerRecord.getRecords(100, listOf(TEST_GJENNOMFORING_V2_TOPIC)).map {
+        Json.decodeFromString<TiltaksgjennomforingV2Dto>(it.value.decodeToString()).shouldBeInstanceOf()
+    }
+}
+
+private fun QueryContext.getEndringshistorikkOperations(gjennomforingId: UUID): List<String> {
+    return queries.endringshistorikk
+        .getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforingId)
+        .shouldNotBeNull().entries.map { it.operation }
 }
