@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.avtale.db
+package no.nav.mulighetsrommet.api.persistence.tiltak
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
@@ -31,7 +31,6 @@ import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
 import no.nav.mulighetsrommet.api.fixtures.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.fixtures.KurstypeFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Innlandet
@@ -39,7 +38,8 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
-import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.api.persistence.AdminTestDomain
+import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NOK
@@ -51,10 +51,10 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class AvtaleQueriesTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener())
+    val database = extension(SqlAdminDatabaseTestListener())
 
     context("CRUD") {
-        val domain = MulighetsrommetTestDomain(
+        val domain = AdminTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             arrangorer = listOf(
                 ArrangorFixtures.hovedenhet,
@@ -74,11 +74,11 @@ class AvtaleQueriesTest : FunSpec({
                 repository.avtale.save(avtale1)
                 repository.avtale.save(avtale2)
 
-                val avtale1Avtalenummer = queries.avtale.getOrError(avtale1.id).avtalenummer.shouldNotBeNull()
+                val avtale1Avtalenummer = repository.avtale.getOrError(avtale1.id).avtalenummer.shouldNotBeNull()
                 avtale1Avtalenummer.take(4).toInt() shouldBe LocalDate.now().year
                 avtale1Avtalenummer.substring(5).toInt() shouldBeGreaterThanOrEqual 10_000
 
-                val avtale2Avtalenummer = queries.avtale.getOrError(avtale2.id).avtalenummer.shouldNotBeNull()
+                val avtale2Avtalenummer = repository.avtale.getOrError(avtale2.id).avtalenummer.shouldNotBeNull()
                 avtale2Avtalenummer.take(4).toInt() shouldBe LocalDate.now().year
                 avtale1Avtalenummer.substring(5).toInt() shouldBeLessThan avtale2Avtalenummer.substring(5).toInt()
             }
@@ -96,7 +96,7 @@ class AvtaleQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.avtale.getOrError(avtaleId).arrangor.shouldBeNull()
+                repository.avtale.getOrError(avtaleId).arrangor.shouldBeNull()
             }
         }
 
@@ -108,40 +108,40 @@ class AvtaleQueriesTest : FunSpec({
                 repository.avtale.save(AvtaleFixtures.oppfolging)
 
                 val tidspunkt = LocalDate.now().atStartOfDay()
-                queries.avtale.setStatus(
+                avtale.setStatus(
                     id = id,
                     status = AvtaleStatusType.AVBRUTT,
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
                 )
-                queries.avtale.getOrError(id).status shouldBe AvtaleStatus.Avbrutt(
+                repository.avtale.getOrError(id).status shouldBe AvtaleStatus.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.ANNET),
                     forklaring = ":)",
                 )
 
-                queries.avtale.setStatus(
+                avtale.setStatus(
                     id = id,
                     status = AvtaleStatusType.AVBRUTT,
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
-                queries.avtale.getOrError(id).status shouldBe AvtaleStatus.Avbrutt(
+                repository.avtale.getOrError(id).status shouldBe AvtaleStatus.Avbrutt(
                     tidspunkt = tidspunkt,
                     aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
 
-                queries.avtale.setStatus(
+                avtale.setStatus(
                     id = id,
                     status = AvtaleStatusType.AVSLUTTET,
                     tidspunkt = null,
                     aarsaker = null,
                     forklaring = null,
                 )
-                queries.avtale.getOrError(id).status shouldBe AvtaleStatus.Avsluttet
+                repository.avtale.getOrError(id).status shouldBe AvtaleStatus.Avsluttet
             }
         }
 
@@ -158,14 +158,14 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 repository.avtale.save(avtale1)
-                queries.avtale.getOrError(avtale1.id).administratorer shouldContainExactlyInAnyOrder listOf(
+                repository.avtale.getOrError(avtale1.id).administratorer shouldContainExactlyInAnyOrder listOf(
                     ansatt1.navIdent,
                 )
 
                 repository.avtale.save(
                     avtale1.copy(administratorer = setOf(ansatt1.navIdent, ansatt2.navIdent)),
                 )
-                queries.avtale.getOrError(avtale1.id).administratorer shouldContainExactlyInAnyOrder listOf(
+                repository.avtale.getOrError(avtale1.id).administratorer shouldContainExactlyInAnyOrder listOf(
                     ansatt1.navIdent,
                     ansatt2.navIdent,
                 )
@@ -173,7 +173,7 @@ class AvtaleQueriesTest : FunSpec({
                 repository.avtale.save(
                     avtale1.copy(administratorer = emptySet()),
                 )
-                queries.avtale.getOrError(avtale1.id).administratorer.shouldBeEmpty()
+                repository.avtale.getOrError(avtale1.id).administratorer.shouldBeEmpty()
             }
         }
 
@@ -189,7 +189,7 @@ class AvtaleQueriesTest : FunSpec({
             )
 
             database.runAndRollback {
-                MulighetsrommetTestDomain(
+                AdminTestDomain(
                     navEnheter = listOf(Innlandet, Gjovik, Sel),
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                     avtaler = listOf(avtale),
@@ -218,7 +218,7 @@ class AvtaleQueriesTest : FunSpec({
             )
 
             database.runAndRollback {
-                MulighetsrommetTestDomain(
+                AdminTestDomain(
                     navEnheter = listOf(Innlandet, Oslo, Gjovik),
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
                     avtaler = listOf(avtale),
@@ -259,7 +259,7 @@ class AvtaleQueriesTest : FunSpec({
             )
 
             database.runAndRollback {
-                MulighetsrommetTestDomain(
+                AdminTestDomain(
                     arrangorer = listOf(
                         ArrangorFixtures.hovedenhet.registrerKontaktpersoner(listOf(p1, p2, p3)),
                         ArrangorFixtures.underenhet1,
@@ -267,7 +267,7 @@ class AvtaleQueriesTest : FunSpec({
                     avtaler = listOf(avtale),
                 ).initialize()
 
-                queries.avtale.getOrError(avtale.id).should {
+                repository.avtale.getOrError(avtale.id).should {
                     it.arrangor?.kontaktpersoner shouldContainExactly listOf(p1.id)
                 }
 
@@ -275,22 +275,22 @@ class AvtaleQueriesTest : FunSpec({
                     avtale.copy(arrangor = avtale.arrangor?.copy(kontaktpersoner = listOf(p2.id, p3.id))),
                 )
 
-                queries.avtale.getOrError(avtale.id).should {
+                repository.avtale.getOrError(avtale.id).should {
                     it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(
                         p2.id,
                         p3.id,
                     )
                 }
 
-                queries.avtale.frikobleKontaktpersonFraAvtale(p3.id, avtale.id)
-                queries.avtale.getOrError(avtale.id).should {
+                this.avtale.frikobleKontaktpersonFraAvtale(p3.id, avtale.id)
+                repository.avtale.getOrError(avtale.id).should {
                     it.arrangor?.kontaktpersoner shouldContainExactlyInAnyOrder listOf(p2.id)
                 }
 
                 repository.avtale.save(
                     avtale.copy(arrangor = avtale.arrangor?.copy(kontaktpersoner = emptyList())),
                 )
-                queries.avtale.getOrError(avtale.id).should {
+                repository.avtale.getOrError(avtale.id).should {
                     it.arrangor?.kontaktpersoner.shouldBeEmpty()
                 }
             }
@@ -312,7 +312,7 @@ class AvtaleQueriesTest : FunSpec({
                     it.personopplysninger.map { it.type } shouldContainExactly listOf(Personopplysning.Type.NAVN)
                 }
 
-                queries.avtale.updatePersonvern(
+                this.avtale.updatePersonvern(
                     avtale.id,
                     Avtale.Personvern(
                         personopplysninger = setOf(
@@ -330,7 +330,7 @@ class AvtaleQueriesTest : FunSpec({
                     )
                 }
 
-                queries.avtale.updatePersonvern(
+                this.avtale.updatePersonvern(
                     avtale.id,
                     Avtale.Personvern(personopplysninger = emptySet(), annetBeskrivelse = null, erBekreftet = false),
                 )
@@ -383,19 +383,19 @@ class AvtaleQueriesTest : FunSpec({
                     ),
                 )
 
-                MulighetsrommetTestDomain(
+                AdminTestDomain(
                     arrangorer = listOf(hovedenhet, underenhet1, underenhet2),
                     avtaler = listOf(avtale),
                 ).initialize()
 
-                queries.avtale.getOrError(avtale.id).should {
+                repository.avtale.getOrError(avtale.id).should {
                     it.arrangor?.underenheter.shouldNotBeEmpty()
                     it.arrangor?.kontaktpersoner.shouldNotBeEmpty()
                 }
 
                 repository.avtale.save(avtale.copy(arrangor = null))
 
-                queries.avtale.getOrError(avtale.id).should {
+                repository.avtale.getOrError(avtale.id).should {
                     it.arrangor.shouldBeNull()
                 }
             }
@@ -488,7 +488,7 @@ class AvtaleQueriesTest : FunSpec({
                 )
                 repository.avtale.save(avtale)
 
-                queries.avtale.getOrError(avtale.id).prisinfo.toList() shouldContainExactlyInAnyOrder listOf(prismodell1)
+                repository.avtale.getOrError(avtale.id).prisinfo.toList() shouldContainExactlyInAnyOrder listOf(prismodell1)
 
                 repository.avtale.save(
                     avtale.copy(
@@ -496,7 +496,7 @@ class AvtaleQueriesTest : FunSpec({
                     ),
                 )
 
-                queries.avtale.getOrError(avtale.id).prisinfo.toList() shouldContainExactlyInAnyOrder listOf(
+                repository.avtale.getOrError(avtale.id).prisinfo.toList() shouldContainExactlyInAnyOrder listOf(
                     prismodell1,
                     prismodell2,
                 )
@@ -509,13 +509,13 @@ class AvtaleQueriesTest : FunSpec({
                 )
                 repository.avtale.save(avtale.copy(prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell3))))
 
-                queries.avtale.getOrError(avtale.id).prisinfo.toList() shouldContainExactlyInAnyOrder listOf(prismodell3)
+                repository.avtale.getOrError(avtale.id).prisinfo.toList() shouldContainExactlyInAnyOrder listOf(prismodell3)
             }
         }
     }
 
     context("Filter for avtaler") {
-        val oppfolgingDomain = MulighetsrommetTestDomain(
+        val oppfolgingDomain = AdminTestDomain(
             arrangorer = listOf(
                 ArrangorFixtures.hovedenhet,
                 ArrangorFixtures.underenhet1,
@@ -546,9 +546,9 @@ class AvtaleQueriesTest : FunSpec({
                 )
 
                 repository.avtale.save(avtale1)
-                queries.avtale.upsertAvtalenummer(avtale1.id, avtalenummer1)
+                this.avtale.upsertAvtalenummer(avtale1.id, avtalenummer1)
                 repository.avtale.save(avtale2)
-                queries.avtale.upsertAvtalenummer(avtale2.id, avtalenummer2)
+                this.avtale.upsertAvtalenummer(avtale2.id, avtalenummer2)
 
                 queries.avtale.getAllAvtaleDto(search = "krokodillen").should {
                     it.totalCount shouldBe 1
@@ -632,7 +632,7 @@ class AvtaleQueriesTest : FunSpec({
                     id = UUID.randomUUID(),
                 )
                 repository.avtale.save(avtaleAvbrutt)
-                queries.avtale.setStatus(
+                avtale.setStatus(
                     avtaleAvbrutt.id,
                     AvtaleStatusType.AVBRUTT,
                     LocalDateTime.now(),
@@ -663,7 +663,7 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("filtrering på Nav-enheter") {
-            val domain = MulighetsrommetTestDomain(
+            val domain = AdminTestDomain(
                 navEnheter = listOf(Innlandet, Gjovik, Sel),
                 tiltakstyper = listOf(
                     TiltakstypeFixtures.Oppfolging,
@@ -721,7 +721,7 @@ class AvtaleQueriesTest : FunSpec({
                 avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
             )
 
-            val domain = MulighetsrommetTestDomain(
+            val domain = AdminTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeAmo),
                 avtaler = listOf(avtale1, avtale2, avtale3),
             )
@@ -747,7 +747,7 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Filtrer på tiltakstypeId returnerer avtaler tilknyttet spesifikk tiltakstype") {
-            val domain = MulighetsrommetTestDomain(
+            val domain = AdminTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, TiltakstypeFixtures.AFT),
                 avtaler = listOf(
                     AvtaleFixtures.oppfolging,
@@ -783,7 +783,7 @@ class AvtaleQueriesTest : FunSpec({
                 overordnetEnhet = ArrangorFixtures.underenhet1.overordnetEnhet,
             )
 
-            val domain = MulighetsrommetTestDomain(
+            val domain = AdminTestDomain(
                 tiltakstyper = listOf(
                     TiltakstypeFixtures.Oppfolging,
                     TiltakstypeFixtures.AFT,
@@ -824,7 +824,7 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Filtrering på personvern_bekreftet") {
-            val domain = MulighetsrommetTestDomain(
+            val domain = AdminTestDomain(
                 avtaler = listOf(
                     AvtaleFixtures.oppfolging.copy(
                         personvern = Avtale.Personvern(
@@ -881,7 +881,7 @@ class AvtaleQueriesTest : FunSpec({
             organisasjonsnummer = Organisasjonsnummer("999888777"),
             organisasjonsform = "BEDR",
         )
-        val domain = MulighetsrommetTestDomain(
+        val domain = AdminTestDomain(
             arrangorer = listOf(arrangorA, arrangorB, arrangorC),
             tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging, TiltakstypeFixtures.Jobbklubb),
             avtaler = listOf(
