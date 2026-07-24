@@ -525,7 +525,7 @@ class AvtaleValidatorTest : FunSpec({
                     avtaletype = Avtaletype.FORHANDSGODKJENT,
                     systembestemtPrismodell = PrismodellFixtures.ForhandsgodkjentAft,
                 ),
-            ).shouldBeRight(listOf(PrismodellFixtures.ForhandsgodkjentAft))
+            ).shouldBeRight(Avtale.Prisinfo.Systembestemt(PrismodellFixtures.ForhandsgodkjentAft))
         }
 
         test("må stemme overens med tiltakstypen") {
@@ -719,7 +719,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 getContext(),
-            ).shouldBeRight()[0].satser() shouldBe listOf(
+            ).shouldBeRight().toList()[0].satser() shouldBe listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 1.NOK),
             )
         }
@@ -794,7 +794,7 @@ class AvtaleValidatorTest : FunSpec({
                     ),
                 ),
                 getContext(),
-            ).shouldBeRight()[0].satser() shouldBe listOf(
+            ).shouldBeRight().toList()[0].satser() shouldBe listOf(
                 AvtaltSats(LocalDate.of(2025, 1, 1), 1.NOK),
                 AvtaltSats(LocalDate.of(2025, 2, 1), 2.NOK),
                 AvtaltSats(LocalDate.of(2025, 3, 1), 3.NOK),
@@ -825,7 +825,6 @@ class AvtaleValidatorTest : FunSpec({
                     prismodellId = prismodell.id,
                 ),
             ),
-            prismodeller = listOf(prismodell),
         )
 
         test("Skal ikke kunne endre tiltakstype") {
@@ -1019,7 +1018,6 @@ class AvtaleValidatorTest : FunSpec({
             avtaletype = Avtaletype.AVTALE,
             tiltakskode = Tiltakskode.OPPFOLGING,
             gjennomforinger = listOf(),
-            prismodeller = listOf(prismodell),
         )
 
         test("status blir UTKAST når avtalen lagres uten en arrangør") {

@@ -60,7 +60,7 @@ object AvtaleFixtures {
         personvern = defaultPersonvern,
         opplaring = null,
         opsjoner = defaultOpsjoner,
-        prismodeller = listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging),
+        prisinfo = Avtale.Prisinfo.Egendefinert(listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging)),
     )
 
     val gruppeAmo: Avtale = Avtale(
@@ -79,7 +79,7 @@ object AvtaleFixtures {
         personvern = defaultPersonvern,
         opplaring = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering.id),
         opsjoner = defaultOpsjoner,
-        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris),
+        prisinfo = Avtale.Prisinfo.Egendefinert(listOf(PrismodellFixtures.AnnenAvtaltPris)),
     )
 
     val gruppeFagYrke: Avtale = Avtale(
@@ -98,7 +98,7 @@ object AvtaleFixtures {
         personvern = defaultPersonvern,
         opplaring = null,
         opsjoner = defaultOpsjoner,
-        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris),
+        prisinfo = Avtale.Prisinfo.Egendefinert(listOf(PrismodellFixtures.AnnenAvtaltPris)),
     )
 
     val VTA: Avtale = Avtale(
@@ -117,7 +117,7 @@ object AvtaleFixtures {
         personvern = defaultPersonvern,
         opplaring = null,
         opsjoner = defaultOpsjoner,
-        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentVtas),
+        prisinfo = Avtale.Prisinfo.Systembestemt(PrismodellFixtures.ForhandsgodkjentVtas),
     )
 
     val AFT: Avtale = Avtale(
@@ -136,7 +136,7 @@ object AvtaleFixtures {
         personvern = defaultPersonvern,
         opplaring = null,
         opsjoner = defaultOpsjoner,
-        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft),
+        prisinfo = Avtale.Prisinfo.Systembestemt(PrismodellFixtures.ForhandsgodkjentAft),
     )
 
     val TAO: Avtale = Avtale(
@@ -155,7 +155,7 @@ object AvtaleFixtures {
         personvern = defaultPersonvern,
         opplaring = null,
         opsjoner = defaultOpsjoner,
-        prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTao),
+        prisinfo = Avtale.Prisinfo.Systembestemt(PrismodellFixtures.ForhandsgodkjentTao),
     )
 
     val ARR: Avtale = Avtale(
@@ -174,7 +174,7 @@ object AvtaleFixtures {
         personvern = defaultPersonvern,
         opplaring = null,
         opsjoner = defaultOpsjoner,
-        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris),
+        prisinfo = Avtale.Prisinfo.Egendefinert(listOf(PrismodellFixtures.AnnenAvtaltPris)),
     )
 
     fun createAvtaleRequest(

@@ -36,7 +36,7 @@ data class Avtale(
     val personvern: Personvern,
     val opplaring: OpplaringKategorisering?,
     val opsjoner: Opsjoner,
-    val prismodeller: List<Prismodell>,
+    val prisinfo: Prisinfo,
 ) {
     @Serializable
     data class Arrangor(
@@ -44,6 +44,24 @@ data class Avtale(
         val underenheter: List<UUID>,
         val kontaktpersoner: List<UUID> = emptyList(),
     )
+
+    /**
+     * Skiller mellom prismodeller som avtalen selv eier ([Egendefinert]) og en prismodell som er eid av systemet
+     * og delt av alle avtaler for en gitt tiltakskode ([Systembestemt], for forhåndsgodkjente avtaler).
+     */
+    @Serializable
+    sealed interface Prisinfo {
+        @Serializable
+        data class Egendefinert(val prismodeller: List<Prismodell>) : Prisinfo
+
+        @Serializable
+        data class Systembestemt(val prismodell: Prismodell) : Prisinfo
+
+        fun toList(): List<Prismodell> = when (this) {
+            is Egendefinert -> prismodeller
+            is Systembestemt -> listOf(prismodell)
+        }
+    }
 
     @Serializable
     data class VeilederInfo(

@@ -33,8 +33,6 @@ import no.nav.mulighetsrommet.api.domain.tiltak.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonLoggStatus
-import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
-import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -140,7 +138,6 @@ class AvtaleService(
                         prismodellId = it.prismodell.id,
                     )
                 },
-                prismodeller = avtale.prismodeller,
             )
             val context = getValidatorCtx(
                 request = request,
@@ -239,8 +236,8 @@ class AvtaleService(
             systembestemtPrismodell = null,
         )
 
-        AvtaleValidator.validatePrismodeller(request, context).map { prismodeller ->
-            repository.avtale.save(avtale.copy(prismodeller = prismodeller))
+        AvtaleValidator.validatePrismodeller(request, context).map { prisinfo ->
+            repository.avtale.save(avtale.copy(prisinfo = prisinfo))
 
             logEndring("Prismodell oppdatert", id, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
@@ -257,7 +254,7 @@ class AvtaleService(
             return@transaction deleteRammedetaljer(id, navIdent).right()
         }
         RammedetaljerValidator.validateRammedetaljer(
-            context = RammedetaljerValidator.Ctx(avtale.id, avtale.prismodeller),
+            context = RammedetaljerValidator.Ctx(avtale.id, avtale.prisinfo.toList()),
             request,
         ).map { rammedetalerDbo ->
             queries.rammedetaljer.upsert(rammedetalerDbo)
@@ -538,10 +535,10 @@ class AvtaleService(
                 }
             },
             AvtaleHandling.OPPDATER_PRIS.takeIf {
-                avtale.prismodeller.any { it.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK }
+                avtale.prisinfo is Avtale.Prisinfo.Egendefinert
             },
             AvtaleHandling.OPPDATER_RAMMEDETALJER.takeIf {
-                avtale.prismodeller.any { it.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK }
+                avtale.prisinfo is Avtale.Prisinfo.Egendefinert
             },
             AvtaleHandling.REGISTRER_OPSJON.takeIf {
                 avtale.opsjoner.modell.opsjonMaksVarighet != null
@@ -575,7 +572,7 @@ class AvtaleService(
 
 private fun OpprettAvtaleRequest.toAvtale(
     detaljer: AvtaleValidator.ValidatedDetaljer,
-    prismodeller: List<Prismodell>,
+    prisinfo: Avtale.Prisinfo,
 ): Avtale = Avtale(
     id = id,
     tiltakskode = detaljer.tiltakskode,
@@ -596,7 +593,7 @@ private fun OpprettAvtaleRequest.toAvtale(
     personvern = personvern.toAvtalePersonvern(),
     opplaring = detaljer.opplaring,
     opsjoner = Avtale.Opsjoner(detaljer.opsjonsmodell, emptyList()),
-    prismodeller = prismodeller,
+    prisinfo = prisinfo,
 )
 
 private fun Avtale.toUpdatedAvtale(detaljer: AvtaleValidator.ValidatedDetaljer): Avtale = Avtale(
@@ -615,7 +612,7 @@ private fun Avtale.toUpdatedAvtale(detaljer: AvtaleValidator.ValidatedDetaljer):
     personvern = personvern,
     opplaring = detaljer.opplaring,
     opsjoner = Avtale.Opsjoner(detaljer.opsjonsmodell, opsjoner.registreringer),
-    prismodeller = prismodeller,
+    prisinfo = prisinfo,
 )
 
 private fun PersonvernRequest.toAvtalePersonvern(): Avtale.Personvern {

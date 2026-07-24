@@ -65,7 +65,6 @@ object AvtaleValidator {
             val avtaletype: Avtaletype,
             val tiltakskode: Tiltakskode,
             val gjennomforinger: List<Gjennomforing>,
-            val prismodeller: List<Prismodell>,
         )
 
         data class AvtaleArrangor(
@@ -219,7 +218,7 @@ object AvtaleValidator {
     fun validatePrismodeller(
         request: List<PrismodellRequest>,
         context: ValidatePrismodellerContext,
-    ): Either<List<FieldError>, List<Prismodell>> = validation {
+    ): Either<List<FieldError>, Avtale.Prisinfo> = validation {
         if (context.avtaletype == Avtaletype.FORHANDSGODKJENT) {
             requireValid(request.isEmpty()) {
                 FieldError.of(
@@ -233,7 +232,7 @@ object AvtaleValidator {
                     OpprettAvtaleRequest::prismodeller,
                 )
             }
-            return@validation listOf(context.systembestemtPrismodell)
+            return@validation Avtale.Prisinfo.Systembestemt(context.systembestemtPrismodell)
         }
 
         requireValid(request.isNotEmpty()) {
@@ -258,7 +257,7 @@ object AvtaleValidator {
             }
         }
 
-        request.mapIndexed { index, prismodell ->
+        val prismodeller = request.mapIndexed { index, prismodell ->
             validate(prismodell.type in Prismodeller.getPrismodellerForTiltak(context.tiltakskode)) {
                 FieldError(
                     "/prismodeller/$index/type",
@@ -295,6 +294,8 @@ object AvtaleValidator {
                 tilsagnPerDeltaker = prismodell.tilsagnPerDeltaker,
             )
         }
+
+        Avtale.Prisinfo.Egendefinert(prismodeller)
     }
 
     data class ValidateOpprettOpsjonContext(

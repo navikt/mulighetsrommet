@@ -68,13 +68,15 @@ class GjennomforingValidatorTest : FunSpec({
             erBekreftet = false,
         ),
         opplaring = null,
-        prismodeller = listOf(
-            Prismodell.AnnenAvtaltPris(
-                id = UUID.randomUUID(),
-                valuta = Valuta.NOK,
-                prisbetingelser = null,
-                tilsagnPerDeltaker = false,
-                totalbelop = null,
+        prisinfo = Avtale.Prisinfo.Egendefinert(
+            listOf(
+                Prismodell.AnnenAvtaltPris(
+                    id = UUID.randomUUID(),
+                    valuta = Valuta.NOK,
+                    prisbetingelser = null,
+                    tilsagnPerDeltaker = false,
+                    totalbelop = null,
+                ),
             ),
         ),
         opsjoner = Avtale.Opsjoner(

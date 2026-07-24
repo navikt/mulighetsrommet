@@ -293,7 +293,7 @@ object GjennomforingFixtures {
     fun createGjennomforingRequest(
         avtale: Avtale,
         id: UUID = UUID.randomUUID(),
-        prismodellId: UUID = avtale.prismodeller.single().id,
+        prismodellId: UUID = avtale.prisinfo.toList().single().id,
         arrangorId: UUID = ArrangorFixtures.underenhet1.id,
         startDato: LocalDate = avtale.startDato,
         sluttDato: LocalDate? = avtale.sluttDato,

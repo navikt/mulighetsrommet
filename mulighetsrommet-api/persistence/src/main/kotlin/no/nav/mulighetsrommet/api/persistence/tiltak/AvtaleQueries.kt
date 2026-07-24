@@ -59,10 +59,17 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
         upsertRedaksjoneltInnhold(avtale.id, avtale.veilederinfo.beskrivelse, avtale.veilederinfo.faneinnhold)
         upsertNavEnheter(avtale.id, avtale.veilederinfo.navEnheter)
         updatePersonvern(avtale.id, avtale.personvern)
-        syncPrismodeller(avtale.id, avtale.prismodeller)
+        syncPrismodeller(avtale.id, avtale.prisinfo)
     }
 
-    private fun syncPrismodeller(avtaleId: UUID, prismodeller: List<Prismodell>) {
+    private fun syncPrismodeller(avtaleId: UUID, prisinfo: Avtale.Prisinfo) {
+        when (prisinfo) {
+            is Avtale.Prisinfo.Systembestemt -> upsertPrismodell(avtaleId, prisinfo.prismodell.id)
+            is Avtale.Prisinfo.Egendefinert -> syncEgendefinertePrismodeller(avtaleId, prisinfo.prismodeller)
+        }
+    }
+
+    private fun syncEgendefinertePrismodeller(avtaleId: UUID, prismodeller: List<Prismodell>) {
         val desiredIds = prismodeller.map { it.id }.toSet()
 
         @Language("PostgreSQL")
@@ -615,6 +622,8 @@ private fun Row.toAvtale(): Avtale {
         }
     }
 
+    val avtaletype = Avtaletype.valueOf(string("avtaletype"))
+
     return Avtale(
         id = uuid("id"),
         tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
@@ -624,7 +633,7 @@ private fun Row.toAvtale(): Avtale {
         arrangor = arrangor,
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        avtaletype = Avtaletype.valueOf(string("avtaletype")),
+        avtaletype = avtaletype,
         status = status,
         administratorer = toAdministratorer().map { it.navIdent }.toSet(),
         veilederinfo = Avtale.VeilederInfo(
@@ -645,7 +654,10 @@ private fun Row.toAvtale(): Avtale {
             modell = toOpsjonsmodell(),
             registreringer = toOpsjonerRegistrert(),
         ),
-        prismodeller = toPrismodeller(),
+        prisinfo = when (avtaletype) {
+            Avtaletype.FORHANDSGODKJENT -> Avtale.Prisinfo.Systembestemt(toPrismodeller().single())
+            else -> Avtale.Prisinfo.Egendefinert(toPrismodeller())
+        },
     )
 }
 

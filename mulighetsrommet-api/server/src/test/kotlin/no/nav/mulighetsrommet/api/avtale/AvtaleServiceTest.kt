@@ -122,7 +122,7 @@ class AvtaleServiceTest : FunSpec({
                 prismodell = listOf(),
             )
 
-            avtaleService.create(request, bertilNavIdent).shouldBeRight().prismodeller.shouldHaveSize(1).should {
+            avtaleService.create(request, bertilNavIdent).shouldBeRight().prisinfo.toList().shouldHaveSize(1).should {
                 it.first().id shouldBe PrismodellFixtures.ForhandsgodkjentAft.id
             }
         }
@@ -133,7 +133,7 @@ class AvtaleServiceTest : FunSpec({
                 prismodell = listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging),
             )
 
-            avtaleService.create(request, bertilNavIdent).shouldBeRight().prismodeller.shouldHaveSize(1).should {
+            avtaleService.create(request, bertilNavIdent).shouldBeRight().prisinfo.toList().shouldHaveSize(1).should {
                 it.first().id shouldBe PrismodellFixtures.AvtaltPrisPerTimeOppfolging.id
             }
         }
@@ -475,13 +475,13 @@ class AvtaleServiceTest : FunSpec({
             avtaleService
                 .upsertPrismodell(avtale.id, listOf(prismodell1Request, prismodell2Request), bertilNavIdent)
                 .shouldBeRight()
-                .prismodeller.map { it.id }
+                .prisinfo.toList().map { it.id }
                 .shouldContainExactlyInAnyOrder(prismodell1Request.id, prismodell2Request.id)
 
             avtaleService
                 .upsertPrismodell(avtale.id, listOf(prismodell2Request), bertilNavIdent)
                 .shouldBeRight()
-                .prismodeller.map { it.id }
+                .prisinfo.toList().map { it.id }
                 .shouldContainExactlyInAnyOrder(prismodell2Request.id)
 
             avtaleService

@@ -483,14 +483,20 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val avtale = AvtaleFixtures.oppfolging.copy(prismodeller = listOf(prismodell1))
+                val avtale = AvtaleFixtures.oppfolging.copy(
+                    prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell1)),
+                )
                 repository.avtale.save(avtale)
 
-                queries.avtale.getOrError(avtale.id).prismodeller shouldContainExactlyInAnyOrder listOf(prismodell1)
+                queries.avtale.getOrError(avtale.id).prisinfo.toList() shouldContainExactlyInAnyOrder listOf(prismodell1)
 
-                repository.avtale.save(avtale.copy(prismodeller = listOf(prismodell1, prismodell2)))
+                repository.avtale.save(
+                    avtale.copy(
+                        prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell1, prismodell2)),
+                    ),
+                )
 
-                queries.avtale.getOrError(avtale.id).prismodeller shouldContainExactlyInAnyOrder listOf(
+                queries.avtale.getOrError(avtale.id).prisinfo.toList() shouldContainExactlyInAnyOrder listOf(
                     prismodell1,
                     prismodell2,
                 )
@@ -501,9 +507,9 @@ class AvtaleQueriesTest : FunSpec({
                     satser = listOf(AvtaltSats(LocalDate.of(2025, 7, 1), 2000.NOK)),
                     valuta = Valuta.NOK,
                 )
-                repository.avtale.save(avtale.copy(prismodeller = listOf(prismodell3)))
+                repository.avtale.save(avtale.copy(prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell3))))
 
-                queries.avtale.getOrError(avtale.id).prismodeller shouldContainExactlyInAnyOrder listOf(prismodell3)
+                queries.avtale.getOrError(avtale.id).prisinfo.toList() shouldContainExactlyInAnyOrder listOf(prismodell3)
             }
         }
     }
