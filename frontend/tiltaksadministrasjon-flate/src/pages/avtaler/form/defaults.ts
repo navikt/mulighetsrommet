@@ -1,10 +1,5 @@
 import { AvtaleFormValues, toUtdanningslop } from "@/pages/avtaler/form/validation";
-import {
-  AvtaleArrangorKontaktperson,
-  AvtaleDto,
-  NavAnsattDto,
-  PersonopplysningType,
-} from "@tiltaksadministrasjon/api-client";
+import { AvtaleDto, NavAnsattDto, PersonopplysningType } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { toAmoKategoriseringRequest } from "@/pages/avtaler/form/mappers";
@@ -28,8 +23,7 @@ export function defaultAvtaleData(
         underenheter: !avtale?.arrangor?.underenheter
           ? []
           : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
-        kontaktpersoner:
-          avtale?.arrangor?.kontaktpersoner.map((p: AvtaleArrangorKontaktperson) => p.id) ?? [],
+        kontaktpersoner: avtale?.arrangor?.kontaktpersoner.map((p) => p.id) ?? [],
       },
       startDato: avtale?.startDato,
       sluttDato: avtale?.sluttDato ?? null,

@@ -6,8 +6,8 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.avtale.db.createArrayOfAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
+import no.nav.mulighetsrommet.api.persistence.tiltak.createArrayOfAvtaleStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
@@ -461,7 +461,11 @@ class OppgaveQueries(private val session: Session) {
                 tiltakstype = it.toOppgaveTiltakstype(),
                 oppdatertTidspunkt = it.localDateTime("oppdatert_tidspunkt"),
                 arrangor = it.stringOrNull("arrangor_hovedenhet_organisasjonsnummer")?.let { orgnr ->
-                    OppgaveArrangor(Organisasjonsnummer(orgnr), it.string("arrangor_hovedenhet_navn"), it.uuid("arrangor_hovedenhet_id"))
+                    OppgaveArrangor(
+                        Organisasjonsnummer(orgnr),
+                        it.string("arrangor_hovedenhet_navn"),
+                        it.uuid("arrangor_hovedenhet_id"),
+                    )
                 },
             )
         }

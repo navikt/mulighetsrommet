@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.avtale.db
+package no.nav.mulighetsrommet.api.persistence.tiltak
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -8,27 +8,33 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
-import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
+import no.nav.mulighetsrommet.admin.opplaring.toOpplaringKategorisering
+import no.nav.mulighetsrommet.admin.tiltak.AvtaleDto
+import no.nav.mulighetsrommet.admin.tiltak.AvtaleQueryHandler
+import no.nav.mulighetsrommet.admin.tiltak.toPrismodellDto
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.tiltak.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleRepository
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
+import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
-import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.utils.parameters
+import no.nav.mulighetsrommet.database.utils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -37,7 +43,6 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.sql.Array
@@ -45,7 +50,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
-class AvtaleQueries(private val session: Session) {
+class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQueryHandler {
     fun create(avtale: AvtaleDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val query = """
@@ -65,7 +70,7 @@ class AvtaleQueries(private val session: Session) {
             ) values (
                 :id::uuid,
                 :navn,
-                :tiltakstype_id::uuid,
+                (select id from tiltakstype where tiltakskode = :tiltakskode),
                 :sakarkiv_nummer,
                 :arrangor_hovedenhet_id,
                 :start_dato,
@@ -81,7 +86,7 @@ class AvtaleQueries(private val session: Session) {
         val params = mapOf(
             "id" to avtale.id,
             "navn" to avtale.detaljerDbo.navn,
-            "tiltakstype_id" to avtale.detaljerDbo.tiltakstypeId,
+            "tiltakskode" to avtale.detaljerDbo.tiltakskode.name,
             "sakarkiv_nummer" to avtale.detaljerDbo.sakarkivNummer?.value,
             "arrangor_hovedenhet_id" to avtale.detaljerDbo.arrangor?.hovedenhet,
             "start_dato" to avtale.detaljerDbo.startDato,
@@ -258,9 +263,7 @@ class AvtaleQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             update avtale
-            set
-                navn = :navn,
-                tiltakstype_id = :tiltakstype_id,
+            set navn = :navn,
                 sakarkiv_nummer = :sakarkiv_nummer,
                 avtaletype = :avtaletype::avtaletype,
                 start_dato = :start_dato,
@@ -275,7 +278,6 @@ class AvtaleQueries(private val session: Session) {
         val params = mapOf(
             "id" to id,
             "navn" to detaljer.navn,
-            "tiltakstype_id" to detaljer.tiltakstypeId,
             "sakarkiv_nummer" to detaljer.sakarkivNummer?.value,
             "arrangor_hovedenhet_id" to detaljer.arrangor?.hovedenhet,
             "start_dato" to detaljer.startDato,
@@ -369,18 +371,29 @@ class AvtaleQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toAvtale() }
     }
 
-    fun getAll(
-        pagination: Pagination = Pagination.all(),
-        tiltakstyper: List<UUID> = emptyList(),
-        search: String? = null,
-        statuser: List<AvtaleStatusType> = emptyList(),
-        avtaletyper: List<Avtaletype> = emptyList(),
-        navEnheter: List<NavEnhetNummer> = emptyList(),
-        sortering: String? = null,
-        arrangorIds: List<UUID> = emptyList(),
-        administratorNavIdent: NavIdent? = null,
-        personvernBekreftet: Boolean? = null,
-    ): PaginatedResult<Avtale> = with(session) {
+    override fun getAvtaleDto(id: UUID): AvtaleDto? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from view_avtale
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.single(queryOf(query, id)) { it.toAvtaleDto() }
+    }
+
+    override fun getAllAvtaleDto(
+        pagination: Pagination,
+        tiltakstyper: List<UUID>,
+        search: String?,
+        statuser: List<AvtaleStatusType>,
+        avtaletyper: List<Avtaletype>,
+        navEnheter: List<NavEnhetNummer>,
+        sortering: String?,
+        arrangorIds: List<UUID>,
+        administratorNavIdent: NavIdent?,
+        personvernBekreftet: Boolean?,
+    ): PaginatedResult<AvtaleDto> = with(session) {
         val parameters = mapOf(
             "search" to search?.toFTSPrefixQuery(),
             "search_arrangor" to search?.trim()?.let { "%$it%" },
@@ -432,7 +445,7 @@ class AvtaleQueries(private val session: Session) {
         """.trimIndent()
 
         return queryOf(query, parameters + pagination.parameters)
-            .mapPaginated { it.toAvtale() }
+            .mapPaginated { it.toAvtaleDto() }
             .runWithSession(this)
     }
 
@@ -499,7 +512,7 @@ class AvtaleQueries(private val session: Session) {
         session.update(queryOf(query, sluttDato, avtaleId))
     }
 
-    fun getPersonopplysninger(): List<Personopplysning> {
+    override fun getPersonopplysninger(): List<Personopplysning> {
         @Language("PostgreSQL")
         val query = """ select * from personopplysning """
 
@@ -514,38 +527,14 @@ class AvtaleQueries(private val session: Session) {
     }
 }
 
-private fun Row.toAvtale(): Avtale {
-    val startDato = localDate("start_dato")
-    val sluttDato = localDateOrNull("slutt_dato")
-    val personopplysninger = stringOrNull("personopplysninger_json")
-        ?.let { Json.decodeFromString<List<Personopplysning>>(it) }
-        ?: emptyList()
-    val administratorer = stringOrNull("administratorer_json")
-        ?.let { Json.decodeFromString<List<Avtale.Administrator>>(it) }
-        ?: emptyList()
-    val navEnheter = stringOrNull("nav_enheter_json")
-        ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
-        ?: emptyList()
-
-    val opsjonerRegistrert = stringOrNull("opsjon_logg_json")
-        ?.let { Json.decodeFromString<List<Avtale.OpsjonLoggDto>>(it) }
-        ?: emptyList()
-
-    val opsjonsmodell = Opsjonsmodell(
-        type = OpsjonsmodellType.valueOf(string("opsjonsmodell")),
-        opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
-        customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
-    )
-    val opplaringKategorisering = stringOrNull("opplaring_kategorisering_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategoriseringDetaljer>(it) }
-
+private fun Row.toAvtaleDto(): AvtaleDto {
     val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
         val underenheter = stringOrNull("arrangor_underenheter_json")
-            ?.let { Json.decodeFromString<List<Avtale.ArrangorUnderenhet>>(it) }
+            ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorUnderenhet>>(it) }
             ?: emptyList()
         val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
-            ?.let { Json.decodeFromString<List<Avtale.ArrangorKontaktperson>>(it) } ?: emptyList()
-        Avtale.ArrangorHovedenhet(
+            ?.let { Json.decodeFromString<List<AvtaleDto.ArrangorKontaktperson>>(it) } ?: emptyList()
+        AvtaleDto.ArrangorHovedenhet(
             id = id,
             organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
             navn = string("arrangor_hovedenhet_navn"),
@@ -555,20 +544,65 @@ private fun Row.toAvtale(): Avtale {
         )
     }
 
-    val prismodeller =
-        JsonIgnoreUnknownKeys.decodeFromString<List<PrismodellRow>>(string("prismodeller_json")).map { row ->
-            Prismodell.from(
-                row.id,
-                row.type,
-                row.valuta,
-                row.prisbetingelser,
-                row.satser,
-                row.tilsagnPerDeltaker,
-                row.totalbelop,
-                row.tilskudd,
-                row.aarsak,
-            )
+    val status = run {
+        val status = AvtaleStatusType.valueOf(string("status"))
+        val variant = when (status) {
+            AvtaleStatusType.UTKAST, AvtaleStatusType.AVSLUTTET -> DataElement.Status.Variant.NEUTRAL
+            AvtaleStatusType.AKTIV -> DataElement.Status.Variant.SUCCESS
+            AvtaleStatusType.AVBRUTT -> DataElement.Status.Variant.ERROR
         }
+        val description = stringOrNull("avbrutt_forklaring")
+        AvtaleDto.Status(
+            type = status,
+            status = DataElement.Status(status.beskrivelse, variant, description),
+        )
+    }
+
+    return AvtaleDto(
+        id = uuid("id"),
+        tiltakstype = AvtaleDto.Tiltakstype(
+            id = uuid("tiltakstype_id"),
+            navn = string("tiltakstype_navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        ),
+        navn = string("navn"),
+        avtalenummer = string("avtalenummer"),
+        sakarkivNummer = stringOrNull("sakarkiv_nummer")?.let { SakarkivNummer(it) },
+        arrangor = arrangor,
+        startDato = localDate("start_dato"),
+        sluttDato = localDateOrNull("slutt_dato"),
+        avtaletype = Avtaletype.valueOf(string("avtaletype")),
+        status = status,
+        administratorer = toAdministratorer(),
+        kontorstruktur = Kontorstruktur.fromNavEnheter(toNavEnheter()),
+        beskrivelse = stringOrNull("beskrivelse"),
+        faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+        personopplysninger = toPersonopplysninger(),
+        personvernBekreftet = boolean("personvern_bekreftet"),
+        opplaring = toOpplaringKategoriseringDetaljer(),
+        opsjonsmodell = toOpsjonsmodell(),
+        opsjonerRegistrert = toOpsjonerRegistrert(),
+        prismodeller = toPrismodeller().map { it.toPrismodellDto() },
+    )
+}
+
+private fun Row.toAvtale(): Avtale {
+    val arrangor = uuidOrNull("arrangor_hovedenhet_id")?.let { id ->
+        val underenheter = stringOrNull("arrangor_underenheter_json")
+            ?.let { Json.decodeFromString<List<Avtale.ArrangorUnderenhet>>(it) }
+            .orEmpty()
+        val arrangorKontaktpersoner = stringOrNull("arrangor_kontaktpersoner_json")
+            ?.let { Json.decodeFromString<List<Avtale.ArrangorKontaktperson>>(it) }
+            .orEmpty()
+        Avtale.ArrangorHovedenhet(
+            id = id,
+            organisasjonsnummer = Organisasjonsnummer(string("arrangor_hovedenhet_organisasjonsnummer")),
+            navn = string("arrangor_hovedenhet_navn"),
+            slettet = boolean("arrangor_hovedenhet_slettet"),
+            underenheter = underenheter,
+            kontaktpersoner = arrangorKontaktpersoner,
+        )
+    }
 
     val status = when (AvtaleStatusType.valueOf(string("status"))) {
         AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv
@@ -588,29 +622,76 @@ private fun Row.toAvtale(): Avtale {
 
     return Avtale(
         id = uuid("id"),
-        navn = string("navn"),
-        avtalenummer = stringOrNull("avtalenummer"),
-        sakarkivNummer = stringOrNull("sakarkiv_nummer")?.let { SakarkivNummer(it) },
-        startDato = startDato,
-        sluttDato = sluttDato,
-        avtaletype = Avtaletype.valueOf(string("avtaletype")),
-        status = status,
-        beskrivelse = stringOrNull("beskrivelse"),
-        faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
-        administratorer = administratorer,
-        kontorstruktur = Kontorstruktur.fromNavEnheter(navEnheter),
-        arrangor = arrangor,
         tiltakstype = Avtale.Tiltakstype(
             id = uuid("tiltakstype_id"),
             navn = string("tiltakstype_navn"),
             tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
         ),
-        personopplysninger = personopplysninger,
+        navn = string("navn"),
+        avtalenummer = string("avtalenummer"),
+        sakarkivNummer = stringOrNull("sakarkiv_nummer")?.let { SakarkivNummer(it) },
+        arrangor = arrangor,
+        startDato = localDate("start_dato"),
+        sluttDato = localDateOrNull("slutt_dato"),
+        avtaletype = Avtaletype.valueOf(string("avtaletype")),
+        status = status,
+        administratorer = toAdministratorer(),
+        navEnheter = toNavEnheter().map { it.enhetsnummer }.toSet(),
+        beskrivelse = stringOrNull("beskrivelse"),
+        faneinnhold = stringOrNull("faneinnhold")?.let { Json.decodeFromString(it) },
+        personopplysninger = toPersonopplysninger(),
         personvernBekreftet = boolean("personvern_bekreftet"),
-        opsjonsmodell = opsjonsmodell,
-        opsjonerRegistrert = opsjonerRegistrert.sortedBy { it.createdAt },
-        opplaringKategorisering = opplaringKategorisering,
-        prismodeller = prismodeller,
+        opplaring = toOpplaringKategoriseringDetaljer()?.toOpplaringKategorisering(),
+        opsjonsmodell = toOpsjonsmodell(),
+        opsjonerRegistrert = toOpsjonerRegistrert(),
+        prismodeller = toPrismodeller(),
+    )
+}
+
+private fun Row.toNavEnheter(): List<NavEnhetDto> = stringOrNull("nav_enheter_json")
+    ?.let { Json.decodeFromString<List<NavEnhetDto>>(it) }
+    ?: emptyList()
+
+private fun Row.toAdministratorer(): List<Avtale.Administrator> = stringOrNull("administratorer_json")
+    ?.let { Json.decodeFromString<List<Avtale.Administrator>>(it) }
+    ?: emptyList()
+
+private fun Row.toPersonopplysninger(): List<Personopplysning> = stringOrNull("personopplysninger_json")
+    ?.let { Json.decodeFromString<List<Personopplysning>>(it) }
+    ?: emptyList()
+
+private fun Row.toOpsjonsmodell(): Opsjonsmodell = Opsjonsmodell(
+    type = OpsjonsmodellType.valueOf(string("opsjonsmodell")),
+    opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
+    customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
+)
+
+private fun Row.toOpplaringKategoriseringDetaljer(): OpplaringKategoriseringDetaljer? {
+    return stringOrNull("opplaring_kategorisering_json")?.let {
+        Json.decodeFromString<OpplaringKategoriseringDetaljer>(it)
+    }
+}
+
+private fun Row.toOpsjonerRegistrert(): List<Avtale.OpsjonLogg> = stringOrNull("opsjon_logg_json")
+    ?.let { Json.decodeFromString<List<Avtale.OpsjonLogg>>(it) }
+    .orEmpty()
+
+val JsonIgnoreUnknownKeys = Json {
+    ignoreUnknownKeys = true
+    encodeDefaults = true
+}
+
+private fun Row.toPrismodeller(): List<Prismodell> = JsonIgnoreUnknownKeys.decodeFromString<List<PrismodellRow>>(string("prismodeller_json")).map { row ->
+    Prismodell.from(
+        row.id,
+        row.type,
+        row.valuta,
+        row.prisbetingelser,
+        row.satser,
+        row.tilsagnPerDeltaker,
+        row.totalbelop,
+        row.tilskudd,
+        row.aarsak,
     )
 }
 

@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.common.domain)
     testFixturesImplementation(projects.common.domain)
     implementation(projects.common.validation)
+    implementation(projects.common.spreadsheet)
 
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.arrow.core)

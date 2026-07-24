@@ -23,15 +23,14 @@ import no.nav.mulighetsrommet.admin.enhetsregister.Virksomhet
 import no.nav.mulighetsrommet.admin.enhetsregister.VirksomhetOppslag
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
-import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.api.domain.tiltak.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
+import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -53,7 +52,6 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
-import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -658,27 +656,6 @@ class AvtaleServiceTest : FunSpec({
                 .should {
                     it.opsjonerRegistrert.shouldBeEmpty()
                 }
-        }
-    }
-
-    context("hent avtaler") {
-        test("kan generere excel for avtaler") {
-            MulighetsrommetTestDomain(avtaler = listOf(AvtaleFixtures.oppfolging)).initialize(database.api)
-            val avtaleService = createAvtaleService()
-
-            val file = avtaleService.exportToExcel(
-                filter = AvtaleFilter(),
-            )
-
-            WorkbookFactory.create(file.inputStream()).use { workbook ->
-                val sheet = workbook.getSheetAt(0)
-
-                sheet.getRow(0).getCell(0).stringCellValue shouldBe "Avtalenavn"
-                sheet.getRow(0).getCell(1).stringCellValue shouldBe "Tiltakstype"
-
-                sheet.lastRowNum shouldBe 1
-                sheet.getRow(1).getCell(0).stringCellValue shouldBe AvtaleFixtures.oppfolging.detaljerDbo.navn
-            }
         }
     }
 })

@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.avtale.model
+package no.nav.mulighetsrommet.api.domain.tiltak
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

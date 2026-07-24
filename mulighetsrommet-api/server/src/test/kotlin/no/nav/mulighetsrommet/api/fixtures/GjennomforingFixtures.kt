@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
@@ -9,6 +8,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleDbo
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -28,7 +28,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "Oppfølging 1",
-        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+        tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = AvtaleFixtures.oppfolging.detaljerDbo.startDato,
         sluttDato = AvtaleFixtures.oppfolging.detaljerDbo.sluttDato,
@@ -48,7 +48,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "VTA 1",
-        tiltakstypeId = TiltakstypeFixtures.VTA.id,
+        tiltakskode = TiltakstypeFixtures.VTA.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
@@ -68,7 +68,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "AFT 1",
-        tiltakstypeId = TiltakstypeFixtures.AFT.id,
+        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
@@ -88,7 +88,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "Varig tilrettelagt arbeid i ordinær virksomhet",
-        tiltakstypeId = TiltakstypeFixtures.VTAO.id,
+        tiltakskode = TiltakstypeFixtures.VTAO.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
@@ -108,7 +108,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "Gruppe Amo 1",
-        tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
+        tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
@@ -128,7 +128,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "Gruppe Fag- og yrkesopplæring 1",
-        tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
+        tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
@@ -148,7 +148,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "Arbeidsretter Rehabilitering 1",
-        tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
+        tiltakskode = TiltakstypeFixtures.ArbeidsrettetRehabilitering.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2026, 1, 1),
@@ -166,7 +166,7 @@ object GjennomforingFixtures {
 
     val EnkelAmo = GjennomforingDbo(
         id = UUID.randomUUID(),
-        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+        tiltakskode = TiltakstypeFixtures.EnkelAmo.tiltakskode,
         type = GjennomforingType.ENKELTPLASS,
         oppstart = GjennomforingOppstartstype.ENKELTPLASS,
         pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
@@ -186,7 +186,7 @@ object GjennomforingFixtures {
 
     val EnkelFagOgYrke = GjennomforingDbo(
         id = UUID.randomUUID(),
-        tiltakstypeId = TiltakstypeFixtures.EnkelFagOgYrke.id,
+        tiltakskode = TiltakstypeFixtures.EnkelFagOgYrke.tiltakskode,
         type = GjennomforingType.ENKELTPLASS,
         oppstart = GjennomforingOppstartstype.ENKELTPLASS,
         pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
@@ -206,7 +206,7 @@ object GjennomforingFixtures {
 
     val ArenaEnkelAmo = GjennomforingDbo(
         id = UUID.randomUUID(),
-        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+        tiltakskode = TiltakstypeFixtures.EnkelAmo.tiltakskode,
         type = GjennomforingType.ARENA,
         oppstart = GjennomforingOppstartstype.ENKELTPLASS,
         pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
@@ -226,7 +226,7 @@ object GjennomforingFixtures {
 
     val ArenaArbeidsrettetRehabilitering = GjennomforingDbo(
         id = UUID.randomUUID(),
-        tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
+        tiltakskode = TiltakstypeFixtures.ArbeidsrettetRehabilitering.tiltakskode,
         type = GjennomforingType.ARENA,
         oppstart = GjennomforingOppstartstype.LOPENDE,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,

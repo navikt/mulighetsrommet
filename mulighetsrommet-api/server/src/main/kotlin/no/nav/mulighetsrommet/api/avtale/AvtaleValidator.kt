@@ -8,20 +8,12 @@ import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.db.DetaljerDbo
-import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
-import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper.fromValidatedAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.Avtale.OpsjonLoggDto
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggDbo
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.api.avtale.model.toOpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
@@ -31,11 +23,20 @@ import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale.OpsjonLogg
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodeller
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing.ArrangorUnderenhet
+import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleDbo
+import no.nav.mulighetsrommet.api.persistence.tiltak.DetaljerDbo
+import no.nav.mulighetsrommet.api.persistence.tiltak.RedaksjoneltInnholdDbo
+import no.nav.mulighetsrommet.api.persistence.tiltak.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -67,7 +68,7 @@ object AvtaleValidator {
     ) {
         data class Avtale(
             val status: AvtaleStatusType,
-            val opsjonerRegistrert: List<OpsjonLoggDto>,
+            val opsjonerRegistrert: List<OpsjonLogg>,
             val opsjonsmodell: Opsjonsmodell,
             val avtaletype: Avtaletype,
             val tiltakskode: Tiltakskode,
@@ -98,7 +99,7 @@ object AvtaleValidator {
 
         data class Tiltakstype(
             val navn: String,
-            val id: UUID,
+            val tiltakskode: Tiltakskode,
         )
     }
 
@@ -111,7 +112,7 @@ object AvtaleValidator {
         }
 
         val detaljerDbo = request.detaljer.toDbo(
-            ctx.tiltakstype.id,
+            ctx.tiltakstype.tiltakskode,
             ctx.arrangor?.toDbo(request.detaljer.arrangor?.kontaktpersoner),
             resolveStatus(
                 request.detaljer,
@@ -223,7 +224,7 @@ object AvtaleValidator {
         }
 
         request.toDbo(
-            ctx.tiltakstype.id,
+            ctx.tiltakstype.tiltakskode,
             ctx.arrangor?.toDbo(request.arrangor?.kontaktpersoner),
             resolveStatus(request, previous, LocalDate.now()),
             kategorisering = opplaringKategorisering,
@@ -323,13 +324,14 @@ object AvtaleValidator {
         context: ValidateOpprettOpsjonContext,
         request: OpprettOpsjonLoggRequest,
     ): Either<List<FieldError>, OpsjonLoggDbo> = validation {
-        requireValid(context.avtale.sluttDato != null) {
+        val sluttDato = context.avtale.sluttDato
+        requireValid(sluttDato != null) {
             FieldError.of("Opsjon kan ikke utløses fordi avtalen mangler sluttdato", OpprettOpsjonLoggRequest::type)
         }
 
         val nySluttDato = when (request.type) {
             OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE -> request.nySluttDato
-            OpprettOpsjonLoggRequest.Type.ETT_AAR -> context.avtale.sluttDato.plusYears(1)
+            OpprettOpsjonLoggRequest.Type.ETT_AAR -> sluttDato.plusYears(1)
             OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> null
         }
 
@@ -351,8 +353,8 @@ object AvtaleValidator {
         OpsjonLoggDbo(
             avtaleId = context.avtale.id,
             sluttDato = nySluttDato,
-            forrigeSluttDato = context.avtale.sluttDato,
-            status = OpsjonLoggStatus.fromType(request.type),
+            forrigeSluttDato = sluttDato,
+            status = request.type.toOpsjonLoggStatus(),
             registrertAv = context.navIdent,
         )
     }

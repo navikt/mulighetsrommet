@@ -5,7 +5,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.veilederflate.models.EstimertVentetid
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
@@ -16,7 +15,7 @@ import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateNavEnhet
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppeStatus
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
-import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
+import no.nav.mulighetsrommet.database.utils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Innsatsgruppe

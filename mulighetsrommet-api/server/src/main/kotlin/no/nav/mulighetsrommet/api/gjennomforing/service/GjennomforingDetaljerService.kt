@@ -31,8 +31,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
-import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
@@ -44,6 +42,8 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
+import no.nav.mulighetsrommet.spreadsheet.ExcelWorkbookBuilder
+import no.nav.mulighetsrommet.spreadsheet.buildExcelWorkbook
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.io.File
 import java.util.UUID

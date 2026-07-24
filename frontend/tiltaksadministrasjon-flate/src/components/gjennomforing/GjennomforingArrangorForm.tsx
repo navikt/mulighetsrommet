@@ -3,7 +3,7 @@ import { TextField, VStack } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
   ArrangorKontaktpersonAnsvar,
-  AvtaleArrangorHovedenhet,
+  AvtaleDtoArrangorHovedenhet,
 } from "@tiltaksadministrasjon/api-client";
 import { useRef } from "react";
 import { useFormContext } from "react-hook-form";
@@ -15,7 +15,7 @@ import { FormCombobox } from "@/components/skjema/FormCombobox";
 import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 
 interface Props {
-  arrangor: AvtaleArrangorHovedenhet;
+  arrangor: AvtaleDtoArrangorHovedenhet;
   readOnly: boolean;
 }
 
@@ -76,7 +76,7 @@ export function GjennomforingArrangorForm({ readOnly, arrangor }: Props) {
   );
 }
 
-function getArrangorOptions(arrangor: AvtaleArrangorHovedenhet) {
+function getArrangorOptions(arrangor: AvtaleDtoArrangorHovedenhet) {
   return arrangor.underenheter
     .sort((a, b) => a.navn.localeCompare(b.navn))
     .map((arrangor) => {

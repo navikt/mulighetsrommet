@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHand
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
+import no.nav.mulighetsrommet.admin.tiltak.AvtaleQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
@@ -14,6 +15,7 @@ import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerRepository
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRepository
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetRepository
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenkeRepository
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
@@ -27,6 +29,7 @@ abstract class QueryContext {
 
     abstract class Repositories {
         abstract val tiltakstype: TiltakstypeRepository
+        abstract val avtale: AvtaleRepository
         abstract val redaksjoneltInnholdLenke: RedaksjoneltInnholdLenkeRepository
         abstract val navEnhet: NavEnhetRepository
         abstract val navAnsatt: NavAnsattRepository
@@ -39,6 +42,7 @@ abstract class QueryContext {
 
     abstract class Queries {
         abstract val tiltakstype: TiltakstypeQueryHandler
+        abstract val avtale: AvtaleQueryHandler
         abstract val endringshistorikk: EndringshistorikkQueryHandler
         abstract val kostnadssted: KostnadsstedQueryHandler
         abstract val navAnsattDto: NavAnsattDtoQueryHandler

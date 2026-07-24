@@ -18,35 +18,27 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
-import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDtoMapper
 import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
-import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.tiltak.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
-import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
-import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
-import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.api.persistence.tiltak.RedaksjoneltInnholdDbo
+import no.nav.mulighetsrommet.api.persistence.tiltak.VeilederinformasjonDbo
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.FieldError
@@ -59,14 +51,11 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.mulighetsrommet.validation.validation
-import java.io.File
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.UUID
-import kotlin.io.path.createTempFile
-import kotlin.io.path.outputStream
 
 class AvtaleService(
     private val config: Config,
@@ -406,40 +395,6 @@ class AvtaleService(
         queries.avtale.get(id)
     }
 
-    fun getAll(pagination: Pagination, filter: AvtaleFilter): PaginatedResponse<AvtaleDto> = db.session {
-        val tiltakstyper = tiltakstypeService.getIdsByTiltakskoder(filter.tiltakskoder)
-        val (totalCount, items) = queries.avtale.getAll(
-            pagination = pagination,
-            tiltakstyper = tiltakstyper,
-            search = filter.search,
-            statuser = filter.statuser,
-            avtaletyper = filter.avtaletyper,
-            navEnheter = filter.navEnheter,
-            sortering = filter.sortering,
-            arrangorIds = filter.arrangorIds,
-            administratorNavIdent = filter.administratorNavIdent,
-            personvernBekreftet = filter.personvernBekreftet,
-        )
-
-        PaginatedResponse.of(pagination, totalCount, items.map { AvtaleDtoMapper.fromAvtale(it) })
-    }
-
-    fun exportToExcel(
-        filter: AvtaleFilter,
-    ): File {
-        val avtaler = getAll(Pagination.all(), filter)
-
-        val workbook = buildExcelWorkbook {
-            createAvtalerSheet(avtaler.data)
-        }
-
-        return workbook.use {
-            val file = createTempFile("avtaler-", ".xlsx")
-            file.outputStream().use(it::write)
-            file.toFile()
-        }
-    }
-
     private fun schedulePublishGjennomforingerForAvtale(dto: Avtale) {
         gjennomforingPublisher.schedule(
             input = InitialLoadGjennomforinger.Input(avtaleId = dto.id),
@@ -478,7 +433,7 @@ class AvtaleService(
             administratorer = administratorer,
             tiltakstype = AvtaleValidator.Ctx.Tiltakstype(
                 navn = tiltakstype.navn,
-                id = tiltakstype.id,
+                tiltakskode = tiltakstype.tiltakskode,
             ),
             navEnheter = navEnheter,
             systembestemtPrismodell = systembestemtPrismodell?.id,
@@ -567,7 +522,8 @@ class AvtaleService(
         ).nel()
     }
 
-    fun handlinger(avtale: Avtale, ansatt: NavAnsatt): Set<AvtaleHandling> {
+    fun handlinger(id: UUID, ansatt: NavAnsatt): Set<AvtaleHandling> {
+        val avtale = get(id) ?: return emptySet()
         return setOfNotNull(
             AvtaleHandling.AVBRYT.takeIf {
                 when (avtale.status) {
@@ -622,34 +578,6 @@ class AvtaleService(
                 AvtaleHandling.OPPRETT,
                 -> ansatt.hasGenerellRolle(Rolle.AVTALER_SKRIV)
             }
-        }
-    }
-}
-
-private fun ExcelWorkbookBuilder.createAvtalerSheet(
-    result: List<AvtaleDto>,
-) = table("Avtaler") {
-    header(
-        "Avtalenavn",
-        "Tiltakstype",
-        "Avtalenummer",
-        "Tiltaksarrangør",
-        "Tiltaksarrangør orgnr",
-        "Startdato",
-        "Sluttdato",
-    )
-
-    result.forEach { avtale ->
-        row {
-            listOf(
-                avtale.navn,
-                avtale.tiltakstype.navn,
-                avtale.avtalenummer,
-                avtale.arrangor?.navn,
-                avtale.arrangor?.organisasjonsnummer?.value,
-                avtale.startDato.formaterDatoTilEuropeiskDatoformat(),
-                avtale.sluttDato?.formaterDatoTilEuropeiskDatoformat(),
-            )
         }
     }
 }

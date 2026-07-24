@@ -1,25 +1,25 @@
-package no.nav.mulighetsrommet.api.avtale.model
+package no.nav.mulighetsrommet.admin.tiltak
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
-import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
+import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Faneinnhold
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 @Serializable
-data class Avtale(
+data class AvtaleDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tiltakstype: Tiltakstype,
@@ -32,18 +32,23 @@ data class Avtale(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val avtaletype: Avtaletype,
-    val status: AvtaleStatus,
-    val administratorer: List<Administrator>,
+    val status: Status,
+    val administratorer: List<Avtale.Administrator>,
     val kontorstruktur: List<Kontorstruktur>,
     val beskrivelse: String?,
     val faneinnhold: Faneinnhold?,
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
-    val opplaringKategorisering: OpplaringKategoriseringDetaljer?,
+    val opplaring: OpplaringKategoriseringDetaljer?,
     val opsjonsmodell: Opsjonsmodell,
-    val opsjonerRegistrert: List<OpsjonLoggDto>,
-    val prismodeller: List<Prismodell>,
+    val opsjonerRegistrert: List<Avtale.OpsjonLogg>,
+    val prismodeller: List<PrismodellDto>,
 ) {
+    @Serializable
+    data class Status(
+        val type: AvtaleStatusType,
+        val status: DataElement.Status,
+    )
 
     @Serializable
     data class Tiltakstype(
@@ -81,24 +86,5 @@ data class Avtale(
         val beskrivelse: String?,
         val telefon: String?,
         val epost: String,
-    )
-
-    @Serializable
-    data class Administrator(
-        val navIdent: NavIdent,
-        val navn: String,
-    )
-
-    @Serializable
-    data class OpsjonLoggDto(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        @Serializable(with = LocalDateTimeSerializer::class)
-        val createdAt: LocalDateTime,
-        @Serializable(with = LocalDateSerializer::class)
-        val sluttDato: LocalDate?,
-        @Serializable(with = LocalDateSerializer::class)
-        val forrigeSluttDato: LocalDate,
-        val status: OpsjonLoggStatus,
     )
 }

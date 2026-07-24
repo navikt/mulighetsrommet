@@ -5,8 +5,6 @@ import arrow.core.right
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.admin.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
@@ -14,6 +12,8 @@ import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
@@ -112,7 +112,7 @@ object GjennomforingValidator {
             gjennomforing = GjennomforingDbo(
                 id = id,
                 type = GjennomforingType.AVTALE,
-                tiltakstypeId = ctx.avtale.tiltakstype.id,
+                tiltakskode = ctx.avtale.tiltakstype.tiltakskode,
                 avtaleId = ctx.avtale.id,
                 arrangorId = result.detaljer.arrangorId,
                 navn = result.detaljer.navn,
@@ -336,8 +336,7 @@ object GjennomforingValidator {
     ): Validated<VeilederinfoResult> = validation(GjennomforingRequest::veilederinformasjon) {
         validateSlettetNavAnsatte(kontaktpersoner, GjennomforingVeilederinfoRequest::kontaktpersoner)
 
-        val avtaleRegioner = avtale.kontorstruktur.map { it.region.enhetsnummer }
-        val navRegioner = avtaleRegioner.intersect(request.navRegioner.toSet())
+        val navRegioner = avtale.navEnheter.intersect(request.navRegioner.toSet())
         validate(navRegioner.isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-region fra avtalen",
@@ -345,9 +344,8 @@ object GjennomforingValidator {
             )
         }
 
-        val avtaleNavKontorer = avtale.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } }
-        val navKontorer = avtaleNavKontorer.intersect(request.navKontorer.toSet())
-        val navAndreEnheter = avtaleNavKontorer.intersect(request.navAndreEnheter.toSet())
+        val navKontorer = avtale.navEnheter.intersect(request.navKontorer.toSet())
+        val navAndreEnheter = avtale.navEnheter.intersect(request.navAndreEnheter.toSet())
         validate((navKontorer + navAndreEnheter).isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-enhet fra avtalen",
@@ -404,14 +402,13 @@ object GjennomforingValidator {
                 GjennomforingDetaljerRequest::utdanningslop,
             )
         }
-        validate(utdanningslop.utdanningsprogram == avtale.opplaringKategorisering?.utdanningslop?.utdanningsprogram?.id) {
+        validate(utdanningslop.utdanningsprogram == avtale.opplaring?.utdanningslop?.utdanningsprogram) {
             FieldError.of(
-                "Utdanningsprogrammet må være det samme som for avtalen: ${avtale.opplaringKategorisering?.utdanningslop?.utdanningsprogram?.navn}",
+                "Utdanningsprogrammet må være det samme som for avtalen",
                 GjennomforingDetaljerRequest::utdanningslop,
             )
         }
-        val avtalensUtdanninger =
-            avtale.opplaringKategorisering?.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
+        val avtalensUtdanninger = avtale.opplaring?.utdanningslop?.utdanninger.orEmpty()
         validate(avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
             FieldError.of(
                 "Lærefag må være valgt fra avtalens lærefag, minst ett av lærefagene mangler i avtalen.",
@@ -432,7 +429,7 @@ object GjennomforingValidator {
             Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
             Tiltakskode.STUDIESPESIALISERING,
-            -> validate(avtale.opplaringKategorisering != null) {
+            -> validate(avtale.opplaring != null) {
                 FieldError.of("Du må velge en kurstype for avtalen", GjennomforingRequest::avtaleId)
             }
 

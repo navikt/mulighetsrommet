@@ -15,11 +15,7 @@ import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
 import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
@@ -27,7 +23,11 @@ import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
@@ -101,7 +101,7 @@ class AvtaleValidatorTest : FunSpec({
         administratorer = emptyList(),
         tiltakstype = Ctx.Tiltakstype(
             navn = TiltakstypeFixtures.Oppfolging.navn,
-            id = TiltakstypeFixtures.Oppfolging.id,
+            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         ),
         navEnheter = listOf(NavEnhetFixtures.Innlandet.toDto(), NavEnhetFixtures.Gjovik.toDto()),
         systembestemtPrismodell = null,
@@ -114,7 +114,7 @@ class AvtaleValidatorTest : FunSpec({
         administratorer = emptyList(),
         tiltakstype = Ctx.Tiltakstype(
             navn = TiltakstypeFixtures.AFT.navn,
-            id = TiltakstypeFixtures.AFT.id,
+            tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
         ),
         navEnheter = listOf(NavEnhetFixtures.Innlandet.toDto(), NavEnhetFixtures.Gjovik.toDto()),
         systembestemtPrismodell = UUID.randomUUID(),
@@ -833,7 +833,7 @@ class AvtaleValidatorTest : FunSpec({
                         tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                         avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
                         opsjonerRegistrert = listOf(
-                            Avtale.OpsjonLoggDto(
+                            Avtale.OpsjonLogg(
                                 id = UUID.randomUUID(),
                                 createdAt = LocalDateTime.now(),
                                 sluttDato = LocalDate.now(),

@@ -19,17 +19,21 @@ import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.tiltak.AvtaleDto
+import no.nav.mulighetsrommet.admin.tiltak.AvtaleDtoQuery
+import no.nav.mulighetsrommet.admin.tiltak.AvtaleFilter
+import no.nav.mulighetsrommet.admin.tiltak.GetAllAvtaleDto
+import no.nav.mulighetsrommet.admin.tiltak.GetAvtaleDto
+import no.nav.mulighetsrommet.admin.tiltak.GetExcelExport
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDtoMapper
-import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
+import no.nav.mulighetsrommet.api.domain.tiltak.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -123,6 +127,7 @@ data class OpprettOpsjonLoggRequest(
 fun Route.avtaleRoutes() {
     val avtaleService: AvtaleService by inject()
     val db: ApiDatabase by inject()
+    val avtaleDtoQuery: AvtaleDtoQuery by inject()
 
     route("avtaler") {
         authorize(Rolle.AVTALER_SKRIV) {
@@ -253,7 +258,7 @@ fun Route.avtaleRoutes() {
 
                 val result = avtaleService.upsertDetaljer(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
-                    .map { AvtaleDtoMapper.fromAvtale(it) }
+                    .map { avtaleDtoQuery.execute(GetAvtaleDto(id)) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -286,7 +291,7 @@ fun Route.avtaleRoutes() {
 
                 val result = avtaleService.upsertPersonvern(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
-                    .map { AvtaleDtoMapper.fromAvtale(it) }
+                    .map { avtaleDtoQuery.execute(GetAvtaleDto(it.id)) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -319,7 +324,7 @@ fun Route.avtaleRoutes() {
 
                 val result = avtaleService.upsertVeilederinfo(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
-                    .map { AvtaleDtoMapper.fromAvtale(it) }
+                    .map { avtaleDtoQuery.execute(GetAvtaleDto(it.id)) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -390,6 +395,7 @@ fun Route.avtaleRoutes() {
 
                 val result = avtaleService.upsertPrismodell(id, request, navIdent)
                     .mapLeft { ValidationError(errors = it) }
+                    .map { avtaleDtoQuery.execute(GetAvtaleDto(it.id)) }
 
                 call.respondWithStatusResponse(result)
             }
@@ -447,7 +453,9 @@ fun Route.avtaleRoutes() {
             val pagination = getPaginationParams()
             val filter = getAvtaleFilter()
 
-            val result = avtaleService.getAll(pagination, filter)
+            val result = avtaleDtoQuery
+                .execute(GetAllAvtaleDto(pagination, filter))
+                .let { PaginatedResponse.of(pagination, it.totalCount, it.items) }
 
             call.respond(result)
         }
@@ -473,7 +481,7 @@ fun Route.avtaleRoutes() {
         }) {
             val filter = getAvtaleFilter()
 
-            val file = avtaleService.exportToExcel(filter)
+            val file = avtaleDtoQuery.execute(GetExcelExport(filter))
 
             call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
             call.response.header(
@@ -505,10 +513,8 @@ fun Route.avtaleRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-
-            avtaleService.get(id)
-                ?.let { call.respond(AvtaleDtoMapper.fromAvtale(it)) }
-                ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
+            val dto = avtaleDtoQuery.execute(GetAvtaleDto(id))
+            call.respond(dto)
         }
 
         get("handlinger", {
@@ -560,9 +566,9 @@ fun Route.avtaleRoutes() {
             val ansatt = db.session { queries.ansatt.get(navIdent) }
                 ?: throw MrExceptions.navAnsattNotFound(navIdent)
 
-            avtaleService.get(id)
-                ?.let { call.respond(avtaleService.handlinger(it, ansatt)) }
-                ?: call.respond(HttpStatusCode.NotFound, "Det finnes ikke noen avtale med id $id")
+            val handlinger = avtaleService.handlinger(id, ansatt)
+
+            call.respond(handlinger)
         }
     }
 }
@@ -611,15 +617,3 @@ suspend fun RoutingContext.getAvtaleFilter(): AvtaleFilter {
         personvernBekreftet = request.personvernBekreftet,
     )
 }
-
-data class AvtaleFilter(
-    val tiltakskoder: List<Tiltakskode> = emptyList(),
-    val search: String? = null,
-    val statuser: List<AvtaleStatusType> = emptyList(),
-    val avtaletyper: List<Avtaletype> = emptyList(),
-    val navEnheter: List<NavEnhetNummer> = emptyList(),
-    val sortering: String? = null,
-    val arrangorIds: List<UUID> = emptyList(),
-    val administratorNavIdent: NavIdent? = null,
-    val personvernBekreftet: Boolean? = null,
-)

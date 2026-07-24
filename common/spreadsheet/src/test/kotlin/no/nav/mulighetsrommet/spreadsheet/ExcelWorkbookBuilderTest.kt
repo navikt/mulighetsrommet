@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.services
+package no.nav.mulighetsrommet.spreadsheet
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull

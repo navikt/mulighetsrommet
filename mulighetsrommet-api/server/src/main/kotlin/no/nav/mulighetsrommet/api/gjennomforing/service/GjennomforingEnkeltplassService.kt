@@ -366,7 +366,7 @@ class GjennomforingEnkeltplassService(
         val dbo = GjennomforingDbo(
             type = GjennomforingType.ENKELTPLASS,
             id = upsert.id,
-            tiltakstypeId = tiltakstype.id,
+            tiltakskode = tiltakstype.tiltakskode,
             arrangorId = upsert.arrangorId,
             navn = upsert.navn ?: tiltakstype.navn,
             startDato = upsert.startDato,

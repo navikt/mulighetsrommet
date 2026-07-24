@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.avtale.db
+package no.nav.mulighetsrommet.api.persistence.tiltak
 
 import no.nav.mulighetsrommet.model.Personopplysning
 

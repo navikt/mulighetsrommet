@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
@@ -12,6 +11,7 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
+import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleDbo
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
@@ -72,7 +72,7 @@ data class MulighetsrommetTestDomain(
             gjennomforinger.forEach { gjennomforing ->
                 queries.gjennomforing.upsert(gjennomforing)
                 // Sett gjennomforing FTS, siden den er brukt i andre søk (navn/tiltaksnavn)
-                val tiltakstypeNavn = tiltakstyper.first { gjennomforing.tiltakstypeId == it.id }.navn
+                val tiltakstypeNavn = tiltakstyper.first { gjennomforing.tiltakskode == it.tiltakskode }.navn
                 queries.gjennomforing.setFreeTextSearch(gjennomforing.id, listOf(gjennomforing.navn, tiltakstypeNavn))
             }
             deltakere.forEach { repository.deltaker.save(it) }

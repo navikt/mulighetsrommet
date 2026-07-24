@@ -16,13 +16,14 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import kotliquery.Query
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
-import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.admin.tiltak.AvtaleDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
+import no.nav.mulighetsrommet.api.domain.tiltak.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
@@ -39,6 +40,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleArrangorDbo
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -200,7 +202,7 @@ class AvtaleQueriesTest : FunSpec({
                     avtaler = listOf(avtale),
                 ).initialize()
 
-                queries.avtale.getOrError(avtale.id).kontorstruktur.shouldHaveSize(1).first().should {
+                queries.avtale.getAvtaleDto(avtale.id).shouldNotBeNull().kontorstruktur.shouldHaveSize(1).first().should {
                     it.region.enhetsnummer shouldBe Innlandet.enhetsnummer
                     it.kontorer.should { (first, second) ->
                         first.enhetsnummer shouldBe Gjovik.enhetsnummer
@@ -228,7 +230,7 @@ class AvtaleQueriesTest : FunSpec({
                     avtaler = listOf(avtale),
                 ).initialize()
 
-                queries.avtale.getOrError(avtale.id).kontorstruktur.should { (first, second) ->
+                queries.avtale.getAvtaleDto(avtale.id).shouldNotBeNull().kontorstruktur.should { (first, second) ->
                     first.region.enhetsnummer shouldBe Innlandet.enhetsnummer
                     first.kontorer.shouldHaveSize(1).first().enhetsnummer shouldBe Gjovik.enhetsnummer
 
@@ -447,8 +449,8 @@ class AvtaleQueriesTest : FunSpec({
                     detaljerDbo = AvtaleFixtures.detaljerDbo().copy(opplaringKategorisering = kategorisering),
                 )
                 queries.avtale.create(avtale)
-                queries.avtale.getOrError(avtale.id).should {
-                    it.opplaringKategorisering shouldBe OpplaringKategoriseringDetaljer(
+                queries.avtale.getAvtaleDto(avtale.id).shouldNotBeNull().should {
+                    it.opplaring shouldBe OpplaringKategoriseringDetaljer(
                         kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
                         bransje = BransjeFixtures.industriarbeid,
                         innholdElementer = setOf(InnholdElementFixtures.teoretiskOpplaring),
@@ -470,8 +472,8 @@ class AvtaleQueriesTest : FunSpec({
                         ),
                     ),
                 )
-                queries.avtale.getOrError(avtale.id).should {
-                    it.opplaringKategorisering shouldBe OpplaringKategoriseringDetaljer(
+                queries.avtale.getAvtaleDto(avtale.id).shouldNotBeNull().should {
+                    it.opplaring shouldBe OpplaringKategoriseringDetaljer(
                         kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
                         bransje = BransjeFixtures.helseOgPleier,
                         innholdElementer = setOf(InnholdElementFixtures.teoretiskOpplaring),
@@ -483,8 +485,8 @@ class AvtaleQueriesTest : FunSpec({
                     avtale.id,
                     AvtaleFixtures.detaljerDbo().copy(opplaringKategorisering = null),
                 )
-                queries.avtale.getOrError(avtale.id).should {
-                    it.opplaringKategorisering shouldBe null
+                queries.avtale.getAvtaleDto(avtale.id).shouldNotBeNull().should {
+                    it.opplaring shouldBe null
                 }
             }
         }
@@ -578,34 +580,34 @@ class AvtaleQueriesTest : FunSpec({
                 queries.avtale.create(avtale2)
                 queries.avtale.upsertAvtalenummer(avtale2.id, avtalenummer2)
 
-                queries.avtale.getAll(search = "krokodillen").should {
+                queries.avtale.getAllAvtaleDto(search = "krokodillen").should {
                     it.totalCount shouldBe 1
                     it.items[0].id shouldBe avtale1.id
                 }
 
-                queries.avtale.getAll(search = "avtale").should {
+                queries.avtale.getAllAvtaleDto(search = "avtale").should {
                     it.totalCount shouldBe 2
                 }
 
-                queries.avtale.getAll(search = "avtale ulv").should {
+                queries.avtale.getAllAvtaleDto(search = "avtale ulv").should {
                     it.totalCount shouldBe 1
                     it.items[0].id shouldBe avtale2.id
                 }
 
-                queries.avtale.getAll(search = "krok").should {
+                queries.avtale.getAllAvtaleDto(search = "krok").should {
                     it.totalCount shouldBe 1
                 }
 
-                queries.avtale.getAll(search = "avtale kråke").should {
+                queries.avtale.getAllAvtaleDto(search = "avtale kråke").should {
                     it.totalCount shouldBe 0
                 }
 
-                queries.avtale.getAll(search = "2000").should {
+                queries.avtale.getAllAvtaleDto(search = "2000").should {
                     it.totalCount shouldBe 1
                     it.items[0].id shouldBe avtale2.id
                 }
 
-                queries.avtale.getAll(search = "2024").should {
+                queries.avtale.getAllAvtaleDto(search = "2024").should {
                     it.totalCount shouldBe 2
                 }
             }
@@ -634,11 +636,11 @@ class AvtaleQueriesTest : FunSpec({
                 queries.avtale.create(a1)
                 queries.avtale.create(a2)
 
-                queries.avtale.getAll(administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent).should {
+                queries.avtale.getAllAvtaleDto(administratorNavIdent = NavAnsattFixture.DonaldDuck.navIdent).should {
                     it.items shouldContainExactlyIds listOf(a1.id, a2.id)
                 }
 
-                queries.avtale.getAll(administratorNavIdent = NavAnsattFixture.MikkeMus.navIdent).should {
+                queries.avtale.getAllAvtaleDto(administratorNavIdent = NavAnsattFixture.MikkeMus.navIdent).should {
                     it.items shouldContainExactlyIds listOf(a2.id)
                 }
             }
@@ -694,7 +696,7 @@ class AvtaleQueriesTest : FunSpec({
                         listOf(avtaleAvbrutt.id, avtaleAvsluttet.id),
                     ),
                 ) { statuser, expected ->
-                    val result = queries.avtale.getAll(statuser = statuser)
+                    val result = queries.avtale.getAllAvtaleDto(statuser = statuser)
                     result.items shouldContainExactlyIds expected
                 }
             }
@@ -726,13 +728,13 @@ class AvtaleQueriesTest : FunSpec({
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0400' where id = '${AvtaleFixtures.AFT.id}'"))
                 session.execute(Query("update avtale set arena_ansvarlig_enhet = '0502' where id = '${AvtaleFixtures.VTA.id}'"))
 
-                queries.avtale.getAll(navEnheter = listOf(NavEnhetNummer("0300"))).should { (totalCount) ->
+                queries.avtale.getAllAvtaleDto(navEnheter = listOf(NavEnhetNummer("0300"))).should { (totalCount) ->
                     totalCount shouldBe 1
                 }
-                queries.avtale.getAll(navEnheter = listOf(NavEnhetNummer("0400"))).should { (totalCount) ->
+                queries.avtale.getAllAvtaleDto(navEnheter = listOf(NavEnhetNummer("0400"))).should { (totalCount) ->
                     totalCount shouldBe 2
                 }
-                queries.avtale.getAll(navEnheter = listOf(NavEnhetNummer("0502"))).should { (totalCount) ->
+                queries.avtale.getAllAvtaleDto(navEnheter = listOf(NavEnhetNummer("0502"))).should { (totalCount) ->
                     totalCount shouldBe 1
                 }
             }
@@ -776,13 +778,13 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.avtale.getAll(
+                queries.avtale.getAllAvtaleDto(
                     navEnheter = listOf(Innlandet.enhetsnummer),
                 ).should { (totalCount) ->
                     totalCount shouldBe 3
                 }
 
-                queries.avtale.getAll(
+                queries.avtale.getAllAvtaleDto(
                     navEnheter = listOf(Gjovik.enhetsnummer, Sel.enhetsnummer),
                 ).should { (totalCount, items) ->
                     totalCount shouldBe 2
@@ -822,17 +824,18 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.avtale.getAll(avtaletyper = listOf(Avtaletype.AVTALE)).should {
+                queries.avtale.getAllAvtaleDto(avtaletyper = listOf(Avtaletype.AVTALE)).should {
                     it.totalCount shouldBe 1
                     it.items shouldContainExactlyIds listOf(avtale1.id)
                 }
 
-                queries.avtale.getAll(avtaletyper = listOf(Avtaletype.AVTALE, Avtaletype.OFFENTLIG_OFFENTLIG)).should {
-                    it.totalCount shouldBe 2
-                    it.items shouldContainExactlyIds listOf(avtale1.id, avtale3.id)
-                }
+                queries.avtale.getAllAvtaleDto(avtaletyper = listOf(Avtaletype.AVTALE, Avtaletype.OFFENTLIG_OFFENTLIG))
+                    .should {
+                        it.totalCount shouldBe 2
+                        it.items shouldContainExactlyIds listOf(avtale1.id, avtale3.id)
+                    }
 
-                queries.avtale.getAll(avtaletyper = listOf()).should {
+                queries.avtale.getAllAvtaleDto(avtaletyper = listOf()).should {
                     it.totalCount shouldBe 3
                 }
             }
@@ -851,14 +854,14 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.avtale.getAll(
+                queries.avtale.getAllAvtaleDto(
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.id),
                 ).should { (totalCount, items) ->
                     totalCount shouldBe 2
                     items shouldContainExactlyIds listOf(domain.avtaler[0].id, domain.avtaler[1].id)
                 }
 
-                queries.avtale.getAll(
+                queries.avtale.getAllAvtaleDto(
                     tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging.id, TiltakstypeFixtures.AFT.id),
                 ).should { (totalCount) ->
                     totalCount shouldBe 3
@@ -912,8 +915,8 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.avtale.getAll(search = "enhet").totalCount shouldBe 2
-                queries.avtale.getAll(search = "annen").totalCount shouldBe 1
+                queries.avtale.getAllAvtaleDto(search = "enhet").totalCount shouldBe 2
+                queries.avtale.getAllAvtaleDto(search = "annen").totalCount shouldBe 1
             }
         }
 
@@ -935,9 +938,9 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                queries.avtale.getAll(personvernBekreftet = true).totalCount shouldBe 2
-                queries.avtale.getAll(personvernBekreftet = false).totalCount shouldBe 1
-                queries.avtale.getAll(personvernBekreftet = null).totalCount shouldBe 3
+                queries.avtale.getAllAvtaleDto(personvernBekreftet = true).totalCount shouldBe 2
+                queries.avtale.getAllAvtaleDto(personvernBekreftet = false).totalCount shouldBe 1
+                queries.avtale.getAllAvtaleDto(personvernBekreftet = null).totalCount shouldBe 3
             }
         }
     }
@@ -1015,7 +1018,7 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val result = queries.avtale.getAll(sortering = "navn-ascending")
+                val result = queries.avtale.getAllAvtaleDto(sortering = "navn-ascending")
 
                 result.totalCount shouldBe 5
                 result.items[0].navn shouldBe "Avtale hos Anders"
@@ -1030,7 +1033,7 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val result = queries.avtale.getAll(sortering = "navn-descending")
+                val result = queries.avtale.getAllAvtaleDto(sortering = "navn-descending")
 
                 result.totalCount shouldBe 5
                 result.items[0].navn shouldBe "Avtale hos Åse"
@@ -1042,7 +1045,7 @@ class AvtaleQueriesTest : FunSpec({
         }
 
         test("Sortering på arrangør sorterer korrekt") {
-            val alvdal = Avtale.ArrangorHovedenhet(
+            val alvdal = AvtaleDto.ArrangorHovedenhet(
                 id = arrangorA.id,
                 organisasjonsnummer = Organisasjonsnummer("987654321"),
                 navn = "alvdal",
@@ -1050,7 +1053,7 @@ class AvtaleQueriesTest : FunSpec({
                 underenheter = listOf(),
                 kontaktpersoner = emptyList(),
             )
-            val bjarne = Avtale.ArrangorHovedenhet(
+            val bjarne = AvtaleDto.ArrangorHovedenhet(
                 id = arrangorB.id,
                 organisasjonsnummer = Organisasjonsnummer("123456789"),
                 navn = "bjarne",
@@ -1058,7 +1061,7 @@ class AvtaleQueriesTest : FunSpec({
                 underenheter = listOf(),
                 kontaktpersoner = emptyList(),
             )
-            val chris = Avtale.ArrangorHovedenhet(
+            val chris = AvtaleDto.ArrangorHovedenhet(
                 id = arrangorC.id,
                 organisasjonsnummer = Organisasjonsnummer("999888777"),
                 navn = "chris",
@@ -1070,7 +1073,7 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val ascending = queries.avtale.getAll(sortering = "arrangor-ascending")
+                val ascending = queries.avtale.getAllAvtaleDto(sortering = "arrangor-ascending")
 
                 ascending.items[0].arrangor shouldBe alvdal
                 ascending.items[1].arrangor shouldBe alvdal
@@ -1078,7 +1081,7 @@ class AvtaleQueriesTest : FunSpec({
                 ascending.items[3].arrangor shouldBe bjarne
                 ascending.items[4].arrangor shouldBe chris
 
-                val descending = queries.avtale.getAll(sortering = "arrangor-descending")
+                val descending = queries.avtale.getAllAvtaleDto(sortering = "arrangor-descending")
                 descending.items[0].arrangor shouldBe chris
                 descending.items[1].arrangor shouldBe bjarne
                 descending.items[2].arrangor shouldBe bjarne
@@ -1091,7 +1094,7 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val result = queries.avtale.getAll(sortering = "sluttdato-descending")
+                val result = queries.avtale.getAllAvtaleDto(sortering = "sluttdato-descending")
                 result.items[0].navn shouldBe "Avtale hos Ærfuglen Ærle"
                 result.items[1].navn shouldBe "Avtale hos Kjetil"
                 result.items[2].navn shouldBe "Avtale hos Anders"
@@ -1104,7 +1107,7 @@ class AvtaleQueriesTest : FunSpec({
             database.runAndRollback {
                 domain.initialize()
 
-                val result = queries.avtale.getAll(sortering = "sluttdato-ascending")
+                val result = queries.avtale.getAllAvtaleDto(sortering = "sluttdato-ascending")
                 result.items[0].navn shouldBe "Avtale hos Åse"
                 result.items[1].navn shouldBe "Avtale hos Øyvind"
                 result.items[2].navn shouldBe "Avtale hos Anders"
@@ -1123,7 +1126,7 @@ private fun toAvtaleArrangorKontaktperson(kontaktperson: ArrangorKontaktperson) 
     epost = kontaktperson.epost,
 )
 
-private infix fun Collection<Avtale>.shouldContainExactlyIds(listOf: Collection<UUID>) {
+private infix fun Collection<AvtaleDto>.shouldContainExactlyIds(listOf: Collection<UUID>) {
     map { it.id }.shouldContainExactlyInAnyOrder(listOf)
 }
 
