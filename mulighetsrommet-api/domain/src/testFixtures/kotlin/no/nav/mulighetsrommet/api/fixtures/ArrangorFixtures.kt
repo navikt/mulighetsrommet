@@ -1,10 +1,22 @@
 package no.nav.mulighetsrommet.api.fixtures
 
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
+import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.util.UUID
 
 object ArrangorFixtures {
+
+    fun kontaktperson(id: UUID = UUID.randomUUID(), arrangorId: UUID) = ArrangorKontaktperson(
+        id = id,
+        arrangorId = arrangorId,
+        navn = "Kari Nordmann",
+        beskrivelse = null,
+        telefon = null,
+        epost = "kari@example.com",
+        ansvarligFor = listOf(ArrangorKontaktperson.Ansvar.AVTALE),
+    )
+
     object Fretex {
         val hovedenhet = Arrangor.Norsk.opprett(
             id = UUID.randomUUID(),

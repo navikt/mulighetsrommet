@@ -7,22 +7,13 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
-import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import java.util.UUID
 
 class ArrangorKontaktpersonServiceTest : FunSpec({
     val arrangor = ArrangorFixtures.hovedenhet
 
-    fun kontaktperson(id: UUID = UUID.randomUUID()) = ArrangorKontaktperson(
-        id = id,
-        arrangorId = arrangor.id,
-        navn = "Kari Nordmann",
-        beskrivelse = null,
-        telefon = null,
-        epost = "kari@example.com",
-        ansvarligFor = listOf(ArrangorKontaktperson.Ansvar.AVTALE),
-    )
+    fun kontaktperson() = ArrangorFixtures.kontaktperson(arrangorId = arrangor.id)
 
     context("upsert") {
         test("legger til ny kontaktperson på arrangør") {
