@@ -158,25 +158,6 @@ object AvtaleFixtures {
         prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTao),
     )
 
-    val EnkelAmo: Avtale = Avtale(
-        id = UUID.randomUUID(),
-        tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-        navn = "Avtalenavn for EnkelAmo",
-        avtalenummer = null,
-        sakarkivNummer = SakarkivNummer("24/1234"),
-        arrangor = defaultArrangor,
-        startDato = LocalDate.of(2023, 1, 1),
-        sluttDato = null,
-        avtaletype = Avtaletype.FORHANDSGODKJENT,
-        status = AvtaleStatus.Aktiv,
-        administratorer = setOf(NavIdent("DD1")),
-        veilederinfo = defaultVeilederinfo,
-        personvern = defaultPersonvern,
-        opplaring = null,
-        opsjoner = defaultOpsjoner,
-        prismodeller = emptyList(),
-    )
-
     val ARR: Avtale = Avtale(
         id = UUID.randomUUID(),
         tiltakskode = Tiltakskode.ARBEIDSRETTET_REHABILITERING,

@@ -6,7 +6,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
@@ -25,7 +24,6 @@ class BrukerUtbetalingQueriesTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
-        avtaler = listOf(AvtaleFixtures.EnkelAmo),
         gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
     )
 
