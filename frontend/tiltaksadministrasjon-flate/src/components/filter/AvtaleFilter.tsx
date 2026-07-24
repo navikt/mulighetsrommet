@@ -35,7 +35,6 @@ export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Pr
       <Search
         label="Søk etter tiltaksgjennomføring"
         size="small"
-        autoFocus
         variant="secondary"
         placeholder="Navn, tiltaksnr., tiltaksarrangør"
         onChange={(search: string) => {
@@ -83,6 +82,19 @@ export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Pr
           />
         </FilterAccordion>
         <FilterAccordion
+          tittel="Tiltakstype"
+          antallValgteFilter={filter.tiltakstyper.length}
+          open={accordionsOpen.includes("tiltakstype")}
+          onClick={() => toggleAccordion("tiltakstype")}
+        >
+          <AvtaleTiltakstypeFilter
+            value={filter.tiltakstyper}
+            onChange={(tiltakstyper) => {
+              updateFilter({ tiltakstyper, page: 1 });
+            }}
+          />
+        </FilterAccordion>
+        <FilterAccordion
           tittel="Status"
           antallValgteFilter={filter.statuser.length}
           open={accordionsOpen.includes("status")}
@@ -98,19 +110,6 @@ export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Pr
             items={AVTALE_STATUS_OPTIONS}
             isChecked={(status) => filter.statuser.includes(status)}
             onChange={(status) => updateArrayFilter("statuser", status)}
-          />
-        </FilterAccordion>
-        <FilterAccordion
-          tittel="Tiltakstype"
-          antallValgteFilter={filter.tiltakstyper.length}
-          open={accordionsOpen.includes("tiltakstype")}
-          onClick={() => toggleAccordion("tiltakstype")}
-        >
-          <AvtaleTiltakstypeFilter
-            value={filter.tiltakstyper}
-            onChange={(tiltakstyper) => {
-              updateFilter({ tiltakstyper, page: 1 });
-            }}
           />
         </FilterAccordion>
         <FilterAccordion

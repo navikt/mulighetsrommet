@@ -89,6 +89,34 @@ export function GjennomforingFilter({
             {lagredeFilterOversikt}
           </FilterAccordion>
         )}
+        <FilterAccordion
+          tittel="Nav-enhet"
+          antallValgteFilter={filter.navEnheter.length}
+          open={accordionsOpen.includes("navEnhet")}
+          onClick={() => toggleAccordion("navEnhet")}
+        >
+          <KontorstrukturFilter
+            value={filter.navEnheter}
+            onChange={(navEnheter) => {
+              updateFilter({ navEnheter, page: 1 });
+            }}
+          />
+        </FilterAccordion>
+        {!skjulFilter?.tiltakstype && (
+          <FilterAccordion
+            tittel="Tiltakstype"
+            antallValgteFilter={filter.tiltakstyper.length}
+            open={accordionsOpen.includes("tiltakstype")}
+            onClick={() => toggleAccordion("tiltakstype")}
+          >
+            <GjennomforingTiltakstypeFilter
+              value={filter.tiltakstyper}
+              onChange={(tiltakstyper) => {
+                updateFilter({ tiltakstyper, page: 1 });
+              }}
+            />
+          </FilterAccordion>
+        )}
         {enableEnkeltplassFilter && (
           <FilterAccordion
             tittel="Gjennomføringtype"
@@ -117,19 +145,6 @@ export function GjennomforingFilter({
             />
           </FilterAccordion>
         )}
-        <FilterAccordion
-          tittel="Nav-enhet"
-          antallValgteFilter={filter.navEnheter.length}
-          open={accordionsOpen.includes("navEnhet")}
-          onClick={() => toggleAccordion("navEnhet")}
-        >
-          <KontorstrukturFilter
-            value={filter.navEnheter}
-            onChange={(navEnheter) => {
-              updateFilter({ navEnheter, page: 1 });
-            }}
-          />
-        </FilterAccordion>
         <FilterAccordion
           tittel="Status"
           antallValgteFilter={filter.statuser.length}
@@ -167,22 +182,6 @@ export function GjennomforingFilter({
             arrangorKobling={ArrangorKobling.TILTAKSGJENNOMFORING}
           />
         </FilterAccordion>
-
-        {!skjulFilter?.tiltakstype && (
-          <FilterAccordion
-            tittel="Tiltakstype"
-            antallValgteFilter={filter.tiltakstyper.length}
-            open={accordionsOpen.includes("tiltakstype")}
-            onClick={() => toggleAccordion("tiltakstype")}
-          >
-            <GjennomforingTiltakstypeFilter
-              value={filter.tiltakstyper}
-              onChange={(tiltakstyper) => {
-                updateFilter({ tiltakstyper, page: 1 });
-              }}
-            />
-          </FilterAccordion>
-        )}
 
         <FilterAccordion
           tittel="Publisert"
