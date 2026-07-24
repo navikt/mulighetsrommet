@@ -10,7 +10,8 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 
 class SqlAdminDatabaseTestListener : BeforeSpecListener, AfterSpecListener {
 
-    private var delegate: Database? = null
+    @PublishedApi
+    internal var delegate: Database? = null
 
     private val flywayMigration: FlywayMigrationManager = FlywayMigrationManager(
         config = FlywayMigrationManager.MigrationConfig(cleanDisabled = false),
@@ -28,11 +29,11 @@ class SqlAdminDatabaseTestListener : BeforeSpecListener, AfterSpecListener {
         delegate?.close()
     }
 
-    fun <T> run(block: SqlQueryContext.() -> T): T = delegate!!.transaction {
+    inline fun <T> run(block: SqlQueryContext.() -> T): T = delegate!!.transaction {
         SqlQueryContext(it, outboxConfig).block()
     }
 
-    fun <T> runAndRollback(block: SqlQueryContext.() -> T): T = delegate!!.session { s ->
+    inline fun <T> runAndRollback(block: SqlQueryContext.() -> T): T = delegate!!.session { s ->
         try {
             s.connection.begin()
             s.transactional = true
