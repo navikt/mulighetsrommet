@@ -84,21 +84,21 @@ object GjennomforingFixtures {
         arenaAnsvarligEnhet = null,
     )
 
-    val VTAO = GjennomforingDbo(
+    val TAO = GjennomforingDbo(
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "Varig tilrettelagt arbeid i ordinær virksomhet",
-        tiltakskode = TiltakstypeFixtures.VTAO.tiltakskode,
+        tiltakskode = TiltakstypeFixtures.TAO.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
         status = GjennomforingStatusType.GJENNOMFORES,
         antallPlasser = 12,
-        avtaleId = AvtaleFixtures.VTAO.id,
+        avtaleId = AvtaleFixtures.TAO.id,
         oppstart = GjennomforingOppstartstype.LOPENDE,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         deltidsprosent = 100.0,
-        prismodellId = PrismodellFixtures.ForhandsgodkjentVtao.id,
+        prismodellId = PrismodellFixtures.ForhandsgodkjentTao.id,
         ansvarligEnhet = null,
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
