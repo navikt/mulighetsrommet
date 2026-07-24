@@ -4,11 +4,13 @@ import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -25,8 +27,12 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
+import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
+import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
+import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
+import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.domain.tiltak.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
@@ -48,8 +54,10 @@ import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
@@ -96,10 +104,11 @@ class AvtaleServiceTest : FunSpec({
         gjennomforingPublisher,
     )
 
-    context("opprett forhåndsgodkjent avtale") {
-        val avtaleService = createAvtaleService()
+    context("opprett avtale") {
+        val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
+        val avtaleService = createAvtaleService(gjennomforingPublisher)
 
-        test("oppretter avtale med forhåndsgodkjent prismodell") {
+        test("systemet bestemmer prismodell når forhåndsgodkjent avtale opprettes") {
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft),
@@ -116,11 +125,6 @@ class AvtaleServiceTest : FunSpec({
                 it.first().id shouldBe PrismodellFixtures.ForhandsgodkjentAft.id
             }
         }
-    }
-
-    context("opprett avtale") {
-        val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
-        val avtaleService = createAvtaleService(gjennomforingPublisher)
 
         test("oppretter avtale med prismodell") {
             val request = AvtaleFixtures.createAvtaleRequest(
@@ -252,6 +256,190 @@ class AvtaleServiceTest : FunSpec({
         }
     }
 
+    context("rediger detaljer") {
+        val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
+        val avtaleService = createAvtaleService(gjennomforingPublisher)
+
+        test("oppdaterer detaljer, returnerer oppdatert avtale og skedulerer publisering av gjennomføringer") {
+            val request = AvtaleFixtures.createAvtaleRequest(Tiltakskode.OPPFOLGING)
+            avtaleService.create(request, bertilNavIdent).shouldBeRight()
+
+            avtaleService.upsertDetaljer(
+                request.id,
+                request.detaljer.copy(navn = "Nytt avtalenavn"),
+                bertilNavIdent,
+            ).shouldBeRight().navn shouldBe "Nytt avtalenavn"
+
+            verify {
+                gjennomforingPublisher.schedule(
+                    InitialLoadGjennomforinger.Input(avtaleId = request.id),
+                    any(),
+                    any(),
+                )
+            }
+        }
+
+        test("gjør ingen endring og skedulerer ikke ny publisering når detaljene er uendret") {
+            val request = AvtaleFixtures.createAvtaleRequest(Tiltakskode.OPPFOLGING)
+            avtaleService.create(request, bertilNavIdent).shouldBeRight()
+
+            val noopPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
+            val noopService = createAvtaleService(noopPublisher)
+
+            noopService.upsertDetaljer(
+                request.id,
+                request.detaljer,
+                bertilNavIdent,
+            ).shouldBeRight().navn shouldBe request.detaljer.navn
+
+            verify(exactly = 0) {
+                noopPublisher.schedule(any(), any(), any())
+            }
+        }
+
+        test("kan ikke endre tiltakskode etter at avtalen er opprettet") {
+            val request = AvtaleFixtures.createAvtaleRequest(Tiltakskode.OPPFOLGING)
+            avtaleService.create(request, bertilNavIdent).shouldBeRight()
+
+            val aftDetaljer = AvtaleFixtures.createAvtaleRequest(
+                Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+                avtaletype = Avtaletype.FORHANDSGODKJENT,
+                opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
+            ).detaljer
+
+            avtaleService.upsertDetaljer(request.id, aftDetaljer, bertilNavIdent).shouldBeLeft(
+                listOf(
+                    FieldError(
+                        "/detaljer/tiltakskode",
+                        "Tiltakstype kan ikke endres etter at avtalen er opprettet",
+                    ),
+                ),
+            )
+        }
+    }
+
+    context("rediger personvern") {
+        val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
+        val avtaleService = createAvtaleService(gjennomforingPublisher)
+
+        val avtale = AvtaleFixtures.oppfolging
+
+        test("krever beskrivelse når 'annet' er valgt") {
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            avtaleService.upsertPersonvern(
+                avtale.id,
+                PersonvernRequest(
+                    personopplysninger = emptyList(),
+                    annetChecked = true,
+                    annetBeskrivelse = " ",
+                    personvernBekreftet = false,
+                ),
+                bertilNavIdent,
+            ).shouldBeLeft(
+                listOf(FieldError("/personvern/annetBeskrivelse", "Beskrivelse er påkrevd når annet er valgt")),
+            )
+        }
+
+        test("beskrivelse kan maks være 300 tegn") {
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            avtaleService.upsertPersonvern(
+                avtale.id,
+                PersonvernRequest(
+                    personopplysninger = emptyList(),
+                    annetChecked = true,
+                    annetBeskrivelse = "a".repeat(301),
+                    personvernBekreftet = false,
+                ),
+                bertilNavIdent,
+            ).shouldBeLeft(
+                listOf(FieldError("/personvern/annetBeskrivelse", "Beskrivelse kan maks være 300 tegn")),
+            )
+        }
+
+        test("oppdaterer personvernopplysninger, returnerer oppdatert avtale og skedulerer publisering") {
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            avtaleService.upsertPersonvern(
+                avtale.id,
+                PersonvernRequest(
+                    personopplysninger = listOf(Personopplysning.Type.NAVN, Personopplysning.Type.FODSELSDATO),
+                    annetChecked = true,
+                    annetBeskrivelse = "Annen personopplysning",
+                    personvernBekreftet = true,
+                ),
+                bertilNavIdent,
+            ).shouldBeRight().should {
+                it.personvernBekreftet shouldBe true
+                it.personopplysninger.map { p -> p.type }.shouldContainExactlyInAnyOrder(
+                    Personopplysning.Type.NAVN,
+                    Personopplysning.Type.FODSELSDATO,
+                    Personopplysning.Type.ANNET,
+                )
+                it.personopplysninger.find { p -> p.type == Personopplysning.Type.ANNET }
+                    .shouldNotBeNull().beskrivelse shouldBe "Annen personopplysning"
+            }
+
+            verify {
+                gjennomforingPublisher.schedule(
+                    InitialLoadGjennomforinger.Input(avtaleId = avtale.id),
+                    any(),
+                    any(),
+                )
+            }
+        }
+    }
+
+    context("rediger veilederinformasjon") {
+        val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
+        val avtaleService = createAvtaleService(gjennomforingPublisher)
+
+        val avtale = AvtaleFixtures.oppfolging
+
+        test("oppdaterer veilederinformasjon, returnerer oppdatert avtale og skedulerer publisering") {
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            avtaleService.upsertVeilederinfo(
+                avtale.id,
+                VeilederinfoRequest(
+                    navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0502")),
+                    beskrivelse = "Ny beskrivelse for veiledere",
+                    faneinnhold = null,
+                ),
+                bertilNavIdent,
+            ).shouldBeRight().should {
+                it.beskrivelse shouldBe "Ny beskrivelse for veiledere"
+                it.navEnheter shouldContainExactlyInAnyOrder setOf(NavEnhetNummer("0400"), NavEnhetNummer("0502"))
+            }
+
+            verify {
+                gjennomforingPublisher.schedule(
+                    InitialLoadGjennomforinger.Input(avtaleId = avtale.id),
+                    any(),
+                    any(),
+                )
+            }
+        }
+
+        test("krever minst én Nav-region og én Nav-enhet blant valgte enheter") {
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            avtaleService.upsertVeilederinfo(
+                avtale.id,
+                VeilederinfoRequest(
+                    navEnheter = emptyList(),
+                    beskrivelse = null,
+                    faneinnhold = null,
+                ),
+                bertilNavIdent,
+            ).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region"),
+                FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet"),
+            )
+        }
+    }
+
     context("rediger prismodeller") {
         val gjennomforingPublisher = mockk<InitialLoadGjennomforinger>(relaxed = true)
         val avtaleService = createAvtaleService(gjennomforingPublisher)
@@ -365,7 +553,7 @@ class AvtaleServiceTest : FunSpec({
         }
     }
 
-    context("Avbryte avtale") {
+    context("avbryt avtale") {
         val avtaleService = createAvtaleService()
 
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
@@ -474,7 +662,43 @@ class AvtaleServiceTest : FunSpec({
         }
     }
 
-    context("Administrator-notification") {
+    context("avslutt avtale") {
+        val avtaleService = createAvtaleService()
+
+        test("kan bare avslutte avtale som er aktiv") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                detaljerDbo = AvtaleFixtures.oppfolging.detaljerDbo.copy(status = AvtaleStatusType.UTKAST),
+            )
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            shouldThrow<IllegalStateException> {
+                avtaleService.avsluttAvtale(avtale.id, LocalDateTime.now(), bertilNavIdent)
+            }.message shouldBe "Avtalen må være aktiv for å kunne avsluttes"
+        }
+
+        test("kan ikke avslutte avtale før sluttdato") {
+            val avtale = AvtaleFixtures.oppfolging
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            shouldThrow<IllegalStateException> {
+                avtaleService.avsluttAvtale(avtale.id, LocalDateTime.now(), bertilNavIdent)
+            }.message shouldBe "Avtalen kan ikke avsluttes før sluttdato"
+        }
+
+        test("avslutter avtale når tidspunktet er etter sluttdato") {
+            val avtale = AvtaleFixtures.oppfolging
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            val avsluttetTidspunkt = avtale.detaljerDbo.sluttDato!!.plusDays(1).atStartOfDay()
+
+            avtaleService.avsluttAvtale(avtale.id, avsluttetTidspunkt, bertilNavIdent).should {
+                it.id shouldBe avtale.id
+                it.status.type shouldBe AvtaleStatusType.AVSLUTTET
+            }
+        }
+    }
+
+    context("notifikasjoner") {
         val avtaleService = createAvtaleService()
 
         test("Ingen administrator-notification hvis administrator er samme som opprettet") {
@@ -679,6 +903,100 @@ class AvtaleServiceTest : FunSpec({
             ).shouldBeRight().should {
                 it.opsjonerRegistrert.shouldBeEmpty()
             }
+        }
+    }
+
+    context("rammedetaljer") {
+        val avtaleService = createAvtaleService()
+
+        test("legger til og fjerner rammedetaljer for avtale med prismodell som støtter det") {
+            val avtale = AvtaleFixtures.oppfolging
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            avtaleService.upsertRammedetaljer(
+                avtale.id,
+                RammedetaljerRequest(totalRamme = 500_000L, utbetaltArena = 100_000L),
+                bertilNavIdent,
+            ).shouldBeRight().id shouldBe avtale.id
+
+            database.api.session { queries.rammedetaljer.get(avtale.id) }.shouldNotBeNull().should {
+                it.totalRamme shouldBe 500_000L
+                it.utbetaltArena shouldBe 100_000L
+                it.valuta shouldBe Valuta.NOK
+            }
+
+            avtaleService.upsertRammedetaljer(
+                avtale.id,
+                RammedetaljerRequest(totalRamme = null, utbetaltArena = null),
+                bertilNavIdent,
+            ).shouldBeRight().id shouldBe avtale.id
+
+            database.api.session { queries.rammedetaljer.get(avtale.id) }.shouldBeNull()
+        }
+
+        test("kan ikke legge til rammedetaljer for avtale med forhåndsgodkjent prismodell") {
+            val avtale = AvtaleFixtures.AFT
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
+
+            avtaleService.upsertRammedetaljer(
+                avtale.id,
+                RammedetaljerRequest(totalRamme = 100_000L, utbetaltArena = null),
+                bertilNavIdent,
+            ).shouldBeLeft(
+                listOf(FieldError("/totalRamme", "Rammedetaljer kan kun legges til anskaffet avtaler")),
+            )
+        }
+
+        test("sletter eksisterende rammedetaljer") {
+            val avtale = AvtaleFixtures.oppfolging
+            MulighetsrommetTestDomain(
+                avtaler = listOf(avtale),
+            ) {
+                queries.rammedetaljer.upsert(
+                    RammedetaljerDbo(
+                        avtaleId = avtale.id,
+                        valuta = Valuta.NOK,
+                        totalRamme = 200_000L,
+                        utbetaltArena = 50_000L,
+                    ),
+                )
+            }.initialize(database.api)
+
+            avtaleService.deleteRammedetaljer(avtale.id, bertilNavIdent).id shouldBe avtale.id
+
+            database.api.session { queries.rammedetaljer.get(avtale.id) }.shouldBeNull()
+        }
+    }
+
+    context("frikoble kontaktperson fra avtale") {
+        val avtaleService = createAvtaleService()
+
+        test("fjerner kontaktperson fra avtalens arrangør") {
+            val p1 = ArrangorFixtures.kontaktperson(arrangorId = ArrangorFixtures.hovedenhet.id)
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                detaljerDbo = AvtaleFixtures.oppfolging.detaljerDbo.copy(
+                    arrangor = AvtaleFixtures.oppfolging.detaljerDbo.arrangor?.copy(
+                        kontaktpersoner = listOf(p1.id),
+                    ),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(
+                    ArrangorFixtures.hovedenhet.registrerKontaktpersoner(listOf(p1)),
+                    ArrangorFixtures.underenhet1,
+                    ArrangorFixtures.underenhet2,
+                ),
+                avtaler = listOf(avtale),
+            ).initialize(database.api)
+
+            avtaleService.get(avtale.id).shouldNotBeNull()
+                .arrangor.shouldNotBeNull()
+                .kontaktpersoner.shouldHaveSize(1)
+
+            avtaleService.frikobleKontaktpersonFraAvtale(p1.id, avtale.id, bertilNavIdent)
+                .arrangor.shouldNotBeNull()
+                .kontaktpersoner.shouldBeEmpty()
         }
     }
 })

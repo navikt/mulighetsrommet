@@ -141,7 +141,7 @@ class AvtaleService(
                 },
                 prismodeller = avtale.prismodeller,
             )
-            val context = context(this.session) {
+            val context = context(session) {
                 getValidatorCtx(
                     request = request,
                     navEnheter = listOf(),
@@ -153,7 +153,7 @@ class AvtaleService(
                 .validateUpdateDetaljer(request, context)
                 .bind()
 
-            if (AvtaleDboMapper.fromAvtale(avtale) == dbo) {
+            if (AvtaleDboMapper.fromAvtale(avtale).detaljerDbo == dbo) {
                 return@either avtale
             }
 
@@ -384,7 +384,7 @@ class AvtaleService(
         kontaktpersonId: UUID,
         avtaleId: UUID,
         navIdent: NavIdent,
-    ): Unit = db.transaction {
+    ): Avtale = db.transaction {
         queries.avtale.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId)
 
         logEndring("Kontaktperson ble fjernet fra avtalen", avtaleId, navIdent)
