@@ -19,14 +19,15 @@ export function FilterAccordion({
   return (
     <Accordion.Item open={open}>
       <Accordion.Header onClick={onClick} className="group">
-        <HStack align="center" justify="space-between" width="15rem">
-          <span>{tittel}</span> <span>{tilleggsinformasjon && tilleggsinformasjon}</span>
+        <HStack align="center" justify="space-between" gap="space-16">
+          {tittel}
+          {tilleggsinformasjon && tilleggsinformasjon}
           {antallValgteFilter && antallValgteFilter !== 0 ? (
             <Box
               borderRadius="8"
               paddingInline="space-8"
               background="accent-moderateA"
-              className="group-hover:bg-ax-bg-accent-strong-hover group-hover:text-ax-text-neutral-contrast"
+              className="group-hover:bg-ax-bg-accent-strong-hover group-hover:text-ax-text-neutral-contrast self-end"
             >
               {antallValgteFilter}
             </Box>

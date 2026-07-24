@@ -1,9 +1,10 @@
 import React, { Suspense } from "react";
 import classNames from "classnames";
-import { Filter } from "../filter/Filter";
+import { FilterSidebar } from "../filter/FilterSidebar";
 import { ToolbarButtonRow } from "../toolbar/toolbarButtonRow/ToolbarButtonRow";
 import styles from "./FilterAndTableLayout.module.scss";
 import { OversiktSkeleton } from "../skeleton/OversiktSkeleton";
+import { Box } from "@navikt/ds-react";
 
 interface Props {
   filter: React.ReactNode;
@@ -26,8 +27,8 @@ export function FilterAndTableLayout({
 }: Props) {
   return (
     <Suspense fallback={<OversiktSkeleton />}>
-      <div className={styles.filter_table_layout_container}>
-        <Filter setFilterOpen={setFilterOpen} filterOpen={filterOpen} filterTab={filter} />
+      <Box background="default" padding="space-8" className={styles.filter_table_layout_container}>
+        <FilterSidebar setFilterOpen={setFilterOpen} filterOpen={filterOpen} filterTab={filter} />
 
         <ToolbarButtonRow>
           <div className={styles.button_row_left}>{nullstillFilterButton}</div>
@@ -43,7 +44,7 @@ export function FilterAndTableLayout({
           {tags}
           {table}
         </div>
-      </div>
+      </Box>
     </Suspense>
   );
 }

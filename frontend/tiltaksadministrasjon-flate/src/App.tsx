@@ -113,11 +113,11 @@ function AppLayout() {
       </Head>
       <Theme theme="light" hasBackground={false}>
         <Page>
-          <Page.Block as="header" className="max-w-384">
+          <Page.Block as="header" className="max-w-400">
             <AdministratorHeader />
             <UtdatertKlientBanner />
           </Page.Block>
-          <Page.Block as="main" className="max-w-384">
+          <Page.Block as="main" className="max-w-400">
             <Suspense fallback={<Laster tekst="Laster..." />}>
               <InlineErrorBoundary>
                 <Outlet />
