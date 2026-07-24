@@ -22,74 +22,72 @@ export function OppgaverFilter({ filter, updateFilter, lagredeFilterOversikt }: 
   const [accordionsOpen, setAccordionsOpen] = useAtom(oppgaverFilterAccordionAtom);
 
   return (
-    <div className="bg-ax-bg-default self-start w-80">
-      <Accordion>
-        <FilterAccordion
-          tittel="Lagrede filter"
-          onClick={() => {
-            setAccordionsOpen([...addOrRemove(accordionsOpen, "lagrede-filter")]);
-          }}
-          open={accordionsOpen.includes("lagrede-filter")}
-        >
-          {lagredeFilterOversikt}
-        </FilterAccordion>
-        <FilterAccordion
-          tittel="Oppgave"
-          antallValgteFilter={filter.type.length}
-          open={accordionsOpen.includes("type")}
-          onClick={() => {
-            setAccordionsOpen([...addOrRemove(accordionsOpen, "type")]);
-          }}
-        >
-          <OppgaveTypeFilter
-            value={filter.type}
-            onChange={(value) => updateFilter({ type: value as OppgaveType[] })}
-          />
-        </FilterAccordion>
+    <Accordion size="small">
+      <FilterAccordion
+        tittel="Lagrede filter"
+        onClick={() => {
+          setAccordionsOpen([...addOrRemove(accordionsOpen, "lagrede-filter")]);
+        }}
+        open={accordionsOpen.includes("lagrede-filter")}
+      >
+        {lagredeFilterOversikt}
+      </FilterAccordion>
+      <FilterAccordion
+        tittel="Oppgave"
+        antallValgteFilter={filter.type.length}
+        open={accordionsOpen.includes("type")}
+        onClick={() => {
+          setAccordionsOpen([...addOrRemove(accordionsOpen, "type")]);
+        }}
+      >
+        <OppgaveTypeFilter
+          value={filter.type}
+          onChange={(value) => updateFilter({ type: value as OppgaveType[] })}
+        />
+      </FilterAccordion>
 
-        <FilterAccordion
-          tittel="Nav-enhet"
-          antallValgteFilter={filter.navEnheter.length}
-          open={accordionsOpen.includes("navEnhet")}
-          onClick={() => {
-            setAccordionsOpen([...addOrRemove(accordionsOpen, "navEnhet")]);
+      <FilterAccordion
+        tittel="Nav-enhet"
+        antallValgteFilter={filter.navEnheter.length}
+        open={accordionsOpen.includes("navEnhet")}
+        onClick={() => {
+          setAccordionsOpen([...addOrRemove(accordionsOpen, "navEnhet")]);
+        }}
+      >
+        <KontorstrukturOgKostnadsstedFilter
+          value={filter.navEnheter}
+          onChange={(navEnheter) => {
+            updateFilter({ navEnheter });
           }}
-        >
-          <KontorstrukturOgKostnadsstedFilter
-            value={filter.navEnheter}
-            onChange={(navEnheter) => {
-              updateFilter({ navEnheter });
-            }}
-          />
-        </FilterAccordion>
-        <FilterAccordion
-          tittel="Tiltakstype"
-          antallValgteFilter={filter.tiltakstyper.length}
-          open={accordionsOpen.includes("tiltakstype")}
-          onClick={() => {
-            setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstype")]);
-          }}
-        >
-          <GjennomforingTiltakstypeFilter
-            value={filter.tiltakstyper}
-            onChange={(tiltakstyper) => updateFilter({ tiltakstyper })}
-          />
-        </FilterAccordion>
+        />
+      </FilterAccordion>
+      <FilterAccordion
+        tittel="Tiltakstype"
+        antallValgteFilter={filter.tiltakstyper.length}
+        open={accordionsOpen.includes("tiltakstype")}
+        onClick={() => {
+          setAccordionsOpen([...addOrRemove(accordionsOpen, "tiltakstype")]);
+        }}
+      >
+        <GjennomforingTiltakstypeFilter
+          value={filter.tiltakstyper}
+          onChange={(tiltakstyper) => updateFilter({ tiltakstyper })}
+        />
+      </FilterAccordion>
 
-        <FilterAccordion
-          tittel="Arrangør"
-          antallValgteFilter={filter.arrangorer.length}
-          open={accordionsOpen.includes("arrangor")}
-          onClick={() => {
-            setAccordionsOpen([...addOrRemove(accordionsOpen, "arrangor")]);
-          }}
-        >
-          <ArrangorerFilter
-            filter={filter.arrangorer}
-            updateFilter={(arrangorer) => updateFilter({ arrangorer })}
-          />
-        </FilterAccordion>
-      </Accordion>
-    </div>
+      <FilterAccordion
+        tittel="Arrangør"
+        antallValgteFilter={filter.arrangorer.length}
+        open={accordionsOpen.includes("arrangor")}
+        onClick={() => {
+          setAccordionsOpen([...addOrRemove(accordionsOpen, "arrangor")]);
+        }}
+      >
+        <ArrangorerFilter
+          filter={filter.arrangorer}
+          updateFilter={(arrangorer) => updateFilter({ arrangorer })}
+        />
+      </FilterAccordion>
+    </Accordion>
   );
 }

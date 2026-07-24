@@ -31,14 +31,13 @@ export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Pr
   };
 
   return (
-    <VStack gap="space-8">
+    <VStack gap="space-16">
       <Search
         label="Søk etter tiltaksgjennomføring"
-        hideLabel
         size="small"
-        variant="simple"
+        autoFocus
+        variant="secondary"
         placeholder="Navn, tiltaksnr., tiltaksarrangør"
-        onBlur={() => {}}
         onChange={(search: string) => {
           updateFilter({
             sok: search,
@@ -46,7 +45,6 @@ export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Pr
           });
         }}
         value={filter.sok}
-        aria-label="Søk etter tiltaksgjennomføring"
       />
       <Switch
         position="left"
@@ -61,7 +59,7 @@ export function AvtaleFilter({ filter, updateFilter, lagredeFilterOversikt }: Pr
       >
         Vis kun mine avtaler
       </Switch>
-      <Accordion>
+      <Accordion size="small">
         <FilterAccordion
           tittel="Lagrede filter"
           open={accordionsOpen.includes("lagrede-filter")}

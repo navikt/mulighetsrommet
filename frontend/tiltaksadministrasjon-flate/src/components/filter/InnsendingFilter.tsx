@@ -37,7 +37,7 @@ export function InnsendingFilter({
   }
 
   return (
-    <Accordion>
+    <Accordion size="small">
       <FilterAccordion
         tittel="Lagrede filter"
         open={accordionsOpen.includes("lagrede-filter")}
