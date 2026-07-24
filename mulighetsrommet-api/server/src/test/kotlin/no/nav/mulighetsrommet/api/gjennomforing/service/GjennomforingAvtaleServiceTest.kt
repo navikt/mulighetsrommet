@@ -5,6 +5,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -19,6 +20,7 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
+import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
@@ -39,10 +41,13 @@ import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.utils.toUUID
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.util.UUID
 
 val TEST_GJENNOMFORING_V2_TOPIC = ApplicationConfigTest.kafka.topics.sisteTiltaksgjennomforingerV2Topic
 
@@ -302,7 +307,12 @@ class GjennomforingAvtaleServiceTest : FunSpec({
     context("avbryte gjennomføring") {
         val service = createService()
 
-        test("blir valideringsfeil hvis gjennomføringen ikke er aktiv") {
+        val feilregistrering = AarsakerOgForklaringRequest(
+            aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
+            forklaring = null,
+        )
+
+        test("blir valideringsfeil hvis gjennomføringen er avsluttet") {
             val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 status = GjennomforingStatusType.AVSLUTTET,
             )
@@ -314,13 +324,29 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.avbrytGjennomforing(
                 gjennomforing.id,
                 sluttDato = LocalDate.now(),
-                aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                    listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
-                    null,
-                ),
+                aarsakerOgForklaring = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
                 listOf(FieldError.of("Gjennomføringen er allerede avsluttet")),
+            )
+        }
+
+        test("blir valideringsfeil hvis gjennomføringen allerede er avbrutt") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                status = GjennomforingStatusType.AVBRUTT,
+            )
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            service.avbrytGjennomforing(
+                gjennomforing.id,
+                sluttDato = LocalDate.now(),
+                aarsakerOgForklaring = feilregistrering,
+                avbruttAv = bertilNavIdent,
+            ).shouldBeLeft(
+                listOf(FieldError.of("Gjennomføringen er allerede avbrutt")),
             )
         }
 
@@ -338,10 +364,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.avbrytGjennomforing(
                 gjennomforing.id,
                 sluttDato = LocalDate.of(2023, 7, 2),
-                aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                    listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
-                    null,
-                ),
+                aarsakerOgForklaring = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeLeft(
                 listOf(FieldError.of("Gjennomføringen er allerede avsluttet")),
@@ -361,10 +384,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.avbrytGjennomforing(
                 gjennomforing.id,
                 sluttDato = LocalDate.of(2023, 7, 1),
-                aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                    listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
-                    null,
-                ),
+                aarsakerOgForklaring = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {
                 it.status shouldBe GjennomforingStatusType.AVBRUTT
@@ -388,6 +408,27 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             }
         }
 
+        test("blir valideringsfeil hvis ny sluttdato ikke er før eksisterende sluttdato") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = LocalDate.of(2023, 8, 1),
+                status = GjennomforingStatusType.GJENNOMFORES,
+            )
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            service.avbrytGjennomforing(
+                gjennomforing.id,
+                sluttDato = LocalDate.of(2023, 8, 1),
+                aarsakerOgForklaring = feilregistrering,
+                avbruttAv = bertilNavIdent,
+            ).shouldBeLeft(
+                listOf(FieldError.of("Ny sluttdato må være før gjeldende sluttdato")),
+            )
+        }
+
         test("stenger gjennomføring og får status avlyst når gjennomføring avbrytes før start") {
             val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
@@ -401,10 +442,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
             service.avbrytGjennomforing(
                 gjennomforing.id,
                 sluttDato = LocalDate.of(2023, 6, 1),
-                aarsakerOgForklaring = AarsakerOgForklaringRequest(
-                    listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
-                    null,
-                ),
+                aarsakerOgForklaring = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {
                 it.status shouldBe GjennomforingStatusType.AVLYST
@@ -420,6 +458,40 @@ class GjennomforingAvtaleServiceTest : FunSpec({
     context("avslutte gjennomføring") {
         val service = createService()
 
+        test("blir valideringsfeil hvis gjennomføringen ikke er aktiv") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                status = GjennomforingStatusType.AVSLUTTET,
+            )
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            service.avsluttGjennomforing(gjennomforing.id, LocalDateTime.now(), bertilNavIdent).shouldBeLeft(
+                listOf(FieldError.of("Gjennomføringen må være aktiv for å kunne avsluttes")),
+            )
+        }
+
+        test("blir valideringsfeil hvis gjennomføringen forsøkes avsluttes før sluttdato") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                startDato = LocalDate.of(2023, 7, 1),
+                sluttDato = LocalDate.of(2023, 7, 1),
+                status = GjennomforingStatusType.GJENNOMFORES,
+            )
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            service.avsluttGjennomforing(
+                gjennomforing.id,
+                LocalDate.of(2023, 7, 1).atStartOfDay(),
+                bertilNavIdent,
+            ).shouldBeLeft(
+                listOf(FieldError.of("Gjennomføringen kan ikke avsluttes før sluttdato")),
+            )
+        }
+
         test("stenger gjennomføring, publiserer til kafka og skriver til endringshistorikken når gjennomføring avsluttes") {
             val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
                 startDato = LocalDate.of(2023, 7, 1),
@@ -434,7 +506,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 gjennomforing.id,
                 LocalDate.of(2023, 7, 2).atStartOfDay(),
                 bertilNavIdent,
-            ) should {
+            ).shouldBeRight().should {
                 it.status shouldBe GjennomforingStatusType.AVSLUTTET
                 it.apentForPamelding shouldBe false
             }
@@ -453,6 +525,69 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                     .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
                         it.operation shouldBe "Gjennomføringen ble avsluttet"
                     }
+            }
+        }
+    }
+
+    context("oppdatere Arena-data") {
+        val service = createService()
+
+        test("oppdaterer tiltaksnummer første gang og logger med riktig operasjonstekst") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            val arenaData = Gjennomforing.ArenaData(Tiltaksnummer("2025#111"), "1000")
+
+            service.updateArenaData(gjennomforing.id, arenaData).arena shouldBe arenaData
+
+            database.run {
+                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
+                    .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
+                        it.operation shouldBe "Oppdatert med tiltaksnummer fra Arena"
+                    }
+            }
+        }
+
+        test("endrer eksisterende Arena-data og logger med riktig operasjonstekst") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            service.updateArenaData(gjennomforing.id, Gjennomforing.ArenaData(Tiltaksnummer("2025#111"), "1000"))
+
+            val nyArenaData = Gjennomforing.ArenaData(Tiltaksnummer("2025#111"), "2000")
+            service.updateArenaData(gjennomforing.id, nyArenaData).arena shouldBe nyArenaData
+
+            database.run {
+                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
+                    .shouldNotBeNull().entries.shouldHaveSize(2).first().should {
+                        it.operation shouldBe "Endret i Arena"
+                    }
+            }
+        }
+
+        test("gjør ingenting og publiserer ikke til kafka når Arena-data er uendret") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            val arenaData = Gjennomforing.ArenaData(Tiltaksnummer("2025#111"), "1000")
+            service.updateArenaData(gjennomforing.id, arenaData)
+
+            service.updateArenaData(gjennomforing.id, arenaData).arena shouldBe arenaData
+
+            database.run {
+                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
+                    .shouldNotBeNull().entries.shouldHaveSize(1)
+
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1)
             }
         }
     }
@@ -603,6 +738,162 @@ class GjennomforingAvtaleServiceTest : FunSpec({
         }
     }
 
+    context("publisering") {
+        val service = createService()
+
+        test("setPublisert oppdaterer status uten å publisere til kafka") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            service.setPublisert(gjennomforing.id, publisert = true, navIdent = bertilNavIdent)
+
+            database.run {
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id).publisert shouldBe true
+
+                queries.endringshistorikk.getEndringshistorikk(EndringshistorikkType.GJENNOMFORING, gjennomforing.id)
+                    .shouldNotBeNull().entries.shouldHaveSize(1).first().should {
+                        it.operation shouldBe "Tiltak publisert"
+                    }
+
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 0)
+            }
+        }
+
+        test("setApentForPamelding oppdaterer status og publiserer til kafka") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            service.setApentForPamelding(gjennomforing.id, apentForPamelding = false, agent = bertilNavIdent)
+
+            database.run {
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1).should { (record) ->
+                    val decoded = Json.decodeFromString<TiltaksgjennomforingV2Dto>(record.value.decodeToString())
+                    val gruppe = decoded.shouldBeInstanceOf<TiltaksgjennomforingV2Dto.Gruppe>()
+                    gruppe.apentForPamelding shouldBe false
+                }
+            }
+        }
+    }
+
+    context("stengt hos arrangør") {
+        val service = createService()
+
+        test("registrerer periode stengt hos arrangør og publiserer til kafka") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            val periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15))
+
+            service.setStengtHosArrangor(
+                gjennomforing.id,
+                periode,
+                "Ferie",
+                bertilNavIdent,
+            ).shouldBeRight().stengt.shouldHaveSize(1).first().should {
+                it.start shouldBe periode.start
+                it.slutt shouldBe periode.getLastInclusiveDate()
+                it.beskrivelse shouldBe "Ferie"
+            }
+
+            database.run {
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 1)
+            }
+        }
+
+        test("gir valideringsfeil hvis perioden overlapper en eksisterende periode") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            service.setStengtHosArrangor(
+                gjennomforing.id,
+                Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15)),
+                "Ferie",
+                bertilNavIdent,
+            ).shouldBeRight()
+
+            service.setStengtHosArrangor(
+                gjennomforing.id,
+                Periode(LocalDate.of(2025, 1, 10), LocalDate.of(2025, 1, 20)),
+                "Overlappende ferie",
+                bertilNavIdent,
+            ).shouldBeLeft().shouldContainExactly(
+                FieldError("/periodeStart", "Perioden kan ikke overlappe med andre perioder"),
+            )
+        }
+
+        test("fjerner periode stengt hos arrangør og publiserer til kafka") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            val periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 15))
+            val created =
+                service.setStengtHosArrangor(gjennomforing.id, periode, "Ferie", bertilNavIdent).shouldBeRight()
+            val periodeId = created.stengt.shouldHaveSize(1).first().id
+
+            service.deleteStengtHosArrangor(gjennomforing.id, periodeId, bertilNavIdent).stengt.shouldBeEmpty()
+
+            database.run {
+                shouldHaveKafkaProducerRecords(TEST_GJENNOMFORING_V2_TOPIC, 2)
+            }
+        }
+    }
+
+    context("frikoble kontaktperson fra gjennomføring") {
+        val service = createService()
+
+        test("fjerner kontaktperson fra gjennomføringens detaljer") {
+            val kontaktperson = ArrangorKontaktperson(
+                id = UUID.randomUUID(),
+                arrangorId = ArrangorFixtures.underenhet1.id,
+                navn = "Navn Navnesen",
+                beskrivelse = null,
+                telefon = null,
+                epost = "navn@example.com",
+                ansvarligFor = listOf(),
+            )
+
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(
+                    ArrangorFixtures.hovedenhet,
+                    ArrangorFixtures.underenhet1.registrerKontaktpersoner(listOf(kontaktperson)),
+                    ArrangorFixtures.underenhet2,
+                ),
+            ).initialize(database.api)
+
+            val request = GjennomforingFixtures.createGjennomforingRequest(AvtaleFixtures.oppfolging).let {
+                it.copy(detaljer = it.detaljer.copy(arrangorKontaktpersoner = setOf(kontaktperson.id)))
+            }
+            service.create(request, bertilNavIdent).shouldBeRight()
+
+            database.run {
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(request.id)
+                    .arrangorKontaktpersoner.shouldHaveSize(1)
+            }
+
+            service.frikobleKontaktpersonFraGjennomforing(kontaktperson.id, request.id, bertilNavIdent)
+
+            database.run {
+                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(request.id)
+                    .arrangorKontaktpersoner.shouldBeEmpty()
+            }
+        }
+    }
+
     context("tilgjengelig for arrangør") {
         test("dato for tilgjengelig for arrangør blir publisert til kafka") {
             val tilgjengeligForArrangorDato = LocalDate.now().plusDays(1)
@@ -629,6 +920,60 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                     gruppe.tilgjengeligForArrangorFraOgMedDato shouldBe tilgjengeligForArrangorDato
                 }
             }
+        }
+
+        test("gir valideringsfeil hvis dato ikke er satt") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(startDato = LocalDate.now().plusWeeks(1))
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            createService().setTilgjengeligForArrangorDato(
+                id = gjennomforing.id,
+                tilgjengeligForArrangorDato = null,
+                navIdent = bertilNavIdent,
+            ).shouldBeLeft(
+                listOf(FieldError("/tilgjengeligForArrangorDato", "Dato må være satt")),
+            )
+        }
+
+        test("gir valideringsfeil hvis dato er i fortiden") {
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(startDato = LocalDate.now().plusWeeks(1))
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            createService().setTilgjengeligForArrangorDato(
+                id = gjennomforing.id,
+                tilgjengeligForArrangorDato = LocalDate.now().minusDays(1),
+                navIdent = bertilNavIdent,
+            ).shouldBeLeft(
+                listOf(FieldError("/tilgjengeligForArrangorDato", "Du må velge en dato som er etter dagens dato")),
+            )
+        }
+
+        test("gir valideringsfeil hvis dato er etter oppstartsdato") {
+            val startDato = LocalDate.now().plusWeeks(1)
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(startDato = startDato)
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            createService().setTilgjengeligForArrangorDato(
+                id = gjennomforing.id,
+                tilgjengeligForArrangorDato = startDato.plusDays(1),
+                navIdent = bertilNavIdent,
+            ).shouldBeLeft(
+                listOf(
+                    FieldError(
+                        "/tilgjengeligForArrangorDato",
+                        "Du må velge en dato som er før gjennomføringens oppstartsdato",
+                    ),
+                ),
+            )
         }
     }
 })
