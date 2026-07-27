@@ -710,7 +710,7 @@ class UtbetalingQueries(private val session: Session) {
 
         val avbrytelse = uuidOrNull("utbetaling_avbrytelse_totrinnskontroll_id")?.let {
             context(session) {
-                val totrinnskontroll = TotrinnskontrollQueries(session).getByIdOrError(it)
+                val totrinnskontroll = TotrinnskontrollQueries(session).getById(it)
                 Utbetaling.Tilstandsendring(
                     totrinnskontroll = totrinnskontroll,
                     returnert = UtbetalingStatusType.valueOf(string("utbetaling_avbrytelse_returnert")),

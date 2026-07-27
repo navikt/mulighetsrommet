@@ -115,12 +115,6 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
         return session.single(queryOf(query, params)) { it.toTotrinnskontroll() }
     }
 
-    override fun getByIdOrError(id: UUID): Totrinnskontroll {
-        return requireNotNull(getById(id)) {
-            "Totrinnskontroll mangler for $id"
-        }
-    }
-
     override fun getDtoOrError(entityId: UUID, type: TotrinnskontrollType): TotrinnskontrollDto {
         return requireNotNull(getDto(entityId, type)) {
             "Totrinnskontroll mangler for type $type"

@@ -1,9 +1,12 @@
 package no.nav.mulighetsrommet.api.utbetaling.service
 
+import arrow.core.Either
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -1448,15 +1451,26 @@ class AdminUtbetalingServiceTest : FunSpec({
     context("avbrytelse") {
         context("send til avbrytelse") {
             test("kan ikke sende korreksjon til avbrytelse") {
-                val korreksjon = utbetaling1.copy(id = UUID.randomUUID(), status = UtbetalingStatusType.TIL_BEHANDLING, korreksjonGjelderUtbetalingId = utbetaling1.id, korreksjonBegrunnelse = "Treng peng")
                 MulighetsrommetTestDomain(
                     ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                     avtaler = listOf(AvtaleFixtures.AFT),
                     gjennomforinger = listOf(AFT1),
-                    utbetalinger = listOf(utbetaling1, korreksjon),
+                    utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.FERDIG_BEHANDLET)),
                 ).initialize(database.api)
 
                 val service = createUtbetalingService()
+
+                val korreksjon = UpsertUtbetaling.Korreksjon(
+                    id = UUID.randomUUID(),
+                    periode = Periode.forMonthOf(utbetaling1.periode.start),
+                    korreksjonGjelderUtbetalingId = utbetaling1.id,
+                    korreksjonBegrunnelse = "Feilutbetaling",
+                    kid = null,
+                    beregning = UtbetalingBeregningFri.from(10.NOK),
+                    kommentar = null,
+                    tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
+                )
+                service.opprettUtbetaling(korreksjon, navIdent).shouldBeRight()
 
                 val aarsaker = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)
                 service.sendTilAvbrytelse(korreksjon.id, navIdent, aarsaker) shouldBeLeft
@@ -1466,37 +1480,33 @@ class AdminUtbetalingServiceTest : FunSpec({
             }
 
             test("kan avbryte utbetalinger med status GENERTERT, TIL_BEHANDLING og RETURNERT") {
-                val utbetalingStatusOgId = mapOf(
-                    UtbetalingStatusType.GENERERT to UUID.randomUUID(),
-                    UtbetalingStatusType.TIL_BEHANDLING to UUID.randomUUID(),
-                    UtbetalingStatusType.RETURNERT to UUID.randomUUID(),
-                    UtbetalingStatusType.TIL_ATTESTERING to UUID.randomUUID(),
-                    UtbetalingStatusType.FERDIG_BEHANDLET to UUID.randomUUID(),
-                    UtbetalingStatusType.DELVIS_UTBETALT to UUID.randomUUID(),
-                    UtbetalingStatusType.UTBETALT to UUID.randomUUID(),
-                    UtbetalingStatusType.TIL_AVBRYTELSE to UUID.randomUUID(),
-                    UtbetalingStatusType.AVBRUTT to UUID.randomUUID(),
-                )
-                MulighetsrommetTestDomain(
-                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-                    avtaler = listOf(AvtaleFixtures.AFT),
-                    gjennomforinger = listOf(AFT1),
-                    utbetalinger = utbetalingStatusOgId.map { (status, id) -> utbetaling1.copy(id = id, status = status) },
-                ).initialize(database.api)
-
                 val service = createUtbetalingService()
 
                 val aarsaker = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)
-                val results = utbetalingStatusOgId.map { (status, id) -> status to service.sendTilAvbrytelse(id, navIdent, aarsaker) }
+                val feilmelding = Either.Left(listOf(FieldError.of("Utbetaling kan ikke settes til avbrytelse")))
+                val tilAvbrytelse = Either.Right(UtbetalingStatusType.TIL_AVBRYTELSE)
 
-                results.forEach { (status, tilAvbrytelseResult) ->
-                    if (status in listOf(UtbetalingStatusType.GENERERT, UtbetalingStatusType.TIL_BEHANDLING, UtbetalingStatusType.RETURNERT)) {
-                        tilAvbrytelseResult.shouldBeRight().status shouldBe UtbetalingStatusType.TIL_AVBRYTELSE
-                    } else {
-                        tilAvbrytelseResult shouldBeLeft listOf(
-                            FieldError.of("Utbetaling kan ikke settes til avbrytelse"),
-                        )
-                    }
+                forAll(
+                    row(UtbetalingStatusType.GENERERT, tilAvbrytelse),
+                    row(UtbetalingStatusType.TIL_BEHANDLING, tilAvbrytelse),
+                    row(UtbetalingStatusType.RETURNERT, tilAvbrytelse),
+                    row(UtbetalingStatusType.TIL_ATTESTERING, feilmelding),
+                    row(UtbetalingStatusType.FERDIG_BEHANDLET, feilmelding),
+                    row(UtbetalingStatusType.DELVIS_UTBETALT, feilmelding),
+                    row(UtbetalingStatusType.UTBETALT, feilmelding),
+                    row(UtbetalingStatusType.TIL_AVBRYTELSE, feilmelding),
+                    row(UtbetalingStatusType.AVBRUTT, feilmelding),
+                ) { status, expected ->
+                    MulighetsrommetTestDomain(
+                        ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                        avtaler = listOf(AvtaleFixtures.AFT),
+                        gjennomforinger = listOf(AFT1),
+                        utbetalinger = listOf(utbetaling1.copy(status = status)),
+                    ).initialize(database.api)
+
+                    service.sendTilAvbrytelse(utbetaling1.id, navIdent, aarsaker)
+                        .map { it.status }
+                        .shouldBe(expected)
                 }
             }
 
