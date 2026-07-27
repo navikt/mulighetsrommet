@@ -353,7 +353,7 @@ private fun services(appConfig: AppConfig) = module {
     }
     single {
         MsGraphClient(
-            engine = appConfig.engine,
+            engine = appConfig.msGraphConfig.engine ?: appConfig.engine,
             baseUrl = appConfig.msGraphConfig.url,
             tokenProvider = azureAdTokenProvider.withScope(appConfig.msGraphConfig.scope),
         )

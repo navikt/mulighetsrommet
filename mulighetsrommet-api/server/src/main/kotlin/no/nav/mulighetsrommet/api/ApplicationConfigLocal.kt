@@ -3,8 +3,10 @@ package no.nav.mulighetsrommet.api
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
+import io.ktor.client.engine.mock.respondOk
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
@@ -16,6 +18,10 @@ import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder.consumerBuilder
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
+import no.nav.mulighetsrommet.api.clients.msgraph.GetGroupMembersResponse
+import no.nav.mulighetsrommet.api.clients.msgraph.GetMemberGroupsResponse
+import no.nav.mulighetsrommet.api.clients.msgraph.GetUserSearchResponse
+import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphUserDto
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest
 import no.nav.mulighetsrommet.api.clients.pdl.GraphqlRequest.Identer
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
@@ -46,6 +52,16 @@ import org.apache.kafka.common.serialization.ByteArraySerializer
 import java.time.LocalDate
 
 private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
+
+private val navAnsattForLokalUtvikling = MsGraphUserDto(
+    id = "0bab029e-e84e-4842-8a27-d153b29782cf".toUUID(),
+    givenName = "Bertil",
+    surname = "Bengtson",
+    onPremisesSamAccountName = "B123456",
+    mail = "bertil.bengtson@nav.no",
+    streetAddress = "2990",
+    city = "IT-Avdelingen",
+)
 
 val ApplicationConfigLocal = AppConfig(
     tiltakstyper = TiltakstypeService.Config(
@@ -277,6 +293,48 @@ val ApplicationConfigLocal = AppConfig(
     msGraphConfig = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/ms-graph",
         scope = "default",
+        engine = MockEngine { request ->
+            val path = request.url.encodedPath
+
+            when (request.method) {
+                HttpMethod.Post if path.endsWith($$"/members/$ref") -> respondOk()
+
+                HttpMethod.Post if path.endsWith("/getMemberGroups") -> respond(
+                    content = JsonIgnoreUnknownKeys.encodeToString(
+                        GetMemberGroupsResponse(listOf(adGruppeForLokalUtvikling)),
+                    ),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+
+                HttpMethod.Get if path.contains("/groups/") && path.endsWith("/members") -> respond(
+                    content = JsonIgnoreUnknownKeys.encodeToString(
+                        GetGroupMembersResponse(listOf(navAnsattForLokalUtvikling)),
+                    ),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+
+                HttpMethod.Get if path.endsWith("/users") -> respond(
+                    content = JsonIgnoreUnknownKeys.encodeToString(
+                        GetUserSearchResponse(listOf(navAnsattForLokalUtvikling)),
+                    ),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+
+                HttpMethod.Get if path.contains("/users/") -> respond(
+                    content = JsonIgnoreUnknownKeys.encodeToString(navAnsattForLokalUtvikling),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString()),
+                )
+
+                else -> respondError(
+                    HttpStatusCode.NotFound,
+                    "Mangler MockEngine for MS Graph: ${request.method.value} $path",
+                )
+            }
+        },
     ),
     amtDeltakerConfig = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/amt-deltaker",

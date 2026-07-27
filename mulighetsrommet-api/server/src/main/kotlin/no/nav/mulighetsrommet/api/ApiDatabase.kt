@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api
 
 import kotliquery.Session
 import kotliquery.TransactionalSession
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
 import no.nav.mulighetsrommet.api.arrangorflate.db.ArrangorflateQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
@@ -128,4 +129,14 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
 class TransactionalQueryContext(
     override val session: TransactionalSession,
     topics: KafkaTopics,
-) : QueryContext(session, topics)
+) : QueryContext(session, topics) {
+    /**
+     * Oppretter en Postgres transaction level advisory lock [0]. Løses når transaksjonen
+     * commiter eller rulles tilbake.
+     *
+     * [0]: https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS
+     */
+    fun aquireAdvisoryLock(key: String) {
+        session.run(queryOf("select pg_advisory_xact_lock(hashtextextended(?, 0))", key).asExecute)
+    }
+}
