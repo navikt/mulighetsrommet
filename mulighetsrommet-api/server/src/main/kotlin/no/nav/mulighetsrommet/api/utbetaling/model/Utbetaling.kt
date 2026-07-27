@@ -59,9 +59,7 @@ data class Utbetaling(
     /**
      * Representerer en endring av status etter en totrinnskontroll
      *
-     * Indousert ved avbrytelse via tiltaksadmin, da en utbetaling kan avbrytes fra statusene GENERERT, TIL_BEHANDLING og RETURNERT
-     *
-     * Siden utbetalingens status er TIL_AVBRYTELSE, vil dette hjelpe oss med å gå til rett status avhengig av totrinnskontrollen
+     * Introdusert ved avbrytelse fra tiltaksadmin, hvor en utbetaling kan avbrytes fra flere mulige statuser.
      */
     @Serializable
     data class Tilstandsendring(
