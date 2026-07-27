@@ -6,8 +6,6 @@ import {
   GjennomforingType,
   InnholdElementKode as InnholdElement,
   KurstypeKode,
-  OpplaeringtilskuddKode,
-  PrismodellIngenKostnaderAarsak,
   TilsagnStatusAarsak,
   TilsagnType,
   TilskuddBehandlingStatusAarsak,

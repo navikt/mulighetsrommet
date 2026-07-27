@@ -69,7 +69,7 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
         session.execute(queryOf(query, params))
     }
 
-    fun getById(id: UUID): Totrinnskontroll {
+    override fun getById(id: UUID): Totrinnskontroll {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -119,21 +119,6 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
         return requireNotNull(getById(id)) {
             "Totrinnskontroll mangler for $id"
         }
-    }
-
-    override fun getById(id: UUID): Totrinnskontroll? {
-        @Language("PostgreSQL")
-        val query = """
-            select *
-            from totrinnskontroll
-            where id = :id::uuid
-        """.trimIndent()
-
-        val params = mapOf(
-            "id" to id,
-        )
-
-        return session.single(queryOf(query, params)) { it.toTotrinnskontroll() }
     }
 
     override fun getDtoOrError(entityId: UUID, type: TotrinnskontrollType): TotrinnskontrollDto {

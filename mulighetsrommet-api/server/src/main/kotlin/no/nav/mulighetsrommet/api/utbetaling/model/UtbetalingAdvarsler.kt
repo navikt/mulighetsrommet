@@ -153,6 +153,7 @@ fun QueryContext.hentDeltakerAdvarslerForUtbetaling(
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.UTBETALT,
         UtbetalingStatusType.AVBRUTT,
+        UtbetalingStatusType.TIL_AVBRYTELSE,
         -> emptyList()
     }
 }
