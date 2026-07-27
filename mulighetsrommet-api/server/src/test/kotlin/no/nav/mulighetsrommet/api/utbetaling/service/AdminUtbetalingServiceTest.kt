@@ -16,8 +16,10 @@ import kotlinx.serialization.json.Json
 import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
@@ -41,6 +43,7 @@ import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
+import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
@@ -48,8 +51,10 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -94,6 +99,7 @@ class AdminUtbetalingServiceTest : FunSpec({
     fun createUtbetalingService(
         tilsagnService: TilsagnService = createTilsagnService(),
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
+        featureToggleService: FeatureToggleService = mockk(),
     ): AdminUtbetalingService {
         val utbetalingService = UtbetalingService(
             config = UtbetalingService.Config(
@@ -106,7 +112,7 @@ class AdminUtbetalingServiceTest : FunSpec({
             db = database.api,
             utbetalingService = utbetalingService,
             personaliaService = mockk(),
-            featureToggleService = mockk(),
+            featureToggleService = featureToggleService,
         )
     }
 
@@ -1322,7 +1328,7 @@ class AdminUtbetalingServiceTest : FunSpec({
         }
     }
 
-    context("sletting og avbryting") {
+    context("sletting") {
         test("kan ikke slette ferdig behandlet") {
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
@@ -1436,6 +1442,174 @@ class AdminUtbetalingServiceTest : FunSpec({
             service.slettKorreksjon(korreksjon.id) shouldBeLeft listOf(
                 FieldError.of("UtbetalingLinje var i feil status"),
             )
+        }
+    }
+
+    context("avbrytelse") {
+        context("send til avbrytelse") {
+            test("kan ikke sende korreksjon til avbrytelse") {
+                val korreksjon = utbetaling1.copy(id = UUID.randomUUID(), status = UtbetalingStatusType.TIL_BEHANDLING, korreksjonGjelderUtbetalingId = utbetaling1.id, korreksjonBegrunnelse = "Treng peng")
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                    avtaler = listOf(AvtaleFixtures.AFT),
+                    gjennomforinger = listOf(AFT1),
+                    utbetalinger = listOf(utbetaling1, korreksjon),
+                ).initialize(database.api)
+
+                val service = createUtbetalingService()
+
+                val aarsaker = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)
+                service.sendTilAvbrytelse(korreksjon.id, navIdent, aarsaker) shouldBeLeft
+                    listOf(
+                        FieldError.of("Utbetaling kan ikke settes til avbrytelse"),
+                    )
+            }
+
+            test("kan avbryte utbetalinger med status GENERTERT, TIL_BEHANDLING og RETURNERT") {
+                val utbetalingStatusOgId = mapOf(
+                    UtbetalingStatusType.GENERERT to UUID.randomUUID(),
+                    UtbetalingStatusType.TIL_BEHANDLING to UUID.randomUUID(),
+                    UtbetalingStatusType.RETURNERT to UUID.randomUUID(),
+                    UtbetalingStatusType.TIL_ATTESTERING to UUID.randomUUID(),
+                    UtbetalingStatusType.FERDIG_BEHANDLET to UUID.randomUUID(),
+                    UtbetalingStatusType.DELVIS_UTBETALT to UUID.randomUUID(),
+                    UtbetalingStatusType.UTBETALT to UUID.randomUUID(),
+                    UtbetalingStatusType.TIL_AVBRYTELSE to UUID.randomUUID(),
+                    UtbetalingStatusType.AVBRUTT to UUID.randomUUID(),
+                )
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                    avtaler = listOf(AvtaleFixtures.AFT),
+                    gjennomforinger = listOf(AFT1),
+                    utbetalinger = utbetalingStatusOgId.map { (status, id) -> utbetaling1.copy(id = id, status = status) },
+                ).initialize(database.api)
+
+                val service = createUtbetalingService()
+
+                val aarsaker = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)
+                val results = utbetalingStatusOgId.map { (status, id) -> status to service.sendTilAvbrytelse(id, navIdent, aarsaker) }
+
+                results.forEach { (status, tilAvbrytelseResult) ->
+                    if (status in listOf(UtbetalingStatusType.GENERERT, UtbetalingStatusType.TIL_BEHANDLING, UtbetalingStatusType.RETURNERT)) {
+                        tilAvbrytelseResult.shouldBeRight().status shouldBe UtbetalingStatusType.TIL_AVBRYTELSE
+                    } else {
+                        tilAvbrytelseResult shouldBeLeft listOf(
+                            FieldError.of("Utbetaling kan ikke settes til avbrytelse"),
+                        )
+                    }
+                }
+            }
+
+            test("får med totrinnskontroll når utbetaling er til avbrytelse") {
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                    avtaler = listOf(AvtaleFixtures.AFT),
+                    gjennomforinger = listOf(AFT1),
+                    utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.GENERERT)),
+                ).initialize(database.api)
+                val featureToggleService = mockk<FeatureToggleService>()
+                coEvery { featureToggleService.isEnabled(any()) } returns true
+                val service = createUtbetalingService(featureToggleService = featureToggleService)
+
+                val aarsakerOgForklaring = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)
+                service.sendTilAvbrytelse(utbetaling1.id, navIdent, aarsakerOgForklaring).shouldBeRight()
+
+                val utbetalingDetaljer = service.getUtbetalingDetaljer(utbetaling1.id, navIdent)
+
+                utbetalingDetaljer.utbetaling.status shouldBe UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.TIL_AVBRYTELSE, emptySet())
+                utbetalingDetaljer.utbetaling.avbrytelse shouldNotBeNull {
+                    this.shouldBeTypeOf<TotrinnskontrollDto.TilBeslutning>()
+                }
+            }
+        }
+
+        context("godkjenn avbrytelse") {
+            test("kan ikke godkjenne en utbetaling som ikke er til avbrytelse") {
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                    avtaler = listOf(AvtaleFixtures.AFT),
+                    gjennomforinger = listOf(AFT1),
+                    utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.GENERERT)),
+                ).initialize(database.api)
+                val service = createUtbetalingService()
+
+                service.godkjennAvbrytelse(utbetaling1.id, navIdent) shouldBeLeft listOf(
+                    FieldError.of("Utbetalingen kan ikke avbrytes"),
+                )
+            }
+
+            test("samme navident kan ikke både behandle og beslutte en avbrytelse") {
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                    avtaler = listOf(AvtaleFixtures.AFT),
+                    gjennomforinger = listOf(AFT1),
+                    utbetalinger = listOf(utbetaling1),
+                ).initialize(database.api)
+                val service = createUtbetalingService()
+
+                val aarsakerOgForklaring = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)
+                service.sendTilAvbrytelse(utbetaling1.id, navIdent, aarsakerOgForklaring).shouldBeRight()
+
+                service.godkjennAvbrytelse(utbetaling1.id, navIdent) shouldBeLeft listOf(
+                    FieldError.of("Du kan ikke beslutte noe du selv har behandlet"),
+                )
+            }
+
+            test("skal kunne godkjenne en avbrytelse") {
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                    avtaler = listOf(AvtaleFixtures.AFT),
+                    gjennomforinger = listOf(AFT1),
+                    utbetalinger = listOf(utbetaling1),
+                ).initialize(database.api)
+                val featureToggleService = mockk<FeatureToggleService>()
+                coEvery { featureToggleService.isEnabled(any()) } returns true
+                val service = createUtbetalingService(featureToggleService = featureToggleService)
+
+                val aarsakerOgForklaring = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)
+                service.sendTilAvbrytelse(utbetaling1.id, NavAnsattFixture.MikkeMus.navIdent, aarsakerOgForklaring).shouldBeRight()
+
+                service.godkjennAvbrytelse(utbetaling1.id, navIdent).shouldBeRight().status shouldBe UtbetalingStatusType.AVBRUTT
+            }
+        }
+
+        context("retuner avbrytelse") {
+            test("kan ikke avslå en utbetaling som ikke er til avbrytelse") {
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                    avtaler = listOf(AvtaleFixtures.AFT),
+                    gjennomforinger = listOf(AFT1),
+                    utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.GENERERT)),
+                ).initialize(database.api)
+                val service = createUtbetalingService()
+
+                val aarsakerOgForklaring = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)
+                service.avslaAvbrytelse(utbetaling1.id, navIdent, aarsakerOgForklaring) shouldBeLeft listOf(
+                    FieldError.of("Utbetalingen er ikke til avbrytelse"),
+                )
+            }
+            test("skal retunere utbetalingen til original status etter et avslag") {
+                val originalStatus = UtbetalingStatusType.GENERERT
+                MulighetsrommetTestDomain(
+                    ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                    avtaler = listOf(AvtaleFixtures.AFT),
+                    gjennomforinger = listOf(AFT1),
+                    utbetalinger = listOf(utbetaling1.copy(status = originalStatus)),
+                ).initialize(database.api)
+
+                val featureToggleService = mockk<FeatureToggleService>()
+                coEvery { featureToggleService.isEnabled(any()) } returns true
+                val service = createUtbetalingService(featureToggleService = featureToggleService)
+
+                service.sendTilAvbrytelse(utbetaling1.id, navIdent, AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)).shouldBeRight()
+
+                service.getUtbetalingDetaljer(utbetaling1.id, navIdent).utbetaling.status shouldBe UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.TIL_AVBRYTELSE, emptySet())
+
+                val aarsakerOgForklaring = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.ANNET), forklaring = "Det er masse igjen på tilsagnet")
+                service.avslaAvbrytelse(utbetaling1.id, navIdent, aarsakerOgForklaring).shouldBeRight()
+
+                service.getUtbetalingDetaljer(utbetaling1.id, navIdent).utbetaling.status shouldBe UtbetalingStatusDto.fromUtbetalingStatus(originalStatus, emptySet())
+            }
         }
     }
 

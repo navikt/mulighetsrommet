@@ -40,6 +40,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -365,6 +366,124 @@ class UtbetalingRoutesTest : FunSpec({
                 deltaker.norskIdent.shouldBeNull()
                 deltaker.geografiskEnhet.shouldBeNull()
                 deltaker.gradering shouldBe Gradering.SKJERMING
+            }
+        }
+    }
+
+    context("avbrytelse") {
+        context("send til avbrytelse") {
+            val abrytelseUrl = { id: UUID -> "/api/tiltaksadministrasjon/utbetaling/$id/avbryt" }
+            test("må ha saksbehandler økonomi rolle") {
+                withTestApplication(appConfig()) {
+                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
+                    client.put(abrytelseUrl(UUID.randomUUID())) {
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                        setBody(
+                            AarsakerOgForklaringRequest<UtbetalingStatusAarsak>(
+                                aarsaker = emptyList(),
+                                forklaring = null,
+                            ),
+                        )
+                    }.status shouldBe HttpStatusCode.Forbidden
+                }
+            }
+
+            test("skal validere begrunnelsen for en avbrytelse") {
+                MulighetsrommetTestDomain(
+                    utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
+                ).initialize(database.api)
+
+                withTestApplication(appConfig()) {
+                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                    val response = client.put(abrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                        setBody(
+                            AarsakerOgForklaringRequest<UtbetalingStatusAarsak>(
+                                aarsaker = emptyList(),
+                                forklaring = null,
+                            ),
+                        )
+                    }
+                    response.status shouldBe HttpStatusCode.BadRequest
+                    response.body<ValidationError>().errors shouldContainExactlyInAnyOrder listOf(
+                        FieldError("/aarsaker", "Du må velge minst én årsak"),
+                    )
+                }
+            }
+
+            test("skal kunne sende til godkjenning") {
+                MulighetsrommetTestDomain(
+                    utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
+                ).initialize(database.api)
+
+                withTestApplication(appConfig()) {
+                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                    val response = client.put(abrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                        setBody(
+                            AarsakerOgForklaringRequest(
+                                aarsaker = listOf(UtbetalingStatusAarsak.ANNET),
+                                forklaring = "Avtalt avbrytelse",
+                            ),
+                        )
+                    }
+                    response.status shouldBe HttpStatusCode.OK
+                }
+            }
+        }
+
+        context("godkjenn avbrytelse") {
+            val godkjennAbrytelseUrl = { id: UUID -> "/api/tiltaksadministrasjon/utbetaling/$id/avbryt/godkjenn" }
+
+            test("må ha saksbehandler økonomi rolle") {
+                withTestApplication(appConfig()) {
+                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
+                    client.put(godkjennAbrytelseUrl(UUID.randomUUID())) {
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    }.status shouldBe HttpStatusCode.Forbidden
+                }
+            }
+        }
+
+        context("avslå avbrytelse") {
+            val avslaAbrytelseUrl = { id: UUID -> "/api/tiltaksadministrasjon/utbetaling/$id/avbryt/avsla" }
+
+            test("må ha saksbehandler økonomi rolle") {
+                withTestApplication(appConfig()) {
+                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle))
+                    client.put(avslaAbrytelseUrl(UUID.randomUUID())) {
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                        setBody(
+                            AarsakerOgForklaringRequest<UtbetalingStatusAarsak>(
+                                aarsaker = emptyList(),
+                                forklaring = null,
+                            ),
+                        )
+                    }.status shouldBe HttpStatusCode.Forbidden
+                }
+            }
+
+            test("skal validere begrunnelsen for et avslag") {
+                MulighetsrommetTestDomain(
+                    utbetalinger = listOf(UtbetalingFixtures.utbetaling1),
+                ).initialize(database.api)
+
+                withTestApplication(appConfig()) {
+                    val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+                    val response = client.put(avslaAbrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                        setBody(
+                            AarsakerOgForklaringRequest<UtbetalingStatusAarsak>(
+                                aarsaker = emptyList(),
+                                forklaring = null,
+                            ),
+                        )
+                    }
+                    response.status shouldBe HttpStatusCode.BadRequest
+                    response.body<ValidationError>().errors shouldContainExactlyInAnyOrder listOf(
+                        FieldError("/aarsaker", "Du må velge minst én årsak"),
+                    )
+                }
             }
         }
     }

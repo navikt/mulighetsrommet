@@ -112,7 +112,7 @@ data class Utbetaling(
         forklaring: String?,
     ): Either<List<FieldError>, Utbetaling> {
         if (status != UtbetalingStatusType.TIL_AVBRYTELSE) {
-            return FieldError.of("Utbetalingen kan ikke avbrytes")
+            return FieldError.of("Utbetalingen er ikke til avbrytelse")
                 .nel()
                 .left()
         }
