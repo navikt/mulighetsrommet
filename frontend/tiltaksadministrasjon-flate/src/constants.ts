@@ -1,7 +1,7 @@
 import { isAnsattDomene, isProduction } from "./environment";
 import { addDuration } from "@mr/frontend-common/utils/date";
 
-export const APPLICATION_NAME = "mr-admin-flate";
+export const APPLICATION_NAME = "tiltaksadministrasjon-flate";
 
 export const PAGE_SIZE = 50;
 export const AVTALE_PAGE_SIZE = 50;

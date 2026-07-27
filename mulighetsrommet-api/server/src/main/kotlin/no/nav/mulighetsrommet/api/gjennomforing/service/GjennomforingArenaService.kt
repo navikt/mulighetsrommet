@@ -11,13 +11,14 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDate
 import java.util.UUID
 
 data class OpprettGjennomforingArena(
     val id: UUID,
-    val tiltakstypeId: UUID,
+    val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
     val navn: String,
     val startDato: LocalDate,
@@ -43,7 +44,7 @@ class GjennomforingArenaService(
         val dbo = GjennomforingDbo(
             type = GjennomforingType.ARENA,
             id = opprett.id,
-            tiltakstypeId = opprett.tiltakstypeId,
+            tiltakskode = opprett.tiltakskode,
             arrangorId = opprett.arrangorId,
             navn = opprett.navn,
             startDato = opprett.startDato,
@@ -86,14 +87,14 @@ class GjennomforingArenaService(
     }
 
     private fun QueryContext.publishTiltaksgjennomforingV2ToKafka(gjennomforing: GjennomforingArena) {
-        outbox.publish(TiltaksgjennomforingV2Mapper.fromGjennomforingArena(gjennomforing))
+        outbox.publish(gjennomforing.id, TiltaksgjennomforingV2Mapper.fromGjennomforingArena(gjennomforing))
     }
 }
 
 private fun harGjennomforingEndringer(opprett: OpprettGjennomforingArena, gjennomforing: Gjennomforing): Boolean {
     return gjennomforing !is GjennomforingArena || opprett != OpprettGjennomforingArena(
         id = gjennomforing.id,
-        tiltakstypeId = gjennomforing.tiltakstype.id,
+        tiltakskode = gjennomforing.tiltakstype.tiltakskode,
         arrangorId = gjennomforing.arrangor.id,
         navn = gjennomforing.navn,
         startDato = gjennomforing.startDato,

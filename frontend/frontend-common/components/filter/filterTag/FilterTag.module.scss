@@ -13,7 +13,6 @@
     margin-left: 0.4rem;
 
     &:hover {
-      background-color: var(--ax-bg-action-subtle-hover);
       height: 1.7rem;
     }
   }
@@ -26,7 +25,7 @@
   height: fit-content;
   flex-wrap: wrap;
   padding: 0.5rem 0.5rem 1rem;
-        background-color: var(--ax-bg-sunken);
+  background-color: var(--ax-bg-default);
   top: 3rem;
   position: sticky;
   &_filter_hidden {

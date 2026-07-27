@@ -1,0 +1,13 @@
+package no.nav.mulighetsrommet.api.domain.tiltak
+
+import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import java.time.LocalDate
+
+@Serializable
+data class AvtaltSats(
+    @Serializable(with = LocalDateSerializer::class)
+    val gjelderFra: LocalDate,
+    val sats: ValutaBelop,
+)

@@ -23,7 +23,7 @@ class TiltakstypeQueriesTest : FunSpec({
             database.runAndRollback {
                 repository.tiltakstype.save(TiltakstypeFixtures.Arbeidstrening)
                 repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
-                repository.tiltakstype.save(TiltakstypeFixtures.VTAO)
+                repository.tiltakstype.save(TiltakstypeFixtures.TAO)
 
                 repository.tiltakstype.getAll().size shouldBe 3
             }

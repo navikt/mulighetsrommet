@@ -13,6 +13,7 @@ import { oppgaverHandlers } from "./endpoints/oppgaverHandlers";
 import { utbetalingHandlers } from "./endpoints/utbetalingHandlers";
 import { personopplysningerHandlers } from "@/mocks/endpoints/personopplysningerHandler";
 import { redaksjoneltInnholdHandlers } from "@/mocks/endpoints/redaksjoneltInnholdHandlers";
+import { tiltakDokumentHandlers } from "@/mocks/endpoints/tiltakDokumentHandlers";
 
 export const apiHandlers = [
   ...arrangorHandlers,
@@ -30,4 +31,5 @@ export const apiHandlers = [
   ...oppgaverHandlers,
   ...utbetalingHandlers,
   ...personopplysningerHandlers,
+  ...tiltakDokumentHandlers,
 ];

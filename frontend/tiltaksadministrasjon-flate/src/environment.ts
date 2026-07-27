@@ -7,7 +7,7 @@ export enum Environment {
 export function isProduction(): boolean {
   if (typeof window === "undefined") return false;
   const host = window.location.hostname;
-  return !host.includes(".dev.");
+  return !host.includes(".dev.") && host.includes("nav");
 }
 
 export function isDevelopment(): boolean {

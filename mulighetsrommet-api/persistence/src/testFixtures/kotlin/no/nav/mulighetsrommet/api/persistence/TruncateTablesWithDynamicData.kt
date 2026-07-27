@@ -13,6 +13,10 @@ import kotliquery.queryOf
 fun truncateTablesWithDynamicData(session: Session) {
     val excludedTables = setOf(
         "flyway_schema_history",
+        "opplaring_kategorisering_bransje",
+        "opplaring_kategorisering_kurstype",
+        "opplaring_forerkort",
+        "opplaring_innhold_element",
         "deltaker_registrering_innholdselement",
         "personopplysning",
         "kostnadssted",
@@ -21,6 +25,7 @@ fun truncateTablesWithDynamicData(session: Session) {
         "utbetaling_blokkering_type",
         "utbetaling_status_type",
         "utbetaling_linje_status_type",
+        "prismodell_type",
         "tilsagn_type",
         "tilsagn_status_type",
         "vedtak_resultat",

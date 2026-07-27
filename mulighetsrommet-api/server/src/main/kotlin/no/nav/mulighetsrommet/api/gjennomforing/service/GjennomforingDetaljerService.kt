@@ -4,9 +4,10 @@ import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
+import no.nav.mulighetsrommet.admin.tiltak.toPrismodellDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
@@ -30,9 +31,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
-import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
@@ -44,6 +42,8 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
+import no.nav.mulighetsrommet.spreadsheet.ExcelWorkbookBuilder
+import no.nav.mulighetsrommet.spreadsheet.buildExcelWorkbook
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.io.File
 import java.util.UUID
@@ -83,8 +83,22 @@ class GjennomforingDetaljerService(
             }
 
             is GjennomforingEnkeltplass -> db.session {
-                val okonomi = queries.totrinnskontroll.getDto(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                val deltakerDto = getDeltaker(gjennomforing.id)?.let { deltaker ->
+                val okonomi = queries.totrinnskontroll.getDto(
+                    gjennomforing.id,
+                    TotrinnskontrollType.ENKELTPLASS_OKONOMI,
+                )
+
+                val prisendring = queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforing.id)
+                    ?.let { queries.prismodell.getOrError(it.prismodellId) }
+                    ?.let { prismodell ->
+                        val totrinnskontroll = queries.totrinnskontroll.getDtoOrError(
+                            gjennomforing.id,
+                            TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
+                        )
+                        GjennomforingDetaljerDto.Prisendring(totrinnskontroll, prismodell.toPrismodellDto())
+                    }
+
+                val deltaker = getDeltaker(gjennomforing.id)?.let { deltaker ->
                     val personalia = personaliaService
                         .getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
                     val norskIdent = personalia.norskIdent()
@@ -94,13 +108,18 @@ class GjennomforingDetaljerService(
                     val veilederNavn = deltaker.navVeileder?.navIdent?.let {
                         navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
                     }
-
                     DeltakerDto.from(deltaker, personalia, veilederNavn)
                 }
-                val opplaringKategorisering = context(session) {
-                    OpplaringKategoriseringQueries.get(gjennomforing.id)
-                }
-                GjennomforingDtoMapper.fromEnkeltplass(gjennomforing, okonomi, deltakerDto, opplaringKategorisering)
+
+                val opplaringKategorisering = queries.opplaering.get(gjennomforing.id)
+
+                GjennomforingDtoMapper.fromEnkeltplass(
+                    gjennomforing,
+                    okonomi,
+                    prisendring,
+                    deltaker,
+                    opplaringKategorisering,
+                )
             }
         }
     }
@@ -142,7 +161,7 @@ class GjennomforingDetaljerService(
     }
 
     private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker? {
-        val deltakelser = queries.deltaker.getByGjennomforingId(gjennomforingId)
+        val deltakelser = repository.deltaker.getByGjennomforing(gjennomforingId)
         if (deltakelser.size > 1) {
             error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet kun én)")
         }
@@ -215,17 +234,26 @@ class GjennomforingDetaljerService(
         gjennomforing: GjennomforingEnkeltplass,
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
-        val totrinnskontroll = db.session {
+        val okonomi = db.session {
             queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
+        }
+        val prisendring = db.session {
+            queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
         }
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
-                totrinnskontroll?.kanSettesPaVent() == true
+                okonomi?.kanSettesPaVent() == true
             },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
-                totrinnskontroll?.kanBesluttes() == true
+                okonomi?.kanBesluttes() == true
+            },
+            GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING.takeIf {
+                prisendring?.kanSettesPaVent() == true
+            },
+            GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING.takeIf {
+                prisendring?.kanBesluttes() == true
             },
         )
             .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
@@ -266,6 +294,8 @@ class GjennomforingDetaljerService(
 
                 GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
                 GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI,
+                GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING,
+                GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING,
                 -> ansatt.hasKontorspesifikkRolle(Rolle.BESLUTTER_TILSAGN, enheter)
             }
         }

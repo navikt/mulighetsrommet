@@ -1,10 +1,5 @@
-import { AvtaleFormValues, toUtdanningslopDbo } from "@/pages/avtaler/form/validation";
-import {
-  AvtaleArrangorKontaktperson,
-  AvtaleDto,
-  NavAnsattDto,
-  PersonopplysningType,
-} from "@tiltaksadministrasjon/api-client";
+import { AvtaleFormValues, toUtdanningslop } from "@/pages/avtaler/form/validation";
+import { AvtaleDto, NavAnsattDto, PersonopplysningType } from "@tiltaksadministrasjon/api-client";
 import { DeepPartial } from "react-hook-form";
 import { splitNavEnheterByType } from "@/api/enhet/helpers";
 import { toAmoKategoriseringRequest } from "@/pages/avtaler/form/mappers";
@@ -28,20 +23,21 @@ export function defaultAvtaleData(
         underenheter: !avtale?.arrangor?.underenheter
           ? []
           : avtale.arrangor.underenheter.map((underenhet) => underenhet.organisasjonsnummer),
-        kontaktpersoner:
-          avtale?.arrangor?.kontaktpersoner.map((p: AvtaleArrangorKontaktperson) => p.id) ?? [],
+        kontaktpersoner: avtale?.arrangor?.kontaktpersoner.map((p) => p.id) ?? [],
       },
       startDato: avtale?.startDato,
       sluttDato: avtale?.sluttDato ?? null,
       sakarkivNummer: avtale?.sakarkivNummer ?? null,
       tiltakskode: avtale?.tiltakstype?.tiltakskode,
-      amoKategorisering: toAmoKategoriseringRequest(avtale?.amoKategorisering ?? null),
+      amoKategorisering: toAmoKategoriseringRequest(avtale?.opplaring ?? null),
       opsjonsmodell: {
         type: avtale?.opsjonsmodell?.type,
         opsjonMaksVarighet: avtale?.opsjonsmodell?.opsjonMaksVarighet,
         customOpsjonsmodellNavn: avtale?.opsjonsmodell?.customOpsjonsmodellNavn,
       },
-      utdanningslop: avtale?.utdanningslop ? toUtdanningslopDbo(avtale.utdanningslop) : undefined,
+      utdanningslop: avtale?.opplaring?.utdanningslop
+        ? toUtdanningslop(avtale.opplaring.utdanningslop)
+        : undefined,
     },
     veilederinformasjon: {
       navRegioner: navRegioner,

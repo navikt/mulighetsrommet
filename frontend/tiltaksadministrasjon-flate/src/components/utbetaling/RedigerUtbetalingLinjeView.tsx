@@ -17,7 +17,7 @@ import {
   TextField,
   VStack,
 } from "@navikt/ds-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { UtbetalingLinjeTable } from "./UtbetalingLinjeTable";
 import { UtbetalingLinjeRow } from "./UtbetalingLinjeRow";
 import { FormProvider, UseFormReturn, useWatch } from "react-hook-form";
@@ -54,21 +54,8 @@ export function RedigerUtbetalingLinjeView({
     getValues,
     control,
     setValue,
-    reset,
     formState: { errors },
   } = form;
-
-  useEffect(() => {
-    reset({
-      utbetalingId: utbetaling.id,
-      utbetalingLinjer: utbetalingLinjer.map((linje) => ({
-        pris: linje.pris,
-        id: linje.id,
-        tilsagnId: linje.tilsagn.id,
-      })),
-      begrunnelseMindreBetalt: null,
-    });
-  }, [utbetaling.id, utbetalingLinjer, reset]);
 
   const utbetalingLinjerWatch = useWatch({
     control,

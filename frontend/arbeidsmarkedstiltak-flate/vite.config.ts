@@ -29,6 +29,7 @@ if (!appConfig) {
 
 export default defineConfig({
   root: appConfig.root,
+  base: process.env.VITE_BASE || "/",
   publicDir: resolve(__dirname, "public"),
   plugins: [
     react(),

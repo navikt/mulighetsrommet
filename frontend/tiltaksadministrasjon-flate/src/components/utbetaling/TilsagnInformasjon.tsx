@@ -1,7 +1,10 @@
 import { HStack } from "@navikt/ds-react";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { TilsagnDeltakerDto, TilsagnDto } from "@tiltaksadministrasjon/api-client";
-import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
+import {
+  MetadataFritekstfelt,
+  MetadataVStack,
+} from "@mr/frontend-common/components/datadriven/Metadata";
 import { tilsagnTekster } from "../tilsagn/TilsagnTekster";
 import { TilsagnDeltakerCompact } from "../personalia/TilsagnDeltakerCompact";
 
@@ -30,6 +33,7 @@ export function TilsagnInformasjon({ tilsagn, deltakere }: TilsagnInformasjonPro
           }
         />
       )}
+      <MetadataFritekstfelt label="Kommentar" value={tilsagn.kommentar} />
     </HStack>
   );
 }

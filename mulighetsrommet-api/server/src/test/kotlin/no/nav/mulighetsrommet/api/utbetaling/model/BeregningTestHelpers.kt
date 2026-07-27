@@ -1,14 +1,16 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.DeltakerStatus
@@ -26,6 +28,7 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 
 object BeregningTestHelpers {
@@ -38,7 +41,7 @@ object BeregningTestHelpers {
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
         periode = periode,
-        prismodell = Prismodell.AvtaltPrisPerManedsverk(
+        prismodell = Prismodell.AvtaltPrisPerBenyttetPlassPerManed(
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
@@ -55,7 +58,7 @@ object BeregningTestHelpers {
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
         periode = periode,
-        prismodell = Prismodell.AvtaltPrisPerUkesverk(
+        prismodell = Prismodell.AvtaltPrisPerBenyttetPlassPerUke(
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
@@ -72,7 +75,7 @@ object BeregningTestHelpers {
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
         periode = periode,
-        prismodell = Prismodell.AvtaltPrisPerHeleUkesverk(
+        prismodell = Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke(
             id = UUID.randomUUID(),
             prisbetingelser = null,
             satser = satser,
@@ -90,7 +93,7 @@ object BeregningTestHelpers {
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
         periode = periode,
-        prismodell = Prismodell.ForhandsgodkjentPrisPerManedsverk(
+        prismodell = Prismodell.FastSatsPerBenyttetPlassPerManed(
             id = UUID.randomUUID(),
             satser = listOf(AvtaltSats(periode.start, sats)),
             valuta = sats.valuta,
@@ -107,7 +110,7 @@ object BeregningTestHelpers {
     ): GjennomforingAvtale = createGjennomforing(
         id = id,
         periode = periode,
-        prismodell = Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass(
+        prismodell = Prismodell.FastSatsPerAvtaltPlassPerManed(
             id = UUID.randomUUID(),
             satser = listOf(AvtaltSats(periode.start, sats)),
             valuta = sats.valuta,
@@ -131,10 +134,10 @@ object BeregningTestHelpers {
             status = NavEnhetStatus.AKTIV,
             type = NavEnhetType.FYLKE,
         ),
-        beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(
+        beregning = TilsagnBeregningAnnenAvtaltPris(
+            input = TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "",
                         pris = belop,
@@ -143,7 +146,7 @@ object BeregningTestHelpers {
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(pris = belop),
+            output = TilsagnBeregningAnnenAvtaltPris.Output(pris = belop),
         ),
         lopenummer = 1,
         bestilling = Tilsagn.Bestilling(
@@ -213,21 +216,27 @@ object BeregningTestHelpers {
         )
     }
 
+    fun deltakelsesmengde(gyldigFra: LocalDate, deltakelsesprosent: Double): Deltakelsesmengde = Deltakelsesmengde(
+        gyldigFra = gyldigFra,
+        deltakelsesprosent = deltakelsesprosent,
+        opprettetTidspunkt = Instant.now(),
+    )
+
     fun createDeltaker(
         periode: Periode,
         deltakelsesmengder: List<Deltakelsesmengde> = emptyList(),
         status: DeltakerStatusType = DeltakerStatusType.DELTAR,
-    ): Deltaker = Deltaker(
+    ): Deltaker = Deltaker.opprett(
         id = UUID.randomUUID(),
         gjennomforingId = UUID.randomUUID(),
         startDato = periode.start,
         sluttDato = periode.getLastInclusiveDate(),
-        registrertTidspunkt = periode.start.atStartOfDay(),
-        endretTidspunkt = periode.start.atStartOfDay(),
+        registrertTidspunkt = Instant.now(),
+        endretTidspunkt = Instant.now(),
         status = DeltakerStatus(
             type = status,
             aarsak = null,
-            opprettetTidspunkt = periode.start.atStartOfDay(),
+            opprettetTidspunkt = Instant.now(),
         ),
         deltakelsesmengder = deltakelsesmengder,
         innholdAnnet = null,

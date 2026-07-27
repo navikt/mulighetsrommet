@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.db
 
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.ValutaBelop

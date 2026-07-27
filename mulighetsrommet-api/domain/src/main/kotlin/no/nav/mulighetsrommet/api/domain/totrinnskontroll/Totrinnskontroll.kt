@@ -149,14 +149,15 @@ enum class TotrinnskontrollType {
     UTBETALING_LINJE_OPPRETTELSE,
     UTBETALING_AVBRYTELSE,
     ENKELTPLASS_OKONOMI,
+    ENKELTPLASS_PRISENDRING,
     TILSKUDD_OPPRETTELSE,
 }
 
 enum class TotrinnskontrollStatus {
     TIL_BEHANDLING,
     SATT_PA_VENT,
-    GODKJENT,
     RETURNERT,
+    GODKJENT,
 }
 
 private fun instantAsMicros(): Instant = Instant.now().truncatedTo(ChronoUnit.MICROS)

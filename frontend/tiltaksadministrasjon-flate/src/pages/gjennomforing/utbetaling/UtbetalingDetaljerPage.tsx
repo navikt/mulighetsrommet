@@ -1,12 +1,20 @@
 import { Endringshistorikk } from "@/components/endringshistorikk/Endringshistorikk";
 import {
+  AarsakerOgForklaringRequestUtbetalingStatusAarsak,
   EndringshistorikkType,
+  FieldError,
+  OpprettUtbetalingLinjerRequest,
   UtbetalingDto,
   UtbetalingHandling,
   UtbetalingStatusDtoType,
   Tilskuddstype,
   TilsagnType,
+  Tilskuddstype,
+  UtbetalingDto,
+  UtbetalingHandling,
   UtbetalingLinjeDto,
+  UtbetalingStatusAarsak,
+  UtbetalingStatusDtoType,
   OpprettUtbetalingLinjerRequest,
   FieldError,
   ValidationError,
@@ -61,6 +69,9 @@ import {
 } from "@navikt/aksel-icons";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 import { OpprettKorreksjonModal } from "@/components/utbetaling/OpprettKorreksjonModal";
+import { useAvbrytUtbetaling, useSlettKorreksjon } from "@/api/utbetaling/mutations";
+import { UseFormReturn } from "react-hook-form";
+import { useUtbetalingLinjeForm } from "@/components/utbetaling/form/useUtbetalingLinjeForm";
 import { useForm, UseFormReturn } from "react-hook-form";
 import { SlettKorreksjonModal } from "@/components/utbetaling/SlettKorreksjonModal";
 import { AvbrytUtbetalingModal } from "@/components/utbetaling/AvbrytUtbetalingModal";
@@ -102,18 +113,7 @@ export function UtbetalingDetaljerPage() {
     );
   }
 
-  const form: UseFormReturn<OpprettUtbetalingLinjerRequest> =
-    useForm<OpprettUtbetalingLinjerRequest>({
-      defaultValues: {
-        utbetalingId: utbetaling.id,
-        utbetalingLinjer: utbetalingLinjer.map((linje) => ({
-          pris: linje.pris,
-          id: linje.id,
-          tilsagnId: linje.tilsagn.id,
-        })),
-        begrunnelseMindreBetalt: null,
-      },
-    });
+  const { form, hentGodkjenteTilsagn } = useUtbetalingLinjeForm(utbetaling, utbetalingLinjer);
 
   function godkjennAvbytUtbetaling() {
     godkjennAvbyrtUtbetalingMutation.mutate(
@@ -160,16 +160,7 @@ export function UtbetalingDetaljerPage() {
                 {
                   handling: UtbetalingHandling.HENT_GODKJENTE_TILSAGN,
                   label: utbetalingTekster.linje.handlinger.hentGodkjenteTilsagn,
-                  onClick: () =>
-                    form.setValue(
-                      "utbetalingLinjer",
-                      utbetalingLinjer.map((linje) => ({
-                        id: linje.id,
-                        pris: linje.pris,
-                        tilsagnId: linje.tilsagn.id,
-                        gjorOppTilsagn: linje.gjorOppTilsagn,
-                      })),
-                    ),
+                  onClick: hentGodkjenteTilsagn,
                   icon: <FileCheckmarkIcon />,
                 },
               ],

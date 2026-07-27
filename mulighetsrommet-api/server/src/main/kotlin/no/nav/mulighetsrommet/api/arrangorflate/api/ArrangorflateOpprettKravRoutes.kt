@@ -41,15 +41,14 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingV
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerUtenFaktor
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonCells
 import no.nav.mulighetsrommet.api.arrangorflate.service.deltakelseCommonColumns
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsePeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltaker
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -65,6 +64,7 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.LabeledDataElement
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -148,7 +148,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
             queries.arrangorflate.tiltak.getAll(
                 organisasjonsnummer = arrangorer,
                 prismodeller = listOf(
-                    PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                    PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                     PrismodellType.ANNEN_AVTALT_PRIS,
                     PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
                 ),
@@ -183,7 +183,7 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
 
             val stegListe = getVeiviserSteg(tiltak)
 
-            val tilsagnstyper = if (tiltak.prismodell.type == PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK) {
+            val tilsagnstyper = if (tiltak.prismodell.type == PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED) {
                 listOf(TilsagnType.INVESTERING)
             } else {
                 listOf(TilsagnType.TILSAGN, TilsagnType.EKSTRATILSAGN)
@@ -395,7 +395,7 @@ data class OpprettKravInnsendingSteg(
         }
 
         fun panelGuide(prismodell: PrismodellType?): GuidePanelType? = when (prismodell) {
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK ->
+            PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED ->
                 GuidePanelType.INVESTERING_VTA_AFT
 
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER ->
@@ -479,7 +479,7 @@ sealed class DatoVelger {
                 }
 
                 PrismodellType.ANNEN_AVTALT_PRIS,
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+                PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                 -> {
                     return DatoRange(
                         ArrangorflateUtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
@@ -521,7 +521,7 @@ data class OpprettKravVedleggSteg(
 
         companion object {
             fun from(prismodellType: PrismodellType?): GuidePanelType? = when (prismodellType) {
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK -> INVESTERING_VTA_AFT
+                PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED -> INVESTERING_VTA_AFT
                 PrismodellType.ANNEN_AVTALT_PRIS -> AVTALT_PRIS
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> TIMESPRIS
                 else -> null
@@ -547,7 +547,7 @@ data class OpprettKravDeltakere(
             personalia: Map<UUID, Personalia>,
         ): Either<BadRequest, OpprettKravDeltakere> {
             val guidePanel = when (tiltak.prismodell.type) {
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
+                PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED,
                 PrismodellType.TILSKUDD_TIL_OPPLAERING,
                 PrismodellType.INGEN_KOSTNADER,
                 -> return BadRequest("Kan ikke opprette krav for dette tiltaket").left()
@@ -556,10 +556,10 @@ data class OpprettKravDeltakere(
                 -> GuidePanelType.TIMESPRIS
 
                 PrismodellType.ANNEN_AVTALT_PRIS,
-                PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
-                PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-                PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-                PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+                PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
+                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
+                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
+                PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE,
                 -> GuidePanelType.GENERELL
             }
             return OpprettKravDeltakere(
@@ -595,8 +595,11 @@ data class OpprettKravDeltakere(
                         ),
                     ),
                 ),
-            ) +
-                beregningSatsPeriodeDetaljerUtenFaktor(satser.toList(), "Avtalt pris per time oppfølging", stengtHosArrangor)
+            ) + beregningSatsPeriodeDetaljerUtenFaktor(
+                satser.toList(),
+                "Avtalt pris per time oppfølging",
+                stengtHosArrangor,
+            )
         }
     }
 

@@ -28,10 +28,9 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
@@ -45,6 +44,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -181,7 +181,7 @@ class TilsagnServiceTest : FunSpec({
                 ansatt1,
             ).shouldBeRight().should {
                 it.status shouldBe TilsagnStatus.TIL_GODKJENNING
-                it.beregning.input.shouldBeTypeOf<TilsagnBeregningFri.Input>().prisbetingelser shouldBe nyePrisbetingelser
+                it.beregning.input.shouldBeTypeOf<TilsagnBeregningAnnenAvtaltPris.Input>().prisbetingelser shouldBe nyePrisbetingelser
             }
         }
 
@@ -929,7 +929,7 @@ class TilsagnServiceTest : FunSpec({
                 ),
             )
 
-            beregning.shouldBeTypeOf<TilsagnBeregningPrisPerManedsverk>().should {
+            beregning.shouldBeTypeOf<TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed>().should {
                 it.input.stengt shouldHaveSize 1
                 it.input.stengt.first().periode shouldBe Periode.fromInclusiveDates(
                     LocalDate.of(2025, 1, 1),

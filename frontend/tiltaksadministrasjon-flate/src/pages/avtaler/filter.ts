@@ -53,9 +53,5 @@ export const parseAvtaleFilter = createGracefulParser(AvtaleFilterSchema, defaul
 export const avtaleFilterAccordionAtom = atom<string[]>([
   "navEnhet",
   "lagrede-filter",
-  "status",
   "tiltakstype",
-  "avtaletype",
-  "arrangor",
-  "personvern",
 ]);

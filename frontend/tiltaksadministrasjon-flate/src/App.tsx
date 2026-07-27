@@ -62,8 +62,14 @@ import { TilskuddBehandlingFormPage } from "./pages/tilskudd-behandling/Tilskudd
 import { TilskuddBehandlingerPage } from "./pages/tilskudd-behandling/TilskuddBehandlingerPage";
 import { isProduction } from "./environment";
 import { TilskuddUtbetalingerForGjennomforingContainer } from "./pages/gjennomforing/utbetaling/TilskuddUtbetalingerForGjennomforingContainer";
+import { TiltakDokumenterPage } from "./pages/tiltak-dokument/TiltakDokumenterPage";
+import { OpprettTiltakDokumentPage } from "./pages/tiltak-dokument/OpprettTiltakDokumentPage";
+import { TiltakDokumentPage } from "./pages/tiltak-dokument/TiltakDokumentPage";
+import { TiltakDokumentDetaljer } from "./pages/tiltak-dokument/TiltakDokumentDetaljer";
+import { TiltakDokumentRedaksjoneltInnhold } from "./pages/tiltak-dokument/TiltakDokumentRedaksjoneltInnhold";
+import { RedigerTiltakDokumentPage } from "./pages/tiltak-dokument/RedigerTiltakDokumentPage";
 
-const basename = import.meta.env.BASE_URL;
+import { APPLICATION_NAME } from "./constants";
 
 const head = createHead();
 
@@ -71,7 +77,7 @@ if (import.meta.env.VITE_FARO_URL) {
   initializeFaro({
     url: import.meta.env.VITE_FARO_URL,
     app: {
-      name: "mr-admin-flate",
+      name: APPLICATION_NAME,
     },
     instrumentations: [...getWebInstrumentations({ captureConsole: true })],
     isolate: true,
@@ -92,7 +98,7 @@ const SPORING_DATA_DOMAINS = isProduction()
   : "tiltaksadministrasjon.intern.dev.nav.no";
 
 export function App() {
-  const router = createBrowserRouter(routes, { basename });
+  const router = createBrowserRouter(routes);
   return <RouterProvider router={router} />;
 }
 
@@ -109,11 +115,11 @@ function AppLayout() {
       </Head>
       <Theme theme="light" hasBackground={false}>
         <Page>
-          <Page.Block as="header" className="max-w-384">
+          <Page.Block as="header" className="max-w-400">
             <AdministratorHeader />
             <UtdatertKlientBanner />
           </Page.Block>
-          <Page.Block as="main" className="max-w-384">
+          <Page.Block as="main" className="max-w-400">
             <Suspense fallback={<Laster tekst="Laster..." />}>
               <InlineErrorBoundary>
                 <Outlet />
@@ -280,6 +286,23 @@ const routes: RouteObject[] = [
       }),
       route({ path: "arrangorer", element: <ArrangorerPage /> }),
       route({ path: "arrangorer/:arrangorId", element: <ArrangorPage /> }),
+      route({ path: "tiltak-dokumenter", element: <TiltakDokumenterPage /> }),
+      route({
+        path: "tiltak-dokumenter/opprett",
+        element: <OpprettTiltakDokumentPage />,
+      }),
+      route({
+        path: "tiltak-dokumenter/:tiltakDokumentId",
+        element: <TiltakDokumentPage />,
+        children: [
+          { index: true, element: <TiltakDokumentDetaljer /> },
+          { path: "redaksjonelt-innhold", element: <TiltakDokumentRedaksjoneltInnhold /> },
+        ],
+      }),
+      route({
+        path: "tiltak-dokumenter/:tiltakDokumentId/rediger",
+        element: <RedigerTiltakDokumentPage />,
+      }),
       route({
         path: "oppgaveoversikt",
         element: <OppgaveoversiktPage />,

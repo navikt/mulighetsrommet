@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDate
 import java.util.UUID
@@ -18,7 +19,7 @@ enum class GjennomforingType {
 data class GjennomforingDbo(
     val id: UUID,
     val type: GjennomforingType,
-    val tiltakstypeId: UUID,
+    val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
     val navn: String,
     val startDato: LocalDate?,

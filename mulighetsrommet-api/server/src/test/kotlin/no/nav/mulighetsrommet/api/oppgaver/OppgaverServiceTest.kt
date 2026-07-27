@@ -10,6 +10,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet1
@@ -37,7 +38,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
-import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
@@ -707,20 +707,14 @@ class OppgaverServiceTest : FunSpec({
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 avtaler = listOf(
                     AvtaleFixtures.AFT.copy(
-                        detaljerDbo = AvtaleFixtures.AFT.detaljerDbo.copy(
-                            administratorer = listOf(),
-                        ),
+                        administratorer = emptySet(),
                     ),
                     AvtaleFixtures.gruppeAmo.copy(
-                        detaljerDbo = AvtaleFixtures.gruppeAmo.detaljerDbo.copy(
-                            administratorer = listOf(),
-                            status = AvtaleStatusType.AVSLUTTET,
-                        ),
+                        administratorer = emptySet(),
+                        status = AvtaleStatus.Avsluttet,
                     ),
                     AvtaleFixtures.VTA.copy(
-                        detaljerDbo = AvtaleFixtures.VTA.detaljerDbo.copy(
-                            administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
-                        ),
+                        administratorer = setOf(NavAnsattFixture.DonaldDuck.navIdent),
                     ),
                 ),
             ).initialize(database.api)

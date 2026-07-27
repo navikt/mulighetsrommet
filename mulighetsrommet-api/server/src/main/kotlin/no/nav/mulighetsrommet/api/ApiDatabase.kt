@@ -2,30 +2,39 @@ package no.nav.mulighetsrommet.api
 
 import kotliquery.Session
 import kotliquery.TransactionalSession
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
 import no.nav.mulighetsrommet.api.arrangorflate.db.ArrangorflateQueries
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellQueries
 import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerQueries
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslagRepository
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerRepository
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
+import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
+import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassPrisendringQueries
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingQueries
-import no.nav.mulighetsrommet.api.persistence.arrangor.db.ArrangorQueries
+import no.nav.mulighetsrommet.api.persistence.arrangor.ArrangorQueries
+import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerForslagQueries
+import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
-import no.nav.mulighetsrommet.api.persistence.kostnadssted.db.KostnadsstedQueries
-import no.nav.mulighetsrommet.api.persistence.navansatt.db.NavAnsattQueries
-import no.nav.mulighetsrommet.api.persistence.navenhet.db.NavEnhetQueries
+import no.nav.mulighetsrommet.api.persistence.kostnadssted.KostnadsstedQueries
+import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattQueries
+import no.nav.mulighetsrommet.api.persistence.navenhet.NavEnhetQueries
+import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
+import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleQueries
+import no.nav.mulighetsrommet.api.persistence.tiltak.PrismodellQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
+import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
+import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingQueries
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslagQueries
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.veilederflate.db.VeilederflateTiltakQueries
@@ -35,7 +44,6 @@ import no.nav.mulighetsrommet.database.queries.ScheduledTaskQueries
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
 import no.nav.mulighetsrommet.notifications.NotificationQueries
 import no.nav.mulighetsrommet.oppgaver.OppgaveQueries
-import no.nav.mulighetsrommet.utdanning.db.UtdanningQueries
 import javax.sql.DataSource
 
 class ApiDatabase(
@@ -81,10 +89,13 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
         val rammedetaljer = RammedetaljerQueries(session)
         val opsjoner = OpsjonLoggQueries(session)
         val gjennomforing = GjennomforingQueries(session)
+        val tiltakDokument = TiltakDokumentQueries(session)
+        val enkeltplassPrisendring = EnkeltplassPrisendringQueries(session)
         val deltaker = DeltakerQueries(session)
         val deltakerForslag = DeltakerForslagQueries(session)
         val utbetaling = UtbetalingQueries(session)
         val utdanning = UtdanningQueries(session)
+        val opplaering = OpplaringKategoriseringQueries(session)
         val dvh = DatavarehusTiltakQueries(session)
         val altinnRettigheter = AltinnRettigheterQueries(session)
         val tilsagn = TilsagnQueries(session)
@@ -107,11 +118,25 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
 
     inner class Repositories {
         val tiltakstype: TiltakstypeRepository = queries.tiltakstype
+        val avtale: AvtaleRepository = queries.avtale
         val arrangor: ArrangorRepository = queries.arrangor
+        val tiltakDokument: TiltakDokumentRepository = queries.tiltakDokument
+        val deltaker: DeltakerRepository = queries.deltaker
+        val deltakerForslag: DeltakerForslagRepository = queries.deltakerForslag
     }
 }
 
 class TransactionalQueryContext(
     override val session: TransactionalSession,
     topics: KafkaTopics,
-) : QueryContext(session, topics)
+) : QueryContext(session, topics) {
+    /**
+     * Oppretter en Postgres transaction level advisory lock [0]. Løses når transaksjonen
+     * commiter eller rulles tilbake.
+     *
+     * [0]: https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS
+     */
+    fun aquireAdvisoryLock(key: String) {
+        session.run(queryOf("select pg_advisory_xact_lock(hashtextextended(?, 0))", key).asExecute)
+    }
+}

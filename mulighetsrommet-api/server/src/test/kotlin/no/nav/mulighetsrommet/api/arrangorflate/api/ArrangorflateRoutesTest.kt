@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.mockAmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.mockPdlEmptyResult
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -27,6 +26,7 @@ import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.security.mock.oauth2.MockOAuth2Server
 
 class ArrangorflateRoutesTest : FunSpec({

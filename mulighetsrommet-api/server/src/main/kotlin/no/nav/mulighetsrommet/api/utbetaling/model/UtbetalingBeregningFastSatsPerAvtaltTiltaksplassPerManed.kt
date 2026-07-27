@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.model.Periode
@@ -65,7 +65,7 @@ data class UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed(
 object FastSatsPerAvtaltTiltaksplassPerManedBeregning :
     SystemgenerertPrismodell.FraTilsagn<UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed> {
 
-    override val type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS
+    override val type = PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED
     override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
 
     override fun beregn(

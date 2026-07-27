@@ -29,8 +29,9 @@ import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
@@ -44,15 +45,14 @@ import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
-import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -64,7 +64,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
+import no.nav.mulighetsrommet.validation.validation
 import org.koin.ktor.ext.inject
 import java.time.LocalDate
 import java.util.UUID
@@ -653,7 +653,7 @@ fun Route.gjennomforingRoutes() {
             val id: UUID by call.parameters
 
             val deltakereForGjennomforing = db.session {
-                queries.deltaker.getByGjennomforingId(id)
+                repository.deltaker.getByGjennomforing(id)
             }
 
             val deltakereByStatus = deltakereForGjennomforing
@@ -909,7 +909,7 @@ data class GjennomforingDetaljerRequest(
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val amoKategorisering: AmoKategoriseringRequest?,
-    val utdanningslop: UtdanningslopDbo? = null,
+    val utdanningslop: Utdanningslop? = null,
     @Serializable(with = UUIDSerializer::class)
     val prismodellId: UUID?,
     val pameldingType: GjennomforingPameldingType?,
@@ -939,4 +939,6 @@ enum class GjennomforingHandling {
     OPPRETT_UTBETALING,
     GODKJENN_ENKELTPLASS_OKONOMI,
     SETT_PA_VENT_ENKELTPLASS_OKONOMI,
+    GODKJENN_ENKELTPLASS_PRISENDRING,
+    SETT_PA_VENT_ENKELTPLASS_PRISENDRING,
 }

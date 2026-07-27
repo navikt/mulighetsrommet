@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.api.avtale.db
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggDbo
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonLoggStatus
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
@@ -37,7 +37,7 @@ class OpsjonLoggQueries(private val session: Session) {
         execute(queryOf(query, id))
     }
 
-    fun getByAvtaleId(avtaleId: UUID): List<Avtale.OpsjonLoggDto> = with(session) {
+    fun getByAvtaleId(avtaleId: UUID): List<Avtale.OpsjonLogg> = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -51,8 +51,8 @@ class OpsjonLoggQueries(private val session: Session) {
         }
     }
 
-    private fun Row.toOpsjonLoggEntry(): Avtale.OpsjonLoggDto {
-        return Avtale.OpsjonLoggDto(
+    private fun Row.toOpsjonLoggEntry(): Avtale.OpsjonLogg {
+        return Avtale.OpsjonLogg(
             id = uuid("id"),
             createdAt = localDateTime("created_at"),
             sluttDato = localDateOrNull("sluttdato"),

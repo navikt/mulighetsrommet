@@ -6,12 +6,10 @@ import io.micrometer.prometheusmetrics.PrometheusConfig
 import io.micrometer.prometheusmetrics.PrometheusMeterRegistry
 
 object Metrics {
-    private val prometheusRegistry = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
-
     val micrometerRegistry: MeterRegistry
-        get() = prometheusRegistry
+        field = PrometheusMeterRegistry(PrometheusConfig.DEFAULT)
 
-    fun scrapePrometheusMetrics(): String = prometheusRegistry.scrape()
+    fun scrapePrometheusMetrics(): String = micrometerRegistry.scrape()
 
     /**
      * Custom metrikk for å registrere HTTP status fra responser vi får fra http-kall

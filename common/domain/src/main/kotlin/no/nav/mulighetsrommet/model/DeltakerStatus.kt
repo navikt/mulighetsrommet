@@ -1,15 +1,15 @@
 package no.nav.mulighetsrommet.model
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
-import java.time.LocalDateTime
+import no.nav.mulighetsrommet.serializers.InstantSerializer
+import java.time.Instant
 
 @Serializable
 data class DeltakerStatus(
     val type: DeltakerStatusType,
     val aarsak: DeltakerStatusAarsakType?,
-    @Serializable(with = LocalDateTimeSerializer::class)
-    val opprettetTidspunkt: LocalDateTime,
+    @Serializable(with = InstantSerializer::class)
+    val opprettetTidspunkt: Instant,
 )
 
 enum class DeltakerStatusType(val description: String, val variant: DataElement.Status.Variant) {

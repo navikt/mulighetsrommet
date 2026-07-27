@@ -6,10 +6,12 @@
       "outputs": ["dist"]
     },
     "build:modia": {
+      "env": ["VITE_BASE", "VITE_FARO_URL", "VITE_PORTEN_URL"],
       "dependsOn": ["^build"],
       "outputs": ["dist"]
     },
     "build:nav": {
+      "env": ["VITE_BASE", "VITE_FARO_URL", "VITE_PORTEN_URL"],
       "dependsOn": ["^build"],
       "outputs": ["dist"]
     }

@@ -71,7 +71,7 @@ class JournalforVedtaksbrev(
         val tilskudd = queries.tilskuddBehandling.getOrError(id)
         val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskudd.gjennomforingId)
         val fagsakId = gjennomforing.lopenummer.value
-        val deltaker = queries.deltaker.getByGjennomforingId(gjennomforing.id).first()
+        val deltaker = repository.deltaker.getByGjennomforing(gjennomforing.id).single()
         val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
         val totrinnskontroll = queries.totrinnskontroll.getDtoOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
         check(totrinnskontroll is TotrinnskontrollDto.Besluttet) {

@@ -7,12 +7,13 @@ import io.ktor.http.content.TextContent
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.altinn.AltinnClient
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponseDokument
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.databaseConfig
+import no.nav.mulighetsrommet.api.deltaker.client.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -24,15 +25,14 @@ import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.mockKontoregisterOrganisasjon
 import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
@@ -51,8 +51,8 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Tilskuddstype
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 object ArrangorflateTestUtils {
@@ -60,18 +60,18 @@ object ArrangorflateTestUtils {
     val hovedenhet = ArrangorFixtures.hovedenhet
     val underenhet = ArrangorFixtures.underenhet1
 
-    fun createTestDeltaker(): DeltakerDbo = DeltakerDbo(
+    fun createTestDeltaker(): Deltaker = Deltaker.opprett(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
         startDato = GjennomforingFixtures.AFT1.startDato,
         sluttDato = GjennomforingFixtures.AFT1.sluttDato,
-        registrertTidspunkt = LocalDateTime.now(),
-        endretTidspunkt = LocalDateTime.now(),
+        registrertTidspunkt = Instant.now(),
+        endretTidspunkt = Instant.now(),
         deltakelsesmengder = listOf(),
         status = DeltakerStatus(
             type = DeltakerStatusType.DELTAR,
             aarsak = null,
-            opprettetTidspunkt = LocalDateTime.now(),
+            opprettetTidspunkt = Instant.now(),
         ),
         innholdAnnet = null,
         navVeileder = null,
@@ -84,10 +84,10 @@ object ArrangorflateTestUtils {
         lopenummer = 1,
         bestillingsnummer = "A-2025/1-1",
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
-        beregning = TilsagnBeregningFri(
-            input = TilsagnBeregningFri.Input(
+        beregning = TilsagnBeregningAnnenAvtaltPris(
+            input = TilsagnBeregningAnnenAvtaltPris.Input(
                 linjer = listOf(
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
                         beskrivelse = "Beskrivelse",
                         pris = 1000.NOK,
@@ -96,7 +96,7 @@ object ArrangorflateTestUtils {
                 ),
                 prisbetingelser = null,
             ),
-            output = TilsagnBeregningFri.Output(
+            output = TilsagnBeregningAnnenAvtaltPris.Output(
                 pris = 1000.NOK,
             ),
         ),
@@ -115,8 +115,8 @@ object ArrangorflateTestUtils {
             gjennomforingId = GjennomforingFixtures.AFT1.id,
             status = UtbetalingStatusType.GENERERT,
             valuta = Valuta.NOK,
-            beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-                input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+            beregning = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(
+                input = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Input(
                     satser = setOf(
                         SatsPeriode(
                             periode = periode,
@@ -133,7 +133,7 @@ object ArrangorflateTestUtils {
                         ),
                     ),
                 ),
-                output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                output = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Output(
                     pris = 10000.NOK,
                     deltakelser = setOf(
                         UtbetalingBeregningOutputDeltakelse(
@@ -184,7 +184,7 @@ object ArrangorflateTestUtils {
     )
 
     fun createTestDomain(
-        deltaker: DeltakerDbo = createTestDeltaker(),
+        deltaker: Deltaker = createTestDeltaker(),
         tilsagn: TilsagnDbo = createTestTilsagn(),
         utbetalinger: List<UtbetalingDbo> = listOf(createTestUtbetalingForhandsgodkjent(deltaker.id)),
     ): MulighetsrommetTestDomain = MulighetsrommetTestDomain(

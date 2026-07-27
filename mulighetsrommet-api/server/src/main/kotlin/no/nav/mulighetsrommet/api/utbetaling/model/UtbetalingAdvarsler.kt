@@ -1,20 +1,23 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import kotlinx.serialization.Serializable
-import no.nav.amt.model.AmtArrangorMelding
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
+import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
-import kotlin.collections.component1
-import kotlin.collections.component2
 
 object UtbetalingAdvarsler {
-    fun relevanteForslag(periode: Periode, beregning: UtbetalingBeregning, forslag: Map<UUID, List<DeltakerForslag>>): List<DeltakerAdvarsel> {
+    fun relevanteForslag(
+        periode: Periode,
+        beregning: UtbetalingBeregning,
+        forslag: List<DeltakerForslag>,
+    ): List<DeltakerAdvarsel> {
         return forslag
+            .groupBy { it.deltakerId }
             .mapNotNull { (deltakerId, forslag) ->
                 when (forslag.count { isForslagRelevantForUtbetaling(it, periode, beregning) }) {
                     0 -> null
@@ -24,26 +27,10 @@ object UtbetalingAdvarsler {
     }
 
     fun getAdvarsler(
-        utbetaling: Utbetaling,
-        deltakere: List<Deltaker>,
-        forslag: Map<UUID, List<DeltakerForslag>>,
-    ): List<DeltakerAdvarsel> {
-        return getUtbetalingAdvarsel(utbetaling.periode, utbetaling.beregning, deltakere, forslag)
-    }
-
-    fun getAdvarsler(
-        utbetaling: ArrangorflateUtbetaling,
-        deltakere: List<Deltaker>,
-        forslag: Map<UUID, List<DeltakerForslag>>,
-    ): List<DeltakerAdvarsel> {
-        return getUtbetalingAdvarsel(utbetaling.periode, utbetaling.beregning, deltakere, forslag)
-    }
-
-    private fun getUtbetalingAdvarsel(
         periode: Periode,
         beregning: UtbetalingBeregning,
         deltakere: List<Deltaker>,
-        forslag: Map<UUID, List<DeltakerForslag>>,
+        forslag: List<DeltakerForslag>,
     ): List<DeltakerAdvarsel> {
         return relevanteForslag(periode, beregning, forslag) + deltakereMedFeilSluttDato(deltakere, LocalDate.now())
     }
@@ -65,45 +52,45 @@ object UtbetalingAdvarsler {
     }
 
     fun isForslagRelevantForPeriode(
-        endring: AmtArrangorMelding.Forslag.Endring,
+        endring: DeltakerForslag.Endring,
         utbetalingPeriode: Periode,
         deltakelsePeriode: Periode,
     ): Boolean {
         val deltakelseInclusiveSluttdato = deltakelsePeriode.getLastInclusiveDate()
 
         return when (endring) {
-            is AmtArrangorMelding.Forslag.Endring.AvsluttDeltakelse -> {
+            is DeltakerForslag.Endring.AvsluttDeltakelse -> {
                 val sluttDato = endring.sluttdato
                 endring.harDeltatt == false || (sluttDato != null && sluttdatoEndringErRelevant(sluttDato, utbetalingPeriode, deltakelsePeriode))
             }
 
-            is AmtArrangorMelding.Forslag.Endring.EndreAvslutning -> {
+            is DeltakerForslag.Endring.EndreAvslutning -> {
                 val sluttdato = endring.sluttdato
                 endring.harDeltatt == false || (sluttdato != null && sluttdatoEndringErRelevant(sluttdato, utbetalingPeriode, deltakelsePeriode))
             }
 
-            is AmtArrangorMelding.Forslag.Endring.Deltakelsesmengde -> {
+            is DeltakerForslag.Endring.Deltakelsesmengde -> {
                 endring.gyldigFra?.isBefore(deltakelseInclusiveSluttdato) ?: true
             }
 
-            is AmtArrangorMelding.Forslag.Endring.ForlengDeltakelse -> {
+            is DeltakerForslag.Endring.ForlengDeltakelse -> {
                 sluttdatoEndringErRelevant(endring.sluttdato, utbetalingPeriode, deltakelsePeriode)
             }
 
-            is AmtArrangorMelding.Forslag.Endring.Sluttdato -> {
+            is DeltakerForslag.Endring.Sluttdato -> {
                 sluttdatoEndringErRelevant(endring.sluttdato, utbetalingPeriode, deltakelsePeriode)
             }
 
-            is AmtArrangorMelding.Forslag.Endring.Startdato -> {
+            is DeltakerForslag.Endring.Startdato -> {
                 val sluttdato = endring.sluttdato
                 endring.startdato.isAfter(deltakelsePeriode.start) ||
                     (sluttdato != null && sluttdatoEndringErRelevant(sluttdato, utbetalingPeriode, deltakelsePeriode))
             }
 
-            is AmtArrangorMelding.Forslag.Endring.Sluttarsak -> false
+            is DeltakerForslag.Endring.Sluttarsak -> false
 
-            is AmtArrangorMelding.Forslag.Endring.IkkeAktuell,
-            is AmtArrangorMelding.Forslag.Endring.FjernOppstartsdato,
+            is DeltakerForslag.Endring.IkkeAktuell,
+            is DeltakerForslag.Endring.FjernOppstartsdato,
             -> true
         }
     }
@@ -117,6 +104,7 @@ object UtbetalingAdvarsler {
             (sluttdato.isAfter(deltakelsePeriode.getLastInclusiveDate()) && deltakelsePeriode.slutt.isBefore(utbetalingPeriode.slutt))
     }
 
+    // TODO: er denne sjekken redundant nå? Burde den evt. også persisteres som en blokkering?
     fun deltakereMedFeilSluttDato(
         deltakere: List<Deltaker>,
         today: LocalDate,
@@ -139,6 +127,33 @@ object UtbetalingAdvarsler {
             DeltakerStatusType.HAR_SLUTTET,
         ) &&
             (sluttDato == null || sluttDato.isAfter(today))
+    }
+}
+
+fun QueryContext.hentDeltakerAdvarslerForUtbetaling(
+    status: UtbetalingStatusType,
+    gjennomforingId: UUID,
+    periode: Periode,
+    beregning: UtbetalingBeregning,
+): List<DeltakerAdvarsel> {
+    val dektakerIds = beregning.input.deltakelser().mapTo(mutableSetOf()) { it.deltakelseId }
+    return when (status) {
+        UtbetalingStatusType.GENERERT -> {
+            val forslag = repository.deltakerForslag.getByGjennomforing(gjennomforingId)
+            // TODO: optimalisere denne? Noen AFT/VTA-gjennomføringer har pågått lenge og har dermed mange deltakere som aldri vil være relevante for utbetalingene
+            //  Det kan hende at den underliggende sjekken (altså [fun deltakereMedFeilSluttDato]) ikke lengre er nødvendig å ta høyde for siden dette burde være fikset i datagrunnlaget
+            val deltakere = repository.deltaker.getByGjennomforing(gjennomforingId).filter { it.id in dektakerIds }
+            UtbetalingAdvarsler.getAdvarsler(periode, beregning, deltakere, forslag)
+        }
+
+        UtbetalingStatusType.TIL_BEHANDLING,
+        UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.RETURNERT,
+        UtbetalingStatusType.FERDIG_BEHANDLET,
+        UtbetalingStatusType.DELVIS_UTBETALT,
+        UtbetalingStatusType.UTBETALT,
+        UtbetalingStatusType.AVBRUTT,
+        -> emptyList()
     }
 }
 

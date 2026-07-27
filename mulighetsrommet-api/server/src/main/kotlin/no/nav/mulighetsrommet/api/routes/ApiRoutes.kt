@@ -33,6 +33,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.tilsagnRoutes
 import no.nav.mulighetsrommet.api.tilskuddbehandling.api.opplaeringtilskuddRoutes
 import no.nav.mulighetsrommet.api.tilskuddbehandling.api.tilskuddBehandlingRoutes
 import no.nav.mulighetsrommet.api.tilskuddbehandling.api.tilskuddUtbetalingRoutes
+import no.nav.mulighetsrommet.api.tiltakdokument.api.tiltakDokumentRoutes
 import no.nav.mulighetsrommet.api.tiltakstype.api.tiltakstypeRoutes
 import no.nav.mulighetsrommet.api.utbetaling.api.utbetalingRoutes
 import no.nav.mulighetsrommet.api.veilederflate.routes.arbeidsmarkedstiltakRoutes
@@ -43,7 +44,6 @@ import no.nav.mulighetsrommet.api.veilederflate.routes.veilederRoutes
 import no.nav.mulighetsrommet.featuretoggle.api.featureTogglesRoute
 import no.nav.mulighetsrommet.notifications.notificationRoutes
 import no.nav.mulighetsrommet.oppgaver.oppgaverRoutes
-import no.nav.mulighetsrommet.utdanning.utdanningRoutes
 
 fun Route.apiRoutes(config: AppConfig) {
     authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
@@ -127,6 +127,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     tiltakstypeRoutes()
     avtaleRoutes()
     gjennomforingRoutes()
+    tiltakDokumentRoutes()
     kodeverkRoutes()
     rammedetaljerRoutes()
     personopplysningRoutes()
@@ -142,7 +143,6 @@ fun Route.tiltaksadministrasjonRoutes() {
     arrangorKontaktpersonRoutes()
     enhetsregisterRoutes()
     janzzRoutes()
-    utdanningRoutes()
     notificationRoutes()
     opplaeringtilskuddRoutes()
     tilskuddBehandlingRoutes()

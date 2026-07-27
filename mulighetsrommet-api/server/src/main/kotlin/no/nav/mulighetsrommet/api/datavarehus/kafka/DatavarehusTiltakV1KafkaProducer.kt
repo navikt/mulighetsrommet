@@ -3,22 +3,22 @@ package no.nav.mulighetsrommet.api.datavarehus.kafka
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
-import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
+import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.apache.kafka.clients.producer.ProducerRecord
+import java.util.UUID
 
 class DatavarehusTiltakV1KafkaProducer(
     private val config: Config,
     private val kafkaProducerClient: KafkaProducerClient<ByteArray, ByteArray?>,
     private val db: ApiDatabase,
-) : KafkaTopicConsumer<String, JsonElement>(
-    stringDeserializer(),
+) : KafkaTopicConsumer<UUID, JsonElement>(
+    uuidDeserializer(),
     JsonElementDeserializer(),
 ) {
 
@@ -26,19 +26,18 @@ class DatavarehusTiltakV1KafkaProducer(
         val producerTopic: String,
     )
 
-    override suspend fun consume(key: String, message: JsonElement) {
-        val gjennomforing = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltaksgjennomforingV2Dto?>(message)
-            ?: throw UnsupportedOperationException("Støtter ikke tombstones av gjennomføringer")
-
-        val tiltak = db.session { queries.dvh.getDatavarehusTiltak(gjennomforing.id) }
-        publish(tiltak)
+    override suspend fun consume(key: UUID, message: JsonElement) {
+        val tiltak = Json.decodeFromJsonElement<TiltaksgjennomforingV2Dto?>(message)?.let {
+            db.session { queries.dvh.getDatavarehusTiltak(key) }
+        }
+        publish(key, tiltak)
     }
 
-    private fun publish(tiltak: DatavarehusTiltakV1) {
+    private fun publish(id: UUID, tiltak: DatavarehusTiltakV1?) {
         val record: ProducerRecord<ByteArray, ByteArray?> = ProducerRecord(
             config.producerTopic,
-            tiltak.gjennomforing.id.toString().toByteArray(),
-            Json.encodeToString(tiltak).toByteArray(),
+            id.toString().toByteArray(),
+            tiltak?.let { Json.encodeToString(it).toByteArray() },
         )
         kafkaProducerClient.sendSync(record)
     }

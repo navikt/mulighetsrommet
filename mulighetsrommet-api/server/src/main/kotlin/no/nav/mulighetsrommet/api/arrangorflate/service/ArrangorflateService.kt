@@ -15,15 +15,15 @@ import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.Kontoregiste
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
@@ -73,26 +73,12 @@ class ArrangorflateService(
     }
 
     fun getAdvarsler(utbetaling: ArrangorflateUtbetaling): List<DeltakerAdvarsel> = db.session {
-        return when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT -> {
-                val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
-                val deltakere = queries.deltaker
-                    .getByGjennomforingId(utbetaling.gjennomforing.id)
-                    .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
-
-                UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
-            }
-
-            UtbetalingStatusType.TIL_BEHANDLING,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.TIL_AVBRYTELSE,
-            UtbetalingStatusType.AVBRUTT,
-            -> emptyList()
-        }
+        return hentDeltakerAdvarslerForUtbetaling(
+            status = utbetaling.status,
+            gjennomforingId = utbetaling.gjennomforing.id,
+            periode = utbetaling.periode,
+            beregning = utbetaling.beregning,
+        )
     }
 
     suspend fun toArrangorflateUtbetaling(
@@ -107,8 +93,8 @@ class ArrangorflateService(
             emptyList()
         } else {
             val deltakelser = utbetaling.beregning.input.deltakelser().map { it.deltakelseId }
-            queries.deltaker
-                .getByGjennomforingId(utbetaling.gjennomforing.id)
+            repository.deltaker
+                .getByGjennomforing(utbetaling.gjennomforing.id)
                 .filter { it.id in deltakelser }
         }
 
@@ -158,14 +144,14 @@ class ArrangorflateService(
             return false to null
         }
         when (utbetaling.beregning) {
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerHeleUkesverk,
-            is UtbetalingBeregningPrisPerManedsverk,
-            is UtbetalingBeregningPrisPerUkesverk,
+            is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
             -> Unit
 
+            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
             is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerTimeOppfolging,
             is UtbetalingBeregningFri,
             -> return false to null
         }

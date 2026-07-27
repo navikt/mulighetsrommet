@@ -232,7 +232,7 @@ class SanityService(
     suspend fun createOrPatchSanityTiltaksgjennomforing(
         gjennomforing: ArenaGjennomforingDbo,
         tiltakstypeSanityId: UUID?,
-    ): UUID? {
+    ): UUID {
         val sanityTiltaksgjennomforingFields = SanityTiltaksgjennomforingFields(
             tiltaksgjennomforingNavn = gjennomforing.navn,
             tiltakstype = tiltakstypeSanityId?.let { TiltakstypeRef(_ref = it.toString()) },

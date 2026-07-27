@@ -80,12 +80,7 @@ const gjennomforingerForAvtaleFilterAtomFamily = atomFamily<
 );
 
 export const gjennomforingFilterAccordionAtom = atom<string[]>([
-  "gjennomforingType",
-  "status",
-  "arrangor",
   "tiltakstype",
-  "publiserteStatuser",
-
   "navEnhet",
   "lagrede-filter",
 ]);

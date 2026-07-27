@@ -1,9 +1,9 @@
 import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
-import { UtdanningslopDto } from "@tiltaksadministrasjon/api-client";
+import { type UtdanningslopDetaljer } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  utdanningslop: UtdanningslopDto;
+  utdanningslop: UtdanningslopDetaljer;
 }
 
 export function UtdanningslopDetaljer({ utdanningslop }: Props) {

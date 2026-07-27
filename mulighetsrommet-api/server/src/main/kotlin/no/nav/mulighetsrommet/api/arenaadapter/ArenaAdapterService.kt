@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterError
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
+import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
@@ -20,6 +21,7 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -68,7 +70,7 @@ class ArenaAdapterService(
 
         val upsert = OpprettGjennomforingArena(
             id = arenaGjennomforing.id,
-            tiltakstypeId = tiltakstype.id,
+            tiltakskode = tiltakstype.tiltakskode,
             arrangorId = arrangor.id,
             navn = arenaGjennomforing.navn,
             startDato = arenaGjennomforing.startDato,
@@ -86,11 +88,30 @@ class ArenaAdapterService(
         return null
     }
 
+    fun removeTiltaksgjennomforing(id: UUID) = db.transaction {
+        val gjennomforing = queries.gjennomforing.getGjennomforing(id)
+        require(gjennomforing is GjennomforingArena && gjennomforing.oppstart == GjennomforingOppstartstype.ENKELTPLASS) {
+            "Gjennomføring med id=$id er ikke et enkeltplass-tiltak fra Arena"
+        }
+        queries.gjennomforing.delete(id)
+        outbox.publish(id, null)
+    }
+
     suspend fun removeSanityTiltaksgjennomforing(sanityId: UUID) {
         sanityService.deleteSanityTiltaksgjennomforing(sanityId)
     }
 
     private suspend fun upsertEgenRegiTiltak(
+        arenaGjennomforing: ArenaGjennomforingDbo,
+    ): UUID? = when (NaisEnv.current()) {
+        NaisEnv.ProdGCP -> upsertEgenRegiTiltakToSanity(arenaGjennomforing)
+
+        NaisEnv.DevGCP,
+        NaisEnv.Local,
+        -> upsertEgenRegiTiltakToDb(arenaGjennomforing)
+    }
+
+    private suspend fun upsertEgenRegiTiltakToSanity(
         arenaGjennomforing: ArenaGjennomforingDbo,
     ): UUID? {
         require(Tiltakskoder.isEgenRegiTiltak(arenaGjennomforing.arenaKode)) {
@@ -106,6 +127,44 @@ class ArenaAdapterService(
         } else {
             null
         }
+    }
+
+    private suspend fun upsertEgenRegiTiltakToDb(
+        arenaGjennomforing: ArenaGjennomforingDbo,
+    ): UUID? {
+        require(Tiltakskoder.isEgenRegiTiltak(arenaGjennomforing.arenaKode)) {
+            "Gjennomføring for tiltakstype ${arenaGjennomforing.arenaKode} er ikke et egen regi-tiltak"
+        }
+
+        val tiltakstype = tiltakstypeService.getAllByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
+            ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
+
+        val sluttDato = arenaGjennomforing.sluttDato
+        if (sluttDato != null && !sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate)) {
+            return null
+        }
+
+        val arrangor = syncArrangorFromBrreg(Organisasjonsnummer(arenaGjennomforing.arrangorOrganisasjonsnummer))
+
+        val tiltakDokument = TiltakDokument(
+            id = arenaGjennomforing.id,
+            navn = arenaGjennomforing.navn,
+            sanityId = arenaGjennomforing.sanityId,
+            tiltaksnummer = arenaGjennomforing.tiltaksnummer,
+            tiltakstypeId = tiltakstype.id,
+            stedForGjennomforing = null,
+            arrangorId = arrangor.id,
+            faneinnhold = null,
+            beskrivelse = null,
+            publisert = false,
+            administratorer = emptyList(),
+            navEnheter = emptyList(),
+            kontaktpersoner = emptyList(),
+            arrangorKontaktpersoner = emptyList(),
+        )
+
+        db.transaction { queries.tiltakDokument.save(tiltakDokument) }
+        return arenaGjennomforing.id
     }
 
     private suspend fun updateArenadata(arenaGjennomforing: ArenaGjennomforingDbo) {

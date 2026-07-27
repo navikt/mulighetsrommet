@@ -14,7 +14,3 @@ html {
   display: block;
   margin-top: 1rem;
 }
-
-:root {
-  --filter-width: 320px;
-}

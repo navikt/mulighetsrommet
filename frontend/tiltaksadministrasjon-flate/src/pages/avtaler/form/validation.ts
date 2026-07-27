@@ -7,8 +7,8 @@ import {
   PersonopplysningType,
   PrismodellType,
   Tiltakskode,
-  UtdanningslopDbo,
-  UtdanningslopDto,
+  Utdanningslop,
+  UtdanningslopDetaljer,
   Valuta,
 } from "@tiltaksadministrasjon/api-client";
 
@@ -46,7 +46,7 @@ export const avtaleDetaljerSchema = z.object({
         },
       ),
     amoKategorisering: z.custom<AmoKategoriseringRequest>().nullish(),
-    utdanningslop: z.custom<UtdanningslopDbo>().nullable(),
+    utdanningslop: z.custom<Utdanningslop>().nullable(),
     arrangor: z
       .object({
         hovedenhet: z.string(),
@@ -105,7 +105,7 @@ export const avtaleDetaljerFormSchema = avtaleDetaljerSchema.superRefine((data, 
   validateAvtaledetaljer(ctx, data);
 });
 
-export function toUtdanningslopDbo(data: UtdanningslopDto): UtdanningslopDbo {
+export function toUtdanningslop(data: UtdanningslopDetaljer): Utdanningslop {
   return {
     utdanningsprogram: data.utdanningsprogram.id,
     utdanninger: data.utdanninger.map((utdanning) => utdanning.id),

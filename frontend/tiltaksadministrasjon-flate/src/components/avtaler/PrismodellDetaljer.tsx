@@ -15,17 +15,17 @@ interface Props {
 export function PrismodellDetaljer({ prismodeller }: Props) {
   const prismodellkort = prismodeller.map((prismodell) => {
     switch (prismodell.type) {
-      case PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS:
-      case PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK:
+      case PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED:
+      case PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED:
         return (
           <VStack key={prismodell.navn} gap="space-16">
             <PrismodellTypenavn type={prismodell.navn} />
             <PrismodellSatser satser={prismodell.satser} />
           </VStack>
         );
-      case PrismodellType.AVTALT_PRIS_PER_MANEDSVERK:
-      case PrismodellType.AVTALT_PRIS_PER_UKESVERK:
-      case PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK:
+      case PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED:
+      case PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE:
+      case PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE:
       case PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER:
         return (
           <VStack key={prismodell.navn} gap="space-16">

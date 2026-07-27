@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
@@ -9,12 +8,13 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingReq
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
-import no.nav.mulighetsrommet.api.validation.Validated
-import no.nav.mulighetsrommet.api.validation.validation
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.validation.Validated
+import no.nav.mulighetsrommet.validation.validation
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)

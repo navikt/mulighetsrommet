@@ -4,22 +4,19 @@ import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
-import no.nav.mulighetsrommet.api.avtale.db.PrismodellDbo
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
-import no.nav.mulighetsrommet.api.responses.FieldError
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Valuta
 
 class RammedetaljerValidatorTest : FunSpec({
-    fun PrismodellDbo.toPrismodell() = Prismodell.from(this.type, this.id, this.valuta, this.prisbetingelser, this.satser ?: emptyList(), false)
-
     context("rammedetaljer") {
         test("må være anskaffet tiltak") {
             val ikkeAnskaffetCtx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.AFT.id,
-                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentAft.toPrismodell()),
+                prisinfo = AvtaleFixtures.AFT.prisinfo,
             )
 
             RammedetaljerValidator.validateRammedetaljer(
@@ -38,9 +35,11 @@ class RammedetaljerValidatorTest : FunSpec({
         test("må være lik valuta på alle prismodeller") {
             val ctx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
-                prismodeller = listOf(
-                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
-                    PrismodellFixtures.AnnenAvtaltPris.copy(valuta = Valuta.SEK).toPrismodell(),
+                prisinfo = Avtale.Prisinfo.Egendefinert(
+                    listOf(
+                        PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK),
+                        PrismodellFixtures.AnnenAvtaltPris.copy(valuta = Valuta.SEK),
+                    ),
                 ),
             )
 
@@ -52,7 +51,10 @@ class RammedetaljerValidatorTest : FunSpec({
                 ),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 listOf(
-                    FieldError("/totalRamme", "Rammedetaljer kan kun legges til avtaler med én type valuta på prismodellene"),
+                    FieldError(
+                        "/totalRamme",
+                        "Rammedetaljer kan kun legges til avtaler med én type valuta på prismodellene",
+                    ),
                 ),
             )
         }
@@ -60,8 +62,8 @@ class RammedetaljerValidatorTest : FunSpec({
         test("total ramme må være positivt beløp") {
             val ikkeAnskaffetCtx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
-                prismodeller = listOf(
-                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
+                prisinfo = Avtale.Prisinfo.Egendefinert(
+                    listOf(PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK)),
                 ),
             )
 
@@ -81,8 +83,8 @@ class RammedetaljerValidatorTest : FunSpec({
         test("utetalt fra Arena må være positivt beløp") {
             val ctx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
-                prismodeller = listOf(
-                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
+                prisinfo = Avtale.Prisinfo.Egendefinert(
+                    listOf(PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK)),
                 ),
             )
 
@@ -102,8 +104,8 @@ class RammedetaljerValidatorTest : FunSpec({
         test("Skal kunne validere korrekt") {
             val ctx = RammedetaljerValidator.Ctx(
                 avtaleId = AvtaleFixtures.ARR.id,
-                prismodeller = listOf(
-                    PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK).toPrismodell(),
+                prisinfo = Avtale.Prisinfo.Egendefinert(
+                    listOf(PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK)),
                 ),
             )
 

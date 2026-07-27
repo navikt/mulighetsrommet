@@ -27,8 +27,9 @@ import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
@@ -47,18 +48,17 @@ import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingDto1
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetalingLinje1
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
@@ -68,6 +68,7 @@ import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
 import no.nav.mulighetsrommet.clamav.Content
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
@@ -129,7 +130,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             )
         }
 
-        test("utbetaling for ForhandsgodkjentPrisPerManedsverk blir opprettet med tilskuddstype for investeringer") {
+        test("utbetaling for FastSatsPerBenyttetPlassPerManed blir opprettet med tilskuddstype for investeringer") {
             MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
@@ -193,22 +194,22 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             utbetaling.tilskuddstype shouldBe Tilskuddstype.TILTAK_DRIFTSTILSKUDD
             utbetaling.status shouldBe UtbetalingStatusType.TIL_BEHANDLING
-            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningPrisPerTimeOppfolging>()
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerTimeOppfolging>()
         }
 
         test("returnerer feil for prismodeller som ikke støttes") {
-            val prisPerUkesverk = PrismodellFixtures.createPrismodellDbo(
-                type = PrismodellType.AVTALT_PRIS_PER_UKESVERK,
+            val prisPerUkesverk = PrismodellFixtures.createPrismodell(
+                type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
             )
-            val prisPerHeleUkesverk = PrismodellFixtures.createPrismodellDbo(
-                type = PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+            val prisPerHeleUkesverk = PrismodellFixtures.createPrismodell(
+                type = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE,
             )
 
             val service = createUtbetalingService()
 
             forAll(
                 row(PrismodellFixtures.AvtaltPrisPerManedsverk),
-                row(PrismodellFixtures.ForhandsgodkjentVtao),
+                row(PrismodellFixtures.ForhandsgodkjentTao),
                 row(prisPerUkesverk),
                 row(prisPerHeleUkesverk),
             ) { prismodell ->
@@ -216,7 +217,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
                 MulighetsrommetTestDomain(
                     prismodeller = listOf(prismodell),
-                    avtaler = listOf(AvtaleFixtures.gruppeAmo.copy(prismodeller = listOf(prismodell.id))),
+                    avtaler = listOf(
+                        AvtaleFixtures.gruppeAmo.copy(
+                            prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell)),
+                        ),
+                    ),
                     gjennomforinger = listOf(GjennomforingFixtures.GruppeAmo1.copy(prismodellId = prismodell.id)),
                 ).initialize(database.api)
 
@@ -746,22 +751,22 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val tilsagnForAvtaltSats = Tilsagn1.copy(
                 id = UUID.randomUUID(),
-                gjennomforingId = GjennomforingFixtures.VTAO.id,
+                gjennomforingId = GjennomforingFixtures.TAO.id,
                 periode = januar,
                 belopBrukt = 0.NOK,
-                beregning = TilsagnBeregningFastSatsPerTiltaksplassPerManed(
-                    input = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                beregning = TilsagnBeregningFastSatsPerBenyttetPlassPerManed(
+                    input = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Input(
                         periode = januar,
                         sats = 7_321.NOK,
                         antallPlasser = 1,
                         stengt = setOf(),
                     ),
-                    output = TilsagnBeregningFastSatsPerTiltaksplassPerManed.Output(pris = 7_321.NOK),
+                    output = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Output(pris = 7_321.NOK),
                 ),
             )
 
             val utbetalingForAvtaltSats = utbetaling1.copy(
-                gjennomforingId = GjennomforingFixtures.VTAO.id,
+                gjennomforingId = GjennomforingFixtures.TAO.id,
                 periode = januar,
                 beregning = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed(
                     input = UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed.Input(
@@ -789,11 +794,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             )
 
             MulighetsrommetTestDomain(
-                tiltakstyper = listOf(TiltakstypeFixtures.VTAO),
+                tiltakstyper = listOf(TiltakstypeFixtures.TAO),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
-                avtaler = listOf(AvtaleFixtures.VTAO),
-                gjennomforinger = listOf(GjennomforingFixtures.VTAO),
-                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentVtao),
+                avtaler = listOf(AvtaleFixtures.TAO),
+                gjennomforinger = listOf(GjennomforingFixtures.TAO),
+                prismodeller = listOf(PrismodellFixtures.ForhandsgodkjentTao),
                 tilsagn = listOf(tilsagnForAvtaltSats),
                 utbetalinger = listOf(utbetalingForAvtaltSats),
             ) {
@@ -955,22 +960,22 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
     }
 })
 
-private fun getForhandsgodkjentBeregning(periode: Periode, pris: ValutaBelop) = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-    input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+private fun getForhandsgodkjentBeregning(periode: Periode, pris: ValutaBelop) = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(
+    input = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Input(
         satser = setOf(SatsPeriode(periode, 20205.NOK)),
         stengt = setOf(),
         deltakelser = setOf(),
     ),
-    output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+    output = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Output(
         pris = pris,
         deltakelser = setOf(),
     ),
 )
 
-fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri(
-    input = TilsagnBeregningFri.Input(
+fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningAnnenAvtaltPris(
+    input = TilsagnBeregningAnnenAvtaltPris.Input(
         linjer = listOf(
-            TilsagnBeregningFri.InputLinje(
+            TilsagnBeregningAnnenAvtaltPris.InputLinje(
                 id = UUID.randomUUID(),
                 beskrivelse = "Beskrivelse",
                 pris = pris,
@@ -979,5 +984,5 @@ fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningFri(
         ),
         prisbetingelser = null,
     ),
-    output = TilsagnBeregningFri.Output(pris),
+    output = TilsagnBeregningAnnenAvtaltPris.Output(pris),
 )

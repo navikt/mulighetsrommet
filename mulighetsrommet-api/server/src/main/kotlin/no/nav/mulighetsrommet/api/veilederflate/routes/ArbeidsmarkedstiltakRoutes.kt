@@ -35,14 +35,13 @@ internal data class ArbeidsmarkedstiltakFilter(
     val innsatsgruppe: Innsatsgruppe,
     val tiltakstyper: List<Tiltakskode>?,
     val search: String?,
-    val apentForPamelding: ApentForPamelding,
+    val apentForPamelding: List<ApentForPamelding>?,
     val erSykmeldtMedArbeidsgiver: Boolean,
 )
 
 enum class ApentForPamelding {
     APENT,
     STENGT,
-    APENT_ELLER_STENGT,
 }
 
 internal fun RoutingContext.getArbeidsmarkedstiltakFilter(): ArbeidsmarkedstiltakFilter {
@@ -63,7 +62,7 @@ internal fun RoutingContext.getArbeidsmarkedstiltakFilter(): Arbeidsmarkedstilta
 
     val tiltakstyper = queryParameters.getAll("tiltakstyper")?.map { Tiltakskode.valueOf(it) }
 
-    val apentForPamelding: ApentForPamelding by queryParameters
+    val apentForPamelding = queryParameters.getAll("apentForPamelding")?.map { ApentForPamelding.valueOf(it) } ?: emptyList()
 
     return ArbeidsmarkedstiltakFilter(
         enheter = enheter,
@@ -126,7 +125,9 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 explode = true
             }
             queryParameter<String>("search")
-            queryParameter<ApentForPamelding>("apentForPamelding")
+            queryParameter<List<ApentForPamelding>>("apentForPamelding") {
+                explode = true
+            }
             queryParameter<List<Tiltakskode>>("tiltakstyper") {
                 explode = true
             }
@@ -232,7 +233,10 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                     explode = true
                 }
                 queryParameter<String>("search")
-                queryParameter<ApentForPamelding>("apentForPamelding")
+                queryParameter<List<ApentForPamelding>>("apentForPamelding")
+                {
+                    explode = true
+                }
                 queryParameter<List<String>>("tiltakstyper") {
                     explode = true
                 }
@@ -306,7 +310,9 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                         explode = true
                     }
                     queryParameter<String>("search")
-                    queryParameter<ApentForPamelding>("apentForPamelding")
+                    queryParameter<List<ApentForPamelding>>("apentForPamelding") {
+                        explode = true
+                    }
                     queryParameter<List<String>>("tiltakstyper") {
                         explode = true
                     }

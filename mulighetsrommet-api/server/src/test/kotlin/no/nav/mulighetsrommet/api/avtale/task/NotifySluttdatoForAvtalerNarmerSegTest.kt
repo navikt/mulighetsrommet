@@ -19,8 +19,8 @@ class NotifySluttdatoForAvtalerNarmerSegTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     val currentDate = LocalDate.of(2023, 5, 31)
-    val detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-        administratorer = listOf(NavAnsattFixture.DonaldDuck.navIdent),
+    val baseAvtale = AvtaleFixtures.oppfolging.copy(
+        administratorer = setOf(NavAnsattFixture.DonaldDuck.navIdent),
         startDato = LocalDate.of(2021, 1, 1),
     )
 
@@ -28,42 +28,15 @@ class NotifySluttdatoForAvtalerNarmerSegTest : FunSpec({
         arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
         tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
         avtaler = listOf(
-            AvtaleFixtures.oppfolging.copy(
+            baseAvtale.copy(id = UUID.randomUUID(), sluttDato = currentDate.plusMonths(8)),
+            baseAvtale.copy(id = UUID.randomUUID(), sluttDato = currentDate.plusMonths(6)),
+            baseAvtale.copy(id = UUID.randomUUID(), sluttDato = currentDate.plusMonths(3)),
+            baseAvtale.copy(id = UUID.randomUUID(), sluttDato = currentDate.plusDays(14)),
+            baseAvtale.copy(id = UUID.randomUUID(), sluttDato = currentDate.plusDays(7)),
+            baseAvtale.copy(
                 id = UUID.randomUUID(),
-                detaljerDbo = detaljerDbo.copy(
-                    sluttDato = currentDate.plusMonths(8),
-                ),
-            ),
-            AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                detaljerDbo = detaljerDbo.copy(
-                    sluttDato = currentDate.plusMonths(6),
-                ),
-            ),
-            AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                detaljerDbo = detaljerDbo.copy(
-                    sluttDato = currentDate.plusMonths(3),
-                ),
-            ),
-            AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                detaljerDbo = detaljerDbo.copy(
-                    sluttDato = currentDate.plusDays(14),
-                ),
-            ),
-            AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                detaljerDbo = detaljerDbo.copy(
-                    sluttDato = currentDate.plusDays(7),
-                ),
-            ),
-            AvtaleFixtures.oppfolging.copy(
-                id = UUID.randomUUID(),
-                detaljerDbo = detaljerDbo.copy(
-                    startDato = LocalDate.of(2022, 6, 7),
-                    sluttDato = LocalDate.of(2024, 1, 1),
-                ),
+                startDato = LocalDate.of(2022, 6, 7),
+                sluttDato = LocalDate.of(2024, 1, 1),
             ),
         ),
     )

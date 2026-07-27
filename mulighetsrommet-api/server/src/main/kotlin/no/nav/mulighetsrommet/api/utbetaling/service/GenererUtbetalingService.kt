@@ -7,11 +7,11 @@ import kotlinx.serialization.Serializable
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerForslag
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.SystemgenerertPrismodell
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
@@ -122,8 +122,7 @@ class GenererUtbetalingService(
     }
 
     fun oppdaterUtbetalingBlokkeringerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> = db.transaction {
-        val forslag = queries.deltakerForslag.getForslagByGjennomforing(gjennomforingId)
-
+        val forslag = repository.deltakerForslag.getByGjennomforing(gjennomforingId)
         return hentGenererteUtbetalinger(gjennomforingId).map { utbetaling ->
             val blokkeringer = blokkeringer(utbetaling.periode, utbetaling.beregning, forslag)
             queries.utbetaling.setBlokkeringer(utbetaling.id, blokkeringer)
@@ -198,7 +197,7 @@ class GenererUtbetalingService(
             }
 
             is SystemgenerertPrismodell.FraDeltakelser -> {
-                val deltakere = db.session { queries.deltaker.getByGjennomforingId(gjennomforing.id) }
+                val deltakere = db.session { repository.deltaker.getByGjennomforing(gjennomforing.id) }
                 prismodell.beregn(gjennomforing, periode, deltakere)
             }
 
@@ -221,7 +220,7 @@ class GenererUtbetalingService(
             is Betalingsinformasjon.BBan -> forrigeKrav.betalingsinformasjon.kid
             else -> null
         }
-        val forslag = db.session { queries.deltakerForslag.getForslagByGjennomforing(gjennomforingId) }
+        val forslag = db.session { repository.deltakerForslag.getByGjennomforing(gjennomforingId) }
         val blokkeringer = blokkeringer(periode, beregning, forslag)
         val opprett = UpsertUtbetaling.Generering(
             id = UUID.randomUUID(),
@@ -257,7 +256,7 @@ class GenererUtbetalingService(
     private fun blokkeringer(
         periode: Periode,
         beregning: UtbetalingBeregning,
-        forslag: Map<UUID, List<DeltakerForslag>>,
+        forslag: List<DeltakerForslag>,
     ): Set<Utbetaling.Blokkering> {
         val relevanteForslag = UtbetalingAdvarsler.relevanteForslag(periode, beregning, forslag)
 
@@ -312,7 +311,7 @@ class GenererUtbetalingService(
             from gjennomforing
                 join prismodell on prismodell.id = gjennomforing.prismodell_id
             where gjennomforing.status != 'AVLYST'
-                and prismodell.prismodell_type = :prismodell::prismodell_type
+                and prismodell.prismodell_type = :prismodell
                 and daterange(gjennomforing.start_dato, gjennomforing.slutt_dato, '[]') && :periode::daterange
                 $notExistsClause
         """.trimIndent()

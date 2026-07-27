@@ -1,12 +1,12 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringResponse
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringResponse
-import no.nav.mulighetsrommet.api.gjennomforing.kafka.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.janzz.Sertifisering
+import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
+import no.nav.mulighetsrommet.api.gjennomforing.kafka.GjennomforingRequest
 
 object KategoriseringMapper {
-    fun fromKafkaPayload(kategorisering: OpplaringKategorisering): OpplaringKategoriseringRequest {
+    fun fromKafkaPayload(kategorisering: GjennomforingRequest.OpplaringKategorisering): OpplaringKategoriseringRequest {
         return OpplaringKategoriseringRequest(
             kurstypeId = kategorisering.verdier[OpplaringKategoriseringResponse.Representerer.KURSTYPE_ID]?.firstOrNull(),
             bransjeId = kategorisering.verdier[OpplaringKategoriseringResponse.Representerer.BRANSJE_ID]?.firstOrNull(),

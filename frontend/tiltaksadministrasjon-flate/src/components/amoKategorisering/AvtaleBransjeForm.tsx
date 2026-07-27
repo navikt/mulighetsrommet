@@ -1,8 +1,5 @@
-import { List, Heading, Box } from "@navikt/ds-react";
-import {
-  AmoKategoriseringBransjeOgYrkesrettetBransje as Bransje,
-  Tiltakskode,
-} from "@tiltaksadministrasjon/api-client";
+import { Box, Heading, List } from "@navikt/ds-react";
+import { BransjeKode as Bransje, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { bransjeToString } from "@/utils/Utils";
 import { FormCombobox } from "@/components/skjema/FormCombobox";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";

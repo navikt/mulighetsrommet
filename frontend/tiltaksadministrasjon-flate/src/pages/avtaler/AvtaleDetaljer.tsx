@@ -38,8 +38,7 @@ export function AvtaleDetaljer() {
     administratorer,
     sakarkivNummer,
     arrangor,
-    amoKategorisering,
-    utdanningslop,
+    opplaring,
     opsjonsmodell,
   } = avtale;
 
@@ -145,12 +144,14 @@ export function AvtaleDetaljer() {
         <DetaljerLayout>
           <Definisjonsliste title="Avtaleinformasjon" definitions={avtaleMeta} />
           <Definisjonsliste title="Tiltak" definitions={tiltakMeta} />
-          {utdanningslop && <UtdanningslopDetaljer utdanningslop={utdanningslop} />}
-          {amoKategorisering &&
+          {opplaring?.utdanningslop && (
+            <UtdanningslopDetaljer utdanningslop={opplaring.utdanningslop} />
+          )}
+          {opplaring?.kurstype &&
             !kursOgTiltakErStudiespesialisering(
-              amoKategorisering.kurstype,
+              opplaring.kurstype.kode,
               tiltakstype.tiltakskode,
-            ) && <AmoKategoriseringDetaljer amoKategorisering={amoKategorisering} />}
+            ) && <AmoKategoriseringDetaljer opplaring={opplaring} />}
           {avtale.opsjonerRegistrert.length > 0 && <RegistrerteOpsjoner readOnly />}
           <Definisjonsliste title="Avtalens varighet" definitions={varighet} />
           <AvtaleRammedetaljer rammedetaljer={rammedetaljer} />

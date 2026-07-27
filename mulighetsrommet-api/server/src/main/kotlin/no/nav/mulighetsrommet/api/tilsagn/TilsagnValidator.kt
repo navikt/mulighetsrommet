@@ -1,17 +1,16 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker
-import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningPrisPerUkesverk
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
@@ -21,12 +20,13 @@ import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
-import no.nav.mulighetsrommet.api.validation.FieldValidator
-import no.nav.mulighetsrommet.api.validation.validation
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.validation.FieldValidator
+import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import kotlin.contracts.ExperimentalContracts
 
@@ -178,8 +178,8 @@ object TilsagnValidator {
                 validateBeregningFriInput(prismodell.valuta, request).bind()
 
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
-                TilsagnBeregningFastSatsPerTiltaksplassPerManed.beregn(
-                    TilsagnBeregningFastSatsPerTiltaksplassPerManed.Input(
+                TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(
+                    TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Input(
                         periode = periode,
                         sats = sats,
                         antallPlasser = antallPlasser,
@@ -188,8 +188,8 @@ object TilsagnValidator {
                 )
 
             TilsagnBeregningType.PRIS_PER_MANEDSVERK ->
-                TilsagnBeregningPrisPerManedsverk.beregn(
-                    TilsagnBeregningPrisPerManedsverk.Input(
+                TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(
+                    TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(
                         periode = periode,
                         sats = sats,
                         antallPlasser = antallPlasser,
@@ -199,8 +199,8 @@ object TilsagnValidator {
                 )
 
             TilsagnBeregningType.PRIS_PER_HELE_UKESVERK ->
-                TilsagnBeregningPrisPerHeleUkesverk.beregn(
-                    TilsagnBeregningPrisPerHeleUkesverk.Input(
+                TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.beregn(
+                    TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Input(
                         periode = periode,
                         sats = sats,
                         antallPlasser = antallPlasser,
@@ -210,8 +210,8 @@ object TilsagnValidator {
                 )
 
             TilsagnBeregningType.PRIS_PER_UKESVERK ->
-                TilsagnBeregningPrisPerUkesverk.beregn(
-                    TilsagnBeregningPrisPerUkesverk.Input(
+                TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(
+                    TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
                         periode = periode,
                         sats = sats,
                         antallPlasser = antallPlasser,
@@ -221,8 +221,8 @@ object TilsagnValidator {
                 )
 
             TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING ->
-                TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.beregn(
-                    TilsagnBeregningPrisPerTimeOppfolgingPerDeltaker.Input(
+                TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.beregn(
+                    TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.Input(
                         periode = periode,
                         sats = sats,
                         antallPlasser = antallPlasser,
@@ -340,11 +340,11 @@ object TilsagnValidator {
             }
         }
 
-        TilsagnBeregningFri.beregn(
-            TilsagnBeregningFri.Input(
+        TilsagnBeregningAnnenAvtaltPris.beregn(
+            TilsagnBeregningAnnenAvtaltPris.Input(
                 linjer = request.linjer.map {
                     requireValid(it.beskrivelse != null && it.pris != null && it.antall != null)
-                    TilsagnBeregningFri.InputLinje(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = it.id,
                         beskrivelse = it.beskrivelse,
                         pris = it.pris,

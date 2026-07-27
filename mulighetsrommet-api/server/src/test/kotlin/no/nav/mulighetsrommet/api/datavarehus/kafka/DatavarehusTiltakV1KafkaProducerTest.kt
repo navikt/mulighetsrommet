@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.datavarehus.kafka
 
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.mockk
 import io.mockk.verify
@@ -31,7 +30,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
         producerTopic = "producer-topic",
     )
 
-    test("støtter ikke tombstones") {
+    test("støtter tombstones") {
         val producerClient = mockk<KafkaProducerClient<ByteArray, ByteArray?>>(relaxed = true)
 
         val producer = DatavarehusTiltakV1KafkaProducer(
@@ -40,10 +39,18 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
             database.api,
         )
 
-        val key = UUID.randomUUID().toString()
+        val key = UUID.randomUUID()
 
-        shouldThrow<UnsupportedOperationException> {
-            producer.consume(key, JsonNull)
+        producer.consume(key, JsonNull)
+
+        verify {
+            producerClient.sendSync(
+                match { record ->
+                    record.topic() == config.producerTopic &&
+                        record.key().decodeToString() == key.toString() &&
+                        record.value() == null
+                },
+            )
         }
     }
 
@@ -85,7 +92,7 @@ class DatavarehusTiltakV1KafkaProducerTest : FunSpec({
             pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         )
 
-        producer.consume(AFT1.id.toString(), Json.encodeToJsonElement(gjennomforing))
+        producer.consume(AFT1.id, Json.encodeToJsonElement(gjennomforing))
 
         verify {
             producerClient.sendSync(

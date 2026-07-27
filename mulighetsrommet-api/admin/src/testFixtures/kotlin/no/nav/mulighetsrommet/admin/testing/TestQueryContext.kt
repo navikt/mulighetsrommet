@@ -6,8 +6,20 @@ import no.nav.mulighetsrommet.admin.arrangor.ArrangorQueryHandler
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHandler
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
+import no.nav.mulighetsrommet.admin.tiltak.AvtaleQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
+import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
+import no.nav.mulighetsrommet.api.domain.testing.FakeArrangorRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeDeltakerForslagRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeDeltakerRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeNavAnsattRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeNavEnhetRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeRedaksjoneltInnholdLenkeRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeTiltakDokumentRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeTiltakstypeRepository
+import no.nav.mulighetsrommet.api.domain.testing.FakeUtdanningRepository
 
 class TestQueryContext : QueryContext() {
     private val redaksjoneltInnholdLenkeRepository = FakeRedaksjoneltInnholdLenkeRepository()
@@ -15,6 +27,10 @@ class TestQueryContext : QueryContext() {
     private val navEnhetRepository = FakeNavEnhetRepository()
     private val navAnsattRepository = FakeNavAnsattRepository()
     private val arrangorRepository = FakeArrangorRepository()
+    private val utdanningRepository = FakeUtdanningRepository()
+    private val tiltakDokumentRepository = FakeTiltakDokumentRepository()
+    private val deltakerRepository = FakeDeltakerRepository()
+    private val deltakerForslagRepository = FakeDeltakerForslagRepository()
 
     private var tiltakstype: TiltakstypeQueryHandler = mockk(relaxed = true)
     private var endringshistorikk: EndringshistorikkQueryHandler = mockk(relaxed = true)
@@ -22,6 +38,9 @@ class TestQueryContext : QueryContext() {
     private var navAnsattDto: NavAnsattDtoQueryHandler = mockk(relaxed = true)
     private var totrinnskontroll: TotrinnskontrollQueryHandler = mockk(relaxed = true)
     private var arrangor: ArrangorQueryHandler = mockk(relaxed = true)
+    private var opplaringKategorisering: OpplaringKategoriseringQueryHandler = mockk(relaxed = true)
+    private var tiltakDokument: TiltakDokumentQueryHandler = mockk(relaxed = true)
+    private var avtale: AvtaleQueryHandler = mockk(relaxed = true)
 
     override val repository = object : Repositories() {
         override val tiltakstype get() = tiltakstypeRepository
@@ -29,6 +48,11 @@ class TestQueryContext : QueryContext() {
         override val navEnhet get() = navEnhetRepository
         override val navAnsatt get() = navAnsattRepository
         override val arrangor get() = arrangorRepository
+        override val utdanning get() = utdanningRepository
+        override val tiltakDokument get() = tiltakDokumentRepository
+        override val deltaker get() = deltakerRepository
+        override val deltakerForslag get() = deltakerForslagRepository
+        override val avtale get() = TODO("implementer FakeAvtaleRepository")
     }
 
     override val queries = object : Queries() {
@@ -38,6 +62,9 @@ class TestQueryContext : QueryContext() {
         override val navAnsattDto get() = this@TestQueryContext.navAnsattDto
         override val totrinnskontroll get() = this@TestQueryContext.totrinnskontroll
         override val arrangor get() = this@TestQueryContext.arrangor
+        override val opplaering get() = this@TestQueryContext.opplaringKategorisering
+        override val tiltakDokument get() = this@TestQueryContext.tiltakDokument
+        override val avtale get() = this@TestQueryContext.avtale
     }
 
     override val outbox: Outbox = mockk(relaxed = true)

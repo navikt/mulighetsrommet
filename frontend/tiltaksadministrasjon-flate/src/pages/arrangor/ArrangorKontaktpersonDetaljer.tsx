@@ -3,10 +3,14 @@ import { Box } from "@navikt/ds-react";
 import {
   ArrangorKontaktperson,
   GjennomforingDtoArrangorKontaktperson,
+  TiltakDokumentDtoArrangorKontaktperson,
 } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  kontaktperson: ArrangorKontaktperson | GjennomforingDtoArrangorKontaktperson;
+  kontaktperson:
+    | ArrangorKontaktperson
+    | GjennomforingDtoArrangorKontaktperson
+    | TiltakDokumentDtoArrangorKontaktperson;
 }
 
 export function ArrangorKontaktpersonDetaljer({ kontaktperson }: Props) {

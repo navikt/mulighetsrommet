@@ -7,11 +7,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinRequest
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResponse
+import no.nav.mulighetsrommet.api.deltaker.client.DeltakerPersonaliaResponse
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.ktor.MockEngineBuilder
 import no.nav.mulighetsrommet.ktor.decodeRequestBody

@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -30,11 +29,9 @@ import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
@@ -43,15 +40,16 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsa
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
-import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.validation.Validated
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
@@ -860,30 +858,6 @@ class UtbetalingService(
 
     private fun QueryContext.getOrError(id: UUID): Utbetaling {
         return queries.utbetaling.getOrError(id)
-    }
-
-    context(tx: TransactionalQueryContext)
-    fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = with(tx) {
-        return when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT -> {
-                val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
-                val deltakere = queries.deltaker
-                    .getByGjennomforingId(utbetaling.gjennomforing.id)
-                    .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
-
-                UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
-            }
-
-            UtbetalingStatusType.TIL_BEHANDLING,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.TIL_AVBRYTELSE,
-            UtbetalingStatusType.AVBRUTT,
-            -> emptyList()
-        }
     }
 }
 

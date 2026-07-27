@@ -1,10 +1,7 @@
-import { Checkbox, CheckboxProps, HelpText, HStack } from "@navikt/ds-react";
-import {
-  OpprettUtbetalingLinjerRequest,
-  UtbetalingLinjeDto,
-} from "@tiltaksadministrasjon/api-client";
+import { Checkbox, HelpText, HStack } from "@navikt/ds-react";
+import { UtbetalingLinjeDto } from "@tiltaksadministrasjon/api-client";
 import { utbetalingTekster } from "./UtbetalingTekster";
-import { useFormContext } from "react-hook-form";
+import { FormCheckbox } from "../skjema/FormCheckbox";
 
 interface FormVariant {
   index: number;
@@ -15,20 +12,29 @@ interface DisplayVariant {
 }
 
 export function GjorOppTilsagnFormCheckbox({ index }: FormVariant) {
-  const { register } = useFormContext<OpprettUtbetalingLinjerRequest>();
-  return <BaseGjorOppTilsagnCheckbox {...register(`utbetalingLinjer.${index}.gjorOppTilsagn`)} />;
+  return (
+    <BaseGjorOppTilsagnCheckbox>
+      <FormCheckbox name={`utbetalingLinjer.${index}.gjorOppTilsagn`} hideLabel>
+        {utbetalingTekster.linje.gjorOpp.checkbox.label}
+      </FormCheckbox>
+    </BaseGjorOppTilsagnCheckbox>
+  );
 }
 
 export function GjorOppTilsagnCheckbox({ linje }: DisplayVariant) {
-  return <BaseGjorOppTilsagnCheckbox readOnly={true} checked={linje.gjorOppTilsagn} />;
-}
-
-function BaseGjorOppTilsagnCheckbox(props: Omit<CheckboxProps, "children">) {
   return (
-    <HStack gap="space-8">
-      <Checkbox hideLabel {...props}>
+    <BaseGjorOppTilsagnCheckbox>
+      <Checkbox hideLabel readOnly checked={linje.gjorOppTilsagn}>
         {utbetalingTekster.linje.gjorOpp.checkbox.label}
       </Checkbox>
+    </BaseGjorOppTilsagnCheckbox>
+  );
+}
+
+function BaseGjorOppTilsagnCheckbox({ children }: React.PropsWithChildren) {
+  return (
+    <HStack gap="space-8">
+      {children}
       <HelpText>{utbetalingTekster.linje.gjorOpp.checkbox.helpText}</HelpText>
     </HStack>
   );

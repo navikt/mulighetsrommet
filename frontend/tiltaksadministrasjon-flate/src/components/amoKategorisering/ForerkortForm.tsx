@@ -1,4 +1,4 @@
-import { AmoKategoriseringBransjeOgYrkesrettetForerkortKlasse as ForerkortKlasse } from "@tiltaksadministrasjon/api-client";
+import { ForerkortKlasseKode as ForerkortKlasse } from "@tiltaksadministrasjon/api-client";
 import { FieldValues, Path } from "react-hook-form";
 import { forerkortKlasseToString } from "@/utils/Utils";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";

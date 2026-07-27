@@ -29,7 +29,7 @@ dependencies {
     implementation(libs.google.cloud.postgresSocketFactory)
 
     // Logging
-    implementation(libs.slf4j)
+    api(libs.slf4j)
 
     // Metrics
     api(libs.micrometer.core)

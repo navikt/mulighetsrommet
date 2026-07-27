@@ -7,6 +7,7 @@ import {
 import { useLagredeFilter } from "@/api/lagret-filter/useLagredeFilter";
 import { useLagreFilter } from "@/api/lagret-filter/useLagreFilter";
 import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
+import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
 import { dequal } from "dequal";
@@ -35,7 +36,7 @@ export const ArbeidsmarkedstiltakFilterSchema = z.object({
       tittel: z.string(),
     })
     .array(),
-  apentForPamelding: z.custom<ApentForPamelding>(),
+  apentForPamelding: z.custom<ApentForPamelding>().array(),
   erSykmeldtMedArbeidsgiver: z.boolean(),
 });
 
@@ -65,11 +66,30 @@ export function useArbeidsmarkedstiltakFilterValue() {
 export function useArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
   const [{ brukerIKontekst, filter }, setValue] = useAtom(filterAtom);
 
+  const { data: innsatsgrupper } = useInnsatsgrupper();
   const { data: brukerdata } = useBrukerdata();
+
+  const brukersInnsatsgruppe = innsatsgrupper.find(
+    (gruppe) => gruppe.nokkel === brukerdata.innsatsgruppe,
+  );
+
+  const defaultFilterForBruker: ArbeidsmarkedstiltakFilter = {
+    search: "",
+    navEnheter: brukerdata.enheter.map((enhet) => enhet.enhetsnummer),
+    innsatsgruppe: brukersInnsatsgruppe
+      ? {
+          nokkel: brukersInnsatsgruppe.nokkel,
+          tittel: brukersInnsatsgruppe.tittel,
+        }
+      : undefined,
+    tiltakstyper: [],
+    apentForPamelding: [],
+    erSykmeldtMedArbeidsgiver: brukerdata.erSykmeldtMedArbeidsgiver,
+  };
 
   const filterHasChanged =
     filter.search !== "" ||
-    filter.apentForPamelding !== ApentForPamelding.APENT_ELLER_STENGT ||
+    filter.apentForPamelding.length > 0 ||
     filter.innsatsgruppe?.nokkel !== brukerdata.innsatsgruppe ||
     brukersEnhetFilterHasChanged(filter, brukerdata) ||
     filter.tiltakstyper.length > 0;
@@ -80,7 +100,7 @@ export function useArbeidsmarkedstiltakFilterMedBrukerIKontekst() {
     resetFilterToDefaults() {
       setValue({
         brukerIKontekst,
-        filter: defaultTiltakfilter,
+        filter: defaultFilterForBruker,
       });
     },
   };
@@ -223,7 +243,7 @@ const defaultTiltakfilter: ArbeidsmarkedstiltakFilter = {
   navEnheter: [],
   innsatsgruppe: undefined,
   tiltakstyper: [],
-  apentForPamelding: ApentForPamelding.APENT_ELLER_STENGT,
+  apentForPamelding: [],
   erSykmeldtMedArbeidsgiver: false,
 };
 

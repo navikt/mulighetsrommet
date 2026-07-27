@@ -15,13 +15,17 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.amo.OpplaringKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltakelsesmengde
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
+import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollError
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.ForerkortFixtures
@@ -32,11 +36,9 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.janzz.Sertifisering
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.Opplaeringtilskudd
-import no.nav.mulighetsrommet.api.utbetaling.model.Deltakelsesmengde
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -44,8 +46,8 @@ import no.nav.mulighetsrommet.model.NorskIdentHasher
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
+import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class GjennomforingEnkeltplassServiceTest : FunSpec({
@@ -55,6 +57,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
         prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.copy(totalbelop = 1000)),
         gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+        utdanningsprogram = listOf(UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg),
     )
 
     beforeEach {
@@ -84,33 +87,18 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
     fun createRequest(
         kategorisering: OpplaringKategoriseringRequest? = null,
-    ) = EnkeltplassRequest(
+    ) = UpsertEnkeltplass(
         id = UUID.randomUUID(),
         tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         arrangorId = GjennomforingFixtures.EnkelAmo.arrangorId,
         ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
-        prismodell = UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(
-            totalbelop = 1000,
-        ),
+        prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(1000),
         kategorisering = kategorisering,
     )
 
-    fun createUpsert(
-        id: UUID = UUID.randomUUID(),
-        navn: String? = null,
-    ) = UpsertGjennomforingEnkeltplass(
-        id = id,
-        tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-        arrangorId = GjennomforingFixtures.EnkelAmo.arrangorId,
-        startDato = LocalDate.of(2025, 1, 1),
-        sluttDato = LocalDate.of(2025, 6, 1),
-        status = GjennomforingStatusType.GJENNOMFORES,
-        ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
-        prismodell = UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(
-            totalbelop = 1000,
-        ),
-        navn = navn,
-    )
+    fun behandling(opprettetAv: NavIdent): TotrinnskontrollBehandling {
+        return TotrinnskontrollBehandling(UUID.randomUUID(), opprettetAv)
+    }
 
     context("opprettUtkast") {
         val service = createService()
@@ -132,9 +120,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
-            val oppdatertPris = UpsertGjennomforingEnkeltplass.Prismodell.Anskaffelse(
-                totalbelop = 999,
-            )
+            val oppdatertPris = UpsertEnkeltplass.Prismodell.Anskaffelse(999)
             val (gjennomforing) = service.opprettUtkast(utkast.copy(prismodell = oppdatertPris), opprettetAv)
                 .shouldBeRight()
 
@@ -154,17 +140,15 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
             database.run {
-                context(this.session) {
-                    OpplaringKategoriseringQueries.get(utkast.id).shouldBe(
-                        OpplaringKategorisering(
-                            kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
-                            bransje = BransjeFixtures.byggOgAnlegg,
-                            forerkort = setOf(ForerkortFixtures.B, ForerkortFixtures.BE),
-                            sertifiseringer = setOf(Sertifisering(konseptId = 1234, label = "Truckførerkurs")),
-                            norskprove = false,
-                        ),
-                    )
-                }
+                queries.opplaering.get(utkast.id).shouldBe(
+                    OpplaringKategoriseringDetaljer(
+                        kurstype = KurstypeFixtures.bransjeOgYrkesrettet,
+                        bransje = BransjeFixtures.byggOgAnlegg,
+                        forerkort = setOf(ForerkortFixtures.B, ForerkortFixtures.BE),
+                        sertifiseringer = setOf(Sertifisering(konseptId = 1234, label = "Truckførerkurs")),
+                        norskprove = false,
+                    ),
+                )
             }
         }
 
@@ -179,17 +163,18 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
             database.run {
-                context(this.session) {
-                    OpplaringKategoriseringQueries.get(utkast.id).shouldBe(
-                        OpplaringKategorisering(kurstype = KurstypeFixtures.fov, norskprove = false),
-                    )
-                }
+                queries.opplaering.get(utkast.id).shouldBe(
+                    OpplaringKategoriseringDetaljer(
+                        kurstype = KurstypeFixtures.fov,
+                        norskprove = false,
+                    ),
+                )
             }
         }
 
         test("lagrer kategorisering fag og yrke") {
             val request = OpplaringKategoriseringRequest(
-                utdanningsprogramId = UtdanningFixtures.UtdanningsProgram.byggOgAnlegg.id,
+                utdanningsprogramId = UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg.id,
                 larefag = listOf(UtdanningFixtures.Utdanninger.fjellOgBergverksfaget.id),
             )
             val utkast = createRequest(request)
@@ -197,9 +182,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
             database.run {
-                val utdanningslop = context(this.session) {
-                    OpplaringKategoriseringQueries.get(utkast.id)?.utdanningslop.shouldNotBeNull()
-                }
+                val utdanningslop = queries.opplaering.get(utkast.id)?.utdanningslop.shouldNotBeNull()
                 utdanningslop.utdanningsprogram.id.shouldBe(request.utdanningsprogramId)
                 utdanningslop.utdanninger.map { it.id }.shouldContainExactly(request.larefag?.first())
             }
@@ -253,7 +236,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         test("oppretter enkeltplass og sender økonomi til godkjenning") {
             val soktInn = createRequest()
 
-            val (_, okonomi) = service.soktInn(soktInn, opprettetAv).shouldBeRight()
+            val (_, okonomi) = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
@@ -265,16 +248,16 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         test("beholder referanse til samme prismodell ved oppdatering av økonomi") {
             val soktInn = createRequest()
 
-            val enkeltplass1 = service.soktInn(soktInn, opprettetAv).shouldBeRight()
+            val enkeltplass1 = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
             enkeltplass1.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>()
 
-            val prismodell = UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering(
+            val prismodell = UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
                 tilleggsopplysninger = null,
             )
             val enkeltplass2 = service
-                .soktInn(soktInn.copy(prismodell = prismodell), opprettetAv)
+                .soktInn(soktInn.copy(prismodell = prismodell), behandling(opprettetAv))
                 .shouldBeRight()
 
             enkeltplass2.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
@@ -284,15 +267,15 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("sender økonomi til godkjenning på nytt etter at økonomi er satt på vent") {
             val soktInn = createRequest()
-            service.soktInn(soktInn, opprettetAv).shouldBeRight()
+            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
             service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Feil prisbetingelser").shouldBeRight()
 
-            val prismodell = UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering(
+            val prismodell = UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
                 tilleggsopplysninger = null,
             )
             val (gjennomforing, okonomi) = service
-                .soktInn(soktInn.copy(prismodell = prismodell), opprettetAv)
+                .soktInn(soktInn.copy(prismodell = prismodell), behandling(opprettetAv))
                 .shouldBeRight()
 
             gjennomforing.prismodell.shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
@@ -307,15 +290,15 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("gjør ingenting dersom økonomi allerede er GODKJENT") {
             val soktInn = createRequest()
-            service.soktInn(soktInn, opprettetAv).shouldBeRight()
+            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
             service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
 
-            val prismodell = UpsertGjennomforingEnkeltplass.Prismodell.TilskuddTilOpplaering(
+            val prismodell = UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
                 tilleggsopplysninger = null,
             )
             val (gjennomforing, okonomi) = service
-                .soktInn(soktInn.copy(prismodell = prismodell), opprettetAv)
+                .soktInn(soktInn.copy(prismodell = prismodell), behandling(opprettetAv))
                 .shouldBeRight()
 
             gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
@@ -331,7 +314,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         test("publiseres til kafka når gjennomføring opprettes") {
             val soktInn = createRequest()
 
-            service.soktInn(soktInn, opprettetAv).shouldBeRight()
+            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
             database.run {
                 queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
@@ -348,33 +331,51 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val service = createService(migrert)
             val soktInn = createRequest()
 
-            service.soktInn(soktInn, opprettetAv).shouldBeRight().should { (gjennomforing) ->
-                gjennomforing.startDato shouldBe null
-                gjennomforing.sluttDato shouldBe null
-                gjennomforing.deltidsprosent shouldBe 100.0
-            }
+            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                .should { (gjennomforing) ->
+                    gjennomforing.startDato shouldBe null
+                    gjennomforing.sluttDato shouldBe null
+                    gjennomforing.deltidsprosent shouldBe 100.0
+                }
 
             val startDato = LocalDate.of(2025, 3, 1)
             val sluttDato = LocalDate.of(2025, 9, 1)
-            val deltaker = DeltakerFixtures.createDeltaker(
+            val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
                 id = UUID.randomUUID(),
                 gjennomforingId = soktInn.id,
                 status = DeltakerStatusType.DELTAR,
                 startDato = startDato,
                 sluttDato = sluttDato,
-            ).copy(deltakelsesmengder = listOf(Deltakelsesmengde(gyldigFra = startDato, deltakelsesprosent = 60.0)))
+                deltakelsesprosent = 60.0,
+            )
             service.updateFromDeltaker(deltaker, NorskIdent("12345678910"))
 
-            service.soktInn(soktInn, opprettetAv).shouldBeRight().should { (gjennomforing) ->
-                gjennomforing.startDato shouldBe startDato
-                gjennomforing.sluttDato shouldBe sluttDato
-                gjennomforing.deltidsprosent shouldBe 60.0
-            }
+            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                .should { (gjennomforing) ->
+                    gjennomforing.startDato shouldBe startDato
+                    gjennomforing.sluttDato shouldBe sluttDato
+                    gjennomforing.deltidsprosent shouldBe 60.0
+                }
         }
     }
 
     context("synkroniserFraArena") {
         val service = createService()
+
+        fun createUpsert(
+            id: UUID = UUID.randomUUID(),
+            navn: String? = null,
+        ) = UpsertArenaEnkeltplass(
+            id = id,
+            tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+            arrangorId = GjennomforingFixtures.EnkelAmo.arrangorId,
+            startDato = LocalDate.of(2025, 1, 1),
+            sluttDato = LocalDate.of(2025, 6, 1),
+            status = GjennomforingStatusType.GJENNOMFORES,
+            ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
+            prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(1000),
+            navn = navn,
+        )
 
         test("oppretter enkeltplass uten å sende økonomi til godkjenning") {
             val upsert = createUpsert()
@@ -418,7 +419,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         test("godkjenner økonomi og setter besluttelse til GODKJENT") {
             val soktInn = createRequest()
 
-            service.soktInn(soktInn, NavIdent("B123456")).shouldBeRight()
+            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
             val (_, okonomi) = service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
 
@@ -430,7 +431,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("returnerer feil når behandletAv og besluttetAv er samme person") {
             val soktInn = createRequest()
-            service.soktInn(soktInn, opprettetAv).shouldBeRight()
+            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
             service.settOkonomiGodkjent(soktInn.id, opprettetAv)
                 .shouldBeLeft()
@@ -439,7 +440,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("kan sette økonomi på vent") {
             val soktInn = createRequest()
-            service.soktInn(soktInn, opprettetAv).shouldBeRight()
+            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
             val (_, okonomi) = service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Feil").shouldBeRight()
 
@@ -452,7 +453,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("kan godkjenne enkeltplass når den er satt på vent") {
             val soktInn = createRequest()
-            service.soktInn(soktInn, opprettetAv).shouldBeRight()
+            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
             service.settOkonomiPaVent(
                 soktInn.id,
@@ -470,7 +471,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("returnerer feil når enkeltplass allerede er behandlet") {
             val soktInn = createRequest()
-            service.soktInn(soktInn, opprettetAv).shouldBeRight()
+            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
             service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
 
@@ -557,7 +558,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         context("validering av én deltaker per enkeltplass") {
             test("godtar deltakeren som allerede er tilknyttet gjennomføringen") {
-                val eksisterendeDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val eksisterendeDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                 )
                 MulighetsrommetTestDomain(
@@ -574,7 +575,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("kaster exception når gjennomføringen allerede har en annen deltaker") {
-                val annenDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val annenDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                 )
                 MulighetsrommetTestDomain(
@@ -592,7 +593,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("ignorerer annen deltaker som er FEILREGISTRERT uten å kaste exception") {
-                val eksisterendeDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val eksisterendeDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                 )
                 MulighetsrommetTestDomain(
@@ -683,19 +684,12 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("bruker deltakelsesprosent fra siste deltakelsesmengde") {
-                val deltaker = DeltakerFixtures.createDeltaker(
+                val deltaker = DeltakerFixtures.createDeltakerMedDeltakelsesmengder(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     status = DeltakerStatusType.DELTAR,
-                ).copy(
                     deltakelsesmengder = listOf(
-                        Deltakelsesmengde(
-                            gyldigFra = LocalDate.of(2025, 1, 1),
-                            deltakelsesprosent = 50.0,
-                        ),
-                        Deltakelsesmengde(
-                            gyldigFra = LocalDate.of(2025, 3, 1),
-                            deltakelsesprosent = 75.0,
-                        ),
+                        Deltakelsesmengde(LocalDate.of(2025, 1, 1), 50.0, Instant.now()),
+                        Deltakelsesmengde(LocalDate.of(2025, 3, 1), 75.0, Instant.now()),
                     ),
                 )
 
@@ -708,7 +702,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val deltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     status = DeltakerStatusType.DELTAR,
-                ).copy(deltakelsesmengder = emptyList())
+                )
 
                 val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
@@ -763,12 +757,492 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
         }
 
+        context("endrePrisinformasjon") {
+            val service = createService()
+
+            test("returnerer gammel okonomi og oppretter ny TIL_BEHANDLING når gammel økonomi er TIL_BEHANDLING") {
+                val soktInn = createRequest()
+                val forsteBehandling = behandling(opprettetAv)
+                service.soktInn(soktInn, forsteBehandling).shouldBeRight().should { enkeltplass ->
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 1000
+                    enkeltplass.okonomi.shouldNotBeNull().should {
+                        it.id shouldBe forsteBehandling.id
+                        it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                        it.behandletAv shouldBe opprettetAv
+                    }
+                }
+
+                database.run {
+                    queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
+                }
+
+                val andreBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    andreBehandling,
+                ).shouldBeRight().should { enkeltplass ->
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                    enkeltplass.okonomi.shouldNotBeNull().should {
+                        it.id shouldBe andreBehandling.id
+                        it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                        it.behandletAv shouldBe opprettetAv
+                    }
+                }
+
+                database.run {
+                    queries.totrinnskontroll.getById(forsteBehandling.id).status shouldBe TotrinnskontrollStatus.RETURNERT
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+                    queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(2)
+                }
+            }
+
+            test("returnerer gammel okonomi og oppretter ny TIL_BEHANDLING når gammel økonomi er SATT_PA_VENT") {
+                val soktInn = createRequest()
+
+                val forsteBehandling = behandling(opprettetAv)
+                service.soktInn(soktInn, forsteBehandling).shouldBeRight()
+
+                service.settOkonomiPaVent(
+                    soktInn.id,
+                    besluttetAv,
+                    "Trenger mer info",
+                ).shouldBeRight().should { enkeltplass ->
+                    enkeltplass.okonomi.shouldNotBeNull().should {
+                        it.id shouldBe forsteBehandling.id
+                        it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
+                    }
+                }
+
+                val andreBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    andreBehandling,
+                ).shouldBeRight().should { enkeltplass ->
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                    enkeltplass.okonomi.shouldNotBeNull().should {
+                        it.id shouldBe andreBehandling.id
+                        it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                        it.behandletAv shouldBe opprettetAv
+                    }
+                }
+
+                database.run {
+                    queries.totrinnskontroll.getById(forsteBehandling.id).status shouldBe TotrinnskontrollStatus.RETURNERT
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+                }
+            }
+
+            test("returnerer ny okonomi TIL_BEHANDLING ved påfølgende endrePrisinformasjon") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+
+                val andreBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    andreBehandling,
+                ).shouldBeRight()
+
+                val tredjeBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(6000),
+                    tredjeBehandling,
+                ).shouldBeRight().should { enkeltplass ->
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 6000
+                    enkeltplass.okonomi.shouldNotBeNull().should {
+                        it.id shouldBe tredjeBehandling.id
+                        it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                    }
+                }
+
+                database.run {
+                    queries.totrinnskontroll.getById(andreBehandling.id).status shouldBe TotrinnskontrollStatus.RETURNERT
+                }
+            }
+
+            test("er idempotent og ignorerer kall med samme behandling.id") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+
+                val behandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    behandling,
+                ).shouldBeRight().should { enkeltplass ->
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                }
+
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(9999),
+                    behandling,
+                ).shouldBeRight().should { enkeltplass ->
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                }
+            }
+
+            test("oppretter prisendring når økonomi er GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
+                    behandling(opprettetAv),
+                ).shouldBeRight()
+
+                service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
+                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 1000
+                }
+
+                database.run {
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldNotBeNull()
+                }
+            }
+
+            test("avviser eksisterende prisendring ved ny prisendring mens økonomi er GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val forsteBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
+                    forsteBehandling,
+                ).shouldBeRight()
+
+                val andreBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(4000),
+                    andreBehandling,
+                ).shouldBeRight()
+
+                database.run {
+                    val pending = queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldNotBeNull()
+                    pending.totrinnskontrollId shouldBe andreBehandling.id
+                }
+            }
+
+            test("returnerer feil økonomi er RETURNERT") {
+                val soktInn = createRequest()
+                val enkeltplass = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+
+                // Simuler ugyldig tilstand - tjenesten tillater foreløpig ikke å sette status RETURNERT (kun SATT_PA_VENT)
+                database.run {
+                    enkeltplass.okonomi!!.returner(besluttetAv).onRight { queries.totrinnskontroll.upsert(it) }
+                }
+
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    behandling(opprettetAv),
+                ) shouldBeLeft listOf(FieldError.of("Kan ikke endre prismodell på en enkeltplass med returnert økonomi"))
+            }
+
+            test("kaster feil dersom enkeltplass ikke er søkt inn") {
+                val utkast = createRequest()
+                service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
+
+                shouldThrow<IllegalStateException> {
+                    service.endrePrisinformasjon(
+                        utkast.id,
+                        UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                        behandling(opprettetAv),
+                    )
+                }
+            }
+
+            test("oppretter prisendring med status TIL_BEHANDLING når økonomi er GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val behandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
+                    behandling,
+                ).shouldBeRight()
+
+                database.run {
+                    queries.totrinnskontroll.getById(behandling.id).should {
+                        it.entityId shouldBe soktInn.id
+                        it.type shouldBe TotrinnskontrollType.ENKELTPLASS_PRISENDRING
+                        it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                        it.behandletAv shouldBe opprettetAv
+                    }
+                }
+            }
+
+            test("setter eksisterende prisendring til RETURNERT ved ny prisendring når økonomi er GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val forsteBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
+                    forsteBehandling,
+                ).shouldBeRight()
+
+                val andreBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(4000),
+                    andreBehandling,
+                ).shouldBeRight()
+
+                database.run {
+                    queries.totrinnskontroll.getById(forsteBehandling.id).should {
+                        it.status shouldBe TotrinnskontrollStatus.RETURNERT
+                    }
+                    queries.totrinnskontroll.getById(andreBehandling.id).should {
+                        it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                    }
+                }
+            }
+
+            test("setter eksisterende prisendring som er SATT_PA_VENT til RETURNERT ved ny prisendring når økonomi er GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val forsteBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
+                    forsteBehandling,
+                ).shouldBeRight()
+
+                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+
+                val andreBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(4000),
+                    andreBehandling,
+                ).shouldBeRight()
+
+                database.run {
+                    queries.totrinnskontroll.getById(forsteBehandling.id).should {
+                        it.status shouldBe TotrinnskontrollStatus.RETURNERT
+                    }
+                    queries.totrinnskontroll.getById(andreBehandling.id).should {
+                        it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                    }
+                }
+            }
+        }
+
+        context("tilbakekallPrisinformasjon") {
+            val service = createService()
+
+            test("setter status RETURNERT når økonomi er TIL_BEHANDLING") {
+                val soktInn = createRequest()
+                val forsteBehandling = behandling(opprettetAv)
+                service.soktInn(soktInn, forsteBehandling).shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeRight().should {
+                    it.okonomi?.status shouldBe TotrinnskontrollStatus.RETURNERT
+                }
+            }
+
+            test("setter status RETURNERT når økonomi er SATT_PA_VENT") {
+                val soktInn = createRequest()
+                val forsteBehandling = behandling(opprettetAv)
+                service.soktInn(soktInn, forsteBehandling).shouldBeRight()
+                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeRight().should {
+                    it.okonomi?.status shouldBe TotrinnskontrollStatus.RETURNERT
+                }
+            }
+
+            test("setter status RETURNERT og rydder opp ventende prisendring når økonomi allerede er GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val prisendringBehandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(3000),
+                    prisendringBehandling,
+                ).shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, prisendringBehandling).shouldBeRight().should {
+                    it.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 1000
+                }
+
+                database.run {
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+                    queries.totrinnskontroll.getById(prisendringBehandling.id).status shouldBe TotrinnskontrollStatus.RETURNERT
+                }
+            }
+
+            test("returnerer feil når totrinnskontroll allerede er GODKJENT") {
+                val soktInn = createRequest()
+                val forsteBehandling = behandling(opprettetAv)
+                service.soktInn(soktInn, forsteBehandling).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeLeft(
+                    TotrinnskontrollError.AlleredeBesluttet(TotrinnskontrollStatus.GODKJENT),
+                )
+            }
+
+            test("returnerer feil når totrinnskontroll allerede er RETURNERT") {
+                val soktInn = createRequest()
+                val forsteBehandling = behandling(opprettetAv)
+                service.soktInn(soktInn, forsteBehandling).shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeRight()
+                service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeLeft(
+                    TotrinnskontrollError.AlleredeBesluttet(TotrinnskontrollStatus.RETURNERT),
+                )
+            }
+
+            test("gjør ingenting når totrinnskontroll-id er ukjent") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+
+                service.tilbakekallPrisinformasjon(soktInn.id, behandling(opprettetAv)).shouldBeRight().should {
+                    it.okonomi?.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
+                }
+            }
+        }
+
+        context("behandling av prisendring for enkeltplasser") {
+            val service = createService()
+
+            test("settOkonomiGodkjent godkjenner prisendring og oppdaterer prismodell") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    behandling(opprettetAv),
+                ).shouldBeRight()
+
+                database.run {
+                    queries.kafkaProducerRecord.getRecords(100, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
+                }
+
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
+                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                }
+
+                database.run {
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+
+                    queries.kafkaProducerRecord.getRecords(100, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(2)
+                }
+            }
+
+            test("settOkonomiGodkjent setter prisendring-totrinnskontroll til GODKJENT") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val behandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    behandling,
+                ).shouldBeRight()
+
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                database.run {
+                    queries.totrinnskontroll.getById(behandling.id).should {
+                        it.status shouldBe TotrinnskontrollStatus.GODKJENT
+                        it.besluttetAv shouldBe besluttetAv
+                    }
+                }
+            }
+
+            test("settOkonomiGodkjent godkjenner prisendring som er satt på vent") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    behandling(opprettetAv),
+                ).shouldBeRight()
+
+                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
+                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                }
+
+                database.run {
+                    queries.enkeltplassPrisendring.getByGjennomforingId(soktInn.id).shouldBeNull()
+                }
+            }
+
+            test("settOkonomiPaVent setter prisendring på vent") {
+                val soktInn = createRequest()
+                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val behandling = behandling(opprettetAv)
+                service.endrePrisinformasjon(
+                    soktInn.id,
+                    UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
+                    behandling,
+                ).shouldBeRight()
+
+                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+
+                database.run {
+                    queries.totrinnskontroll.getById(behandling.id).should {
+                        it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
+                    }
+                }
+            }
+
+            test("settOkonomiGodkjent returnerer feil dersom ingen okonomi finnes") {
+                val utkast = createRequest()
+                service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
+
+                service.settOkonomiGodkjent(utkast.id, besluttetAv)
+                    .shouldBeLeft()
+                    .first().detail shouldBe "Økonomi har ikke blitt sendt til godkjenning"
+            }
+
+            test("settOkonomiPaVent returnerer feil dersom ingen okonomi finnes") {
+                val utkast = createRequest()
+                service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
+
+                service.settOkonomiPaVent(utkast.id, besluttetAv, forklaring = null)
+                    .shouldBeLeft()
+                    .first().detail shouldBe "Økonomi har ikke blitt sendt til godkjenning"
+            }
+        }
+
         context("relast av deltaker") {
-            val tidligereEndretTidspunkt = LocalDateTime.of(2025, 1, 1, 12, 0, 0)
-            val nyereEndretTidspunkt = LocalDateTime.of(2025, 6, 1, 12, 0, 0)
+            val tidligereEndretTidspunkt = Instant.parse("2025-01-01T12:00:00Z")
+            val nyereEndretTidspunkt = Instant.parse("2025-06-01T12:00:00Z")
 
             test("prosesserer når deltaker-eventet er samme eller nyere enn lagret") {
-                val lagretDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val lagretDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     endretTidspunkt = tidligereEndretTidspunkt,
                 )
@@ -798,7 +1272,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             }
 
             test("hopper over når deltaker-eventet er eldre enn lagret") {
-                val lagretDeltaker = DeltakerFixtures.createDeltakerDbo(
+                val lagretDeltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     endretTidspunkt = nyereEndretTidspunkt,
                 )

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonLoggStatus
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.util.UUID
@@ -13,18 +14,10 @@ data class OpsjonLoggDbo(
     val registrertAv: NavIdent,
 )
 
-enum class OpsjonLoggStatus {
-    OPSJON_UTLOST,
-    SKAL_IKKE_UTLOSE_OPSJON,
-    ;
+fun OpprettOpsjonLoggRequest.Type.toOpsjonLoggStatus() = when (this) {
+    OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
+    OpprettOpsjonLoggRequest.Type.ETT_AAR,
+    -> OpsjonLoggStatus.OPSJON_UTLOST
 
-    companion object {
-        fun fromType(type: OpprettOpsjonLoggRequest.Type) = when (type) {
-            OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
-            OpprettOpsjonLoggRequest.Type.ETT_AAR,
-            -> OPSJON_UTLOST
-
-            OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> SKAL_IKKE_UTLOSE_OPSJON
-        }
-    }
+    OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON
 }

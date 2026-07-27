@@ -1,7 +1,8 @@
 .filter_table_layout_container {
   display: grid;
-  grid-template-columns: var(--filter-width) auto;
+  grid-template-columns: 350px auto;
   grid-template-rows: 3rem auto;
+  grid-column-gap: 1rem;
   
 
   .tags_and_table_container {

@@ -27,9 +27,8 @@ dependencies {
     implementation(libs.ktor.server.authJwt)
     implementation(libs.opentelemetry)
 
-    // Audit-logging
-    implementation(libs.nav.common.auditLog)
-    implementation(libs.bundles.logging)
+    // Logging
+    implementation(libs.slf4j)
 
     // Cache
     implementation(libs.caffeine)

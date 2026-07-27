@@ -29,6 +29,7 @@ sealed class Arrangor {
         override val kontaktpersoner: List<ArrangorKontaktperson>,
     ) : Arrangor() {
         override fun registrerKontaktpersoner(kontaktpersoner: List<ArrangorKontaktperson>): Norsk {
+            require(kontaktpersoner.all { it.arrangorId == id }) { "Kontaktpersonene må tilhøre denne arrangøren" }
             return copy(kontaktpersoner = kontaktpersoner)
         }
 
@@ -99,6 +100,7 @@ sealed class Arrangor {
         val adresse: Adresse?,
     ) : Arrangor() {
         override fun registrerKontaktpersoner(kontaktpersoner: List<ArrangorKontaktperson>): Utenlandsk {
+            require(kontaktpersoner.all { it.arrangorId == id }) { "Kontaktpersonene må tilhøre denne arrangøren" }
             return copy(kontaktpersoner = kontaktpersoner)
         }
 

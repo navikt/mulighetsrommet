@@ -1,6 +1,6 @@
-import { UtdanningsprogramMedUtdanningerDto } from "@tiltaksadministrasjon/api-client";
+import { UtdanningslopDetaljer } from "@tiltaksadministrasjon/api-client";
 
-export const mockUtdanningsprogrammerOgUtdanninger: UtdanningsprogramMedUtdanningerDto[] = [
+export const mockUtdanningsprogrammerOgUtdanninger: UtdanningslopDetaljer[] = [
   {
     utdanningsprogram: {
       id: "8303c8a1-4c0f-45a2-beb4-021e9f5d30d3",

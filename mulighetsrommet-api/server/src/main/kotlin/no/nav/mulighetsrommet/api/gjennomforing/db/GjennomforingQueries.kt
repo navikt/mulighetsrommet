@@ -6,9 +6,8 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.avtale.db.toPrismodell
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
@@ -20,15 +19,16 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
+import no.nav.mulighetsrommet.api.persistence.tiltak.toPrismodell
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
-import no.nav.mulighetsrommet.database.utils.DatabaseUtils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.utils.parameters
+import no.nav.mulighetsrommet.database.utils.toFTSPrefixQuery
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -66,7 +66,7 @@ class GjennomforingQueries(private val session: Session) {
                                        arena_tiltaksnummer,
                                        arena_ansvarlig_enhet)
             values (:id::uuid,
-                    :tiltakstype_id::uuid,
+                    (select id from tiltakstype where tiltakskode = :tiltakskode),
                     :arrangor_id::uuid,
                     :gjennomforing_type::gjennomforing_type,
                     :oppstart::gjennomforing_oppstartstype,
@@ -102,7 +102,7 @@ class GjennomforingQueries(private val session: Session) {
 
         val params = mapOf(
             "id" to gjennomforing.id,
-            "tiltakstype_id" to gjennomforing.tiltakstypeId,
+            "tiltakskode" to gjennomforing.tiltakskode.name,
             "arrangor_id" to gjennomforing.arrangorId,
             "gjennomforing_type" to gjennomforing.type.name,
             "oppstart" to gjennomforing.oppstart.name,
@@ -512,6 +512,17 @@ class GjennomforingQueries(private val session: Session) {
         return session.single(queryOf(query, id)) { it.toPrismodell() }
     }
 
+    fun setPrismodellId(gjennomforingId: UUID, prismodellId: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            update gjennomforing
+            set prismodell_id = ?::uuid
+            where id = ?::uuid
+        """.trimIndent()
+
+        session.execute(queryOf(query, prismodellId, gjennomforingId))
+    }
+
     fun setFreeTextSearch(id: UUID, content: List<String>) {
         @Language("PostgreSQL")
         val query = """
@@ -789,7 +800,7 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
         ?.let { Json.decodeFromString<List<GjennomforingAvtaleDetaljer.ArrangorKontaktperson>>(it) }
         ?: emptyList()
     val opplaringKategorisering = stringOrNull("opplaring_kategorisering_json")
-        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategorisering>(it) }
+        ?.let { JsonIgnoreUnknownKeys.decodeFromString<OpplaringKategoriseringDetaljer>(it) }
     return GjennomforingAvtaleDetaljer(
         administratorer = toAdministratorer(),
         kontorstruktur = Kontorstruktur.fromNavEnheter(toNavEnheter()),
@@ -806,7 +817,6 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
         },
         tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
         opplaringKategorisering = opplaringKategorisering,
-        utdanningslop = opplaringKategorisering?.utdanningslop,
         arrangorKontaktpersoner = arrangorKontaktpersoner,
         avbrytelse = when (GjennomforingStatusType.valueOf(string("status"))) {
             GjennomforingStatusType.GJENNOMFORES,

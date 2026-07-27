@@ -1618,6 +1618,172 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/tiltak-dokumenter:
+    put:
+      tags:
+      - TiltakDokument
+      operationId: upsertTiltakDokument
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TiltakDokumentRequest"
+        required: false
+      responses:
+        "200":
+          description: Individuell gjennomføring ble opprettet/oppdatert
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltakDokumentDto"
+        "400":
+          description: Valideringsfeil
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+    post:
+      tags:
+      - TiltakDokument
+      operationId: getTiltakDokumenter
+      parameters:
+      - name: page
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetTiltakDokumenterRequest"
+        required: false
+      responses:
+        "200":
+          description: Liste over tiltak-dokumentøringer
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedResponse_TiltakDokumentKompaktDto"
+      deprecated: false
+  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}/tilgjengelig-for-veileder:
+    put:
+      tags:
+      - TiltakDokument
+      operationId: setPublisertTiltakDokument
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TiltakDokumentPublisertRequest"
+        required: false
+      responses:
+        "200":
+          description: Tilgjengelighet ble oppdatert
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}:
+    get:
+      tags:
+      - TiltakDokument
+      operationId: getTiltakDokument
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Individuell gjennomføring
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TiltakDokumentDto"
+        "404":
+          description: Ikke funnet
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tiltak-dokumenter/{id}/handlinger:
+    get:
+      tags:
+      - TiltakDokument
+      operationId: getTiltakDokumentHandlinger
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Mulige handlinger for innlogget bruker
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TiltakDokumentHandling"
+                uniqueItems: true
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/kodeverk/avtaletyper:
     get:
       tags:
@@ -1725,6 +1891,31 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Sertifisering"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/kodeverk/utdanninger:
+    get:
+      tags:
+      - Utdanning
+      description: Hent alle utdanningsløp
+      operationId: getUtdanningslop
+      parameters: []
+      responses:
+        "200":
+          description: Liste over utdanningsløp
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UtdanningslopDetaljer"
         default:
           description: Problem details
           headers: {}
@@ -3363,31 +3554,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/utdanninger:
-    get:
-      tags:
-      - Utdanning
-      description: Hent alle utdanningsprogrammer
-      operationId: getUtdanningsprogrammer
-      parameters: []
-      responses:
-        "200":
-          description: Liste over utdanningsprogrammer
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/UtdanningsprogramMedUtdanningerDto"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/notifications:
     get:
       tags:
@@ -3754,7 +3920,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 22
+        - 24
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -4183,7 +4349,7 @@ components:
         utdanningslop:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDbo"
+          - $ref: "#/components/schemas/Utdanningslop"
       required:
       - administratorer
       - amoKategorisering
@@ -4254,33 +4420,33 @@ components:
         kurstype:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKurstype"
+          - $ref: "#/components/schemas/Kurstype.Kode"
         bransje:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Bransje"
+          - $ref: "#/components/schemas/Bransje.Kode"
+        forerkort:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/ForerkortKlasse.Kode"
+        innholdElementer:
+          type:
+          - "null"
+          - array
+          items:
+            $ref: "#/components/schemas/InnholdElement.Kode"
+        norskprove:
+          type:
+          - "null"
+          - boolean
         sertifiseringer:
           type:
           - "null"
           - array
           items:
             $ref: "#/components/schemas/Sertifisering"
-        forerkort:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse"
-        innholdElementer:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-        norskprove:
-          type:
-          - "null"
-          - boolean
       required:
       - bransje
       - forerkort
@@ -4288,15 +4454,15 @@ components:
       - kurstype
       - norskprove
       - sertifiseringer
-    AmoKurstype:
+    Kurstype.Kode:
       type: string
       enum:
-      - BRANSJE_OG_YRKESRETTET
       - NORSKOPPLAERING
       - GRUNNLEGGENDE_FERDIGHETER
       - FORBEREDENDE_OPPLAERING_FOR_VOKSNE
+      - BRANSJE_OG_YRKESRETTET
       - STUDIESPESIALISERING
-    AmoKategorisering.BransjeOgYrkesrettet.Bransje:
+    Bransje.Kode:
       type: string
       enum:
       - INGENIOR_OG_IKT_FAG
@@ -4309,18 +4475,7 @@ components:
       - REISELIV_SERVERING_OG_TRANSPORT
       - SERVICEYRKER_OG_ANNET_ARBEID
       - ANDRE_BRANSJER
-    Sertifisering:
-      type: object
-      properties:
-        konseptId:
-          type: integer
-          format: int64
-        label:
-          type: string
-      required:
-      - konseptId
-      - label
-    AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse:
+    ForerkortKlasse.Kode:
       type: string
       enum:
       - A
@@ -4341,7 +4496,7 @@ components:
       - DE
       - S
       - T
-    AmoKategorisering.InnholdElement:
+    InnholdElement.Kode:
       type: string
       enum:
       - GRUNNLEGGENDE_FERDIGHETER
@@ -4351,7 +4506,18 @@ components:
       - PRAKSIS
       - ARBEIDSMARKEDSKUNNSKAP
       - NORSKOPPLAERING
-    UtdanningslopDbo:
+    Sertifisering:
+      type: object
+      properties:
+        konseptId:
+          type: integer
+          format: int64
+        label:
+          type: string
+      required:
+      - konseptId
+      - label
+    Utdanningslop:
       type: object
       properties:
         utdanningsprogram:
@@ -4399,11 +4565,11 @@ components:
       type: string
       enum:
       - ANNEN_AVTALT_PRIS
-      - FORHANDSGODKJENT_PRIS_PER_MANEDSVERK
-      - FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS
-      - AVTALT_PRIS_PER_MANEDSVERK
-      - AVTALT_PRIS_PER_UKESVERK
-      - AVTALT_PRIS_PER_HELE_UKESVERK
+      - FAST_SATS_PER_BENYTTET_PLASS_PER_MANED
+      - FAST_SATS_PER_AVTALT_PLASS_PER_MANED
+      - AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED
+      - AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE
+      - AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE
       - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
       - TILSKUDD_TIL_OPPLAERING
       - INGEN_KOSTNADER
@@ -4584,7 +4750,7 @@ components:
       required:
       - nySluttDato
       - type
-    Avtale.Tiltakstype:
+    AvtaleDto.Tiltakstype:
       type: object
       properties:
         id:
@@ -4598,7 +4764,7 @@ components:
       - id
       - navn
       - tiltakskode
-    Avtale.ArrangorHovedenhet:
+    AvtaleDto.ArrangorHovedenhet:
       type: object
       properties:
         id:
@@ -4613,11 +4779,11 @@ components:
         underenheter:
           type: array
           items:
-            $ref: "#/components/schemas/Avtale.ArrangorUnderenhet"
+            $ref: "#/components/schemas/AvtaleDto.ArrangorUnderenhet"
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/Avtale.ArrangorKontaktperson"
+            $ref: "#/components/schemas/AvtaleDto.ArrangorKontaktperson"
       required:
       - id
       - kontaktpersoner
@@ -4625,7 +4791,7 @@ components:
       - organisasjonsnummer
       - slettet
       - underenheter
-    Avtale.ArrangorUnderenhet:
+    AvtaleDto.ArrangorUnderenhet:
       type: object
       properties:
         id:
@@ -4642,7 +4808,7 @@ components:
       - navn
       - organisasjonsnummer
       - slettet
-    Avtale.ArrangorKontaktperson:
+    AvtaleDto.ArrangorKontaktperson:
       type: object
       properties:
         id:
@@ -4711,7 +4877,7 @@ components:
       - warning
       - error
       - error-border-strikethrough
-    Avtale.Administrator:
+    AvtaleDto.Administrator:
       type: object
       properties:
         navIdent:
@@ -4785,39 +4951,40 @@ components:
       - sortKey
       - title
       - type
-    AmoKategoriseringDto:
+    OpplaringKategoriseringDetaljer:
       type: object
       properties:
         kurstype:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKurstype"
+          - $ref: "#/components/schemas/Kurstype"
         bransje:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.Bransje"
-        innholdElementer:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/AmoKategorisering.InnholdElement"
-        sertifiseringer:
-          type:
-          - "null"
-          - array
-          items:
-            $ref: "#/components/schemas/Sertifisering"
+          - $ref: "#/components/schemas/Bransje"
         forerkort:
-          type:
-          - "null"
-          - array
+          type: array
           items:
-            $ref: "#/components/schemas/AmoKategorisering.BransjeOgYrkesrettet.ForerkortKlasse"
+            $ref: "#/components/schemas/ForerkortKlasse"
+          uniqueItems: true
+        innholdElementer:
+          type: array
+          items:
+            $ref: "#/components/schemas/InnholdElement"
+          uniqueItems: true
         norskprove:
           type:
           - "null"
           - boolean
+        sertifiseringer:
+          type: array
+          items:
+            $ref: "#/components/schemas/Sertifisering"
+          uniqueItems: true
+        utdanningslop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/UtdanningslopDetaljer"
       required:
       - bransje
       - forerkort
@@ -4825,7 +4992,98 @@ components:
       - kurstype
       - norskprove
       - sertifiseringer
-    Avtale.OpsjonLoggDto:
+      - utdanningslop
+    Kurstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kode:
+          $ref: "#/components/schemas/Kurstype.Kode"
+        navn:
+          type: string
+      required:
+      - id
+      - kode
+      - navn
+    Bransje:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kode:
+          $ref: "#/components/schemas/Bransje.Kode"
+        navn:
+          type: string
+      required:
+      - id
+      - kode
+      - navn
+    ForerkortKlasse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kode:
+          $ref: "#/components/schemas/ForerkortKlasse.Kode"
+        navn:
+          type: string
+      required:
+      - id
+      - kode
+      - navn
+    InnholdElement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kode:
+          $ref: "#/components/schemas/InnholdElement.Kode"
+        navn:
+          type: string
+      required:
+      - id
+      - kode
+      - navn
+    UtdanningslopDetaljer:
+      type: object
+      properties:
+        utdanningsprogram:
+          $ref: "#/components/schemas/UtdanningslopDetaljer.Utdanningsprogram"
+        utdanninger:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtdanningslopDetaljer.Utdanning"
+      required:
+      - utdanninger
+      - utdanningsprogram
+    UtdanningslopDetaljer.Utdanningsprogram:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+    UtdanningslopDetaljer.Utdanning:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+    Avtale.OpsjonLogg:
       type: object
       properties:
         id:
@@ -4855,40 +5113,6 @@ components:
       enum:
       - OPSJON_UTLOST
       - SKAL_IKKE_UTLOSE_OPSJON
-    UtdanningslopDto:
-      type: object
-      properties:
-        utdanningsprogram:
-          $ref: "#/components/schemas/UtdanningslopDto.Utdanningsprogram"
-        utdanninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtdanningslopDto.Utdanning"
-      required:
-      - utdanninger
-      - utdanningsprogram
-    UtdanningslopDto.Utdanningsprogram:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-      required:
-      - id
-      - navn
-    UtdanningslopDto.Utdanning:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-      required:
-      - id
-      - navn
     PrismodellDto:
       type: object
       properties:
@@ -5003,7 +5227,7 @@ components:
           type: string
           format: uuid
         tiltakstype:
-          $ref: "#/components/schemas/Avtale.Tiltakstype"
+          $ref: "#/components/schemas/AvtaleDto.Tiltakstype"
         navn:
           type: string
         avtalenummer:
@@ -5017,7 +5241,7 @@ components:
         arrangor:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/Avtale.ArrangorHovedenhet"
+          - $ref: "#/components/schemas/AvtaleDto.ArrangorHovedenhet"
         startDato:
           type: string
           format: date
@@ -5033,7 +5257,7 @@ components:
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/Avtale.Administrator"
+            $ref: "#/components/schemas/AvtaleDto.Administrator"
         kontorstruktur:
           type: array
           items:
@@ -5052,27 +5276,22 @@ components:
             $ref: "#/components/schemas/Personopplysning"
         personvernBekreftet:
           type: boolean
-        amoKategorisering:
+        opplaring:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategoriseringDto"
+          - $ref: "#/components/schemas/OpplaringKategoriseringDetaljer"
         opsjonsmodell:
           $ref: "#/components/schemas/Opsjonsmodell"
         opsjonerRegistrert:
           type: array
           items:
-            $ref: "#/components/schemas/Avtale.OpsjonLoggDto"
-        utdanningslop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDto"
+            $ref: "#/components/schemas/Avtale.OpsjonLogg"
         prismodeller:
           type: array
           items:
             $ref: "#/components/schemas/PrismodellDto"
       required:
       - administratorer
-      - amoKategorisering
       - arrangor
       - avtalenummer
       - avtaletype
@@ -5081,6 +5300,7 @@ components:
       - id
       - kontorstruktur
       - navn
+      - opplaring
       - opsjonerRegistrert
       - opsjonsmodell
       - personopplysninger
@@ -5091,7 +5311,6 @@ components:
       - startDato
       - status
       - tiltakstype
-      - utdanningslop
     AvbrytAvtaleAarsak:
       type: string
       enum:
@@ -5364,7 +5583,7 @@ components:
         utdanningslop:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDbo"
+          - $ref: "#/components/schemas/Utdanningslop"
         prismodellId:
           type:
           - "null"
@@ -6121,6 +6340,16 @@ components:
       - behandletAv
       - behandletTidspunkt
       - forklaring
+    GjennomforingDetaljerDto.Prisendring:
+      type: object
+      properties:
+        totrinnskontroll:
+          $ref: "#/components/schemas/TotrinnskontrollDto"
+        prismodell:
+          $ref: "#/components/schemas/PrismodellDto"
+      required:
+      - prismodell
+      - totrinnskontroll
     DeltakerDto:
       type: object
       properties:
@@ -6252,30 +6481,30 @@ components:
           - $ref: "#/components/schemas/GjennomforingVeilederinfoDto"
         prismodell:
           $ref: "#/components/schemas/PrismodellDto"
-        amoKategorisering:
+        opplaring:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AmoKategoriseringDto"
-        utdanningslop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/UtdanningslopDto"
+          - $ref: "#/components/schemas/OpplaringKategoriseringDetaljer"
         okonomi:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/TotrinnskontrollDto"
+        prisendring:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingDetaljerDto.Prisendring"
         enkeltplassDeltaker:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/DeltakerDto"
       required:
-      - amoKategorisering
       - enkeltplassDeltaker
       - gjennomforing
       - okonomi
+      - opplaring
+      - prisendring
       - prismodell
       - tiltakstype
-      - utdanningslop
       - veilederinfo
     TiltaksnummerResponse:
       type: object
@@ -6327,6 +6556,371 @@ components:
       - OPPRETT_UTBETALING
       - GODKJENN_ENKELTPLASS_OKONOMI
       - SETT_PA_VENT_ENKELTPLASS_OKONOMI
+      - GODKJENN_ENKELTPLASS_PRISENDRING
+      - SETT_PA_VENT_ENKELTPLASS_PRISENDRING
+    TiltakDokumentRequest.VeilederinfoRequest:
+      type: object
+      properties:
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        navRegioner:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        navKontorer:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        navAndreEnheter:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakDokumentRequest.Kontaktperson"
+          uniqueItems: true
+      required:
+      - beskrivelse
+      - faneinnhold
+      - kontaktpersoner
+      - navAndreEnheter
+      - navKontorer
+      - navRegioner
+    TiltakDokumentRequest.Kontaktperson:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - navIdent
+    TiltakDokumentRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakstypeId:
+          type: string
+          format: uuid
+        stedForGjennomforing:
+          type:
+          - "null"
+          - string
+        arrangorId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        arrangorKontaktpersoner:
+          type: array
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+        administratorer:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        veilederinformasjon:
+          $ref: "#/components/schemas/TiltakDokumentRequest.VeilederinfoRequest"
+      required:
+      - administratorer
+      - arrangorId
+      - arrangorKontaktpersoner
+      - id
+      - navn
+      - stedForGjennomforing
+      - tiltakstypeId
+      - veilederinformasjon
+    TiltakDokumentDto.Tiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - id
+      - navn
+      - tiltakskode
+    TiltakDokumentDto.Arrangor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        organisasjonsnummer:
+          type: string
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
+    TiltakDokumentDto.Administrator:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type: string
+      required:
+      - navIdent
+      - navn
+    TiltakDokumentDto.ArrangorKontaktperson:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        telefon:
+          type:
+          - "null"
+          - string
+        epost:
+          type:
+          - "null"
+          - string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - epost
+      - id
+      - navn
+      - telefon
+    TiltakDokumentDto.Veilederinfo:
+      type: object
+      properties:
+        publisert:
+          type: boolean
+        beskrivelse:
+          type:
+          - "null"
+          - string
+        faneinnhold:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Faneinnhold"
+        kontorstruktur:
+          type: array
+          items:
+            $ref: "#/components/schemas/Kontorstruktur"
+        kontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakDokumentDto.Kontaktperson"
+      required:
+      - beskrivelse
+      - faneinnhold
+      - kontaktpersoner
+      - kontorstruktur
+      - publisert
+    TiltakDokumentDto.Kontaktperson:
+      type: object
+      properties:
+        navIdent:
+          type: string
+        navn:
+          type: string
+        epost:
+          type:
+          - "null"
+          - string
+        mobilnummer:
+          type:
+          - "null"
+          - string
+        hovedenhet:
+          type: string
+        beskrivelse:
+          type:
+          - "null"
+          - string
+      required:
+      - beskrivelse
+      - epost
+      - hovedenhet
+      - mobilnummer
+      - navIdent
+      - navn
+    TiltakDokumentDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        sanityId:
+          type:
+          - "null"
+          - string
+          format: uuid
+        tiltaksnummer:
+          type:
+          - "null"
+          - string
+        tiltakstype:
+          $ref: "#/components/schemas/TiltakDokumentDto.Tiltakstype"
+        stedForGjennomforing:
+          type:
+          - "null"
+          - string
+        arrangor:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TiltakDokumentDto.Arrangor"
+        administratorer:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakDokumentDto.Administrator"
+        arrangorKontaktpersoner:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakDokumentDto.ArrangorKontaktperson"
+        veilederinfo:
+          $ref: "#/components/schemas/TiltakDokumentDto.Veilederinfo"
+      required:
+      - administratorer
+      - arrangor
+      - arrangorKontaktpersoner
+      - id
+      - navn
+      - sanityId
+      - stedForGjennomforing
+      - tiltaksnummer
+      - tiltakstype
+      - veilederinfo
+    TiltakDokumentPublisertRequest:
+      type: object
+      properties:
+        publisert:
+          type: boolean
+      required:
+      - publisert
+    GetTiltakDokumenterRequest:
+      type: object
+      properties:
+        navEnheter:
+          type: array
+          items:
+            type: string
+        tiltakstyper:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tiltakskode"
+        sort:
+          type:
+          - "null"
+          - string
+      required:
+      - navEnheter
+      - sort
+      - tiltakstyper
+    TiltakDokumentKompaktDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltaksnummer:
+          type:
+          - "null"
+          - string
+        tiltakstype:
+          $ref: "#/components/schemas/TiltakDokumentKompaktDto.Tiltakstype"
+        arrangor:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TiltakDokumentKompaktDto.Arrangor"
+        publisert:
+          type: boolean
+        kontorstruktur:
+          type: array
+          items:
+            $ref: "#/components/schemas/Kontorstruktur"
+      required:
+      - arrangor
+      - id
+      - kontorstruktur
+      - navn
+      - publisert
+      - tiltaksnummer
+      - tiltakstype
+    TiltakDokumentKompaktDto.Tiltakstype:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - id
+      - navn
+      - tiltakskode
+    TiltakDokumentKompaktDto.Arrangor:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        organisasjonsnummer:
+          type: string
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
+    PaginatedResponse_TiltakDokumentKompaktDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TiltakDokumentKompaktDto"
+      required:
+      - data
+      - pagination
+    TiltakDokumentHandling:
+      type: string
+      enum:
+      - PUBLISER
+      - REDIGER
+      - FORHANDSVIS_I_MODIA
     AvtaletypeInfo:
       type: object
       properties:
@@ -8429,40 +9023,6 @@ components:
       - organisasjonsnummer
       - overordnetEnhet
       - slettetDato
-    UtdanningsprogramMedUtdanningerDto:
-      type: object
-      properties:
-        utdanningsprogram:
-          $ref: "#/components/schemas/UtdanningsprogramMedUtdanningerDto.Utdanningsprogram"
-        utdanninger:
-          type: array
-          items:
-            $ref: "#/components/schemas/UtdanningsprogramMedUtdanningerDto.Utdanning"
-      required:
-      - utdanninger
-      - utdanningsprogram
-    UtdanningsprogramMedUtdanningerDto.Utdanningsprogram:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-      required:
-      - id
-      - navn
-    UtdanningsprogramMedUtdanningerDto.Utdanning:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-      required:
-      - id
-      - navn
     NotificationStatus:
       type: string
       enum:
@@ -8850,6 +9410,7 @@ components:
       - TILSAGN
       - UTBETALING
       - TILSKUDD_BEHANDLING
+      - TILTAK_DOKUMENT
     EndringshistorikkDto.Entry:
       type: object
       properties:

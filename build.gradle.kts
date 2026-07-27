@@ -26,6 +26,13 @@ allprojects {
         lockAllConfigurations()
     }
 
+    tasks.register("lockConfigurations") {
+        description = "Locks all resolvable configurations"
+        doLast {
+            configurations.filter { it.isCanBeResolved }.forEach { runCatching { it.resolve() } }
+        }
+    }
+
     tasks.withType<KotlinCompile> {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_21)
@@ -72,4 +79,15 @@ allprojects {
             url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
         }
     }
+}
+
+tasks.register("writeLocks") {
+    val configCacheRequested = (gradle as org.gradle.api.internal.GradleInternal)
+        .services.get(BuildFeatures::class.java)
+        .configurationCache.requested.getOrElse(false)
+    if (!gradle.startParameter.isWriteDependencyLocks || configCacheRequested) {
+        throw GradleException(":writeLocks must be run with: ./gradlew writeLocks --write-locks --no-configuration-cache")
+    }
+
+    dependsOn(subprojects.map { "${it.path}:lockConfigurations" })
 }

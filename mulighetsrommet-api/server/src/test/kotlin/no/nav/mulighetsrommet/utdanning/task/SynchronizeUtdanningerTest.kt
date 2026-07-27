@@ -1,10 +1,13 @@
 package no.nav.mulighetsrommet.utdanning.task
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.mulighetsrommet.admin.utdanning.SynkroniserUtdanningerUseCase
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.utdanning.client.UtdanningClient
 import no.nav.mulighetsrommet.utdanning.client.UtdanningNoProgramomraade
@@ -15,9 +18,9 @@ class SynchronizeUtdanningerTest : FunSpec({
     val utdanningClient: UtdanningClient = mockk(relaxed = true)
 
     fun createTask() = SynchronizeUtdanninger(
-        db = database.api,
+        config = SynchronizeUtdanninger.Config(disabled = true),
         utdanningClient = utdanningClient,
-        config = SynchronizeUtdanninger.Config(disabled = true, cronPattern = "0 0 0 1 * ?"),
+        synkroniserUtdanninger = SynkroniserUtdanningerUseCase(database.admin),
     )
 
     val utdanningBanemontorfaget = UtdanningNoProgramomraade(
@@ -66,18 +69,14 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             synchronizeUtdanninger.syncUtdanninger()
 
-            val programomraderMedUtdanninger = database.run {
-                queries.utdanning.getUtdanningsprogrammer()
-            }
+            val utdanningsprogram = database.admin.session {
+                repository.utdanning.findByProgramomradekode("BABAT1----")
+            }.shouldNotBeNull()
 
-            programomraderMedUtdanninger should {
-                it.size shouldBe 1
-                it[0].utdanningsprogram.navn shouldBe "Bygg- og anleggsteknikk"
-                it[0].utdanningsprogram.nusKoder shouldBe listOf("3571")
-                it[0].utdanninger.size shouldBe 1
-                it[0].utdanninger[0].navn shouldBe "Banemontørfaget"
-                it[0].utdanninger[0].nusKoder shouldBe listOf("457103")
-                it[0].utdanninger[0].programlopStart shouldBe it[0].utdanningsprogram.id
+            utdanningsprogram should {
+                it.navn shouldBe "Bygg- og anleggsteknikk"
+                it.utdanninger.size shouldBe 1
+                it.utdanninger[0].navn shouldBe "Banemontørfaget"
             }
         }
 
@@ -107,18 +106,13 @@ class SynchronizeUtdanningerTest : FunSpec({
 
             synchronizeUtdanninger.syncUtdanninger()
 
-            val programomraderMedUtdanninger = database.run {
-                queries.utdanning.getUtdanningsprogrammer()
-            }
+            database.admin.session {
+                val programomrade = repository.utdanning.findByProgramomradekode("BABAT1----").shouldNotBeNull()
+                programomrade.navn shouldBe "Bygg- og anleggsteknikk"
+                programomrade.utdanninger.size shouldBe 1
+                programomrade.utdanninger[0].navn shouldBe "Banemontørfaget"
 
-            programomraderMedUtdanninger should {
-                it.size shouldBe 1
-                it[0].utdanningsprogram.navn shouldBe "Bygg- og anleggsteknikk"
-                it[0].utdanningsprogram.nusKoder shouldBe listOf("3571")
-                it[0].utdanninger.size shouldBe 1
-                it[0].utdanninger[0].navn shouldBe "Banemontørfaget"
-                it[0].utdanninger[0].nusKoder shouldBe listOf("457103")
-                it[0].utdanninger[0].programlopStart shouldBe it[0].utdanningsprogram.id
+                repository.utdanning.findByProgramomradekode("BABMO2----").shouldBeNull()
             }
         }
     }

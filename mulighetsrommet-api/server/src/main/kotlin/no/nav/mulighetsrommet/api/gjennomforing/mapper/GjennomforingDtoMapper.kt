@@ -1,9 +1,8 @@
 package no.nav.mulighetsrommet.api.gjennomforing.mapper
 
+import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
+import no.nav.mulighetsrommet.admin.tiltak.toPrismodellDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.avtale.model.fromPrismodell
-import no.nav.mulighetsrommet.api.avtale.model.toAmoKategoriseringDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytelseDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.DeltakerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
@@ -56,18 +55,19 @@ object GjennomforingDtoMapper {
             publisert = detaljer.publisert,
             estimertVentetid = detaljer.estimertVentetid?.toEstimertVentetidDto(),
         ),
-        prismodell = fromPrismodell(gjennomforing.prismodell),
-        amoKategorisering = detaljer.opplaringKategorisering?.toAmoKategoriseringDto(gjennomforing.tiltakstype.tiltakskode),
-        utdanningslop = detaljer.utdanningslop,
+        prismodell = gjennomforing.prismodell.toPrismodellDto(),
+        opplaring = detaljer.opplaringKategorisering,
         okonomi = null,
+        prisendring = null,
         enkeltplassDeltaker = null,
     )
 
     fun fromEnkeltplass(
         gjennomforing: GjennomforingEnkeltplass,
         okonomi: TotrinnskontrollDto?,
+        prisendring: GjennomforingDetaljerDto.Prisendring?,
         deltakerDto: DeltakerDto?,
-        kategorisering: OpplaringKategorisering?,
+        kategorisering: OpplaringKategoriseringDetaljer?,
     ) = GjennomforingDetaljerDto(
         tiltakstype = gjennomforing.tiltakstype,
         gjennomforing = GjennomforingEnkeltplassDto(
@@ -91,10 +91,10 @@ object GjennomforingDtoMapper {
             ansvarligEnhet = gjennomforing.toAnsvarligEnhetDto(),
         ),
         veilederinfo = null,
-        prismodell = fromPrismodell(gjennomforing.prismodell),
+        prismodell = gjennomforing.prismodell.toPrismodellDto(),
         okonomi = okonomi,
-        amoKategorisering = kategorisering?.toAmoKategoriseringDto(gjennomforing.tiltakstype.tiltakskode),
-        utdanningslop = kategorisering?.utdanningslop,
+        prisendring = prisendring,
+        opplaring = kategorisering,
         enkeltplassDeltaker = deltakerDto,
     )
 

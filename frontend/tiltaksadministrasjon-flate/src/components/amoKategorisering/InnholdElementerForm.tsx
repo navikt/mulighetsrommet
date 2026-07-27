@@ -2,7 +2,7 @@ import { Checkbox, HGrid } from "@navikt/ds-react";
 import { FieldValues, Path } from "react-hook-form";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import {
-  AmoKategoriseringInnholdElement as InnholdElement,
+  InnholdElementKode as InnholdElement,
   Tiltakskode,
 } from "@tiltaksadministrasjon/api-client";
 import { innholdElementToString } from "@/utils/Utils";

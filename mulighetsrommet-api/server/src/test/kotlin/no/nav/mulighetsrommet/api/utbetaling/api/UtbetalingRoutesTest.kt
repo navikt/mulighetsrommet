@@ -33,18 +33,18 @@ import no.nav.mulighetsrommet.api.mockKontoregisterOrganisasjon
 import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.mockTilgangsmaskinenForbidden
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
@@ -302,14 +302,14 @@ class UtbetalingRoutesTest : FunSpec({
     }
 
     context("personvern i beregning") {
-        val deltaker = DeltakerFixtures.createDeltakerDbo(AFT1.id)
+        val deltaker = DeltakerFixtures.createDeltaker(gjennomforingId = AFT1.id)
 
         val beregningPeriode = Periode.forMonthOf(LocalDate.of(2024, 8, 1))
         val utbetaling = UtbetalingFixtures.utbetaling1.copy(
             id = UUID.randomUUID(),
             periode = beregningPeriode,
-            beregning = UtbetalingBeregningFastSatsPerTiltaksplassPerManed(
-                input = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Input(
+            beregning = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(
+                input = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Input(
                     satser = setOf(SatsPeriode(periode = beregningPeriode, sats = 20205.NOK)),
                     stengt = setOf(),
                     deltakelser = setOf(
@@ -319,7 +319,7 @@ class UtbetalingRoutesTest : FunSpec({
                         ),
                     ),
                 ),
-                output = UtbetalingBeregningFastSatsPerTiltaksplassPerManed.Output(
+                output = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Output(
                     pris = 20205.NOK,
                     deltakelser = setOf(
                         UtbetalingBeregningOutputDeltakelse(

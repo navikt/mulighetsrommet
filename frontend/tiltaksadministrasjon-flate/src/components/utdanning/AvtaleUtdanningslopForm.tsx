@@ -1,6 +1,6 @@
 import { Suspense, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
-import { useUtdanningsprogrammer } from "@/api/utdanning/useUtdanningsprogrammer";
+import { useUtdanningslop } from "@/api/utdanning/useUtdanningslop";
 import { avtaletekster } from "../ledetekster/avtaleLedetekster";
 import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 import { FormSelect } from "@/components/skjema/FormSelect";
@@ -29,7 +29,7 @@ export function AvtaleUtdanningslopForm({ tiltakskode }: Props) {
 }
 
 function SelectAvtaleUtdanning() {
-  const { data: utdanninger } = useUtdanningsprogrammer();
+  const { data: utdanninger } = useUtdanningslop();
   const { watch, setValue } = useFormContext<AvtaleFormValues>();
 
   const utdanningsprogram = watch("detaljer.utdanningslop.utdanningsprogram");

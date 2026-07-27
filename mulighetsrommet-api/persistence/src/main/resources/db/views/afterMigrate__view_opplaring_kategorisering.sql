@@ -18,8 +18,7 @@ select ok.id,
                        jsonb_build_object(
                                'id', okk.id,
                                'navn', okk.navn,
-                               'kode', okk.kode,
-                               'aktiv', okk.aktiv
+                               'kode', okk.kode
                        )
                )
         from opplaring_kategorisering_kurstype okk

@@ -225,10 +225,6 @@ components:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
         pameldingType:
           $ref: "#/components/schemas/GjennomforingPameldingType"
-        prisinformasjon:
-          type:
-          - "null"
-          - string
       required:
       - arrangor
       - id
@@ -237,7 +233,6 @@ components:
       - opprettetTidspunkt
       - oppstart
       - pameldingType
-      - prisinformasjon
       - status
       - tiltakskode
     Tiltakskode:

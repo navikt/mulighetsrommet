@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
@@ -31,12 +30,12 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
@@ -61,16 +60,13 @@ class GjennomforingAvtaleService(
             }
             val avtale = queries.avtale.getOrError(request.avtaleId)
             val arrangor = request.detaljer.arrangorId?.let { queries.arrangor.getById(it) }
-            val kategorisering =
-                context(this.session) {
-                    GjennomforingValidator.Context.Kategorisering(
-                        kurstyper = OpplaringKategoriseringQueries.getKurstyper(),
-                        bransjer = OpplaringKategoriseringQueries.getBransjer(),
-                        forerkort = OpplaringKategoriseringQueries.getForerkortKlasser(),
-                        innholdElementer = OpplaringKategoriseringQueries.getInnholdElementer(),
-                        utdanninger = queries.utdanning.getUtdanningsprogrammer(),
-                    )
-                }
+            val kategorisering = GjennomforingValidator.Context.Kategorisering(
+                kurstyper = queries.opplaering.getKurstyper(),
+                bransjer = queries.opplaering.getBransjer(),
+                forerkort = queries.opplaering.getForerkortKlasser(),
+                innholdElementer = queries.opplaering.getInnholdElementer(),
+                utdanninger = queries.opplaering.getUtdanningslop(),
+            )
             GjennomforingValidator.Context(today, avtale, kategorisering, arrangor)
         }
         val result = GjennomforingValidator.validateCreateGjennomforing(ctx, request.id, request.detaljer).bind()
@@ -100,16 +96,14 @@ class GjennomforingAvtaleService(
             }
             val avtale = queries.avtale.getOrError(previous.avtaleId)
             val arrangor = request.arrangorId?.let { queries.arrangor.getById(it) }
-            val antallDeltakere = queries.deltaker.getByGjennomforingId(id).size
-            val kategorisering = context(this.session) {
-                GjennomforingValidator.Context.Kategorisering(
-                    kurstyper = OpplaringKategoriseringQueries.getKurstyper(),
-                    bransjer = OpplaringKategoriseringQueries.getBransjer(),
-                    forerkort = OpplaringKategoriseringQueries.getForerkortKlasser(),
-                    innholdElementer = OpplaringKategoriseringQueries.getInnholdElementer(),
-                    utdanninger = queries.utdanning.getUtdanningsprogrammer(),
-                )
-            }
+            val antallDeltakere = repository.deltaker.getByGjennomforing(id).size
+            val kategorisering = GjennomforingValidator.Context.Kategorisering(
+                kurstyper = queries.opplaering.getKurstyper(),
+                bransjer = queries.opplaering.getBransjer(),
+                forerkort = queries.opplaering.getForerkortKlasser(),
+                innholdElementer = queries.opplaering.getInnholdElementer(),
+                utdanninger = queries.opplaering.getUtdanningslop(),
+            )
             GjennomforingValidator.Context(
                 today = today,
                 avtale = avtale,
@@ -250,16 +244,16 @@ class GjennomforingAvtaleService(
         id: UUID,
         avsluttetTidspunkt: LocalDateTime,
         endretAv: Agent,
-    ): GjennomforingAvtale = db.transaction {
+    ): Either<List<FieldError>, GjennomforingAvtale> = db.transaction {
         val gjennomforing = getOrError(id)
 
-        check(gjennomforing.status == GjennomforingStatusType.GJENNOMFORES) {
-            "Gjennomføringen må være aktiv for å kunne avsluttes"
+        if (gjennomforing.status != GjennomforingStatusType.GJENNOMFORES) {
+            return FieldError.of("Gjennomføringen må være aktiv for å kunne avsluttes").nel().left()
         }
 
         val tidspunktForSlutt = gjennomforing.sluttDato?.plusDays(1)?.atStartOfDay()
-        check(tidspunktForSlutt != null && !avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
-            "Gjennomføringen kan ikke avsluttes før sluttdato"
+        if (tidspunktForSlutt == null || avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
+            return FieldError.of("Gjennomføringen kan ikke avsluttes før sluttdato").nel().left()
         }
 
         queries.gjennomforing.setStatus(
@@ -272,7 +266,9 @@ class GjennomforingAvtaleService(
         queries.gjennomforing.setPublisert(id, false)
         queries.gjennomforing.setApentForPamelding(id, false)
 
-        logEndring("Gjennomføringen ble avsluttet", id, endretAv).also { publishToKafka(it) }
+        logEndring("Gjennomføringen ble avsluttet", id, endretAv)
+            .also { publishToKafka(it) }
+            .right()
     }
 
     fun avbrytGjennomforing(
@@ -298,7 +294,7 @@ class GjennomforingAvtaleService(
         } else if (gjennomforing.sluttDato == null || sluttDato.isBefore(gjennomforing.sluttDato)) {
             GjennomforingStatusType.AVBRUTT to sluttDato
         } else {
-            throw Exception("Gjennomføring allerede avsluttet")
+            return FieldError.of("Ny sluttdato må være før gjeldende sluttdato").nel().left()
         }
 
         queries.gjennomforing.setStatus(
@@ -416,7 +412,7 @@ class GjennomforingAvtaleService(
         queries.gjennomforing.updateDetaljer(result.detaljer)
         setAdministratorer(id, result.administratorer, navIdent, result.detaljer.navn)
         queries.gjennomforing.setArrangorKontaktpersoner(id, result.arrangorKontaktpersoner)
-        context(this.session) { OpplaringKategoriseringQueries.upsert(id, result.kategorisering) }
+        queries.opplaering.upsert(id, result.kategorisering)
     }
 
     private fun QueryContext.setVeilederinfo(
@@ -493,6 +489,6 @@ class GjennomforingAvtaleService(
     private fun QueryContext.publishToKafka(gjennomforing: GjennomforingAvtale) {
         val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
         val gjennomforingV2 = TiltaksgjennomforingV2Mapper.fromGjennomforingAvtale(gjennomforing, detaljer)
-        outbox.publish(gjennomforingV2)
+        outbox.publish(gjennomforing.id, gjennomforingV2)
     }
 }

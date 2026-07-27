@@ -90,6 +90,24 @@ class KafkaConsumerRepositoryImpl(private val db: Database) : KafkaConsumerRepos
         }.toMutableList()
     }
 
+    override fun getFailedRecordCounts(topics: List<String>): Map<TopicPartition, Long> = db.session { session ->
+        if (topics.isEmpty()) {
+            return mapOf()
+        }
+
+        @Language("PostgreSQL")
+        val query = """
+            select topic, partition, count(*) as count
+            from kafka_consumer_record
+            where topic = any(?) and retries > 0
+            group by topic, partition
+        """.trimIndent()
+
+        return session.list(queryOf(query, session.createArrayOf("varchar", topics))) {
+            TopicPartition(it.string("topic"), it.int("partition")) to it.long("count")
+        }.toMap()
+    }
+
     private fun toStoredConsumerRecord(row: Row): StoredConsumerRecord {
         return StoredConsumerRecord(
             row.long("id"),

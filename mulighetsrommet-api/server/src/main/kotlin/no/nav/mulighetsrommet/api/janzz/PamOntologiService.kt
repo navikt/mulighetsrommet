@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.janzz
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
 
 class PamOntologiService(val pam: PamOntologiClient) {
@@ -35,6 +35,3 @@ class PamOntologiService(val pam: PamOntologiClient) {
         awaitAll(autoriseringer, andreGodkjenninger)
     }
 }
-
-@Serializable
-data class Sertifisering(val konseptId: Long, val label: String)

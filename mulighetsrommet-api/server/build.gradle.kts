@@ -59,6 +59,8 @@ dependencies {
     implementation(projects.common.tokenProvider)
     implementation(projects.common.metrics)
     implementation(projects.common.slack)
+    implementation(projects.common.spreadsheet)
+    implementation(projects.common.validation)
     implementation(projects.common.tasks)
     implementation(projects.common.tiltakshistorikkClient)
     implementation(projects.common.tiltaksokonomiClient)
@@ -71,6 +73,7 @@ dependencies {
 
     // Logging
     implementation(libs.bundles.logging)
+    implementation(libs.nav.common.auditLog)
 
     // Ktor
     implementation(libs.ktor.client.mock)
@@ -102,8 +105,6 @@ dependencies {
     // Metrics
     implementation(libs.prometheus.caffeine)
 
-    implementation(libs.nav.common.auditLog)
-
     // Dependency injection
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.ktor)
@@ -122,7 +123,7 @@ dependencies {
         implementation("org.yaml:snakeyaml:2.6") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
-        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.22") {
+        implementation("org.apache.tomcat.embed:tomcat-embed-core:11.0.24") {
             because("sikkerhetshull i transitiv avhengighet rapportert via snyk")
         }
     }

@@ -7,4 +7,5 @@ enum class EndringshistorikkType {
     TILSAGN,
     UTBETALING,
     TILSKUDD_BEHANDLING,
+    TILTAK_DOKUMENT,
 }

@@ -18,6 +18,7 @@ include(
     "common:tiltakshistorikk-client",
     "common:tiltaksokonomi-client",
     "common:amt-deltaker",
+    "common:spreadsheet",
     "mulighetsrommet-api",
     "mulighetsrommet-api:admin",
     "mulighetsrommet-api:server",
@@ -28,3 +29,5 @@ include(
     "mulighetsrommet-tiltakshistorikk",
     "mulighetsrommet-tiltaksokonomi",
 )
+
+include("common:validation")

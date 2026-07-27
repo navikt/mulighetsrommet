@@ -17,57 +17,42 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
-import no.nav.mulighetsrommet.api.avtale.api.AvtaleFilter
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.db.RedaksjoneltInnholdDbo
-import no.nav.mulighetsrommet.api.avtale.db.VeilederinformasjonDbo
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDboMapper
-import no.nav.mulighetsrommet.api.avtale.mapper.AvtaleDtoMapper
-import no.nav.mulighetsrommet.api.avtale.mapper.toDbo
-import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleDto
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.tiltak.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
-import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.responses.PaginatedResponse
-import no.nav.mulighetsrommet.api.services.ExcelWorkbookBuilder
-import no.nav.mulighetsrommet.api.services.buildExcelWorkbook
-import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.api.validation.validation
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
+import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
-import java.io.File
+import no.nav.mulighetsrommet.validation.validation
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.UUID
-import kotlin.io.path.createTempFile
-import kotlin.io.path.outputStream
 
 class AvtaleService(
     private val config: Config,
@@ -91,38 +76,41 @@ class AvtaleService(
         }
 
         val createAvtaleContext = db.session {
-            context(this.session) {
-                getValidatorCtx(
-                    request = request.detaljer,
-                    navEnheter = request.veilederinformasjon.navEnheter,
-                    previous = null,
-                ).bind()
-            }
+            getValidatorCtx(
+                request = request.detaljer,
+                navEnheter = request.veilederinformasjon.navEnheter,
+                previous = null,
+            ).bind()
         }
-        val avtaleDbo = AvtaleValidator.validateCreateAvtale(request, createAvtaleContext).bind()
+        val detaljer = AvtaleValidator.validateCreateAvtale(request, createAvtaleContext).bind()
 
+        val systembestemtPrismodell = if (request.detaljer.avtaletype == Avtaletype.FORHANDSGODKJENT) {
+            db.session { queries.prismodell.getBySystemId(request.detaljer.tiltakskode.name) }
+        } else {
+            null
+        }
         val createPrismodellerContext = ValidatePrismodellerContext(
-            avtaletype = avtaleDbo.detaljerDbo.avtaletype,
+            avtaletype = detaljer.avtaletype,
             tiltakskode = request.detaljer.tiltakskode,
             tiltakstypeNavn = createAvtaleContext.tiltakstype.navn,
-            avtaleStartDato = avtaleDbo.detaljerDbo.startDato,
+            avtaleStartDato = detaljer.startDato,
             gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
             bruktePrismodeller = setOf(),
+            systembestemtPrismodell = systembestemtPrismodell,
         )
         val prismodeller = AvtaleValidator.validatePrismodeller(request.prismodeller, createPrismodellerContext).bind()
 
         db.transaction {
-            prismodeller.forEach { queries.prismodell.upsert(it) }
-            queries.avtale.create(avtaleDbo)
+            val avtale = request.toAvtale(detaljer, prismodeller)
+            repository.avtale.save(avtale)
 
             dispatchNotificationToNewAdministrators(
-                avtaleDbo.id,
-                avtaleDbo.detaljerDbo.navn,
-                avtaleDbo.detaljerDbo.administratorer,
-                navIdent,
+                forrige = null,
+                neste = avtale,
+                endretAv = navIdent,
             )
 
-            logEndring("Opprettet avtale", avtaleDbo.id, navIdent)
+            logEndring("Opprettet avtale", avtale.id, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
         }
     }
@@ -138,41 +126,40 @@ class AvtaleService(
             val gjennomforinger = queries.gjennomforing.getByAvtale(avtaleId)
             val previous = AvtaleValidator.Ctx.Avtale(
                 status = avtale.status.type,
-                opsjonerRegistrert = avtale.opsjonerRegistrert,
-                opsjonsmodell = avtale.opsjonsmodell,
+                opsjoner = avtale.opsjoner,
                 avtaletype = avtale.avtaletype,
-                tiltakskode = avtale.tiltakstype.tiltakskode,
+                tiltakskode = avtale.tiltakskode,
                 gjennomforinger = gjennomforinger.map {
                     AvtaleValidator.Ctx.Gjennomforing(
                         arrangor = it.arrangor,
                         startDato = it.startDato,
-                        utdanningslop = context(this.session) {
-                            OpplaringKategoriseringQueries.get(it.id)?.utdanningslop
-                        },
+                        utdanningslop = queries.opplaering.get(it.id)?.utdanningslop,
                         status = it.status,
                         prismodellId = it.prismodell.id,
                     )
                 },
-                prismodeller = avtale.prismodeller,
             )
-            val context = context(this.session) {
-                getValidatorCtx(
-                    request = request,
-                    navEnheter = listOf(),
-                    previous = previous,
-                ).bind()
-            }
+            val context = getValidatorCtx(
+                request = request,
+                navEnheter = listOf(),
+                previous = previous,
+            ).bind()
 
-            val dbo = AvtaleValidator
+            val detaljer = AvtaleValidator
                 .validateUpdateDetaljer(request, context)
                 .bind()
 
-            if (AvtaleDboMapper.fromAvtale(avtale) == dbo) {
+            val oppdatertAvtale = avtale.toUpdatedAvtale(detaljer)
+            if (avtale == oppdatertAvtale) {
                 return@either avtale
             }
 
-            queries.avtale.updateDetaljer(avtaleId, dbo)
-            dispatchNotificationToNewAdministrators(avtaleId, dbo.navn, dbo.administratorer, navIdent)
+            repository.avtale.save(oppdatertAvtale)
+            dispatchNotificationToNewAdministrators(
+                forrige = avtale,
+                neste = oppdatertAvtale,
+                endretAv = navIdent,
+            )
 
             logEndring("Detaljer oppdatert", avtaleId, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
@@ -192,9 +179,8 @@ class AvtaleService(
         }
         db.transaction {
             val previous = getOrError(avtaleId)
-            val dbo = request.toDbo()
-
-            queries.avtale.updatePersonvern(previous.id, dbo)
+            val personvern = request.toAvtalePersonvern()
+            repository.avtale.save(previous.copy(personvern = personvern))
 
             logEndring("Personvern oppdatert", previous.id, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
@@ -213,15 +199,13 @@ class AvtaleService(
                 queries.enhet.get(it)?.toDto()
             }
             val validatedNavEnheter = AvtaleValidator.validateNavEnheter(navEnheter).bind()
-            val dbo = VeilederinformasjonDbo(
-                redaksjoneltInnhold = RedaksjoneltInnholdDbo(
-                    beskrivelse = request.beskrivelse,
-                    faneinnhold = request.faneinnhold,
-                ),
+            val veilederinfo = Avtale.VeilederInfo(
+                beskrivelse = request.beskrivelse,
+                faneinnhold = request.faneinnhold,
                 navEnheter = validatedNavEnheter,
             )
 
-            queries.avtale.updateVeilederinfo(previous.id, dbo)
+            repository.avtale.save(previous.copy(veilederinfo = veilederinfo))
 
             logEndring("Veilederinformasjon oppdatert", previous.id, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
@@ -234,26 +218,26 @@ class AvtaleService(
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = db.transaction {
         val avtale = getOrError(id)
+
+        if (avtale.avtaletype == Avtaletype.FORHANDSGODKJENT) {
+            return FieldError.of("Prismodell kan ikke endres for forhåndsgodkjente avtaler").nel().left()
+        }
+
         val gjennomforinger = queries.gjennomforing.getByAvtale(id)
+        val tiltakstype = queries.tiltakstype.getByTiltakskode(avtale.tiltakskode)
+        // TODO: forenkle context - f.eks. hele tiltakstype + avtale i context?
         val context = ValidatePrismodellerContext(
             avtaletype = avtale.avtaletype,
-            tiltakskode = avtale.tiltakstype.tiltakskode,
-            tiltakstypeNavn = avtale.tiltakstype.navn,
+            tiltakskode = avtale.tiltakskode,
+            tiltakstypeNavn = tiltakstype.navn,
             avtaleStartDato = avtale.startDato,
             gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
             bruktePrismodeller = gjennomforinger.map { it.prismodell.id }.toSet(),
+            systembestemtPrismodell = null,
         )
-        AvtaleValidator.validatePrismodeller(request, context).map { prismodeller ->
-            prismodeller.forEach { prismodell ->
-                queries.prismodell.upsert(prismodell)
-                queries.avtale.upsertPrismodell(id, prismodell.id)
-            }
 
-            val prismodellerIds = prismodeller.map { it.id }.toSet()
-            avtale.prismodeller.filter { it.id !in prismodellerIds }.forEach { prismodell ->
-                queries.avtale.deletePrismodell(avtale.id, prismodell.id)
-                queries.prismodell.deletePrismodell(prismodell.id)
-            }
+        AvtaleValidator.validatePrismodeller(request, context).map { prisinfo ->
+            repository.avtale.save(avtale.copy(prisinfo = prisinfo))
 
             logEndring("Prismodell oppdatert", id, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
@@ -264,25 +248,24 @@ class AvtaleService(
         id: UUID,
         request: RammedetaljerRequest,
         navIdent: NavIdent,
-    ): Either<List<FieldError>, Unit> = db.transaction {
+    ): Either<List<FieldError>, Avtale> = db.transaction {
         val avtale = getOrError(id)
         if (request.totalRamme == null && request.utbetaltArena == null) {
-            return@transaction Either.Right(deleteRammedetaljer(id, navIdent))
+            return@transaction deleteRammedetaljer(id, navIdent).right()
         }
         RammedetaljerValidator.validateRammedetaljer(
-            context = RammedetaljerValidator.Ctx(avtale.id, avtale.prismodeller),
+            context = RammedetaljerValidator.Ctx(avtale.id, avtale.prisinfo),
             request,
         ).map { rammedetalerDbo ->
             queries.rammedetaljer.upsert(rammedetalerDbo)
             logEndring("Rammedetaljer oppdatert", id, navIdent)
-            Unit
         }
     }
 
     fun deleteRammedetaljer(
         id: UUID,
         navIdent: NavIdent,
-    ): Unit = db.transaction {
+    ): Avtale = db.transaction {
         queries.rammedetaljer.delete(id)
         logEndring("Rammedetaljer slettet", id, navIdent)
     }
@@ -399,54 +382,16 @@ class AvtaleService(
         kontaktpersonId: UUID,
         avtaleId: UUID,
         navIdent: NavIdent,
-    ): Unit = db.transaction {
+    ): Avtale = db.transaction {
         queries.avtale.frikobleKontaktpersonFraAvtale(kontaktpersonId = kontaktpersonId, avtaleId = avtaleId)
 
         logEndring("Kontaktperson ble fjernet fra avtalen", avtaleId, navIdent)
     }
 
-    fun get(id: UUID): Avtale? = db.session {
-        queries.avtale.get(id)
-    }
-
-    fun getAll(pagination: Pagination, filter: AvtaleFilter): PaginatedResponse<AvtaleDto> = db.session {
-        val tiltakstyper = tiltakstypeService.getIdsByTiltakskoder(filter.tiltakskoder)
-        val (totalCount, items) = queries.avtale.getAll(
-            pagination = pagination,
-            tiltakstyper = tiltakstyper,
-            search = filter.search,
-            statuser = filter.statuser,
-            avtaletyper = filter.avtaletyper,
-            navEnheter = filter.navEnheter,
-            sortering = filter.sortering,
-            arrangorIds = filter.arrangorIds,
-            administratorNavIdent = filter.administratorNavIdent,
-            personvernBekreftet = filter.personvernBekreftet,
-        )
-
-        PaginatedResponse.of(pagination, totalCount, items.map { AvtaleDtoMapper.fromAvtale(it) })
-    }
-
-    fun exportToExcel(
-        filter: AvtaleFilter,
-    ): File {
-        val avtaler = getAll(Pagination.all(), filter)
-
-        val workbook = buildExcelWorkbook {
-            createAvtalerSheet(avtaler.data)
-        }
-
-        return workbook.use {
-            val file = createTempFile("avtaler-", ".xlsx")
-            file.outputStream().use(it::write)
-            file.toFile()
-        }
-    }
-
-    private fun schedulePublishGjennomforingerForAvtale(dto: Avtale) {
+    private fun schedulePublishGjennomforingerForAvtale(avtale: Avtale) {
         gjennomforingPublisher.schedule(
-            input = InitialLoadGjennomforinger.Input(avtaleId = dto.id),
-            id = dto.id,
+            input = InitialLoadGjennomforinger.Input(avtaleId = avtale.id),
+            id = avtale.id,
             startTime = Instant.now().plus(30, ChronoUnit.SECONDS),
         )
     }
@@ -465,17 +410,13 @@ class AvtaleService(
             AvtaleValidator.Ctx.AvtaleArrangor(hovedenhet, underenheter)
         }
 
-        val systembestemtPrismodell = queries.prismodell.getBySystemId(request.tiltakskode.name)
-
-        val kategorisering = context(session) {
-            AvtaleValidator.Ctx.Kategorisering(
-                kurstyper = OpplaringKategoriseringQueries.getKurstyper(),
-                bransjer = OpplaringKategoriseringQueries.getBransjer(),
-                forerkort = OpplaringKategoriseringQueries.getForerkortKlasser(),
-                innholdElementer = OpplaringKategoriseringQueries.getInnholdElementer(),
-                utdanninger = queries.utdanning.getUtdanningsprogrammer(),
-            )
-        }
+        val kategorisering = AvtaleValidator.Ctx.Kategorisering(
+            kurstyper = queries.opplaering.getKurstyper(),
+            bransjer = queries.opplaering.getBransjer(),
+            forerkort = queries.opplaering.getForerkortKlasser(),
+            innholdElementer = queries.opplaering.getInnholdElementer(),
+            utdanninger = queries.opplaering.getUtdanningslop(),
+        )
 
         AvtaleValidator.Ctx(
             previous = previous,
@@ -483,10 +424,9 @@ class AvtaleService(
             administratorer = administratorer,
             tiltakstype = AvtaleValidator.Ctx.Tiltakstype(
                 navn = tiltakstype.navn,
-                id = tiltakstype.id,
+                tiltakskode = tiltakstype.tiltakskode,
             ),
             navEnheter = navEnheter,
-            systembestemtPrismodell = systembestemtPrismodell?.id,
             kategorisering = kategorisering,
         )
     }
@@ -510,22 +450,20 @@ class AvtaleService(
     }
 
     private fun QueryContext.getOrError(id: UUID): Avtale {
-        return queries.avtale.getOrError(id)
+        return repository.avtale.getOrError(id)
     }
 
     private fun QueryContext.dispatchNotificationToNewAdministrators(
-        avtaleId: UUID,
-        avtalenavn: String,
-        administratorer: List<NavIdent>,
-        navIdent: NavIdent,
+        forrige: Avtale?,
+        neste: Avtale,
+        endretAv: NavIdent,
     ) {
-        val currentAdministratorer = get(avtaleId)?.administratorer?.map { it.navIdent }?.toSet() ?: setOf()
-
-        val administratorsToNotify =
-            (administratorer - currentAdministratorer - navIdent).toNonEmptyListOrNull() ?: return
+        val administratorsToNotify = (neste.administratorer - forrige?.administratorer.orEmpty() - endretAv)
+            .toNonEmptyListOrNull()
+            ?: return
 
         val notification = ScheduledNotification(
-            title = "Du har blitt satt som administrator på avtalen \"${avtalenavn}\"",
+            title = "Du har blitt satt som administrator på avtalen \"${neste.navn}\"",
             targets = administratorsToNotify,
             createdAt = Instant.now(),
         )
@@ -537,7 +475,7 @@ class AvtaleService(
         avtaleId: UUID,
         endretAv: Agent,
     ): Avtale {
-        val dto = queries.avtale.getOrError(avtaleId)
+        val avtale = repository.avtale.getOrError(avtaleId)
         queries.endringshistorikk.logEndring(
             EndringshistorikkType.AVTALE,
             operation,
@@ -545,9 +483,9 @@ class AvtaleService(
             avtaleId,
             LocalDateTime.now(),
         ) {
-            Json.encodeToJsonElement(dto)
+            Json.encodeToJsonElement(avtale)
         }
-        return dto
+        return avtale
     }
 
     private suspend fun syncArrangorerFromBrreg(
@@ -572,7 +510,8 @@ class AvtaleService(
         ).nel()
     }
 
-    fun handlinger(avtale: Avtale, ansatt: NavAnsatt): Set<AvtaleHandling> {
+    fun handlinger(avtaleId: UUID, ansatt: NavAnsatt): Set<AvtaleHandling> {
+        val avtale = db.session { repository.avtale.get(avtaleId) } ?: return emptySet()
         return setOfNotNull(
             AvtaleHandling.AVBRYT.takeIf {
                 when (avtale.status) {
@@ -586,7 +525,7 @@ class AvtaleService(
                 }
             },
             AvtaleHandling.OPPRETT_GJENNOMFORING.takeIf {
-                !tiltakstypeService.erUtfaset(avtale.tiltakstype.tiltakskode) && when (avtale.status) {
+                !tiltakstypeService.erUtfaset(avtale.tiltakskode) && when (avtale.status) {
                     AvtaleStatus.Aktiv -> true
 
                     is AvtaleStatus.Avbrutt,
@@ -596,13 +535,13 @@ class AvtaleService(
                 }
             },
             AvtaleHandling.OPPDATER_PRIS.takeIf {
-                avtale.prismodeller.any { it.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK }
+                avtale.prisinfo is Avtale.Prisinfo.Egendefinert
             },
             AvtaleHandling.OPPDATER_RAMMEDETALJER.takeIf {
-                avtale.prismodeller.any { it.type != PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK }
+                avtale.prisinfo is Avtale.Prisinfo.Egendefinert
             },
             AvtaleHandling.REGISTRER_OPSJON.takeIf {
-                avtale.opsjonsmodell.opsjonMaksVarighet != null
+                avtale.opsjoner.modell.opsjonMaksVarighet != null
             },
             AvtaleHandling.DUPLISER,
             AvtaleHandling.REDIGER,
@@ -631,30 +570,73 @@ class AvtaleService(
     }
 }
 
-private fun ExcelWorkbookBuilder.createAvtalerSheet(
-    result: List<AvtaleDto>,
-) = table("Avtaler") {
-    header(
-        "Avtalenavn",
-        "Tiltakstype",
-        "Avtalenummer",
-        "Tiltaksarrangør",
-        "Tiltaksarrangør orgnr",
-        "Startdato",
-        "Sluttdato",
-    )
+private fun OpprettAvtaleRequest.toAvtale(
+    detaljer: AvtaleValidator.ValidatedDetaljer,
+    prisinfo: Avtale.Prisinfo,
+): Avtale = Avtale(
+    id = id,
+    tiltakskode = detaljer.tiltakskode,
+    navn = detaljer.navn,
+    avtalenummer = null,
+    sakarkivNummer = detaljer.sakarkivNummer,
+    arrangor = detaljer.arrangor,
+    startDato = detaljer.startDato,
+    sluttDato = detaljer.sluttDato,
+    avtaletype = detaljer.avtaletype,
+    status = detaljer.status.toAvtaleStatus(),
+    administratorer = detaljer.administratorer.toSet(),
+    veilederinfo = Avtale.VeilederInfo(
+        beskrivelse = veilederinformasjon.beskrivelse,
+        faneinnhold = veilederinformasjon.faneinnhold,
+        navEnheter = veilederinformasjon.navEnheter.toSet(),
+    ),
+    personvern = personvern.toAvtalePersonvern(),
+    opplaring = detaljer.opplaring,
+    opsjoner = Avtale.Opsjoner(detaljer.opsjonsmodell, emptyList()),
+    prisinfo = prisinfo,
+)
 
-    result.forEach { avtale ->
-        row {
-            listOf(
-                avtale.navn,
-                avtale.tiltakstype.navn,
-                avtale.avtalenummer,
-                avtale.arrangor?.navn,
-                avtale.arrangor?.organisasjonsnummer?.value,
-                avtale.startDato.formaterDatoTilEuropeiskDatoformat(),
-                avtale.sluttDato?.formaterDatoTilEuropeiskDatoformat(),
-            )
+private fun Avtale.toUpdatedAvtale(detaljer: AvtaleValidator.ValidatedDetaljer): Avtale = Avtale(
+    id = id,
+    tiltakskode = tiltakskode,
+    navn = detaljer.navn,
+    avtalenummer = avtalenummer,
+    sakarkivNummer = detaljer.sakarkivNummer,
+    arrangor = detaljer.arrangor,
+    startDato = detaljer.startDato,
+    sluttDato = detaljer.sluttDato,
+    avtaletype = detaljer.avtaletype,
+    status = detaljer.status.toAvtaleStatus(status),
+    administratorer = detaljer.administratorer.toSet(),
+    veilederinfo = veilederinfo,
+    personvern = personvern,
+    opplaring = detaljer.opplaring,
+    opsjoner = Avtale.Opsjoner(detaljer.opsjonsmodell, opsjoner.registreringer),
+    prisinfo = prisinfo,
+)
+
+private fun PersonvernRequest.toAvtalePersonvern(): Avtale.Personvern {
+    val typer = buildSet {
+        addAll(personopplysninger)
+        if (annetChecked == true) {
+            add(Personopplysning.Type.ANNET)
         }
     }
+    return Avtale.Personvern(
+        personopplysninger = typer,
+        annetBeskrivelse = annetBeskrivelse?.takeIf { Personopplysning.Type.ANNET in typer },
+        erBekreftet = personvernBekreftet,
+    )
+}
+
+private fun AvtaleStatusType.toAvtaleStatus(previous: AvtaleStatus): AvtaleStatus = when (this) {
+    AvtaleStatusType.AVBRUTT -> previous
+    else -> toAvtaleStatus()
+}
+
+private fun AvtaleStatusType.toAvtaleStatus(): AvtaleStatus = when (this) {
+    AvtaleStatusType.UTKAST -> AvtaleStatus.Utkast
+    AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv
+    AvtaleStatusType.AVSLUTTET -> AvtaleStatus.Avsluttet
+    AvtaleStatusType.AVBRUTT -> error("Avbrutt status må opprettes med årsaker og tidspunkt")
 }

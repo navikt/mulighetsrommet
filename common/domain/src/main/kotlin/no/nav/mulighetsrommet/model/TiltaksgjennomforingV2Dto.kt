@@ -73,6 +73,5 @@ sealed class TiltaksgjennomforingV2Dto {
         override val status: GjennomforingStatusType,
         override val oppstart: GjennomforingOppstartstype,
         override val pameldingType: GjennomforingPameldingType,
-        val prisinformasjon: String?,
     ) : TiltaksgjennomforingV2Dto()
 }

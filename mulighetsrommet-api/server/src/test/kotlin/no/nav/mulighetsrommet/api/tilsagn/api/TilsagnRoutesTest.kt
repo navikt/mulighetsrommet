@@ -51,7 +51,7 @@ class TilsagnRoutesTest : FunSpec({
 
     val ansatt = NavAnsattFixture.DonaldDuck
 
-    val deltaker = DeltakerFixtures.createDeltakerDbo(
+    val deltaker = DeltakerFixtures.createDeltaker(
         gjennomforingId = GjennomforingFixtures.AFT1.id,
     )
     val tilsagn = TilsagnFixtures.Tilsagn1.copy(

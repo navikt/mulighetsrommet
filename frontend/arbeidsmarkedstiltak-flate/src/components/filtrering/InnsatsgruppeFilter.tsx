@@ -1,11 +1,11 @@
-import { Accordion, HelpText, Radio, RadioGroup } from "@navikt/ds-react";
+import { HelpText, Radio, RadioGroup } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { Innsatsgruppe, VeilederflateInnsatsgruppe } from "@arbeidsmarkedstiltak/api-client";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { filterAccordionAtom } from "@/core/atoms";
 import { useArbeidsmarkedstiltakFilter } from "@/hooks/useArbeidsmarkedstiltakFilter";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { FilterAccordionHeader } from "@mr/frontend-common";
+import { FilterAccordion } from "@mr/frontend-common";
 
 export function InnsatsgruppeFilter() {
   const [filter, setFilter] = useArbeidsmarkedstiltakFilter();
@@ -42,55 +42,50 @@ function InnsatsgruppeAccordion({ value, onChange, options }: InnsatsgruppeAccor
   const [accordionsOpen, setAccordionsOpen] = useAtom(filterAccordionAtom);
 
   return (
-    <Accordion.Item open={accordionsOpen.includes("innsatsgruppe")}>
-      <Accordion.Header
-        onClick={() => {
-          setAccordionsOpen([...addOrRemove(accordionsOpen, "innsatsgruppe")]);
-        }}
-        data-testid="filter_accordionheader_innsatsgruppe"
-      >
-        <FilterAccordionHeader
-          tittel="Innsatsgruppe"
-          tilleggsinformasjon={
-            <HelpText placement="right" strategy="fixed" onClick={(e) => e.stopPropagation()}>
-              Filteret viser de tiltakene som kan være aktuelle for brukere med valgt innsatsgruppe.
-              <br />
-              <a
-                href="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Tiltak-og-virkemidler-etter-innsatsbehov.aspx"
-                rel="noreferrer"
-                target="_blank"
-              >
-                Se mer informasjon om innsatsgruppe og tiltak her.
-              </a>
-            </HelpText>
-          }
-        />
-      </Accordion.Header>
-      <Accordion.Content data-testid="filter_accordioncontent_innsatsgruppe">
-        {options.length !== 0 && (
-          <RadioGroup
-            legend=""
-            hideLegend
-            size="small"
-            onChange={(e: Innsatsgruppe) => {
-              onChange(e);
-            }}
-            value={value ?? null}
+    <FilterAccordion
+      tittel="Innsatsgruppe"
+      tilleggsinformasjon={
+        <HelpText placement="right" strategy="fixed" onClick={(e) => e.stopPropagation()}>
+          Filteret viser de tiltakene som kan være aktuelle for brukere med valgt innsatsgruppe.
+          <br />
+          <a
+            href="https://navno.sharepoint.com/sites/fag-og-ytelser-arbeid-tiltak-og-virkemidler/SitePages/Tiltak-og-virkemidler-etter-innsatsbehov.aspx"
+            rel="noreferrer"
+            target="_blank"
           >
-            {options.map((option) => {
-              return (
-                <Radio
-                  key={option.nokkel}
-                  value={option.nokkel}
-                  data-testid={`filter_radio_${option.nokkel}`}
-                >
-                  {option.tittel}
-                </Radio>
-              );
-            })}
-          </RadioGroup>
-        )}
-      </Accordion.Content>
-    </Accordion.Item>
+            Se mer informasjon om innsatsgruppe og tiltak her.
+          </a>
+        </HelpText>
+      }
+      open={accordionsOpen.includes("innsatsgruppe")}
+      onClick={() => {
+        setAccordionsOpen([...addOrRemove(accordionsOpen, "innsatsgruppe")]);
+      }}
+    >
+      {" "}
+      {options.length !== 0 && (
+        <RadioGroup
+          legend=""
+          hideLegend
+          size="small"
+          onChange={(e: Innsatsgruppe) => {
+            onChange(e);
+          }}
+          value={value ?? null}
+        >
+          {options.map((option) => {
+            return (
+              <Radio
+                key={option.nokkel}
+                value={option.nokkel}
+                data-testid={`filter_radio_${option.nokkel}`}
+              >
+                {option.tittel}
+              </Radio>
+            );
+          })}
+        </RadioGroup>
+      )}
+    </FilterAccordion>
   );
 }

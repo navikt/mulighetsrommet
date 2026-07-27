@@ -23,6 +23,14 @@ export function MrApi() {
         <BodyShort>Oppdater FTS for alle avtale gjennomføringer</BodyShort>
       </RunTask>
 
+      <RunTask base={ApiBase.MR_API} task="migrer-sanity-tiltaksgjennomforinger">
+        <BodyShort>
+          Migrerer tiltaksgjennomføringer fra Sanity til databasen som individuelle gjennomføringer.
+          Publiserte dokument får publisert=true, utkast får publisert=false. Kan kjøres flere
+          ganger (idempotent).
+        </BodyShort>
+      </RunTask>
+
       <RunTask
         base={ApiBase.MR_API}
         task="initial-load-gjennomforinger"

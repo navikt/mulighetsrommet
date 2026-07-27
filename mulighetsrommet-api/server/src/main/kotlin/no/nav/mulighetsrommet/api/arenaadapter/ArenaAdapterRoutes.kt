@@ -25,6 +25,14 @@ fun Route.arenaAdapterRoutes() {
             call.respond(UpsertTiltaksgjennomforingResponse(sanityId))
         }
 
+        delete("tiltaksgjennomforing/{id}") {
+            val id = call.parameters.getOrFail<UUID>("id")
+
+            arenaAdapterService.removeTiltaksgjennomforing(id)
+
+            call.response.status(HttpStatusCode.OK)
+        }
+
         delete("sanity/tiltaksgjennomforing/{sanityId}") {
             val sanityId = call.parameters.getOrFail<UUID>("sanityId")
 

@@ -9,13 +9,12 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.admin.arrangor.toDto
-import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.api.amo.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
-import no.nav.mulighetsrommet.api.avtale.model.Opsjonsmodell
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
+import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.BransjeFixtures
@@ -31,15 +30,15 @@ import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.Sel
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures.TiltakOslo
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
-import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.validation.Validated
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -50,55 +49,40 @@ class GjennomforingValidatorTest : FunSpec({
         navn = "Avtalenavn",
         avtalenummer = "2023#1",
         sakarkivNummer = SakarkivNummer("24/1234"),
-        tiltakstype = Avtale.Tiltakstype(
-            navn = TiltakstypeFixtures.Oppfolging.navn,
-            id = TiltakstypeFixtures.Oppfolging.id,
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
-        ),
-        arrangor = Avtale.ArrangorHovedenhet(
-            id = ArrangorFixtures.hovedenhet.id,
-            organisasjonsnummer = ArrangorFixtures.hovedenhet.organisasjonsnummer,
-            navn = ArrangorFixtures.hovedenhet.navn,
-            underenheter = listOf(
-                Avtale.ArrangorUnderenhet(
-                    navn = ArrangorFixtures.underenhet1.navn,
-                    id = ArrangorFixtures.underenhet1.id,
-                    organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
-                    slettet = false,
-                ),
-            ),
-            kontaktpersoner = emptyList(),
-            slettet = false,
+        tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
+        arrangor = Avtale.Arrangor(
+            hovedenhet = ArrangorFixtures.hovedenhet.id,
+            underenheter = listOf(ArrangorFixtures.underenhet1.id),
         ),
         startDato = LocalDate.now(),
         sluttDato = LocalDate.now().plusMonths(1),
         status = AvtaleStatus.Aktiv,
         avtaletype = Avtaletype.RAMMEAVTALE,
-        administratorer = emptyList(),
-        kontorstruktur = listOf(
-            Kontorstruktur(
-                region = Kontorstruktur.Region(Innlandet.navn, Innlandet.enhetsnummer),
-                kontorer = listOf(
-                    Kontorstruktur.Kontor(Gjovik.navn, Gjovik.enhetsnummer, Kontorstruktur.Kontortype.LOKAL),
+        administratorer = setOf(),
+        veilederinfo = Avtale.VeilederInfo(
+            navEnheter = setOf(Innlandet.enhetsnummer, Gjovik.enhetsnummer),
+        ),
+        personvern = Avtale.Personvern(
+            personopplysninger = emptySet(),
+            annetBeskrivelse = null,
+            erBekreftet = false,
+        ),
+        opplaring = null,
+        prisinfo = Avtale.Prisinfo.Egendefinert(
+            listOf(
+                Prismodell.AnnenAvtaltPris(
+                    id = UUID.randomUUID(),
+                    valuta = Valuta.NOK,
+                    prisbetingelser = null,
+                    tilsagnPerDeltaker = false,
+                    totalbelop = null,
                 ),
             ),
         ),
-        beskrivelse = null,
-        faneinnhold = null,
-        personopplysninger = emptyList(),
-        personvernBekreftet = false,
-        opplaringKategorisering = null,
-        opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
-        prismodeller = listOf(
-            Prismodell.AnnenAvtaltPris(
-                id = UUID.randomUUID(),
-                valuta = Valuta.NOK,
-                prisbetingelser = null,
-                tilsagnPerDeltaker = false,
-                totalbelop = null,
-            ),
+        opsjoner = Avtale.Opsjoner(
+            modell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
+            registreringer = emptyList(),
         ),
-        opsjonerRegistrert = emptyList(),
     )
 
     val request = GjennomforingFixtures.createGjennomforingRequest(
@@ -169,11 +153,7 @@ class GjennomforingValidatorTest : FunSpec({
             ),
             ctx.copy(
                 avtale = ctx.avtale.copy(
-                    tiltakstype = Avtale.Tiltakstype(
-                        navn = TiltakstypeFixtures.Jobbklubb.navn,
-                        id = TiltakstypeFixtures.Jobbklubb.id,
-                        tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode,
-                    ),
+                    tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode,
                 ),
             ),
         )
@@ -189,7 +169,11 @@ class GjennomforingValidatorTest : FunSpec({
     test("avtalen må være aktiv") {
         validateCreate(
             request,
-            ctx.copy(avtale = ctx.avtale.copy(status = AvtaleStatus.Avsluttet)),
+            ctx.copy(
+                avtale = ctx.avtale.copy(
+                    status = AvtaleStatus.Avsluttet,
+                ),
+            ),
         ).shouldBeLeft(
             listOf(FieldError("/avtaleId", "Avtalen må være aktiv for å kunne opprette tiltak")),
         )
@@ -265,12 +249,8 @@ class GjennomforingValidatorTest : FunSpec({
 
     test("amoKategorisering er påkrevd for avtale og gjennomføring når tiltakstype er Gruppe AMO") {
         val avtaleUtenAmokategorisering = avtale.copy(
-            tiltakstype = Avtale.Tiltakstype(
-                tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
-                id = TiltakstypeFixtures.GruppeAmo.id,
-                navn = TiltakstypeFixtures.GruppeAmo.navn,
-            ),
-            opplaringKategorisering = null,
+            tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
+            opplaring = null,
         )
 
         context(avtaleUtenAmokategorisering, kategoriseringCtx) {
@@ -288,12 +268,8 @@ class GjennomforingValidatorTest : FunSpec({
 
     test("Kurselement må velges for gjennomføring når tiltakstype er Gruppe AMO") {
         val avtaleUtenAmokategorisering = avtale.copy(
-            tiltakstype = Avtale.Tiltakstype(
-                tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
-                id = TiltakstypeFixtures.GruppeAmo.id,
-                navn = TiltakstypeFixtures.GruppeAmo.navn,
-            ),
-            opplaringKategorisering = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering),
+            tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
+            opplaring = OpplaringKategorisering(kurstype = KurstypeFixtures.studiespesialisering.id),
         )
 
         context(avtaleUtenAmokategorisering, kategoriseringCtx) {
@@ -310,11 +286,7 @@ class GjennomforingValidatorTest : FunSpec({
 
     test("utdanningsprogram og lærefag er påkrevd når tiltakstypen er Gruppe Fag- og yrkesopplæring") {
         val avtaleGruFag = avtale.copy(
-            tiltakstype = Avtale.Tiltakstype(
-                tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
-                id = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
-                navn = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.navn,
-            ),
+            tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
         )
 
         context(avtaleGruFag, kategoriseringCtx) {
@@ -491,11 +463,7 @@ class GjennomforingValidatorTest : FunSpec({
                 ctx.copy(
                     previous = gjennomforing,
                     avtale = ctx.avtale.copy(
-                        status = AvtaleStatus.Avbrutt(
-                            tidspunkt = LocalDateTime.now(),
-                            aarsaker = emptyList(),
-                            forklaring = null,
-                        ),
+                        status = AvtaleStatus.Avbrutt(tidspunkt = LocalDateTime.now(), listOf(), null),
                     ),
                 ),
             ).shouldBeRight()
@@ -537,11 +505,7 @@ class GjennomforingValidatorTest : FunSpec({
                 ctx.copy(
                     previous = gjennomforing,
                     avtale = ctx.avtale.copy(
-                        tiltakstype = Avtale.Tiltakstype(
-                            navn = TiltakstypeFixtures.Jobbklubb.navn,
-                            id = TiltakstypeFixtures.Jobbklubb.id,
-                            tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode,
-                        ),
+                        tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode,
                     ),
                 ),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
@@ -563,11 +527,7 @@ class GjennomforingValidatorTest : FunSpec({
                 ctx.copy(
                     previous = gjennomforing,
                     avtale = ctx.avtale.copy(
-                        tiltakstype = Avtale.Tiltakstype(
-                            navn = TiltakstypeFixtures.Jobbklubb.navn,
-                            id = TiltakstypeFixtures.Jobbklubb.id,
-                            tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode,
-                        ),
+                        tiltakskode = TiltakstypeFixtures.Jobbklubb.tiltakskode,
                     ),
                 ),
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(

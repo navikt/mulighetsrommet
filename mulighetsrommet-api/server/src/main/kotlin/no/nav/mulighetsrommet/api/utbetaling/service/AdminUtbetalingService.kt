@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDeltakerDto
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnDto
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -29,16 +28,20 @@ import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.validation.Validated
 import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.validation.Validated
+import no.nav.mulighetsrommet.validation.validation
 import no.nav.tiltak.okonomi.FakturaStatusType
 import java.time.Instant
 import java.util.UUID
@@ -283,7 +286,12 @@ class AdminUtbetalingService(
     }
 
     fun getAdvarsler(utbetaling: Utbetaling): List<DeltakerAdvarsel> = db.transaction {
-        utbetalingService.getAdvarsler(utbetaling)
+        hentDeltakerAdvarslerForUtbetaling(
+            status = utbetaling.status,
+            gjennomforingId = utbetaling.gjennomforing.id,
+            periode = utbetaling.periode,
+            beregning = utbetaling.beregning,
+        )
     }
 
     companion object {

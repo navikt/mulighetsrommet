@@ -11,9 +11,9 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import { CurrencyExchangeIcon } from "@navikt/aksel-icons";
 import { Suspense } from "react";
 import { useInnsendingerSavedFilterState } from "@/filter/useSavedFiltersState";
-import { InnsendingFilter } from "./InnsendingFilter";
+import { InnsendingFilter } from "../../components/filter/InnsendingFilter";
 import { InnsendingTable } from "./InnsendingTable";
-import { InnsendingFilterTags } from "./InnsendingFilterTags";
+import { InnsendingFilterTags } from "@/components/filter/InnsendingFilterTags";
 
 export function InnsendingoversiktPage() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);

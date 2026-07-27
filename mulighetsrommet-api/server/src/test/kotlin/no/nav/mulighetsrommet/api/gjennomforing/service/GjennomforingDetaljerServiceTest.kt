@@ -10,6 +10,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -17,7 +18,6 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
-import no.nav.mulighetsrommet.api.utbetaling.db.DeltakerDbo
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -38,11 +38,11 @@ class GjennomforingDetaljerServiceTest : FunSpec({
 
     val norskIdent = NorskIdent("12345678910")
 
-    val deltaker = DeltakerFixtures.createDeltakerDbo(
+    val deltaker = DeltakerFixtures.createDeltaker(
         gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
         startDato = LocalDate.of(2025, 1, 1),
         sluttDato = LocalDate.of(2025, 2, 1),
-        statusType = DeltakerStatusType.DELTAR,
+        status = DeltakerStatusType.DELTAR,
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -224,7 +224,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
     }
 })
 
-private fun getPersonalia(deltaker: DeltakerDbo, gradering: Gradering, avvist: AvvistGrunn?): Personalia = Personalia(
+private fun getPersonalia(deltaker: Deltaker, gradering: Gradering, avvist: AvvistGrunn?): Personalia = Personalia(
     deltakerId = deltaker.id,
     norskIdent = NorskIdent("12345678901"),
     navn = "Test Testesen",

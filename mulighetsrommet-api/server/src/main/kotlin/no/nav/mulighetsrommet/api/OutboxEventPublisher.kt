@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import org.apache.kafka.common.header.internals.RecordHeaders
 import java.time.Instant
+import java.util.UUID
 
 class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
     val kpr = KafkaProducerRecordQueries(session)
@@ -43,11 +44,11 @@ class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
         kpr.storeRecord(record)
     }
 
-    fun publish(dto: TiltaksgjennomforingV2Dto) {
+    fun publish(id: UUID, dto: TiltaksgjennomforingV2Dto?) {
         val record = StoredProducerRecord(
             topics.sisteTiltaksgjennomforingerV2Topic,
-            dto.id.toString().toByteArray(),
-            Json.encodeToString(dto).toByteArray(),
+            id.toString().toByteArray(),
+            dto?.let { Json.encodeToString(it) }?.toByteArray(),
             null,
         )
         kpr.storeRecord(record)

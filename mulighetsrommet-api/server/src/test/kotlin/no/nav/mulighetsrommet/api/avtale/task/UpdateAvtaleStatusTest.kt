@@ -5,8 +5,8 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
-import no.nav.mulighetsrommet.api.avtale.model.AvbrytAvtaleAarsak
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.api.domain.tiltak.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
@@ -32,24 +32,18 @@ class UpdateAvtaleStatusTest : FunSpec({
 
     val avtale1 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
-        detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-            startDato = LocalDate.of(2025, 5, 1),
-            sluttDato = LocalDate.of(2025, 5, 31),
-        ),
+        startDato = LocalDate.of(2025, 5, 1),
+        sluttDato = LocalDate.of(2025, 5, 31),
     )
     val avtale2 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
-        detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-            startDato = LocalDate.of(2025, 5, 1),
-            sluttDato = LocalDate.of(2025, 6, 30),
-        ),
+        startDato = LocalDate.of(2025, 5, 1),
+        sluttDato = LocalDate.of(2025, 6, 30),
     )
     val avtale3 = AvtaleFixtures.oppfolging.copy(
         id = UUID.randomUUID(),
-        detaljerDbo = AvtaleFixtures.detaljerDbo().copy(
-            startDato = LocalDate.of(2025, 5, 1),
-            sluttDato = null,
-        ),
+        startDato = LocalDate.of(2025, 5, 1),
+        sluttDato = null,
     )
 
     val domain = MulighetsrommetTestDomain(

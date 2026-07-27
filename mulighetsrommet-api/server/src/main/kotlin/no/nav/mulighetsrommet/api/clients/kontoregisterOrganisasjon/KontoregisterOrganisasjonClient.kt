@@ -60,8 +60,7 @@ class KontoregisterOrganisasjonClient(
         } else if (response.status == HttpStatusCode.NotFound) {
             val error = response.body<Feilmelding>()
             log.teamLogsWarn(
-                "Fant ikke orgnummer: ${organisasjonsnummer.value} i kontoregisteret. Feilmelding: ${error.feilmelding}",
-                response.bodyAsText(),
+                "Fant ikke orgnummer: ${organisasjonsnummer.value} i kontoregisteret. Feilmelding: ${error.feilmelding} ${response.bodyAsText()}",
             )
             log.error("Fant ikke orgnummer for arrangør i kontoregisteret. Se detaljer i Team Logs.")
             KontonummerRegisterOrganisasjonError.FantIkkeKontonummer.left()
@@ -74,8 +73,7 @@ class KontoregisterOrganisasjonClient(
             KontonummerRegisterOrganisasjonError.UgyldigInput.left()
         } else {
             log.teamLogsWarn(
-                "Klarte ikke hente kontonummer for arrangør: ${organisasjonsnummer.value}. Error: {}",
-                response.bodyAsText(),
+                "Klarte ikke hente kontonummer for arrangør: ${organisasjonsnummer.value}. Error: ${response.bodyAsText()}",
             )
             log.warn("Klarte ikke hente kontonummer for arrangør. Se detaljer i Team Logs.")
             KontonummerRegisterOrganisasjonError.Error.left()

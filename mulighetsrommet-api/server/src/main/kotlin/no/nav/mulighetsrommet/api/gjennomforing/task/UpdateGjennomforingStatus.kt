@@ -39,7 +39,9 @@ class UpdateGjennomforingStatus(
                 id = id,
                 avsluttetTidspunkt = now,
                 endretAv = Tiltaksadministrasjon,
-            )
+            ).onLeft { errors ->
+                error(errors.joinToString { it.detail })
+            }
         }
 
         logger.info("Oppdaterte status for ${gjennomforinger.size} gjennomføringer")

@@ -158,6 +158,7 @@ function renderItem<T>(
 
   const needsConfirm =
     item.administratorer !== undefined && !isAdmin(item.administratorer, navIdent);
+
   const handleClick = needsConfirm ? () => onPendingAction?.(() => item.onClick()) : item.onClick;
 
   return (

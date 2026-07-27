@@ -11,33 +11,33 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.AvtaltPrisPerTimeOppfolgingData
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
-import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerTiltaksplassPerManed
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerHeleUkesverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerManedsverk
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningPrisPerUkesverk
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
-import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.model.Arrangor
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.validation.Validated
+import no.nav.mulighetsrommet.validation.validation
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -67,7 +67,7 @@ class ArrangorflateUtbetalingService(
 
     suspend fun opprettUtbetaling(
         opprett: ArrangorflateOpprettUtbetaling,
-    ): Either<List<FieldError>, Utbetaling> {
+    ): Validated<Utbetaling> {
         return beregnUtbetaling(opprett).flatMap { (tilskuddstype, beregning) ->
             val utbetaling = UpsertUtbetaling.Innsending(
                 id = UUID.randomUUID(),
@@ -88,7 +88,7 @@ class ArrangorflateUtbetalingService(
         utbetalingId: UUID,
         kid: Kid?,
         today: LocalDate = LocalDate.now(),
-    ): Either<List<FieldError>, AutomatisertUtbetalingResult> {
+    ): Validated<AutomatisertUtbetalingResult> {
         val result = db.transaction {
             val utbetaling = getOrError(utbetalingId)
             if (utbetaling.periode.slutt > today) {
@@ -99,7 +99,12 @@ class ArrangorflateUtbetalingService(
                 return FieldError.of("Utbetalingen kan ikke godkjennes fordi kontonummer mangler.").nel().left()
             }
 
-            val advarsler = getAdvarsler(utbetaling)
+            val advarsler = hentDeltakerAdvarslerForUtbetaling(
+                status = utbetaling.status,
+                gjennomforingId = utbetaling.gjennomforing.id,
+                periode = utbetaling.periode,
+                beregning = utbetaling.beregning,
+            )
             if (utbetaling.blokkeringer.isNotEmpty() || advarsler.isNotEmpty()) {
                 return FieldError.of("Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.")
                     .nel()
@@ -110,30 +115,6 @@ class ArrangorflateUtbetalingService(
         }
 
         return result.map { tryAutomatisertUtbetaling(utbetalingId) }
-    }
-
-    context(tx: TransactionalQueryContext)
-    private fun getAdvarsler(utbetaling: ArrangorflateUtbetaling): List<DeltakerAdvarsel> = with(tx) {
-        return when (utbetaling.status) {
-            UtbetalingStatusType.GENERERT -> {
-                val forslag = queries.deltakerForslag.getForslagByGjennomforing(utbetaling.gjennomforing.id)
-                val deltakere = queries.deltaker
-                    .getByGjennomforingId(utbetaling.gjennomforing.id)
-                    .filter { it.id in utbetaling.beregning.input.deltakelser().map { it.deltakelseId } }
-
-                UtbetalingAdvarsler.getAdvarsler(utbetaling, deltakere, forslag)
-            }
-
-            UtbetalingStatusType.TIL_BEHANDLING,
-            UtbetalingStatusType.TIL_ATTESTERING,
-            UtbetalingStatusType.RETURNERT,
-            UtbetalingStatusType.FERDIG_BEHANDLET,
-            UtbetalingStatusType.DELVIS_UTBETALT,
-            UtbetalingStatusType.UTBETALT,
-            UtbetalingStatusType.TIL_AVBRYTELSE,
-            UtbetalingStatusType.AVBRUTT,
-            -> emptyList()
-        }
     }
 
     fun avbrytUtbetaling(
@@ -160,13 +141,13 @@ class ArrangorflateUtbetalingService(
         when (utbetaling.beregning) {
             is UtbetalingBeregningFri,
             is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerTimeOppfolging,
+            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
             -> error { FieldError.of("Utbetalingen kan ikke regenereres") }
 
-            is UtbetalingBeregningFastSatsPerTiltaksplassPerManed,
-            is UtbetalingBeregningPrisPerHeleUkesverk,
-            is UtbetalingBeregningPrisPerManedsverk,
-            is UtbetalingBeregningPrisPerUkesverk,
+            is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
             -> Unit
         }
     }.map {
@@ -182,7 +163,7 @@ class ArrangorflateUtbetalingService(
     ): Either<List<FieldError>, Pair<Tilskuddstype, UtbetalingBeregning>> = db.session {
         val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(opprett.gjennomforingId)
         return when (gjennomforing.prismodell) {
-            is Prismodell.ForhandsgodkjentPrisPerManedsverk,
+            is Prismodell.FastSatsPerBenyttetPlassPerManed,
             -> Pair(Tilskuddstype.TILTAK_INVESTERINGER, UtbetalingBeregningFri.from(opprett.pris)).right()
 
             is Prismodell.AnnenAvtaltPris,
@@ -194,10 +175,10 @@ class ArrangorflateUtbetalingService(
                 getBeregningPrisPerTimeOppfolging(opprett, gjennomforing),
             ).right()
 
-            is Prismodell.AvtaltPrisPerManedsverk,
-            is Prismodell.AvtaltPrisPerUkesverk,
-            is Prismodell.AvtaltPrisPerHeleUkesverk,
-            is Prismodell.ForhandsgodkjentPrisPerAvtaltTiltaksplass,
+            is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
+            is Prismodell.AvtaltPrisPerBenyttetPlassPerUke,
+            is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
+            is Prismodell.FastSatsPerAvtaltPlassPerManed,
             is Prismodell.TilskuddTilOpplaering,
             is Prismodell.IngenKostnader,
             -> FieldError.of("Kan ikke opprette utbetaling for denne tiltaksgjennomføringen").nel().left()
@@ -207,9 +188,9 @@ class ArrangorflateUtbetalingService(
     private fun QueryContext.getBeregningPrisPerTimeOppfolging(
         opprett: ArrangorflateOpprettUtbetaling,
         gjennomforing: GjennomforingAvtale,
-    ): UtbetalingBeregningPrisPerTimeOppfolging {
+    ): UtbetalingBeregningAvtaltPrisPerTimeOppfolging {
         val (satser, stengt, _, deltakelser) = getAvtaltPrisPerTimeOppfolgingData(gjennomforing, opprett.periode)
-        return UtbetalingBeregningPrisPerTimeOppfolging.from(satser, stengt, deltakelser, opprett.pris)
+        return UtbetalingBeregningAvtaltPrisPerTimeOppfolging.from(satser, stengt, deltakelser, opprett.pris)
     }
 
     private fun QueryContext.getAvtaltPrisPerTimeOppfolgingData(
@@ -218,7 +199,7 @@ class ArrangorflateUtbetalingService(
     ): AvtaltPrisPerTimeOppfolgingData {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengtHosArrangor = UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)
-        val deltakere = queries.deltaker.getByGjennomforingId(gjennomforing.id)
+        val deltakere = repository.deltaker.getByGjennomforing(gjennomforing.id)
         val deltakelsePerioder = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
         return AvtaltPrisPerTimeOppfolgingData(satser, stengtHosArrangor, deltakere, deltakelsePerioder)
     }
@@ -232,17 +213,17 @@ class ArrangorflateUtbetalingService(
         return try {
             when (utbetaling.beregning) {
                 is UtbetalingBeregningFri,
-                is UtbetalingBeregningPrisPerManedsverk,
-                is UtbetalingBeregningPrisPerUkesverk,
-                is UtbetalingBeregningPrisPerHeleUkesverk,
-                is UtbetalingBeregningPrisPerTimeOppfolging,
+                is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+                is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
+                is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+                is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
                 -> AutomatisertUtbetalingResult.FEIL_PRISMODELL
 
                 is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed -> db.transaction {
                     utbetalingService.automatisertUtbetalingFastSatsPerAvtaltTiltaksplassPerManed(utbetaling)
                 }
 
-                is UtbetalingBeregningFastSatsPerTiltaksplassPerManed -> db.transaction {
+                is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed -> db.transaction {
                     utbetalingService.automatisertUtbetalingVedEttRelevantTilsagn(utbetaling.id)
                 }
             }.also { result ->

@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.fixtures
 
-import no.nav.mulighetsrommet.api.avtale.db.AvtaleDbo
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
@@ -28,10 +28,10 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "Oppfølging 1",
-        tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+        tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
-        startDato = AvtaleFixtures.oppfolging.detaljerDbo.startDato,
-        sluttDato = AvtaleFixtures.oppfolging.detaljerDbo.sluttDato,
+        startDato = AvtaleFixtures.oppfolging.startDato,
+        sluttDato = AvtaleFixtures.oppfolging.sluttDato,
         status = GjennomforingStatusType.GJENNOMFORES,
         antallPlasser = 12,
         avtaleId = AvtaleFixtures.oppfolging.id,
@@ -48,7 +48,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "VTA 1",
-        tiltakstypeId = TiltakstypeFixtures.VTA.id,
+        tiltakskode = TiltakstypeFixtures.VTA.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
@@ -68,7 +68,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "AFT 1",
-        tiltakstypeId = TiltakstypeFixtures.AFT.id,
+        tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
@@ -84,21 +84,21 @@ object GjennomforingFixtures {
         arenaAnsvarligEnhet = null,
     )
 
-    val VTAO = GjennomforingDbo(
+    val TAO = GjennomforingDbo(
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "Varig tilrettelagt arbeid i ordinær virksomhet",
-        tiltakstypeId = TiltakstypeFixtures.VTAO.id,
+        tiltakskode = TiltakstypeFixtures.TAO.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = null,
         status = GjennomforingStatusType.GJENNOMFORES,
         antallPlasser = 12,
-        avtaleId = AvtaleFixtures.VTAO.id,
+        avtaleId = AvtaleFixtures.TAO.id,
         oppstart = GjennomforingOppstartstype.LOPENDE,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         deltidsprosent = 100.0,
-        prismodellId = PrismodellFixtures.ForhandsgodkjentVtao.id,
+        prismodellId = PrismodellFixtures.ForhandsgodkjentTao.id,
         ansvarligEnhet = null,
         arenaTiltaksnummer = null,
         arenaAnsvarligEnhet = null,
@@ -108,7 +108,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "Gruppe Amo 1",
-        tiltakstypeId = TiltakstypeFixtures.GruppeAmo.id,
+        tiltakskode = TiltakstypeFixtures.GruppeAmo.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
@@ -128,7 +128,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "Gruppe Fag- og yrkesopplæring 1",
-        tiltakstypeId = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.id,
+        tiltakskode = TiltakstypeFixtures.GruppeFagOgYrkesopplaering.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2023, 2, 1),
@@ -148,7 +148,7 @@ object GjennomforingFixtures {
         id = UUID.randomUUID(),
         type = GjennomforingType.AVTALE,
         navn = "Arbeidsretter Rehabilitering 1",
-        tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
+        tiltakskode = TiltakstypeFixtures.ArbeidsrettetRehabilitering.tiltakskode,
         arrangorId = ArrangorFixtures.underenhet1.id,
         startDato = LocalDate.of(2023, 1, 1),
         sluttDato = LocalDate.of(2026, 1, 1),
@@ -166,7 +166,7 @@ object GjennomforingFixtures {
 
     val EnkelAmo = GjennomforingDbo(
         id = UUID.randomUUID(),
-        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+        tiltakskode = TiltakstypeFixtures.EnkelAmo.tiltakskode,
         type = GjennomforingType.ENKELTPLASS,
         oppstart = GjennomforingOppstartstype.ENKELTPLASS,
         pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
@@ -186,7 +186,7 @@ object GjennomforingFixtures {
 
     val EnkelFagOgYrke = GjennomforingDbo(
         id = UUID.randomUUID(),
-        tiltakstypeId = TiltakstypeFixtures.EnkelFagOgYrke.id,
+        tiltakskode = TiltakstypeFixtures.EnkelFagOgYrke.tiltakskode,
         type = GjennomforingType.ENKELTPLASS,
         oppstart = GjennomforingOppstartstype.ENKELTPLASS,
         pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
@@ -206,7 +206,7 @@ object GjennomforingFixtures {
 
     val ArenaEnkelAmo = GjennomforingDbo(
         id = UUID.randomUUID(),
-        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+        tiltakskode = TiltakstypeFixtures.EnkelAmo.tiltakskode,
         type = GjennomforingType.ARENA,
         oppstart = GjennomforingOppstartstype.ENKELTPLASS,
         pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
@@ -226,7 +226,7 @@ object GjennomforingFixtures {
 
     val ArenaArbeidsrettetRehabilitering = GjennomforingDbo(
         id = UUID.randomUUID(),
-        tiltakstypeId = TiltakstypeFixtures.ArbeidsrettetRehabilitering.id,
+        tiltakskode = TiltakstypeFixtures.ArbeidsrettetRehabilitering.tiltakskode,
         type = GjennomforingType.ARENA,
         oppstart = GjennomforingOppstartstype.LOPENDE,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
@@ -291,12 +291,12 @@ object GjennomforingFixtures {
     }
 
     fun createGjennomforingRequest(
-        avtale: AvtaleDbo,
+        avtale: Avtale,
         id: UUID = UUID.randomUUID(),
-        prismodellId: UUID = avtale.prismodeller.single(),
+        prismodellId: UUID = avtale.prisinfo.toList().single().id,
         arrangorId: UUID = ArrangorFixtures.underenhet1.id,
-        startDato: LocalDate = avtale.detaljerDbo.startDato,
-        sluttDato: LocalDate? = avtale.detaljerDbo.sluttDato,
+        startDato: LocalDate = avtale.startDato,
+        sluttDato: LocalDate? = avtale.sluttDato,
         oppstart: GjennomforingOppstartstype = GjennomforingOppstartstype.LOPENDE,
         pamelding: GjennomforingPameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
         navRegioner: Set<NavEnhetNummer> = setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
@@ -307,7 +307,7 @@ object GjennomforingFixtures {
             id = id,
             avtaleId = avtale.id,
             detaljer = GjennomforingDetaljerRequest(
-                navn = "Gjennomføring for ${avtale.detaljerDbo.navn}",
+                navn = "Gjennomføring for ${avtale.navn}",
                 startDato = startDato,
                 sluttDato = sluttDato,
                 oppstart = oppstart,

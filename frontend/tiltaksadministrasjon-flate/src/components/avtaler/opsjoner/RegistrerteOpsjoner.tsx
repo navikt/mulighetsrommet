@@ -4,7 +4,7 @@ import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { compare, formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Heading, HStack, Table } from "@navikt/ds-react";
-import { AvtaleOpsjonLoggDto, OpsjonLoggStatus } from "@tiltaksadministrasjon/api-client";
+import { AvtaleOpsjonLogg, OpsjonLoggStatus } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   readOnly: boolean;
@@ -16,7 +16,7 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
   const logg = avtale.opsjonerRegistrert;
   const mutation = useSlettOpsjon(avtale.id);
 
-  function kanSletteOpsjon(opsjon: AvtaleOpsjonLoggDto): boolean {
+  function kanSletteOpsjon(opsjon: AvtaleOpsjonLogg): boolean {
     const sisteUtlosteOpsjon = logg.at(-1);
 
     return opsjon.id === sisteUtlosteOpsjon?.id;
@@ -85,11 +85,13 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
   );
 }
 
-function formaterStatus(log: AvtaleOpsjonLoggDto): string {
+function formaterStatus(log: AvtaleOpsjonLogg): string {
   switch (log.status) {
     case OpsjonLoggStatus.OPSJON_UTLOST:
       return formaterDato(log.sluttDato) ?? "-";
     case OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON:
       return "Avklart at opsjon ikke skal utløses";
+    default:
+      return "-";
   }
 }

@@ -3,16 +3,16 @@ package no.nav.mulighetsrommet.api.tilsagn
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
-import no.nav.mulighetsrommet.api.avtale.model.AvtaltSats
-import no.nav.mulighetsrommet.api.avtale.model.Prismodell
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
-import no.nav.mulighetsrommet.api.responses.FieldError
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnInputLinjeRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
@@ -30,7 +30,7 @@ class TilsagnValidatorTest : FunSpec({
         )
 
         val forhandsgodkjent = Prismodell.from(
-            type = PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            type = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
             id = UUID.randomUUID(),
             valuta = Valuta.NOK,
             prisbetingelser = null,
@@ -272,7 +272,7 @@ class TilsagnValidatorTest : FunSpec({
             )
         }
 
-        context("TilsagnBeregningFri.Input") {
+        context("TilsagnBeregningAnnenAvtaltPris.Input") {
             test("should return field error if linjer is empty") {
                 val input = TilsagnBeregningRequest(
                     type = TilsagnBeregningType.FRI,

@@ -4,14 +4,14 @@ import arrow.core.Either
 import no.nav.mulighetsrommet.api.arrangorflate.api.OpprettKravUtbetalingRequest
 import no.nav.mulighetsrommet.api.arrangorflate.api.PeriodeType
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateOpprettUtbetaling
-import no.nav.mulighetsrommet.api.avtale.model.PrismodellType
-import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.validation.validation
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
+import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
 import java.util.UUID
@@ -29,7 +29,7 @@ object ArrangorflateUtbetalingValidator {
         val opprettKravPeriodeSluttDato = periode?.slutt ?: invalidGjennomforingOpprettKrav(prismodell)
 
         return when (prismodell) {
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_MANEDSVERK,
+            PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
             -> minOf(today, opprettKravPeriodeSluttDato)
 
             PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
@@ -38,10 +38,10 @@ object ArrangorflateUtbetalingValidator {
             PrismodellType.ANNEN_AVTALT_PRIS,
             -> opprettKravPeriodeSluttDato
 
-            PrismodellType.FORHANDSGODKJENT_PRIS_PER_AVTALT_TILTAKSPLASS,
-            PrismodellType.AVTALT_PRIS_PER_UKESVERK,
-            PrismodellType.AVTALT_PRIS_PER_MANEDSVERK,
-            PrismodellType.AVTALT_PRIS_PER_HELE_UKESVERK,
+            PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED,
+            PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
+            PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
+            PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE,
             PrismodellType.TILSKUDD_TIL_OPPLAERING,
             PrismodellType.INGEN_KOSTNADER,
             -> invalidGjennomforingOpprettKrav(prismodell)

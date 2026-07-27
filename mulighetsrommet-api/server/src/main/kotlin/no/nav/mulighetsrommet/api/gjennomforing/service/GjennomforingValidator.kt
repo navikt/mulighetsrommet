@@ -3,16 +3,17 @@ package no.nav.mulighetsrommet.api.gjennomforing.service
 import arrow.core.Either
 import arrow.core.right
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
-import no.nav.mulighetsrommet.api.amo.AmoKategoriseringRequest
-import no.nav.mulighetsrommet.api.amo.AmoKurstype
-import no.nav.mulighetsrommet.api.amo.db.OpplaringKategoriseringDbo
-import no.nav.mulighetsrommet.api.amo.models.Bransje
-import no.nav.mulighetsrommet.api.amo.models.ForerkortKlasse
-import no.nav.mulighetsrommet.api.amo.models.InnholdElement
-import no.nav.mulighetsrommet.api.amo.models.Kurstype
-import no.nav.mulighetsrommet.api.avtale.model.Avtale
-import no.nav.mulighetsrommet.api.avtale.model.AvtaleStatus
+import no.nav.mulighetsrommet.admin.opplaring.UtdanningslopDetaljer
+import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
+import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
+import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
+import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
+import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
+import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest
@@ -21,11 +22,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDetaljerDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
-import no.nav.mulighetsrommet.api.responses.FieldError
-import no.nav.mulighetsrommet.api.validation.FieldValidator
-import no.nav.mulighetsrommet.api.validation.Validated
-import no.nav.mulighetsrommet.api.validation.validation
 import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -33,8 +31,9 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
-import no.nav.mulighetsrommet.utdanning.db.UtdanningslopDbo
-import no.nav.mulighetsrommet.utdanning.model.UtdanningsprogramMedUtdanninger
+import no.nav.mulighetsrommet.validation.FieldValidator
+import no.nav.mulighetsrommet.validation.Validated
+import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
@@ -64,11 +63,11 @@ object GjennomforingValidator {
             val bransjer: Set<Bransje>,
             val forerkort: Set<ForerkortKlasse>,
             val innholdElementer: Set<InnholdElement>,
-            val utdanninger: List<UtdanningsprogramMedUtdanninger>,
+            val utdanninger: List<UtdanningslopDetaljer>,
         )
 
         fun harEgenskap(vararg egenskap: TiltakstypeEgenskap): Boolean {
-            return avtale.tiltakstype.tiltakskode.harEgenskap(*egenskap)
+            return avtale.tiltakskode.harEgenskap(*egenskap)
         }
     }
 
@@ -113,7 +112,7 @@ object GjennomforingValidator {
             gjennomforing = GjennomforingDbo(
                 id = id,
                 type = GjennomforingType.AVTALE,
-                tiltakstypeId = ctx.avtale.tiltakstype.id,
+                tiltakskode = ctx.avtale.tiltakskode,
                 avtaleId = ctx.avtale.id,
                 arrangorId = result.detaljer.arrangorId,
                 navn = result.detaljer.navn,
@@ -137,7 +136,7 @@ object GjennomforingValidator {
         val detaljer: GjennomforingDetaljerDbo,
         val administratorer: Set<NavIdent>,
         val arrangorKontaktpersoner: Set<UUID>,
-        val kategorisering: OpplaringKategoriseringDbo?,
+        val kategorisering: OpplaringKategorisering?,
     )
 
     fun validateUpdateDetaljer(
@@ -257,7 +256,7 @@ object GjennomforingValidator {
             GjennomforingOppstartstype.LOPENDE -> if (ctx.harEgenskap(TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART)) {
                 validate(detaljer.pameldingType == GjennomforingPameldingType.DIREKTE_VEDTAK) {
                     FieldError.of(
-                        "Påmeldingstype må være “direkte vedtak” når tiltaket har løpende oppstart (gjelder ${ctx.avtale.tiltakstype.navn})",
+                        "Påmeldingstype må være “direkte vedtak” når tiltaket har løpende oppstart",
                         GjennomforingDetaljerRequest::pameldingType,
                     )
                 }
@@ -288,7 +287,7 @@ object GjennomforingValidator {
             }
         }
 
-        validate(ctx.avtale.arrangor?.underenheter?.any { it.id == detaljer.arrangorId } ?: false) {
+        validate(detaljer.arrangorId in ctx.avtale.arrangor?.underenheter.orEmpty()) {
             FieldError.of("Du må velge en arrangør fra avtalen", GjennomforingDetaljerRequest::arrangorId)
         }
 
@@ -337,8 +336,7 @@ object GjennomforingValidator {
     ): Validated<VeilederinfoResult> = validation(GjennomforingRequest::veilederinformasjon) {
         validateSlettetNavAnsatte(kontaktpersoner, GjennomforingVeilederinfoRequest::kontaktpersoner)
 
-        val avtaleRegioner = avtale.kontorstruktur.map { it.region.enhetsnummer }
-        val navRegioner = avtaleRegioner.intersect(request.navRegioner.toSet())
+        val navRegioner = avtale.veilederinfo.navEnheter.intersect(request.navRegioner.toSet())
         validate(navRegioner.isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-region fra avtalen",
@@ -346,9 +344,8 @@ object GjennomforingValidator {
             )
         }
 
-        val avtaleNavKontorer = avtale.kontorstruktur.flatMap { it.kontorer.map { kontor -> kontor.enhetsnummer } }
-        val navKontorer = avtaleNavKontorer.intersect(request.navKontorer.toSet())
-        val navAndreEnheter = avtaleNavKontorer.intersect(request.navAndreEnheter.toSet())
+        val navKontorer = avtale.veilederinfo.navEnheter.intersect(request.navKontorer.toSet())
+        val navAndreEnheter = avtale.veilederinfo.navEnheter.intersect(request.navAndreEnheter.toSet())
         validate((navKontorer + navAndreEnheter).isNotEmpty()) {
             FieldError.of(
                 "Du må velge minst én Nav-enhet fra avtalen",
@@ -391,8 +388,8 @@ object GjennomforingValidator {
 
     private fun FieldValidator.validateUtdanningslop(
         avtale: Avtale,
-        utdanningslop: UtdanningslopDbo?,
-    ): Validated<UtdanningslopDbo?> {
+        utdanningslop: Utdanningslop?,
+    ): Validated<Utdanningslop?> {
         requireValid(utdanningslop != null) {
             FieldError.of(
                 "Du må velge utdanningsprogram og lærefag på avtalen",
@@ -405,14 +402,13 @@ object GjennomforingValidator {
                 GjennomforingDetaljerRequest::utdanningslop,
             )
         }
-        validate(utdanningslop.utdanningsprogram == avtale.opplaringKategorisering?.utdanningslop?.utdanningsprogram?.id) {
+        validate(utdanningslop.utdanningsprogram == avtale.opplaring?.utdanningslop?.utdanningsprogram) {
             FieldError.of(
-                "Utdanningsprogrammet må være det samme som for avtalen: ${avtale.opplaringKategorisering?.utdanningslop?.utdanningsprogram?.navn}",
+                "Utdanningsprogrammet må være det samme som for avtalen",
                 GjennomforingDetaljerRequest::utdanningslop,
             )
         }
-        val avtalensUtdanninger =
-            avtale.opplaringKategorisering?.utdanningslop?.utdanninger?.map { it.id } ?: emptyList()
+        val avtalensUtdanninger = avtale.opplaring?.utdanningslop?.utdanninger.orEmpty()
         validate(avtalensUtdanninger.containsAll(utdanningslop.utdanninger)) {
             FieldError.of(
                 "Lærefag må være valgt fra avtalens lærefag, minst ett av lærefagene mangler i avtalen.",
@@ -426,21 +422,21 @@ object GjennomforingValidator {
     context(avtale: Avtale, kategorisering: Context.Kategorisering)
     fun validateAmoKategorisering(
         amoKategorisering: AmoKategoriseringRequest?,
-        utdanningslop: UtdanningslopDbo?,
-    ): Either<List<FieldError>, OpplaringKategoriseringDbo?> = validation {
-        when (avtale.tiltakstype.tiltakskode) {
+        utdanningslop: Utdanningslop?,
+    ): Either<List<FieldError>, OpplaringKategorisering?> = validation {
+        when (avtale.tiltakskode) {
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
             Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
             Tiltakskode.STUDIESPESIALISERING,
-            -> validate(avtale.opplaringKategorisering != null) {
+            -> validate(avtale.opplaring != null) {
                 FieldError.of("Du må velge en kurstype for avtalen", GjennomforingRequest::avtaleId)
             }
 
             else -> Unit
         }
 
-        when (avtale.tiltakstype.tiltakskode) {
+        when (avtale.tiltakskode) {
             Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING -> {
                 requireValid(amoKategorisering?.kurstype != null) {
                     FieldError.of(
@@ -449,7 +445,7 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::kurstype,
                     )
                 }
-                if (amoKategorisering.kurstype == AmoKurstype.BRANSJE_OG_YRKESRETTET) {
+                if (amoKategorisering.kurstype == Kurstype.Kode.BRANSJE_OG_YRKESRETTET) {
                     requireValid(amoKategorisering.bransje != null) {
                         FieldError.of(
                             "Du må velge en bransje",
@@ -458,7 +454,7 @@ object GjennomforingValidator {
                         )
                     }
                 }
-                amoKategorisering.toOpplaringKategoriseringDbo()
+                amoKategorisering.toOpplaringKategorisering()
             }
 
             Tiltakskode.ARBEIDSMARKEDSOPPLAERING -> {
@@ -469,7 +465,7 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::bransje,
                     )
                 }
-                amoKategorisering.copy(kurstype = AmoKurstype.BRANSJE_OG_YRKESRETTET).toOpplaringKategoriseringDbo()
+                amoKategorisering.copy(kurstype = Kurstype.Kode.BRANSJE_OG_YRKESRETTET).toOpplaringKategorisering()
             }
 
             Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV -> {
@@ -480,18 +476,18 @@ object GjennomforingValidator {
                         AmoKategoriseringRequest::kurstype,
                     )
                 }
-                amoKategorisering.toOpplaringKategoriseringDbo()
+                amoKategorisering.toOpplaringKategorisering()
             }
 
             Tiltakskode.STUDIESPESIALISERING,
-            -> AmoKategoriseringRequest(kurstype = AmoKurstype.STUDIESPESIALISERING).toOpplaringKategoriseringDbo()
+            -> AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING).toOpplaringKategorisering()
 
             Tiltakskode.FAG_OG_YRKESOPPLAERING,
             Tiltakskode.GRUPPE_FAG_OG_YRKESOPPLAERING,
             Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
             -> {
                 val validatedUtdanningslop = validateUtdanningslop(avtale, utdanningslop).bind()
-                OpplaringKategoriseringDbo(utdanningslop = validatedUtdanningslop)
+                OpplaringKategorisering(utdanningslop = validatedUtdanningslop)
             }
 
             else -> null
@@ -537,28 +533,26 @@ object GjennomforingValidator {
     }
 
     context(ctx: Context.Kategorisering)
-    private fun AmoKategoriseringRequest.toOpplaringKategoriseringDbo(): OpplaringKategoriseringDbo {
-        val forerkortStrings = this.forerkort?.map { it.toString() }
-        val innholdElementerStrings = this.innholdElementer?.map { it.toString() }
-        return OpplaringKategoriseringDbo(
-            kurstypeId = ctx.kurstyper.find { it.kode.toString() == this.kurstype.toString() }?.id,
-            bransjeId = ctx.bransjer.find { it.kode.toString() == this.bransje.toString() }?.id,
-            forerkort = ctx.forerkort.mapNotNull { forerkort ->
-                if (forerkortStrings?.contains(forerkort.kode.toString()) ?: false) {
-                    forerkort.id
+    private fun AmoKategoriseringRequest.toOpplaringKategorisering(): OpplaringKategorisering {
+        return OpplaringKategorisering(
+            kurstype = ctx.kurstyper.find { it.kode == kurstype }?.id,
+            bransje = ctx.bransjer.find { it.kode == bransje }?.id,
+            forerkort = ctx.forerkort.mapNotNull {
+                if (forerkort?.contains(it.kode) == true) {
+                    it.id
                 } else {
                     null
                 }
             }.toSet(),
-            innholdElementer = ctx.innholdElementer.mapNotNull { innholdElement ->
-                if (innholdElementerStrings?.contains(innholdElement.kode.name) ?: false) {
-                    innholdElement.id
+            innholdElementer = ctx.innholdElementer.mapNotNull {
+                if (innholdElementer?.contains(it.kode) == true) {
+                    it.id
                 } else {
                     null
                 }
             }.toSet(),
-            norskprove = this.norskprove,
-            sertifiseringer = this.sertifiseringer?.toSet() ?: emptySet(),
+            norskprove = norskprove,
+            sertifiseringer = sertifiseringer?.toSet() ?: emptySet(),
             utdanningslop = null, // TODO: Håndteres seperat per nå, så lenge AmoKategoriseringRequest består
         )
     }

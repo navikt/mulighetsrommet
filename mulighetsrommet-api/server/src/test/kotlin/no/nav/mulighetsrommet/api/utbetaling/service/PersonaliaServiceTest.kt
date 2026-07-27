@@ -10,8 +10,6 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.navenhet.GetNavEnhet
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
 import no.nav.mulighetsrommet.admin.navenhet.toDto
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
-import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetDto
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2EnhetStatus
@@ -21,6 +19,8 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResult
+import no.nav.mulighetsrommet.api.deltaker.client.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.deltaker.client.AmtDeltakerPersonalia
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
