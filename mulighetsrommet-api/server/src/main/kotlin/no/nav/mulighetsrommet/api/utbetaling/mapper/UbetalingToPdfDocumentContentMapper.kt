@@ -72,8 +72,6 @@ object UbetalingToPdfDocumentContentMapper {
         addStengtHosArrangorSection(utbetaling.beregning)
 
         when (utbetaling.beregning) {
-            is UtbetalingBeregningFri -> Unit
-
             is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed -> {
                 addDeltakelsesmengderSection(utbetaling.beregning, personalia)
             }
@@ -92,10 +90,6 @@ object UbetalingToPdfDocumentContentMapper {
         }
 
         when (utbetaling.beregning) {
-            is UtbetalingBeregningFri -> Unit
-
-            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging -> Unit
-
             is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
             is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
             -> addDeltakelsesfaktorSection(
