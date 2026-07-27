@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.api.fixtures
 
+import no.nav.mulighetsrommet.api.domain.avtale.Avtale
+import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
+import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
-import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
-import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
-import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
-import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent

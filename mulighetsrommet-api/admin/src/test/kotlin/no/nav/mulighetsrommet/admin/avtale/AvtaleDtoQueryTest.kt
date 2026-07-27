@@ -1,11 +1,12 @@
-package no.nav.mulighetsrommet.admin.tiltak
+package no.nav.mulighetsrommet.admin.avtale
 
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
-import no.nav.mulighetsrommet.admin.testing.AvtaleDtoFixtures.createAvtaleDto
+import no.nav.mulighetsrommet.admin.testing.AvtaleDtoFixtures
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
@@ -22,7 +23,7 @@ class AvtaleDtoQueryTest : FunSpec({
     context("hent avtale") {
         test("returnerer avtale når den finnes") {
             val db = TestAdminDatabase()
-            val avtale = createAvtaleDto()
+            val avtale = AvtaleDtoFixtures.createAvtaleDto()
             every { db.queries.avtale.getAvtaleDto(avtale.id) } returns avtale
 
             val query = createAvtaleDtoQuery(db)
@@ -49,7 +50,7 @@ class AvtaleDtoQueryTest : FunSpec({
             db.repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
 
-            val avtale = createAvtaleDto()
+            val avtale = AvtaleDtoFixtures.createAvtaleDto()
             every {
                 db.queries.avtale.getAllAvtaleDto(
                     pagination = Pagination.of(2, 10),
@@ -87,7 +88,7 @@ class AvtaleDtoQueryTest : FunSpec({
 
     context("eksporter til excel") {
         test("kan generere excel for avtaler") {
-            val avtale = createAvtaleDto(navn = "Avtale hos Fretex")
+            val avtale = AvtaleDtoFixtures.createAvtaleDto(navn = "Avtale hos Fretex")
 
             val db = TestAdminDatabase()
             every { db.queries.avtale.getAllAvtaleDto() } returns PaginatedResult(

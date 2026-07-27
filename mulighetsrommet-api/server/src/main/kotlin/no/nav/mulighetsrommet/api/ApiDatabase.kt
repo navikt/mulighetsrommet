@@ -10,9 +10,9 @@ import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerQueries
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
+import no.nav.mulighetsrommet.api.domain.avtale.AvtaleRepository
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslagRepository
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerRepository
-import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleRepository
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
 import no.nav.mulighetsrommet.api.gjennomforing.db.EnkeltplassPrisendringQueries

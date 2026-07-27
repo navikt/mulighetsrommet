@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.avtale
 import arrow.core.Either
 import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
-import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
+import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.validation.validation
 import java.util.UUID

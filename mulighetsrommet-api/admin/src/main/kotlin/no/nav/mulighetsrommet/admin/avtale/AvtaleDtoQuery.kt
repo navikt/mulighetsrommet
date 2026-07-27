@@ -1,6 +1,7 @@
-package no.nav.mulighetsrommet.admin.tiltak
+package no.nav.mulighetsrommet.admin.avtale
 
 import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.AvtaleStatusType

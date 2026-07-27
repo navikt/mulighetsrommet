@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.admin.tiltak
+package no.nav.mulighetsrommet.admin.avtale
 
 import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.Pagination

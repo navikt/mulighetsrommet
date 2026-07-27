@@ -1,10 +1,11 @@
 @file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class, LocalDateTimeSerializer::class)
 
-package no.nav.mulighetsrommet.api.domain.tiltak
+package no.nav.mulighetsrommet.api.domain.avtale
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavEnhetNummer

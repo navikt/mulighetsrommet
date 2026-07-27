@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale.model
 
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
-import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
 import no.nav.mulighetsrommet.model.NavIdent
 import java.time.LocalDate
 import java.util.UUID
