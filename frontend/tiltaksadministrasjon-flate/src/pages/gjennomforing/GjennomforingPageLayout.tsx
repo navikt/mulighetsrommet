@@ -10,8 +10,9 @@ import {
   isGjennomforingEnkeltplassDetaljer,
 } from "@/api/gjennomforing/utils";
 import { GjennomforingEnkeltplassHandlinger } from "@/pages/gjennomforing/GjennomforingEnkeltplassHandlinger";
+import { ReactNode } from "react";
 
-export function GjennomforingPageLayout({ children }: { children: React.ReactNode }) {
+export function GjennomforingPageLayout({ children }: { children: ReactNode }) {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
 
   const { data: ansatt } = useHentAnsatt();
