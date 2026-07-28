@@ -5815,7 +5815,7 @@ components:
           - string
           format: date
         status:
-          $ref: "#/components/schemas/GjennomforingDto.Status"
+          $ref: "#/components/schemas/GjennomforingDtoStatus"
         publisert:
           type: boolean
         kontorstruktur:
@@ -5840,7 +5840,7 @@ components:
       - status
       - tiltakstype
       - type
-    GjennomforingDto.Status:
+    GjennomforingDtoStatus:
       type: object
       properties:
         type:
@@ -5940,7 +5940,7 @@ components:
           - "null"
           - string
         arrangor:
-          $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
+          $ref: "#/components/schemas/GjennomforingDtoArrangor"
         startDato:
           type: string
           format: date
@@ -5950,7 +5950,7 @@ components:
           - string
           format: date
         status:
-          $ref: "#/components/schemas/GjennomforingDto.Status"
+          $ref: "#/components/schemas/GjennomforingDtoStatus"
         antallPlasser:
           type: integer
           format: int32
@@ -5974,15 +5974,15 @@ components:
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.Administrator"
+            $ref: "#/components/schemas/GjennomforingAvtaleDto.Administrator"
         stengt:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.StengtPeriode"
+            $ref: "#/components/schemas/GjennomforingAvtaleDto.StengtPeriode"
         avbrytelse:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AvbrytelseDto"
+          - $ref: "#/components/schemas/GjennomforingAvtaleDto.AvbrytelseDto"
       required:
       - administratorer
       - antallPlasser
@@ -6002,7 +6002,7 @@ components:
       - stengt
       - tilgjengeligForArrangorDato
       - tiltaksnummer
-    GjennomforingDto.ArrangorUnderenhet:
+    GjennomforingDtoArrangor:
       type: object
       properties:
         id:
@@ -6017,14 +6017,14 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.ArrangorKontaktperson"
+            $ref: "#/components/schemas/GjennomforingDtoArrangor.Kontaktperson"
       required:
       - id
       - kontaktpersoner
       - navn
       - organisasjonsnummer
       - slettet
-    GjennomforingDto.ArrangorKontaktperson:
+    GjennomforingDtoArrangor.Kontaktperson:
       type: object
       properties:
         id:
@@ -6048,7 +6048,7 @@ components:
       - id
       - navn
       - telefon
-    GjennomforingDto.Administrator:
+    GjennomforingAvtaleDto.Administrator:
       type: object
       properties:
         navIdent:
@@ -6058,7 +6058,7 @@ components:
       required:
       - navIdent
       - navn
-    GjennomforingDto.StengtPeriode:
+    GjennomforingAvtaleDto.StengtPeriode:
       type: object
       properties:
         id:
@@ -6077,7 +6077,7 @@ components:
       - id
       - slutt
       - start
-    AvbrytelseDto:
+    GjennomforingAvtaleDto.AvbrytelseDto:
       type: object
       properties:
         aarsaker:
@@ -6213,7 +6213,7 @@ components:
           - "null"
           - string
         arrangor:
-          $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
+          $ref: "#/components/schemas/GjennomforingDtoArrangor"
         startDato:
           type:
           - "null"
@@ -6225,9 +6225,9 @@ components:
           - string
           format: date
         status:
-          $ref: "#/components/schemas/GjennomforingDto.Status"
+          $ref: "#/components/schemas/GjennomforingDtoStatus"
         ansvarligEnhet:
-          $ref: "#/components/schemas/GjennomforingDto.AnsvarligEnhet"
+          $ref: "#/components/schemas/GjennomforingEnkeltplassDto.AnsvarligEnhet"
       required:
       - ansvarligEnhet
       - arrangor
@@ -6238,7 +6238,7 @@ components:
       - startDato
       - status
       - tiltaksnummer
-    GjennomforingDto.AnsvarligEnhet:
+    GjennomforingEnkeltplassDto.AnsvarligEnhet:
       type: object
       properties:
         enhetsnummer:

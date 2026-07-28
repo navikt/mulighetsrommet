@@ -3,13 +3,13 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.tiltak.toPrismodellDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytelseDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.DeltakerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDtoArrangor
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDtoStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
@@ -30,7 +30,7 @@ object GjennomforingDtoMapper {
                 navn = gjennomforing.navn,
                 lopenummer = gjennomforing.lopenummer,
                 tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
-                arrangor = GjennomforingDto.ArrangorUnderenhet(
+                arrangor = GjennomforingDtoArrangor(
                     id = gjennomforing.arrangor.id,
                     organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
                     navn = gjennomforing.arrangor.navn,
@@ -49,7 +49,12 @@ object GjennomforingDtoMapper {
                 stengt = gjennomforing.stengt.map { it.toStengtPeriodeDto() },
                 tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
                 administratorer = detaljer.administratorer.map { it.toAdministratorDto() },
-                avbrytelse = detaljer.avbrytelse?.let { AvbrytelseDto(it.aarsaker, it.forklaring) },
+                avbrytelse = detaljer.avbrytelse?.let {
+                    GjennomforingAvtaleDto.AvbrytelseDto(
+                        it.aarsaker,
+                        it.forklaring,
+                    )
+                },
             ),
             veilederinfo = GjennomforingVeilederinfoDto(
                 kontorstruktur = detaljer.kontorstruktur,
@@ -79,7 +84,7 @@ object GjennomforingDtoMapper {
                 navn = gjennomforing.tiltakstype.navn,
                 lopenummer = gjennomforing.lopenummer,
                 tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
-                arrangor = GjennomforingDto.ArrangorUnderenhet(
+                arrangor = GjennomforingDtoArrangor(
                     id = gjennomforing.arrangor.id,
                     organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
                     navn = gjennomforing.arrangor.navn,
@@ -88,7 +93,7 @@ object GjennomforingDtoMapper {
                 startDato = gjennomforing.startDato,
                 sluttDato = gjennomforing.sluttDato,
                 status = deltaker
-                    ?.let { GjennomforingDto.Status(gjennomforing.status, it.status) }
+                    ?.let { GjennomforingDtoStatus(gjennomforing.status, it.status) }
                     ?: fromGjennomforingStatus(gjennomforing.status),
                 ansvarligEnhet = gjennomforing.toAnsvarligEnhetDto(),
             ),
@@ -100,18 +105,18 @@ object GjennomforingDtoMapper {
         )
     }
 
-    fun fromGjennomforingStatus(status: GjennomforingStatusType): GjennomforingDto.Status {
+    fun fromGjennomforingStatus(status: GjennomforingStatusType): GjennomforingDtoStatus {
         val variant = when (status) {
             GjennomforingStatusType.GJENNOMFORES -> DataElement.Status.Variant.SUCCESS
             GjennomforingStatusType.AVSLUTTET -> DataElement.Status.Variant.NEUTRAL
             GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> DataElement.Status.Variant.ERROR
         }
         val element = DataElement.Status(status.beskrivelse, variant, null)
-        return GjennomforingDto.Status(status, element)
+        return GjennomforingDtoStatus(status, element)
     }
 
-    private fun GjennomforingAvtaleDetaljer.Administrator.toAdministratorDto(): GjennomforingDto.Administrator {
-        return GjennomforingDto.Administrator(navIdent, navn)
+    private fun GjennomforingAvtaleDetaljer.Administrator.toAdministratorDto(): GjennomforingAvtaleDto.Administrator {
+        return GjennomforingAvtaleDto.Administrator(navIdent, navn)
     }
 
     private fun GjennomforingAvtaleDetaljer.GjennomforingKontaktperson.toKontaktpersonDto(): GjennomforingKontaktpersonDto {
@@ -125,8 +130,8 @@ object GjennomforingDtoMapper {
         )
     }
 
-    private fun GjennomforingAvtale.StengtPeriode.toStengtPeriodeDto(): GjennomforingDto.StengtPeriode {
-        return GjennomforingDto.StengtPeriode(
+    private fun GjennomforingAvtale.StengtPeriode.toStengtPeriodeDto(): GjennomforingAvtaleDto.StengtPeriode {
+        return GjennomforingAvtaleDto.StengtPeriode(
             id = id,
             start = start,
             slutt = slutt,
@@ -134,8 +139,8 @@ object GjennomforingDtoMapper {
         )
     }
 
-    private fun GjennomforingAvtaleDetaljer.ArrangorKontaktperson.toArrangorKontaktpersonDto(): GjennomforingDto.ArrangorKontaktperson {
-        return GjennomforingDto.ArrangorKontaktperson(
+    private fun GjennomforingAvtaleDetaljer.ArrangorKontaktperson.toArrangorKontaktpersonDto(): GjennomforingDtoArrangor.Kontaktperson {
+        return GjennomforingDtoArrangor.Kontaktperson(
             id = id,
             navn = navn,
             beskrivelse = beskrivelse,
@@ -148,7 +153,7 @@ object GjennomforingDtoMapper {
         return GjennomforingVeilederinfoDto.EstimertVentetid(verdi, enhet)
     }
 
-    private fun GjennomforingEnkeltplass.toAnsvarligEnhetDto(): GjennomforingDto.AnsvarligEnhet = GjennomforingDto.AnsvarligEnhet(
+    private fun GjennomforingEnkeltplass.toAnsvarligEnhetDto(): GjennomforingEnkeltplassDto.AnsvarligEnhet = GjennomforingEnkeltplassDto.AnsvarligEnhet(
         enhetsnummer = ansvarligEnhet.enhetsnummer,
         navn = ansvarligEnhet.navn,
     )
