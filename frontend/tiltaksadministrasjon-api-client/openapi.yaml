@@ -6775,12 +6775,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Tiltakskode"
+        publisert:
+          type:
+          - "null"
+          - boolean
         sort:
           type:
           - "null"
           - string
       required:
       - navEnheter
+      - publisert
       - sort
       - tiltakstyper
     TiltakDokumentKompaktDto:

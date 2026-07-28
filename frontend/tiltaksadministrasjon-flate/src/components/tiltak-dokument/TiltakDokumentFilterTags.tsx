@@ -36,6 +36,16 @@ export function TiltakDokumentFilterTags({
             })
           }
         />
+        {filter.publisert.map((value) => (
+          <Chips.Removable
+            key={value}
+            onClick={() =>
+              updateFilter({ publisert: addOrRemove(filter.publisert, value), page: 1 })
+            }
+          >
+            {value === "publisert" ? "Publisert" : "Ikke publisert"}
+          </Chips.Removable>
+        ))}
       </Chips>
     </FilterTagsContainer>
   );
