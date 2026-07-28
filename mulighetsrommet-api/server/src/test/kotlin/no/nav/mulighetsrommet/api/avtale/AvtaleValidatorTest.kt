@@ -42,6 +42,7 @@ import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.PrismodellFixtures
 import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.fixtures.createAvtaleRequest
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -58,27 +59,27 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class AvtaleValidatorTest : FunSpec({
-    val avtaleRequest = AvtaleFixtures.createAvtaleRequest(
+    val avtaleRequest = createAvtaleRequest(
         Tiltakskode.OPPFOLGING,
         avtaletype = Avtaletype.RAMMEAVTALE,
         prismodell = listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging),
     )
-    val gruppeAmo = AvtaleFixtures.createAvtaleRequest(
+    val gruppeAmo = createAvtaleRequest(
         Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
         avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
         amo = AmoKategoriseringRequest(kurstype = Kurstype.Kode.STUDIESPESIALISERING),
     )
-    val forhaandsgodkjent = AvtaleFixtures.createAvtaleRequest(
+    val forhaandsgodkjent = createAvtaleRequest(
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         avtaletype = Avtaletype.FORHANDSGODKJENT,
         opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
         prismodell = listOf(),
     )
-    val avtaleTypeAvtale = AvtaleFixtures.createAvtaleRequest(
+    val avtaleTypeAvtale = createAvtaleRequest(
         Tiltakskode.OPPFOLGING,
         avtaletype = Avtaletype.AVTALE,
     )
-    val oppfolgingMedRammeAvtale = AvtaleFixtures.createAvtaleRequest(
+    val oppfolgingMedRammeAvtale = createAvtaleRequest(
         Tiltakskode.OPPFOLGING,
         avtaletype = Avtaletype.RAMMEAVTALE,
     )
