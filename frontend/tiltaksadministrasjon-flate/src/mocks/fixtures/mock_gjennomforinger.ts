@@ -3,7 +3,7 @@ import { mockAvtaler } from "@/mocks/fixtures/mock_avtaler";
 import {
   DataElementStatusVariant,
   GjennomforingDetaljerDto,
-  GjennomforingDtoArrangorUnderenhet,
+  GjennomforingDtoArrangor,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingStatusType,
@@ -19,7 +19,7 @@ import { mockArrangorKontaktpersoner } from "./mock_arrangorKontaktperson";
 import { mockEnheter } from "./mock_enheter";
 import { mockTiltakstyper } from "./mock_tiltakstyper";
 
-const arrangor: GjennomforingDtoArrangorUnderenhet = {
+const arrangor: GjennomforingDtoArrangor = {
   id: "d9d4db51-3564-4493-b897-4fc38dc48965",
   organisasjonsnummer: "992943084",
   navn: "FRETEX AS AVD OSLO",
@@ -43,10 +43,9 @@ const prismodellAnnenAvtaltPris: PrismodellDto = {
 
 export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
   {
-    enkeltplassDeltaker: null,
+    type: "GjennomforingAvtaleDetaljerDto",
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.AVKLARAG),
     gjennomforing: {
-      type: "GjennomforingAvtaleDto",
       id: "a7d63fb0-4366-412c-84b7-7c15518ee361",
       navn: "Yrkesnorsk med praksis med en veldig lang tittel som ikke er helt utenkelig at de skriver inn",
       tiltaksnummer: "2023#123456",
@@ -137,13 +136,11 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
     },
     opplaring: null,
     prismodell: prismodellAnnenAvtaltPris,
-    okonomi: null,
-    prisendring: null,
   },
   {
+    type: "GjennomforingAvtaleDetaljerDto",
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.ARBFORB),
     gjennomforing: {
-      type: "GjennomforingAvtaleDto",
       pameldingType: GjennomforingPameldingType.DIREKTE_VEDTAK,
       id: "a7d63fb0-4366-412c-84b7-7c15518ee362",
       navn: "Spillbasert kvalifisering",
@@ -171,18 +168,22 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       apentForPamelding: true,
       avbrytelse: null,
     },
-    veilederinfo: null,
+    veilederinfo: {
+      publisert: false,
+      beskrivelse: null,
+      faneinnhold: null,
+      kontorstruktur: [],
+      kontaktpersoner: [],
+      oppmoteSted: null,
+      estimertVentetid: null,
+    },
     opplaring: null,
     prismodell: prismodellAnnenAvtaltPris,
-    okonomi: null,
-    prisendring: null,
-    enkeltplassDeltaker: null,
   },
   {
-    enkeltplassDeltaker: null,
+    type: "GjennomforingAvtaleDetaljerDto",
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.GRUFAGYRKE),
     gjennomforing: {
-      type: "GjennomforingAvtaleDto",
       id: "a7d63fb0-4366-412c-84b7-7c15518ee364",
       navn: "Tiltak hos Kulinarisk akademi",
       tiltaksnummer: "2025#123456",
@@ -209,17 +210,22 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       apentForPamelding: true,
       avbrytelse: null,
     },
-    veilederinfo: null,
+    veilederinfo: {
+      publisert: false,
+      beskrivelse: null,
+      faneinnhold: null,
+      kontorstruktur: [],
+      kontaktpersoner: [],
+      oppmoteSted: null,
+      estimertVentetid: null,
+    },
     opplaring: null,
     prismodell: prismodellAnnenAvtaltPris,
-    okonomi: null,
-    prisendring: null,
   },
   {
-    enkeltplassDeltaker: null,
+    type: "GjennomforingAvtaleDetaljerDto",
     tiltakstype: getGjennomforingTiltakstype(mockTiltakstyper.ARBFORB),
     gjennomforing: {
-      type: "GjennomforingAvtaleDto",
       id: "a7d63fb0-4366-412c-84b7-7c15518ee399",
       navn: "Gjennomforing uten sluttdato",
       tiltaksnummer: "2025#999999",
@@ -246,11 +252,17 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       apentForPamelding: false,
       avbrytelse: null,
     },
-    veilederinfo: null,
+    veilederinfo: {
+      publisert: false,
+      beskrivelse: null,
+      faneinnhold: null,
+      kontorstruktur: [],
+      kontaktpersoner: [],
+      oppmoteSted: null,
+      estimertVentetid: null,
+    },
     opplaring: null,
     prismodell: prismodellAnnenAvtaltPris,
-    okonomi: null,
-    prisendring: null,
   },
 ];
 
@@ -263,8 +275,8 @@ export const paginertMockGjennomforinger: PaginatedResponseGjennomforingKompaktD
   data: mockGjennomforinger.map((detaljer) => {
     return {
       tiltakstype: detaljer.tiltakstype,
-      publisert: detaljer.veilederinfo?.publisert || false,
-      kontorstruktur: detaljer.veilederinfo?.kontorstruktur || [],
+      publisert: "veilederinfo" in detaljer ? detaljer.veilederinfo.publisert : false,
+      kontorstruktur: "veilederinfo" in detaljer ? detaljer.veilederinfo.kontorstruktur : [],
       ...detaljer.gjennomforing,
       type: GjennomforingType.AVTALE,
     };

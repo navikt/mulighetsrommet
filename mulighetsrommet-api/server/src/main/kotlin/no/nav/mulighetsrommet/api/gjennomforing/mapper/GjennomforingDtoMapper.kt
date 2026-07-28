@@ -3,14 +3,15 @@ package no.nav.mulighetsrommet.api.gjennomforing.mapper
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.admin.tiltak.toPrismodellDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytelseDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.DeltakerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDtoArrangor
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDtoStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktpersonDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
@@ -18,98 +19,104 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object GjennomforingDtoMapper {
-    fun fromGjennomforingAvtale(gjennomforing: GjennomforingAvtale, detaljer: GjennomforingAvtaleDetaljer) = GjennomforingDetaljerDto(
-        tiltakstype = gjennomforing.tiltakstype,
-        gjennomforing = GjennomforingAvtaleDto(
-            id = gjennomforing.id,
-            navn = gjennomforing.navn,
-            lopenummer = gjennomforing.lopenummer,
-            tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
-            arrangor = GjennomforingDto.ArrangorUnderenhet(
-                id = gjennomforing.arrangor.id,
-                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-                navn = gjennomforing.arrangor.navn,
-                slettet = gjennomforing.arrangor.slettet,
-                kontaktpersoner = detaljer.arrangorKontaktpersoner.map { it.toArrangorKontaktpersonDto() },
+    fun fromGjennomforingAvtale(
+        gjennomforing: GjennomforingAvtale,
+        detaljer: GjennomforingAvtaleDetaljer,
+    ): GjennomforingAvtaleDetaljerDto {
+        return GjennomforingAvtaleDetaljerDto(
+            tiltakstype = gjennomforing.tiltakstype,
+            gjennomforing = GjennomforingAvtaleDto(
+                id = gjennomforing.id,
+                navn = gjennomforing.navn,
+                lopenummer = gjennomforing.lopenummer,
+                tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+                arrangor = GjennomforingDtoArrangor(
+                    id = gjennomforing.arrangor.id,
+                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                    navn = gjennomforing.arrangor.navn,
+                    slettet = gjennomforing.arrangor.slettet,
+                    kontaktpersoner = detaljer.arrangorKontaktpersoner.map { it.toArrangorKontaktpersonDto() },
+                ),
+                startDato = gjennomforing.startDato,
+                sluttDato = gjennomforing.sluttDato,
+                status = fromGjennomforingStatus(gjennomforing.status),
+                antallPlasser = gjennomforing.antallPlasser,
+                avtaleId = gjennomforing.avtaleId,
+                oppstart = gjennomforing.oppstart,
+                pameldingType = gjennomforing.pameldingType,
+                apentForPamelding = gjennomforing.apentForPamelding,
+                deltidsprosent = gjennomforing.deltidsprosent,
+                stengt = gjennomforing.stengt.map { it.toStengtPeriodeDto() },
+                tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
+                administratorer = detaljer.administratorer.map { it.toAdministratorDto() },
+                avbrytelse = detaljer.avbrytelse?.let {
+                    GjennomforingAvtaleDto.AvbrytelseDto(
+                        it.aarsaker,
+                        it.forklaring,
+                    )
+                },
             ),
-            startDato = gjennomforing.startDato,
-            sluttDato = gjennomforing.sluttDato,
-            status = fromGjennomforingStatus(gjennomforing.status),
-            antallPlasser = gjennomforing.antallPlasser,
-            avtaleId = gjennomforing.avtaleId,
-            oppstart = gjennomforing.oppstart,
-            pameldingType = gjennomforing.pameldingType,
-            apentForPamelding = gjennomforing.apentForPamelding,
-            deltidsprosent = gjennomforing.deltidsprosent,
-            stengt = gjennomforing.stengt.map { it.toStengtPeriodeDto() },
-            tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
-            administratorer = detaljer.administratorer.map { it.toAdministratorDto() },
-            avbrytelse = detaljer.avbrytelse?.let { AvbrytelseDto(it.aarsaker, it.forklaring) },
-        ),
-        veilederinfo = GjennomforingVeilederinfoDto(
-            kontorstruktur = detaljer.kontorstruktur,
-            kontaktpersoner = detaljer.kontaktpersoner.map { it.toKontaktpersonDto() },
-            oppmoteSted = detaljer.oppmoteSted,
-            beskrivelse = detaljer.beskrivelse,
-            faneinnhold = detaljer.faneinnhold,
-            publisert = detaljer.publisert,
-            estimertVentetid = detaljer.estimertVentetid?.toEstimertVentetidDto(),
-        ),
-        prismodell = gjennomforing.prismodell.toPrismodellDto(),
-        opplaring = detaljer.opplaringKategorisering,
-        okonomi = null,
-        prisendring = null,
-        enkeltplassDeltaker = null,
-    )
+            veilederinfo = GjennomforingVeilederinfoDto(
+                kontorstruktur = detaljer.kontorstruktur,
+                kontaktpersoner = detaljer.kontaktpersoner.map { it.toKontaktpersonDto() },
+                oppmoteSted = detaljer.oppmoteSted,
+                beskrivelse = detaljer.beskrivelse,
+                faneinnhold = detaljer.faneinnhold,
+                publisert = detaljer.publisert,
+                estimertVentetid = detaljer.estimertVentetid?.toEstimertVentetidDto(),
+            ),
+            prismodell = gjennomforing.prismodell.toPrismodellDto(),
+            opplaring = detaljer.opplaringKategorisering,
+        )
+    }
 
     fun fromEnkeltplass(
         gjennomforing: GjennomforingEnkeltplass,
         okonomi: TotrinnskontrollDto?,
-        prisendring: GjennomforingDetaljerDto.Prisendring?,
-        deltakerDto: DeltakerDto?,
+        prisendring: GjennomforingEnkeltplassDetaljerDto.Prisendring?,
+        deltaker: DeltakerDto?,
         kategorisering: OpplaringKategoriseringDetaljer?,
-    ) = GjennomforingDetaljerDto(
-        tiltakstype = gjennomforing.tiltakstype,
-        gjennomforing = GjennomforingEnkeltplassDto(
-            id = gjennomforing.id,
-            navn = gjennomforing.tiltakstype.navn,
-            lopenummer = gjennomforing.lopenummer,
-            tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
-            arrangor = GjennomforingDto.ArrangorUnderenhet(
-                id = gjennomforing.arrangor.id,
-                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-                navn = gjennomforing.arrangor.navn,
-                slettet = gjennomforing.arrangor.slettet,
-                // TODO: er kontaktperson hos arrangør relevant for enkeltplasser?
-                kontaktpersoner = listOf(),
+    ): GjennomforingEnkeltplassDetaljerDto {
+        return GjennomforingEnkeltplassDetaljerDto(
+            tiltakstype = gjennomforing.tiltakstype,
+            gjennomforing = GjennomforingEnkeltplassDto(
+                id = gjennomforing.id,
+                navn = gjennomforing.tiltakstype.navn,
+                lopenummer = gjennomforing.lopenummer,
+                tiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+                arrangor = GjennomforingDtoArrangor(
+                    id = gjennomforing.arrangor.id,
+                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
+                    navn = gjennomforing.arrangor.navn,
+                    slettet = gjennomforing.arrangor.slettet,
+                ),
+                startDato = gjennomforing.startDato,
+                sluttDato = gjennomforing.sluttDato,
+                status = deltaker
+                    ?.let { GjennomforingDtoStatus(gjennomforing.status, it.status) }
+                    ?: fromGjennomforingStatus(gjennomforing.status),
+                ansvarligEnhet = gjennomforing.toAnsvarligEnhetDto(),
             ),
-            startDato = gjennomforing.startDato,
-            sluttDato = gjennomforing.sluttDato,
-            status = deltakerDto
-                ?.let { GjennomforingDto.Status(gjennomforing.status, it.status) }
-                ?: fromGjennomforingStatus(gjennomforing.status),
-            ansvarligEnhet = gjennomforing.toAnsvarligEnhetDto(),
-        ),
-        veilederinfo = null,
-        prismodell = gjennomforing.prismodell.toPrismodellDto(),
-        okonomi = okonomi,
-        prisendring = prisendring,
-        opplaring = kategorisering,
-        enkeltplassDeltaker = deltakerDto,
-    )
+            prismodell = gjennomforing.prismodell.toPrismodellDto(),
+            okonomi = okonomi,
+            prisendring = prisendring,
+            opplaring = kategorisering,
+            deltaker = deltaker,
+        )
+    }
 
-    fun fromGjennomforingStatus(status: GjennomforingStatusType): GjennomforingDto.Status {
+    fun fromGjennomforingStatus(status: GjennomforingStatusType): GjennomforingDtoStatus {
         val variant = when (status) {
             GjennomforingStatusType.GJENNOMFORES -> DataElement.Status.Variant.SUCCESS
             GjennomforingStatusType.AVSLUTTET -> DataElement.Status.Variant.NEUTRAL
             GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> DataElement.Status.Variant.ERROR
         }
         val element = DataElement.Status(status.beskrivelse, variant, null)
-        return GjennomforingDto.Status(status, element)
+        return GjennomforingDtoStatus(status, element)
     }
 
-    private fun GjennomforingAvtaleDetaljer.Administrator.toAdministratorDto(): GjennomforingDto.Administrator {
-        return GjennomforingDto.Administrator(navIdent, navn)
+    private fun GjennomforingAvtaleDetaljer.Administrator.toAdministratorDto(): GjennomforingAvtaleDto.Administrator {
+        return GjennomforingAvtaleDto.Administrator(navIdent, navn)
     }
 
     private fun GjennomforingAvtaleDetaljer.GjennomforingKontaktperson.toKontaktpersonDto(): GjennomforingKontaktpersonDto {
@@ -123,8 +130,8 @@ object GjennomforingDtoMapper {
         )
     }
 
-    private fun GjennomforingAvtale.StengtPeriode.toStengtPeriodeDto(): GjennomforingDto.StengtPeriode {
-        return GjennomforingDto.StengtPeriode(
+    private fun GjennomforingAvtale.StengtPeriode.toStengtPeriodeDto(): GjennomforingAvtaleDto.StengtPeriode {
+        return GjennomforingAvtaleDto.StengtPeriode(
             id = id,
             start = start,
             slutt = slutt,
@@ -132,8 +139,8 @@ object GjennomforingDtoMapper {
         )
     }
 
-    private fun GjennomforingAvtaleDetaljer.ArrangorKontaktperson.toArrangorKontaktpersonDto(): GjennomforingDto.ArrangorKontaktperson {
-        return GjennomforingDto.ArrangorKontaktperson(
+    private fun GjennomforingAvtaleDetaljer.ArrangorKontaktperson.toArrangorKontaktpersonDto(): GjennomforingDtoArrangor.Kontaktperson {
+        return GjennomforingDtoArrangor.Kontaktperson(
             id = id,
             navn = navn,
             beskrivelse = beskrivelse,
@@ -146,7 +153,7 @@ object GjennomforingDtoMapper {
         return GjennomforingVeilederinfoDto.EstimertVentetid(verdi, enhet)
     }
 
-    private fun GjennomforingEnkeltplass.toAnsvarligEnhetDto(): GjennomforingDto.AnsvarligEnhet = GjennomforingDto.AnsvarligEnhet(
+    private fun GjennomforingEnkeltplass.toAnsvarligEnhetDto(): GjennomforingEnkeltplassDto.AnsvarligEnhet = GjennomforingEnkeltplassDto.AnsvarligEnhet(
         enhetsnummer = ansvarligEnhet.enhetsnummer,
         navn = ansvarligEnhet.navn,
     )

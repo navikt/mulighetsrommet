@@ -16,10 +16,9 @@ import {
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import {
   DeltakerDto,
-  GjennomforingDetaljerDtoPrisendring,
+  GjennomforingEnkeltplassDetaljerDtoPrisendring,
   GjennomforingEnkeltplassDto,
   GjennomforingHandling,
-  GjennomforingVeilederinfoDto,
   OpplaringKategoriseringDetaljer,
   PrismodellDto,
   TiltakstypeDto,
@@ -42,24 +41,16 @@ import { SettPaVentPrisendringModal } from "@/components/gjennomforing/SettPaVen
 interface Props {
   tiltakstype: TiltakstypeDto;
   gjennomforing: GjennomforingEnkeltplassDto;
-  veilederinfo: null | GjennomforingVeilederinfoDto;
   prismodell: PrismodellDto;
   okonomi: null | TotrinnskontrollDto;
-  prisendring: null | GjennomforingDetaljerDtoPrisendring;
-  enkeltplassDeltaker: null | DeltakerDto;
+  prisendring: null | GjennomforingEnkeltplassDetaljerDtoPrisendring;
+  deltaker: null | DeltakerDto;
   opplaring: null | OpplaringKategoriseringDetaljer;
 }
 
 export function GjennomforingEnkeltplassDetaljer(props: Props) {
-  const {
-    tiltakstype,
-    gjennomforing,
-    prismodell,
-    enkeltplassDeltaker,
-    okonomi,
-    prisendring,
-    opplaring,
-  } = props;
+  const { tiltakstype, gjennomforing, prismodell, deltaker, okonomi, prisendring, opplaring } =
+    props;
   const handlinger = useGjennomforingHandlinger(gjennomforing.id);
   const [godkjennOpen, setGodkjennOpen] = useState(false);
   const [settPaVentOpen, setSettPaVentOpen] = useState(false);
@@ -84,7 +75,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
     },
     {
       key: gjennomforingTekster.innholdAnnet.label,
-      value: enkeltplassDeltaker?.innholdAnnet,
+      value: deltaker?.innholdAnnet,
     },
     {
       key: gjennomforingTekster.lopenummerLabel,
@@ -139,7 +130,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
           </DetaljerLayout>
           <DetaljerLayout>
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-            {enkeltplassDeltaker && <BetalingsbetingelserEnkeltplass prismodell={prismodell} />}
+            {deltaker && <BetalingsbetingelserEnkeltplass prismodell={prismodell} />}
             {erSattPaVent(okonomi) && <OkonomiStatusSattPaVent okonomi={okonomi} />}
             {prisendring && erTilBeslutning(prisendring.totrinnskontroll) && (
               <PrisendringTilGodkjenning {...prisendring} />

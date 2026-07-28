@@ -45,7 +45,7 @@ data class Totrinnskontroll(
         return status in setOf(TotrinnskontrollStatus.TIL_BEHANDLING, TotrinnskontrollStatus.SATT_PA_VENT)
     }
 
-    fun kanBesluttesAv(agent: Agent): Boolean {
+    fun kanBehandlesAv(agent: Agent): Boolean {
         return !(agent is NavIdent && agent == behandletAv)
     }
 
@@ -107,7 +107,7 @@ data class Totrinnskontroll(
         if (!kanBesluttes()) {
             return alleredeBesluttetError()
         }
-        if (!kanBesluttesAv(besluttetAv)) {
+        if (!kanBehandlesAv(besluttetAv)) {
             return TotrinnskontrollError.KanIkkeBesluttesAvBehandler.left()
         }
         return copy(

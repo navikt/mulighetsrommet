@@ -1,7 +1,6 @@
 import { TilsagnFormPrisPerManedsverk } from "@/components/tilsagn/form/TilsagnFormPrisPerManedsverk";
 import { TilsagnFormFri } from "@/components/tilsagn/form/TilsagnFormFri";
 import {
-  GjennomforingDto,
   PrismodellDto,
   TilsagnBeregningType,
   TilsagnRequest,
@@ -10,6 +9,7 @@ import { useNavigate } from "react-router";
 import { TilsagnFormFastSatsPerTiltaksplassPerManed } from "./form/TilsagnFormFastSatsPerTiltaksplassPerManed";
 import { TilsagnFormPrisPerTimeOppfolging } from "@/components/tilsagn/form/TilsagnFormPrisPerTimeOppfolging";
 import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
+import { GjennomforingDto } from "@/api/gjennomforing/utils";
 
 interface Props {
   gjennomforing: GjennomforingDto;

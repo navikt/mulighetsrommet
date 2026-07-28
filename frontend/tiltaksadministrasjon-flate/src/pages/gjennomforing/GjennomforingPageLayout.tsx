@@ -1,36 +1,37 @@
 import { InlineErrorBoundary } from "@/ErrorBoundary";
 import { VStack } from "@navikt/ds-react";
-import { GjennomforingHandlinger } from "./GjennomforingHandlinger";
+import { GjennomforingAvtaleHandlinger } from "./GjennomforingAvtaleHandlinger";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useGjennomforing, useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import {
+  isGjennomforingAvtaleDetaljer,
+  isGjennomforingEnkeltplassDetaljer,
+} from "@/api/gjennomforing/utils";
+import { GjennomforingEnkeltplassHandlinger } from "@/pages/gjennomforing/GjennomforingEnkeltplassHandlinger";
+import { ReactNode } from "react";
 
-function useGjennomforingInfoData() {
+export function GjennomforingPageLayout({ children }: { children: ReactNode }) {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { gjennomforing, veilederinfo } = useGjennomforing(gjennomforingId);
-  const handlinger = useGjennomforingHandlinger(gjennomforing.id);
+
   const { data: ansatt } = useHentAnsatt();
+  const detaljer = useGjennomforing(gjennomforingId);
+  const handlinger = useGjennomforingHandlinger(gjennomforingId);
 
-  return {
-    gjennomforing,
-    veilederinfo,
-    handlinger,
-    ansatt,
-  };
-}
-
-export function GjennomforingPageLayout({ children }: { children: React.ReactNode }) {
-  const { gjennomforing, veilederinfo, handlinger, ansatt } = useGjennomforingInfoData();
   return (
     <InlineErrorBoundary>
       <VStack className="pb-6">
-        <GjennomforingHandlinger
-          ansatt={ansatt}
-          gjennomforing={gjennomforing}
-          veilederinfo={veilederinfo}
-          handlinger={handlinger}
-        />
+        {isGjennomforingAvtaleDetaljer(detaljer) ? (
+          <GjennomforingAvtaleHandlinger
+            ansatt={ansatt}
+            gjennomforing={detaljer.gjennomforing}
+            veilederinfo={detaljer.veilederinfo}
+            handlinger={handlinger}
+          />
+        ) : isGjennomforingEnkeltplassDetaljer(detaljer) ? (
+          <GjennomforingEnkeltplassHandlinger gjennomforing={detaljer.gjennomforing} />
+        ) : null}
         <Separator />
         {children}
       </VStack>

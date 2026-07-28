@@ -1,5 +1,4 @@
 import {
-  GjennomforingDto,
   PrismodellDto,
   TilsagnBeregningType,
   TilsagnRequest,
@@ -15,6 +14,7 @@ import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metada
 import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { NumberInput } from "@/components/skjema/NumberInput";
+import { GjennomforingDto } from "@/api/gjennomforing/utils";
 
 interface Props {
   gjennomforing: GjennomforingDto;

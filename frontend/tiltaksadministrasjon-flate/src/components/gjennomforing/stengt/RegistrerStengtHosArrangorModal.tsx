@@ -2,12 +2,12 @@ import { RegistrerStengtHosArrangorForm } from "@/components/gjennomforing/steng
 import { StengtHosArrangorTable } from "@/components/gjennomforing/stengt/StengtHosArrangorTable";
 import { BodyShort, Button, Modal, VStack } from "@navikt/ds-react";
 import { RefObject, useState } from "react";
-import { GjennomforingDtoStengtPeriode } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingAvtaleDtoStengtPeriode } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
   gjennomforingId: string;
-  stengt: GjennomforingDtoStengtPeriode[];
+  stengt: GjennomforingAvtaleDtoStengtPeriode[];
 }
 
 export function RegistrerStengtHosArrangorModal({ modalRef, gjennomforingId, stengt }: Props) {

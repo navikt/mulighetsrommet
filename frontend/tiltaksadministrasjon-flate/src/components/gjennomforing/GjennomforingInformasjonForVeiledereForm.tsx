@@ -35,10 +35,9 @@ export function GjennomforingInformasjonForVeiledereForm({ avtale, veilederinfo 
   }
 
   async function kopierRedaksjoneltInnholdFraGjennomforing(id: string) {
-    const {
-      data: { veilederinfo },
-    } = await GjennomforingService.getGjennomforing({ path: { id } });
-    kopierRedaksjoneltInnhold(veilederinfo || {});
+    const { data: detaljer } = await GjennomforingService.getGjennomforing({ path: { id } });
+    const veilederinfo = "veilederinfo" in detaljer ? detaljer.veilederinfo : {};
+    kopierRedaksjoneltInnhold(veilederinfo);
   }
 
   const navRegioner = watch("veilederinformasjon.navRegioner");

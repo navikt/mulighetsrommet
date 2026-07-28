@@ -1,6 +1,5 @@
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import {
-  GjennomforingDto,
   PrismodellDto,
   TilsagnBeregningType,
   TilsagnRequest,
@@ -12,6 +11,7 @@ import { useFindAvtaltSats } from "@/api/avtaler/useFindAvtaltSats";
 import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 import { NumberInput } from "@/components/skjema/NumberInput";
+import { GjennomforingDto } from "@/api/gjennomforing/utils";
 
 interface Props {
   gjennomforing: GjennomforingDto;

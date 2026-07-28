@@ -16,8 +16,8 @@ import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljerDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDetaljerDto
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
@@ -77,6 +77,11 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             tiltakstypeService = tiltakstypeService,
             navAnsattService = mockk(),
             personaliaService = personaliaService,
+            enkeltplassService = GjennomforingEnkeltplassService(
+                db = database.api,
+                personaliaService = personaliaService,
+                tiltakstyper = tiltakstypeService,
+            ),
         )
     }
 
@@ -89,11 +94,10 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 GjennomforingFixtures.Oppfolging1.id,
                 AccessType.OBO.AzureAd("X123456"),
                 NavIdent("Z123456"),
-            ).shouldNotBeNull()
+            ).shouldNotBeNull().shouldBeTypeOf<GjennomforingAvtaleDetaljerDto>()
 
-            val gjennomforing = dto.gjennomforing.shouldBeTypeOf<GjennomforingAvtaleDto>()
-            gjennomforing.id shouldBe GjennomforingFixtures.Oppfolging1.id
-            gjennomforing.navn shouldBe GjennomforingFixtures.Oppfolging1.navn
+            dto.gjennomforing.id shouldBe GjennomforingFixtures.Oppfolging1.id
+            dto.gjennomforing.navn shouldBe GjennomforingFixtures.Oppfolging1.navn
         }
 
         test("returnerer detaljer om deltaker for en enkeltplass-gjennomføring") {
@@ -109,11 +113,11 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 GjennomforingFixtures.EnkelAmo.id,
                 AccessType.OBO.AzureAd("X123456"),
                 NavIdent("Z123456"),
-            ).shouldNotBeNull()
+            ).shouldNotBeNull().shouldBeTypeOf<GjennomforingEnkeltplassDetaljerDto>()
 
-            dto.gjennomforing.shouldBeTypeOf<GjennomforingEnkeltplassDto>().id shouldBe GjennomforingFixtures.EnkelAmo.id
+            dto.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
 
-            dto.enkeltplassDeltaker.shouldNotBeNull().should {
+            dto.deltaker.shouldNotBeNull().should {
                 it.navn shouldBe "Test Testesen"
                 it.norskIdent shouldBe NorskIdent("12345678901")
                 it.avvistGrunn.shouldBeNull()
@@ -133,11 +137,11 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 GjennomforingFixtures.EnkelAmo.id,
                 AccessType.OBO.AzureAd("X123456"),
                 NavIdent("Z123456"),
-            ).shouldNotBeNull()
+            ).shouldNotBeNull().shouldBeTypeOf<GjennomforingEnkeltplassDetaljerDto>()
 
-            dto.gjennomforing.shouldBeTypeOf<GjennomforingEnkeltplassDto>().id shouldBe GjennomforingFixtures.EnkelAmo.id
+            dto.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
 
-            dto.enkeltplassDeltaker.shouldNotBeNull().should {
+            dto.deltaker.shouldNotBeNull().should {
                 it.navn shouldBe "Adressebeskyttet"
                 it.norskIdent.shouldBeNull()
                 it.avvistGrunn shouldBe AvvistGrunn.AVVIST_FORTROLIG_ADRESSE

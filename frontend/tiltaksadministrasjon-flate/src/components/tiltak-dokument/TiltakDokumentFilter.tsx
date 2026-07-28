@@ -9,6 +9,7 @@ import {
 import { GjennomforingTiltakstypeFilter } from "@/components/filter/GjennomforingTiltakstypeFilter";
 import { KontorstrukturFilter } from "@/components/filter/KontorstrukturFilter";
 import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
+import { CheckboxList } from "@/components/filter/CheckboxList";
 
 interface Props {
   filter: TiltakDokumentFilterType;
@@ -45,6 +46,27 @@ export function TiltakDokumentFilter({ filter, updateFilter }: Props) {
         <GjennomforingTiltakstypeFilter
           value={filter.tiltakstyper as Tiltakskode[]}
           onChange={(tiltakstyper) => updateFilter({ tiltakstyper, page: 1 })}
+        />
+      </FilterAccordion>
+
+      <FilterAccordion
+        tittel="Publisert"
+        antallValgteFilter={filter.publisert.length}
+        open={accordionsOpen.includes("publiserteStatuser")}
+        onClick={() => toggleAccordion("publiserteStatuser")}
+      >
+        <CheckboxList
+          items={[
+            { value: "publisert", label: "Publisert" },
+            { value: "ikke-publisert", label: "Ikke publisert" },
+          ]}
+          isChecked={(id) => filter.publisert.includes(id)}
+          onChange={(id) => {
+            updateFilter({
+              publisert: addOrRemove(filter.publisert, id),
+              page: 1,
+            });
+          }}
         />
       </FilterAccordion>
     </Accordion>

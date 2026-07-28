@@ -14,7 +14,7 @@ interface Props {
 }
 
 export function TilskuddBehandlingLayout({ gjennomforingId, children }: Props) {
-  const { gjennomforing, enkeltplassDeltaker, tiltakstype } =
+  const { gjennomforing, deltaker, tiltakstype } =
     useEnkeltplassGjennomforingOrError(gjennomforingId);
 
   return (
@@ -35,11 +35,8 @@ export function TilskuddBehandlingLayout({ gjennomforingId, children }: Props) {
         ikon={<TilskuddIkon />}
         heading={`Tilskuddsbehandling for ${tiltakstype.navn}`}
       />
-      {enkeltplassDeltaker && (
-        <GjennomforingEnkeltplassHeader
-          gjennomforing={gjennomforing}
-          deltaker={enkeltplassDeltaker}
-        />
+      {deltaker && (
+        <GjennomforingEnkeltplassHeader gjennomforing={gjennomforing} deltaker={deltaker} />
       )}
       <WhitePaddedBox>{children}</WhitePaddedBox>
     </>

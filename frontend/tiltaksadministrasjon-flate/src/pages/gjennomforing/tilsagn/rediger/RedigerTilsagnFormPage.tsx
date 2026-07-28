@@ -6,17 +6,19 @@ import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useRelevanteKostnadssteder } from "@/pages/gjennomforing/tilsagn/useRelevanteKostnadssteder";
 
 function useRedigerTilsagnFormData(gjennomforingId: string, tilsagnId: string) {
-  const { gjennomforing, prismodell, veilederinfo } = useGjennomforing(gjennomforingId);
+  const detaljer = useGjennomforing(gjennomforingId);
   const { data: tilsagnDetaljer } = useTilsagn(tilsagnId);
   const { data: defaults } = useTilsagnRequest(tilsagnId);
   const kostnadssteder = useRelevanteKostnadssteder(
     tilsagnDetaljer.tilsagn.type,
-    "ansvarligEnhet" in gjennomforing ? gjennomforing.ansvarligEnhet.enhetsnummer : null,
-    veilederinfo?.kontorstruktur ?? [],
+    "ansvarligEnhet" in detaljer.gjennomforing
+      ? detaljer.gjennomforing.ansvarligEnhet.enhetsnummer
+      : null,
+    "veilederinfo" in detaljer ? detaljer.veilederinfo.kontorstruktur : [],
   );
   return {
-    gjennomforing,
-    prismodell,
+    gjennomforing: detaljer.gjennomforing,
+    prismodell: detaljer.prismodell,
     kostnadssteder,
     defaults,
     opprettelse: tilsagnDetaljer.opprettelse,

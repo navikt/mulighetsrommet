@@ -3920,7 +3920,7 @@ components:
     OpenApiVersion:
       type: number
       enum:
-        - 24
+        - 25
     RedaksjoneltInnholdLenke:
       type: object
       properties:
@@ -5875,7 +5875,7 @@ components:
           - string
           format: date
         status:
-          $ref: "#/components/schemas/GjennomforingDto.Status"
+          $ref: "#/components/schemas/GjennomforingDtoStatus"
         publisert:
           type: boolean
         kontorstruktur:
@@ -5900,7 +5900,7 @@ components:
       - status
       - tiltakstype
       - type
-    GjennomforingDto.Status:
+    GjennomforingDtoStatus:
       type: object
       properties:
         type:
@@ -5950,6 +5950,27 @@ components:
       required:
       - data
       - pagination
+    GjennomforingAvtaleDetaljerDto:
+      type: object
+      properties:
+        tiltakstype:
+          $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
+        gjennomforing:
+          $ref: "#/components/schemas/GjennomforingAvtaleDto"
+        veilederinfo:
+          $ref: "#/components/schemas/GjennomforingVeilederinfoDto"
+        prismodell:
+          $ref: "#/components/schemas/PrismodellDto"
+        opplaring:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/OpplaringKategoriseringDetaljer"
+      required:
+      - gjennomforing
+      - opplaring
+      - prismodell
+      - tiltakstype
+      - veilederinfo
     Gjennomforing.Tiltakstype:
       type: object
       properties:
@@ -5964,15 +5985,6 @@ components:
       - id
       - navn
       - tiltakskode
-    GjennomforingDto:
-      anyOf:
-      - $ref: "#/components/schemas/GjennomforingAvtaleDto"
-      - $ref: "#/components/schemas/GjennomforingEnkeltplassDto"
-      discriminator:
-        propertyName: type
-        mapping:
-          GjennomforingAvtaleDto: "#/components/schemas/GjennomforingAvtaleDto"
-          GjennomforingEnkeltplassDto: "#/components/schemas/GjennomforingEnkeltplassDto"
     GjennomforingAvtaleDto:
       type: object
       properties:
@@ -5988,7 +6000,7 @@ components:
           - "null"
           - string
         arrangor:
-          $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
+          $ref: "#/components/schemas/GjennomforingDtoArrangor"
         startDato:
           type: string
           format: date
@@ -5998,7 +6010,7 @@ components:
           - string
           format: date
         status:
-          $ref: "#/components/schemas/GjennomforingDto.Status"
+          $ref: "#/components/schemas/GjennomforingDtoStatus"
         antallPlasser:
           type: integer
           format: int32
@@ -6022,15 +6034,15 @@ components:
         administratorer:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.Administrator"
+            $ref: "#/components/schemas/GjennomforingAvtaleDto.Administrator"
         stengt:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.StengtPeriode"
+            $ref: "#/components/schemas/GjennomforingAvtaleDto.StengtPeriode"
         avbrytelse:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/AvbrytelseDto"
+          - $ref: "#/components/schemas/GjennomforingAvtaleDto.AvbrytelseDto"
       required:
       - administratorer
       - antallPlasser
@@ -6050,7 +6062,7 @@ components:
       - stengt
       - tilgjengeligForArrangorDato
       - tiltaksnummer
-    GjennomforingDto.ArrangorUnderenhet:
+    GjennomforingDtoArrangor:
       type: object
       properties:
         id:
@@ -6065,14 +6077,14 @@ components:
         kontaktpersoner:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingDto.ArrangorKontaktperson"
+            $ref: "#/components/schemas/GjennomforingDtoArrangor.Kontaktperson"
       required:
       - id
       - kontaktpersoner
       - navn
       - organisasjonsnummer
       - slettet
-    GjennomforingDto.ArrangorKontaktperson:
+    GjennomforingDtoArrangor.Kontaktperson:
       type: object
       properties:
         id:
@@ -6096,7 +6108,7 @@ components:
       - id
       - navn
       - telefon
-    GjennomforingDto.Administrator:
+    GjennomforingAvtaleDto.Administrator:
       type: object
       properties:
         navIdent:
@@ -6106,7 +6118,7 @@ components:
       required:
       - navIdent
       - navn
-    GjennomforingDto.StengtPeriode:
+    GjennomforingAvtaleDto.StengtPeriode:
       type: object
       properties:
         id:
@@ -6125,7 +6137,7 @@ components:
       - id
       - slutt
       - start
-    AvbrytelseDto:
+    GjennomforingAvtaleDto.AvbrytelseDto:
       type: object
       properties:
         aarsaker:
@@ -6139,56 +6151,6 @@ components:
       required:
       - aarsaker
       - forklaring
-    GjennomforingEnkeltplassDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        lopenummer:
-          type: string
-        tiltaksnummer:
-          type:
-          - "null"
-          - string
-        arrangor:
-          $ref: "#/components/schemas/GjennomforingDto.ArrangorUnderenhet"
-        startDato:
-          type:
-          - "null"
-          - string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
-        status:
-          $ref: "#/components/schemas/GjennomforingDto.Status"
-        ansvarligEnhet:
-          $ref: "#/components/schemas/GjennomforingDto.AnsvarligEnhet"
-      required:
-      - ansvarligEnhet
-      - arrangor
-      - id
-      - lopenummer
-      - navn
-      - sluttDato
-      - startDato
-      - status
-      - tiltaksnummer
-    GjennomforingDto.AnsvarligEnhet:
-      type: object
-      properties:
-        enhetsnummer:
-          type: string
-        navn:
-          type: string
-      required:
-      - enhetsnummer
-      - navn
     GjennomforingVeilederinfoDto:
       type: object
       properties:
@@ -6263,6 +6225,89 @@ components:
       required:
       - enhet
       - verdi
+    GjennomforingEnkeltplassDetaljerDto:
+      type: object
+      properties:
+        tiltakstype:
+          $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
+        gjennomforing:
+          $ref: "#/components/schemas/GjennomforingEnkeltplassDto"
+        prismodell:
+          $ref: "#/components/schemas/PrismodellDto"
+        opplaring:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/OpplaringKategoriseringDetaljer"
+        okonomi:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
+        prisendring:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/GjennomforingEnkeltplassDetaljerDto.Prisendring"
+        deltaker:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DeltakerDto"
+      required:
+      - deltaker
+      - gjennomforing
+      - okonomi
+      - opplaring
+      - prisendring
+      - prismodell
+      - tiltakstype
+    GjennomforingEnkeltplassDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        lopenummer:
+          type: string
+        tiltaksnummer:
+          type:
+          - "null"
+          - string
+        arrangor:
+          $ref: "#/components/schemas/GjennomforingDtoArrangor"
+        startDato:
+          type:
+          - "null"
+          - string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        status:
+          $ref: "#/components/schemas/GjennomforingDtoStatus"
+        ansvarligEnhet:
+          $ref: "#/components/schemas/GjennomforingEnkeltplassDto.AnsvarligEnhet"
+      required:
+      - ansvarligEnhet
+      - arrangor
+      - id
+      - lopenummer
+      - navn
+      - sluttDato
+      - startDato
+      - status
+      - tiltaksnummer
+    GjennomforingEnkeltplassDto.AnsvarligEnhet:
+      type: object
+      properties:
+        enhetsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+      - enhetsnummer
+      - navn
     TotrinnskontrollDto:
       anyOf:
       - $ref: "#/components/schemas/TotrinnskontrollDto.Besluttet"
@@ -6340,7 +6385,7 @@ components:
       - behandletAv
       - behandletTidspunkt
       - forklaring
-    GjennomforingDetaljerDto.Prisendring:
+    GjennomforingEnkeltplassDetaljerDto.Prisendring:
       type: object
       properties:
         totrinnskontroll:
@@ -6469,43 +6514,14 @@ components:
       - AVVIST_PERSON_UTLAND
       - AVVIST_UKJENT_BOSTED
     GjennomforingDetaljerDto:
-      type: object
-      properties:
-        tiltakstype:
-          $ref: "#/components/schemas/Gjennomforing.Tiltakstype"
-        gjennomforing:
-          $ref: "#/components/schemas/GjennomforingDto"
-        veilederinfo:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/GjennomforingVeilederinfoDto"
-        prismodell:
-          $ref: "#/components/schemas/PrismodellDto"
-        opplaring:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/OpplaringKategoriseringDetaljer"
-        okonomi:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/TotrinnskontrollDto"
-        prisendring:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/GjennomforingDetaljerDto.Prisendring"
-        enkeltplassDeltaker:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DeltakerDto"
-      required:
-      - enkeltplassDeltaker
-      - gjennomforing
-      - okonomi
-      - opplaring
-      - prisendring
-      - prismodell
-      - tiltakstype
-      - veilederinfo
+      anyOf:
+      - $ref: "#/components/schemas/GjennomforingAvtaleDetaljerDto"
+      - $ref: "#/components/schemas/GjennomforingEnkeltplassDetaljerDto"
+      discriminator:
+        propertyName: type
+        mapping:
+          GjennomforingAvtaleDetaljerDto: "#/components/schemas/GjennomforingAvtaleDetaljerDto"
+          GjennomforingEnkeltplassDetaljerDto: "#/components/schemas/GjennomforingEnkeltplassDetaljerDto"
     TiltaksnummerResponse:
       type: object
       properties:
@@ -6835,12 +6851,17 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Tiltakskode"
+        publisert:
+          type:
+          - "null"
+          - boolean
         sort:
           type:
           - "null"
           - string
       required:
       - navEnheter
+      - publisert
       - sort
       - tiltakstyper
     TiltakDokumentKompaktDto:

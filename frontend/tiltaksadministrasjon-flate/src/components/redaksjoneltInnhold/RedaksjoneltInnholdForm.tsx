@@ -11,6 +11,7 @@ import { FormTextField } from "@/components/skjema/FormTextField";
 import { FormCheckbox } from "@/components/skjema/FormCheckbox";
 import { FormListInput } from "@/components/skjema/FormListInput";
 import { fp } from "@/components/skjema/helpers";
+import { HvitelistingAvLenkerInfo } from "./HvitelistingAvLenkerInfo";
 
 interface Props {
   path: string;
@@ -44,6 +45,7 @@ export function RedaksjoneltInnholdForm({ path, description, tiltakstype }: Prop
         lenker={<RedaksjoneltInnholdLenkerForm path={path} />}
         delMedBruker={<DelMedBruker tiltakstype={veilederinfo} path={path} />}
       />
+      <HvitelistingAvLenkerInfo />
     </RedaksjoneltInnholdContainer>
   );
 }

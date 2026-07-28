@@ -40,6 +40,7 @@ data class TiltakDokumentPublisertRequest(
 data class GetTiltakDokumenterRequest(
     val navEnheter: List<NavEnhetNummer> = emptyList(),
     val tiltakstyper: List<Tiltakskode> = emptyList(),
+    val publisert: Boolean? = null,
     val sort: String? = null,
 )
 
@@ -124,6 +125,7 @@ fun Route.tiltakDokumentRoutes() {
                     pagination = pagination,
                     navEnheter = request.navEnheter,
                     tiltakstyper = request.tiltakstyper,
+                    publisert = request.publisert,
                     sortering = request.sort,
                 )
             }

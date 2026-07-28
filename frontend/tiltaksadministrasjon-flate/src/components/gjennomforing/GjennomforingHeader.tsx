@@ -1,5 +1,8 @@
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
-import { isGruppetiltak } from "@/api/gjennomforing/utils";
+import {
+  isGjennomforingAvtaleDetaljer,
+  isGjennomforingEnkeltplassDetaljer,
+} from "@/api/gjennomforing/utils";
 import { GjennomforingAvtaleHeader } from "@/components/gjennomforing/GjennomforingAvtaleHeader";
 import { GjennomforingEnkeltplassHeader } from "@/components/gjennomforing/GjennomforingEnkeltplassHeader";
 
@@ -8,15 +11,15 @@ interface Props {
 }
 
 export function GjennomforingHeader({ gjennomforingId }: Props) {
-  const { gjennomforing, enkeltplassDeltaker } = useGjennomforing(gjennomforingId);
+  const detaljer = useGjennomforing(gjennomforingId);
 
-  if (isGruppetiltak(gjennomforing)) {
-    return <GjennomforingAvtaleHeader gjennomforing={gjennomforing} />;
-  } else if (enkeltplassDeltaker) {
+  if (isGjennomforingAvtaleDetaljer(detaljer)) {
+    return <GjennomforingAvtaleHeader gjennomforing={detaljer.gjennomforing} />;
+  } else if (isGjennomforingEnkeltplassDetaljer(detaljer) && detaljer.deltaker) {
     return (
       <GjennomforingEnkeltplassHeader
-        gjennomforing={gjennomforing}
-        deltaker={enkeltplassDeltaker}
+        gjennomforing={detaljer.gjennomforing}
+        deltaker={detaljer.deltaker}
       />
     );
   } else {
