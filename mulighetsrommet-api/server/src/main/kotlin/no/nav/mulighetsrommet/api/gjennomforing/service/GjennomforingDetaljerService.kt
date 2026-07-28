@@ -243,20 +243,24 @@ class GjennomforingDetaljerService(
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
         val enkeltplass = enkeltplassService.get(gjennomforing.id)
+        val okonomiKanBehandlesAvNavAnsatt = enkeltplass?.okonomi
+            ?.kanBehandlesAv(ansatt.navIdent) == true
+        val prisendringKanBehandlesAvNavAnsatt = enkeltplass?.prisendring?.totrinnskontroll
+            ?.kanBehandlesAv(ansatt.navIdent) == true
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
-                enkeltplass?.okonomi?.kanSettesPaVent() == true
+                okonomiKanBehandlesAvNavAnsatt && enkeltplass.okonomi.kanSettesPaVent()
             },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
-                enkeltplass?.okonomi?.kanBesluttes() == true
+                okonomiKanBehandlesAvNavAnsatt && enkeltplass.okonomi.kanBesluttes()
             },
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING.takeIf {
-                enkeltplass?.prisendring?.totrinnskontroll?.kanSettesPaVent() == true
+                prisendringKanBehandlesAvNavAnsatt && enkeltplass.prisendring.totrinnskontroll.kanSettesPaVent()
             },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING.takeIf {
-                enkeltplass?.prisendring?.totrinnskontroll?.kanBesluttes() == true
+                prisendringKanBehandlesAvNavAnsatt && enkeltplass.prisendring.totrinnskontroll.kanBesluttes()
             },
         )
             .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }
