@@ -540,7 +540,11 @@ private fun EnkeltplassSattPaVentOppgaveData.toOppgave(ansatt: NavAnsatt): Oppga
         createdAt = besluttetTidspunkt,
         arrangor = arrangor,
     ).takeIf {
-        GjennomforingDetaljerService.tilgangTilHandling(ansatt, GjennomforingHandling.OPPRETT_UTBETALING)
+        GjennomforingDetaljerService.tilgangTilHandling(
+            ansatt,
+            GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI,
+            setOf(ansvarligEnhet.nummer),
+        )
     }
 }
 

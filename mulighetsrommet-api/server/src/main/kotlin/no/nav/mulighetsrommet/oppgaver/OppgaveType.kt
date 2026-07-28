@@ -55,7 +55,7 @@ enum class OppgaveType(val navn: String, val rolle: Rolle, val kategori: Kategor
     ),
     ENKELTPLASS_SATT_PA_VENT(
         navn = "Enkeltplass satt på vent",
-        rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+        rolle = Rolle.BESLUTTER_TILSAGN,
         kategori = Kategori.ENKELTPLASS,
     ),
     TILSKUDDBEHANDLING_TIL_ATTESTERING(
