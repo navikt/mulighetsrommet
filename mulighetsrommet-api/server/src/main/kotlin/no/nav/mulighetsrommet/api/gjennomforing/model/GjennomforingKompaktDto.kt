@@ -19,7 +19,7 @@ data class GjennomforingKompaktDto(
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: GjennomforingDto.Status,
+    val status: GjennomforingDtoStatus,
     val publisert: Boolean,
     val kontorstruktur: List<Kontorstruktur>,
     val arrangor: GjennomforingKompakt.ArrangorUnderenhet,

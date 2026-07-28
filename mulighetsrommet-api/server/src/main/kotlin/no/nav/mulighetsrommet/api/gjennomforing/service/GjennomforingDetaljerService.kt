@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
@@ -55,6 +56,7 @@ class GjennomforingDetaljerService(
     private val tiltakstypeService: TiltakstypeService,
     private val navAnsattService: NavAnsattService,
     private val personaliaService: PersonaliaService,
+    private val enkeltplassService: GjennomforingEnkeltplassService,
 ) {
     fun getTiltaksgjennomforingV2Dto(id: UUID): TiltaksgjennomforingV2Dto? = db.session {
         val gjennomforing = getGjennomforing(id) ?: return null
@@ -82,44 +84,50 @@ class GjennomforingDetaljerService(
                 GjennomforingDtoMapper.fromGjennomforingAvtale(gjennomforing, detaljer)
             }
 
-            is GjennomforingEnkeltplass -> db.session {
-                val okonomi = queries.totrinnskontroll.getDto(
-                    gjennomforing.id,
-                    TotrinnskontrollType.ENKELTPLASS_OKONOMI,
-                )
+            is GjennomforingEnkeltplass -> {
+                val enkeltplass = enkeltplassService.get(gjennomforing.id)
+                    ?: error("Fant ikke enkeltplass med id=${gjennomforing.id}")
 
-                val prisendring = queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforing.id)
-                    ?.let { queries.prismodell.getOrError(it.prismodellId) }
-                    ?.let { prismodell ->
+                db.session {
+                    val okonomi = queries.totrinnskontroll.getDto(
+                        gjennomforing.id,
+                        TotrinnskontrollType.ENKELTPLASS_OKONOMI,
+                    )
+
+                    val prisendring = enkeltplass.prisendring?.let {
                         val totrinnskontroll = queries.totrinnskontroll.getDtoOrError(
                             gjennomforing.id,
                             TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
                         )
-                        GjennomforingDetaljerDto.Prisendring(totrinnskontroll, prismodell.toPrismodellDto())
+                        GjennomforingEnkeltplassDetaljerDto.Prisendring(
+                            totrinnskontroll,
+                            it.prismodell.toPrismodellDto(),
+                        )
                     }
 
-                val deltaker = getDeltaker(gjennomforing.id)?.let { deltaker ->
-                    val personalia = personaliaService
-                        .getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
-                    val norskIdent = personalia.norskIdent()
-                    if (personalia.harTilgang() && norskIdent != null) {
-                        auditLogVisEnkeltplass(navIdent, norskIdent)
+                    val deltaker = getDeltaker(gjennomforing.id)?.let { deltaker ->
+                        val personalia = personaliaService
+                            .getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
+                        val norskIdent = personalia.norskIdent()
+                        if (personalia.harTilgang() && norskIdent != null) {
+                            auditLogVisEnkeltplass(navIdent, norskIdent)
+                        }
+                        val veilederNavn = deltaker.navVeileder?.navIdent?.let {
+                            navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
+                        }
+                        DeltakerDto.from(deltaker, personalia, veilederNavn)
                     }
-                    val veilederNavn = deltaker.navVeileder?.navIdent?.let {
-                        navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
-                    }
-                    DeltakerDto.from(deltaker, personalia, veilederNavn)
+
+                    val opplaringKategorisering = queries.opplaering.get(gjennomforing.id)
+
+                    GjennomforingDtoMapper.fromEnkeltplass(
+                        gjennomforing,
+                        okonomi,
+                        prisendring,
+                        deltaker,
+                        opplaringKategorisering,
+                    )
                 }
-
-                val opplaringKategorisering = queries.opplaering.get(gjennomforing.id)
-
-                GjennomforingDtoMapper.fromEnkeltplass(
-                    gjennomforing,
-                    okonomi,
-                    prisendring,
-                    deltaker,
-                    opplaringKategorisering,
-                )
             }
         }
     }
@@ -234,26 +242,25 @@ class GjennomforingDetaljerService(
         gjennomforing: GjennomforingEnkeltplass,
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
-        val okonomi = db.session {
-            queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-        }
-        val prisendring = db.session {
-            queries.totrinnskontroll.get(gjennomforing.id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
-        }
+        val enkeltplass = enkeltplassService.get(gjennomforing.id)
+        val okonomiKanBehandlesAvNavAnsatt = enkeltplass?.okonomi
+            ?.kanBehandlesAv(ansatt.navIdent) == true
+        val prisendringKanBehandlesAvNavAnsatt = enkeltplass?.prisendring?.totrinnskontroll
+            ?.kanBehandlesAv(ansatt.navIdent) == true
         return setOfNotNull(
             GjennomforingHandling.OPPRETT_TILSAGN,
             GjennomforingHandling.OPPRETT_UTBETALING,
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_OKONOMI.takeIf {
-                okonomi?.kanSettesPaVent() == true
+                okonomiKanBehandlesAvNavAnsatt && enkeltplass.okonomi.kanSettesPaVent()
             },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_OKONOMI.takeIf {
-                okonomi?.kanBesluttes() == true
+                okonomiKanBehandlesAvNavAnsatt && enkeltplass.okonomi.kanBesluttes()
             },
             GjennomforingHandling.SETT_PA_VENT_ENKELTPLASS_PRISENDRING.takeIf {
-                prisendring?.kanSettesPaVent() == true
+                prisendringKanBehandlesAvNavAnsatt && enkeltplass.prisendring.totrinnskontroll.kanSettesPaVent()
             },
             GjennomforingHandling.GODKJENN_ENKELTPLASS_PRISENDRING.takeIf {
-                prisendring?.kanBesluttes() == true
+                prisendringKanBehandlesAvNavAnsatt && enkeltplass.prisendring.totrinnskontroll.kanBesluttes()
             },
         )
             .filter { tilgangTilHandling(ansatt, it, setOf(gjennomforing.ansvarligEnhet.enhetsnummer)) }

@@ -2,11 +2,11 @@ import { useDeleteStengtHosArrangor } from "@/api/gjennomforing/useDeleteStengtH
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { Button, Heading, HStack, Table } from "@navikt/ds-react";
-import { GjennomforingDtoStengtPeriode } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingAvtaleDtoStengtPeriode } from "@tiltaksadministrasjon/api-client";
 
 interface StengtHosArrangorTableProps {
   gjennomforingId: string;
-  stengt: GjennomforingDtoStengtPeriode[];
+  stengt: GjennomforingAvtaleDtoStengtPeriode[];
   readOnly?: boolean;
 }
 

@@ -50,7 +50,6 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.validation.Validated
-import org.slf4j.LoggerFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -107,7 +106,6 @@ class GjennomforingEnkeltplassService(
     private val personaliaService: PersonaliaService,
     private val tiltakstyper: TiltakstypeService,
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
 
     fun opprettUtkast(utkast: UpsertEnkeltplass, opprettetAv: NavIdent): Validated<Enkeltplass> = db.transaction {
         val enkeltplass = getEnkeltplass(utkast.id)
@@ -186,7 +184,9 @@ class GjennomforingEnkeltplassService(
             }
 
             TotrinnskontrollStatus.GODKJENT -> {
-                slettEksisterendePrisendring(gjennomforingId)
+                enkeltplass.prisendring?.also {
+                    slettEksisterendePrisendring(it.totrinnskontroll)
+                }
                 upsertPrisendring(gjennomforingId, prisinformasjon, behandling)
                 logEndring("Prisendring sendt til godkjenning", gjennomforingId, behandling.behandletAv).right()
             }
@@ -311,14 +311,13 @@ class GjennomforingEnkeltplassService(
         id: UUID,
         agent: Agent,
     ): Validated<Enkeltplass> = db.transaction {
-        val gjennomforing = getAndAquireLock(id)
+        val enkeltplass = getAndAquireLock(id)
 
-        val prisendring = queries.totrinnskontroll.get(id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
-        if (prisendring != null && prisendring.kanBesluttes()) {
-            return godkjennPrisendring(id, prisendring, agent)
+        if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
+            return godkjennPrisendring(id, enkeltplass.prisendring.totrinnskontroll, agent)
         }
 
-        val okonomi = gjennomforing.okonomi
+        val okonomi = enkeltplass.okonomi
             ?: return FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel().left()
 
         return settOkonomiGodkjent(id, okonomi, agent)
@@ -329,14 +328,13 @@ class GjennomforingEnkeltplassService(
         navIdent: NavIdent,
         forklaring: String?,
     ): Validated<Enkeltplass> = db.transaction {
-        val gjennomforing = getAndAquireLock(id)
+        val enkeltplass = getAndAquireLock(id)
 
-        val prisendring = queries.totrinnskontroll.get(id, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
-        if (prisendring != null && prisendring.kanBesluttes()) {
-            return settPrisendringPaVent(id, prisendring, navIdent, forklaring)
+        if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
+            return settPrisendringPaVent(id, enkeltplass.prisendring.totrinnskontroll, navIdent, forklaring)
         }
 
-        val okonomi = gjennomforing.okonomi
+        val okonomi = enkeltplass.okonomi
             ?: return FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel().left()
 
         settOkonomiPaVent(id, okonomi, navIdent, forklaring)
@@ -422,19 +420,16 @@ class GjennomforingEnkeltplassService(
         return logEndring("Pris- og betalingsbetingelser endret", gjennomforingId, behandling.behandletAv).right()
     }
 
-    private fun TransactionalQueryContext.slettEksisterendePrisendring(gjennomforingId: UUID) {
-        val prisendring = queries.totrinnskontroll.get(gjennomforingId, TotrinnskontrollType.ENKELTPLASS_PRISENDRING)
-        if (prisendring?.kanBesluttes() == true) {
-            val returnert = prisendring.returner(Tiltaksadministrasjon).getOrElse {
-                error("Klarte ikke returnere prisendring")
-            }
-            queries.totrinnskontroll.upsert(returnert)
-            outbox.publish(returnert)
+    private fun TransactionalQueryContext.slettEksisterendePrisendring(prisendring: Totrinnskontroll) {
+        val returnert = prisendring.returner(Tiltaksadministrasjon).getOrElse {
+            error("Klarte ikke returnere prisendring")
+        }
+        queries.totrinnskontroll.upsert(returnert)
+        outbox.publish(returnert)
 
-            queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforingId)?.let { pending ->
-                queries.enkeltplassPrisendring.deleteByTotrinnskontrollId(pending.totrinnskontrollId)
-                queries.prismodell.deletePrismodell(pending.prismodellId)
-            }
+        queries.enkeltplassPrisendring.getByGjennomforingId(prisendring.entityId)?.let { pending ->
+            queries.enkeltplassPrisendring.deleteByTotrinnskontrollId(pending.totrinnskontrollId)
+            queries.prismodell.deletePrismodell(pending.prismodellId)
         }
     }
 
@@ -472,7 +467,12 @@ class GjennomforingEnkeltplassService(
 
             else -> {
                 val okonomi = queries.totrinnskontroll.get(id, TotrinnskontrollType.ENKELTPLASS_OKONOMI)
-                Enkeltplass(gjennomforing, okonomi)
+                val prisendring = queries.enkeltplassPrisendring.getByGjennomforingId(id)?.let {
+                    val prismodell = queries.prismodell.getOrError(it.prismodellId)
+                    val totrinnskontroll = queries.totrinnskontroll.getById(it.totrinnskontrollId)
+                    Enkeltplass.Prisendring(prismodell, totrinnskontroll)
+                }
+                Enkeltplass(gjennomforing, okonomi, prisendring)
             }
         }
     }

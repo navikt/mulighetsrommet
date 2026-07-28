@@ -9,33 +9,26 @@ import { Outlet, useLocation } from "react-router";
 import { useNavigateAndReplaceUrl } from "@/hooks/useNavigateWithoutReplacingUrl";
 import {
   FeatureToggle,
-  GjennomforingDto,
-  PrismodellDto,
+  GjennomforingDetaljerDto,
   PrismodellType,
   TotrinnskontrollDto,
 } from "@tiltaksadministrasjon/api-client";
-import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 import { GjennomforingEnkeltplassIkon } from "@/components/ikoner/GjennomforingEnkeltplassIkon";
 import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { erGodkjent } from "@/utils/totrinnskontroll";
 import { DeltakerHeader } from "@/components/gjennomforing/DeltakerHeader";
+import { isGjennomforingAvtaleDetaljer } from "@/api/gjennomforing/utils";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { gjennomforing, enkeltplassDeltaker, prismodell, okonomi } =
-    useGjennomforing(gjennomforingId);
+  const detaljer = useGjennomforing(gjennomforingId);
 
   const { data: enableTilskuddsbehandling } = useFeatureToggle(
     FeatureToggle.TILTAKSADMINISTRASJON_VIS_TILSKUDDSBEHANDLING,
   );
-  const [currentTab, tabs] = useTabs(
-    gjennomforing,
-    prismodell,
-    okonomi,
-    !!enableTilskuddsbehandling,
-  );
+  const [currentTab, tabs] = useTabs(detaljer, !!enableTilskuddsbehandling);
 
   const brodsmuler: (Brodsmule | undefined)[] = [
     {
@@ -44,7 +37,8 @@ export function GjennomforingPage() {
     },
     {
       tittel: "Gjennomføring",
-      lenke: currentTab === "detaljer" ? undefined : `/gjennomforinger/${gjennomforing.id}`,
+      lenke:
+        currentTab === "detaljer" ? undefined : `/gjennomforinger/${detaljer.gjennomforing.id}`,
     },
     currentTab === "tilskudd-behandling" ? { tittel: "Tilskuddsbehandlinger" } : undefined,
     currentTab === "tilskudd-utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
@@ -56,20 +50,22 @@ export function GjennomforingPage() {
 
   return (
     <>
-      <title>{`Gjennomføring | ${gjennomforing.navn}`}</title>
+      <title>{`Gjennomføring | ${detaljer.gjennomforing.navn}`}</title>
       <Brodsmuler brodsmuler={brodsmuler} />
       <HeaderBanner
         ikon={
-          isGruppetiltak(gjennomforing) ? (
+          isGjennomforingAvtaleDetaljer(detaljer) ? (
             <GjennomforingAvtaleIkon />
           ) : (
             <GjennomforingEnkeltplassIkon />
           )
         }
-        heading={gjennomforing.navn}
-        status={gjennomforing.status.status}
+        heading={detaljer.gjennomforing.navn}
+        status={detaljer.gjennomforing.status.status}
       />
-      {enkeltplassDeltaker && <DeltakerHeader deltaker={enkeltplassDeltaker} />}
+      {"deltaker" in detaljer && detaljer.deltaker && (
+        <DeltakerHeader deltaker={detaljer.deltaker} />
+      )}
       <Tabs value={currentTab}>
         <Box background="default">
           <Tabs.List>
@@ -174,18 +170,16 @@ function enkeltplassTabs(
 }
 
 function useTabs(
-  gjennomforing: GjennomforingDto,
-  prismodell: PrismodellDto,
-  okonomi: TotrinnskontrollDto | null,
+  detaljer: GjennomforingDetaljerDto,
   enableTilskuddsbehandling: boolean,
 ): [string, Tab[]] {
   const { pathname } = useLocation();
   const currentTab = getCurrentTab(pathname);
   const { navigateAndReplaceUrl } = useNavigateAndReplaceUrl();
 
-  const tabConfigs = isGruppetiltak(gjennomforing)
+  const tabConfigs = isGjennomforingAvtaleDetaljer(detaljer)
     ? GRUPPETILTAK_TABS
-    : enkeltplassTabs(prismodell.type, okonomi);
+    : enkeltplassTabs(detaljer.prismodell.type, detaljer.okonomi);
 
   const filteredTabConfigs = enableTilskuddsbehandling
     ? tabConfigs
@@ -194,7 +188,7 @@ function useTabs(
   const tabs: Tab[] = filteredTabConfigs.map(({ key, label }) => ({
     key,
     label,
-    onClick: () => navigateAndReplaceUrl(createTabUrl(gjennomforing.id, key)),
+    onClick: () => navigateAndReplaceUrl(createTabUrl(detaljer.gjennomforing.id, key)),
   }));
 
   return [currentTab, tabs];

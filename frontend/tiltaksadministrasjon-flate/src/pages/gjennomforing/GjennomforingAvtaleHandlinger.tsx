@@ -10,8 +10,8 @@ import { useNavigate } from "react-router";
 import { useSetPublisert } from "@/api/gjennomforing/useSetPublisert";
 import {
   EndringshistorikkType,
+  GjennomforingAvtaleDto,
   GjennomforingDetaljerDto,
-  GjennomforingDto,
   GjennomforingHandling,
   GjennomforingVeilederinfoDto,
   NavAnsattDto,
@@ -19,18 +19,17 @@ import {
 import { DeepPartial } from "react-hook-form";
 import { AvbrytGjennomforingModal } from "@/components/gjennomforing/AvbrytGjennomforingModal";
 import { GjenapneGjennomforingModal } from "@/components/gjennomforing/GjenapneGjennomforingModal";
-import { isGruppetiltak } from "@/api/gjennomforing/utils";
 import { previewArbeidsmarkedstiltakUrl } from "@/constants";
 import { Handlinger } from "@/components/handlinger/Handlinger";
 
 interface Props {
   ansatt: NavAnsattDto;
-  gjennomforing: GjennomforingDto;
+  gjennomforing: GjennomforingAvtaleDto;
   veilederinfo: GjennomforingVeilederinfoDto | null;
   handlinger: GjennomforingHandling[];
 }
 
-export function GjennomforingHandlinger({
+export function GjennomforingAvtaleHandlinger({
   ansatt,
   gjennomforing,
   veilederinfo,
@@ -50,10 +49,6 @@ export function GjennomforingHandlinger({
   }
 
   function dupliserGjennomforing() {
-    if (!isGruppetiltak(gjennomforing)) {
-      return;
-    }
-
     const duplisert: DeepPartial<GjennomforingDetaljerDto> = {
       gjennomforing: {
         avtaleId: gjennomforing.avtaleId,
@@ -69,9 +64,7 @@ export function GjennomforingHandlinger({
     });
   }
 
-  const administratorer = isGruppetiltak(gjennomforing)
-    ? gjennomforing.administratorer.map((a) => a.navIdent)
-    : [];
+  const administratorer = gjennomforing.administratorer.map((a) => a.navIdent);
 
   return (
     <KnapperadContainer>
@@ -128,29 +121,25 @@ export function GjennomforingHandlinger({
               },
             ],
           },
-          ...(isGruppetiltak(gjennomforing)
-            ? [
-                {
-                  label: "Oppfølging",
-                  items: [
-                    {
-                      label: gjennomforing.apentForPamelding
-                        ? "Steng for påmelding"
-                        : "Åpne for påmelding",
-                      onClick: () => apentForPameldingModalRef.current?.showModal(),
-                      handling: GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING,
-                      administratorer,
-                    },
-                    {
-                      label: "Registrer estimert ventetid",
-                      onClick: () => setEstimertVentetidModalOpen(true),
-                      handling: GjennomforingHandling.REGISTRER_ESTIMERT_VENTETID,
-                      administratorer,
-                    },
-                  ],
-                },
-              ]
-            : []),
+          {
+            label: "Oppfølging",
+            items: [
+              {
+                label: gjennomforing.apentForPamelding
+                  ? "Steng for påmelding"
+                  : "Åpne for påmelding",
+                onClick: () => apentForPameldingModalRef.current?.showModal(),
+                handling: GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING,
+                administratorer,
+              },
+              {
+                label: "Registrer estimert ventetid",
+                onClick: () => setEstimertVentetidModalOpen(true),
+                handling: GjennomforingHandling.REGISTRER_ESTIMERT_VENTETID,
+                administratorer,
+              },
+            ],
+          },
           {
             label: "Lenker",
             items: [
@@ -165,20 +154,16 @@ export function GjennomforingHandlinger({
           },
         ]}
       />
-      {isGruppetiltak(gjennomforing) && (
-        <RegistrerStengtHosArrangorModal
-          modalRef={registrerStengtModalRef}
-          gjennomforingId={gjennomforing.id}
-          stengt={gjennomforing.stengt}
-        />
-      )}
-      {isGruppetiltak(gjennomforing) && (
-        <SetApentForPameldingModal
-          modalRef={apentForPameldingModalRef}
-          gjennomforingId={gjennomforing.id}
-          apentForPamelding={gjennomforing.apentForPamelding}
-        />
-      )}
+      <RegistrerStengtHosArrangorModal
+        modalRef={registrerStengtModalRef}
+        gjennomforingId={gjennomforing.id}
+        stengt={gjennomforing.stengt}
+      />
+      <SetApentForPameldingModal
+        modalRef={apentForPameldingModalRef}
+        gjennomforingId={gjennomforing.id}
+        apentForPamelding={gjennomforing.apentForPamelding}
+      />
       <SetEstimertVentetidModal
         open={estimertVentetidModalOpen}
         setOpen={setEstimertVentetidModalOpen}

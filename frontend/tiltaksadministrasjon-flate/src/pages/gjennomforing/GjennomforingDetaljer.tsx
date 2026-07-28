@@ -1,45 +1,38 @@
 import { useGjennomforing } from "@/api/gjennomforing/useGjennomforing";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
-import { isEnkeltplass, isGruppetiltak } from "@/api/gjennomforing/utils";
+import {
+  isGjennomforingAvtaleDetaljer,
+  isGjennomforingEnkeltplassDetaljer,
+} from "@/api/gjennomforing/utils";
 import { GjennomforingAvtaleDetaljer } from "@/components/gjennomforing/GjennomforingAvtaleDetaljer";
 import { GjennomforingEnkeltplassDetaljer } from "@/components/gjennomforing/GjennomforingEnkeltplassDetaljer";
 
 export function GjennomforingDetaljer() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
   const detaljer = useGjennomforing(gjennomforingId);
-  const {
-    gjennomforing,
-    veilederinfo,
-    opplaring,
-    prismodell,
-    okonomi,
-    prisendring,
-    enkeltplassDeltaker,
-  } = detaljer;
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
 
-  if (isGruppetiltak(gjennomforing)) {
+  if (isGjennomforingAvtaleDetaljer(detaljer)) {
     return (
       <GjennomforingAvtaleDetaljer
         tiltakstype={tiltakstype}
-        gjennomforing={gjennomforing}
-        veilederinfo={veilederinfo}
-        prismodell={prismodell}
-        opplaring={opplaring}
+        gjennomforing={detaljer.gjennomforing}
+        veilederinfo={detaljer.veilederinfo}
+        prismodell={detaljer.prismodell}
+        opplaring={detaljer.opplaring}
       />
     );
-  } else if (isEnkeltplass(gjennomforing)) {
+  } else if (isGjennomforingEnkeltplassDetaljer(detaljer)) {
     return (
       <GjennomforingEnkeltplassDetaljer
         tiltakstype={tiltakstype}
-        gjennomforing={gjennomforing}
-        veilederinfo={veilederinfo}
-        prismodell={prismodell}
-        enkeltplassDeltaker={enkeltplassDeltaker}
-        okonomi={okonomi}
-        prisendring={prisendring}
-        opplaring={opplaring}
+        gjennomforing={detaljer.gjennomforing}
+        prismodell={detaljer.prismodell}
+        deltaker={detaljer.deltaker}
+        okonomi={detaljer.okonomi}
+        prisendring={detaljer.prisendring}
+        opplaring={detaljer.opplaring}
       />
     );
   }

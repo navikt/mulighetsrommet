@@ -1,9 +1,5 @@
 import { useAvtale } from "@/api/avtaler/useAvtale";
-import {
-  useGjennomforing,
-  useGjennomforingByPathParam,
-} from "@/api/gjennomforing/useGjennomforing";
-import { isGruppetiltak } from "@/api/gjennomforing/utils";
+import { useGjennomforingByPathParam } from "@/api/gjennomforing/useGjennomforing";
 import { useUpdateGjennomforingDetaljer } from "@/api/gjennomforing/useUpdateGjennomforingDetaljer";
 import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
@@ -14,7 +10,7 @@ import {
   GjennomforingDetaljerOutputValues,
   gjennomforingDetaljerSchema,
 } from "@/pages/gjennomforing/form/validation";
-import { GjennomforingAvtaleDto, ValidationError } from "@tiltaksadministrasjon/api-client";
+import { GjennomforingAvtaleDetaljerDto, ValidationError } from "@tiltaksadministrasjon/api-client";
 import { useNavigate } from "react-router";
 import { RedigerGjennomforingPageLayout } from "@/pages/gjennomforing/RedigerGjennomforingPageLayout";
 import { toGjennomforingDetaljerRequest } from "./form/mappers";
@@ -23,36 +19,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { useGjennomforingDeltakerSummary } from "@/api/gjennomforing/useGjennomforingDeltakerSummary";
+import { isGjennomforingAvtaleDetaljer } from "@/api/gjennomforing/utils";
 
 export function RedigerGjennomforingDetaljerPage() {
   const detaljer = useGjennomforingByPathParam();
 
-  if (!isGruppetiltak(detaljer.gjennomforing)) {
+  if (!isGjennomforingAvtaleDetaljer(detaljer)) {
     return null;
   }
 
-  return (
-    <RedigerDetaljerForm
-      gjennomforingId={detaljer.gjennomforing.id}
-      gjennomforing={detaljer.gjennomforing}
-    />
-  );
+  return <RedigerDetaljerForm {...detaljer} />;
 }
 
-interface FormProps {
-  gjennomforingId: string;
-  gjennomforing: GjennomforingAvtaleDto;
-}
-
-function RedigerDetaljerForm({ gjennomforingId, gjennomforing }: FormProps) {
+function RedigerDetaljerForm(detaljer: GjennomforingAvtaleDetaljerDto) {
   const navigate = useNavigate();
-  const detaljer = useGjennomforing(gjennomforingId);
-  const { data: avtale } = useAvtale(gjennomforing.avtaleId);
+  const { data: avtale } = useAvtale(detaljer.gjennomforing.avtaleId);
   const { data: ansatt } = useHentAnsatt();
   const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
-  const { data: deltakere } = useGjennomforingDeltakerSummary(gjennomforingId);
+  const { data: deltakere } = useGjennomforingDeltakerSummary(detaljer.gjennomforing.id);
 
-  const mutation = useUpdateGjennomforingDetaljer(gjennomforingId);
+  const mutation = useUpdateGjennomforingDetaljer(detaljer.gjennomforing.id);
 
   const methods = useForm<
     GjennomforingDetaljerInputValues,
@@ -64,7 +50,7 @@ function RedigerDetaljerForm({ gjennomforingId, gjennomforing }: FormProps) {
       ansatt,
       tiltakstype,
       avtale,
-      gjennomforing,
+      detaljer.gjennomforing,
       detaljer.veilederinfo,
       detaljer.prismodell,
       detaljer.opplaring,
@@ -73,7 +59,7 @@ function RedigerDetaljerForm({ gjennomforingId, gjennomforing }: FormProps) {
 
   const onSubmit = methods.handleSubmit((data) => {
     mutation.mutate(toGjennomforingDetaljerRequest(data), {
-      onSuccess: () => navigate(`/gjennomforinger/${gjennomforingId}`),
+      onSuccess: () => navigate(`/gjennomforinger/${detaljer.gjennomforing.id}`),
       onValidationError: (validation: ValidationError) => {
         applyValidationErrors(methods, validation);
       },
@@ -86,7 +72,7 @@ function RedigerDetaljerForm({ gjennomforingId, gjennomforing }: FormProps) {
         <GjennomforingFormDetaljer
           tiltakstype={tiltakstype}
           avtale={avtale}
-          gjennomforing={gjennomforing}
+          gjennomforing={detaljer.gjennomforing}
           deltakere={deltakere}
         />
       </FormContainer>

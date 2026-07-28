@@ -27,17 +27,33 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-data class GjennomforingDetaljerDto(
+@JsonClassDiscriminator("type")
+sealed interface GjennomforingDetaljerDto
+
+@Serializable
+@SerialName("GjennomforingAvtaleDetaljerDto")
+data class GjennomforingAvtaleDetaljerDto(
     val tiltakstype: Gjennomforing.Tiltakstype,
-    val gjennomforing: GjennomforingDto,
-    val veilederinfo: GjennomforingVeilederinfoDto?,
+    val gjennomforing: GjennomforingAvtaleDto,
+    val veilederinfo: GjennomforingVeilederinfoDto,
+    val prismodell: PrismodellDto,
+    val opplaring: OpplaringKategoriseringDetaljer?,
+) : GjennomforingDetaljerDto
+
+@Serializable
+@SerialName("GjennomforingEnkeltplassDetaljerDto")
+data class GjennomforingEnkeltplassDetaljerDto(
+    val tiltakstype: Gjennomforing.Tiltakstype,
+    val gjennomforing: GjennomforingEnkeltplassDto,
     val prismodell: PrismodellDto,
     val opplaring: OpplaringKategoriseringDetaljer?,
     val okonomi: TotrinnskontrollDto?,
     val prisendring: Prisendring?,
-    val enkeltplassDeltaker: DeltakerDto?,
-) {
+    val deltaker: DeltakerDto?,
+) : GjennomforingDetaljerDto {
+
     @Serializable
     data class Prisendring(
         val totrinnskontroll: TotrinnskontrollDto,
@@ -45,46 +61,43 @@ data class GjennomforingDetaljerDto(
     )
 }
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
-@JsonClassDiscriminator("type")
-sealed class GjennomforingDto {
-    @Serializable
-    data class Status(
-        val type: GjennomforingStatusType,
-        val status: DataElement.Status,
-    )
-
-    @Serializable
-    data class ArrangorUnderenhet(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val organisasjonsnummer: Organisasjonsnummer,
-        val navn: String,
-        val slettet: Boolean,
-        val kontaktpersoner: List<ArrangorKontaktperson>,
-    )
-
-    @Serializable
-    data class ArrangorKontaktperson(
-        @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
-        val navn: String,
-        val beskrivelse: String?,
-        val telefon: String?,
-        val epost: String,
-    )
-
-    @Serializable
-    data class AnsvarligEnhet(
-        val enhetsnummer: NavEnhetNummer,
-        val navn: String,
-    )
+data class GjennomforingAvtaleDto(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val navn: String,
+    val lopenummer: Tiltaksnummer,
+    val tiltaksnummer: Tiltaksnummer?,
+    val arrangor: GjennomforingDtoArrangor,
+    @Serializable(with = LocalDateSerializer::class)
+    val startDato: LocalDate,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
+    val status: GjennomforingDtoStatus,
+    val antallPlasser: Int,
+    @Serializable(with = UUIDSerializer::class)
+    val avtaleId: UUID,
+    val oppstart: GjennomforingOppstartstype,
+    val pameldingType: GjennomforingPameldingType,
+    val apentForPamelding: Boolean,
+    val deltidsprosent: Double,
+    @Serializable(with = LocalDateSerializer::class)
+    val tilgjengeligForArrangorDato: LocalDate?,
+    val administratorer: List<Administrator>,
+    val stengt: List<StengtPeriode>,
+    val avbrytelse: AvbrytelseDto?,
+) {
 
     @Serializable
     data class Administrator(
         val navIdent: NavIdent,
         val navn: String,
+    )
+
+    @Serializable
+    data class AvbrytelseDto(
+        val aarsaker: List<AvbrytGjennomforingAarsak>,
+        val forklaring: String?,
     )
 
     @Serializable
@@ -99,49 +112,26 @@ sealed class GjennomforingDto {
 }
 
 @Serializable
-@SerialName("GjennomforingAvtaleDto")
-data class GjennomforingAvtaleDto(
-    @Serializable(with = UUIDSerializer::class)
-    val id: UUID,
-    val navn: String,
-    val lopenummer: Tiltaksnummer,
-    val tiltaksnummer: Tiltaksnummer?,
-    val arrangor: ArrangorUnderenhet,
-    @Serializable(with = LocalDateSerializer::class)
-    val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?,
-    val status: Status,
-    val antallPlasser: Int,
-    @Serializable(with = UUIDSerializer::class)
-    val avtaleId: UUID,
-    val oppstart: GjennomforingOppstartstype,
-    val pameldingType: GjennomforingPameldingType,
-    val apentForPamelding: Boolean,
-    val deltidsprosent: Double,
-    @Serializable(with = LocalDateSerializer::class)
-    val tilgjengeligForArrangorDato: LocalDate?,
-    val administratorer: List<Administrator>,
-    val stengt: List<StengtPeriode>,
-    val avbrytelse: AvbrytelseDto?,
-) : GjennomforingDto()
-
-@Serializable
-@SerialName("GjennomforingEnkeltplassDto")
 data class GjennomforingEnkeltplassDto(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
     val lopenummer: Tiltaksnummer,
     val tiltaksnummer: Tiltaksnummer?,
-    val arrangor: ArrangorUnderenhet,
+    val arrangor: GjennomforingDtoArrangor,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: Status,
+    val status: GjennomforingDtoStatus,
     val ansvarligEnhet: AnsvarligEnhet,
-) : GjennomforingDto()
+) {
+    @Serializable
+    data class AnsvarligEnhet(
+        val enhetsnummer: NavEnhetNummer,
+        val navn: String,
+    )
+}
 
 @Serializable
 data class GjennomforingVeilederinfoDto(
@@ -169,12 +159,6 @@ data class GjennomforingKontaktpersonDto(
     val mobilnummer: String? = null,
     val hovedenhet: NavEnhetNummer,
     val beskrivelse: String?,
-)
-
-@Serializable
-data class AvbrytelseDto(
-    val aarsaker: List<AvbrytGjennomforingAarsak>,
-    val forklaring: String?,
 )
 
 @Serializable
@@ -207,4 +191,31 @@ data class DeltakerDto(
             navVeilederNavn = navVeilederNavn,
         )
     }
+}
+
+@Serializable
+data class GjennomforingDtoStatus(
+    val type: GjennomforingStatusType,
+    val status: DataElement.Status,
+)
+
+@Serializable
+data class GjennomforingDtoArrangor(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val organisasjonsnummer: Organisasjonsnummer,
+    val navn: String,
+    val slettet: Boolean,
+    val kontaktpersoner: List<Kontaktperson> = listOf(),
+) {
+
+    @Serializable
+    data class Kontaktperson(
+        @Serializable(with = UUIDSerializer::class)
+        val id: UUID,
+        val navn: String,
+        val beskrivelse: String?,
+        val telefon: String?,
+        val epost: String,
+    )
 }

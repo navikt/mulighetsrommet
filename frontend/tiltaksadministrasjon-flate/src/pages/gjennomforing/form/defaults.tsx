@@ -2,7 +2,6 @@ import { splitNavEnheterByType, TypeSplittedNavEnheter } from "@/api/enhet/helpe
 import {
   AvtaleDto,
   GjennomforingAvtaleDto,
-  GjennomforingDto,
   GjennomforingOppstartstype,
   GjennomforingPameldingType,
   GjennomforingVeilederinfoDto,
@@ -18,6 +17,7 @@ import { DeepPartial } from "react-hook-form";
 import { kreverDirekteVedtak } from "@/utils/tiltakstype";
 import { GjennomforingFormValues } from "@/pages/gjennomforing/form/validation";
 import { toAmoKategoriseringRequest } from "@/pages/avtaler/form/mappers";
+import { GjennomforingDto } from "@/api/gjennomforing/utils";
 
 export function defaultGjennomforingData(
   ansatt: NavAnsattDto,

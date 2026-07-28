@@ -1,10 +1,5 @@
 import { KostnadsstedOption, VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
-import {
-  GjennomforingDto,
-  TilsagnRequest,
-  TilsagnType,
-  ValidationError,
-} from "@tiltaksadministrasjon/api-client";
+import { TilsagnRequest, TilsagnType, ValidationError } from "@tiltaksadministrasjon/api-client";
 import {
   Box,
   Button,
@@ -32,6 +27,7 @@ import { FormDateInput } from "@/components/skjema/FormDateInput";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
+import { GjennomforingDto } from "@/api/gjennomforing/utils";
 
 interface Props {
   onSuccess: () => void;

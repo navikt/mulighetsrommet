@@ -5,13 +5,14 @@ import { Laster } from "@/components/laster/Laster";
 import { Suspense } from "react";
 import { useTiltakstype } from "@/api/tiltakstyper/useTiltakstype";
 import { InformasjonForVeiledere } from "@/components/redaksjoneltInnhold/InformasjonForVeiledere";
+import { isGjennomforingAvtaleDetaljer } from "@/api/gjennomforing/utils";
 
 export function GjennomforingRedaksjoneltInnhold() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
-  const { veilederinfo, ...gjennomforing } = useGjennomforing(gjennomforingId);
-  const tiltakstype = useTiltakstype(gjennomforing.tiltakstype.id);
+  const detaljer = useGjennomforing(gjennomforingId);
+  const tiltakstype = useTiltakstype(detaljer.tiltakstype.id);
 
-  if (!veilederinfo) {
+  if (!isGjennomforingAvtaleDetaljer(detaljer)) {
     return null;
   }
 
@@ -20,10 +21,10 @@ export function GjennomforingRedaksjoneltInnhold() {
       <GjennomforingPageLayout>
         <InformasjonForVeiledere
           tiltakstype={tiltakstype}
-          beskrivelse={veilederinfo.beskrivelse}
-          faneinnhold={veilederinfo.faneinnhold}
-          kontorstruktur={veilederinfo.kontorstruktur}
-          kontaktpersoner={veilederinfo.kontaktpersoner}
+          beskrivelse={detaljer.veilederinfo.beskrivelse}
+          faneinnhold={detaljer.veilederinfo.faneinnhold}
+          kontorstruktur={detaljer.veilederinfo.kontorstruktur}
+          kontaktpersoner={detaljer.veilederinfo.kontaktpersoner}
         />
       </GjennomforingPageLayout>
     </Suspense>
