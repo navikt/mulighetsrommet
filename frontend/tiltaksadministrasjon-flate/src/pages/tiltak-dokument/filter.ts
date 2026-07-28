@@ -10,6 +10,7 @@ export const TiltakDokumentFilterSchema = z.object({
   navEnheter: z.string().array(),
   tiltakstyper: z.custom<Tiltakskode>().array(),
   sortering: createSorteringProps(z.string()),
+  publisert: z.string().array(),
   page: z.number(),
   pageSize: z.number(),
 });
@@ -26,6 +27,7 @@ export const defaultTiltakDokumentFilter: TiltakDokumentFilterType = {
       direction: "ascending",
     },
   },
+  publisert: [],
   page: 1,
   pageSize: PAGE_SIZE,
 };
