@@ -1,4 +1,5 @@
 import { HGrid } from "@navikt/ds-react";
+import { useEffect, useRef } from "react";
 import { useFormContext } from "react-hook-form";
 import { kurstypeToString } from "@/utils/Utils";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
@@ -26,9 +27,16 @@ export function AvtaleAmoKategoriseringForm({ tiltakskode }: Props) {
 }
 
 function NorskopplaeringGrunnleggendeGerdigheterFOVForm() {
-  const { watch } = useFormContext<AvtaleFormValues>();
+  const { watch, setValue } = useFormContext<AvtaleFormValues>();
 
   const amoKategorisering = watch("detaljer.amoKategorisering");
+  const prevKurstype = useRef(amoKategorisering?.kurstype);
+
+  useEffect(() => {
+    if (prevKurstype.current === amoKategorisering?.kurstype) return;
+    prevKurstype.current = amoKategorisering?.kurstype;
+    setValue("detaljer.amoKategorisering.norskprove", undefined);
+  }, [amoKategorisering?.kurstype]);
 
   return (
     <HGrid gap="space-16" columns={1}>
@@ -54,8 +62,7 @@ function NorskopplaeringGrunnleggendeGerdigheterFOVForm() {
           tiltakskode={Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV}
         />
       )}
-      {(amoKategorisering?.kurstype === KurstypeKode.GRUNNLEGGENDE_FERDIGHETER ||
-        amoKategorisering?.kurstype === KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE) && (
+      {isGrunnelggendeFerdigheterOrFov(amoKategorisering?.kurstype) && (
         <InnholdElementerForm<AvtaleFormValues>
           path="detaljer.amoKategorisering.innholdElementer"
           tiltakskode={Tiltakskode.NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV}
@@ -66,9 +73,20 @@ function NorskopplaeringGrunnleggendeGerdigheterFOVForm() {
 }
 
 function GruppeAmoForm() {
-  const { watch } = useFormContext<AvtaleFormValues>();
+  const { watch, setValue } = useFormContext<AvtaleFormValues>();
 
   const amoKategorisering = watch("detaljer.amoKategorisering");
+  const prevKurstype = useRef(amoKategorisering?.kurstype);
+
+  useEffect(() => {
+    if (prevKurstype.current === amoKategorisering?.kurstype) return;
+    prevKurstype.current = amoKategorisering?.kurstype;
+    setValue("detaljer.amoKategorisering.bransje", undefined);
+    setValue("detaljer.amoKategorisering.forerkort", undefined);
+    setValue("detaljer.amoKategorisering.sertifiseringer", undefined);
+    setValue("detaljer.amoKategorisering.innholdElementer", undefined);
+    setValue("detaljer.amoKategorisering.norskprove", undefined);
+  }, [amoKategorisering?.kurstype]);
 
   return (
     <HGrid gap="space-16" columns={1}>
@@ -103,7 +121,7 @@ function GruppeAmoForm() {
           tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING}
         />
       )}
-      {amoKategorisering?.kurstype === KurstypeKode.GRUNNLEGGENDE_FERDIGHETER && (
+      {isGrunnelggendeFerdigheterOrFov(amoKategorisering?.kurstype) && (
         <InnholdElementerForm<AvtaleFormValues>
           path="detaljer.amoKategorisering.innholdElementer"
           tiltakskode={Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING}
@@ -111,4 +129,14 @@ function GruppeAmoForm() {
       )}
     </HGrid>
   );
+}
+
+function isGrunnelggendeFerdigheterOrFov(kurstype: KurstypeKode | null | undefined): boolean {
+  if (!kurstype) {
+    return false;
+  }
+  return [
+    KurstypeKode.GRUNNLEGGENDE_FERDIGHETER,
+    KurstypeKode.FORBEREDENDE_OPPLAERING_FOR_VOKSNE,
+  ].includes(kurstype);
 }
