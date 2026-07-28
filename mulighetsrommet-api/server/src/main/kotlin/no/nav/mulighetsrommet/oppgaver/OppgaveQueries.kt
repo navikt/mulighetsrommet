@@ -44,8 +44,8 @@ class OppgaveQueries(private val session: Session) {
                 nav_enhet.navn AS ansvarlig_enhet_navn,
                 tiltakstype.tiltakskode AS tiltakstype_tiltakskode,
                 tiltakstype.navn AS tiltakstype_navn,
-                tk.behandlet_av,
-                tk.behandlet_tidspunkt,
+                coalesce(prisendring.behandlet_av, okonomi.behandlet_av) as behandlet_av,
+                coalesce(prisendring.behandlet_tidspunkt, okonomi.behandlet_tidspunkt) as behandlet_tidspunkt,
                 arrangor.navn as arrangor_navn,
                 arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
@@ -53,14 +53,20 @@ class OppgaveQueries(private val session: Session) {
             INNER JOIN arrangor on gjennomforing.arrangor_id = arrangor.id
             INNER JOIN tiltakstype ON tiltakstype.id = gjennomforing.tiltakstype_id
             INNER JOIN nav_enhet ON nav_enhet.enhetsnummer = gjennomforing.ansvarlig_enhet
-            INNER JOIN (
+            LEFT JOIN (
+                SELECT DISTINCT ON (entity_id) *
+                FROM totrinnskontroll
+                WHERE type = 'ENKELTPLASS_PRISENDRING'
+                ORDER BY entity_id, behandlet_tidspunkt DESC
+            ) prisendring ON prisendring.entity_id = gjennomforing.id
+            LEFT JOIN (
                 SELECT DISTINCT ON (entity_id) *
                 FROM totrinnskontroll
                 WHERE type = 'ENKELTPLASS_OKONOMI'
                 ORDER BY entity_id, behandlet_tidspunkt DESC
-            ) tk ON tk.entity_id = gjennomforing.id
+            ) okonomi ON okonomi.entity_id = gjennomforing.id
             WHERE gjennomforing.gjennomforing_type = 'ENKELTPLASS'
-                AND tk.status = 'TIL_BEHANDLING'
+                AND coalesce(prisendring.status, okonomi.status) = 'TIL_BEHANDLING'
                 AND (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
                 AND (:nav_enheter::text[] IS NULL OR gjennomforing.ansvarlig_enhet = ANY(:nav_enheter))
                 AND (:arrangorer::uuid[] IS NULL OR arrangor.id = ANY(:arrangorer))
@@ -109,7 +115,7 @@ class OppgaveQueries(private val session: Session) {
                 nav_enhet.navn AS ansvarlig_enhet_navn,
                 tiltakstype.tiltakskode AS tiltakstype_tiltakskode,
                 tiltakstype.navn AS tiltakstype_navn,
-                tk.besluttet_tidspunkt,
+                coalesce(prisendring.besluttet_tidspunkt, okonomi.besluttet_tidspunkt) as besluttet_tidspunkt,
                 arrangor.navn as arrangor_navn,
                 arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
@@ -117,14 +123,20 @@ class OppgaveQueries(private val session: Session) {
             INNER JOIN arrangor on gjennomforing.arrangor_id = arrangor.id
             INNER JOIN tiltakstype ON tiltakstype.id = gjennomforing.tiltakstype_id
             INNER JOIN nav_enhet ON nav_enhet.enhetsnummer = gjennomforing.ansvarlig_enhet
-            INNER JOIN (
+            LEFT JOIN (
+                SELECT DISTINCT ON (entity_id) *
+                FROM totrinnskontroll
+                WHERE type = 'ENKELTPLASS_PRISENDRING'
+                ORDER BY entity_id, behandlet_tidspunkt DESC
+            ) prisendring ON prisendring.entity_id = gjennomforing.id
+            LEFT JOIN (
                 SELECT DISTINCT ON (entity_id) *
                 FROM totrinnskontroll
                 WHERE type = 'ENKELTPLASS_OKONOMI'
                 ORDER BY entity_id, behandlet_tidspunkt DESC
-            ) tk ON tk.entity_id = gjennomforing.id
+            ) okonomi ON okonomi.entity_id = gjennomforing.id
             WHERE gjennomforing.gjennomforing_type = 'ENKELTPLASS'
-                AND tk.status = 'SATT_PA_VENT'
+                AND coalesce(prisendring.status, okonomi.status) = 'SATT_PA_VENT'
                 AND (:tiltakskoder::text[] IS NULL OR tiltakstype.tiltakskode = ANY(:tiltakskoder))
                 AND (:nav_enheter::text[] IS NULL OR gjennomforing.ansvarlig_enhet = ANY(:nav_enheter))
                 AND (:arrangorer::uuid[] IS NULL OR arrangor.id = ANY(:arrangorer))

@@ -868,7 +868,7 @@ class OppgaverServiceTest : FunSpec({
                 navEnheter = setOf(),
                 arrangorer = setOf(),
                 ansatt = NavAnsattFixture.DonaldDuck.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
                 ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_SATT_PA_VENT),
@@ -923,6 +923,71 @@ class OppgaverServiceTest : FunSpec({
                     roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
                 ),
             ).shouldBeEmpty()
+        }
+
+        test("beslutter ser oppgave for prisendring til godkjenning på enkeltplass") {
+            val service = OppgaverService(database.api, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setGodkjent(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    TotrinnskontrollType.ENKELTPLASS_OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+                setTilBehandling(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                )
+            }.initialize(database.api)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_TIL_GODKJENNING),
+            )
+        }
+
+        test("beslutter ser oppgave for prisendring som er satt på vent") {
+            val service = OppgaverService(database.api, features())
+
+            MulighetsrommetTestDomain(
+                gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
+            ) {
+                setGodkjent(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    TotrinnskontrollType.ENKELTPLASS_OKONOMI,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+                setPaVent(
+                    GjennomforingFixtures.EnkelAmo.id,
+                    TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
+                    behandletAv = NavAnsattFixture.DonaldDuck.navIdent,
+                    besluttetAv = NavAnsattFixture.MikkeMus.navIdent,
+                )
+            }.initialize(database.api)
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.BESLUTTER_TILSAGN)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(GjennomforingFixtures.EnkelAmo.id, OppgaveType.ENKELTPLASS_SATT_PA_VENT),
+            )
         }
 
         test("enkeltplass oppgaver vises ikke når feature toggle er skrudd av") {
