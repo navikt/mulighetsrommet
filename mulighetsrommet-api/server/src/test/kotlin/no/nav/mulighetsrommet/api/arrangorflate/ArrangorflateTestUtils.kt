@@ -158,6 +158,7 @@ object ArrangorflateTestUtils {
             journalpostId = null,
             innsendtAvArrangorTidspunkt = null,
             utbetalesTidligstTidspunkt = null,
+            avbrytelse = null,
         )
     }
 
@@ -179,6 +180,7 @@ object ArrangorflateTestUtils {
         journalpostId = null,
         innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
+        avbrytelse = null,
     )
 
     fun createTestDomain(

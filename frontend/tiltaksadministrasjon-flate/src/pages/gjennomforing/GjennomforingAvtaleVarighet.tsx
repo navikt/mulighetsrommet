@@ -11,7 +11,7 @@ import {
   GjennomforingVeilederinfoDto,
   TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
-import { AarsakerOgForklaring } from "./tilsagn/AarsakerOgForklaring";
+import { AarsakerOgForklaring } from "@/components/totrinnskontroll/AarsakerOgForklaring";
 
 interface Props {
   tiltakstype: TiltakstypeDto;

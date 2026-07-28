@@ -280,6 +280,41 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
+    fun sendTilAvbrytelse(id: UUID, agent: Agent, operation: String, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Utbetaling> = with(tx) {
+        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+        return utbetaling.settTilAbrytelse(agent, aarsaker, forklaring).map { utbetalingTilAvbrytelse ->
+            queries.utbetaling.save(utbetalingTilAvbrytelse)
+
+            outbox.publish(utbetalingTilAvbrytelse.avbrytelse!!.totrinnskontroll)
+            logEndring(operation, utbetaling.id, agent)
+        }
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun godkjennAvbrytelse(id: UUID, agent: Agent): Either<List<FieldError>, Utbetaling> = with(tx) {
+        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+
+        return utbetaling.godkjennAvbrytelse(agent).map { avbruttUtbetaling ->
+            queries.utbetaling.save(avbruttUtbetaling)
+            queries.utbetalingLinje.setAvbruttStatusLinjer(utbetaling.id)
+
+            outbox.publish(avbruttUtbetaling.avbrytelse!!.totrinnskontroll)
+            logEndring("Utbetaling avbrutt", utbetaling.id, agent)
+        }
+    }
+
+    context(tx: TransactionalQueryContext)
+    fun avslaAvbrytelse(id: UUID, besluttetAv: NavIdent, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Utbetaling> = with(tx) {
+        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+        return utbetaling.avslaAbrytelse(besluttetAv, aarsaker, forklaring).map { utbetalingTilSaksbehandling ->
+            queries.utbetaling.save(utbetalingTilSaksbehandling)
+
+            outbox.publish(utbetalingTilSaksbehandling.avbrytelse!!.totrinnskontroll)
+            logEndring("Avbrytelse avvist", utbetaling.id, besluttetAv)
+        }
+    }
+
+    context(tx: TransactionalQueryContext)
     fun avbrytUtbetaling(
         utbetalingId: UUID,
         begrunnelse: String,
@@ -291,7 +326,7 @@ class UtbetalingService(
         }
 
         queries.utbetaling.avbrytUtbetaling(utbetalingId, begrunnelse, Instant.now())
-        queries.utbetalingLinje.setStatusForLinjer(utbetalingId, UtbetalingLinjeStatus.AVBRUTT)
+        queries.utbetalingLinje.setAvbruttStatusLinjer(utbetalingId)
 
         logEndring("Utbetaling avbrutt", utbetaling.id, agent).right()
     }
@@ -432,6 +467,7 @@ class UtbetalingService(
             innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
+            avbrytelse = null,
         )
 
         queries.utbetaling.upsert(dbo)
@@ -460,6 +496,7 @@ class UtbetalingService(
             innsendtAvArrangorTidspunkt = LocalDateTime.now(),
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
+            avbrytelse = null,
         )
 
         queries.utbetaling.upsert(dbo)
@@ -487,6 +524,7 @@ class UtbetalingService(
             innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
+            avbrytelse = null,
         )
 
         queries.utbetaling.upsert(dbo)
@@ -521,6 +559,7 @@ class UtbetalingService(
             innsendtAvArrangorTidspunkt = null,
             betalingsinformasjon = getUtbetalingsinformasjon(gjennomforing.arrangor.id, upsert.kid),
             utbetalesTidligstTidspunkt = getUtbetalesTidligstTidspunkt(gjennomforing, upsert.periode),
+            avbrytelse = null,
         )
 
         queries.utbetaling.upsert(dbo)

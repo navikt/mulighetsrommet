@@ -2522,7 +2522,67 @@ paths:
         required: false
       responses:
         "200":
-          description: Utbetaling ble sendt til avbrytning (totrinnskontroll)
+          description: Utbetaling ble sendt til avbrytelse (totrinnskontroll)
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/avbryt/godkjenn:
+    put:
+      tags:
+      - Utbetaling
+      description: Godkjenn avbrytelse av utbetaling
+      operationId: godkjennAvbrytelseUtbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Utbetaling ble avbrutt
+          headers: {}
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/utbetaling/{id}/avbryt/avsla:
+    put:
+      tags:
+      - Utbetaling
+      description: Avslå avbrytelse av utbetaling
+      operationId: avslaAvbrytelseUtbetaling
+      parameters:
+      - name: id
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AarsakerOgForklaringRequest_UtbetalingStatusAarsak"
+        required: false
+      responses:
+        "200":
+          description: "Avbrytelse av utbetaling ble avslått, returnert til saksbehandling"
           headers: {}
         default:
           description: Problem details
@@ -7905,6 +7965,7 @@ components:
       - DELVIS_UTBETALT
       - UTBETALT
       - AVBRUTT
+      - TIL_AVBRYTELSE
     UtbetalingTypeDto:
       type: object
       properties:
@@ -8049,8 +8110,13 @@ components:
           - string
         tilskuddstype:
           $ref: "#/components/schemas/Tilskuddstype"
+        avbrytelse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/TotrinnskontrollDto"
       required:
       - avbruttBegrunnelse
+      - avbrytelse
       - begrunnelseMindreBetalt
       - beregning
       - betalingsinformasjon
@@ -8127,7 +8193,9 @@ components:
       - REDIGER
       - SEND_TIL_ATTESTERING
       - SLETT
-      - AVBRYT
+      - SEND_TIL_AVBRYTELSE
+      - GODKJENN_AVBRYTELSE
+      - AVSLA_AVBRYTELSE
       - HENT_GODKJENTE_TILSAGN
       - OPPRETT_TILSAGN
     UtbetalingDetaljerDto:
@@ -8522,6 +8590,7 @@ components:
       - UTBETALING_TIL_BEHANDLING
       - UTBETALING_TIL_ATTESTERING
       - UTBETALING_RETURNERT
+      - UTBETALING_TIL_AVBRYTELSE
       - AVTALE_MANGLER_ADMINISTRATOR
       - GJENNOMFORING_MANGLER_ADMINISTRATOR
       - ENKELTPLASS_TIL_GODKJENNING

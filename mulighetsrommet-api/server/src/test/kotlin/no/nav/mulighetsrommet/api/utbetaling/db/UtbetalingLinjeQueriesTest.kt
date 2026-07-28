@@ -140,7 +140,7 @@ class UtbetalingLinjeQueriesTest : FunSpec({
                 it.status shouldBe UtbetalingLinjeStatus.TIL_ATTESTERING
             }
 
-            queries.utbetalingLinje.setStatusForLinjer(linje.utbetalingId, UtbetalingLinjeStatus.AVBRUTT)
+            queries.utbetalingLinje.setAvbruttStatusLinjer(linje.utbetalingId)
 
             queries.utbetalingLinje.getByUtbetalingId(linje.utbetalingId).forEach {
                 it.status shouldBe UtbetalingLinjeStatus.AVBRUTT

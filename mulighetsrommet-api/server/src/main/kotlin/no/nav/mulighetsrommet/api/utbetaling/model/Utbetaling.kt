@@ -1,8 +1,18 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.right
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
+import no.nav.mulighetsrommet.model.Agent
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.JournalpostId
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -44,7 +54,70 @@ data class Utbetaling(
     @Serializable(with = InstantSerializer::class)
     val avbruttTidspunkt: Instant?,
     val blokkeringer: Set<Blokkering>,
+    val avbrytelse: Tilstandsendring?,
 ) {
+    /**
+     * Representerer en endring av status etter en totrinnskontroll
+     *
+     * Introdusert ved avbrytelse fra tiltaksadmin, hvor en utbetaling kan avbrytes fra flere mulige statuser.
+     */
+    @Serializable
+    data class Tilstandsendring(
+        val totrinnskontroll: Totrinnskontroll,
+        val returnert: UtbetalingStatusType,
+    )
+
+    fun settTilAbrytelse(
+        agent: Agent,
+        aarsaker: List<String>,
+        forklaring: String?,
+    ): Either<List<FieldError>, Utbetaling> {
+        if (!kanSettesTilAvbrytelse()) {
+            return FieldError.of("Utbetaling kan ikke settes til avbrytelse").nel().left()
+        }
+        return copy(
+            status = UtbetalingStatusType.TIL_AVBRYTELSE,
+            avbrytelse = Tilstandsendring(
+                totrinnskontroll = Totrinnskontroll.opprett(
+                    id = UUID.randomUUID(),
+                    entityId = id,
+                    type = TotrinnskontrollType.UTBETALING_AVBRYTELSE,
+                    behandletAv = agent,
+                    aarsaker = aarsaker,
+                    forklaring = forklaring,
+                ),
+                returnert = status,
+            ),
+        ).right()
+    }
+
+    fun godkjennAvbrytelse(agent: Agent): Either<List<FieldError>, Utbetaling> {
+        if (status != UtbetalingStatusType.TIL_AVBRYTELSE) {
+            return FieldError.of("Utbetalingen kan ikke avbrytes")
+                .nel()
+                .left()
+        }
+        return avbrytelse!!.totrinnskontroll.godkjenn(agent).mapLeft { it.toFieldErrors() }.map { godkjent ->
+            copy(avbrytelse = avbrytelse.copy(totrinnskontroll = godkjent), status = UtbetalingStatusType.AVBRUTT)
+        }
+    }
+
+    fun avslaAbrytelse(
+        besluttetAv: NavIdent,
+        aarsaker: List<String>,
+        forklaring: String?,
+    ): Either<List<FieldError>, Utbetaling> {
+        if (status != UtbetalingStatusType.TIL_AVBRYTELSE) {
+            return FieldError.of("Utbetalingen er ikke til avbrytelse")
+                .nel()
+                .left()
+        }
+        return avbrytelse!!.totrinnskontroll.returner(besluttetAv, aarsaker, forklaring).mapLeft { it.toFieldErrors() }
+            .map { retunert ->
+                copy(avbrytelse = avbrytelse.copy(totrinnskontroll = retunert), status = avbrytelse.returnert)
+            }
+    }
+
     fun arrangorInnsendtAnnenAvtaltPris(): Boolean {
         return when (beregning) {
             is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
@@ -69,6 +142,7 @@ data class Utbetaling(
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.UTBETALT,
+        UtbetalingStatusType.TIL_AVBRYTELSE,
         UtbetalingStatusType.AVBRUTT,
         -> false
     }
@@ -83,6 +157,7 @@ data class Utbetaling(
         UtbetalingStatusType.TIL_BEHANDLING,
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_AVBRYTELSE,
         UtbetalingStatusType.AVBRUTT,
         -> false
     }
@@ -92,13 +167,14 @@ data class Utbetaling(
 
     fun erKorreksjon(): Boolean = korreksjon != null
 
-    fun kanAvbrytes(): Boolean = !erKorreksjon() && when (status) {
+    fun kanSettesTilAvbrytelse(): Boolean = !erKorreksjon() && when (status) {
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.TIL_BEHANDLING,
         UtbetalingStatusType.RETURNERT,
         ->
             true
 
+        UtbetalingStatusType.TIL_AVBRYTELSE,
         UtbetalingStatusType.AVBRUTT,
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.UTBETALT,
@@ -106,6 +182,10 @@ data class Utbetaling(
         UtbetalingStatusType.TIL_ATTESTERING,
         ->
             false
+    }
+
+    fun getTiltaksnavn(): String {
+        return "${tiltakstype.navn} (${gjennomforing.lopenummer.value})"
     }
 
     @Serializable

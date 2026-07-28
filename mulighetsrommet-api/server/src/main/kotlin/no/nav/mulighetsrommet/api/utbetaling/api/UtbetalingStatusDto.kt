@@ -31,6 +31,8 @@ data class UtbetalingStatusDto(
 
                 UtbetalingStatusType.UTBETALT -> Type.UTBETALT
 
+                UtbetalingStatusType.TIL_AVBRYTELSE -> Type.TIL_AVBRYTELSE
+
                 UtbetalingStatusType.AVBRUTT -> Type.AVBRUTT
             }
             val status = DataElement.Status(type.beskrivelse, type.variant)
@@ -47,6 +49,7 @@ data class UtbetalingStatusDto(
         OVERFORT_TIL_UTBETALING("Overført til utbetaling", DataElement.Status.Variant.SUCCESS),
         DELVIS_UTBETALT("Delvis utbetalt", DataElement.Status.Variant.SUCCESS),
         UTBETALT("Utbetalt", DataElement.Status.Variant.SUCCESS),
-        AVBRUTT("Avbrutt av arrangør", DataElement.Status.Variant.ERROR),
+        AVBRUTT("Avbrutt", DataElement.Status.Variant.NEUTRAL),
+        TIL_AVBRYTELSE("Til avbrytelse", DataElement.Status.Variant.NEUTRAL),
     }
 }

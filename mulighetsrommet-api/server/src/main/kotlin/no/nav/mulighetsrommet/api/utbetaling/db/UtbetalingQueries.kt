@@ -6,6 +6,7 @@ import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.utbetaling.api.InnsendingKompaktDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingStatusDto
@@ -49,6 +50,11 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 class UtbetalingQueries(private val session: Session) {
+    fun save(utbetaling: Utbetaling) {
+        utbetaling.avbrytelse?.let { TotrinnskontrollQueries(session).upsert(it.totrinnskontroll) }
+        upsert(utbetaling.toDbo())
+    }
+
     fun upsert(dbo: UtbetalingDbo) = withTransaction(session) {
         @Language("PostgreSQL")
         val utbetalingQuery = """
@@ -139,6 +145,44 @@ class UtbetalingQueries(private val session: Session) {
 
         execute(queryOf(utbetalingQuery, params))
         setBeregning(dbo.id, dbo.beregning)
+        setAvbrytelse(dbo.id, dbo.avbrytelse)
+    }
+
+    private fun setAvbrytelse(
+        utbetalingId: UUID,
+        avbrytelse: UtbetalingTilstandsendringDbo?,
+    ) = withTransaction(session) {
+        if (avbrytelse == null) {
+            @Language("PostgreSQL")
+            val utbetalingQuery = """
+            delete from utbetaling_avbrytelse
+            where utbetaling_id = :id::uuid
+        """
+            execute(queryOf(utbetalingQuery, mapOf("utbetaling_id" to utbetalingId)))
+        } else {
+            @Language("PostgreSQL")
+            val utbetalingQuery = """
+            insert into utbetaling_avbrytelse (
+                utbetaling_id,
+                totrinnskontroll_id,
+                returnert
+            ) values (
+                :utbetaling_id::uuid,
+                :totrinnskontroll_id::uuid,
+                :returnert
+            ) on conflict (utbetaling_id) do update set
+                totrinnskontroll_id = excluded.totrinnskontroll_id,
+                returnert = excluded.returnert
+            """.trimIndent()
+
+            val params = mapOf(
+                "utbetaling_id" to utbetalingId,
+                "totrinnskontroll_id" to avbrytelse.totrinnskontrollId,
+                "returnert" to avbrytelse.returnert.name,
+            )
+
+            execute(queryOf(utbetalingQuery, params))
+        }
     }
 
     fun setBeregning(id: UUID, beregning: UtbetalingBeregning) = withTransaction(session) {
@@ -659,6 +703,16 @@ class UtbetalingQueries(private val session: Session) {
                 UtbetalingBeregningType.valueOf(string("beregning_type")),
             )
         }
+
+        val avbrytelse = uuidOrNull("utbetaling_avbrytelse_totrinnskontroll_id")?.let {
+            context(session) {
+                val totrinnskontroll = TotrinnskontrollQueries(session).getById(it)
+                Utbetaling.Tilstandsendring(
+                    totrinnskontroll = totrinnskontroll,
+                    returnert = UtbetalingStatusType.valueOf(string("utbetaling_avbrytelse_returnert")),
+                )
+            }
+        }
         return Utbetaling(
             id = id,
             gjennomforing = Utbetaling.Gjennomforing(
@@ -699,6 +753,7 @@ class UtbetalingQueries(private val session: Session) {
             avbruttBegrunnelse = stringOrNull("avbrutt_begrunnelse"),
             avbruttTidspunkt = instantOrNull("avbrutt_tidspunkt"),
             blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
+            avbrytelse = avbrytelse,
         )
     }
 
@@ -724,8 +779,8 @@ class UtbetalingQueries(private val session: Session) {
         periode = periode("periode"),
         pris = intOrNull("belop_beregnet")?.withValuta(string("valuta").let { Valuta.valueOf(it) }),
         status = UtbetalingStatusDto.fromUtbetalingStatus(
-            UtbetalingStatusType.valueOf(string("status")),
-            array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
+            utbetalingStatus = UtbetalingStatusType.valueOf(string("status")),
+            blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
         ),
         arrangor = string("arrangor_navn"),
         tiltakstype = Utbetaling.Tiltakstype(
@@ -1077,3 +1132,26 @@ private fun bankKontoParams(betalingsinformasjon: Betalingsinformasjon?) = when 
         "bank_navn" to null,
     )
 }
+
+fun Utbetaling.toDbo(): UtbetalingDbo = UtbetalingDbo(
+    id = id,
+    gjennomforingId = gjennomforing.id,
+    status = status,
+    valuta = valuta,
+    journalpostId = journalpostId,
+    beregning = beregning,
+    betalingsinformasjon = betalingsinformasjon,
+    periode = periode,
+    kommentar = kommentar,
+    korreksjonGjelderUtbetalingId = korreksjon?.gjelderUtbetalingId,
+    korreksjonBegrunnelse = korreksjon?.begrunnelse,
+    tilskuddstype = tilskuddstype,
+    innsendtAvArrangorTidspunkt = innsending?.tidspunkt,
+    utbetalesTidligstTidspunkt = utbetalesTidligstTidspunkt,
+    avbrytelse = avbrytelse?.let {
+        UtbetalingTilstandsendringDbo(
+            totrinnskontrollId = it.totrinnskontroll.id,
+            returnert = it.returnert,
+        )
+    },
+)

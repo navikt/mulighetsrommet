@@ -68,6 +68,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     type: utbetalingType.INNSENDING,
     begrunnelseMindreBetalt: null,
+    avbrytelse: null,
   },
   {
     id: "123e4567-e89b-12d3-a456-426614174001",
@@ -100,6 +101,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     type: utbetalingType.INNSENDING,
     begrunnelseMindreBetalt: null,
     avbruttBegrunnelse: null,
+    avbrytelse: null,
   },
   {
     avbruttBegrunnelse: null,
@@ -128,6 +130,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     type: utbetalingType.INNSENDING,
     begrunnelseMindreBetalt: null,
+    avbrytelse: null,
   },
   {
     avbruttBegrunnelse: null,
@@ -160,6 +163,7 @@ export const mockUtbetalinger: UtbetalingDto[] = [
     tilskuddstype: Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     type: utbetalingType.INNSENDING,
     begrunnelseMindreBetalt: null,
+    avbrytelse: null,
   },
 ];
 

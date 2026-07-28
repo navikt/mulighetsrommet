@@ -45,6 +45,7 @@ object UtbetalingFixtures {
         journalpostId = null,
         innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
+        avbrytelse = null,
     )
 
     val utbetalingDto1 = Utbetaling(
@@ -83,6 +84,7 @@ object UtbetalingFixtures {
         avbruttBegrunnelse = null,
         avbruttTidspunkt = null,
         blokkeringer = emptySet(),
+        avbrytelse = null,
     )
 
     val arrangorflateUtbetalingDto1 = ArrangorflateUtbetaling(
@@ -139,6 +141,7 @@ object UtbetalingFixtures {
         journalpostId = null,
         innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
+        avbrytelse = null,
     )
 
     val utbetaling3 = UtbetalingDbo(
@@ -159,6 +162,7 @@ object UtbetalingFixtures {
         journalpostId = null,
         innsendtAvArrangorTidspunkt = null,
         utbetalesTidligstTidspunkt = null,
+        avbrytelse = null,
     )
 
     val utbetalingLinje1 = UtbetalingLinjeDbo(

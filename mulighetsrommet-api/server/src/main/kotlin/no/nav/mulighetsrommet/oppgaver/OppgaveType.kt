@@ -38,6 +38,11 @@ enum class OppgaveType(val navn: String, val rolle: Rolle, val kategori: Kategor
         rolle = Rolle.SAKSBEHANDLER_OKONOMI,
         kategori = Kategori.UTBETALING_LINJE,
     ),
+    UTBETALING_TIL_AVBRYTELSE(
+        navn = "Utbetaling til avbrytelse",
+        rolle = Rolle.SAKSBEHANDLER_OKONOMI,
+        kategori = Kategori.UTBETALING,
+    ),
     AVTALE_MANGLER_ADMINISTRATOR(
         navn = "Avtale mangler administrator",
         rolle = Rolle.AVTALER_SKRIV,

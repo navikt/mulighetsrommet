@@ -209,6 +209,7 @@ fun arrangorAvbrytStatus(utbetaling: ArrangorflateUtbetaling): ArrangorAvbrytSta
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.TIL_ATTESTERING,
+        UtbetalingStatusType.TIL_AVBRYTELSE,
         -> ArrangorAvbrytStatus.DEACTIVATED
 
         UtbetalingStatusType.FERDIG_BEHANDLET,

@@ -36,6 +36,8 @@ enum class UtbetalingStatusType {
      */
     UTBETALT,
 
+    TIL_AVBRYTELSE,
+
     /**
      * Avbrutt av arrangør
      */

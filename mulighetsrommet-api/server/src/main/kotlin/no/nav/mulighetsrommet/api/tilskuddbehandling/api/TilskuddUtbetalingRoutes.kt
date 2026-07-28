@@ -122,6 +122,7 @@ data class TilskuddUtbetalingStatusDto(
                 UtbetalingStatusType.TIL_ATTESTERING,
                 UtbetalingStatusType.RETURNERT,
                 UtbetalingStatusType.GENERERT,
+                UtbetalingStatusType.TIL_AVBRYTELSE,
                 -> throw IllegalStateException("Tilskudd utbetaling status var $utbetalingStatus. Burde ikke være mulig")
 
                 UtbetalingStatusType.FERDIG_BEHANDLET -> Type.OVERFORT_TIL_UTBETALING

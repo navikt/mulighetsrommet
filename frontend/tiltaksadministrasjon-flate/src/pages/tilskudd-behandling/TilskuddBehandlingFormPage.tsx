@@ -18,7 +18,7 @@ import {
 import { usePotentialTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
 import { subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import { useEnkeltplassGjennomforingOrError } from "@/api/gjennomforing/useGjennomforing";
-import { ToTrinnsOpprettelsesForklaring } from "../gjennomforing/tilsagn/ToTrinnsOpprettelseForklaring";
+import { ToTrinnsOpprettelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollOpprettelseForklaring";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { applyValidationErrors } from "@/components/skjema/helpers";
@@ -162,7 +162,7 @@ export function TilskuddBehandlingFormPage() {
         <TilskuddBehandlingLayout gjennomforingId={gjennomforingId}>
           <>
             {data?.opprettelse && (
-              <ToTrinnsOpprettelsesForklaring
+              <ToTrinnsOpprettelseForklaring
                 heading="Behandlingen ble returnert"
                 opprettelse={data.opprettelse}
               />

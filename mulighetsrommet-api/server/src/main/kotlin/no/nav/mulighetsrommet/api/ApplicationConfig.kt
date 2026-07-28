@@ -140,6 +140,11 @@ class KafkaClients(
         topic = "team-mulighetsrommet.totrinnskontroll-v1",
         consumerProperties = getConsumerProperties("mulighetsrommet-api.tilskudd-bruker-utbetaling.v1"),
     )
+    var utbetalingAvbruttNotifier: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "utbetaling-avbrutt-notifier",
+        topic = "team-mulighetsrommet.totrinnskontroll-v1",
+        consumerProperties = getConsumerProperties("mulighetsrommet-api.utbetaling-avbrutt-notifier.v1"),
+    )
     var replicateBestillingStatus: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "replicate-bestilling-status",
         topic = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
