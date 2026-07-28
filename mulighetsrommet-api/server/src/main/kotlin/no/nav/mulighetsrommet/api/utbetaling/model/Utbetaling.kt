@@ -65,7 +65,6 @@ data class Utbetaling(
     data class Tilstandsendring(
         val totrinnskontroll: Totrinnskontroll,
         val returnert: UtbetalingStatusType,
-        val godkjent: UtbetalingStatusType,
     )
 
     fun settTilAbrytelse(
@@ -88,7 +87,6 @@ data class Utbetaling(
                     forklaring = forklaring,
                 ),
                 returnert = status,
-                godkjent = UtbetalingStatusType.AVBRUTT,
             ),
         ).right()
     }
@@ -100,7 +98,7 @@ data class Utbetaling(
                 .left()
         }
         return avbrytelse!!.totrinnskontroll.godkjenn(agent).mapLeft { it.toFieldErrors() }.map { godkjent ->
-            copy(avbrytelse = avbrytelse.copy(totrinnskontroll = godkjent), status = avbrytelse.godkjent)
+            copy(avbrytelse = avbrytelse.copy(totrinnskontroll = godkjent), status = UtbetalingStatusType.AVBRUTT)
         }
     }
 

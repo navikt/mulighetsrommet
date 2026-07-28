@@ -6,5 +6,4 @@ import java.util.UUID
 data class UtbetalingTilstandsendringDbo(
     val totrinnskontrollId: UUID,
     val returnert: UtbetalingStatusType,
-    val godkjent: UtbetalingStatusType,
 )

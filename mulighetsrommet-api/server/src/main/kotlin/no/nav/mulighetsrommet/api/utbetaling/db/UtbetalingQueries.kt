@@ -165,24 +165,20 @@ class UtbetalingQueries(private val session: Session) {
             insert into utbetaling_avbrytelse (
                 utbetaling_id,
                 totrinnskontroll_id,
-                returnert,
-                godkjent
+                returnert
             ) values (
                 :utbetaling_id::uuid,
                 :totrinnskontroll_id::uuid,
-                :returnert,
-                :godkjent
+                :returnert
             ) on conflict (utbetaling_id) do update set
                 totrinnskontroll_id = excluded.totrinnskontroll_id,
-                returnert = excluded.returnert,
-                godkjent = excluded.godkjent
+                returnert = excluded.returnert
             """.trimIndent()
 
             val params = mapOf(
                 "utbetaling_id" to utbetalingId,
                 "totrinnskontroll_id" to avbrytelse.totrinnskontrollId,
                 "returnert" to avbrytelse.returnert.name,
-                "godkjent" to avbrytelse.godkjent.name,
             )
 
             execute(queryOf(utbetalingQuery, params))
@@ -714,7 +710,6 @@ class UtbetalingQueries(private val session: Session) {
                 Utbetaling.Tilstandsendring(
                     totrinnskontroll = totrinnskontroll,
                     returnert = UtbetalingStatusType.valueOf(string("utbetaling_avbrytelse_returnert")),
-                    godkjent = UtbetalingStatusType.valueOf(string("utbetaling_avbrytelse_godkjent")),
                 )
             }
         }
@@ -1157,7 +1152,6 @@ fun Utbetaling.toDbo(): UtbetalingDbo = UtbetalingDbo(
         UtbetalingTilstandsendringDbo(
             totrinnskontrollId = it.totrinnskontroll.id,
             returnert = it.returnert,
-            godkjent = it.godkjent,
         )
     },
 )
