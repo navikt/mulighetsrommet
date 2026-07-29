@@ -6,8 +6,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.verify
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
+import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.model.NavIdent
 import java.util.UUID
 

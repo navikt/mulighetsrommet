@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.admin.arrangor
 
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
-import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.api.shared.PaginatedResult
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.util.UUID
 

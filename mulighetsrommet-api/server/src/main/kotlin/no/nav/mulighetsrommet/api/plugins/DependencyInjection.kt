@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonService
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.arrangor.KontoregisterGateway
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
+import no.nav.mulighetsrommet.admin.avtale.AvtaleDtoQuery
 import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
 import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerUseCase
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
@@ -27,7 +28,6 @@ import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
 import no.nav.mulighetsrommet.admin.navenhet.SynkroniserNavEnheterUseCase
 import no.nav.mulighetsrommet.admin.redaksjoneltinnhold.RedaksjoneltInnholdLenkeService
-import no.nav.mulighetsrommet.admin.tiltak.AvtaleDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeDtoQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKompaktQuery
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService

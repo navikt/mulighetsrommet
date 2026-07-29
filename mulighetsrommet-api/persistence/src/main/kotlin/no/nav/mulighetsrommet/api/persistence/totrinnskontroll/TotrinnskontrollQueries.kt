@@ -69,7 +69,7 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
         session.execute(queryOf(query, params))
     }
 
-    override fun getById(id: UUID): Totrinnskontroll {
+    fun getById(id: UUID): Totrinnskontroll {
         @Language("PostgreSQL")
         val query = """
             select *

@@ -11,8 +11,8 @@ import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.arrangor.toDto
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
+import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
+import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate
 import java.util.UUID

@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingHandling
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
@@ -32,10 +31,10 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -89,16 +88,10 @@ class GjennomforingDetaljerService(
                     ?: error("Fant ikke enkeltplass med id=${gjennomforing.id}")
 
                 db.session {
-                    val okonomi = queries.totrinnskontroll.getDto(
-                        gjennomforing.id,
-                        TotrinnskontrollType.ENKELTPLASS_OKONOMI,
-                    )
+                    val okonomi = enkeltplass.okonomi?.let { queries.totrinnskontroll.getDtoByIdOrError(it.id) }
 
                     val prisendring = enkeltplass.prisendring?.let {
-                        val totrinnskontroll = queries.totrinnskontroll.getDtoOrError(
-                            gjennomforing.id,
-                            TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
-                        )
+                        val totrinnskontroll = queries.totrinnskontroll.getDtoByIdOrError(it.totrinnskontroll.id)
                         GjennomforingEnkeltplassDetaljerDto.Prisendring(
                             totrinnskontroll,
                             it.prismodell.toPrismodellDto(),

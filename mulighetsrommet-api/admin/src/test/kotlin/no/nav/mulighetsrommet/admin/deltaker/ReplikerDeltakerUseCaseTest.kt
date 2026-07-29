@@ -6,7 +6,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import java.time.Instant
 import java.util.UUID

@@ -14,11 +14,11 @@ import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures
 import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.getAnsattClaims

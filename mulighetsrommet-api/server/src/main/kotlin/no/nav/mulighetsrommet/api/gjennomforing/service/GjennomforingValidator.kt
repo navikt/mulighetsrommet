@@ -5,6 +5,8 @@ import arrow.core.right
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.admin.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.api.domain.avtale.Avtale
+import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
@@ -12,8 +14,6 @@ import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
-import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
-import no.nav.mulighetsrommet.api.domain.tiltak.AvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingDetaljerRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingRequest
 import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoRequest

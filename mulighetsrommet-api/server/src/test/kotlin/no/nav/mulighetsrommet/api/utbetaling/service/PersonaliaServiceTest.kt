@@ -21,7 +21,7 @@ import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinResult
 import no.nav.mulighetsrommet.api.deltaker.client.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.deltaker.client.AmtDeltakerPersonalia
-import no.nav.mulighetsrommet.api.fixtures.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.utbetaling.pdl.HentAdressebeskyttetPersonMedGeografiskTilknytningBolkPdlQuery
 import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import no.nav.mulighetsrommet.model.NorskIdent

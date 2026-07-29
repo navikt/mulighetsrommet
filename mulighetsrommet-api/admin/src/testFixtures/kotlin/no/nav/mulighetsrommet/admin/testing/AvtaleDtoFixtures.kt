@@ -1,13 +1,13 @@
 package no.nav.mulighetsrommet.admin.testing
 
+import no.nav.mulighetsrommet.admin.avtale.AvtaleDto
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
-import no.nav.mulighetsrommet.admin.tiltak.AvtaleDto
 import no.nav.mulighetsrommet.admin.tiltak.PrismodellDto
-import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
-import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
-import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.domain.avtale.Avtale
+import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.DataElement

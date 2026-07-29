@@ -7,8 +7,8 @@ import io.mockk.verify
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerForslagUseCase
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService

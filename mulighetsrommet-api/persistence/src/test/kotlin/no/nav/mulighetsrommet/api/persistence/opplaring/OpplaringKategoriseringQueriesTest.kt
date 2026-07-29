@@ -5,10 +5,10 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.testing.fixture.UtdanningFixtures
 import no.nav.mulighetsrommet.api.domain.utdanning.Utdanning
 import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
 import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramType
-import no.nav.mulighetsrommet.api.fixtures.UtdanningFixtures
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
 
 class OpplaringKategoriseringQueriesTest : FunSpec({

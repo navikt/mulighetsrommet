@@ -7,8 +7,11 @@ import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.domain.tiltak.Opsjonsmodell
-import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
+import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
+import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavEnhetNummer

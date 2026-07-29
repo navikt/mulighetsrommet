@@ -3,23 +3,23 @@ package no.nav.mulighetsrommet.admin.testing
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorQueryHandler
+import no.nav.mulighetsrommet.admin.avtale.AvtaleQueryHandler
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkQueryHandler
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQueryHandler
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQueryHandler
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringQueryHandler
-import no.nav.mulighetsrommet.admin.tiltak.AvtaleQueryHandler
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeQueryHandler
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentQueryHandler
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollQueryHandler
-import no.nav.mulighetsrommet.api.domain.testing.FakeArrangorRepository
-import no.nav.mulighetsrommet.api.domain.testing.FakeDeltakerForslagRepository
-import no.nav.mulighetsrommet.api.domain.testing.FakeDeltakerRepository
-import no.nav.mulighetsrommet.api.domain.testing.FakeNavAnsattRepository
-import no.nav.mulighetsrommet.api.domain.testing.FakeNavEnhetRepository
-import no.nav.mulighetsrommet.api.domain.testing.FakeRedaksjoneltInnholdLenkeRepository
-import no.nav.mulighetsrommet.api.domain.testing.FakeTiltakDokumentRepository
-import no.nav.mulighetsrommet.api.domain.testing.FakeTiltakstypeRepository
-import no.nav.mulighetsrommet.api.domain.testing.FakeUtdanningRepository
+import no.nav.mulighetsrommet.api.domain.testing.repository.FakeArrangorRepository
+import no.nav.mulighetsrommet.api.domain.testing.repository.FakeDeltakerForslagRepository
+import no.nav.mulighetsrommet.api.domain.testing.repository.FakeDeltakerRepository
+import no.nav.mulighetsrommet.api.domain.testing.repository.FakeNavAnsattRepository
+import no.nav.mulighetsrommet.api.domain.testing.repository.FakeNavEnhetRepository
+import no.nav.mulighetsrommet.api.domain.testing.repository.FakeRedaksjoneltInnholdLenkeRepository
+import no.nav.mulighetsrommet.api.domain.testing.repository.FakeTiltakDokumentRepository
+import no.nav.mulighetsrommet.api.domain.testing.repository.FakeTiltakstypeRepository
+import no.nav.mulighetsrommet.api.domain.testing.repository.FakeUtdanningRepository
 
 class TestQueryContext : QueryContext() {
     private val redaksjoneltInnholdLenkeRepository = FakeRedaksjoneltInnholdLenkeRepository()

@@ -16,10 +16,10 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistRequest
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistResponse
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
-import no.nav.mulighetsrommet.api.fixtures.DeltakerFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.NavAnsattFixture
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService

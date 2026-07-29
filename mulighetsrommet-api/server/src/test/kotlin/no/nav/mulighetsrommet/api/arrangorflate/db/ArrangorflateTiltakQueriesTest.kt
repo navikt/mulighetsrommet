@@ -6,9 +6,9 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
+import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain

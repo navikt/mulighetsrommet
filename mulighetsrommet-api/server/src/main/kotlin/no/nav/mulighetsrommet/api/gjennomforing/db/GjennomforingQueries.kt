@@ -20,12 +20,12 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKo
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.persistence.tiltak.toPrismodell
+import no.nav.mulighetsrommet.api.shared.PaginatedResult
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.createUuidArray
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.utils.parameters
 import no.nav.mulighetsrommet.database.utils.toFTSPrefixQuery

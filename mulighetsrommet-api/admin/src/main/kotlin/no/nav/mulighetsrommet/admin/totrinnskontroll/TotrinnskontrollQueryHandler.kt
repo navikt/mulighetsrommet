@@ -17,5 +17,4 @@ interface TotrinnskontrollQueryHandler {
     fun upsert(totrinnskontroll: Totrinnskontroll)
     fun get(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll?
     fun getOrError(entityId: UUID, type: TotrinnskontrollType): Totrinnskontroll
-    fun getById(id: UUID): Totrinnskontroll
 }

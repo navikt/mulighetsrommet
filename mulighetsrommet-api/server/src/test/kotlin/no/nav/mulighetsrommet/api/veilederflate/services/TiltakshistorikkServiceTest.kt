@@ -12,11 +12,11 @@ import no.nav.mulighetsrommet.api.clients.pdl.PdlIdent
 import no.nav.mulighetsrommet.api.deltaker.client.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.deltaker.client.DeltakelseFraKomet
 import no.nav.mulighetsrommet.api.deltaker.client.DeltakelserResponse
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelsePeriode
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseStatus

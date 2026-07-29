@@ -4,8 +4,8 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggDbo
-import no.nav.mulighetsrommet.api.domain.tiltak.Avtale
-import no.nav.mulighetsrommet.api.domain.tiltak.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.domain.avtale.Avtale
+import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 

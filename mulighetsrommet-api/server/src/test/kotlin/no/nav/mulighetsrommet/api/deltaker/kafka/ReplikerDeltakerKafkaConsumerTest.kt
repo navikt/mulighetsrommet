@@ -18,7 +18,7 @@ import no.nav.mulighetsrommet.admin.deltaker.ReplikerDeltakerUseCase
 import no.nav.mulighetsrommet.api.deltaker.kafka.AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerDto
 import no.nav.mulighetsrommet.api.deltaker.kafka.AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerStatusDto
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
-import no.nav.mulighetsrommet.api.fixtures.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
