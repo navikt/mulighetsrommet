@@ -33,6 +33,7 @@ export function ArrangorerPage() {
       <ReloadAppErrorBoundary>
         <ContentBox>
           <FilterAndTableLayout
+            hasChanged={hasChanged}
             filter={
               <Box margin="space-8">
                 <TextField
@@ -51,9 +52,8 @@ export function ArrangorerPage() {
                 />
               </Box>
             }
-            nullstillFilterButton={
-              hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null
-            }
+            nullstillFilterButton={<NullstillFilterKnapp onClick={resetToDefault} />}
+            lagreFilterButton={null}
             tags={
               <FilterTagsContainer filterOpen={filterOpen} setTagsHeight={() => {}}>
                 {tag}

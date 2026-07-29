@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BodyShort, Button, Heading, Modal, TextField } from "@navikt/ds-react";
+import { StarIcon } from "@navikt/aksel-icons";
+import { BodyShort, Button, Heading, HStack, Modal, TextField } from "@navikt/ds-react";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import z from "zod";
@@ -54,8 +55,11 @@ export function LagreFilterButton({ onLagre, filter }: Props) {
 
   return (
     <>
-      <Button variant="tertiary" size="small" onClick={() => setIsOpen(true)}>
-        Lagre filter
+      <Button variant="secondary" size="small" onClick={() => setIsOpen(true)}>
+        <HStack gap="space-4" align="center">
+          <StarIcon title="a11y-title" fontSize="1.5rem" />
+          Lagre filter
+        </HStack>
       </Button>
       <Modal
         width={500}

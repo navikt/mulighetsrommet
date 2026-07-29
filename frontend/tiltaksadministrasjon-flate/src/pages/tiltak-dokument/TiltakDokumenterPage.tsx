@@ -30,10 +30,10 @@ export function TiltakDokumenterPage() {
       <HeaderBanner heading="Oversikt over tiltaksdokumenter" ikon={<TiltakDokumentIkon />} />
       <ContentBox>
         <FilterAndTableLayout
+          hasChanged={hasChanged}
           filter={<TiltakDokumentFilter filter={filter.values} updateFilter={updateFilter} />}
-          nullstillFilterButton={
-            hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null
-          }
+          nullstillFilterButton={<NullstillFilterKnapp onClick={resetToDefault} />}
+          lagreFilterButton={null}
           tags={
             <TiltakDokumentFilterTags
               filter={filter.values}

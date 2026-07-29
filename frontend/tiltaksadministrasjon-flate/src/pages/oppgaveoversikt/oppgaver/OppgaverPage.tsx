@@ -47,14 +47,9 @@ export function OppgaverPage() {
             }
           />
         }
-        nullstillFilterButton={
-          hasChanged ? (
-            <>
-              <NullstillFilterKnapp onClick={resetFilterToDefault} />
-              <LagreFilterButton filter={filter.values} onLagre={saveFilter} />
-            </>
-          ) : null
-        }
+        hasChanged={hasChanged}
+        nullstillFilterButton={<NullstillFilterKnapp onClick={resetFilterToDefault} />}
+        lagreFilterButton={<LagreFilterButton filter={filter.values} onLagre={saveFilter} />}
         tags={
           <OppgaveFilterTags
             filter={filter.values}

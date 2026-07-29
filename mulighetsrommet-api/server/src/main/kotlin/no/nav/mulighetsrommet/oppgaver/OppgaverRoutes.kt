@@ -109,7 +109,7 @@ private fun OppgaveType.strukturKategori(): String = when (this.kategori) {
 
     Kategori.AVTALE -> "Avtale"
 
-    Kategori.GJENNOMFORING -> "Gjennomforing"
+    Kategori.GJENNOMFORING -> "Gjennomføring"
 
     Kategori.ENKELTPLASS -> "Enkeltplass"
 

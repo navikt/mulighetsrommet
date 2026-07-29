@@ -11,7 +11,6 @@ import {
 import { LagredeFilterOversikt, LagreFilterButton, ListSkeleton } from "@mr/frontend-common";
 import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFilterKnapp/NullstillFilterKnapp";
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
-import { HStack } from "@navikt/ds-react";
 import { Suspense, useState } from "react";
 
 interface Props {
@@ -39,6 +38,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
   return (
     <>
       <FilterAndTableLayout
+        hasChanged={filterHasChanged}
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
         buttons={null}
@@ -58,14 +58,8 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
           </Suspense>
         }
         tags={<NavFilterTags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}
-        nullstillFilterButton={
-          filterHasChanged && (
-            <HStack gap="space-8">
-              <NullstillFilterKnapp onClick={resetFilterToDefaults} />
-              <LagreFilterButton onLagre={saveFilter} filter={filter} />
-            </HStack>
-          )
-        }
+        nullstillFilterButton={<NullstillFilterKnapp onClick={resetFilterToDefaults} />}
+        lagreFilterButton={<LagreFilterButton onLagre={saveFilter} filter={filter} />}
         table={
           <ArbeidsmarkedstiltakList
             tiltak={tiltak}

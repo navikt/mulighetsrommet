@@ -39,6 +39,7 @@ export function GjennomforingerPage() {
       <HeaderBanner heading="Oversikt over gjennomføringer" ikon={<GjennomforingAvtaleIkon />} />
       <ContentBox>
         <FilterAndTableLayout
+          hasChanged={hasChanged}
           filter={
             <GjennomforingFilter
               filter={filter.values}
@@ -54,14 +55,8 @@ export function GjennomforingerPage() {
               }
             />
           }
-          nullstillFilterButton={
-            hasChanged ? (
-              <>
-                <NullstillFilterKnapp onClick={resetFilterToDefault} />
-                <LagreFilterButton filter={filter.values} onLagre={saveFilter} />
-              </>
-            ) : null
-          }
+          nullstillFilterButton={<NullstillFilterKnapp onClick={resetFilterToDefault} />}
+          lagreFilterButton={<LagreFilterButton filter={filter.values} onLagre={saveFilter} />}
           tags={
             <GjennomforingFilterTags
               filter={filter.values}
