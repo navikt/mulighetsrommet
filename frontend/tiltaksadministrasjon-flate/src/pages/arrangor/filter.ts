@@ -2,7 +2,7 @@ import { ARRANGORER_PAGE_SIZE } from "@/constants";
 import { z } from "zod";
 import { createSorteringProps } from "@/api/atoms";
 import { createFilterStateAtom } from "@/filter/filter-state";
-import { createFilterValidator } from "@/filter/filter-validator";
+import { createFilterValidator } from "@mr/frontend-common/utils/filter-validator";
 
 const ArrangorerFilterSchema = z.object({
   sok: z.string(),

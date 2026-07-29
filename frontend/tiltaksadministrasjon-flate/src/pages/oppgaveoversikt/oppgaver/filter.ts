@@ -2,7 +2,10 @@ import { atom } from "jotai";
 import { OppgaveType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { z } from "zod";
 import { createFilterStateAtom } from "@/filter/filter-state";
-import { createFilterValidator, createGracefulParser } from "@/filter/filter-validator";
+import {
+  createFilterValidator,
+  createGracefulParser,
+} from "@mr/frontend-common/utils/filter-validator";
 
 export const OppgaverFilterSchema = z.object({
   type: z.enum(OppgaveType).array(),

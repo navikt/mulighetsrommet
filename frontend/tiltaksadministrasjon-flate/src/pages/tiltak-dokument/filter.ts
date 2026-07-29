@@ -1,4 +1,7 @@
-import { createFilterValidator, createGracefulParser } from "@/filter/filter-validator";
+import {
+  createFilterValidator,
+  createGracefulParser,
+} from "@mr/frontend-common/utils/filter-validator";
 import { PAGE_SIZE } from "@/constants";
 import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { z } from "zod";

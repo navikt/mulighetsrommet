@@ -1,5 +1,8 @@
 import { createSorteringProps } from "@/api/atoms";
-import { createFilterValidator, createGracefulParser } from "@/filter/filter-validator";
+import {
+  createFilterValidator,
+  createGracefulParser,
+} from "@mr/frontend-common/utils/filter-validator";
 import { PAGE_SIZE } from "@/constants";
 import {
   GjennomforingStatusType,

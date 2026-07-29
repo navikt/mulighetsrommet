@@ -35,14 +35,14 @@ export function FilterAndTableLayout({
         <FilterSidebar setFilterOpen={setFilterOpen} filterOpen={filterOpen} filterTab={filter} />
 
         <ToolbarButtonRow>
-          {hasChanged &&
+          {hasChanged && (
             <div className={styles.button_row_left}>
               <HStack align="center" gap="space-4">
                 {lagreFilterButton}
                 {nullstillFilterButton}
               </HStack>
             </div>
-          }
+          )}
           <div className={styles.button_row_right}>{buttons}</div>
         </ToolbarButtonRow>
 
