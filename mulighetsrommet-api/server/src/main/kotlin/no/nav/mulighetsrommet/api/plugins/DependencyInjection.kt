@@ -108,6 +108,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
+import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBlokkeringerFraBesluttetTilsagnConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.ReplikerFakturaStatusConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.UtbetalingAvbruttNotifierConsumer
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerAvtaltTiltaksplassPerManedBeregning
@@ -250,6 +251,10 @@ private fun kafka(appConfig: AppConfig) = module {
             config.clients.replicateBestillingStatus to ReplikerBestillingStatusConsumer(get()),
             config.clients.replicateFakturaStatus to ReplikerFakturaStatusConsumer(get(), get()),
             config.clients.oppdaterUtbetalingForGjennomforing to OppdaterUtbetalingBeregningForGjennomforingConsumer(get()),
+            config.clients.oppdaterUtbetalingBlokkeringerFraBesluttetTilsagn to OppdaterUtbetalingBlokkeringerFraBesluttetTilsagnConsumer(
+                get(),
+                get(),
+            ),
             config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get()),
             config.clients.utbetalingAvbruttNotifier to UtbetalingAvbruttNotifierConsumer(get(), get()),
         )
