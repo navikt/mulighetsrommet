@@ -13,10 +13,11 @@ data class UtbetalingStatusDto(
     companion object {
         fun fromUtbetalingStatus(utbetalingStatus: UtbetalingStatusType, blokkeringer: Set<Utbetaling.Blokkering>): UtbetalingStatusDto {
             val type = when (utbetalingStatus) {
-                UtbetalingStatusType.GENERERT -> if (blokkeringer.isEmpty()) {
-                    Type.VENTER_PA_ARRANGOR
-                } else {
+                UtbetalingStatusType.GENERERT -> if (blokkeringer.contains(Utbetaling.Blokkering.UBEHANDLET_FORSLAG)) {
                     Type.UBEHANDLET_FORSLAG
+                } else {
+                    // TODO: Håndter Utbetaling.Blokkering.MANGLER_TILSAGN
+                    Type.VENTER_PA_ARRANGOR
                 }
 
                 UtbetalingStatusType.TIL_BEHANDLING -> Type.KLAR_TIL_BEHANDLING

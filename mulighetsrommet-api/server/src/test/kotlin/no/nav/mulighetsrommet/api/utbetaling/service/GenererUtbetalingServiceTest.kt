@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.utbetaling.service
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainAllInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -474,8 +475,8 @@ class GenererUtbetalingServiceTest : FunSpec({
                 deltakere = listOf(
                     DeltakerFixtures.createDeltaker(
                         gjennomforingId = oppfolging.id,
-                        startDato = LocalDate.of(2025, 1, 1),
-                        sluttDato = LocalDate.of(2025, 1, 31),
+                        startDato = januar.start,
+                        sluttDato = januar.getLastInclusiveDate(),
                         status = DeltakerStatusType.DELTAR,
                     ),
                 ),
@@ -984,15 +985,20 @@ class GenererUtbetalingServiceTest : FunSpec({
             status = DeltakerForslag.Status.VENTER_PA_SVAR,
         )
 
+        val aftTilsagn = TilsagnFixtures.Tilsagn1.copy(gjennomforingId = AFT1.id, periode = januar)
+
         beforeEach {
             MulighetsrommetTestDomain(
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
                 avtaler = listOf(AvtaleFixtures.AFT),
                 gjennomforinger = listOf(AFT1),
-            ).initialize(database.api)
+                tilsagn = listOf(aftTilsagn),
+            ) {
+                setTilsagnStatus(aftTilsagn, TilsagnStatus.GODKJENT)
+            }.initialize(database.api)
         }
 
-        test("generert utbetaling har ingen blokkeringer når det ikke finnes forslag") {
+        test("generert utbetaling har ingen blokkeringer når det ikke finnes forslag og den har godkjente tilsagn") {
             MulighetsrommetTestDomain(
                 deltakere = listOf(deltaker),
             ).initialize(database.api)
@@ -1018,6 +1024,37 @@ class GenererUtbetalingServiceTest : FunSpec({
             utbetaling.blokkeringer shouldBe setOf(Utbetaling.Blokkering.UBEHANDLET_FORSLAG)
         }
 
+        test("generert utbetaling blir blokkert når det mangler godkjent tilsagn") {
+            MulighetsrommetTestDomain(
+                deltakere = listOf(deltaker),
+            ) {
+                setTilsagnStatus(aftTilsagn, TilsagnStatus.OPPGJORT)
+            }.initialize(database.api)
+
+            val utbetaling = service.genererUtbetalingerForPeriode(januar)
+                .shouldHaveSize(1)
+                .first()
+
+            utbetaling.blokkeringer shouldBe setOf(Utbetaling.Blokkering.MANGLER_TILSAGN)
+        }
+
+        test("generert utbetaling blir blokkert når det både finnes relevante forslag og det mangler tilsagn") {
+            MulighetsrommetTestDomain(
+                deltakere = listOf(deltaker),
+            )
+                {
+                    repository.deltakerForslag.save(createForslag(deltaker))
+                    queries.tilsagn.delete(aftTilsagn.id)
+                }
+                .initialize(database.api)
+
+            val utbetaling = service.genererUtbetalingerForPeriode(januar)
+                .shouldHaveSize(1)
+                .first()
+
+            utbetaling.blokkeringer shouldContainAllInAnyOrder setOf(Utbetaling.Blokkering.UBEHANDLET_FORSLAG, Utbetaling.Blokkering.MANGLER_TILSAGN)
+        }
+
         test("oppdaterUtbetalingBlokkeringerForGjennomforing setter blokkering når forslag dukker opp") {
             MulighetsrommetTestDomain(
                 deltakere = listOf(deltaker),
@@ -1039,6 +1076,33 @@ class GenererUtbetalingServiceTest : FunSpec({
 
             database.run {
                 repository.deltakerForslag.delete(forslag.id)
+            }
+
+            service.oppdaterUtbetalingBlokkeringerForGjennomforing(AFT1.id).first().should {
+                it.blokkeringer.shouldBeEmpty()
+            }
+        }
+
+        test("oppdaterUtbetalingBlokkeringerForGjennomforing setter blokkering når tilsagn mangler") {
+            MulighetsrommetTestDomain(
+                deltakere = listOf(deltaker),
+            ).initialize(database.api)
+
+            service.genererUtbetalingerForPeriode(januar).first().should {
+                it.blokkeringer.shouldBeEmpty()
+            }
+
+            database.run {
+                queries.tilsagn.delete(aftTilsagn.id)
+            }
+
+            service.oppdaterUtbetalingBlokkeringerForGjennomforing(AFT1.id).first().should {
+                it.blokkeringer shouldBe setOf(Utbetaling.Blokkering.MANGLER_TILSAGN)
+            }
+
+            database.run {
+                queries.tilsagn.upsert(aftTilsagn)
+                setTilsagnStatus(aftTilsagn, TilsagnStatus.GODKJENT)
             }
 
             service.oppdaterUtbetalingBlokkeringerForGjennomforing(AFT1.id).first().should {
