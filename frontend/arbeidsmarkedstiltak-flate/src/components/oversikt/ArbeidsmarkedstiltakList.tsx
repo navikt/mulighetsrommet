@@ -94,7 +94,10 @@ export function ArbeidsmarkedstiltakList({
       </ToolbarContainer>
       {feilmelding}
       <ul
-        className={classnames("m-0 mb-4 flex flex-col gap-3 p-0", filterOpen && "xl:pl-2 pl-4")}
+        className={classnames(
+          "m-0 mt-2 mb-4 flex flex-col gap-3 p-0",
+          filterOpen && "xl:pl-2 pl-4",
+        )}
         data-testid="oversikt_gjennomforinger"
       >
         {gjennomforingerForSide.map((gjennomforing, index) => {
