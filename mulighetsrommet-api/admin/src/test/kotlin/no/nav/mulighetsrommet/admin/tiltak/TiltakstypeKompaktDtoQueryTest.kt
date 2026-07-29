@@ -5,8 +5,8 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
-import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 
