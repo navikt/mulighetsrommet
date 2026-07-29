@@ -667,7 +667,7 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either
             else -> {}
         }
 
-        part.dispose()
+        part.release()
     }
 
     val validatedVedlegg = vedlegg.validateVedlegg()
