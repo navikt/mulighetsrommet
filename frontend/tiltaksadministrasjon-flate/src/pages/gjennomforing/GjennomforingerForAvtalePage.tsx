@@ -25,6 +25,7 @@ export function GjennomforingerForAvtalePage() {
   return (
     <ContentBox>
       <FilterAndTableLayout
+        hasChanged={hasChanged}
         filter={
           <GjennomforingFilter
             filter={filter.values}
@@ -36,9 +37,8 @@ export function GjennomforingerForAvtalePage() {
             lagredeFilterOversikt={undefined}
           />
         }
-        nullstillFilterButton={
-          hasChanged ? <NullstillFilterKnapp onClick={resetToDefault} /> : null
-        }
+        nullstillFilterButton={<NullstillFilterKnapp onClick={resetToDefault} />}
+        lagreFilterButton={null}
         tags={
           <GjennomforingFilterTags
             filter={filter.values}

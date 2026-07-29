@@ -37,11 +37,11 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
         tilbakelenke="/arbeidsmarkedstiltak"
       />
       <FilterAndTableLayout
+        hasChanged={filterHasChanged}
         filterOpen={filterOpen}
         setFilterOpen={setFilterOpen}
-        nullstillFilterButton={
-          filterHasChanged && <NullstillFilterKnapp onClick={resetFilterToDefaults} />
-        }
+        nullstillFilterButton={<NullstillFilterKnapp onClick={resetFilterToDefaults} />}
+        lagreFilterButton={null}
         buttons={null}
         filter={<FilterMenu />}
         tags={<ModiaFilterTags filterOpen={filterOpen} setTagsHeight={setTagsHeight} />}

@@ -4,7 +4,7 @@ import { FilterSidebar } from "../filter/FilterSidebar";
 import { ToolbarButtonRow } from "../toolbar/toolbarButtonRow/ToolbarButtonRow";
 import styles from "./FilterAndTableLayout.module.scss";
 import { OversiktSkeleton } from "../skeleton/OversiktSkeleton";
-import { Box } from "@navikt/ds-react";
+import { Box, HStack } from "@navikt/ds-react";
 
 interface Props {
   filter: React.ReactNode;
@@ -14,6 +14,8 @@ interface Props {
   filterOpen: boolean;
   setFilterOpen: (filterOpen: boolean) => void;
   nullstillFilterButton: React.ReactNode;
+  lagreFilterButton: React.ReactNode;
+  hasChanged: boolean;
 }
 
 export function FilterAndTableLayout({
@@ -24,6 +26,8 @@ export function FilterAndTableLayout({
   filterOpen,
   setFilterOpen,
   nullstillFilterButton,
+  lagreFilterButton,
+  hasChanged,
 }: Props) {
   return (
     <Suspense fallback={<OversiktSkeleton />}>
@@ -31,7 +35,14 @@ export function FilterAndTableLayout({
         <FilterSidebar setFilterOpen={setFilterOpen} filterOpen={filterOpen} filterTab={filter} />
 
         <ToolbarButtonRow>
-          <div className={styles.button_row_left}>{nullstillFilterButton}</div>
+          {hasChanged &&
+            <div className={styles.button_row_left}>
+              <HStack align="center" gap="space-4">
+                {lagreFilterButton}
+                {nullstillFilterButton}
+              </HStack>
+            </div>
+          }
           <div className={styles.button_row_right}>{buttons}</div>
         </ToolbarButtonRow>
 
