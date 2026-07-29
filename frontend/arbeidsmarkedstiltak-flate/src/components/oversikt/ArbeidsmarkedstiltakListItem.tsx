@@ -27,7 +27,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, deltMedBruker }: P
   return (
     <li
       className={classNames(
-        "list-none w-full bg-ax-bg-default rounded-lg text-medium hover:bg-ax-bg-accent-moderate-hover [&_a]:text-black border border-ax-border-neutral hover:border-ax-border-accent",
+        "list-none w-full bg-ax-bg-default rounded-lg text-medium hover:bg-ax-bg-accent-moderate-hover [&_a]:text-black border border-solid border-ax-border-neutral hover:border-ax-border-accent",
         {
           harDeltMedBruker: "border border-solid border-[rgba(7,26,54,0.21)]",
         },
@@ -95,7 +95,7 @@ function TiltakDeltMedBrukerInfo({ deltMedBruker }: TiltakDeltMedBrukerInfoProps
   });
 
   return (
-    <div className="bg-ax-bg-accent-soft py-1.5 px-3">
+    <div className="bg-ax-bg-accent-soft py-1.5 px-3 rounded-lg">
       <BodyShort title={formatertDeltMedBrukerDato} size="small">
         Delt i dialogen {formaterDato(date)}
       </BodyShort>
