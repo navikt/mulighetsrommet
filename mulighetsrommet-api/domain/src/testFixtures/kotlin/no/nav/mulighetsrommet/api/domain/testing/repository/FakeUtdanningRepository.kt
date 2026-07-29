@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.domain.testing
+package no.nav.mulighetsrommet.api.domain.testing.repository
 
 import no.nav.mulighetsrommet.api.domain.utdanning.Utdanningsprogram
 import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramRepository

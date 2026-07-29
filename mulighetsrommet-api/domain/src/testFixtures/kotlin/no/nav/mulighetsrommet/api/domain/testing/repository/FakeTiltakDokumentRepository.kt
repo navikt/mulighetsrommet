@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.domain.testing
+package no.nav.mulighetsrommet.api.domain.testing.repository
 
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
