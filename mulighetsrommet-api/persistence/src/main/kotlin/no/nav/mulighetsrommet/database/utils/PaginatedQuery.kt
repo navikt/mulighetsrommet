@@ -4,9 +4,11 @@ import kotliquery.Query
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.action.QueryAction
+import no.nav.mulighetsrommet.api.shared.PaginatedResult
+import no.nav.mulighetsrommet.api.shared.Pagination
 
 /**
- * Sql-parametre for [Pagination], navngitt for å matche `limit`/`offset` i en parameterisert spørring.
+ * Sql-parametre for [no.nav.mulighetsrommet.api.shared.Pagination], navngitt for å matche `limit`/`offset` i en parameterisert spørring.
  */
 val Pagination.parameters: Map<String, Int?>
     get() = mapOf(

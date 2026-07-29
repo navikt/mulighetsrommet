@@ -43,10 +43,10 @@ import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.shared.map
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
-import no.nav.mulighetsrommet.database.utils.map
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError

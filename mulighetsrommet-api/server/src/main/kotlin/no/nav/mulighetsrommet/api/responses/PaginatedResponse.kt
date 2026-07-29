@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.api.responses
 
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.api.shared.Pagination
 import kotlin.math.ceil
 
 @Serializable

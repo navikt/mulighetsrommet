@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.dto
 import io.ktor.server.routing.RoutingContext
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
-import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
 data class ArrangorflateUtbetalingFilter(

@@ -7,6 +7,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.coroutineScope
+import no.nav.mulighetsrommet.api.shared.Pagination
 
 object DatabaseUtils {
     private suspend fun <T> paginateSuspend(pageSize: Int, operation: suspend (Pagination) -> List<T>): Int {

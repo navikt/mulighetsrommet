@@ -31,10 +31,10 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent

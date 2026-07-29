@@ -1,7 +1,7 @@
 package no.nav.mulighetsrommet.admin.tiltakdokument
 
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
-import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.api.shared.PaginatedResult
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID

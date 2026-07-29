@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.admin.avtale
 
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
-import no.nav.mulighetsrommet.database.utils.Pagination
+import no.nav.mulighetsrommet.api.shared.PaginatedResult
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavEnhetNummer

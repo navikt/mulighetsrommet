@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
+import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
@@ -26,7 +27,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDate

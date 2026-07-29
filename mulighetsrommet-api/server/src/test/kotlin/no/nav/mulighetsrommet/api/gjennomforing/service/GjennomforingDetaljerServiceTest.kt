@@ -18,12 +18,12 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.api.AdminTiltaksgjennomforingFilter
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDetaljerDto
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent

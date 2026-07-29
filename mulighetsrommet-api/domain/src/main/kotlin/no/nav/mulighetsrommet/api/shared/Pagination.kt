@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.database.utils
+package no.nav.mulighetsrommet.api.shared
 
 data class Pagination private constructor(
     private val page: Int,

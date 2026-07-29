@@ -40,9 +40,9 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetalje
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
-import no.nav.mulighetsrommet.database.utils.Pagination
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype

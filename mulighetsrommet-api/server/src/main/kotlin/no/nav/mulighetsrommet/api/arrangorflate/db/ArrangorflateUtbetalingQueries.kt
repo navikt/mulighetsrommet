@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
@@ -21,7 +22,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.datatypes.periode
-import no.nav.mulighetsrommet.database.utils.PaginatedResult
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.utils.parameters
 import no.nav.mulighetsrommet.database.utils.toFTSPrefixQuery
