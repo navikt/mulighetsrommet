@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.persistence.tiltak
+package no.nav.mulighetsrommet.api.persistence.avtale
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -23,6 +23,7 @@ import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
+import no.nav.mulighetsrommet.api.persistence.tiltak.PrismodellQueries
 import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.database.createArrayOfValue

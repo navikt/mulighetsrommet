@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeRepository
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokumentRepository
 import no.nav.mulighetsrommet.api.domain.utdanning.UtdanningsprogramRepository
 import no.nav.mulighetsrommet.api.persistence.arrangor.ArrangorQueries
+import no.nav.mulighetsrommet.api.persistence.avtale.AvtaleQueries
 import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerForslagQueries
 import no.nav.mulighetsrommet.api.persistence.deltaker.DeltakerQueries
 import no.nav.mulighetsrommet.api.persistence.endringshistorikk.EndringshistorikkQueries
@@ -31,7 +32,6 @@ import no.nav.mulighetsrommet.api.persistence.navansatt.NavAnsattQueries
 import no.nav.mulighetsrommet.api.persistence.navenhet.NavEnhetQueries
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
 import no.nav.mulighetsrommet.api.persistence.redaksjoneltinnhold.RedaksjoneltInnholdLenkeQueries
-import no.nav.mulighetsrommet.api.persistence.tiltak.AvtaleQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.PrismodellQueries
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries

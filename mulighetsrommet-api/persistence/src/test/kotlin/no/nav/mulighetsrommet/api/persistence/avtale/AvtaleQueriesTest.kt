@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.persistence.tiltak
+package no.nav.mulighetsrommet.api.persistence.avtale
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
