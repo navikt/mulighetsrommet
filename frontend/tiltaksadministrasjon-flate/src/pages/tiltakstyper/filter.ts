@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { SortDirection, TiltakstypeSortField } from "@tiltaksadministrasjon/api-client";
-import { createFilterValidator } from "@/filter/filter-validator";
+import { createFilterValidator } from "@mr/frontend-common/utils/filter-validator";
 import { createFilterStateAtom } from "@/filter/filter-state";
 
 const TiltakstypeFilterSchema = z.object({

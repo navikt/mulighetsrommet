@@ -10,6 +10,7 @@ import { useSlettFilter } from "@/api/lagret-filter/useSlettFilter";
 import { useInnsatsgrupper } from "@/api/queries/useInnsatsgrupper";
 import { brukersEnhetFilterHasChanged } from "@/apps/modia/delMedBruker/helpers";
 import { useBrukerdata } from "@/apps/modia/hooks/useBrukerdata";
+import { createGracefulParser } from "@mr/frontend-common/utils/filter-validator";
 import { dequal } from "dequal";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
@@ -118,8 +119,9 @@ export function useArbeidsmarkedstiltakFilterUtenBrukerIKontekst() {
   const deleteFilterMutation = useSlettFilter();
 
   const defaultFilter = savedFilters.find((f) => f.isDefault);
-  const defaultFilterValues =
-    (defaultFilter?.filter as ArbeidsmarkedstiltakFilter | undefined) ?? defaultTiltakfilter;
+  const defaultFilterValues = defaultFilter
+    ? parseArbeidsmarkedstiltakFilter(defaultFilter.filter)
+    : defaultTiltakfilter;
 
   const selectFilter = useCallback(
     (id: string) => {
@@ -128,7 +130,7 @@ export function useArbeidsmarkedstiltakFilterUtenBrukerIKontekst() {
         setSelectedFilterId(valgtFilter.id);
         setValue({
           brukerIKontekst: null,
-          filter: valgtFilter.filter as ArbeidsmarkedstiltakFilter,
+          filter: parseArbeidsmarkedstiltakFilter(valgtFilter.filter),
         });
       }
     },
@@ -246,6 +248,11 @@ const defaultTiltakfilter: ArbeidsmarkedstiltakFilter = {
   apentForPamelding: [],
   erSykmeldtMedArbeidsgiver: false,
 };
+
+export const parseArbeidsmarkedstiltakFilter = createGracefulParser(
+  ArbeidsmarkedstiltakFilterSchema,
+  defaultTiltakfilter,
+);
 
 export const filterAtom = atomWithStorage<FilterMedBrukerIKontekst>(
   ARBEIDSMARKEDSTILTAK_FILTER_KEY,

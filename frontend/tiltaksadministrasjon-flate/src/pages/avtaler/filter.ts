@@ -1,7 +1,10 @@
 import { AVTALE_PAGE_SIZE } from "@/constants";
 import { z } from "zod";
 import { createSorteringProps } from "@/api/atoms";
-import { createFilterValidator, createGracefulParser } from "@/filter/filter-validator";
+import {
+  createFilterValidator,
+  createGracefulParser,
+} from "@mr/frontend-common/utils/filter-validator";
 import { createFilterStateAtom } from "@/filter/filter-state";
 import { atom } from "jotai";
 import { AvtaleStatusType, Avtaletype, Tiltakskode } from "@tiltaksadministrasjon/api-client";

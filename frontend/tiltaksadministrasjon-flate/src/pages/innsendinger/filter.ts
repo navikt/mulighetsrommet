@@ -1,7 +1,10 @@
 import { atom } from "jotai";
 import { z } from "zod";
 import { createFilterStateAtom } from "@/filter/filter-state";
-import { createFilterValidator, createGracefulParser } from "@/filter/filter-validator";
+import {
+  createFilterValidator,
+  createGracefulParser,
+} from "@mr/frontend-common/utils/filter-validator";
 import { createSorteringProps } from "@/api/atoms";
 import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
 
