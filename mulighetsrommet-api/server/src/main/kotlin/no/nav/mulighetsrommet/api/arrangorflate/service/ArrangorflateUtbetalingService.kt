@@ -105,10 +105,18 @@ class ArrangorflateUtbetalingService(
                 periode = utbetaling.periode,
                 beregning = utbetaling.beregning,
             )
-            if (utbetaling.blokkeringer.isNotEmpty() || advarsler.isNotEmpty()) {
+            if (utbetaling.blokkeringer.contains(Utbetaling.Blokkering.UBEHANDLET_FORSLAG) || advarsler.isNotEmpty()) {
                 return FieldError.of("Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.")
                     .nel()
                     .left()
+            }
+            if (utbetaling.blokkeringer.contains(Utbetaling.Blokkering.MANGLER_TILSAGN)) {
+                return FieldError.of("Det mangler tilsagn for utbetalingsperioden.")
+                    .nel()
+                    .left()
+            }
+            if (utbetaling.blokkeringer.isNotEmpty()) {
+                return FieldError.of("Utbetalingen kan ikke godkjennes fordi det finnes blokkeringer.").nel().left()
             }
             scheduleJournalforUtbetaling(utbetalingId, listOf())
             utbetalingService.godkjentAvArrangor(utbetaling.id, kid)
