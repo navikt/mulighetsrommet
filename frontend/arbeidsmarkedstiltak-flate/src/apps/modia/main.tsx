@@ -5,6 +5,20 @@ import { APPLICATION_NAME, APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { ModiaArbeidsmarkedstiltakWrapper } from "./ModiaArbeidsmarkedstiltakWrapper";
 import "../../index.css";
 
+if (import.meta.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
+  import("../../mock/worker")
+    .then(({ initializeMockServiceWorker }) => {
+      return initializeMockServiceWorker();
+    })
+    .then(render)
+    .catch((error) => {
+      // eslint-disable-next-line no-console
+      console.error("Error occurred while initializing MSW", error);
+    });
+} else {
+  render();
+}
+
 if (import.meta.env.VITE_FARO_URL) {
   initializeFaro({
     url: import.meta.env.VITE_FARO_URL,
@@ -30,8 +44,12 @@ customElements.define(APPLICATION_WEB_COMPONENT_NAME, ModiaArbeidsmarkedstiltakW
  * Må kjøres via `vite build` og `vite preview` (altså ikke via `vite dev`) for at styling under
  * shadow root skal bli lastet riktig.
  */
-const container = document.getElementById(APPLICATION_NAME);
-if (container) {
+function render() {
+  const container = document.getElementById(APPLICATION_NAME);
+  if (!container) {
+    return;
+  }
+
   const root = createRoot(container);
 
   const app = fetch("asset-manifest.json")

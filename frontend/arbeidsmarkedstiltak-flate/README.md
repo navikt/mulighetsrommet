@@ -6,22 +6,22 @@ avhengig av bruksområde.
 **MODIA**
 
 - En variant rettet mot veiledere ved arbeidsrettet oppfølging.
-    - Kjører med en bruker (borger) i kontekst og inkluderer en del funksjoner rettet mot samhandling mellom
-      Nav-veileder og bruker.
-    - Lar deg finne relevante arbeidsmarkedstiltak for bruker i kontekst.
-    - Gir deg oversikt over brukers tiltakshistorikk og integrerer med påmeldingsløsning for grintegrerer med
-      påmeldingsløsning for gruppetiltak.
+  - Kjører med en bruker (borger) i kontekst og inkluderer en del funksjoner rettet mot samhandling mellom
+    Nav-veileder og bruker.
+  - Lar deg finne relevante arbeidsmarkedstiltak for bruker i kontekst.
+  - Gir deg oversikt over brukers tiltakshistorikk og integrerer med påmeldingsløsning for grintegrerer med
+    påmeldingsløsning for gruppetiltak.
 - Blir distribuert som en [Web Component](https://developer.mozilla.org/en-US/docs/Web/API/Web_components) og inkludert
   som en microfrontend i [veilarbpersonflate](https://github.com/navikt/veilarbpersonflatefs).
 
 **NAV**
 
 - En variant som er tilgjengelig for alle Nav-ansatte.
-    - Gir deg en oversikt over arbeidsmarkedstiltak i Nav.
+  - Gir deg en oversikt over arbeidsmarkedstiltak i Nav.
 - Inneholder også en modus for forhåndsvisning av redaksjonelt innhold.
-    - Tilgjengelig for administratorer/redaktører innen tiltaksadministrasjon.
-    - Inkluderer noen mock-varianter av funksjoner som ellers kun er tilgjenglige for veiledere (via `MODIA`-varianten)
-      slik at man kan forhåndsvise innhold uten å ha en reell bruker i kontekst.
+  - Tilgjengelig for administratorer/redaktører innen tiltaksadministrasjon.
+  - Inkluderer noen mock-varianter av funksjoner som ellers kun er tilgjenglige for veiledere (via `MODIA`-varianten)
+    slik at man kan forhåndsvise innhold uten å ha en reell bruker i kontekst.
 
 **LOKAL**
 
@@ -63,7 +63,7 @@ For å generere dette gjør du følgende:
    {
      "NAVident": "B123456",
      "aud": ["mulighetsrommet-api"],
-     "oid": "37ba79a1-c36d-4f45-8608-d582df321ecc",
+     "oid": "37ba79a1-c36d-4f45-8608-d582df321ecc"
    }
    ```
 5. Trykk `Sign in`
@@ -83,10 +83,6 @@ DOM.
 Følgende script (miljøvariabler) kan brukes for å kjøre `MODIA`-varianten lokalt:
 
 ```sh
-# Build app
-APP=MODIA VITE_DEMO_FNR='12345678910' VITE_DEMO_ENHET='0315' turbo run build
-
-# Serve app
 turbo run preview
 ```
 

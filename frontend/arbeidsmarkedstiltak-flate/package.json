@@ -13,7 +13,7 @@
     "build:lokal": "cross-env APP=LOKAL VITE_MULIGHETSROMMET_API_MOCK=true vite build",
     "build:modia": "cross-env APP=MODIA VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build",
     "build:nav": "cross-env APP=NAV VITE_MULIGHETSROMMET_API_BASE='/mulighetsrommet-api' vite build",
-    "preview": "APP=MODIA vite preview",
+    "preview": "cross-env VITE_MULIGHETSROMMET_API_MOCK=true VITE_DEMO_FNR='12345678910' VITE_DEMO_ENHET='0315' APP=MODIA vite build && vite preview",
     "playwright": "playwright test",
     "playwright:debug": "playwright test --debug",
     "playwright:open": "playwright test --ui",
