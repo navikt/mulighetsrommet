@@ -7,7 +7,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import java.util.UUID
 
 class ArrangorKontaktpersonServiceTest : FunSpec({

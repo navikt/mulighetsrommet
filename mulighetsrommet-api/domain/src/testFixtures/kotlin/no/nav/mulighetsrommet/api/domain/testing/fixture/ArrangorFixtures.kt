@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.fixtures
+package no.nav.mulighetsrommet.api.domain.testing.fixture
 
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson

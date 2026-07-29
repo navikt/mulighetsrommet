@@ -4,8 +4,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContainExactly
 import no.nav.mulighetsrommet.altinn.model.AltinnRessurs
 import no.nav.mulighetsrommet.altinn.model.BedriftRettigheter
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet1
-import no.nav.mulighetsrommet.api.fixtures.ArrangorFixtures.underenhet2
+import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures.underenhet1
+import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures.underenhet2
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.Instant

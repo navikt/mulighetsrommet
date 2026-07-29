@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.admin.tiltak.PrismodellDto
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
-import no.nav.mulighetsrommet.api.fixtures.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.DataElement
