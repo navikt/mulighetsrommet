@@ -21,7 +21,7 @@ export function FilterAccordion({
       <Accordion.Header onClick={onClick} className="group">
         <HStack align="center" justify="space-between" gap="space-16">
           {tittel}
-          {tilleggsinformasjon && tilleggsinformasjon}
+          {tilleggsinformasjon}
           {antallValgteFilter && antallValgteFilter !== 0 ? (
             <Box
               borderRadius="8"
