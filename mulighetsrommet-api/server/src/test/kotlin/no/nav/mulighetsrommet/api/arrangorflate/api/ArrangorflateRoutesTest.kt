@@ -159,6 +159,30 @@ class ArrangorflateRoutesTest : FunSpec({
         }
     }
 
+    test("400 ved ugyldig beløp ved godkjenning av utbetaling") {
+        withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
+            val updatedAt = database.run {
+                UtbetalingQueries(session).getOrError(utbetaling.id).updatedAt
+            }
+            val response = client.post("/api/arrangorflate/utbetaling/${utbetaling.id}/godkjenn") {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append("updatedAt", updatedAt.toString())
+                            append("belop", "ikke-et-tall")
+                        },
+                    ),
+                )
+            }
+
+            response.status shouldBe HttpStatusCode.BadRequest
+            response.body<ValidationError>().errors shouldBe listOf(
+                FieldError.of("Beløp må være et gyldig heltall", GodkjennUtbetalingRequest::belop),
+            )
+        }
+    }
+
     // TODO: flytt resten av godkjenning-testene til egen testklasse for ArrangorflateService
     test("riktig sjekksum ved godkjenning av utbetaling gir 200, og spawner journalforing task") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {

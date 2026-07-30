@@ -117,12 +117,18 @@ class ArrangorflateUtbetalingService(
                 return FieldError.of("Utbetalingen kan ikke godkjennes fordi det finnes blokkeringer.").nel().left()
             }
 
-            if (command.belop != null) {
-                val beregning = utbetaling.beregning as? UtbetalingBeregningAvtaltPrisPerTimeOppfolging
-                    ?: return FieldError.of("Utbetalingen støtter ikke registrering av pris").nel().left()
+            if (utbetaling.beregning is UtbetalingBeregningAvtaltPrisPerTimeOppfolging) {
+                if (command.belop == null) {
+                    return FieldError.of("Beløp må være satt for denne utbetalingen").nel().left()
+                }
+
+                if (command.vedlegg.isEmpty()) {
+                    return FieldError.of("Vedlegg må være satt for denne utbetalingen").nel().left()
+                }
+
                 val pris = command.belop.withValuta(utbetaling.valuta)
-                val oppdatertBeregning = beregning.copy(
-                    input = beregning.input.copy(pris = pris),
+                val oppdatertBeregning = utbetaling.beregning.copy(
+                    input = utbetaling.beregning.input.copy(pris = pris),
                     output = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Output(pris),
                 )
                 utbetalingService.oppdaterBeregning(command.utbetalingId, oppdatertBeregning, Arrangor)
