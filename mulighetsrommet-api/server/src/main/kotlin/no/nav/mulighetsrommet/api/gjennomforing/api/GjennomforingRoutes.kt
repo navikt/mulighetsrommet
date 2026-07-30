@@ -37,6 +37,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GodkjennOkonomi
+import no.nav.mulighetsrommet.api.gjennomforing.model.SettOkonomiPaVent
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
@@ -48,6 +50,7 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.SettPaVentRequest
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
@@ -482,7 +485,7 @@ fun Route.gjennomforingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                val result = enkeltplasser.settOkonomiGodkjent(id, navIdent)
+                val result = enkeltplasser.settOkonomiGodkjent(GodkjennOkonomi(id, navIdent))
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -494,7 +497,7 @@ fun Route.gjennomforingRoutes() {
                 operationId = "settPaVentGjennomforingOkonomi"
                 request {
                     pathParameterUuid("id")
-                    body<SettPaVentOkonomiRequest>()
+                    body<SettPaVentRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -508,9 +511,14 @@ fun Route.gjennomforingRoutes() {
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
-                val request = call.receive<SettPaVentOkonomiRequest>()
+                val request = call.receive<SettPaVentRequest>()
 
-                val result = enkeltplasser.settOkonomiPaVent(id, navIdent, request.forklaring)
+                val command = SettOkonomiPaVent(
+                    id,
+                    navIdent,
+                    request.forklaring,
+                )
+                val result = enkeltplasser.settOkonomiPaVent(command)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -798,11 +806,6 @@ data class GjennomforingVeilederinfoRequest(
 @Serializable
 data class PublisertRequest(
     val publisert: Boolean,
-)
-
-@Serializable
-data class SettPaVentOkonomiRequest(
-    val forklaring: String? = null,
 )
 
 @Serializable

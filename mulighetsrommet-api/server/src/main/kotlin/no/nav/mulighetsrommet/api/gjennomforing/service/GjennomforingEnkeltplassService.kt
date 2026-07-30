@@ -32,6 +32,8 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GodkjennOkonomi
+import no.nav.mulighetsrommet.api.gjennomforing.model.SettOkonomiPaVent
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -307,10 +309,8 @@ class GjennomforingEnkeltplassService(
         getEnkeltplass(id)
     }
 
-    fun settOkonomiGodkjent(
-        id: UUID,
-        agent: Agent,
-    ): Validated<Enkeltplass> = db.transaction {
+    fun settOkonomiGodkjent(command: GodkjennOkonomi): Validated<Enkeltplass> = db.transaction {
+        val (id, agent) = command
         val enkeltplass = getAndAquireLock(id)
 
         if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
@@ -323,11 +323,8 @@ class GjennomforingEnkeltplassService(
         return settOkonomiGodkjent(id, okonomi, agent)
     }
 
-    fun settOkonomiPaVent(
-        id: UUID,
-        navIdent: NavIdent,
-        forklaring: String?,
-    ): Validated<Enkeltplass> = db.transaction {
+    fun settOkonomiPaVent(command: SettOkonomiPaVent): Validated<Enkeltplass> = db.transaction {
+        val (id, navIdent, forklaring) = command
         val enkeltplass = getAndAquireLock(id)
 
         if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {

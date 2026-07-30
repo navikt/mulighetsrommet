@@ -362,7 +362,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             operationId = "avbrytUtbetaling"
             request {
                 pathParameterUuid("id")
-                body<AvbrytUtbetaling>()
+                body<AvbrytUtbetalingRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -376,7 +376,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
-            val request = call.receive<AvbrytUtbetaling>()
+            val request = call.receive<AvbrytUtbetalingRequest>()
 
             request.validate()
                 .flatMap { begrunnelse ->
@@ -396,7 +396,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             operationId = "regenererUtbetaling"
             request {
                 pathParameterUuid("id")
-                body<AvbrytUtbetaling>()
+                body<AvbrytUtbetalingRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -554,16 +554,16 @@ data class GodkjennUtbetaling(
 }
 
 @Serializable
-data class AvbrytUtbetaling(
+data class AvbrytUtbetalingRequest(
     val begrunnelse: String?,
 ) {
     @OptIn(ExperimentalContracts::class)
     fun validate(): Validated<String> = validation {
         requireValid(!begrunnelse.isNullOrBlank()) {
-            FieldError.of("Begrunnelse må være satt", AvbrytUtbetaling::begrunnelse)
+            FieldError.of("Begrunnelse må være satt", AvbrytUtbetalingRequest::begrunnelse)
         }
         validate(begrunnelse.length <= 100) {
-            FieldError.of("Begrunnelse kan ikke være lengre enn 100 tegn", AvbrytUtbetaling::begrunnelse)
+            FieldError.of("Begrunnelse kan ikke være lengre enn 100 tegn", AvbrytUtbetalingRequest::begrunnelse)
         }
         begrunnelse
     }

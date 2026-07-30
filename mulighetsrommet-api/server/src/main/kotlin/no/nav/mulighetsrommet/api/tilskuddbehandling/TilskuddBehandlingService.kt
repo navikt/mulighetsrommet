@@ -17,13 +17,14 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToVedtaksbrevContent
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.AttesterTilskudd
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ReturnerTilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingHandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompakt
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
@@ -97,11 +98,9 @@ class TilskuddBehandlingService(
         }
     }
 
-    fun attester(
-        id: UUID,
-        navIdent: NavIdent,
-    ): Either<List<FieldError>, TilskuddBehandlingDto> = try {
+    fun attester(command: AttesterTilskudd): Either<List<FieldError>, TilskuddBehandlingDto> = try {
         db.transaction {
+            val (id, navIdent) = command
             val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
                 "TilskuddBehandling med id $id ble ikke funnet"
             }
@@ -135,12 +134,8 @@ class TilskuddBehandlingService(
         )
     }
 
-    fun returner(
-        id: UUID,
-        navIdent: NavIdent,
-        aarsaker: List<TilskuddBehandlingStatusAarsak>,
-        forklaring: String?,
-    ): Either<List<FieldError>, TilskuddBehandlingDto> = db.transaction {
+    fun returner(command: ReturnerTilskudd): Either<List<FieldError>, TilskuddBehandlingDto> = db.transaction {
+        val (id, navIdent, aarsaker, forklaring) = command
         val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
             "TilskuddBehandling med id $id ble ikke funnet"
         }

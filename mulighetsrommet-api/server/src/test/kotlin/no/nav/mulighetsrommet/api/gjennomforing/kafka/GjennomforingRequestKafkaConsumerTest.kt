@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.gjennomforing.model.GodkjennOkonomi
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -312,7 +313,8 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         }
 
         test("ignorerer tilbakekalling uten å kaste feil når totrinnskontroll allerede er godkjent") {
-            service.settOkonomiGodkjent(gjennomforingId, Tiltaksadministrasjon).shouldBeRight()
+            val godkjenn = GodkjennOkonomi(gjennomforingId, Tiltaksadministrasjon)
+            service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
             val request = GjennomforingRequest.EnkeltplassTilbakekallPrisinformasjon(
                 gjennomforingId = gjennomforingId,
