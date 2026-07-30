@@ -19,7 +19,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingAdvarsler
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
@@ -27,7 +26,6 @@ import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import no.nav.mulighetsrommet.tasks.transactionalSchedulerClient
@@ -155,7 +153,7 @@ class GenererUtbetalingService(
         }
 
         val gjennomforing = getGjennomforing(utbetaling.gjennomforing.id)
-        val beregning = requireNotNull(beregnUtbetaling(gjennomforing, utbetaling.periode)) {
+        val beregning = requireNotNull(beregnUtbetaling(gjennomforing, utbetaling.periode, utbetaling.beregning)) {
             "Generert utbetaling med id=${utbetaling.id} kunne ikke beregnes på nytt fordi den ikke lengre er relevant for arrangør"
         }
 
@@ -180,8 +178,7 @@ class GenererUtbetalingService(
             return null
         }
 
-        val prismodell = prismodeller.singleOrNull { it.type == gjennomforing.prismodell.type }
-        val beregning = when (prismodell) {
+        return when (val prismodell = prismodeller.singleOrNull { it.type == gjennomforing.prismodell.type }) {
             is SystemgenerertPrismodell.FraTilsagn -> {
                 val tilsagn = db.session {
                     queries.tilsagn.getAll(
@@ -190,33 +187,20 @@ class GenererUtbetalingService(
                         periodeIntersectsWith = periode,
                     )
                 }
-                prismodell.beregn(gjennomforing, periode, tilsagn)
+                val beregning = prismodell.beregn(gjennomforing, periode, tilsagn)
+                beregning.takeIf { it.output.pris.belop > 0 }
             }
 
             is SystemgenerertPrismodell.FraDeltakelser -> {
                 val deltakere = db.session { repository.deltaker.getByGjennomforing(gjennomforing.id) }
-                prismodell.beregn(gjennomforing, periode, deltakere)
-            }
-
-            is SystemgenerertPrismodell.FraDeltakelserOgInnsendtBelop -> {
-                val deltakere = db.session { repository.deltaker.getByGjennomforing(gjennomforing.id) }
-                // TODO: midlertidig hack for å teste konseptet med å bevare tidligere innsendt pris, burde ryddes opp i
-                val pris = if (forrigeBeregning is UtbetalingBeregningAvtaltPrisPerTimeOppfolging) {
-                    forrigeBeregning.output.pris
-                } else {
-                    ValutaBelop(0, gjennomforing.prismodell.valuta)
-                }
-                prismodell.beregn(gjennomforing, periode, deltakere, pris)
+                val beregning = prismodell.beregn(gjennomforing, periode, deltakere, forrigeBeregning)
+                beregning.takeIf { it.deltakelsePerioder().isNotEmpty() }
             }
 
             null -> {
                 log.info("Genererer ikke utbetaling for gjennomføring=${gjennomforing.id} fordi prismodellen ikke er støttet type=${gjennomforing.prismodell.type}")
-                return null
+                null
             }
-        }
-
-        return beregning.takeIf {
-            prismodell is SystemgenerertPrismodell.FraDeltakelserOgInnsendtBelop || it.output.pris.belop > 0
         }
     }
 
