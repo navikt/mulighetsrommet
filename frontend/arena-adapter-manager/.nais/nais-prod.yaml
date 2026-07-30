@@ -25,10 +25,6 @@ spec:
   readiness:
     path: /internal/ready
     initialDelay: 10
-  gcp:
-    buckets:
-      - name: mulighetsrommet-arena-adapter-manager-prod
-        cascadingDelete: false
   azure:
     application:
       enabled: true
@@ -51,7 +47,8 @@ spec:
       value: >
         {
           "gcs": {
-            "bucketName": "mulighetsrommet-arena-adapter-manager-prod"
+            "bucketName": "nais-cdn-nav-team-mulighetsrommet-4a92",
+            "bucketContextPath": "team-mulighetsrommet/prod/arena-adapter-manager/dist/"
           },
           "auth": {
             "loginProvider": "AZURE_AD"
