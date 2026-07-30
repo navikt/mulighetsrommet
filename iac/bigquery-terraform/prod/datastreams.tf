@@ -196,6 +196,15 @@ module "mr_api_datastream" {
           ]
         },
         { table = "utbetaling_linje_status_type" },
+        { table = "utbetaling_blokkering",
+          columns = [
+            "utbetaling_id",
+            "blokkering",
+            "created_at",
+            "updated_at"
+          ]
+        },
+        { table = "utbetaling_blokkering_type" },
         {
           table = "totrinnskontroll",
           columns = [
