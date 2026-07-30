@@ -275,3 +275,25 @@ FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.publi
     ON prismodell.id = gjennomforing.prismodell_id
 EOF
 }
+
+module "grafana_utbetaling_antall_blokkeringer_view" {
+  view_id             = "utbetaling_antall_blokkeringer_view"
+  source              = "../modules/google-bigquery-view"
+  deletion_protection = false
+  dataset_id          = local.grafana_dataset_id
+  depends_on          = [module.mr_api_datastream.dataset_id]
+  view_schema = jsonencode([
+    { name = "blokkering_type", type = "STRING", mode = "NULLABLE" },
+    { name = "antall", type = "INTEGER", mode = "NULLABLE" },
+  ])
+  view_query = <<EOF
+SELECT
+     t.value AS blokkering_type,
+     COUNT(b.blokkering) AS antall
+ FROM  `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling_blokkering_type` AS t
+ LEFT JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling_blokkering` AS b
+     ON b.blokkering = t.value
+ GROUP BY t.value
+ ORDER BY t.value
+EOF
+}

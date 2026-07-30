@@ -363,5 +363,12 @@ module "mr_api_datastream" {
         table_id   = "gjennomforing_view"
       }
     },
+    {
+      view = {
+        dataset_id = local.grafana_dataset_id
+        project_id = var.gcp_project["project"]
+        table_id   = "utbetaling_antall_blokkeringer_view"
+      }
+    },
   ]
 }
