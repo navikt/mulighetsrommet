@@ -6,6 +6,8 @@ import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.raise.either
+import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
 import arrow.core.right
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
@@ -576,8 +578,9 @@ data class GodkjennUtbetalingRequest(
 private suspend fun RoutingContext.receiveGodkjennUtbetalingRequest(): Either<List<FieldError>, GodkjennUtbetalingRequest> = either {
     var updatedAt: String? = null
     var kid: String? = null
-    var belop: Int? = null
+    var belop: String? = null
     var vedlegg: MutableList<Vedlegg>? = null
+
     val multipart = call.receiveMultipart()
 
     multipart.forEachPart { part ->
@@ -586,7 +589,7 @@ private suspend fun RoutingContext.receiveGodkjennUtbetalingRequest(): Either<Li
                 when (part.name) {
                     "updatedAt" -> updatedAt = part.value
                     "kid" -> kid = part.value
-                    "belop" -> belop = part.value.toInt()
+                    "belop" -> belop = part.value
                 }
             }
 
@@ -605,26 +608,32 @@ private suspend fun RoutingContext.receiveGodkjennUtbetalingRequest(): Either<Li
         part.release()
     }
 
-    if (updatedAt == null) {
+    ensureNotNull(updatedAt) {
         raise(listOf(FieldError.of("Siste tidspunkt for oppdatering må være satt")))
     }
 
-    if (belop != null && belop <= 0) {
-        raise(listOf(FieldError.of("Beløp må være et heltall større enn 0", GodkjennUtbetalingRequest::belop)))
-    }
+    val parsedBelop = belop
+        ?.let {
+            ensureNotNull(it.toIntOrNull()) {
+                listOf(FieldError.of("Beløp må være et gyldig heltall", GodkjennUtbetalingRequest::belop))
+            }
+        }
+        ?.also {
+            ensure(it > 0) {
+                listOf(FieldError.of("Beløp må være et heltall større enn 0", GodkjennUtbetalingRequest::belop))
+            }
+        }
 
-    if (kid != null && Kid.parse(kid) == null) {
-        raise(listOf(FieldError.of("Ugyldig kid", GodkjennUtbetalingRequest::kid)))
-    }
-
-    if (vedlegg != null && vedlegg.isEmpty()) {
-        raise(listOf(FieldError.of("Minst ett vedlegg er påkrevd")))
+    val parsedKid = kid?.let {
+        ensureNotNull(Kid.parse(it)) {
+            listOf(FieldError.of("Ugyldig kid", GodkjennUtbetalingRequest::kid))
+        }
     }
 
     GodkjennUtbetalingRequest(
         updatedAt = updatedAt,
-        kid = kid?.let { Kid.parseOrThrow(it) },
-        belop = belop,
+        kid = parsedKid,
+        belop = parsedBelop,
         vedlegg = vedlegg,
     )
 }

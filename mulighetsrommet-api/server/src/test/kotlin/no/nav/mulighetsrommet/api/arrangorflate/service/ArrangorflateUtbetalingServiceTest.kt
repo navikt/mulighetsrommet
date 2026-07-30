@@ -54,6 +54,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -314,6 +315,57 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                     "Det finnes advarsler på deltakere som påvirker utbetalingen. Disse må fikses før utbetalingen kan sendes inn.",
                 ),
             )
+        }
+
+        test("kan ikke godkjenne PrisPerTimeOppfolging-utbetaling i status GENERERT uten beløp") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1.copy(beregning = getPrisPerTimeBeregning())),
+            ).initialize(database.api)
+
+            val service = createUtbetalingService()
+
+            service.godkjentAvArrangor(GodkjennUtbetaling(utbetaling1Id)) shouldBeLeft listOf(
+                FieldError.of("Beløp må være satt for denne utbetalingen"),
+            )
+        }
+
+        test("kan ikke godkjenne PrisPerTimeOppfolging-utbetaling i status GENERERT uten vedlegg") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1.copy(beregning = getPrisPerTimeBeregning())),
+            ).initialize(database.api)
+
+            val service = createUtbetalingService()
+
+            service.godkjentAvArrangor(
+                GodkjennUtbetaling(utbetaling1Id, belop = 500),
+            ) shouldBeLeft listOf(
+                FieldError.of("Vedlegg må være satt for denne utbetalingen"),
+            )
+        }
+
+        test("kan godkjenne PrisPerTimeOppfolging-utbetaling i status GENERERT når beløp og vedlegg er satt") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+                utbetalinger = listOf(utbetaling1.copy(beregning = getPrisPerTimeBeregning())),
+            ).initialize(database.api)
+
+            val service = createUtbetalingService()
+            val vedlegg = listOf(Vedlegg(Content("text/plain", "test".toByteArray()), "test.txt"))
+
+            service.godkjentAvArrangor(
+                GodkjennUtbetaling(utbetaling1Id, belop = 500, vedlegg = vedlegg),
+            ).shouldBeRight()
+
+            database.run {
+                queries.utbetaling.getOrError(utbetaling1Id)
+                    .beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerTimeOppfolging>()
+                    .output.pris shouldBe 500.NOK
+            }
         }
 
         test("utbetaling blir journalført når arrangør godkjenner") {
@@ -938,6 +990,16 @@ private fun getForhandsgodkjentBeregning(periode: Periode, pris: ValutaBelop) = 
         pris = pris,
         deltakelser = setOf(),
     ),
+)
+
+private fun getPrisPerTimeBeregning() = UtbetalingBeregningAvtaltPrisPerTimeOppfolging(
+    input = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Input(
+        satser = setOf(SatsPeriode(Periode.forMonthOf(LocalDate.of(2025, 1, 1)), 1234.NOK)),
+        pris = 0.NOK,
+        stengt = setOf(),
+        deltakelser = setOf(),
+    ),
+    output = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Output(0.NOK),
 )
 
 fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningAnnenAvtaltPris(
