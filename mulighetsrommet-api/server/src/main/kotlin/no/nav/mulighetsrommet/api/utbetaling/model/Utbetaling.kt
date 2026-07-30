@@ -226,5 +226,6 @@ data class Utbetaling(
     @Serializable
     enum class Blokkering {
         UBEHANDLET_FORSLAG,
+        MANGLER_TILSAGN,
     }
 }

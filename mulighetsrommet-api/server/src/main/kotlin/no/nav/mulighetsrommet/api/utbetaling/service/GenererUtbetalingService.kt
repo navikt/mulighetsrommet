@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UtbetalingMapper
 import no.nav.mulighetsrommet.api.utbetaling.model.SystemgenerertPrismodell
@@ -123,8 +124,12 @@ class GenererUtbetalingService(
 
     fun oppdaterUtbetalingBlokkeringerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> = db.transaction {
         val forslag = repository.deltakerForslag.getByGjennomforing(gjennomforingId)
+        val godkjenteTilsagn = queries.tilsagn.getAll(
+            gjennomforingId = gjennomforingId,
+            statuser = listOf(TilsagnStatus.GODKJENT),
+        )
         return hentGenererteUtbetalinger(gjennomforingId).map { utbetaling ->
-            val blokkeringer = blokkeringer(utbetaling.periode, utbetaling.beregning, forslag)
+            val blokkeringer = blokkeringer(utbetaling.periode, utbetaling.beregning, forslag, godkjenteTilsagn)
             queries.utbetaling.setBlokkeringer(utbetaling.id, blokkeringer)
             utbetaling.copy(blokkeringer = blokkeringer)
         }
@@ -220,8 +225,14 @@ class GenererUtbetalingService(
             is Betalingsinformasjon.BBan -> forrigeKrav.betalingsinformasjon.kid
             else -> null
         }
-        val forslag = db.session { repository.deltakerForslag.getByGjennomforing(gjennomforingId) }
-        val blokkeringer = blokkeringer(periode, beregning, forslag)
+        val blokkeringer = db.session {
+            val forslag = repository.deltakerForslag.getByGjennomforing(gjennomforingId)
+            val godkjenteTilsagn = queries.tilsagn.getAll(
+                gjennomforingId = gjennomforingId,
+                statuser = listOf(TilsagnStatus.GODKJENT),
+            )
+            blokkeringer(periode, beregning, forslag, godkjenteTilsagn)
+        }
         val opprett = UpsertUtbetaling.Generering(
             id = UUID.randomUUID(),
             gjennomforingId = gjennomforingId,
@@ -257,12 +268,17 @@ class GenererUtbetalingService(
         periode: Periode,
         beregning: UtbetalingBeregning,
         forslag: List<DeltakerForslag>,
+        tilsagn: List<Tilsagn>,
     ): Set<Utbetaling.Blokkering> {
         val relevanteForslag = UtbetalingAdvarsler.relevanteForslag(periode, beregning, forslag)
+        val relevanteTilsagn = tilsagn.filter { it.periode.intersects(periode) && it.status == TilsagnStatus.GODKJENT }
 
         return setOfNotNull(
             Utbetaling.Blokkering.UBEHANDLET_FORSLAG.takeIf {
                 relevanteForslag.isNotEmpty()
+            },
+            Utbetaling.Blokkering.MANGLER_TILSAGN.takeIf {
+                relevanteTilsagn.isEmpty()
             },
         )
     }
