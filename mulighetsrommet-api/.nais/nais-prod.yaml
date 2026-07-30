@@ -162,7 +162,7 @@ spec:
   accessPolicy:
     inbound:
       rules:
-        - application: arrangor-flate
+        - application: arrangor-utbetalinger-flate
         - application: mulighetsrommet-arena-adapter
           permissions:
             roles:
