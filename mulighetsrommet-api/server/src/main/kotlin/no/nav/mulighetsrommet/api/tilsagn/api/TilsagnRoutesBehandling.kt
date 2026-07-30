@@ -17,6 +17,8 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.model.GodkjennTilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.ReturnerTilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
@@ -162,7 +164,7 @@ fun Route.tilsagnRoutesBehandling() {
             val id = call.parameters.getOrFail<UUID>("id")
             val navIdent = getNavIdent()
 
-            val result = service.godkjennTilsagn(id, navIdent)
+            val result = service.godkjennTilsagn(GodkjennTilsagn(id, navIdent))
                 .mapLeft { ValidationError(errors = it) }
                 .map { HttpStatusCode.OK }
 
@@ -193,7 +195,7 @@ fun Route.tilsagnRoutesBehandling() {
             val navIdent = getNavIdent()
 
             val result = request.validate()
-                .flatMap { service.returnerTilsagn(id, navIdent, it.aarsaker, it.forklaring) }
+                .flatMap { service.returnerTilsagn(ReturnerTilsagn(id, navIdent, it.aarsaker, it.forklaring)) }
                 .mapLeft { ValidationError(errors = it) }
                 .map { HttpStatusCode.OK }
 

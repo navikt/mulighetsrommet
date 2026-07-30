@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
+import no.nav.mulighetsrommet.api.tilsagn.model.GodkjennTilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
@@ -138,7 +139,7 @@ class TilskuddArrangorUtbetalingConsumer(
             Tiltaksadministrasjon,
         )
             .flatMap {
-                tilsagnService.godkjennTilsagnInTx(it.id, Tiltaksadministrasjon)
+                tilsagnService.godkjennTilsagnInTx(GodkjennTilsagn(it.id, Tiltaksadministrasjon))
             }
             .getOrElse {
                 throw IllegalStateException("Feil under opprettelse av tilsagn for tilskudd. Errors: $it")

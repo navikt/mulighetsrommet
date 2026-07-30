@@ -511,7 +511,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AvbrytUtbetaling"
+              $ref: "#/components/schemas/AvbrytUtbetalingRequest"
         required: false
       responses:
         "200":
@@ -544,7 +544,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AvbrytUtbetaling"
+              $ref: "#/components/schemas/AvbrytUtbetalingRequest"
         required: false
       responses:
         "200":
@@ -1928,7 +1928,7 @@ components:
       - kontonummer
       - mottattDato
       - utbetalesTidligstDato
-    AvbrytUtbetaling:
+    AvbrytUtbetalingRequest:
       type: object
       properties:
         begrunnelse:

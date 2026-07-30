@@ -1452,7 +1452,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SettPaVentOkonomiRequest"
+              $ref: "#/components/schemas/SettPaVentRequest"
         required: false
       responses:
         "200":
@@ -5779,15 +5779,19 @@ components:
       - beskrivelse
       - periodeSlutt
       - periodeStart
-    SettPaVentOkonomiRequest:
+    SettPaVentRequest:
       type: object
       properties:
+        totrinnskontrollId:
+          type: string
+          format: uuid
         forklaring:
           type:
           - "null"
           - string
       required:
       - forklaring
+      - totrinnskontrollId
     GjennomforingStatusType:
       type: string
       enum:

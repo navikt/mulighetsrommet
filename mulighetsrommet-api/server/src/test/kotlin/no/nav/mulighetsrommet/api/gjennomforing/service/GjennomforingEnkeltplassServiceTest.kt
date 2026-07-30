@@ -36,6 +36,8 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GodkjennOkonomi
+import no.nav.mulighetsrommet.api.gjennomforing.model.SettOkonomiPaVent
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.FieldError
@@ -267,8 +269,14 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("sender økonomi til godkjenning på nytt etter at økonomi er satt på vent") {
             val soktInn = createRequest()
-            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-            service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Feil prisbetingelser").shouldBeRight()
+            val (_, opprettetOkonomi) = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+
+            val settPaVent = SettOkonomiPaVent(
+                soktInn.id,
+                besluttetAv,
+                forklaring = "Feil prisbetingelser",
+            )
+            service.settOkonomiPaVent(settPaVent).shouldBeRight()
 
             val prismodell = UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
@@ -290,8 +298,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("gjør ingenting dersom økonomi allerede er GODKJENT") {
             val soktInn = createRequest()
-            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-            service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+            val (_, opprettetOkonomi) = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+
+            val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+            service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
             val prismodell = UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
@@ -419,9 +429,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
         test("godkjenner økonomi og setter besluttelse til GODKJENT") {
             val soktInn = createRequest()
 
-            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+            val (_, opprettetOkonomi) = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
-            val (_, okonomi) = service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+            val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+            val (_, okonomi) = service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
@@ -431,18 +442,24 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("returnerer feil når behandletAv og besluttetAv er samme person") {
             val soktInn = createRequest()
-            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+            val (_, opprettetOkonomi) = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
-            service.settOkonomiGodkjent(soktInn.id, opprettetAv)
+            val godkjenn = GodkjennOkonomi(soktInn.id, opprettetAv)
+            service.settOkonomiGodkjent(godkjenn)
                 .shouldBeLeft()
                 .first().detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
         }
 
         test("kan sette økonomi på vent") {
             val soktInn = createRequest()
-            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+            val (_, opprettetOkonomi) = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
-            val (_, okonomi) = service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Feil").shouldBeRight()
+            val settPaVent = SettOkonomiPaVent(
+                soktInn.id,
+                besluttetAv,
+                forklaring = "Feil",
+            )
+            val (_, okonomi) = service.settOkonomiPaVent(settPaVent).shouldBeRight()
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
@@ -453,15 +470,17 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("kan godkjenne enkeltplass når den er satt på vent") {
             val soktInn = createRequest()
-            service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+            val (_, opprettetOkonomi) = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
-            service.settOkonomiPaVent(
+            val settPaVent = SettOkonomiPaVent(
                 soktInn.id,
                 besluttetAv,
                 forklaring = "Feil prisbetingelser",
-            ).shouldBeRight()
+            )
+            val (_, paVentOkonomi) = service.settOkonomiPaVent(settPaVent).shouldBeRight()
 
-            val (_, okonomi) = service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+            val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+            val (_, okonomi) = service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
             okonomi.shouldNotBeNull().should {
                 it.status shouldBe TotrinnskontrollStatus.GODKJENT
@@ -471,17 +490,34 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
         test("returnerer feil når enkeltplass allerede er behandlet") {
             val soktInn = createRequest()
+            val (_, opprettetOkonomi) = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
+            val totrinnskontrollId = opprettetOkonomi!!.id
+
+            val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+            service.settOkonomiGodkjent(godkjenn).shouldBeRight()
+
+            service.settOkonomiGodkjent(godkjenn)
+                .shouldBeLeft()
+                .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
+
+            val settPaVent = SettOkonomiPaVent(
+                soktInn.id,
+                besluttetAv,
+                forklaring = "Angret",
+            )
+            service.settOkonomiPaVent(settPaVent)
+                .shouldBeLeft()
+                .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
+        }
+
+        xtest("returnerer feil når totrinnskontrollId ikke stemmer med gjeldende økonomi") {
+            val soktInn = createRequest()
             service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
-            service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
-
-            service.settOkonomiGodkjent(soktInn.id, besluttetAv)
+            val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+            service.settOkonomiGodkjent(godkjenn)
                 .shouldBeLeft()
-                .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
-
-            service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Angret")
-                .shouldBeLeft()
-                .first().detail shouldBe "Totrinnskontrollen er allerede godkjent"
+                .first().detail shouldBe "Grunnlaget har endret seg siden det ble hentet. Last inn siden på nytt og prøv igjen."
         }
     }
 
@@ -803,11 +839,12 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val forsteBehandling = behandling(opprettetAv)
                 service.soktInn(soktInn, forsteBehandling).shouldBeRight()
 
-                service.settOkonomiPaVent(
+                val settPaVent = SettOkonomiPaVent(
                     soktInn.id,
                     besluttetAv,
                     "Trenger mer info",
-                ).shouldBeRight().should { enkeltplass ->
+                )
+                service.settOkonomiPaVent(settPaVent).shouldBeRight().should { enkeltplass ->
                     enkeltplass.okonomi.shouldNotBeNull().should {
                         it.id shouldBe forsteBehandling.id
                         it.status shouldBe TotrinnskontrollStatus.SATT_PA_VENT
@@ -887,8 +924,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             test("oppretter prisendring når økonomi er GODKJENT") {
                 val soktInn = createRequest()
-                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+
+                val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+                service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
                 service.endrePrisinformasjon(
                     soktInn.id,
@@ -907,8 +947,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             test("avviser eksisterende prisendring ved ny prisendring mens økonomi er GODKJENT") {
                 val soktInn = createRequest()
-                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+
+                val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+                service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
                 val forsteBehandling = behandling(opprettetAv)
                 service.endrePrisinformasjon(
@@ -961,8 +1004,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             test("oppretter prisendring med status TIL_BEHANDLING når økonomi er GODKJENT") {
                 val soktInn = createRequest()
-                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+
+                val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+                service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
                 val behandling = behandling(opprettetAv)
                 service.endrePrisinformasjon(
@@ -983,8 +1029,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             test("setter eksisterende prisendring til RETURNERT ved ny prisendring når økonomi er GODKJENT") {
                 val soktInn = createRequest()
-                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+
+                val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+                service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
                 val forsteBehandling = behandling(opprettetAv)
                 service.endrePrisinformasjon(
@@ -1012,8 +1061,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             test("setter eksisterende prisendring som er SATT_PA_VENT til RETURNERT ved ny prisendring når økonomi er GODKJENT") {
                 val soktInn = createRequest()
-                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+
+                val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+                service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
                 val forsteBehandling = behandling(opprettetAv)
                 service.endrePrisinformasjon(
@@ -1022,7 +1074,12 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     forsteBehandling,
                 ).shouldBeRight()
 
-                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+                val settPaVent = SettOkonomiPaVent(
+                    soktInn.id,
+                    besluttetAv,
+                    forklaring = "Trenger mer info",
+                )
+                service.settOkonomiPaVent(settPaVent).shouldBeRight()
 
                 val andreBehandling = behandling(opprettetAv)
                 service.endrePrisinformasjon(
@@ -1059,7 +1116,13 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val soktInn = createRequest()
                 val forsteBehandling = behandling(opprettetAv)
                 service.soktInn(soktInn, forsteBehandling).shouldBeRight()
-                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+
+                val settPaVent = SettOkonomiPaVent(
+                    soktInn.id,
+                    besluttetAv,
+                    forklaring = "Trenger mer info",
+                )
+                service.settOkonomiPaVent(settPaVent).shouldBeRight()
 
                 service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeRight().should {
                     it.okonomi?.status shouldBe TotrinnskontrollStatus.RETURNERT
@@ -1068,8 +1131,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             test("setter status RETURNERT og rydder opp ventende prisendring når økonomi allerede er GODKJENT") {
                 val soktInn = createRequest()
-                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+
+                val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+                service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
                 val prisendringBehandling = behandling(opprettetAv)
                 service.endrePrisinformasjon(
@@ -1092,7 +1158,9 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val soktInn = createRequest()
                 val forsteBehandling = behandling(opprettetAv)
                 service.soktInn(soktInn, forsteBehandling).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+
+                val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+                service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
                 service.tilbakekallPrisinformasjon(soktInn.id, forsteBehandling).shouldBeLeft(
                     TotrinnskontrollError.AlleredeBesluttet(TotrinnskontrollStatus.GODKJENT),
@@ -1125,20 +1193,24 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             test("settOkonomiGodkjent godkjenner prisendring og oppdaterer prismodell") {
                 val soktInn = createRequest()
-                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
 
+                val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+                service.settOkonomiGodkjent(godkjenn).shouldBeRight()
+
+                val prisendring = behandling(opprettetAv)
                 service.endrePrisinformasjon(
                     soktInn.id,
                     UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
-                    behandling(opprettetAv),
+                    prisendring,
                 ).shouldBeRight()
 
                 database.run {
                     queries.kafkaProducerRecord.getRecords(100, listOf(TEST_GJENNOMFORING_V2_TOPIC)).shouldHaveSize(1)
                 }
 
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                service.settOkonomiGodkjent(GodkjennOkonomi(soktInn.id, besluttetAv)).shouldBeRight()
 
                 service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
                     gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
@@ -1153,8 +1225,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             test("settOkonomiGodkjent setter prisendring-totrinnskontroll til GODKJENT") {
                 val soktInn = createRequest()
-                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+
+                service.settOkonomiGodkjent(GodkjennOkonomi(soktInn.id, besluttetAv)).shouldBeRight()
 
                 val behandling = behandling(opprettetAv)
                 service.endrePrisinformasjon(
@@ -1163,7 +1237,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     behandling,
                 ).shouldBeRight()
 
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                service.settOkonomiGodkjent(GodkjennOkonomi(soktInn.id, besluttetAv)).shouldBeRight()
 
                 database.run {
                     queries.totrinnskontroll.getById(behandling.id).should {
@@ -1175,18 +1249,26 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             test("settOkonomiGodkjent godkjenner prisendring som er satt på vent") {
                 val soktInn = createRequest()
-                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
 
+                service.settOkonomiGodkjent(GodkjennOkonomi(soktInn.id, besluttetAv)).shouldBeRight()
+
+                val prisendring = behandling(opprettetAv)
                 service.endrePrisinformasjon(
                     soktInn.id,
                     UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
-                    behandling(opprettetAv),
+                    prisendring,
                 ).shouldBeRight()
 
-                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+                val settPaVent = SettOkonomiPaVent(
+                    soktInn.id,
+                    besluttetAv,
+                    forklaring = "Trenger mer info",
+                )
+                service.settOkonomiPaVent(settPaVent).shouldBeRight()
 
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                service.settOkonomiGodkjent(GodkjennOkonomi(soktInn.id, besluttetAv)).shouldBeRight()
 
                 service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
                     gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
@@ -1199,8 +1281,11 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             test("settOkonomiPaVent setter prisendring på vent") {
                 val soktInn = createRequest()
-                service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
-                service.settOkonomiGodkjent(soktInn.id, besluttetAv).shouldBeRight()
+                val opprettelse = behandling(opprettetAv)
+                service.soktInn(soktInn, opprettelse).shouldBeRight()
+
+                val godkjenn = GodkjennOkonomi(soktInn.id, besluttetAv)
+                service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
                 val behandling = behandling(opprettetAv)
                 service.endrePrisinformasjon(
@@ -1209,7 +1294,12 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     behandling,
                 ).shouldBeRight()
 
-                service.settOkonomiPaVent(soktInn.id, besluttetAv, forklaring = "Trenger mer info").shouldBeRight()
+                val settPaVent = SettOkonomiPaVent(
+                    soktInn.id,
+                    besluttetAv,
+                    forklaring = "Trenger mer info",
+                )
+                service.settOkonomiPaVent(settPaVent).shouldBeRight()
 
                 database.run {
                     queries.totrinnskontroll.getById(behandling.id).should {
@@ -1222,7 +1312,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val utkast = createRequest()
                 service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
-                service.settOkonomiGodkjent(utkast.id, besluttetAv)
+                service.settOkonomiGodkjent(GodkjennOkonomi(utkast.id, besluttetAv))
                     .shouldBeLeft()
                     .first().detail shouldBe "Økonomi har ikke blitt sendt til godkjenning"
             }
@@ -1231,7 +1321,13 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val utkast = createRequest()
                 service.opprettUtkast(utkast, opprettetAv).shouldBeRight()
 
-                service.settOkonomiPaVent(utkast.id, besluttetAv, forklaring = null)
+                service.settOkonomiPaVent(
+                    SettOkonomiPaVent(
+                        utkast.id,
+                        besluttetAv,
+                        forklaring = null,
+                    ),
+                )
                     .shouldBeLeft()
                     .first().detail shouldBe "Økonomi har ikke blitt sendt til godkjenning"
             }

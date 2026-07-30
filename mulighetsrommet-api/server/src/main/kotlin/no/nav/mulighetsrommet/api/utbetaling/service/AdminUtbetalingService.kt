@@ -6,7 +6,6 @@ import arrow.core.left
 import arrow.core.nel
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
@@ -21,14 +20,17 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeHandling
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingLinjeStatusDto
+import no.nav.mulighetsrommet.api.utbetaling.model.AttesterUtbetalingLinje
+import no.nav.mulighetsrommet.api.utbetaling.model.AvbrytUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.AvslaAvbrytUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
+import no.nav.mulighetsrommet.api.utbetaling.model.GodkjennAvbrytUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinjer
+import no.nav.mulighetsrommet.api.utbetaling.model.ReturnerUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinje
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
@@ -50,7 +52,9 @@ class AdminUtbetalingService(
     fun getUtbetalingDetaljer(id: UUID, navIdent: NavIdent): UtbetalingDetaljerDto = db.session {
         val utbetaling = queries.utbetaling.getOrError(id)
         val linjer = queries.utbetalingLinje.getByUtbetalingId(id)
-        val avbrytelse = utbetaling.avbrytelse?.totrinnskontroll?.let { queries.totrinnskontroll.getDtoByIdOrError(it.id) }
+        val avbrytelse = utbetaling.avbrytelse?.totrinnskontroll?.let {
+            queries.totrinnskontroll.getDtoByIdOrError(it.id)
+        }
         val dto = UtbetalingDto.fromUtbetaling(
             utbetaling = utbetaling,
             linjer = linjer,
@@ -220,50 +224,33 @@ class AdminUtbetalingService(
     }
 
     fun sendTilAvbrytelse(
-        id: UUID,
-        navIdent: NavIdent,
-        request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>,
+        command: AvbrytUtbetaling,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        utbetalingService.sendTilAvbrytelse(
-            id = id,
-            agent = navIdent,
-            operation = "Utbetaling sendt til avbrytelse",
-            aarsaker = request.aarsaker.map { it.name },
-            forklaring = request.forklaring,
-        )
+        utbetalingService.sendTilAvbrytelse(command)
     }
 
-    fun godkjennAvbrytelse(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Utbetaling> = db.transaction {
-        return utbetalingService.godkjennAvbrytelse(id, navIdent)
+    fun godkjennAvbrytelse(
+        command: GodkjennAvbrytUtbetaling,
+    ): Either<List<FieldError>, Utbetaling> = db.transaction {
+        return utbetalingService.godkjennAvbrytelse(command)
     }
 
     fun avslaAvbrytelse(
-        id: UUID,
-        navIdent: NavIdent,
-        request: AarsakerOgForklaringRequest<UtbetalingStatusAarsak>,
+        command: AvslaAvbrytUtbetaling,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        return utbetalingService.avslaAvbrytelse(
-            id = id,
-            besluttetAv = navIdent,
-            aarsaker = request.aarsaker.map { it.name },
-            forklaring = request.forklaring,
-        )
+        return utbetalingService.avslaAvbrytelse(command)
     }
 
     fun godkjennUtbetalingLinje(
-        id: UUID,
-        navIdent: NavIdent,
+        command: AttesterUtbetalingLinje,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        utbetalingService.attesterUtbetalingLinje(id, navIdent)
+        utbetalingService.attesterUtbetalingLinje(command)
     }
 
     fun returnerUtbetalingLinje(
-        id: UUID,
-        aarsaker: List<UtbetalingLinjeReturnertAarsak>,
-        forklaring: String?,
-        navIdent: NavIdent,
+        command: ReturnerUtbetalingLinje,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        utbetalingService.returnerUtbetalingLinje(id, aarsaker, forklaring, navIdent)
+        utbetalingService.returnerUtbetalingLinje(command)
     }
 
     fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = db.transaction {

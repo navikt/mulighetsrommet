@@ -23,6 +23,8 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
+import no.nav.mulighetsrommet.api.tilsagn.model.GodkjennTilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.ReturnerTilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -305,16 +307,13 @@ class TilsagnService(
         )
     }
 
-    fun godkjennTilsagn(
-        id: UUID,
-        agent: Agent,
-    ): Either<List<FieldError>, Tilsagn> = db.transaction { godkjennTilsagnInTx(id, agent) }
+    fun godkjennTilsagn(command: GodkjennTilsagn): Either<List<FieldError>, Tilsagn> = db.transaction {
+        godkjennTilsagnInTx(command)
+    }
 
     context(tx: TransactionalQueryContext)
-    fun godkjennTilsagnInTx(
-        id: UUID,
-        agent: Agent,
-    ): Either<List<FieldError>, Tilsagn> = with(tx) {
+    fun godkjennTilsagnInTx(command: GodkjennTilsagn): Either<List<FieldError>, Tilsagn> = with(tx) {
+        val (id, agent) = command
         val tilsagn = queries.tilsagn.getAndAquireLock(id)
 
         when (agent) {
@@ -354,12 +353,8 @@ class TilsagnService(
         }
     }
 
-    fun returnerTilsagn(
-        id: UUID,
-        navIdent: NavIdent,
-        aarsaker: List<TilsagnStatusAarsak>,
-        forklaring: String?,
-    ): Either<List<FieldError>, Tilsagn> = db.transaction {
+    fun returnerTilsagn(command: ReturnerTilsagn): Either<List<FieldError>, Tilsagn> = db.transaction {
+        val (id, navIdent, aarsaker, forklaring) = command
         val tilsagn = queries.tilsagn.getAndAquireLock(id)
 
         val ansatt = queries.ansatt.getOrError(navIdent)

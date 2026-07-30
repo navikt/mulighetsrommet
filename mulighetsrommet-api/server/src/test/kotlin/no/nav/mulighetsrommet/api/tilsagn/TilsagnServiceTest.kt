@@ -29,6 +29,8 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
+import no.nav.mulighetsrommet.api.tilsagn.model.GodkjennTilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.ReturnerTilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
@@ -118,6 +120,18 @@ class TilsagnServiceTest : FunSpec({
 
     afterEach {
         database.truncateAll()
+    }
+
+    fun opprettelseId(tilsagnId: UUID): UUID = database.run {
+        queries.totrinnskontroll.getOrError(tilsagnId, TotrinnskontrollType.TILSAGN_OPPRETTELSE).id
+    }
+
+    fun annulleringId(tilsagnId: UUID): UUID = database.run {
+        queries.totrinnskontroll.getOrError(tilsagnId, TotrinnskontrollType.TILSAGN_ANNULLERING).id
+    }
+
+    fun oppgjorId(tilsagnId: UUID): UUID = database.run {
+        queries.totrinnskontroll.getOrError(tilsagnId, TotrinnskontrollType.TILSAGN_OPPGJOR).id
     }
 
     val gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1))
@@ -256,8 +270,10 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             service.slettTilsagn(
@@ -271,10 +287,12 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt2,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt2,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.slettTilsagn(requestId, ansatt1).shouldBeRight()
@@ -289,17 +307,21 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt2,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt2,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt2,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt2,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ) shouldBeLeft listOf(
                 FieldError.of("Tilsagnet kan ikke returneres fordi det har status Returnert"),
             )
@@ -310,10 +332,12 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt2,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt2,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.slettTilsagn(requestId, ansatt2).shouldBeRight()
@@ -329,10 +353,12 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt2,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt2,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.slettTilsagn(requestId, ansatt1).shouldBeRight()
@@ -356,8 +382,10 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt1,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt1,
+                ),
             ) shouldBeLeft listOf(
                 FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)"),
             )
@@ -375,8 +403,10 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt1,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt1,
+                ),
             ) shouldBeLeft listOf(
                 FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)"),
             )
@@ -387,9 +417,36 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt1,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt1,
+                ),
             ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
+        }
+
+        xtest("kan ikke godkjenne eller returnere med utdatert totrinnskontrollId") {
+            service.upsert(request, ansatt1)
+                .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
+
+            service.godkjennTilsagn(
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
+            ) shouldBeLeft listOf(
+                FieldError.of("Grunnlaget har endret seg siden det ble hentet. Last inn siden på nytt og prøv igjen."),
+            )
+
+            service.returnerTilsagn(
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt2,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
+            ) shouldBeLeft listOf(
+                FieldError.of("Grunnlaget har endret seg siden det ble hentet. Last inn siden på nytt og prøv igjen."),
+            )
         }
 
         test("kan ikke beslutte to ganger") {
@@ -397,13 +454,17 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ) shouldBeLeft listOf(FieldError.of("Tilsagnet kan ikke godkjennes fordi det har status Godkjent"))
         }
 
@@ -412,8 +473,10 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             val value = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
@@ -445,10 +508,12 @@ class TilsagnServiceTest : FunSpec({
             }
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt2,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt2,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             database.run {
@@ -471,8 +536,10 @@ class TilsagnServiceTest : FunSpec({
             }
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             database.run {
@@ -496,10 +563,12 @@ class TilsagnServiceTest : FunSpec({
             }
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt2,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt2,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
             service.upsert(request, NavIdent("T888888")).shouldBeRight().should {
@@ -519,10 +588,12 @@ class TilsagnServiceTest : FunSpec({
             }
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt1,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt1,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
         }
 
@@ -535,10 +606,12 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt1,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt1,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ) shouldBeLeft listOf(
                 FieldError.of("Du kan ikke returnere tilsagnet fordi du mangler tilgang"),
             )
@@ -558,10 +631,12 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt1,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt1,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
         }
 
@@ -572,15 +647,19 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt2,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt2,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ) shouldBeLeft listOf(
                 FieldError.of("Tilsagnet kan ikke returneres fordi det har status Godkjent"),
             )
@@ -606,8 +685,10 @@ class TilsagnServiceTest : FunSpec({
             }.message shouldBe "Kan bare annullere godkjente tilsagn"
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             service.tilAnnulleringRequest(
@@ -630,8 +711,10 @@ class TilsagnServiceTest : FunSpec({
             }
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
             database.run {
@@ -650,8 +733,10 @@ class TilsagnServiceTest : FunSpec({
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             var value = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
@@ -671,8 +756,10 @@ class TilsagnServiceTest : FunSpec({
             ).status shouldBe TilsagnStatus.TIL_ANNULLERING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
             value = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }
@@ -689,8 +776,10 @@ class TilsagnServiceTest : FunSpec({
         test("kan ikke annullere eget tilsagn") {
             service.upsert(request, ansatt1).shouldBeRight()
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight()
             service.tilAnnulleringRequest(
                 id = requestId,
@@ -701,8 +790,10 @@ class TilsagnServiceTest : FunSpec({
                 ),
             )
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt1,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt1,
+                ),
             ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
             database.run { queries.tilsagn.getOrError(requestId).status shouldBe TilsagnStatus.TIL_ANNULLERING }
         }
@@ -710,8 +801,10 @@ class TilsagnServiceTest : FunSpec({
         test("kan ikke annullere tilsagn med utbetalinger") {
             service.upsert(request, ansatt1).shouldBeRight()
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight()
             service.tilAnnulleringRequest(
                 id = requestId,
@@ -760,8 +853,10 @@ class TilsagnServiceTest : FunSpec({
                 )
             }
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ) shouldBeLeft listOf(FieldError.of("Tilsagnet kan ikke annulleres fordi det har blitt brukt i utbetalinger"))
         }
 
@@ -772,8 +867,10 @@ class TilsagnServiceTest : FunSpec({
             ).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             service.tilAnnulleringRequest(
@@ -786,10 +883,12 @@ class TilsagnServiceTest : FunSpec({
             ).status shouldBe TilsagnStatus.TIL_ANNULLERING
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt2,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt2,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             database.run {
@@ -810,8 +909,10 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             service.tilOppgjorRequest(
@@ -821,8 +922,10 @@ class TilsagnServiceTest : FunSpec({
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt1,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt1,
+                ),
             ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
 
             database.run {
@@ -834,8 +937,10 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(request, ansatt1).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
             service.tilOppgjorRequest(
@@ -845,10 +950,12 @@ class TilsagnServiceTest : FunSpec({
             ).status shouldBe TilsagnStatus.TIL_OPPGJOR
 
             service.returnerTilsagn(
-                id = requestId,
-                navIdent = ansatt1,
-                aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
-                forklaring = null,
+                ReturnerTilsagn(
+                    id = requestId,
+                    navIdent = ansatt1,
+                    aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
+                    forklaring = null,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
         }
 
@@ -856,8 +963,10 @@ class TilsagnServiceTest : FunSpec({
             service.upsert(request, ansatt1).shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
             val bestillingsnummer = database.run { queries.tilsagn.getOrError(requestId).bestilling.bestillingsnummer }
 
@@ -879,8 +988,10 @@ class TilsagnServiceTest : FunSpec({
             }
 
             service.godkjennTilsagn(
-                id = requestId,
-                agent = ansatt2,
+                GodkjennTilsagn(
+                    id = requestId,
+                    agent = ansatt2,
+                ),
             ).shouldBeRight().status shouldBe TilsagnStatus.OPPGJORT
 
             database.run {

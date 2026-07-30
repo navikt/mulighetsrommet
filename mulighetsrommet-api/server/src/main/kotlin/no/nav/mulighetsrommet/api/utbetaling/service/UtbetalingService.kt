@@ -28,8 +28,13 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingDbo
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeDbo
+import no.nav.mulighetsrommet.api.utbetaling.model.AttesterUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
+import no.nav.mulighetsrommet.api.utbetaling.model.AvbrytUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.AvslaAvbrytUtbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.GodkjennAvbrytUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.OpprettUtbetalingLinje
+import no.nav.mulighetsrommet.api.utbetaling.model.ReturnerUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
@@ -193,10 +198,8 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun attesterUtbetalingLinje(
-        id: UUID,
-        agent: Agent,
-    ): Either<List<FieldError>, Utbetaling> = with(tx) {
+    fun attesterUtbetalingLinje(command: AttesterUtbetalingLinje): Either<List<FieldError>, Utbetaling> = with(tx) {
+        val (id, agent) = command
         val linje = queries.utbetalingLinje.getOrError(id)
         val utbetaling = queries.utbetaling.getAndAquireLock(linje.utbetalingId)
 
@@ -226,12 +229,8 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun returnerUtbetalingLinje(
-        id: UUID,
-        aarsaker: List<UtbetalingLinjeReturnertAarsak>,
-        forklaring: String?,
-        agent: Agent,
-    ): Either<List<FieldError>, Utbetaling> = with(tx) {
+    fun returnerUtbetalingLinje(command: ReturnerUtbetalingLinje): Either<List<FieldError>, Utbetaling> = with(tx) {
+        val (id, aarsaker, forklaring, agent) = command
         val linje = queries.utbetalingLinje.getOrError(id)
         val utbetaling = queries.utbetaling.getAndAquireLock(linje.utbetalingId)
 
@@ -280,9 +279,10 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun sendTilAvbrytelse(id: UUID, agent: Agent, operation: String, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Utbetaling> = with(tx) {
+    fun sendTilAvbrytelse(command: AvbrytUtbetaling): Either<List<FieldError>, Utbetaling> = with(tx) {
+        val (id, agent, operation, aarsaker, forklaring) = command
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
-        return utbetaling.settTilAbrytelse(agent, aarsaker, forklaring).map { utbetalingTilAvbrytelse ->
+        return utbetaling.settTilAbrytelse(agent, aarsaker.map { it.name }, forklaring).map { utbetalingTilAvbrytelse ->
             queries.utbetaling.save(utbetalingTilAvbrytelse)
 
             outbox.publish(utbetalingTilAvbrytelse.avbrytelse!!.totrinnskontroll)
@@ -291,7 +291,8 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun godkjennAvbrytelse(id: UUID, agent: Agent): Either<List<FieldError>, Utbetaling> = with(tx) {
+    fun godkjennAvbrytelse(command: GodkjennAvbrytUtbetaling): Either<List<FieldError>, Utbetaling> = with(tx) {
+        val (id, agent) = command
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
 
         return utbetaling.godkjennAvbrytelse(agent).map { avbruttUtbetaling ->
@@ -304,9 +305,10 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun avslaAvbrytelse(id: UUID, besluttetAv: NavIdent, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Utbetaling> = with(tx) {
+    fun avslaAvbrytelse(command: AvslaAvbrytUtbetaling): Either<List<FieldError>, Utbetaling> = with(tx) {
+        val (id, besluttetAv, aarsaker, forklaring) = command
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
-        return utbetaling.avslaAbrytelse(besluttetAv, aarsaker, forklaring).map { utbetalingTilSaksbehandling ->
+        return utbetaling.avslaAbrytelse(besluttetAv, aarsaker.map { it.name }, forklaring).map { utbetalingTilSaksbehandling ->
             queries.utbetaling.save(utbetalingTilSaksbehandling)
 
             outbox.publish(utbetalingTilSaksbehandling.avbrytelse!!.totrinnskontroll)
@@ -434,7 +436,9 @@ class UtbetalingService(
         sendTilAttestering(utbetaling.id, linjer, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
 
         linjer.forEach { linje ->
-            attesterUtbetalingLinje(linje.id, Tiltaksadministrasjon).onLeft { throw UtbetalingException(it) }
+            attesterUtbetalingLinje(
+                AttesterUtbetalingLinje(linje.id, Tiltaksadministrasjon),
+            ).onLeft { throw UtbetalingException(it) }
         }
 
         AutomatisertUtbetalingResult.GODKJENT

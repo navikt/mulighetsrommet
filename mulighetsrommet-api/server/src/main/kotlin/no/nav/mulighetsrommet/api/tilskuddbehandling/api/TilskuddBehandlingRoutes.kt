@@ -23,6 +23,8 @@ import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.AttesterTilskudd
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.ReturnerTilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompakt
@@ -139,7 +141,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 val id = call.parameters.getOrFail<UUID>("id")
                 val navIdent = getNavIdent()
 
-                val result = service.attester(id, navIdent)
+                val result = service.attester(AttesterTilskudd(id, navIdent))
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -170,7 +172,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 val navIdent = getNavIdent()
 
                 val result = request.validate()
-                    .flatMap { service.returner(id, navIdent, it.aarsaker, it.forklaring) }
+                    .flatMap { service.returner(ReturnerTilskudd(id, navIdent, it.aarsaker, it.forklaring)) }
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
