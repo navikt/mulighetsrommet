@@ -14,7 +14,6 @@ import io.ktor.server.routing.application
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -30,6 +29,8 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompakt
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.BeslutningMedAarsakerRequest
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.BeslutningRequest
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -127,6 +128,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 operationId = "attesterTilskuddBehandling"
                 request {
                     pathParameterUuid("id")
+                    body<BeslutningRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -139,9 +141,10 @@ fun Route.tilskuddBehandlingRoutes() {
                 }
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<BeslutningRequest>()
                 val navIdent = getNavIdent()
 
-                val result = service.attester(AttesterTilskudd(id, navIdent))
+                val result = service.attester(AttesterTilskudd(id, navIdent, request.totrinnskontrollId))
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -155,7 +158,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 operationId = "returnerTilskuddBehandling"
                 request {
                     pathParameterUuid("id")
-                    body<AarsakerOgForklaringRequest<TilskuddBehandlingStatusAarsak>>()
+                    body<BeslutningMedAarsakerRequest<TilskuddBehandlingStatusAarsak>>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -168,11 +171,11 @@ fun Route.tilskuddBehandlingRoutes() {
                 }
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<AarsakerOgForklaringRequest<TilskuddBehandlingStatusAarsak>>()
+                val request = call.receive<BeslutningMedAarsakerRequest<TilskuddBehandlingStatusAarsak>>()
                 val navIdent = getNavIdent()
 
                 val result = request.validate()
-                    .flatMap { service.returner(ReturnerTilskudd(id, navIdent, it.aarsaker, it.forklaring)) }
+                    .flatMap { service.returner(ReturnerTilskudd(id, navIdent, it.aarsaker, it.forklaring, it.totrinnskontrollId)) }
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 

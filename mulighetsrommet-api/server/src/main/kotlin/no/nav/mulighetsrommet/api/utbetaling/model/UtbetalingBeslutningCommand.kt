@@ -7,6 +7,7 @@ import java.util.UUID
 data class AttesterUtbetalingLinje(
     val id: UUID,
     val agent: Agent,
+    val forventetTotrinnskontrollId: UUID,
 )
 
 data class ReturnerUtbetalingLinje(
@@ -14,6 +15,7 @@ data class ReturnerUtbetalingLinje(
     val aarsaker: List<UtbetalingLinjeReturnertAarsak>,
     val forklaring: String?,
     val agent: Agent,
+    val forventetTotrinnskontrollId: UUID,
 )
 
 data class AvbrytUtbetaling(
@@ -27,6 +29,7 @@ data class AvbrytUtbetaling(
 data class GodkjennAvbrytUtbetaling(
     val id: UUID,
     val agent: Agent,
+    val forventetTotrinnskontrollId: UUID,
 )
 
 data class AvslaAvbrytUtbetaling(
@@ -34,4 +37,5 @@ data class AvslaAvbrytUtbetaling(
     val besluttetAv: NavIdent,
     val aarsaker: List<UtbetalingStatusAarsak>,
     val forklaring: String?,
+    val forventetTotrinnskontrollId: UUID,
 )

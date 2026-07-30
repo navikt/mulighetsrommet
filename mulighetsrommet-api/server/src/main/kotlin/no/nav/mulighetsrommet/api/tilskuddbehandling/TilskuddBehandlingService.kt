@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
@@ -100,7 +101,7 @@ class TilskuddBehandlingService(
 
     fun attester(command: AttesterTilskudd): Either<List<FieldError>, TilskuddBehandlingDto> = try {
         db.transaction {
-            val (id, navIdent) = command
+            val (id, navIdent, forventetTotrinnskontrollId) = command
             val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
                 "TilskuddBehandling med id $id ble ikke funnet"
             }
@@ -112,7 +113,8 @@ class TilskuddBehandlingService(
             }
 
             val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-            opprettelse.godkjenn(navIdent)
+            opprettelse.sjekkGjeldende(forventetTotrinnskontrollId)
+                .flatMap { it.godkjenn(navIdent) }
                 .mapLeft { it.toFieldErrors() }
                 .map { godkjent ->
                     queries.totrinnskontroll.upsert(godkjent)
@@ -135,7 +137,7 @@ class TilskuddBehandlingService(
     }
 
     fun returner(command: ReturnerTilskudd): Either<List<FieldError>, TilskuddBehandlingDto> = db.transaction {
-        val (id, navIdent, aarsaker, forklaring) = command
+        val (id, navIdent, aarsaker, forklaring, forventetTotrinnskontrollId) = command
         val behandling = requireNotNull(queries.tilskuddBehandling.get(id)) {
             "TilskuddBehandling med id $id ble ikke funnet"
         }
@@ -147,12 +149,14 @@ class TilskuddBehandlingService(
         }
 
         val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-        opprettelse.returner(navIdent, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
-            queries.totrinnskontroll.upsert(returnert)
-            outbox.publish(returnert)
-            queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
-            logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
-        }
+        opprettelse.sjekkGjeldende(forventetTotrinnskontrollId)
+            .flatMap { it.returner(navIdent, aarsaker.map { aarsak -> aarsak.name }, forklaring) }
+            .mapLeft { it.toFieldErrors() }.map { returnert ->
+                queries.totrinnskontroll.upsert(returnert)
+                outbox.publish(returnert)
+                queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
+                logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
+            }
     }
 
     fun handlinger(behandling: TilskuddBehandlingDto, navIdent: NavIdent): Set<TilskuddBehandlingHandling> = db.session {

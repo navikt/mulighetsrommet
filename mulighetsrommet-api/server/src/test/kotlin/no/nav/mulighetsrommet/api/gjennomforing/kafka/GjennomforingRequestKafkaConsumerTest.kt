@@ -313,7 +313,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
         }
 
         test("ignorerer tilbakekalling uten å kaste feil når totrinnskontroll allerede er godkjent") {
-            val godkjenn = GodkjennOkonomi(gjennomforingId, Tiltaksadministrasjon)
+            val godkjenn = GodkjennOkonomi(gjennomforingId, Tiltaksadministrasjon, totrinnskontroll.id)
             service.settOkonomiGodkjent(godkjenn).shouldBeRight()
 
             val request = GjennomforingRequest.EnkeltplassTilbakekallPrisinformasjon(

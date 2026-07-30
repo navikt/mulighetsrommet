@@ -7,6 +7,7 @@ import java.util.UUID
 data class GodkjennTilsagn(
     val id: UUID,
     val agent: Agent,
+    val forventetTotrinnskontrollId: UUID,
 )
 
 data class ReturnerTilsagn(
@@ -14,4 +15,5 @@ data class ReturnerTilsagn(
     val navIdent: NavIdent,
     val aarsaker: List<TilsagnStatusAarsak>,
     val forklaring: String?,
+    val forventetTotrinnskontrollId: UUID,
 )

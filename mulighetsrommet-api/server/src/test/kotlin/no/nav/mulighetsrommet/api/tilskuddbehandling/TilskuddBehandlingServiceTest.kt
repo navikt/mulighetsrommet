@@ -89,7 +89,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
 
             service.upsert(request, ansatt1).shouldBeRight()
 
-            service.attester(AttesterTilskudd(request.id, ansatt1)).shouldBeLeft().shouldHaveSize(1).first().should {
+            service.attester(AttesterTilskudd(request.id, ansatt1, opprettelseId(request.id))).shouldBeLeft().shouldHaveSize(1).first().should {
                 it.detail shouldBe "Du kan ikke beslutte noe du selv har behandlet"
             }
         }
@@ -99,18 +99,18 @@ class TilskuddBehandlingServiceTest : FunSpec({
 
             service.upsert(request, ansatt1).shouldBeRight()
 
-            service.attester(AttesterTilskudd(request.id, ansatt2)).shouldBeRight()
+            service.attester(AttesterTilskudd(request.id, ansatt2, opprettelseId(request.id))).shouldBeRight()
 
             val detaljer = service.getDetaljerDto(request.id, ansatt1)
             detaljer?.behandling?.status?.type shouldBe TilskuddBehandlingStatus.FERDIG_BEHANDLET
         }
 
-        xtest("returnerer feil når totrinnskontrollId ikke stemmer med gjeldende behandling") {
+        test("returnerer feil når totrinnskontrollId ikke stemmer med gjeldende behandling") {
             val service = createService()
 
             service.upsert(request, ansatt1).shouldBeRight()
 
-            service.attester(AttesterTilskudd(request.id, ansatt2))
+            service.attester(AttesterTilskudd(request.id, ansatt2, UUID.randomUUID()))
                 .shouldBeLeft().shouldHaveSize(1).first().should {
                     it.detail shouldBe "Grunnlaget har endret seg siden det ble hentet. Last inn siden på nytt og prøv igjen."
                 }
@@ -127,6 +127,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
                     ansatt2,
                     listOf(TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT, TilskuddBehandlingStatusAarsak.ANNET),
                     forklaring = "fordi",
+                    forventetTotrinnskontrollId = opprettelseId(request.id),
                 ),
             ).shouldBeRight()
 

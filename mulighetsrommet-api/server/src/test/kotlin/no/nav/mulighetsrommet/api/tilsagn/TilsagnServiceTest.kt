@@ -273,6 +273,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -292,6 +293,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt2,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
@@ -312,6 +314,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt2,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
@@ -321,6 +324,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt2,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ) shouldBeLeft listOf(
                 FieldError.of("Tilsagnet kan ikke returneres fordi det har status Returnert"),
@@ -337,6 +341,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt2,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
@@ -358,6 +363,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt2,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
@@ -385,6 +391,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt1,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ) shouldBeLeft listOf(
                 FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)"),
@@ -406,6 +413,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt1,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ) shouldBeLeft listOf(
                 FieldError.of("Du kan ikke beslutte tilsagnet fordi du mangler budsjettmyndighet ved tilsagnets kostnadssted (Nav Gjøvik)"),
@@ -420,11 +428,12 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt1,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
         }
 
-        xtest("kan ikke godkjenne eller returnere med utdatert totrinnskontrollId") {
+        test("kan ikke godkjenne eller returnere med utdatert totrinnskontrollId") {
             service.upsert(request, ansatt1)
                 .shouldBeRight().status shouldBe TilsagnStatus.TIL_GODKJENNING
 
@@ -432,6 +441,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = UUID.randomUUID(),
                 ),
             ) shouldBeLeft listOf(
                 FieldError.of("Grunnlaget har endret seg siden det ble hentet. Last inn siden på nytt og prøv igjen."),
@@ -443,6 +453,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt2,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = UUID.randomUUID(),
                 ),
             ) shouldBeLeft listOf(
                 FieldError.of("Grunnlaget har endret seg siden det ble hentet. Last inn siden på nytt og prøv igjen."),
@@ -457,6 +468,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -464,6 +476,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ) shouldBeLeft listOf(FieldError.of("Tilsagnet kan ikke godkjennes fordi det har status Godkjent"))
         }
@@ -476,6 +489,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -513,6 +527,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt2,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
@@ -539,6 +554,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -568,6 +584,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt2,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
 
@@ -593,6 +610,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt1,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
         }
@@ -611,6 +629,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt1,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ) shouldBeLeft listOf(
                 FieldError.of("Du kan ikke returnere tilsagnet fordi du mangler tilgang"),
@@ -636,6 +655,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt1,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.RETURNERT
         }
@@ -650,6 +670,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -659,6 +680,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt2,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ) shouldBeLeft listOf(
                 FieldError.of("Tilsagnet kan ikke returneres fordi det har status Godkjent"),
@@ -688,6 +710,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -714,6 +737,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = annulleringId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
@@ -736,6 +760,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -759,6 +784,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = annulleringId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.ANNULLERT
 
@@ -779,6 +805,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight()
             service.tilAnnulleringRequest(
@@ -793,6 +820,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt1,
+                    forventetTotrinnskontrollId = annulleringId(requestId),
                 ),
             ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
             database.run { queries.tilsagn.getOrError(requestId).status shouldBe TilsagnStatus.TIL_ANNULLERING }
@@ -804,6 +832,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight()
             service.tilAnnulleringRequest(
@@ -856,6 +885,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = annulleringId(requestId),
                 ),
             ) shouldBeLeft listOf(FieldError.of("Tilsagnet kan ikke annulleres fordi det har blitt brukt i utbetalinger"))
         }
@@ -870,6 +900,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -888,6 +919,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt2,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = annulleringId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -912,6 +944,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -925,6 +958,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt1,
+                    forventetTotrinnskontrollId = oppgjorId(requestId),
                 ),
             ) shouldBeLeft listOf(FieldError.of("Du kan ikke beslutte noe du selv har behandlet"))
 
@@ -940,6 +974,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
 
@@ -955,6 +990,7 @@ class TilsagnServiceTest : FunSpec({
                     navIdent = ansatt1,
                     aarsaker = listOf(TilsagnStatusAarsak.FEIL_BELOP),
                     forklaring = null,
+                    forventetTotrinnskontrollId = oppgjorId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
         }
@@ -966,6 +1002,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = opprettelseId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
             val bestillingsnummer = database.run { queries.tilsagn.getOrError(requestId).bestilling.bestillingsnummer }
@@ -991,6 +1028,7 @@ class TilsagnServiceTest : FunSpec({
                 GodkjennTilsagn(
                     id = requestId,
                     agent = ansatt2,
+                    forventetTotrinnskontrollId = oppgjorId(requestId),
                 ),
             ).shouldBeRight().status shouldBe TilsagnStatus.OPPGJORT
 

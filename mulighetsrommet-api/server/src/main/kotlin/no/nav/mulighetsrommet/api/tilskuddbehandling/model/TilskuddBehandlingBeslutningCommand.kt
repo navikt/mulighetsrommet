@@ -6,6 +6,7 @@ import java.util.UUID
 data class AttesterTilskudd(
     val id: UUID,
     val navIdent: NavIdent,
+    val forventetTotrinnskontrollId: UUID,
 )
 
 data class ReturnerTilskudd(
@@ -13,4 +14,5 @@ data class ReturnerTilskudd(
     val navIdent: NavIdent,
     val aarsaker: List<TilskuddBehandlingStatusAarsak>,
     val forklaring: String?,
+    val forventetTotrinnskontrollId: UUID,
 )

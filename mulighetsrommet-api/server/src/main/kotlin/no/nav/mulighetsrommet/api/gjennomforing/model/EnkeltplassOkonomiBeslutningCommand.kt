@@ -7,10 +7,12 @@ import java.util.UUID
 data class GodkjennOkonomi(
     val id: UUID,
     val agent: Agent,
+    val forventetTotrinnskontrollId: UUID,
 )
 
 data class SettOkonomiPaVent(
     val id: UUID,
     val navIdent: NavIdent,
     val forklaring: String?,
+    val forventetTotrinnskontrollId: UUID,
 )

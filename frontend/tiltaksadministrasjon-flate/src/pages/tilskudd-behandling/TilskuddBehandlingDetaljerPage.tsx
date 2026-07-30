@@ -69,10 +69,13 @@ export function TilskuddBehandlingDetaljerPage() {
   const listUrl = `/gjennomforinger/${gjennomforingId}/tilskudd-behandling`;
 
   function attester() {
-    godkjennMutation.mutate(behandling.id, {
-      onSuccess: () => navigate(listUrl),
-      onValidationError: (error: ValidationError) => setErrors(error.errors),
-    });
+    godkjennMutation.mutate(
+      { id: behandling.id, totrinnskontrollId: opprettelse.id },
+      {
+        onSuccess: () => navigate(listUrl),
+        onValidationError: (error: ValidationError) => setErrors(error.errors),
+      },
+    );
   }
 
   function sendIRetur(data: {
@@ -80,7 +83,7 @@ export function TilskuddBehandlingDetaljerPage() {
     forklaring: string | null;
   }) {
     returnerMutation.mutate(
-      { id: behandling.id, body: { ...data } },
+      { id: behandling.id, body: { ...data, totrinnskontrollId: opprettelse.id } },
       {
         onSuccess: () => {
           setReturModalOpen(false);

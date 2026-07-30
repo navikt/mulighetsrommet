@@ -130,7 +130,8 @@ class TilskuddArrangorUtbetalingConsumer(
             Tiltaksadministrasjon,
         )
             .flatMap {
-                tilsagnService.godkjennTilsagnInTx(GodkjennTilsagn(it.id, Tiltaksadministrasjon))
+                val totrinnskontrollId = queries.totrinnskontroll.getOrError(it.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE).id
+                tilsagnService.godkjennTilsagnInTx(GodkjennTilsagn(it.id, Tiltaksadministrasjon, totrinnskontrollId))
             }
             .getOrElse {
                 throw IllegalStateException("Feil under opprettelse av tilsagn for tilskudd. Errors: $it")

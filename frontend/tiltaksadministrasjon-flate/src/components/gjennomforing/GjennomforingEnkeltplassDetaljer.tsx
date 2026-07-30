@@ -181,18 +181,21 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
         open={godkjennOpen}
         setOpen={setGodkjennOpen}
         gjennomforingId={gjennomforing.id}
+        totrinnskontrollId={okonomi?.id ?? ""}
         prismodell={prismodell}
       />
       <SettPaVentOkonomiModal
         open={settPaVentOpen}
         setOpen={setSettPaVentOpen}
         gjennomforingId={gjennomforing.id}
+        totrinnskontrollId={okonomi?.id ?? ""}
       />
       {prisendring && (
         <GodkjennPrisendringModal
           open={godkjennPrisendringOpen}
           setOpen={setGodkjennPrisendringOpen}
           gjennomforingId={gjennomforing.id}
+          totrinnskontrollId={prisendring.totrinnskontroll.id}
           prismodell={prisendring.prismodell}
         />
       )}
@@ -200,6 +203,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
         open={settPrisendringPaVentOpen}
         setOpen={setSettPrisendringPaVentOpen}
         gjennomforingId={gjennomforing.id}
+        totrinnskontrollId={prisendring?.totrinnskontroll.id ?? ""}
       />
     </VStack>
   );

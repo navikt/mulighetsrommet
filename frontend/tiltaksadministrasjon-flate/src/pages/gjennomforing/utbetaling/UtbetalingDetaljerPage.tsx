@@ -107,7 +107,7 @@ export function UtbetalingDetaljerPage() {
 
   function godkjennAvbytUtbetaling() {
     godkjennAvbyrtUtbetalingMutation.mutate(
-      { id: utbetaling.id },
+      { id: utbetaling.id, totrinnskontrollId: utbetaling.avbrytelse?.id ?? "" },
       {
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
@@ -343,6 +343,7 @@ export function UtbetalingDetaljerPage() {
           />
           <AvslaAvbrytelseUtbetalingModal
             utbetalingId={utbetaling.id}
+            totrinnskontrollId={utbetaling.avbrytelse?.id ?? ""}
             open={modalVariant === UtbetalingHandling.AVSLA_AVBRYTELSE}
             onClose={() => setModalVariant(null)}
           />

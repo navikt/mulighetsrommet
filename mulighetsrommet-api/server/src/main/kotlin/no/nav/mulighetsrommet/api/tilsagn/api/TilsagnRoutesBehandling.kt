@@ -21,6 +21,8 @@ import no.nav.mulighetsrommet.api.tilsagn.model.GodkjennTilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.ReturnerTilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.BeslutningMedAarsakerRequest
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.BeslutningRequest
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.ProblemDetail
 import org.koin.ktor.ext.inject
@@ -150,6 +152,7 @@ fun Route.tilsagnRoutesBehandling() {
             operationId = "godkjennTilsagn"
             request {
                 pathParameterUuid("id")
+                body<BeslutningRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -162,9 +165,10 @@ fun Route.tilsagnRoutesBehandling() {
             }
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
+            val request = call.receive<BeslutningRequest>()
             val navIdent = getNavIdent()
 
-            val result = service.godkjennTilsagn(GodkjennTilsagn(id, navIdent))
+            val result = service.godkjennTilsagn(GodkjennTilsagn(id, navIdent, request.totrinnskontrollId))
                 .mapLeft { ValidationError(errors = it) }
                 .map { HttpStatusCode.OK }
 
@@ -178,7 +182,7 @@ fun Route.tilsagnRoutesBehandling() {
             operationId = "returnerTilsagn"
             request {
                 pathParameterUuid("id")
-                body<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
+                body<BeslutningMedAarsakerRequest<TilsagnStatusAarsak>>()
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -191,11 +195,15 @@ fun Route.tilsagnRoutesBehandling() {
             }
         }) {
             val id = call.parameters.getOrFail<UUID>("id")
-            val request = call.receive<AarsakerOgForklaringRequest<TilsagnStatusAarsak>>()
+            val request = call.receive<BeslutningMedAarsakerRequest<TilsagnStatusAarsak>>()
             val navIdent = getNavIdent()
 
             val result = request.validate()
-                .flatMap { service.returnerTilsagn(ReturnerTilsagn(id, navIdent, it.aarsaker, it.forklaring)) }
+                .flatMap {
+                    service.returnerTilsagn(
+                        ReturnerTilsagn(id, navIdent, it.aarsaker, it.forklaring, it.totrinnskontrollId),
+                    )
+                }
                 .mapLeft { ValidationError(errors = it) }
                 .map { HttpStatusCode.OK }
 

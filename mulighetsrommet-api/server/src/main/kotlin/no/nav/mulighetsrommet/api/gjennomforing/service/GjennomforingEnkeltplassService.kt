@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
@@ -310,31 +311,31 @@ class GjennomforingEnkeltplassService(
     }
 
     fun settOkonomiGodkjent(command: GodkjennOkonomi): Validated<Enkeltplass> = db.transaction {
-        val (id, agent) = command
+        val (id, agent, forventetTotrinnskontrollId) = command
         val enkeltplass = getAndAquireLock(id)
 
         if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
-            return godkjennPrisendring(id, enkeltplass.prisendring.totrinnskontroll, agent)
+            return godkjennPrisendring(id, enkeltplass.prisendring.totrinnskontroll, agent, forventetTotrinnskontrollId)
         }
 
         val okonomi = enkeltplass.okonomi
             ?: return FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel().left()
 
-        return settOkonomiGodkjent(id, okonomi, agent)
+        return settOkonomiGodkjent(id, okonomi, agent, forventetTotrinnskontrollId)
     }
 
     fun settOkonomiPaVent(command: SettOkonomiPaVent): Validated<Enkeltplass> = db.transaction {
-        val (id, navIdent, forklaring) = command
+        val (id, navIdent, forklaring, forventetTotrinnskontrollId) = command
         val enkeltplass = getAndAquireLock(id)
 
         if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
-            return settPrisendringPaVent(id, enkeltplass.prisendring.totrinnskontroll, navIdent, forklaring)
+            return settPrisendringPaVent(id, enkeltplass.prisendring.totrinnskontroll, navIdent, forklaring, forventetTotrinnskontrollId)
         }
 
         val okonomi = enkeltplass.okonomi
             ?: return FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel().left()
 
-        settOkonomiPaVent(id, okonomi, navIdent, forklaring)
+        settOkonomiPaVent(id, okonomi, navIdent, forklaring, forventetTotrinnskontrollId)
     }
 
     private suspend fun QueryContext.getDeltakerPersonalia(
@@ -592,12 +593,15 @@ class GjennomforingEnkeltplassService(
         id: UUID,
         okonomi: Totrinnskontroll,
         agent: Agent,
+        forventetTotrinnskontrollId: UUID,
     ): Validated<Enkeltplass> {
-        return okonomi.copy(forklaring = null).godkjenn(agent).mapLeft { it.toFieldErrors() }.map { godkjent ->
-            queries.totrinnskontroll.upsert(godkjent)
-            outbox.publish(godkjent)
-            logEndring("Enkeltplass ble godkjent", id, agent)
-        }
+        return okonomi.sjekkGjeldende(forventetTotrinnskontrollId)
+            .flatMap { it.copy(forklaring = null).godkjenn(agent) }
+            .mapLeft { it.toFieldErrors() }.map { godkjent ->
+                queries.totrinnskontroll.upsert(godkjent)
+                outbox.publish(godkjent)
+                logEndring("Enkeltplass ble godkjent", id, agent)
+            }
     }
 
     private fun TransactionalQueryContext.settOkonomiPaVent(
@@ -605,35 +609,41 @@ class GjennomforingEnkeltplassService(
         okonomi: Totrinnskontroll,
         agent: Agent,
         forklaring: String?,
+        forventetTotrinnskontrollId: UUID,
     ): Validated<Enkeltplass> {
-        return okonomi.settPaVent(agent, forklaring = forklaring).mapLeft { it.toFieldErrors() }.map { paVent ->
-            queries.totrinnskontroll.upsert(paVent)
-            outbox.publish(paVent)
-            logEndring("Godkjenning ble satt på vent", id, agent)
-        }
+        return okonomi.sjekkGjeldende(forventetTotrinnskontrollId)
+            .flatMap { it.settPaVent(agent, forklaring = forklaring) }
+            .mapLeft { it.toFieldErrors() }.map { paVent ->
+                queries.totrinnskontroll.upsert(paVent)
+                outbox.publish(paVent)
+                logEndring("Godkjenning ble satt på vent", id, agent)
+            }
     }
 
     private fun TransactionalQueryContext.godkjennPrisendring(
         gjennomforingId: UUID,
         prisendring: Totrinnskontroll,
         agent: Agent,
+        forventetTotrinnskontrollId: UUID,
     ): Validated<Enkeltplass> {
-        return prisendring.godkjenn(agent).mapLeft { it.toFieldErrors() }.map { godkjent ->
-            queries.totrinnskontroll.upsert(godkjent)
-            outbox.publish(godkjent)
+        return prisendring.sjekkGjeldende(forventetTotrinnskontrollId)
+            .flatMap { it.godkjenn(agent) }
+            .mapLeft { it.toFieldErrors() }.map { godkjent ->
+                queries.totrinnskontroll.upsert(godkjent)
+                outbox.publish(godkjent)
 
-            val pending = requireNotNull(queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforingId)) {
-                "Fant ikke prisendring for gjennomforing $gjennomforingId"
+                val pending = requireNotNull(queries.enkeltplassPrisendring.getByGjennomforingId(gjennomforingId)) {
+                    "Fant ikke prisendring for gjennomforing $gjennomforingId"
+                }
+                val gammelPrismodellId = queries.gjennomforing.getPrismodell(gjennomforingId)?.id
+                queries.gjennomforing.setPrismodellId(gjennomforingId, pending.prismodellId)
+                gammelPrismodellId?.let { queries.prismodell.deletePrismodell(it) }
+                queries.enkeltplassPrisendring.deleteByTotrinnskontrollId(pending.totrinnskontrollId)
+
+                val oppdatert = queries.gjennomforing.getGjennomforingEnkeltplassOrError(gjennomforingId)
+                publishTiltaksgjennomforingV2ToKafka(oppdatert)
+                logEndring("Prisendring ble godkjent", gjennomforingId, agent)
             }
-            val gammelPrismodellId = queries.gjennomforing.getPrismodell(gjennomforingId)?.id
-            queries.gjennomforing.setPrismodellId(gjennomforingId, pending.prismodellId)
-            gammelPrismodellId?.let { queries.prismodell.deletePrismodell(it) }
-            queries.enkeltplassPrisendring.deleteByTotrinnskontrollId(pending.totrinnskontrollId)
-
-            val oppdatert = queries.gjennomforing.getGjennomforingEnkeltplassOrError(gjennomforingId)
-            publishTiltaksgjennomforingV2ToKafka(oppdatert)
-            logEndring("Prisendring ble godkjent", gjennomforingId, agent)
-        }
     }
 
     private fun TransactionalQueryContext.settPrisendringPaVent(
@@ -641,12 +651,15 @@ class GjennomforingEnkeltplassService(
         prisendring: Totrinnskontroll,
         agent: Agent,
         forklaring: String?,
+        forventetTotrinnskontrollId: UUID,
     ): Validated<Enkeltplass> {
-        return prisendring.settPaVent(agent, forklaring = forklaring).mapLeft { it.toFieldErrors() }.map { paVent ->
-            queries.totrinnskontroll.upsert(paVent)
-            outbox.publish(paVent)
-            logEndring("Prisendring ble satt på vent", gjennomforingId, agent)
-        }
+        return prisendring.sjekkGjeldende(forventetTotrinnskontrollId)
+            .flatMap { it.settPaVent(agent, forklaring = forklaring) }
+            .mapLeft { it.toFieldErrors() }.map { paVent ->
+                queries.totrinnskontroll.upsert(paVent)
+                outbox.publish(paVent)
+                logEndring("Prisendring ble satt på vent", gjennomforingId, agent)
+            }
     }
 }
 

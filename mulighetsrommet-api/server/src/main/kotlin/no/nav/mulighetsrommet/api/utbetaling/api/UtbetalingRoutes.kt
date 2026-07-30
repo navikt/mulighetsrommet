@@ -28,6 +28,8 @@ import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.BeslutningMedAarsakerRequest
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.BeslutningRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.AttesterUtbetalingLinje
 import no.nav.mulighetsrommet.api.utbetaling.model.AvbrytUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.AvslaAvbrytUtbetaling
@@ -300,6 +302,7 @@ fun Route.utbetalingRoutes() {
                 operationId = "godkjennAvbrytelseUtbetaling"
                 request {
                     pathParameterUuid("id")
+                    body<BeslutningRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -312,9 +315,10 @@ fun Route.utbetalingRoutes() {
                 }
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<BeslutningRequest>()
                 val navIdent = getNavIdent()
 
-                utbetalingService.godkjennAvbrytelse(GodkjennAvbrytUtbetaling(id, navIdent))
+                utbetalingService.godkjennAvbrytelse(GodkjennAvbrytUtbetaling(id, navIdent, request.totrinnskontrollId))
                     .onLeft { call.respondWithProblemDetail(ValidationError(errors = it)) }
                     .onRight { call.respond(HttpStatusCode.OK) }
             }
@@ -325,7 +329,7 @@ fun Route.utbetalingRoutes() {
                 operationId = "avslaAvbrytelseUtbetaling"
                 request {
                     pathParameterUuid("id")
-                    body<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
+                    body<BeslutningMedAarsakerRequest<UtbetalingStatusAarsak>>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -338,7 +342,7 @@ fun Route.utbetalingRoutes() {
                 }
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<AarsakerOgForklaringRequest<UtbetalingStatusAarsak>>()
+                val request = call.receive<BeslutningMedAarsakerRequest<UtbetalingStatusAarsak>>()
                 val navIdent = getNavIdent()
                 request.validate().flatMap {
                     val command = AvslaAvbrytUtbetaling(
@@ -346,6 +350,7 @@ fun Route.utbetalingRoutes() {
                         besluttetAv = navIdent,
                         aarsaker = it.aarsaker,
                         forklaring = it.forklaring,
+                        forventetTotrinnskontrollId = it.totrinnskontrollId,
                     )
                     utbetalingService.avslaAvbrytelse(command)
                 }
@@ -482,6 +487,7 @@ fun Route.utbetalingRoutes() {
                 operationId = "attesterUtbetalingLinje"
                 request {
                     pathParameterUuid("id")
+                    body<BeslutningRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -494,9 +500,15 @@ fun Route.utbetalingRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
+                val request = call.receive<BeslutningRequest>()
                 val navIdent = getNavIdent()
 
-                val result = utbetalingService.godkjennUtbetalingLinje(AttesterUtbetalingLinje(id, navIdent))
+                val command = AttesterUtbetalingLinje(
+                    id,
+                    navIdent,
+                    request.totrinnskontrollId,
+                )
+                val result = utbetalingService.godkjennUtbetalingLinje(command)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -510,7 +522,7 @@ fun Route.utbetalingRoutes() {
                 operationId = "returnerUtbetalingLinje"
                 request {
                     pathParameterUuid("id")
-                    body<AarsakerOgForklaringRequest<UtbetalingLinjeReturnertAarsak>>()
+                    body<BeslutningMedAarsakerRequest<UtbetalingLinjeReturnertAarsak>>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -523,7 +535,7 @@ fun Route.utbetalingRoutes() {
                 }
             }) {
                 val id: UUID by call.parameters
-                val request = call.receive<AarsakerOgForklaringRequest<UtbetalingLinjeReturnertAarsak>>()
+                val request = call.receive<BeslutningMedAarsakerRequest<UtbetalingLinjeReturnertAarsak>>()
                 val navIdent = getNavIdent()
 
                 val result = request.validate()
@@ -533,6 +545,7 @@ fun Route.utbetalingRoutes() {
                             it.aarsaker,
                             it.forklaring,
                             navIdent,
+                            it.totrinnskontrollId,
                         )
                         utbetalingService.returnerUtbetalingLinje(command)
                     }

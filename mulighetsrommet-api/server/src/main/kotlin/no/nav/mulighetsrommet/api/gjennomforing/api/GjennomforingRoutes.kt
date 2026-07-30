@@ -50,6 +50,7 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.BeslutningRequest
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.SettPaVentRequest
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
@@ -471,6 +472,7 @@ fun Route.gjennomforingRoutes() {
                 operationId = "godkjennGjennomforingOkonomi"
                 request {
                     pathParameterUuid("id")
+                    body<BeslutningRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -483,11 +485,13 @@ fun Route.gjennomforingRoutes() {
                 }
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<BeslutningRequest>()
                 val navIdent = getNavIdent()
 
-                val result = enkeltplasser.settOkonomiGodkjent(GodkjennOkonomi(id, navIdent))
-                    .mapLeft { ValidationError(errors = it) }
-                    .map { HttpStatusCode.OK }
+                val result =
+                    enkeltplasser.settOkonomiGodkjent(GodkjennOkonomi(id, navIdent, request.totrinnskontrollId))
+                        .mapLeft { ValidationError(errors = it) }
+                        .map { HttpStatusCode.OK }
 
                 call.respondWithStatusResponse(result)
             }
@@ -517,6 +521,7 @@ fun Route.gjennomforingRoutes() {
                     id,
                     navIdent,
                     request.forklaring,
+                    request.totrinnskontrollId,
                 )
                 val result = enkeltplasser.settOkonomiPaVent(command)
                     .mapLeft { ValidationError(errors = it) }
