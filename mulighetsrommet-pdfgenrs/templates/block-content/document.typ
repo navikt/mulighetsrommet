@@ -39,7 +39,7 @@
       let fnr = deltaker.at("norskIdent", default: none)
 
       ([Navn:], grid.cell(colspan: 2)[#par(deltakernavn)],
-      [Fødselsnummer:], grid.cell(colspan: 2)[#par(str(fnr))])
+      [Fødselsnummer:], grid.cell(colspan: 2)[#par(if fnr != none { str(fnr) } else { "" })])
     } 
 
     top-section((
