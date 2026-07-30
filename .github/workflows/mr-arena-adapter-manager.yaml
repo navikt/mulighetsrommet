@@ -61,10 +61,6 @@ jobs:
           team: team-mulighetsrommet
           source: frontend/arena-adapter-manager/dist
           destination: dev/arena-adapter-manager
-      - name: Set special cache for asset-manifest.json
-        shell: bash
-        run: |
-          gcloud storage objects update gs://${BUCKET_NAME}/team-mulighetsrommet/dev/arena-adapter-manager/dist/asset-manifest.json --cache-control="public, max-age=120, stale-while-revalidate=7200"
 
   deploy-prod:
     name: Deploy (prod)
@@ -87,7 +83,3 @@ jobs:
           team: team-mulighetsrommet
           source: frontend/arena-adapter-manager/dist
           destination: prod/arena-adapter-manager
-      - name: Set special cache for asset-manifest.json
-        shell: bash
-        run: |
-          gcloud storage objects update gs://${BUCKET_NAME}/team-mulighetsrommet/prod/arena-adapter-manager/dist/asset-manifest.json --cache-control="public, max-age=120, stale-while-revalidate=7200"
