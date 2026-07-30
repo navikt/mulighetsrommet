@@ -50,8 +50,14 @@ data class UtbetalingBeregningAvtaltPrisPerTimeOppfolging(
     }
 }
 
+/**
+ * Prisen blir innsendt av arrangør fordi vi ikke har nok informasjon til å utlede denne, selv om
+ * deltakelsene i praksis er det som er utslagsgivende for en utbetaling.
+ * Pris blir defor satt til 0 NOK når systemet generer utbetalingen, men evt. regenereringer vil
+ * beholde tidligere innsendt pris (om dette er registrert).
+ */
 object PrisPerTimeOppfolgingBeregning :
-    SystemgenerertPrismodell.FraDeltakelserOgInnsendtBelop<UtbetalingBeregningAvtaltPrisPerTimeOppfolging> {
+    SystemgenerertPrismodell.FraDeltakelser<UtbetalingBeregningAvtaltPrisPerTimeOppfolging> {
 
     override val type = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
     override val tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD
@@ -60,11 +66,20 @@ object PrisPerTimeOppfolgingBeregning :
         gjennomforing: GjennomforingAvtale,
         periode: Periode,
         deltakere: List<Deltaker>,
-        pris: ValutaBelop,
+    ): UtbetalingBeregningAvtaltPrisPerTimeOppfolging = beregn(gjennomforing, periode, deltakere, forrigeBeregning = null)
+
+    override fun beregn(
+        gjennomforing: GjennomforingAvtale,
+        periode: Periode,
+        deltakere: List<Deltaker>,
+        forrigeBeregning: UtbetalingBeregning?,
     ): UtbetalingBeregningAvtaltPrisPerTimeOppfolging {
         val satser = UtbetalingInputHelper.resolveAvtalteSatser(gjennomforing, periode)
         val stengt = UtbetalingInputHelper.resolveStengtHosArrangor(periode, gjennomforing.stengt)
         val deltakelser = UtbetalingInputHelper.resolveDeltakelsePerioder(deltakere, periode)
+        val pris = (forrigeBeregning as? UtbetalingBeregningAvtaltPrisPerTimeOppfolging)
+            ?.output?.pris
+            ?: ValutaBelop(0, gjennomforing.prismodell.valuta)
         return UtbetalingBeregningAvtaltPrisPerTimeOppfolging.from(satser, stengt, deltakelser, pris)
     }
 }
