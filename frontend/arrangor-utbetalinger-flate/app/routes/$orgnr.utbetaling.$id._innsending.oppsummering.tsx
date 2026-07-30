@@ -21,6 +21,7 @@ import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { errorAt } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
+import { VedleggSummary } from "~/components/utbetaling/VedleggSummary";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
@@ -58,12 +59,6 @@ export default function BekreftUtbetaling() {
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const hasError = errors.length > 0;
 
-  useEffect(() => {
-    if (hasError) {
-      errorSummaryRef.current?.focus();
-    }
-  }, [hasError]);
-
   const handleSubmit = async (e: SubmitEvent) => {
     e.preventDefault();
 
@@ -91,8 +86,8 @@ export default function BekreftUtbetaling() {
       id: id,
       updatedAt: updatedAt,
       kid: kid || null,
-      belop: utbetaling.kanRegistrerePris && belop != null ? belop : null,
-      vedlegg: utbetaling.kanRegistrerePris && vedlegg ? vedlegg : null,
+      belop: belop ?? null,
+      vedlegg: vedlegg ?? null,
     });
 
     if (result.errors) {
@@ -101,6 +96,12 @@ export default function BekreftUtbetaling() {
       navigate(pathTo.kvittering(orgnr, id));
     }
   };
+
+  useEffect(() => {
+    if (hasError) {
+      errorSummaryRef.current?.focus();
+    }
+  }, [hasError]);
 
   const harTilsagn = tilsagn.length > 0;
 
@@ -135,15 +136,8 @@ export default function BekreftUtbetaling() {
       />
       {utbetaling.kanRegistrerePris ? (
         <VStack gap="space-4">
-          <Definisjonsliste
-            definitions={[
-              { key: "Beløp", value: `${belop} kr` },
-              {
-                key: "Vedlegg",
-                value: (vedlegg ?? []).map((file: File) => file.name).join(", "),
-              },
-            ]}
-          />
+          <Definisjonsliste definitions={[{ key: "Beløp", value: `${belop} kr` }]} />
+          <VedleggSummary vedlegg={vedlegg ?? []} />
         </VStack>
       ) : (
         <SatsPerioderOgBelop

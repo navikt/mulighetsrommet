@@ -3,16 +3,9 @@ import {
   OpprettKravVedleggSteg,
   OpprettKravVedleggStegGuidePanelType,
 } from "@arrangor-utbetalinger/api-client";
-import {
-  FileObject,
-  FileRejected,
-  FileRejectionReason,
-  FileUpload,
-  GuidePanel,
-  Heading,
-  VStack,
-} from "@navikt/ds-react";
+import { FileObject, GuidePanel, Heading, VStack } from "@navikt/ds-react";
 import { OpprettKravFormState } from "~/routes/$orgnr.opprett-krav.$gjennomforingid";
+import { VedleggUpload } from "~/components/utbetaling/VedleggUpload";
 import { errorAt } from "~/utils/validering";
 
 interface VedleggStepProps {
@@ -28,23 +21,6 @@ export default function VedleggSteg({
   updateFormState,
   errors,
 }: VedleggStepProps) {
-  const maxFiles = 10;
-  const maxSizeMB = 10;
-  const maxSizeBytes = 10 * 1024 * 1024;
-
-  const acceptedFiles = formState.files.filter((file: FileObject) => !file.error);
-  const rejectedFiles = formState.files.filter((f: FileObject): f is FileRejected => f.error);
-
-  const fileErrors: Record<FileRejectionReason, string> = {
-    fileType: "Filformatet støttes ikke",
-    fileSize: `Filen er større enn ${maxSizeMB} MB`,
-  };
-
-  const removeFile = (fileToRemove: FileObject) => {
-    const remainingFiles = formState.files.filter((file: FileObject) => file !== fileToRemove);
-    updateFormState({ files: remainingFiles });
-  };
-
   return (
     <>
       <Heading level="2" spacing size="large">
@@ -52,60 +28,12 @@ export default function VedleggSteg({
       </Heading>
       <VStack gap="space-24">
         <GuidePanelVedlegg type={data.guidePanel} />
-        <FileUpload.Dropzone
-          id="vedlegg"
-          label="Last opp vedlegg"
-          description={`Du kan laste opp PDF-filer. Maks ${maxFiles} filer. Maks størrelse ${maxSizeMB} MB per fil.`}
-          accept=".pdf"
+        <VedleggUpload
+          files={formState.files}
+          onFilesChange={(files: FileObject[]) => updateFormState({ files })}
+          description="Du kan laste opp PDF-filer. Maks 10 filer. Maks størrelse 10 MB per fil."
           error={errorAt("/vedlegg", errors)}
-          maxSizeInBytes={maxSizeBytes}
-          fileLimit={{ max: maxFiles, current: acceptedFiles.length }}
-          onSelect={(newFiles: FileObject[]) => {
-            updateFormState({ files: [...formState.files, ...newFiles] });
-          }}
         />
-
-        {acceptedFiles.length > 0 && (
-          <VStack gap="space-8">
-            <Heading level="4" size="xsmall">
-              {`Vedlegg (${acceptedFiles.length})`}
-            </Heading>
-            <VStack as="ul" gap="space-8" align="start">
-              {acceptedFiles.map((file, index) => (
-                <FileUpload.Item
-                  as="li"
-                  key={index}
-                  file={file.file}
-                  button={{
-                    action: "delete",
-                    onClick: () => removeFile(file),
-                  }}
-                />
-              ))}
-            </VStack>
-          </VStack>
-        )}
-        {rejectedFiles.length > 0 && (
-          <VStack gap="space-8">
-            <Heading level="4" size="xsmall">
-              Vedlegg med feil
-            </Heading>
-            <VStack as="ul" gap="space-8" align="start">
-              {rejectedFiles.map((rejected, index) => (
-                <FileUpload.Item
-                  as="li"
-                  key={index}
-                  file={rejected.file}
-                  error={fileErrors[rejected.reasons[0] as FileRejectionReason]}
-                  button={{
-                    action: "delete",
-                    onClick: () => removeFile(rejected),
-                  }}
-                />
-              ))}
-            </VStack>
-          </VStack>
-        )}
       </VStack>
     </>
   );
