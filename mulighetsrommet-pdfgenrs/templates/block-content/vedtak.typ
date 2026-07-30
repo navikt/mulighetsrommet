@@ -31,7 +31,7 @@
 ]
 #top-section((
   [Navn:], grid.cell(colspan: 2)[#par(navn)],
-  [Fødselsnummer:], grid.cell(colspan: 2)[#par(str(fnr))],
+  [Fødselsnummer:], grid.cell(colspan: 2)[#par(if fnr != none { str(fnr) } else { "" })],
   [Saksnummer:], [#par(str(saksnummer))], align(right)[#par(str(iso-til-lang-dato(opprettet)))]
 ))
   #heading("Vedtak om tilskudd til opplæring", level: 1)
