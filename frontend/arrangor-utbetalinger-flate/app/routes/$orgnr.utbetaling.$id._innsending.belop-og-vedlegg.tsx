@@ -3,7 +3,6 @@ import {
   Button,
   ErrorSummary,
   FileObject,
-  FileUpload,
   Heading,
   HStack,
   TextField,
@@ -15,6 +14,7 @@ import { MetaFunction, useLocation } from "react-router";
 import { useIdFromUrl } from "~/utils/navigation";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useUtbetalingWizard } from "~/hooks/useUtbetalingWizard";
+import { VedleggUpload } from "~/components/utbetaling/VedleggUpload";
 import { errorAt } from "~/utils/validering";
 
 export const meta: MetaFunction = () => {
@@ -31,11 +31,11 @@ export default function BelopOgVedlegg() {
   const id = useIdFromUrl();
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
   const wizard = useUtbetalingWizard(utbetaling);
-  const { belop: previousBelop, files: previousFiles } = useLocation().state || {};
+  const { belop: previousBelop, vedlegg: previousVedlegg } = useLocation().state || {};
 
   const [belop, setBelop] = useState(previousBelop != null ? String(previousBelop) : "");
   const [vedlegg, setVedlegg] = useState<FileObject[]>(
-    (previousFiles ?? []).map((file: File): FileObject => ({ file, error: false })),
+    (previousVedlegg ?? []).map((file: File): FileObject => ({ file, error: false })),
   );
   const [errors, setErrors] = useState<FieldError[]>([]);
   const errorSummaryRef = useRef<HTMLDivElement>(null);
@@ -97,31 +97,12 @@ export default function BelopOgVedlegg() {
             inputMode="numeric"
           />
 
-          <FileUpload.Dropzone
-            id="vedlegg"
-            label="Last opp vedlegg"
+          <VedleggUpload
+            files={vedlegg}
+            onFilesChange={setVedlegg}
             description="Last opp dokumenter som dokumenterer kravet (f.eks. timelogg)"
-            accept=".pdf"
             error={errorAt("/vedlegg", errors)}
-            maxSizeInBytes={10 * 1024 * 1024}
-            onSelect={(files) => setVedlegg((prev) => [...prev, ...files])}
           />
-
-          {vedlegg.length > 0 && (
-            <VStack gap="space-4">
-              {vedlegg.map((file, index) => (
-                <FileUpload.Item
-                  as="li"
-                  key={`${file.file.name}-${index}`}
-                  file={file.file}
-                  button={{
-                    action: "delete",
-                    onClick: () => setVedlegg((prev) => prev.filter((_, i) => i !== index)),
-                  }}
-                />
-              ))}
-            </VStack>
-          )}
 
           <HStack gap="space-16">
             <Button type="button" variant="tertiary" onClick={wizard.goToPrevious}>
