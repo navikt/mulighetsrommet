@@ -1,4 +1,4 @@
-import { Heading, VStack } from "@navikt/ds-react";
+import { Heading, Tabs, VStack } from "@navikt/ds-react";
 import { useFormContext } from "react-hook-form";
 import { useRef, useState } from "react";
 import { TiltakDokumentFormValues } from "@/pages/tiltak-dokument/TiltakDokumentFormValues";
@@ -23,11 +23,11 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import { HStack, Label, HelpText } from "@navikt/ds-react";
 import { useDebounce } from "@mr/frontend-common";
 import { ArrangorKontaktpersonerModal } from "@/components/arrangor/ArrangorKontaktpersonerModal";
 import { KontaktpersonButton } from "@/components/kontaktperson/KontaktpersonButton";
 import { FormSelect } from "../skjema/FormSelect";
+import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 
 export function TiltakDokumentForm() {
   const { watch, setValue } = useFormContext<TiltakDokumentFormValues>();
@@ -67,131 +67,145 @@ export function TiltakDokumentForm() {
   const andreEnheterOptions = getAndreUnderenheterAsSelectOptions(navRegioner, kontorstruktur);
 
   return (
-    <VStack gap="space-16">
-      <FormTextField<TiltakDokumentFormValues> name="navn" label="Navn" required />
+    <Tabs defaultValue="detaljer">
+      <Tabs.List>
+        <Tabs.Tab value="detaljer" label="Detaljer" />
+        <Tabs.Tab value="veilederinformasjon" label="Informasjon for veiledere" />
+      </Tabs.List>
 
-      <FormSelect<TiltakDokumentFormValues> name="tiltakstypeId" label="Tiltakstype">
-        <option value="">-- Velg en --</option>
-        {tiltakstypeOptions.map((type) => (
-          <option key={type.value} value={type.value}>
-            {type.label}
-          </option>
-        ))}
-      </FormSelect>
+      <Tabs.Panel value="detaljer">
+        <VStack gap="space-16" paddingBlock="space-16 space-0">
+          <FormTextField<TiltakDokumentFormValues> name="navn" label="Navn" required />
 
-      <FormTextarea<TiltakDokumentFormValues>
-        name="stedForGjennomforing"
-        label="Sted for gjennomføring (valgfritt)"
-        minRows={2}
-        maxRows={4}
-      />
+          <FormSelect<TiltakDokumentFormValues> name="tiltakstypeId" label="Tiltakstype">
+            <option value="">-- Velg en --</option>
+            {tiltakstypeOptions.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </FormSelect>
 
-      <FormComboboxMulti<TiltakDokumentFormValues>
-        name="administratorer"
-        label={
-          <LabelWithHelpText label={gjennomforingTekster.administratorerForGjennomforingenLabel}>
-            Bestemmer hvem som eier gjennomføringen.
-          </LabelWithHelpText>
-        }
-        placeholder="Administratorer"
-        options={administratorOptions}
-      />
+          <FormTextarea<TiltakDokumentFormValues>
+            name="stedForGjennomforing"
+            label="Sted for gjennomføring (valgfritt)"
+            minRows={2}
+            maxRows={4}
+          />
 
-      <Separator />
-      <Heading size="small" level="3">
-        Arrangør (valgfritt)
-      </Heading>
-
-      <FormCombobox<TiltakDokumentFormValues>
-        name="arrangorId"
-        label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
-        placeholder="Søk etter arrangør"
-        options={arrangorOptions}
-        onChange={setArrangorQuery}
-        filteredOptions={arrangorOptions}
-      />
-
-      <VStack>
-        <FormComboboxMulti<TiltakDokumentFormValues>
-          name="arrangorKontaktpersoner"
-          label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
-          readOnly={!arrangorId}
-          placeholder="Velg kontaktpersoner"
-          options={arrangorKontaktpersonOptions}
-        />
-        <KontaktpersonButton
-          onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
-          knappetekst="Opprett eller rediger kontaktpersoner"
-        />
-      </VStack>
-
-      {arrangorId && (
-        <ArrangorKontaktpersonerModal
-          arrangorId={arrangorId}
-          modalRef={arrangorKontaktpersonerModalRef}
-          onOpprettSuccess={(kontaktperson) => {
-            if (!kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.GJENNOMFORING)) {
-              return;
+          <FormComboboxMulti<TiltakDokumentFormValues>
+            name="administratorer"
+            label={
+              <LabelWithHelpText
+                label={gjennomforingTekster.administratorerForGjennomforingenLabel}
+              >
+                Bestemmer hvem som eier gjennomføringen.
+              </LabelWithHelpText>
             }
-            const kontaktpersoner = watch("arrangorKontaktpersoner");
-            setValue("arrangorKontaktpersoner", [
-              ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
-              kontaktperson.id,
-            ]);
-          }}
-        />
-      )}
+            placeholder="Administratorer"
+            options={administratorOptions}
+          />
 
-      <Separator />
-      <Heading size="small" level="3">
-        Geografisk tilgjengelighet
-      </Heading>
+          <Separator />
+          <Heading size="small" level="3">
+            Arrangør (valgfritt)
+          </Heading>
 
-      <FormComboboxMulti<TiltakDokumentFormValues>
-        name="veilederinformasjon.navRegioner"
-        label={avtaletekster.navRegionerLabel}
-        placeholder="Velg en"
-        options={regionOptions}
-      />
+          <FormCombobox<TiltakDokumentFormValues>
+            name="arrangorId"
+            label={gjennomforingTekster.tiltaksarrangorUnderenhetLabel}
+            placeholder="Søk etter arrangør"
+            options={arrangorOptions}
+            onChange={setArrangorQuery}
+            filteredOptions={arrangorOptions}
+          />
 
-      <FormComboboxMulti<TiltakDokumentFormValues>
-        name="veilederinformasjon.navKontorer"
-        selectAll
-        label={avtaletekster.navEnheterLabel}
-        placeholder="Velg en"
-        options={kontorOptions}
-      />
+          <VStack>
+            <FormComboboxMulti<TiltakDokumentFormValues>
+              name="arrangorKontaktpersoner"
+              label={gjennomforingTekster.kontaktpersonerHosTiltaksarrangorLabel}
+              readOnly={!arrangorId}
+              placeholder="Velg kontaktpersoner"
+              options={arrangorKontaktpersonOptions}
+            />
+            <KontaktpersonButton
+              onClick={() => arrangorKontaktpersonerModalRef.current?.showModal()}
+              knappetekst="Opprett eller rediger kontaktpersoner"
+            />
+          </VStack>
 
-      <FormComboboxMulti<TiltakDokumentFormValues>
-        name="veilederinformasjon.navAndreEnheter"
-        selectAll
-        label={avtaletekster.navAndreEnheterLabel}
-        placeholder="Velg en (valgfritt)"
-        options={andreEnheterOptions}
-      />
+          {arrangorId && (
+            <ArrangorKontaktpersonerModal
+              arrangorId={arrangorId}
+              modalRef={arrangorKontaktpersonerModalRef}
+              onOpprettSuccess={(kontaktperson) => {
+                if (
+                  !kontaktperson.ansvarligFor.includes(ArrangorKontaktpersonAnsvar.GJENNOMFORING)
+                ) {
+                  return;
+                }
+                const kontaktpersoner = watch("arrangorKontaktpersoner");
+                setValue("arrangorKontaktpersoner", [
+                  ...kontaktpersoner.filter((k) => k !== kontaktperson.id),
+                  kontaktperson.id,
+                ]);
+              }}
+            />
+          )}
+        </VStack>
+      </Tabs.Panel>
 
-      <Separator />
-      <HStack gap="space-8" align="center">
-        <Label size="small">{gjennomforingTekster.kontaktpersonNav.mainLabel}</Label>
-        <HelpText>
-          Bestemmer kontaktperson som veilederne kan henvende seg til for informasjon om
-          gjennomføringen.
-        </HelpText>
-      </HStack>
+      <Tabs.Panel value="veilederinformasjon">
+        <TwoColumnGrid>
+          <VStack gap="space-16" paddingBlock="space-16 space-0">
+            <RedaksjoneltInnholdForm
+              path="veilederinformasjon"
+              description="Beskrivelse av formålet med gjennomføringen."
+            />
+          </VStack>
+          <VStack gap="space-16" paddingBlock="space-16 space-0">
+            <Heading size="small" level="3">
+              Geografisk tilgjengelighet
+            </Heading>
 
-      <FormListInput
-        name="veilederinformasjon.kontaktpersoner"
-        addButtonLabel="Legg til ny kontaktperson"
-        emptyItem={{ navIdent: "", beskrivelse: "" }}
-        renderItem={(index, id) => <NavKontaktpersonFields index={index} id={id} />}
-      />
+            <FormComboboxMulti<TiltakDokumentFormValues>
+              name="veilederinformasjon.navRegioner"
+              label={avtaletekster.navRegionerLabel}
+              placeholder="Velg en"
+              options={regionOptions}
+            />
 
-      <Separator />
-      <RedaksjoneltInnholdForm
-        path="veilederinformasjon"
-        description="Beskrivelse av formålet med gjennomføringen."
-      />
-    </VStack>
+            <FormComboboxMulti<TiltakDokumentFormValues>
+              name="veilederinformasjon.navKontorer"
+              selectAll
+              label={avtaletekster.navEnheterLabel}
+              placeholder="Velg en"
+              options={kontorOptions}
+            />
+
+            <FormComboboxMulti<TiltakDokumentFormValues>
+              name="veilederinformasjon.navAndreEnheter"
+              selectAll
+              label={avtaletekster.navAndreEnheterLabel}
+              placeholder="Velg en (valgfritt)"
+              options={andreEnheterOptions}
+            />
+
+            <Separator />
+            <Heading size="small" level="3">
+              {gjennomforingTekster.kontaktpersonNav.mainLabel}
+            </Heading>
+
+            <FormListInput
+              name="veilederinformasjon.kontaktpersoner"
+              addButtonLabel="Legg til ny kontaktperson"
+              emptyItem={{ navIdent: "", beskrivelse: "" }}
+              renderItem={(index, id) => <NavKontaktpersonFields index={index} id={id} />}
+            />
+          </VStack>
+        </TwoColumnGrid>
+      </Tabs.Panel>
+    </Tabs>
   );
 }
 
