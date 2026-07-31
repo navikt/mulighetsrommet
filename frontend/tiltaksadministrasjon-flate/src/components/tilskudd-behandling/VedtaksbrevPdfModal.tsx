@@ -3,11 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+// ?raw loads the worker source as a string so we can create a same-origin blob: URL.
+// This avoids cross-origin CORS/COEP restrictions when assets are served from cdn.nav.no
+// while the app runs on a different origin. No CDN network request is made for the worker.
+import pdfWorkerCode from "pdfjs-dist/build/pdf.worker.min.mjs?raw";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url,
-).toString();
+const workerBlobUrl = URL.createObjectURL(
+  new Blob([pdfWorkerCode], { type: "application/javascript" }),
+);
+pdfjs.GlobalWorkerOptions.workerPort = new Worker(workerBlobUrl, { type: "module" });
+URL.revokeObjectURL(workerBlobUrl);
 
 interface Props {
   blob: Blob | undefined;
