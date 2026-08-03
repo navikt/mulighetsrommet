@@ -94,6 +94,18 @@ spec:
           permissions:
             roles:
               - tiltakshistorikk-read
+        - application: tiltakspenger-saksbehandling-api
+          namespace: tpts
+          cluster: prod-gcp
+          permissions:
+            roles:
+              - tiltakshistorikk-read
+        - application: tiltakspenger-soknad-api
+          namespace: tpts
+          cluster: prod-gcp
+          permissions:
+            roles:
+              - tiltakshistorikk-read
         - application: veilarboppfolging
           namespace: poao
           cluster: prod-gcp
