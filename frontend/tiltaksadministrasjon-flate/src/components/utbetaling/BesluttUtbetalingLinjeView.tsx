@@ -1,6 +1,6 @@
 import { useAttesterUtbetalingLinje, useReturnerUtbetalingLinje } from "@/api/utbetaling/mutations";
 import {
-  AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak,
+  BeslutningMedAarsakerRequestUtbetalingLinjeReturnertAarsak,
   UtbetalingLinjeReturnertAarsak,
   FieldError,
   UtbetalingDto,
@@ -32,9 +32,9 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
   const attesterUtbetalingLinjeMutation = useAttesterUtbetalingLinje();
   const returnerUtbetalingLinjeMutation = useReturnerUtbetalingLinje();
 
-  function attesterUtbetalingLinje(id: string) {
+  function attesterUtbetalingLinje(id: string, totrinnskontrollId: string) {
     attesterUtbetalingLinjeMutation.mutate(
-      { id },
+      { id, totrinnskontrollId },
       {
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
@@ -45,10 +45,11 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
 
   function returnerUtbetalingLinje(
     id: string,
-    body: AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak,
+    body: Omit<BeslutningMedAarsakerRequestUtbetalingLinjeReturnertAarsak, "totrinnskontrollId">,
+    totrinnskontrollId: string,
   ) {
     returnerUtbetalingLinjeMutation.mutate(
-      { id, body },
+      { id, body: { ...body, totrinnskontrollId } },
       {
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
@@ -132,7 +133,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
                       setErrors([]);
                     }}
                     onConfirm={(request) => {
-                      returnerUtbetalingLinje(linje.id, request);
+                      returnerUtbetalingLinje(linje.id, request, linje.opprettelse?.id ?? "");
                     }}
                   />
                   <VarselModal
@@ -158,7 +159,7 @@ export function BesluttUtbetalingLinjeView({ utbetaling }: Props) {
                         variant="primary"
                         onClick={() => {
                           setAttesterModalOpenForLinjeId(null);
-                          attesterUtbetalingLinje(linje.id);
+                          attesterUtbetalingLinje(linje.id, linje.opprettelse?.id ?? "");
                         }}
                       >
                         Ja, attester beløp

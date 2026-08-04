@@ -114,6 +114,7 @@ class GjennomforingRequestKafkaConsumer(
 
                 TotrinnskontrollError.KanBareTilbakestillesNarSattPaVent,
                 TotrinnskontrollError.KanIkkeBesluttesAvBehandler,
+                is TotrinnskontrollError.UtdatertGrunnlag,
                 -> error("Uventet feilscenario ved tilbakekalling av prisinformasjon: $error")
             }
         }

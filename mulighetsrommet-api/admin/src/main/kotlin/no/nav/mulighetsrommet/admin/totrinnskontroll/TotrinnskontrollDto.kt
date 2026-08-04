@@ -11,12 +11,15 @@ import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.serializers.AgentSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDateTime
+import java.util.UUID
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonClassDiscriminator("type")
 sealed class TotrinnskontrollDto {
+    abstract val id: UUID
     abstract val behandletAv: AgentDto
     abstract val behandletTidspunkt: LocalDateTime
     abstract val aarsaker: List<String>
@@ -25,6 +28,8 @@ sealed class TotrinnskontrollDto {
     @Serializable
     @SerialName("TotrinnskontrollDto.TilBeslutning")
     data class TilBeslutning(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
         override val behandletAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,
@@ -35,6 +40,8 @@ sealed class TotrinnskontrollDto {
     @Serializable
     @SerialName("TotrinnskontrollDto.Besluttet")
     data class Besluttet(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
         override val behandletAv: AgentDto,
         @Serializable(with = LocalDateTimeSerializer::class)
         override val behandletTidspunkt: LocalDateTime,

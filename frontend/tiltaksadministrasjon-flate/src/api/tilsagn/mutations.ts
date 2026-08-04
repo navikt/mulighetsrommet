@@ -1,5 +1,6 @@
 import {
   AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  BeslutningMedAarsakerRequestTilsagnStatusAarsak,
   EndringshistorikkType,
   ProblemDetail,
   TilsagnRequest,
@@ -12,8 +13,9 @@ import { QueryKeys } from "@/api/QueryKeys";
 export function useGodkjennTilsagn() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<unknown, ProblemDetail, { id: string }>({
-    mutationFn: ({ id }) => TilsagnService.godkjennTilsagn({ path: { id } }),
+  return useApiMutation<unknown, ProblemDetail, { id: string; totrinnskontrollId: string }>({
+    mutationFn: ({ id, totrinnskontrollId }) =>
+      TilsagnService.godkjennTilsagn({ path: { id }, body: { totrinnskontrollId } }),
     mutationKey: QueryKeys.godkjennTilsagn(),
     async onSuccess(_, { id }) {
       await Promise.all([
@@ -46,7 +48,7 @@ export function useReturnerTilsagn() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; request: AarsakerOgForklaringRequestTilsagnStatusAarsak }
+    { id: string; request: BeslutningMedAarsakerRequestTilsagnStatusAarsak }
   >({
     mutationFn: ({ id, request }) =>
       TilsagnService.returnerTilsagn({ path: { id }, body: request }),

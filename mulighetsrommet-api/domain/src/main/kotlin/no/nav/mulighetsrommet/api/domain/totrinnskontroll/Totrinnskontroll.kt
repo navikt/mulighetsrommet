@@ -49,6 +49,19 @@ data class Totrinnskontroll(
         return !(agent is NavIdent && agent == behandletAv)
     }
 
+    /**
+     * Verifiserer at [forventetId] er id-en til denne totrinnskontrollen, altså at klienten som ber om å
+     * beslutte den faktisk har sett gjeldende versjon. Brukes kun der id-en kommer fra en ekstern klient
+     * (HTTP-forespørsel); interne/automatiske flows har ingen ekstern forventning å validere mot og kaller
+     * derfor aldri denne metoden.
+     */
+    fun sjekkGjeldende(forventetId: UUID): Either<TotrinnskontrollError, Totrinnskontroll> {
+        if (id != forventetId) {
+            return TotrinnskontrollError.UtdatertGrunnlag(id).left()
+        }
+        return right()
+    }
+
     companion object {
         fun opprett(
             id: UUID,

@@ -280,6 +280,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     gjorOppTilsagn: true,
     opprettelse: {
       type: "TotrinnskontrollDto.TilBeslutning",
+      id: "10000000-0000-0000-0000-000000000001",
       behandletAv: {
         agent: "B123456",
         navn: "Bertil Bengtson",
@@ -341,6 +342,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil. Du må justere antall deltakere",
       beslutning: TotrinnskontrollDtoBeslutning.RETURNERT,
+      id: "10000000-0000-0000-0000-000000000002",
     },
   },
   {
@@ -390,6 +392,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
       aarsaker: ["FEIL_BELOP"],
       forklaring: "Beløpet er feil, og bør fikses ved å endre antall deltakere",
       beslutning: TotrinnskontrollDtoBeslutning.RETURNERT,
+      id: "10000000-0000-0000-0000-000000000003",
     },
   },
   {
@@ -432,6 +435,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     gjorOppTilsagn: false,
     opprettelse: {
       type: "TotrinnskontrollDto.TilBeslutning",
+      id: "10000000-0000-0000-0000-000000000004",
       behandletAv: {
         agent: "B123456",
         navn: "Bertil Bengtson",
@@ -479,6 +483,7 @@ export const mockUtbetalingLinjer: UtbetalingLinjeDto[] = [
     gjorOppTilsagn: false,
     opprettelse: {
       type: "TotrinnskontrollDto.Besluttet",
+      id: "10000000-0000-0000-0000-000000000005",
       behandletAv: {
         agent: "B123456",
         navn: "Bertil Bengtson",
