@@ -1,18 +1,5 @@
 import { Button, HStack, Loader, Modal } from "@navikt/ds-react";
-import { useEffect, useRef, useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
-import "react-pdf/dist/Page/AnnotationLayer.css";
-import "react-pdf/dist/Page/TextLayer.css";
-// ?raw loads the worker source as a string so we can create a same-origin blob: URL.
-// This avoids cross-origin CORS/COEP restrictions when assets are served from cdn.nav.no
-// while the app runs on a different origin. No CDN network request is made for the worker.
-import pdfWorkerCode from "pdfjs-dist/build/pdf.worker.min.mjs?raw";
-
-const workerBlobUrl = URL.createObjectURL(
-  new Blob([pdfWorkerCode], { type: "application/javascript" }),
-);
-pdfjs.GlobalWorkerOptions.workerPort = new Worker(workerBlobUrl, { type: "module" });
-URL.revokeObjectURL(workerBlobUrl);
+import { useEffect, useState } from "react";
 
 interface Props {
   blob: Blob | undefined;
@@ -24,8 +11,6 @@ interface Props {
 
 export function VedtaksbrevPdfModal({ blob, isLoading, isError, open, onClose }: Props) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
-  const [numPages, setNumPages] = useState<number>(0);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!blob || !open) return;
@@ -34,11 +19,8 @@ export function VedtaksbrevPdfModal({ blob, isLoading, isError, open, onClose }:
     return () => {
       URL.revokeObjectURL(url);
       setBlobUrl(null);
-      setNumPages(0);
     };
   }, [blob, open]);
-
-  const pageWidth = (containerRef.current?.clientWidth ?? 740) - 48;
 
   return (
     <Modal
@@ -48,7 +30,7 @@ export function VedtaksbrevPdfModal({ blob, isLoading, isError, open, onClose }:
       width="800px"
     >
       <Modal.Body>
-        <div ref={containerRef} className="flex flex-col items-center min-h-96">
+        <div className="flex flex-col items-center min-h-96">
           {isLoading && (
             <div className="flex justify-center items-center h-96">
               <Loader size="xlarge" title="Laster PDF..." />
@@ -56,20 +38,12 @@ export function VedtaksbrevPdfModal({ blob, isLoading, isError, open, onClose }:
           )}
           {isError && <p className="text-center text-red-600">Kunne ikke laste vedtaksbrevet.</p>}
           {blobUrl && (
-            <Document
-              file={blobUrl}
-              onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-              loading={
-                <div className="flex justify-center items-center h-96">
-                  <Loader size="xlarge" title="Laster PDF..." />
-                </div>
-              }
-              error={<p className="text-center">Feil ved innlasting av PDF.</p>}
-            >
-              {Array.from({ length: numPages }, (_, i) => (
-                <Page key={i + 1} pageNumber={i + 1} width={pageWidth} className="shadow-md mb-4" />
-              ))}
-            </Document>
+            <iframe
+              src={blobUrl}
+              title="Forhåndsvisning av vedtaksbrev"
+              className="w-full"
+              style={{ height: "70vh", border: "none" }}
+            />
           )}
         </div>
       </Modal.Body>
