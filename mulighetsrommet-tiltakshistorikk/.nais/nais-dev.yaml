@@ -87,6 +87,18 @@ spec:
           permissions:
             roles:
               - tiltakshistorikk-read
+        - application: tiltakspenger-saksbehandling-api
+          namespace: tpts
+          cluster: dev-gcp
+          permissions:
+            roles:
+              - tiltakshistorikk-read
+        - application: tiltakspenger-soknad-api
+          namespace: tpts
+          cluster: dev-gcp
+          permissions:
+            roles:
+              - tiltakshistorikk-read
         - application: veilarboppfolging
           namespace: poao
           cluster: dev-gcp
