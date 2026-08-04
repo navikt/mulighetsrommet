@@ -80,7 +80,7 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "17.7.0",
     "playwright": "1.62.0",
-    "postcss": "8.5.20",
+    "postcss": "8.5.23",
     "postcss-import": "16.1.1",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
