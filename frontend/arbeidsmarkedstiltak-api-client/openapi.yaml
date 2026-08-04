@@ -1467,6 +1467,7 @@ components:
       - KREVER_DIREKTE_VEDTAK
       - KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
+      - STOTTER_TILTAK_DOKUMENT
     Faneinnhold:
       type: object
       properties:

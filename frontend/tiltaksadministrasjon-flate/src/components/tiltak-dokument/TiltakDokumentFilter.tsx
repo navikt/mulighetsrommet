@@ -6,10 +6,16 @@ import {
   tiltakDokumentFilterAccordionAtom,
   TiltakDokumentFilterType,
 } from "@/pages/tiltak-dokument/filter";
-import { GjennomforingTiltakstypeFilter } from "@/components/filter/GjennomforingTiltakstypeFilter";
 import { KontorstrukturFilter } from "@/components/filter/KontorstrukturFilter";
-import { Tiltakskode } from "@tiltaksadministrasjon/api-client";
+import {
+  SortDirection,
+  Tiltakskode,
+  TiltakstypeEgenskap,
+  TiltakstypeSortField,
+} from "@tiltaksadministrasjon/api-client";
 import { CheckboxList } from "@/components/filter/CheckboxList";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
+import { TiltakskodeFilter } from "../filter/TiltakskodeFilter";
 
 interface Props {
   filter: TiltakDokumentFilterType;
@@ -43,7 +49,7 @@ export function TiltakDokumentFilter({ filter, updateFilter }: Props) {
         open={accordionsOpen.includes("tiltakstype")}
         onClick={() => toggleAccordion("tiltakstype")}
       >
-        <GjennomforingTiltakstypeFilter
+        <TiltakDokumentTiltakstypeFilter
           value={filter.tiltakstyper as Tiltakskode[]}
           onChange={(tiltakstyper) => updateFilter({ tiltakstyper, page: 1 })}
         />
@@ -71,4 +77,20 @@ export function TiltakDokumentFilter({ filter, updateFilter }: Props) {
       </FilterAccordion>
     </Accordion>
   );
+}
+
+interface TiltakDokumentTiltakstypeFilterProps {
+  value: Tiltakskode[];
+  onChange: (tiltakstyper: Tiltakskode[]) => void;
+}
+
+function TiltakDokumentTiltakstypeFilter({
+  value,
+  onChange,
+}: TiltakDokumentTiltakstypeFilterProps) {
+  const tiltakstyper = useTiltakstyper({
+    sort: { field: TiltakstypeSortField.NAVN, direction: SortDirection.ASC },
+    egenskaper: [TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT],
+  });
+  return <TiltakskodeFilter tiltakstyper={tiltakstyper} value={value} onChange={onChange} />;
 }

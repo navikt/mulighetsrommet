@@ -87,6 +87,7 @@ enum class Tiltakskode(
             TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -96,6 +97,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
+            TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -105,6 +107,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DIREKTE_VEDTAK,
+            TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -115,6 +118,7 @@ enum class Tiltakskode(
             TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -153,6 +157,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -163,6 +168,7 @@ enum class Tiltakskode(
             TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -173,6 +179,7 @@ enum class Tiltakskode(
             TiltakstypeEgenskap.STOTTER_AVTALER,
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
@@ -183,17 +190,17 @@ enum class Tiltakskode(
     INDIVIDUELL_JOBBSTOTTE(
         system = TiltakstypeSystem.ARENA,
         arenakode = "INDJOBSTOT",
-        egenskaper = setOf(),
+        egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     INDIVIDUELL_JOBBSTOTTE_UNG(
         system = TiltakstypeSystem.ARENA,
         arenakode = "IPSUNG",
-        egenskaper = setOf(),
+        egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     ARBEID_MED_STOTTE(
         system = TiltakstypeSystem.ARENA,
         arenakode = "UTVAOONAV",
-        egenskaper = setOf(),
+        egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
 
     /**
@@ -202,37 +209,37 @@ enum class Tiltakskode(
     ARBEIDSTRENING(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "ARBTREN",
-        egenskaper = setOf(),
+        egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     MIDLERTIDIG_LONNSTLSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "MIDLONTIL",
-        egenskaper = setOf(),
+        egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     VARIG_LONNSTILSKUD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "VARLONTIL",
-        egenskaper = setOf(),
+        egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     MENTOR(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "MENTOR",
-        egenskaper = setOf(),
+        egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     INKLUDERINGSTILSKUD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "INKLUTILS",
-        egenskaper = setOf(),
+        egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     SOMMERJOBB(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "TILSJOBB",
-        egenskaper = setOf(),
+        egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     VTAO(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "VATIAROR",
-        egenskaper = setOf(),
+        egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     FIREARIG_LONNSTILSUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
@@ -284,6 +291,11 @@ enum class TiltakstypeEgenskap {
      * Indikerer at tiltakstypen støtter tilskudd for investeringer.
      */
     STOTTER_TILSKUDD_FOR_INVESTERINGER,
+
+    /**
+     * Gjør at det kan opprettes tiltak dokumenter for tiltaket
+     */
+    STOTTER_TILTAK_DOKUMENT,
 }
 
 enum class Tiltaksgruppe(val tittel: String) {

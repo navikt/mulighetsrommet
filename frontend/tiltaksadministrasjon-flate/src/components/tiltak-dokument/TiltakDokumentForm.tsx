@@ -9,9 +9,13 @@ import { FormComboboxMulti } from "@/components/skjema/FormComboboxMulti";
 import { FormListInput } from "@/components/skjema/FormListInput";
 import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
 import { useKontorstruktur } from "@/api/enhet/useKontorstruktur";
-import { useTiltakstyperForGjennomforinger } from "@/api/tiltakstyper/useTiltakstyperForGjennomforinger";
 import { useSokNavAnsatt } from "@/api/ansatt/useSokNavAnsatt";
-import { Rolle } from "@tiltaksadministrasjon/api-client";
+import {
+  Rolle,
+  SortDirection,
+  TiltakstypeEgenskap,
+  TiltakstypeSortField,
+} from "@tiltaksadministrasjon/api-client";
 import {
   getLokaleUnderenheterAsSelectOptions,
   getAndreUnderenheterAsSelectOptions,
@@ -23,11 +27,15 @@ import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWit
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { FormSelect } from "../skjema/FormSelect";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
+import { useTiltakstyper } from "@/api/tiltakstyper/useTiltakstyper";
 
 export function TiltakDokumentForm() {
   const { watch } = useFormContext<TiltakDokumentFormValues>();
 
-  const tiltakstyper = useTiltakstyperForGjennomforinger();
+  const tiltakstyper = useTiltakstyper({
+    sort: { field: TiltakstypeSortField.NAVN, direction: SortDirection.ASC },
+    egenskaper: [TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT],
+  });
   const tiltakstypeOptions = tiltakstyper.map((t) => ({ value: t.id, label: t.navn }));
 
   const { data: administratorer } = useNavAnsatte([Rolle.TILTAKSGJENNOMFORINGER_SKRIV]);
