@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPe
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
@@ -100,6 +101,8 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
         avbruttDato = utbetaling.avbruttTidspunkt?.tilNorskDato(),
         kanRegenereres = kanRegenereres,
         regenerertId = regenerertId,
+        kanRegistrerePris = utbetaling.beregning is UtbetalingBeregningAvtaltPrisPerTimeOppfolging &&
+            utbetaling.status == UtbetalingStatusType.GENERERT,
     )
 }
 
@@ -477,7 +480,10 @@ private fun beregningDeltakerTable(
     }
 }
 
-private fun getStengtPerioderPerSats(satsPeriode: Periode, stengtPeriode: Set<StengtPeriode>): List<LabeledDataElement> = if (stengtPeriode.isNotEmpty()) {
+private fun getStengtPerioderPerSats(
+    satsPeriode: Periode,
+    stengtPeriode: Set<StengtPeriode>,
+): List<LabeledDataElement> = if (stengtPeriode.isNotEmpty()) {
     stengtPeriode.map { LabeledDataElement.periode("Stengt periode", it.periode.intersect(satsPeriode) ?: it.periode) }
 } else {
     emptyList()

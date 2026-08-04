@@ -2,11 +2,7 @@ import {
   OpprettKravVedleggSteg,
   OpprettKravVedleggStegGuidePanelType,
 } from "@arrangor-utbetalinger/api-client";
-import {
-  gjennomforingIdAFT,
-  gjennomforingIdAvklaring,
-  gjennomforingIdOppfolging,
-} from "./gjennomforingMocks";
+import { gjennomforingIdAFT, gjennomforingIdAvklaring } from "./gjennomforingMocks";
 
 const forhandsgodkjent: OpprettKravVedleggSteg = {
   guidePanel: OpprettKravVedleggStegGuidePanelType.INVESTERING_VTA_AFT,
@@ -18,13 +14,7 @@ const annenAvtaltPris: OpprettKravVedleggSteg = {
   minAntallVedlegg: 0,
 };
 
-const timespris: OpprettKravVedleggSteg = {
-  guidePanel: OpprettKravVedleggStegGuidePanelType.TIMESPRIS,
-  minAntallVedlegg: 1,
-};
-
 export const vedlegg: Record<string, OpprettKravVedleggSteg> = {
   [gjennomforingIdAFT]: forhandsgodkjent,
   [gjennomforingIdAvklaring]: annenAvtaltPris,
-  [gjennomforingIdOppfolging]: timespris,
 };

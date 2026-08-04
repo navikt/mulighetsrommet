@@ -52,6 +52,7 @@ data class ArrangorflateUtbetalingDto(
     val kanRegenereres: Boolean,
     @Serializable(with = UUIDSerializer::class)
     val regenerertId: UUID?,
+    val kanRegistrerePris: Boolean,
 )
 
 @Serializable

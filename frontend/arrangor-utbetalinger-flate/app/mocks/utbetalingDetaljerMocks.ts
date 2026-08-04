@@ -110,6 +110,7 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
   },
   arrangor: arrangorMock,
   kanViseBeregning: true,
+  kanRegistrerePris: false,
   valuta: Valuta.NOK,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
@@ -180,6 +181,7 @@ export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   innsendtAvArrangorDato: null,
   kanViseBeregning: true,
+  kanRegistrerePris: false,
   utbetalesTidligstDato: "2025-12-01",
   createdAt: "2025-11-07T10:02:43.989186",
   updatedAt: "2025-11-07T10:02:43.989186",
@@ -249,6 +251,7 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
   arrangor: arrangorMock,
   advarsler: [],
   kanViseBeregning: true,
+  kanRegistrerePris: false,
   valuta: Valuta.NOK,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
@@ -307,6 +310,7 @@ export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   },
   arrangor: arrangorMock,
   kanViseBeregning: false,
+  kanRegistrerePris: false,
   valuta: Valuta.NOK,
   beregning: {
     deltakelser: null,
@@ -373,6 +377,7 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
   },
   arrangor: arrangorMock,
   kanViseBeregning: false,
+  kanRegistrerePris: false,
   valuta: Valuta.NOK,
   beregning: {
     stengt: [],
@@ -451,6 +456,7 @@ export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   },
   arrangor: arrangorMock,
   kanViseBeregning: true,
+  kanRegistrerePris: false,
   valuta: Valuta.NOK,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
@@ -501,6 +507,7 @@ export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   innsendtAvArrangorDato: null,
   utbetalesTidligstDato: "2025-12-01",
   kanViseBeregning: true,
+  kanRegistrerePris: false,
   createdAt: "2025-10-31T14:41:03.835624",
   updatedAt: "2025-10-31T14:41:03.835624",
   tiltakstype: {
