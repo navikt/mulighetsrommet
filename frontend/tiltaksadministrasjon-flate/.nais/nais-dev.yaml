@@ -72,7 +72,7 @@ spec:
           "header": {
             "csp": {
               "scriptSrc": ["'self'", "'unsafe-inline'", "*.intern.dev.nav.no", "*.nav.no"],
-              "workerSrc": ["'self'", "blob:"],
+              "frameSrc": ["'self'", "blob:"],
               "connectSrc": ["'self'", "'unsafe-inline'", "*.nav.no", "login.microsoftonline.com"]
             }
           },
