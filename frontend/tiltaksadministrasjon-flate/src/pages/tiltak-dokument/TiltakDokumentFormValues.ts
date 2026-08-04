@@ -4,6 +4,7 @@ import { z } from "zod";
 export const TiltakDokumentSchema = z
   .object({
     navn: z.string().min(1, "Navn er påkrevd"),
+    tiltaksnummer: z.string().nullable().optional(),
     tiltakstypeId: z.string().min(1, "Tiltakstype er påkrevd"),
     stedForGjennomforing: z.string().nullable().optional(),
     arrangorId: z.string().nullable().optional(),

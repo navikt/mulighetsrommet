@@ -24,6 +24,7 @@ data class TiltakDokumentRequest(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val navn: String,
+    val tiltaksnummer: String? = null,
     @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
     val stedForGjennomforing: String? = null,

@@ -56,6 +56,11 @@ export function TiltakDokumentForm() {
         <VStack gap="space-16" paddingBlock="space-16 space-0">
           <FormTextField<TiltakDokumentFormValues> name="navn" label="Navn" required />
 
+          <FormTextField<TiltakDokumentFormValues>
+            name="tiltaksnummer"
+            label="Tiltaksnummer (valgfritt)"
+          />
+
           <FormSelect<TiltakDokumentFormValues> name="tiltakstypeId" label="Tiltakstype">
             <option value="">-- Velg en --</option>
             {tiltakstypeOptions.map((type) => (

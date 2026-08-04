@@ -63,6 +63,7 @@ function toDefaultValues(ig: TiltakDokumentDto): TiltakDokumentFormInput {
 
   return {
     navn: ig.navn,
+    tiltaksnummer: ig.tiltaksnummer ?? null,
     tiltakstypeId: ig.tiltakstype.id,
     stedForGjennomforing: ig.stedForGjennomforing ?? null,
     arrangorId: ig.arrangor?.id ?? null,
@@ -100,6 +101,7 @@ function RedigerForm({ tiltakDokument }: { tiltakDokument: TiltakDokumentDto }) 
       {
         id: tiltakDokument.id,
         navn: data.navn,
+        tiltaksnummer: data.tiltaksnummer ?? null,
         tiltakstypeId: data.tiltakstypeId,
         stedForGjennomforing: data.stedForGjennomforing ?? null,
         arrangorId: data.arrangorId ?? null,

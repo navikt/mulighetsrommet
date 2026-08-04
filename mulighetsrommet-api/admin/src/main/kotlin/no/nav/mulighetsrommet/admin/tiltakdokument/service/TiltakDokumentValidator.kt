@@ -26,7 +26,7 @@ object TiltakDokumentValidator {
             id = request.id,
             navn = request.navn,
             sanityId = null,
-            tiltaksnummer = null,
+            tiltaksnummer = request.tiltaksnummer,
             tiltakstypeId = request.tiltakstypeId,
             stedForGjennomforing = request.stedForGjennomforing,
             arrangorId = request.arrangorId,

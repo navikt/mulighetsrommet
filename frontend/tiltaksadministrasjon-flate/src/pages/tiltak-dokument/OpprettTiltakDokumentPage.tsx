@@ -27,6 +27,7 @@ export function OpprettTiltakDokumentPage() {
     resolver: zodResolver(TiltakDokumentSchema),
     defaultValues: {
       navn: "",
+      tiltaksnummer: null,
       tiltakstypeId: "",
       stedForGjennomforing: null,
       arrangorId: null,
@@ -49,6 +50,7 @@ export function OpprettTiltakDokumentPage() {
       {
         id,
         navn: data.navn,
+        tiltaksnummer: data.tiltaksnummer ?? null,
         tiltakstypeId: data.tiltakstypeId,
         stedForGjennomforing: data.stedForGjennomforing ?? null,
         arrangorId: data.arrangorId ?? null,
