@@ -45,7 +45,8 @@ const forsidekortData: ForsideKortProps[] = [
           navn: "Tiltaksdokumenter (tidligere Sanity)",
           ikon: <TiltakDokumentIkon inkluderBakgrunn />,
           url: "/tiltak-dokumenter",
-          tekst: "Her administrerer du tiltaksdokumenter",
+          tekst:
+            "Her administrerer du tiltaksdokumenter, det som tidligere var individuelle gjennomforinger i Sanity",
         } satisfies ForsideKortProps,
       ]
     : []),

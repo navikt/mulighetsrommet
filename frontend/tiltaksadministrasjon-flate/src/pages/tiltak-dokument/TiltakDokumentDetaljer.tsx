@@ -18,6 +18,14 @@ export function TiltakDokumentDetaljer() {
           </Heading>
           <BodyShort>{tiltakDokument.tiltakstype.navn}</BodyShort>
         </div>
+        {tiltakDokument.tiltaksnummer && (
+          <div>
+            <Heading size="small" level="2">
+              Tiltaksnummer
+            </Heading>
+            <BodyShort>{tiltakDokument.tiltaksnummer}</BodyShort>
+          </div>
+        )}
         {tiltakDokument.stedForGjennomforing && (
           <div>
             <Heading size="small" level="2">

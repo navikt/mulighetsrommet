@@ -92,16 +92,17 @@ val ApplicationConfigLocal = AppConfig(
                 Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin + modia,
                 Tiltakskode.HOYERE_UTDANNING to admin + modia,
 
-                Tiltakskode.ARBEIDSTRENING to modia,
-                Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD to modia,
-                Tiltakskode.VARIG_LONNSTILSKUD to modia,
-                Tiltakskode.MENTOR to modia,
-                Tiltakskode.INKLUDERINGSTILSKUD to modia,
-                Tiltakskode.SOMMERJOBB to modia,
-                Tiltakskode.VTAO to modia,
-                Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG to modia,
-                Tiltakskode.INDIVIDUELL_JOBBSTOTTE to modia,
-                Tiltakskode.ARBEID_MED_STOTTE to modia,
+                Tiltakskode.ARBEIDSTRENING to admin + modia,
+                Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD to admin + modia,
+                Tiltakskode.VARIG_LONNSTILSKUD to admin + modia,
+                Tiltakskode.MENTOR to admin + modia,
+                Tiltakskode.INKLUDERINGSTILSKUD to admin + modia,
+                Tiltakskode.SOMMERJOBB to admin + modia,
+                Tiltakskode.VTAO to admin + modia,
+
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG to admin + modia,
+                Tiltakskode.INDIVIDUELL_JOBBSTOTTE to admin + modia,
+                Tiltakskode.ARBEID_MED_STOTTE to admin + modia,
 
                 /*
                  * Nye tiltakstyper under utvikling

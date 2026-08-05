@@ -3997,6 +3997,7 @@ components:
       - KREVER_DIREKTE_VEDTAK
       - KREVER_DIREKTE_VEDTAK_FOR_LOPENDE_OPPSTART
       - STOTTER_TILSKUDD_FOR_INVESTERINGER
+      - STOTTER_TILTAK_DOKUMENT
     TiltakstypeKompaktDto:
       type: object
       properties:
@@ -6632,6 +6633,10 @@ components:
           format: uuid
         navn:
           type: string
+        tiltaksnummer:
+          type:
+          - "null"
+          - string
         tiltakstypeId:
           type: string
           format: uuid
@@ -6664,6 +6669,7 @@ components:
       - id
       - navn
       - stedForGjennomforing
+      - tiltaksnummer
       - tiltakstypeId
       - veilederinformasjon
     TiltakDokumentDto.Tiltakstype:
