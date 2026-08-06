@@ -1,7 +1,7 @@
 import { FaneinnholdSchema } from "@/components/redaksjoneltInnhold/FaneinnholdSchema";
 import { z } from "zod";
 
-export const TiltakDokumentSchema = z
+export const tiltakDokumentDetaljerSchema = z
   .object({
     navn: z.string().min(1, "Navn er påkrevd"),
     tiltaksnummer: z.string().nullable().optional(),
@@ -10,6 +10,11 @@ export const TiltakDokumentSchema = z
     arrangorId: z.string().nullable().optional(),
     arrangorKontaktpersoner: z.string().array().default([]),
     administratorer: z.string().array().min(1, "Du må velge minst én administrator"),
+  })
+  .loose();
+
+export const tiltakDokumentVeilederinfoSchema = z
+  .object({
     veilederinformasjon: z.object({
       beskrivelse: z.string().nullable().optional(),
       faneinnhold: FaneinnholdSchema.nullable().optional(),
@@ -26,6 +31,10 @@ export const TiltakDokumentSchema = z
     }),
   })
   .loose();
+
+export const TiltakDokumentSchema = tiltakDokumentDetaljerSchema.extend(
+  tiltakDokumentVeilederinfoSchema.shape,
+);
 
 export type TiltakDokumentFormInput = z.input<typeof TiltakDokumentSchema>;
 export type TiltakDokumentFormValues = z.infer<typeof TiltakDokumentSchema>;
