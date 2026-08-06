@@ -36,7 +36,7 @@ spec:
       runtime: sdk
   prometheus:
     enabled: true
-    path: /internal/prometheus
+    path: /internal/metrics
   accessPolicy:
     inbound:
       rules:
