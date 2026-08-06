@@ -32,8 +32,8 @@ spec:
         - id: loki
         - id: elastic
       autoInstrumentation:
-      enabled: true
-      runtime: sdk
+        enabled: true
+        runtime: sdk
   prometheus:
     enabled: true
     path: /internal/metrics
