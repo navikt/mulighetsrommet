@@ -27,13 +27,13 @@ spec:
     path: /internal/is_alive
     initialDelay: 10
   observability:
+    autoInstrumentation:
+      enabled: true
+      runtime: sdk
     logging:
       destinations:
         - id: loki
         - id: elastic
-      autoInstrumentation:
-        enabled: true
-        runtime: sdk
   prometheus:
     enabled: true
     path: /internal/metrics
