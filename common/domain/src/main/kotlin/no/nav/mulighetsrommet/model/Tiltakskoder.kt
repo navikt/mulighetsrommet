@@ -148,6 +148,7 @@ enum class Tiltakskode(
         egenskaper = setOf(
             TiltakstypeEgenskap.STOTTER_ENKELTPLASSER,
             TiltakstypeEgenskap.KREVER_DELTIDSPROSENT,
+            TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT,
         ),
         gruppe = Tiltaksgruppe.OPPLAERING,
     ),
