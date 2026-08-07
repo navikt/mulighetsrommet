@@ -2,7 +2,6 @@ import { useHentAnsatt } from "@/api/ansatt/useHentAnsatt";
 import {
   ENDRINGSMELDINGER_URL,
   previewArbeidsmarkedstiltakUrl,
-  sanityStudioUrl,
   selectAccountUrl,
 } from "@/constants";
 import { InlineErrorBoundary } from "@/ErrorBoundary";
@@ -25,7 +24,6 @@ import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metada
 import { useNotificationSummary } from "@/api/notifikasjoner/useNotifications";
 import { OppgaveoversiktIkon } from "../ikoner/OppgaveoversiktIkon";
 import { Adventslys } from "../hoytid/jul/Adventslys";
-import { isProduction } from "@/environment";
 
 export function AdministratorHeader() {
   const navigate = useNavigate();
@@ -75,15 +73,9 @@ export function AdministratorHeader() {
                 Notifikasjoner
               </ActionMenu.Item>
               <ActionMenu.Divider />
-              {isProduction() ? (
-                <ActionMenu.Item as="a" href={sanityStudioUrl()} target="_blank">
-                  Individuelle gjennomføringer
-                </ActionMenu.Item>
-              ) : (
-                <ActionMenu.Item onClick={() => navigate("/tiltak-dokumenter")}>
-                  Tiltaksdokumenter
-                </ActionMenu.Item>
-              )}
+              <ActionMenu.Item onClick={() => navigate("/tiltak-dokumenter")}>
+                Tiltaksdokumenter
+              </ActionMenu.Item>
               <ActionMenu.Item as="a" href={previewArbeidsmarkedstiltakUrl()} target="_blank">
                 Veilederflate forhåndsvisning
               </ActionMenu.Item>

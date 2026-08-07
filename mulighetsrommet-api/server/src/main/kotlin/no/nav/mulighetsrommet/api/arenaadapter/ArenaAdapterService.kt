@@ -21,7 +21,6 @@ import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.ArenaMigrering.TiltaksgjennomforingSluttDatoCutoffDate
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
-import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -103,31 +102,7 @@ class ArenaAdapterService(
 
     private suspend fun upsertEgenRegiTiltak(
         arenaGjennomforing: ArenaGjennomforingDbo,
-    ): UUID? = when (NaisEnv.current()) {
-        NaisEnv.ProdGCP -> upsertEgenRegiTiltakToSanity(arenaGjennomforing)
-
-        NaisEnv.DevGCP,
-        NaisEnv.Local,
-        -> upsertEgenRegiTiltakToDb(arenaGjennomforing)
-    }
-
-    private suspend fun upsertEgenRegiTiltakToSanity(
-        arenaGjennomforing: ArenaGjennomforingDbo,
-    ): UUID? {
-        require(Tiltakskoder.isEgenRegiTiltak(arenaGjennomforing.arenaKode)) {
-            "Gjennomføring for tiltakstype ${arenaGjennomforing.arenaKode} skal ikke skrives til Sanity"
-        }
-
-        val tiltakstype = tiltakstypeService.getAllByArenaTiltakskode(arenaGjennomforing.arenaKode).singleOrNull()
-            ?: throw IllegalArgumentException("Fant ikke én tiltakstype for arenaKode=${arenaGjennomforing.arenaKode}")
-
-        val sluttDato = arenaGjennomforing.sluttDato
-        return if (sluttDato == null || sluttDato.isAfter(TiltaksgjennomforingSluttDatoCutoffDate)) {
-            sanityService.createOrPatchSanityTiltaksgjennomforing(arenaGjennomforing, tiltakstype.sanityId)
-        } else {
-            null
-        }
-    }
+    ): UUID? = upsertEgenRegiTiltakToDb(arenaGjennomforing)
 
     private suspend fun upsertEgenRegiTiltakToDb(
         arenaGjennomforing: ArenaGjennomforingDbo,

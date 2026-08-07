@@ -4,12 +4,10 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.plugins.NotFoundException
-import kotlinx.serialization.json.JsonObject
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityParam
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrift
-import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.model.NavIdent
 import org.slf4j.LoggerFactory
 import java.util.UUID
@@ -226,114 +224,6 @@ class SanityService(
             throw Exception("Klarte ikke slette gjennomforing i sanity: ${response.status}")
         } else {
             log.info("Slettet gjennomforing i Sanity med id: $sanityId")
-        }
-    }
-
-    suspend fun createOrPatchSanityTiltaksgjennomforing(
-        gjennomforing: ArenaGjennomforingDbo,
-        tiltakstypeSanityId: UUID?,
-    ): UUID {
-        val sanityTiltaksgjennomforingFields = SanityTiltaksgjennomforingFields(
-            tiltaksgjennomforingNavn = gjennomforing.navn,
-            tiltakstype = tiltakstypeSanityId?.let { TiltakstypeRef(_ref = it.toString()) },
-            tiltaksnummer = Slug(current = gjennomforing.tiltaksnummer),
-        )
-
-        val sanityId = gjennomforing.sanityId
-
-        return if (sanityId != null) {
-            patchSanityTiltaksgjennomforing(sanityId, sanityTiltaksgjennomforingFields)
-            sanityId
-        } else {
-            val newSanityId = UUID.randomUUID()
-
-            createSanityTiltaksgjennomforing(newSanityId, sanityTiltaksgjennomforingFields)
-
-            newSanityId
-        }
-    }
-
-    private suspend fun createSanityTiltaksgjennomforing(
-        sanityId: UUID,
-        sanityTiltaksgjennomforingFields: SanityTiltaksgjennomforingFields,
-    ) {
-        val sanityTiltaksgjennomforing = sanityTiltaksgjennomforingFields.toSanityTiltaksgjennomforing(
-            // For å ikke autopublisere dokument i Sanity før redaktør manuelt publiserer
-            id = "drafts.$sanityId",
-        )
-
-        val response = sanityClient.mutate(
-            listOf(Mutation.createOrReplace(sanityTiltaksgjennomforing)),
-        )
-
-        if (response.status != HttpStatusCode.OK) {
-            throw Exception("Klarte ikke opprette gjennomforing i sanity: ${response.status}")
-        } else {
-            log.info("Opprettet gjennomforing i Sanity med id: $sanityId")
-        }
-    }
-
-    private suspend fun patchSanityTiltaksgjennomforing(
-        sanityId: UUID,
-        sanityTiltaksgjennomforingFields: SanityTiltaksgjennomforingFields,
-    ) {
-        val id = getSanityId(sanityId) ?: run {
-            log.info("Lar være å patche gjennomføring med sanityId=$sanityId fordi den har blitt slettet manuelt")
-            return
-        }
-
-        val response = sanityClient.mutate(
-            listOf(Mutation.patch(id = id, set = sanityTiltaksgjennomforingFields)),
-        )
-
-        if (response.status != HttpStatusCode.OK) {
-            throw Exception("Klarte ikke patche gjennomforing i sanity: ${response.status}")
-        } else {
-            log.info("Patchet gjennomforing i Sanity med id: $sanityId")
-        }
-    }
-
-    private suspend fun getSanityId(sanityId: UUID) = if (isPublished(sanityId)) {
-        "$sanityId"
-    } else if (isDraft(sanityId)) {
-        "drafts.$sanityId"
-    } else {
-        null
-    }
-
-    private suspend fun isPublished(sanityId: UUID): Boolean {
-        val query = $$"""
-            *[_id == $id]{_id}
-        """.trimIndent()
-
-        val params = listOf(SanityParam.of("id", sanityId))
-
-        return when (val response = sanityClient.query(query, params, perspective = SanityPerspective.PUBLISHED)) {
-            is SanityResponse.Result -> {
-                response.decode<List<JsonObject>>().isNotEmpty()
-            }
-
-            is SanityResponse.Error -> {
-                throw RuntimeException("Feil ved oppslag på dokument med id '$sanityId': ${response.error}")
-            }
-        }
-    }
-
-    private suspend fun isDraft(sanityId: UUID): Boolean {
-        val query = $$"""
-            *[_id == $id]{_id}
-        """.trimIndent()
-
-        val params = listOf(SanityParam.of("id", sanityId))
-
-        return when (val response = sanityClient.query(query, params, SanityPerspective.PREVIEW_DRAFTS)) {
-            is SanityResponse.Result -> {
-                response.decode<List<JsonObject>>().isNotEmpty()
-            }
-
-            is SanityResponse.Error -> {
-                throw RuntimeException("Feil ved oppslag på dokument med id '$sanityId': ${response.error}")
-            }
         }
     }
 

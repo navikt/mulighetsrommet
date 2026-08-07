@@ -5,8 +5,7 @@ import { Forsidekort, ForsideKortProps } from "./Forsidekort";
 import { BellDotFillIcon } from "@navikt/aksel-icons";
 import { HGrid } from "@navikt/ds-react";
 import { UtbetalingerIkon } from "@/components/ikoner/UtbetalingerIkon";
-import { previewArbeidsmarkedstiltakUrl, sanityStudioUrl } from "@/constants";
-import { isProduction } from "@/environment";
+import { previewArbeidsmarkedstiltakUrl } from "@/constants";
 import { TiltakDokumentIkon } from "@/components/ikoner/TiltakDokumentIkon";
 
 const forsidekortData: ForsideKortProps[] = [
@@ -33,23 +32,12 @@ const forsidekortData: ForsideKortProps[] = [
     tekst: "Her finner du informasjon om Gjennomføringer for gruppetiltak",
   },
   {
-    navn: "Individuelle gjennomføringer i Sanity",
-    ikon: <img className="h-16 w-16 rounded-full" src="./sanity_logo.png" alt="Sanity-logo" />,
-    url: sanityStudioUrl(),
-    tekst: "Her administrerer du Individuelle gjennomføringer",
-    apneINyTab: true,
+    navn: "Tiltaksdokumenter (tidligere Sanity)",
+    ikon: <TiltakDokumentIkon inkluderBakgrunn />,
+    url: "/tiltak-dokumenter",
+    tekst:
+      "Her administrerer du tiltaksdokumenter, det som tidligere var individuelle gjennomføringer i Sanity",
   },
-  ...(!isProduction()
-    ? [
-        {
-          navn: "Tiltaksdokumenter (tidligere Sanity)",
-          ikon: <TiltakDokumentIkon inkluderBakgrunn />,
-          url: "/tiltak-dokumenter",
-          tekst:
-            "Her administrerer du tiltaksdokumenter, det som tidligere var individuelle gjennomføringer i Sanity",
-        } satisfies ForsideKortProps,
-      ]
-    : []),
   {
     navn: "Veilederflate forhåndsvisning",
     ikon: <ForhandsvisningIkon inkluderBakgrunn aria-label="Preview" />,
