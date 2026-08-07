@@ -51,7 +51,6 @@ export function TiltakDokumenterPage() {
               Opprett tiltaksdokument
             </Button>
           }
-
           table={
             <ReloadAppErrorBoundary>
               <Suspense fallback={<ListSkeleton />}>

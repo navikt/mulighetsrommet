@@ -32,16 +32,20 @@ export function FilterAndTableLayout({
   return (
     <Suspense fallback={<OversiktSkeleton />}>
       <Box background="default" padding="space-8" className={styles.filter_table_layout_container}>
-        <FilterSidebar setFilterOpen={setFilterOpen} filterOpen={filterOpen} filterTab={filter} />
+        <div className="sticky top-0 z-[1] bg-[var(--ax-bg-default)] flex items-center">
+          <FilterSidebar setFilterOpen={setFilterOpen} filterOpen={filterOpen} filterTab={filter} />
+        </div>
 
         <ToolbarButtonRow>
-          {hasChanged && (
+          {hasChanged ? (
             <div className={styles.button_row_left}>
               <HStack align="center" gap="space-4">
                 {lagreFilterButton}
                 {nullstillFilterButton}
               </HStack>
             </div>
+          ) : (
+            <div></div>
           )}
           <div className={styles.button_row_right}>{buttons}</div>
         </ToolbarButtonRow>
