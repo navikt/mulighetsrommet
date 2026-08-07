@@ -44,20 +44,17 @@ class MigrerSanityTiltaksgjennomforinger(
     }
 
     suspend fun migrer() {
-        logger.info("Starter migrering av tiltaksgjennomføringer fra Sanity til database")
+        logger.debug("Starter migrering av tiltaksgjennomføringer fra Sanity til database")
 
         val alleDokumenter = hentAlleTiltakFraSanity()
-        logger.info("Hentet ${alleDokumenter.size} dokumenter fra Sanity (inkl. utkast)")
-        alleDokumenter.take(3).forEach { tiltak ->
-            logger.info("Sanity dokument: _id=${tiltak._id}, fylkeRef=${tiltak.fylkeRef}, enheterRefs=${tiltak.enheterRefs}")
-        }
+        logger.debug("Hentet ${alleDokumenter.size} dokumenter fra Sanity (inkl. utkast)")
 
         // PREVIEW_DRAFTS returns canonical IDs (no "drafts." prefix). A separate PUBLISHED
         // query tells us which documents are actually published.
         val publiserteSanityIds = hentPubliserteSanityIds()
-        logger.info("Fant ${publiserteSanityIds.size} publiserte tiltaksgjennomføringer")
+        logger.debug("Fant ${publiserteSanityIds.size} publiserte tiltaksgjennomføringer")
 
-        logger.info("Migrerer ${alleDokumenter.size} tiltaksgjennomføringer")
+        logger.debug("Migrerer ${alleDokumenter.size} tiltaksgjennomføringer")
 
         val tiltakstypePerSanityId = db.session {
             queries.tiltakstype.getAll(tiltakskoder = emptySet()).associateBy { it.sanityId?.toString() }
@@ -102,6 +99,7 @@ class MigrerSanityTiltaksgjennomforinger(
                 }
                 db.session {
                     val administratorer = tiltak.redaktor
+                        ?.filterNotNull()
                         ?.mapNotNull { runCatching { NavIdent(it) }.getOrNull() }
                         ?: eksisterende?.administratorer
                         ?: emptyList()
@@ -131,7 +129,13 @@ class MigrerSanityTiltaksgjennomforinger(
                         ),
                     )
 
-                    logger.info("sanityId=$sanityId, navEnheter=$navEnheter (fylkeRef=${tiltak.fylkeRef}, enheterRefs=${tiltak.enheterRefs})")
+                    logger.debug(
+                        "sanityId={}, navEnheter={} (fylkeRef={}, enheterRefs={})",
+                        sanityId,
+                        navEnheter,
+                        tiltak.fylkeRef,
+                        tiltak.enheterRefs,
+                    )
                 }
 
                 if (eksisterende != null) antallOppdatert++ else antallOpprettet++
@@ -142,7 +146,7 @@ class MigrerSanityTiltaksgjennomforinger(
             }
         }
 
-        logger.info("Migrering fullført. Opprettet: $antallOpprettet, Oppdatert: $antallOppdatert, Feilet: $antallFeilet")
+        logger.debug("Migrering fullført. Opprettet: $antallOpprettet, Oppdatert: $antallOppdatert, Feilet: $antallFeilet")
     }
 
     private suspend fun hentAlleTiltakFraSanity(): List<SanityGjennomforingMigrasjonDto> {
@@ -213,7 +217,7 @@ class MigrerSanityTiltaksgjennomforinger(
         val enheterRefs: List<String?>? = null,
         val arrangor: SanityArrangor? = null,
         val faneinnhold: Faneinnhold? = null,
-        val redaktor: List<String>? = null,
+        val redaktor: List<String?>? = null,
         val kontaktpersoner: List<String?>? = null,
     )
 }
