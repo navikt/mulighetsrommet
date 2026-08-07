@@ -76,7 +76,7 @@ services:
       POSTGRES_PASSWORD: "valp"
 
   pdfgenrs:
-    image: "ghcr.io/navikt/pdfgenrs:0.1.71"
+    image: "ghcr.io/navikt/pdfgenrs:1.0.21"
     platform: linux/amd64
     restart: "always"
     ports:
