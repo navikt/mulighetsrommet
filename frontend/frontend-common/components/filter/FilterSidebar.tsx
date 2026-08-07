@@ -10,7 +10,7 @@ interface Props {
 
 export function FilterSidebar({ filterTab, setFilterOpen, filterOpen }: Props) {
   return (
-    <VStack height="fit-content" gap="space-8" width="350px" className={`sticky top-2 z-1 `}>
+    <VStack height="fit-content" gap="space-8" width="350px" className="relative">
       <Box asChild background="default">
         <Button
           size="small"
@@ -43,7 +43,7 @@ export function FilterSidebar({ filterTab, setFilterOpen, filterOpen }: Props) {
         maxHeight="85vh"
         paddingInline="space-16"
         paddingBlock="space-24"
-        className={`overflow-y-auto ${filterOpen ? "" : "hidden"}`}
+        className={`absolute top-full mt-2 w-full overflow-y-auto ${filterOpen ? "" : "hidden"}`}
         background="default"
         shadow="dialog"
       >
