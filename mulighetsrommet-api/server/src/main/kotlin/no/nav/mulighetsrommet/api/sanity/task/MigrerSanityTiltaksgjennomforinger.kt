@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.sanity.SanityResponse
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.slf4j.LoggerFactory
@@ -100,6 +101,17 @@ class MigrerSanityTiltaksgjennomforinger(
                     tiltak.enheterRefs?.filterNotNull()?.mapNotNull { parseEnhetsnummer(it) }?.forEach { add(it) }
                 }
                 db.session {
+                    val administratorer = tiltak.redaktor
+                        ?.mapNotNull { runCatching { NavIdent(it) }.getOrNull() }
+                        ?: eksisterende?.administratorer
+                        ?: emptyList()
+
+                    val kontaktpersoner = tiltak.kontaktpersoner
+                        ?.filterNotNull()
+                        ?.mapNotNull { runCatching { TiltakDokument.Kontaktperson(NavIdent(it), beskrivelse = null) }.getOrNull() }
+                        ?: eksisterende?.kontaktpersoner
+                        ?: emptyList()
+
                     repository.tiltakDokument.save(
                         TiltakDokument(
                             id = id,
@@ -111,8 +123,8 @@ class MigrerSanityTiltaksgjennomforinger(
                             beskrivelse = tiltak.beskrivelse,
                             tiltaksnummer = tiltak.tiltaksnummer,
                             sanityId = sanityId,
-                            administratorer = eksisterende?.administratorer ?: emptyList(),
-                            kontaktpersoner = eksisterende?.kontaktpersoner ?: emptyList(),
+                            administratorer = administratorer,
+                            kontaktpersoner = kontaktpersoner,
                             navEnheter = navEnheter,
                             arrangorKontaktpersoner = eksisterende?.arrangorKontaktpersoner ?: emptyList(),
                             publisert = publisert,
@@ -156,7 +168,9 @@ class MigrerSanityTiltaksgjennomforinger(
                     kontaktinfo,
                     lenker,
                     oppskrift
-                }
+                },
+                "redaktor": redaktor[]->navIdent.current,
+                "kontaktpersoner": kontaktpersoner[].navKontaktperson->navIdent.current
             }
         """.trimIndent()
 
@@ -199,5 +213,7 @@ class MigrerSanityTiltaksgjennomforinger(
         val enheterRefs: List<String?>? = null,
         val arrangor: SanityArrangor? = null,
         val faneinnhold: Faneinnhold? = null,
+        val redaktor: List<String>? = null,
+        val kontaktpersoner: List<String?>? = null,
     )
 }
