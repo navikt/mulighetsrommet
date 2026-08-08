@@ -16,6 +16,7 @@ export const tiltaksgjennomforing = defineType({
   name: "tiltaksgjennomforing",
   title: "Tiltaksgjennomføring",
   type: "document",
+  readOnly: true,
   icon: GrDocumentPerformance,
   fields: [
     defineField({

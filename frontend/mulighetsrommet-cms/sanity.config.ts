@@ -44,6 +44,12 @@ const createCommonConfig = (dataset: "production" | "test", basePath: string) =>
       const miljo = dataset === "test" ? "dev.nav.no" : "nav.no";
       return `https://nav-arbeidsmarkedstiltak.intern.${miljo}/preview/tiltak/${id}`;
     },
+    actions: (prev, context) => {
+      if (context.schemaType === "tiltaksgjennomforing") {
+        return prev.filter((action) => action.action === "discardChanges");
+      }
+      return prev;
+    },
   },
   tools: (prev, { currentUser }) => {
     const isAdmin = currentUser?.roles.some((role) =>
