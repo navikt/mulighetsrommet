@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
+import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -16,6 +17,7 @@ class TiltakDokumentValidatorTest : FunSpec({
         navRegioner = setOf(NavEnhetNummer("0300")),
         navKontorer = setOf(NavEnhetNummer("0301")),
     )
+    val validTiltakstype = TiltakstypeFixtures.Amo
     val validRequest = TiltakDokumentRequest(
         id = UUID.randomUUID(),
         navn = "Testtiltak",
@@ -26,36 +28,36 @@ class TiltakDokumentValidatorTest : FunSpec({
 
     context("validate") {
         test("returnerer Right for gyldig request") {
-            TiltakDokumentValidator.validate(validRequest).shouldBeRight()
+            TiltakDokumentValidator.validate(validRequest, validTiltakstype).shouldBeRight()
         }
 
         test("navn blank gir valideringsfeil") {
-            val errors = TiltakDokumentValidator.validate(validRequest.copy(navn = "  "))
+            val errors = TiltakDokumentValidator.validate(validRequest.copy(navn = "  "), validTiltakstype)
                 .shouldBeLeft()
 
             errors shouldContain FieldError.of("Navn er påkrevd", TiltakDokumentRequest::navn)
         }
 
         test("navn tomt gir valideringsfeil") {
-            val errors = TiltakDokumentValidator.validate(validRequest.copy(navn = ""))
+            val errors = TiltakDokumentValidator.validate(validRequest.copy(navn = ""), validTiltakstype)
                 .shouldBeLeft()
 
             errors shouldContain FieldError.of("Navn er påkrevd", TiltakDokumentRequest::navn)
         }
 
         test("navn over 500 tegn gir valideringsfeil") {
-            val errors = TiltakDokumentValidator.validate(validRequest.copy(navn = "a".repeat(501)))
+            val errors = TiltakDokumentValidator.validate(validRequest.copy(navn = "a".repeat(501)), validTiltakstype)
                 .shouldBeLeft()
 
             errors shouldContain FieldError.of("Navn kan ikke være lengre enn 500 tegn", TiltakDokumentRequest::navn)
         }
 
         test("navn på nøyaktig 500 tegn er gyldig") {
-            TiltakDokumentValidator.validate(validRequest.copy(navn = "a".repeat(500))).shouldBeRight()
+            TiltakDokumentValidator.validate(validRequest.copy(navn = "a".repeat(500)), validTiltakstype).shouldBeRight()
         }
 
         test("ingen administratorer gir valideringsfeil") {
-            val errors = TiltakDokumentValidator.validate(validRequest.copy(administratorer = emptySet()))
+            val errors = TiltakDokumentValidator.validate(validRequest.copy(administratorer = emptySet()), validTiltakstype)
                 .shouldBeLeft()
 
             errors shouldContain FieldError.of("Du må velge minst én administrator", TiltakDokumentRequest::administratorer)
@@ -64,6 +66,7 @@ class TiltakDokumentValidatorTest : FunSpec({
         test("samler opp flere valideringsfeil") {
             val errors = TiltakDokumentValidator.validate(
                 validRequest.copy(navn = "", administratorer = emptySet()),
+                validTiltakstype,
             ).shouldBeLeft()
 
             errors shouldContainAll listOf(
@@ -77,6 +80,7 @@ class TiltakDokumentValidatorTest : FunSpec({
         test("ingen navRegioner gir valideringsfeil") {
             val errors = TiltakDokumentValidator.validate(
                 validRequest.copy(veilederinformasjon = validVeilederinfo.copy(navRegioner = emptySet())),
+                validTiltakstype,
             ).shouldBeLeft()
 
             errors shouldContain FieldError.of(
@@ -91,6 +95,7 @@ class TiltakDokumentValidatorTest : FunSpec({
                 validRequest.copy(
                     veilederinformasjon = validVeilederinfo.copy(navKontorer = emptySet(), navAndreEnheter = emptySet()),
                 ),
+                validTiltakstype,
             ).shouldBeLeft()
 
             errors shouldContain FieldError.of(
@@ -98,6 +103,11 @@ class TiltakDokumentValidatorTest : FunSpec({
                 TiltakDokumentRequest::veilederinformasjon,
                 TiltakDokumentRequest.VeilederinfoRequest::navKontorer,
             )
+        }
+
+        test("enkel amo og enkel fag yrke kan ikke opprettes") {
+            TiltakDokumentValidator.validate(validRequest, TiltakstypeFixtures.EnkelAmo).shouldBeLeft()
+            TiltakDokumentValidator.validate(validRequest, TiltakstypeFixtures.EnkelFagOgYrke).shouldBeLeft()
         }
 
         test("kun navAndreEnheter (uten navKontorer) er gyldig") {
@@ -108,6 +118,7 @@ class TiltakDokumentValidatorTest : FunSpec({
                         navAndreEnheter = setOf(NavEnhetNummer("1234")),
                     ),
                 ),
+                validTiltakstype,
             ).shouldBeRight()
         }
 
@@ -119,6 +130,7 @@ class TiltakDokumentValidatorTest : FunSpec({
                         navAndreEnheter = emptySet(),
                     ),
                 ),
+                validTiltakstype,
             ).shouldBeRight()
         }
 
@@ -130,6 +142,7 @@ class TiltakDokumentValidatorTest : FunSpec({
                         navAndreEnheter = setOf(NavEnhetNummer("1234")),
                     ),
                 ),
+                validTiltakstype,
             ).shouldBeRight()
         }
 
@@ -142,6 +155,7 @@ class TiltakDokumentValidatorTest : FunSpec({
                         navAndreEnheter = emptySet(),
                     ),
                 ),
+                validTiltakstype,
             ).shouldBeLeft()
 
             errors shouldHaveSize 2

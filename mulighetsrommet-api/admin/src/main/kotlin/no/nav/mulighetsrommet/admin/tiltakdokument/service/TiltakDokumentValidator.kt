@@ -1,13 +1,23 @@
 package no.nav.mulighetsrommet.admin.tiltakdokument.service
 
 import arrow.core.Either
+import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument.Kontaktperson
 import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.validation.validation
 
 object TiltakDokumentValidator {
-    fun validate(request: TiltakDokumentRequest): Either<List<FieldError>, TiltakDokument> = validation {
+    fun validate(request: TiltakDokumentRequest, tiltakstype: Tiltakstype): Either<List<FieldError>, TiltakDokument> = validation {
+        validate(
+            tiltakstype.tiltakskode !in listOf(
+                Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+                Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+            ),
+        ) {
+            FieldError.of("Tiltakstypen ${tiltakstype.navn} er utgått", TiltakDokumentRequest::navn)
+        }
         validate(request.navn.isNotBlank()) {
             FieldError.of("Navn er påkrevd", TiltakDokumentRequest::navn)
         }

@@ -57,6 +57,7 @@ val ApplicationConfigProd = AppConfig(
                 Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin + modia,
                 Tiltakskode.HOYERE_UTDANNING to admin + modia,
                 Tiltakskode.HOYERE_YRKESFAGLIG_UTDANNING to admin + modia,
+
                 Tiltakskode.ARBEIDSTRENING to admin + modia,
                 Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD to admin + modia,
                 Tiltakskode.VARIG_LONNSTILSKUD to admin + modia,
