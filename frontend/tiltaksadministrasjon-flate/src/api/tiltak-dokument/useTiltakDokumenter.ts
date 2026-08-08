@@ -11,6 +11,7 @@ export function useTiltakDokumenter(filter?: Partial<TiltakDokumentFilterType>) 
       tiltakstyper: filter?.tiltakstyper ?? [],
       publisert: getPublisertStatus(filter?.publisert) ?? null,
       sort: filter?.sortering?.sortString ?? null,
+      visMineTiltakDokumenter: filter?.visMineTiltakDokumenter ?? false,
     },
     query: {
       page: filter?.page ?? 1,

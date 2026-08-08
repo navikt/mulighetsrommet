@@ -14,6 +14,7 @@ export const TiltakDokumentFilterSchema = z.object({
   tiltakstyper: z.custom<Tiltakskode>().array(),
   sortering: createSorteringProps(z.string()),
   publisert: z.string().array(),
+  visMineTiltakDokumenter: z.boolean(),
   page: z.number(),
   pageSize: z.number(),
 });
@@ -31,6 +32,7 @@ export const defaultTiltakDokumentFilter: TiltakDokumentFilterType = {
     },
   },
   publisert: [],
+  visMineTiltakDokumenter: false,
   page: 1,
   pageSize: PAGE_SIZE,
 };

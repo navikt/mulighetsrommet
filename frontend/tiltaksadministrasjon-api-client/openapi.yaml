@@ -6865,11 +6865,14 @@ components:
           type:
           - "null"
           - string
+        visMineTiltakDokumenter:
+          type: boolean
       required:
       - navEnheter
       - publisert
       - sort
       - tiltakstyper
+      - visMineTiltakDokumenter
     TiltakDokumentKompaktDto:
       type: object
       properties:

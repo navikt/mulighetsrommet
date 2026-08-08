@@ -189,6 +189,7 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
         tiltakstyper: List<Tiltakskode>,
         publisert: Boolean?,
         sortering: String?,
+        administratorNavIdent: NavIdent?,
     ): PaginatedResult<TiltakDokumentKompaktDto> = with(session) {
         val order = when (sortering) {
             "navn-ascending" -> "navn asc"
@@ -210,6 +211,10 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
         ))
         and (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any (:tiltakskoder))
         and (:publisert::boolean is null or publisert = :publisert)
+        and (:administrator_nav_ident::text is null or id in (
+            select tiltak_dokument_id from tiltak_dokument_administrator
+            where nav_ident = :administrator_nav_ident
+        ))
         order by $order
         limit :limit
         offset :offset
@@ -219,6 +224,7 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
             "nav_enheter" to navEnheter.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
             "tiltakskoder" to tiltakstyper.ifEmpty { null }?.let { createArrayOfValue(it) { it.name } },
             "publisert" to publisert,
+            "administrator_nav_ident" to administratorNavIdent?.value,
         )
 
         return queryOf(query, params + pagination.parameters)
