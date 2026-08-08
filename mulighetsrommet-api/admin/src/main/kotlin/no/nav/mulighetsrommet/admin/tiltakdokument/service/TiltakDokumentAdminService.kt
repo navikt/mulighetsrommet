@@ -1,6 +1,8 @@
 package no.nav.mulighetsrommet.admin.tiltakdokument.service
 
 import arrow.core.Either
+import arrow.core.left
+import arrow.core.nel
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -58,7 +60,10 @@ class TiltakDokumentAdminService(
     private val db: AdminDatabase,
 ) {
     fun upsert(request: TiltakDokumentRequest, navIdent: NavIdent): Either<List<FieldError>, TiltakDokumentDto> {
-        return TiltakDokumentValidator.validate(request)
+        val tiltakstype = db.session { repository.tiltakstype.get(request.tiltakstypeId) }
+            ?: return FieldError.of("Fant ikke tiltakstype", TiltakDokumentRequest::tiltakstypeId).nel().left()
+
+        return TiltakDokumentValidator.validate(request, tiltakstype)
             .map { tiltakDokument ->
                 db.transaction {
                     val isNew = queries.tiltakDokument.getTiltakDokumentDto(request.id) == null
