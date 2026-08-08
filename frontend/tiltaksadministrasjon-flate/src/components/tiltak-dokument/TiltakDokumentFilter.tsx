@@ -1,6 +1,6 @@
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import { FilterAccordion } from "@mr/frontend-common";
-import { Accordion } from "@navikt/ds-react";
+import { Accordion, Switch, VStack } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import {
   tiltakDokumentFilterAccordionAtom,
@@ -30,52 +30,67 @@ export function TiltakDokumentFilter({ filter, updateFilter }: Props) {
   };
 
   return (
-    <Accordion size="small">
-      <FilterAccordion
-        tittel="Nav-enhet"
-        antallValgteFilter={filter.navEnheter.length}
-        open={accordionsOpen.includes("navEnhet")}
-        onClick={() => toggleAccordion("navEnhet")}
+    <VStack gap="space-16">
+      <Switch
+        position="left"
+        size="small"
+        checked={filter.visMineTiltakDokumenter}
+        onChange={(event) => {
+          updateFilter({
+            visMineTiltakDokumenter: event.currentTarget.checked,
+            page: 1,
+          });
+        }}
       >
-        <KontorstrukturFilter
-          value={filter.navEnheter}
-          onChange={(navEnheter) => updateFilter({ navEnheter, page: 1 })}
-        />
-      </FilterAccordion>
+        Vis mine tiltaksdokumenter
+      </Switch>
+      <Accordion size="small">
+        <FilterAccordion
+          tittel="Nav-enhet"
+          antallValgteFilter={filter.navEnheter.length}
+          open={accordionsOpen.includes("navEnhet")}
+          onClick={() => toggleAccordion("navEnhet")}
+        >
+          <KontorstrukturFilter
+            value={filter.navEnheter}
+            onChange={(navEnheter) => updateFilter({ navEnheter, page: 1 })}
+          />
+        </FilterAccordion>
 
-      <FilterAccordion
-        tittel="Tiltakstype"
-        antallValgteFilter={filter.tiltakstyper.length}
-        open={accordionsOpen.includes("tiltakstype")}
-        onClick={() => toggleAccordion("tiltakstype")}
-      >
-        <TiltakDokumentTiltakstypeFilter
-          value={filter.tiltakstyper as Tiltakskode[]}
-          onChange={(tiltakstyper) => updateFilter({ tiltakstyper, page: 1 })}
-        />
-      </FilterAccordion>
+        <FilterAccordion
+          tittel="Tiltakstype"
+          antallValgteFilter={filter.tiltakstyper.length}
+          open={accordionsOpen.includes("tiltakstype")}
+          onClick={() => toggleAccordion("tiltakstype")}
+        >
+          <TiltakDokumentTiltakstypeFilter
+            value={filter.tiltakstyper as Tiltakskode[]}
+            onChange={(tiltakstyper) => updateFilter({ tiltakstyper, page: 1 })}
+          />
+        </FilterAccordion>
 
-      <FilterAccordion
-        tittel="Publisert"
-        antallValgteFilter={filter.publisert.length}
-        open={accordionsOpen.includes("publiserteStatuser")}
-        onClick={() => toggleAccordion("publiserteStatuser")}
-      >
-        <CheckboxList
-          items={[
-            { value: "publisert", label: "Publisert" },
-            { value: "ikke-publisert", label: "Ikke publisert" },
-          ]}
-          isChecked={(id) => filter.publisert.includes(id)}
-          onChange={(id) => {
-            updateFilter({
-              publisert: addOrRemove(filter.publisert, id),
-              page: 1,
-            });
-          }}
-        />
-      </FilterAccordion>
-    </Accordion>
+        <FilterAccordion
+          tittel="Publisert"
+          antallValgteFilter={filter.publisert.length}
+          open={accordionsOpen.includes("publiserteStatuser")}
+          onClick={() => toggleAccordion("publiserteStatuser")}
+        >
+          <CheckboxList
+            items={[
+              { value: "publisert", label: "Publisert" },
+              { value: "ikke-publisert", label: "Ikke publisert" },
+            ]}
+            isChecked={(id) => filter.publisert.includes(id)}
+            onChange={(id) => {
+              updateFilter({
+                publisert: addOrRemove(filter.publisert, id),
+                page: 1,
+              });
+            }}
+          />
+        </FilterAccordion>
+      </Accordion>
+    </VStack>
   );
 }
 

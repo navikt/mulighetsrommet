@@ -42,6 +42,7 @@ data class GetTiltakDokumenterRequest(
     val tiltakstyper: List<Tiltakskode> = emptyList(),
     val publisert: Boolean? = null,
     val sort: String? = null,
+    val visMineTiltakDokumenter: Boolean = false,
 )
 
 fun Route.tiltakDokumentRoutes() {
@@ -119,6 +120,7 @@ fun Route.tiltakDokumentRoutes() {
         }) {
             val pagination = getPaginationParams()
             val request = call.receive<GetTiltakDokumenterRequest>()
+            val administratorNavIdent = request.visMineTiltakDokumenter.takeIf { it }?.let { getNavIdent() }
 
             val result = db.session {
                 queries.tiltakDokument.getAllKompaktDto(
@@ -127,6 +129,7 @@ fun Route.tiltakDokumentRoutes() {
                     tiltakstyper = request.tiltakstyper,
                     publisert = request.publisert,
                     sortering = request.sort,
+                    administratorNavIdent = administratorNavIdent,
                 )
             }
 
