@@ -35,6 +35,10 @@ class TilskuddBrukerUtbetalingConsumer(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun consume(key: UUID, message: JsonElement) {
+        val isRunning = db.session { isTopicRunning(this.session, "tilskudd-bruker-utbetaling") }
+        if (!isRunning) {
+            return
+        }
         val totrinnskontrollHendelse = JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelse?>(message)
         if (totrinnskontrollHendelse == null) {
             logger.warn("Mottok tombstone for totrinnskontroll med key=$key")

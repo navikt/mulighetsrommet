@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.contracts.totrinnskontroll
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse.Status
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -30,4 +31,44 @@ data class TotrinnskontrollHendelse(
         GODKJENT,
         RETURNERT,
     }
+}
+
+@Serializable
+data class TotrinnskontrollHendelseOld(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    val entityId: UUID,
+    val type: TotrinnskontrollType,
+    val behandletAv: TotrinnskontrollAgent,
+    @Serializable(with = InstantSerializer::class)
+    val behandletTidspunkt: Instant,
+    val besluttetAv: TotrinnskontrollAgent?,
+    @Serializable(with = InstantSerializer::class)
+    val besluttetTidspunkt: Instant?,
+    val besluttelse: Besluttelse?,
+    val aarsaker: List<String>,
+    val forklaring: String?,
+) {
+    enum class Besluttelse {
+        GODKJENT,
+        AVVIST,
+    }
+
+    fun toNew() = TotrinnskontrollHendelse(
+        id = id,
+        entityId = entityId,
+        type = type,
+        behandletTidspunkt = behandletTidspunkt,
+        besluttetAv = besluttetAv,
+        besluttetTidspunkt = besluttetTidspunkt,
+        aarsaker = aarsaker,
+        forklaring = forklaring,
+        behandletAv = behandletAv,
+        status = when (besluttelse) {
+            Besluttelse.GODKJENT -> Status.GODKJENT
+            Besluttelse.AVVIST -> Status.RETURNERT
+            null -> Status.TIL_BEHANDLING
+        },
+    )
 }
