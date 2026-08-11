@@ -10,6 +10,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
@@ -58,6 +59,16 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
                 DeltakerFixtures.createDeltaker(deltakerId, GjennomforingFixtures.EnkelAmo.id),
             ),
         ).initialize(database.api)
+
+        database.api.db.session { session ->
+            session.execute(
+                queryOf(
+                    "insert into topics (id, topic, type, running) values (?, ?, 'CONSUMER'::topic_type, true) on conflict (id) do update set running = true",
+                    "tilskudd-bruker-utbetaling",
+                    "team-mulighetsrommet.totrinnskontroll-v1",
+                ),
+            )
+        }
 
         coEvery { personaliaService.getPersonalia(deltakerId, any()) } returns Personalia(
             deltakerId = deltakerId,
