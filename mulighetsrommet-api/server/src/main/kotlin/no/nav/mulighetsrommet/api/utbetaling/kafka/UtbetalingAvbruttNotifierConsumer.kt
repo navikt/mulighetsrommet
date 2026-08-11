@@ -7,6 +7,7 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelseOld
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -14,7 +15,6 @@ import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
-import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.*
 
@@ -25,10 +25,12 @@ class UtbetalingAvbruttNotifierConsumer(
     uuidDeserializer(),
     JsonElementDeserializer(),
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
     override suspend fun consume(key: UUID, message: JsonElement) {
-        val totrinnskontrollHendelse = JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelse?>(message)
+        val totrinnskontrollHendelse = try {
+            JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelse?>(message)
+        } catch (_: Throwable) {
+            JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelseOld>(message).toNew()
+        }
         if (totrinnskontrollHendelse == null || totrinnskontrollHendelse.type != TotrinnskontrollType.UTBETALING_AVBRYTELSE) {
             return
         }
