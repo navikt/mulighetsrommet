@@ -75,6 +75,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.UUID
+import kotlin.collections.emptySet
 
 private val BESTILLING_TOPIC = ApplicationConfigTest.kafka.topics.okonomiBestillingTopic
 
@@ -1526,7 +1527,7 @@ class AdminUtbetalingServiceTest : FunSpec({
 
                 val utbetalingDetaljer = service.getUtbetalingDetaljer(utbetaling1.id, navIdent)
 
-                utbetalingDetaljer.utbetaling.status shouldBe UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.TIL_AVBRYTELSE, emptySet())
+                utbetalingDetaljer.utbetaling.status shouldBe UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.TIL_AVBRYTELSE, emptySet<Utbetaling.Blokkering>(), null as TotrinnskontrollDto?)
                 utbetalingDetaljer.utbetaling.avbrytelse shouldNotBeNull {
                     this.shouldBeTypeOf<TotrinnskontrollDto.TilBeslutning>()
                 }
@@ -1613,12 +1614,12 @@ class AdminUtbetalingServiceTest : FunSpec({
 
                 service.sendTilAvbrytelse(utbetaling1.id, navIdent, AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)).shouldBeRight()
 
-                service.getUtbetalingDetaljer(utbetaling1.id, navIdent).utbetaling.status shouldBe UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.TIL_AVBRYTELSE, emptySet())
+                service.getUtbetalingDetaljer(utbetaling1.id, navIdent).utbetaling.status shouldBe UtbetalingStatusDto.fromUtbetalingStatus(UtbetalingStatusType.TIL_AVBRYTELSE, emptySet<Utbetaling.Blokkering>(), null as TotrinnskontrollDto?)
 
                 val aarsakerOgForklaring = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.ANNET), forklaring = "Det er masse igjen på tilsagnet")
                 service.avslaAvbrytelse(utbetaling1.id, navIdent, aarsakerOgForklaring).shouldBeRight()
 
-                service.getUtbetalingDetaljer(utbetaling1.id, navIdent).utbetaling.status shouldBe UtbetalingStatusDto.fromUtbetalingStatus(originalStatus, emptySet())
+                service.getUtbetalingDetaljer(utbetaling1.id, navIdent).utbetaling.status shouldBe UtbetalingStatusDto.fromUtbetalingStatus(originalStatus, emptySet<Utbetaling.Blokkering>(), null as TotrinnskontrollDto?)
             }
         }
     }

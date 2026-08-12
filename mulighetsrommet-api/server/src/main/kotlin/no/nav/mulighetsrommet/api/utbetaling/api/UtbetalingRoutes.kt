@@ -96,7 +96,7 @@ fun Route.utbetalingRoutes() {
 
                 UtbetalingKompaktDto(
                     id = utbetaling.id,
-                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer),
+                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer, utbetaling.avbrytelse?.totrinnskontroll),
                     periode = utbetaling.periode,
                     kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhet(it) },
                     belopUtbetalt = belopUtbetalt,
