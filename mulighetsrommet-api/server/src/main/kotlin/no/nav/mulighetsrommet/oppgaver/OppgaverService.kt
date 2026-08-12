@@ -469,7 +469,7 @@ private fun tilAvbrytelseOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt)
         linkText = "Se utbetaling",
         link = "/gjennomforinger/${data.gjennomforing.id}/utbetalinger/${data.id}",
     ),
-    createdAt = data.createdAt,
+    createdAt = data.avbrytelseBehandletTidspunkt ?: data.createdAt,
     arrangor = data.arrangor,
 ).takeIf { AdminUtbetalingService.tilgangTilHandling(UtbetalingHandling.GODKJENN_AVBRYTELSE, ansatt) }
 
