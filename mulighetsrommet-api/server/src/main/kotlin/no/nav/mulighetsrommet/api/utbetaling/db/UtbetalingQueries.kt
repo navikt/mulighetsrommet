@@ -5,6 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
@@ -634,7 +635,6 @@ class UtbetalingQueries(private val session: Session) {
                    utbetaling.belop_beregnet,
                    utbetaling.valuta,
                    utbetaling.status,
-                   utbetaling_avbrytelse.totrinnskontroll_id as utbetaling_avbrytelse_totrinnskontroll_id,
                    arrangor.navn as arrangor_navn,
                    tiltakstype.navn as tiltakstype_navn,
                    tiltakstype.tiltakskode,
@@ -644,7 +644,6 @@ class UtbetalingQueries(private val session: Session) {
                      inner join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
                      inner join arrangor on gjennomforing.arrangor_id = arrangor.id
                      inner join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
-                     left join utbetaling_avbrytelse on utbetaling.id = utbetaling_avbrytelse.utbetaling_id
                      left join lateral (
                          select coalesce(array_agg(blokkering), '{}') as blokkeringer
                          from utbetaling_blokkering
@@ -775,32 +774,25 @@ class UtbetalingQueries(private val session: Session) {
         )
     }
 
-    private fun Row.toInnsendingKompaktDto(): InnsendingKompaktDto {
-        val avbrytelseTotrinnskontroll = uuidOrNull("utbetaling_avbrytelse_totrinnskontroll_id")?.let {
-            context(session) {
-                TotrinnskontrollQueries(session).getById(it)
-            }
-        }
-        return InnsendingKompaktDto(
-            id = uuid("id"),
-            gjennomforingId = uuid("gjennomforing_id"),
-            periode = periode("periode"),
-            pris = intOrNull("belop_beregnet")?.withValuta(string("valuta").let { Valuta.valueOf(it) }),
-            status = UtbetalingStatusDto.fromUtbetalingStatus(
-                utbetalingStatus = UtbetalingStatusType.valueOf(string("status")),
-                blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
-                avbrytelseTotrinnskontroll,
-            ),
-            arrangor = string("arrangor_navn"),
-            tiltakstype = Utbetaling.Tiltakstype(
-                navn = string("tiltakstype_navn"),
-                tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
-            ),
-            kostnadssteder = stringOrNull("kostnadssteder_json")
-                ?.let { Json.decodeFromString<List<KostnadsstedDto>>(it) }
-                ?: emptyList(),
-        )
-    }
+    private fun Row.toInnsendingKompaktDto() = InnsendingKompaktDto(
+        id = uuid("id"),
+        gjennomforingId = uuid("gjennomforing_id"),
+        periode = periode("periode"),
+        pris = intOrNull("belop_beregnet")?.withValuta(string("valuta").let { Valuta.valueOf(it) }),
+        status = UtbetalingStatusDto.fromUtbetalingStatus(
+            utbetalingStatus = UtbetalingStatusType.valueOf(string("status")),
+            blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
+            avbrytelse = null as TotrinnskontrollDto?, // Henter bare utbetalinger med status GENERERT, så avbrytelse vil aldri bli sett på her
+        ),
+        arrangor = string("arrangor_navn"),
+        tiltakstype = Utbetaling.Tiltakstype(
+            navn = string("tiltakstype_navn"),
+            tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+        ),
+        kostnadssteder = stringOrNull("kostnadssteder_json")
+            ?.let { Json.decodeFromString<List<KostnadsstedDto>>(it) }
+            ?: emptyList(),
+    )
 
     companion object {
 
