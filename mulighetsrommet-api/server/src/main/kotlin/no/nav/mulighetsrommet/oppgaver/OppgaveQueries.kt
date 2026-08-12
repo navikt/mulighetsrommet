@@ -386,7 +386,7 @@ class OppgaveQueries(private val session: Session) {
                 arrangor.navn as arrangor_navn,
                 arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
-                coalesce(avbrytelse.til_behandling, false) as til_avbrytelse
+                avbrytelse.avbrytelse_behandlet_tidspunkt
             from utbetaling
                 join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
                 inner join arrangor on gjennomforing.arrangor_id = arrangor.id
@@ -398,7 +398,8 @@ class OppgaveQueries(private val session: Session) {
                       and tilsagn.periode && utbetaling.periode
                 ) ks on true
                 left join lateral (
-                    select besluttet_av is null as til_behandling
+                    select
+                        t.behandlet_tidspunkt as avbrytelse_behandlet_tidspunkt
                     from totrinnskontroll t
                     where t.entity_id = utbetaling.id
                       and t.type = 'UTBETALING_AVBRYTELSE'
@@ -429,7 +430,7 @@ class OppgaveQueries(private val session: Session) {
                     row.string("arrangor_navn"),
                     row.uuid("arrangor_id"),
                 ),
-                tilAvbrytelse = row.boolean("til_avbrytelse"),
+                avbrytelseBehandletTidspunkt = row.localDateTimeOrNull("avbrytelse_behandlet_tidspunkt"),
             )
         }
     }
@@ -621,7 +622,7 @@ data class UtbetalingOppgaveData(
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing,
     val arrangor: OppgaveArrangor,
-    val tilAvbrytelse: Boolean,
+    val avbrytelseBehandletTidspunkt: LocalDateTime?,
 )
 
 data class AvtaleManglerAdministratorOppgaveData(
