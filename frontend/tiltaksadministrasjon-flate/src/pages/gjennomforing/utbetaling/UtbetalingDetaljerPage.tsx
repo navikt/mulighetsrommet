@@ -9,7 +9,6 @@ import {
   UtbetalingStatusDtoType,
   OpprettUtbetalingLinjerRequest,
   FieldError,
-  ValidationError,
   UtbetalingStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
@@ -66,11 +65,11 @@ import { UseFormReturn } from "react-hook-form";
 import { SlettKorreksjonModal } from "@/components/utbetaling/SlettKorreksjonModal";
 import { AvbrytUtbetalingModal } from "@/components/utbetaling/AvbrytUtbetalingModal";
 import { AvslaAvbrytelseUtbetalingModal } from "@/components/utbetaling/AvslaAvbrytelseUtbetalingModal";
-import { useGodkjennAvbrytelseUtbetaling } from "@/api/utbetaling/mutations";
 import { ErrorFieldSummary } from "@/components/skjema/ValideringsfeilOppsummering";
 import { ToTrinnsAvbrytelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollAvbrytningForklaring";
 import { TotrinnsBegrunnelse } from "@/components/totrinnskontroll/TotrinnsBegrunnelse";
 import { aarsakTilTekst } from "@/utils/Utils";
+import { BekreftAvbrytelseModal } from "@/components/utbetaling/BekreftAvbrytelseModal";
 
 function useUtbetalingDetaljerData() {
   const { utbetalingId } = useRequiredParams(["utbetalingId"]);
@@ -81,7 +80,6 @@ function useUtbetalingDetaljerData() {
 
 export function UtbetalingDetaljerPage() {
   const navigate = useNavigate();
-  const godkjennAvbyrtUtbetalingMutation = useGodkjennAvbrytelseUtbetaling();
   const [errors, setErrors] = useState<FieldError[]>([]);
   const [modalVariant, setModalVariant] = useState<UtbetalingHandling | null>(null);
 
@@ -104,17 +102,6 @@ export function UtbetalingDetaljerPage() {
   }
 
   const { form, hentGodkjenteTilsagn } = useUtbetalingLinjeForm(utbetaling, utbetalingLinjer);
-
-  function godkjennAvbytUtbetaling() {
-    godkjennAvbyrtUtbetalingMutation.mutate(
-      { id: utbetaling.id },
-      {
-        onValidationError: (error: ValidationError) => {
-          setErrors(error.errors);
-        },
-      },
-    );
-  }
 
   return (
     <VStack>
@@ -330,7 +317,7 @@ export function UtbetalingDetaljerPage() {
               size="small"
               variant="primary"
               type="button"
-              onClick={() => godkjennAvbytUtbetaling()}
+              onClick={() => setModalVariant(UtbetalingHandling.GODKJENN_AVBRYTELSE)}
             >
               {utbetalingTekster.avbrutt.handling.godkjenn.label}
             </Button>
@@ -339,6 +326,12 @@ export function UtbetalingDetaljerPage() {
           <AvbrytUtbetalingModal
             utbetalingId={utbetaling.id}
             open={modalVariant === UtbetalingHandling.SEND_TIL_AVBRYTELSE}
+            onClose={() => setModalVariant(null)}
+          />
+          <BekreftAvbrytelseModal
+            utbetalingId={utbetaling.id}
+            setErrors={setErrors}
+            open={modalVariant === UtbetalingHandling.GODKJENN_AVBRYTELSE}
             onClose={() => setModalVariant(null)}
           />
           <AvslaAvbrytelseUtbetalingModal

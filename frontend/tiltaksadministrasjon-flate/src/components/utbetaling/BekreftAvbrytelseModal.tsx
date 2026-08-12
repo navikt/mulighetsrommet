@@ -23,10 +23,12 @@ export function BekreftAvbrytelseModal({
       { id: utbetalingId },
       {
         onSuccess() {
+          setErrors([]);
           onClose();
         },
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);
+          onClose();
         },
       },
     );
@@ -34,7 +36,7 @@ export function BekreftAvbrytelseModal({
 
   return (
     <VarselModal
-      headingIconType="warning"
+      headingIconType="info"
       headingText="Bekreft avbrytelse"
       open={open}
       handleClose={() => onClose()}
