@@ -1,6 +1,6 @@
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
 import {
-  AarsakerOgForklaringRequestTilsagnStatusAarsak,
+  BeslutningMedAarsakerRequestTilsagnStatusAarsak,
   FieldError,
   TilsagnHandling,
   TilsagnStatus,
@@ -52,9 +52,19 @@ export function TilsagnDetaljer() {
   const [avvisOppgjorModalOpen, setAvvisOppgjorModalOpen] = useState(false);
   const [errors, setErrors] = useState<FieldError[]>([]);
 
+  function aktivTotrinnskontrollId(): string {
+    if (tilsagn.status.type === TilsagnStatus.TIL_ANNULLERING) {
+      return annullering?.id ?? "";
+    }
+    if (tilsagn.status.type === TilsagnStatus.TIL_OPPGJOR) {
+      return tilOppgjor?.id ?? "";
+    }
+    return opprettelse.id;
+  }
+
   function godkjennTilsagn() {
     godkjennTilsagnMutation.mutate(
-      { id: tilsagn.id },
+      { id: tilsagn.id, totrinnskontrollId: aktivTotrinnskontrollId() },
       {
         onSuccess: () => navigate(-1),
         onValidationError: (error: ValidationError) => setErrors(error.errors),
@@ -62,9 +72,14 @@ export function TilsagnDetaljer() {
     );
   }
 
-  function returnerTilsagn(request: AarsakerOgForklaringRequestTilsagnStatusAarsak) {
+  function returnerTilsagn(
+    request: Omit<BeslutningMedAarsakerRequestTilsagnStatusAarsak, "totrinnskontrollId">,
+  ) {
     returnerTilsagnMutation.mutate(
-      { id: tilsagn.id, request },
+      {
+        id: tilsagn.id,
+        request: { ...request, totrinnskontrollId: aktivTotrinnskontrollId() },
+      },
       {
         onSuccess: () => navigate(-1),
         onValidationError: (error: ValidationError) => setErrors(error.errors),

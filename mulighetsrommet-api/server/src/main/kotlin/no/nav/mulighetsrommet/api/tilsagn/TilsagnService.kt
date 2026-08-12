@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilsagn
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.nonEmptyListOf
@@ -23,6 +24,8 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
+import no.nav.mulighetsrommet.api.tilsagn.model.GodkjennTilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.ReturnerTilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -36,6 +39,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatusAarsak
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.sjekkGjeldendeTotrinnskontroll
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
@@ -305,16 +309,11 @@ class TilsagnService(
         )
     }
 
-    fun godkjennTilsagn(
-        id: UUID,
-        agent: Agent,
-    ): Either<List<FieldError>, Tilsagn> = db.transaction { godkjennTilsagnInTx(id, agent) }
+    fun godkjennTilsagn(command: GodkjennTilsagn): Either<List<FieldError>, Tilsagn> = db.transaction { godkjennTilsagnInTx(command) }
 
     context(tx: TransactionalQueryContext)
-    fun godkjennTilsagnInTx(
-        id: UUID,
-        agent: Agent,
-    ): Either<List<FieldError>, Tilsagn> = with(tx) {
+    fun godkjennTilsagnInTx(command: GodkjennTilsagn): Either<List<FieldError>, Tilsagn> = with(tx) {
+        val (id, agent, forventetTotrinnskontrollId) = command
         val tilsagn = queries.tilsagn.getAndAquireLock(id)
 
         when (agent) {
@@ -340,26 +339,22 @@ class TilsagnService(
                 .nel()
                 .left()
 
-            TilsagnStatus.TIL_GODKJENNING -> godkjennTilsagn(tilsagn, agent).onRight {
-                publishOpprettBestilling(it)
-            }
+            TilsagnStatus.TIL_GODKJENNING -> sjekkGjeldendeTotrinnskontroll(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, forventetTotrinnskontrollId)
+                .flatMap { godkjennTilsagn(tilsagn, agent) }
+                .onRight { publishOpprettBestilling(it) }
 
-            TilsagnStatus.TIL_ANNULLERING -> annullerTilsagn(tilsagn, agent).onRight {
-                publishAnnullerBestilling(it)
-            }
+            TilsagnStatus.TIL_ANNULLERING -> sjekkGjeldendeTotrinnskontroll(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING, forventetTotrinnskontrollId)
+                .flatMap { annullerTilsagn(tilsagn, agent) }
+                .onRight { publishAnnullerBestilling(it) }
 
-            TilsagnStatus.TIL_OPPGJOR -> gjorOppTilsagn(tilsagn, agent, "Tilsagn oppgjort").onRight {
-                publishGjorOppBestilling(it)
-            }
+            TilsagnStatus.TIL_OPPGJOR -> sjekkGjeldendeTotrinnskontroll(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR, forventetTotrinnskontrollId)
+                .flatMap { gjorOppTilsagn(tilsagn, agent, "Tilsagn oppgjort") }
+                .onRight { publishGjorOppBestilling(it) }
         }
     }
 
-    fun returnerTilsagn(
-        id: UUID,
-        navIdent: NavIdent,
-        aarsaker: List<TilsagnStatusAarsak>,
-        forklaring: String?,
-    ): Either<List<FieldError>, Tilsagn> = db.transaction {
+    fun returnerTilsagn(command: ReturnerTilsagn): Either<List<FieldError>, Tilsagn> = db.transaction {
+        val (id, navIdent, aarsaker, forklaring, forventetTotrinnskontrollId) = command
         val tilsagn = queries.tilsagn.getAndAquireLock(id)
 
         val ansatt = queries.ansatt.getOrError(navIdent)
@@ -373,11 +368,14 @@ class TilsagnService(
                 .nel()
                 .left()
 
-            TilsagnStatus.TIL_GODKJENNING -> returnerTilsagn(tilsagn, navIdent, aarsaker, forklaring)
+            TilsagnStatus.TIL_GODKJENNING -> sjekkGjeldendeTotrinnskontroll(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE, forventetTotrinnskontrollId)
+                .flatMap { returnerTilsagn(tilsagn, navIdent, aarsaker, forklaring) }
 
-            TilsagnStatus.TIL_ANNULLERING -> avvisAnnullering(tilsagn, navIdent, aarsaker, forklaring)
+            TilsagnStatus.TIL_ANNULLERING -> sjekkGjeldendeTotrinnskontroll(tilsagn.id, TotrinnskontrollType.TILSAGN_ANNULLERING, forventetTotrinnskontrollId)
+                .flatMap { avvisAnnullering(tilsagn, navIdent, aarsaker, forklaring) }
 
-            TilsagnStatus.TIL_OPPGJOR -> avvisOppgjor(tilsagn, navIdent, aarsaker, forklaring)
+            TilsagnStatus.TIL_OPPGJOR -> sjekkGjeldendeTotrinnskontroll(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPGJOR, forventetTotrinnskontrollId)
+                .flatMap { avvisOppgjor(tilsagn, navIdent, aarsaker, forklaring) }
         }
     }
 

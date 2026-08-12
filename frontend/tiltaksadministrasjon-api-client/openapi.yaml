@@ -1422,6 +1422,12 @@ paths:
         schema:
           type: string
           format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BeslutningRequest"
+        required: false
       responses:
         "200":
           description: Økonomi ble godkjent
@@ -1452,7 +1458,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/SettPaVentOkonomiRequest"
+              $ref: "#/components/schemas/SettPaVentRequest"
         required: false
       responses:
         "200":
@@ -2200,6 +2206,12 @@ paths:
         schema:
           type: string
           format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BeslutningRequest"
+        required: false
       responses:
         "200":
           description: Tilsagn ble godkjent
@@ -2230,7 +2242,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_TilsagnStatusAarsak"
+              $ref: "#/components/schemas/BeslutningMedAarsakerRequest_TilsagnStatusAarsak"
         required: false
       responses:
         "200":
@@ -2547,6 +2559,12 @@ paths:
         schema:
           type: string
           format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BeslutningRequest"
+        required: false
       responses:
         "200":
           description: Utbetaling ble avbrutt
@@ -2578,7 +2596,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_UtbetalingStatusAarsak"
+              $ref: "#/components/schemas/BeslutningMedAarsakerRequest_UtbetalingStatusAarsak"
         required: false
       responses:
         "200":
@@ -2759,6 +2777,12 @@ paths:
         schema:
           type: string
           format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BeslutningRequest"
+        required: false
       responses:
         "200":
           description: UtbetalingLinje ble attestert
@@ -2789,7 +2813,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_UtbetalingLinjeReturnertAarsak"
+              $ref: "#/components/schemas/BeslutningMedAarsakerRequest_UtbetalingLinjeReturnertAarsak"
         required: false
       responses:
         "200":
@@ -3767,6 +3791,12 @@ paths:
         schema:
           type: string
           format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BeslutningRequest"
+        required: false
       responses:
         "200":
           description: Tilskuddsbehandling ble attestert
@@ -3797,7 +3827,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AarsakerOgForklaringRequest_TilskuddBehandlingStatusAarsak"
+              $ref: "#/components/schemas/BeslutningMedAarsakerRequest_TilskuddBehandlingStatusAarsak"
         required: false
       responses:
         "200":
@@ -5779,15 +5809,27 @@ components:
       - beskrivelse
       - periodeSlutt
       - periodeStart
-    SettPaVentOkonomiRequest:
+    BeslutningRequest:
       type: object
       properties:
+        totrinnskontrollId:
+          type: string
+          format: uuid
+      required:
+      - totrinnskontrollId
+    SettPaVentRequest:
+      type: object
+      properties:
+        totrinnskontrollId:
+          type: string
+          format: uuid
         forklaring:
           type:
           - "null"
           - string
       required:
       - forklaring
+      - totrinnskontrollId
     GjennomforingStatusType:
       type: string
       enum:
@@ -6321,6 +6363,9 @@ components:
     TotrinnskontrollDto.Besluttet:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         behandletAv:
           $ref: "#/components/schemas/AgentDto"
         behandletTidspunkt:
@@ -6349,6 +6394,7 @@ components:
       - besluttetAv
       - besluttetTidspunkt
       - forklaring
+      - id
     AgentDto:
       type: object
       properties:
@@ -6368,6 +6414,9 @@ components:
     TotrinnskontrollDto.TilBeslutning:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         behandletAv:
           $ref: "#/components/schemas/AgentDto"
         behandletTidspunkt:
@@ -6386,6 +6435,7 @@ components:
       - behandletAv
       - behandletTidspunkt
       - forklaring
+      - id
     GjennomforingEnkeltplassDetaljerDto.Prisendring:
       type: object
       properties:
@@ -7873,6 +7923,24 @@ components:
       required:
       - aarsaker
       - forklaring
+    BeslutningMedAarsakerRequest_TilsagnStatusAarsak:
+      type: object
+      properties:
+        totrinnskontrollId:
+          type: string
+          format: uuid
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilsagnStatusAarsak"
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - forklaring
+      - totrinnskontrollId
     TilsagnDeltakereRequest:
       type: object
       properties:
@@ -8239,6 +8307,24 @@ components:
       required:
       - aarsaker
       - forklaring
+    BeslutningMedAarsakerRequest_UtbetalingStatusAarsak:
+      type: object
+      properties:
+        totrinnskontrollId:
+          type: string
+          format: uuid
+        aarsaker:
+          type: array
+          items:
+            $ref: "#/components/schemas/UtbetalingStatusAarsak"
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - forklaring
+      - totrinnskontrollId
     UtbetalingBeregningType:
       type: string
       enum:
@@ -8501,9 +8587,12 @@ components:
       - ANNET
       - PROPAGERT_RETUR
       - TILSAGN_FEIL_STATUS
-    AarsakerOgForklaringRequest_UtbetalingLinjeReturnertAarsak:
+    BeslutningMedAarsakerRequest_UtbetalingLinjeReturnertAarsak:
       type: object
       properties:
+        totrinnskontrollId:
+          type: string
+          format: uuid
         aarsaker:
           type: array
           items:
@@ -8515,6 +8604,7 @@ components:
       required:
       - aarsaker
       - forklaring
+      - totrinnskontrollId
     TilskuddUtbetalingKompaktDto:
       type: object
       properties:
@@ -9417,9 +9507,12 @@ components:
       - FEIL_BELOP
       - FEIL_VEDTAKSRESULTAT
       - ANNET
-    AarsakerOgForklaringRequest_TilskuddBehandlingStatusAarsak:
+    BeslutningMedAarsakerRequest_TilskuddBehandlingStatusAarsak:
       type: object
       properties:
+        totrinnskontrollId:
+          type: string
+          format: uuid
         aarsaker:
           type: array
           items:
@@ -9431,6 +9524,7 @@ components:
       required:
       - aarsaker
       - forklaring
+      - totrinnskontrollId
     EndringshistorikkType:
       type: string
       enum:

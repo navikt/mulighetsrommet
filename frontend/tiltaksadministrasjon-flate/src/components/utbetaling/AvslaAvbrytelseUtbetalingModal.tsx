@@ -2,7 +2,7 @@ import {
   UtbetalingStatusAarsak,
   FieldError,
   ValidationError,
-  AarsakerOgForklaringRequestUtbetalingStatusAarsak,
+  BeslutningMedAarsakerRequestUtbetalingStatusAarsak,
 } from "@tiltaksadministrasjon/api-client";
 import { useAvslaAvbrytelseUtbetaling } from "@/api/utbetaling/mutations";
 import { AarsakerOgForklaringModal } from "@/components/modal/AarsakerOgForklaringModal";
@@ -11,21 +11,25 @@ import { utbetalingTekster } from "@/components/utbetaling/UtbetalingTekster";
 
 interface AvslaAvbrytelseUtbetalingModalProps {
   utbetalingId: string;
+  totrinnskontrollId: string;
   open: boolean;
   onClose: () => void;
 }
 
 export function AvslaAvbrytelseUtbetalingModal({
   utbetalingId,
+  totrinnskontrollId,
   open,
   onClose,
 }: AvslaAvbrytelseUtbetalingModalProps) {
   const [errors, setErrors] = useState<FieldError[]>([]);
   const avslaAvbrytelseMutation = useAvslaAvbrytelseUtbetaling();
 
-  function avslaAvbrytelseUtbetaling(body: AarsakerOgForklaringRequestUtbetalingStatusAarsak) {
+  function avslaAvbrytelseUtbetaling(
+    body: Omit<BeslutningMedAarsakerRequestUtbetalingStatusAarsak, "totrinnskontrollId">,
+  ) {
     avslaAvbrytelseMutation.mutate(
-      { id: utbetalingId, body },
+      { id: utbetalingId, body: { ...body, totrinnskontrollId } },
       {
         onValidationError: (error: ValidationError) => {
           setErrors(error.errors);

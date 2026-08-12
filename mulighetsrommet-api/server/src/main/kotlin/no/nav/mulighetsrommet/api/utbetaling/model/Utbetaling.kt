@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.utbetaling.model
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.nel
 import arrow.core.right
@@ -91,28 +92,33 @@ data class Utbetaling(
         ).right()
     }
 
-    fun godkjennAvbrytelse(agent: Agent): Either<List<FieldError>, Utbetaling> {
+    fun godkjennAvbrytelse(agent: Agent, forventetTotrinnskontrollId: UUID): Either<List<FieldError>, Utbetaling> {
         if (status != UtbetalingStatusType.TIL_AVBRYTELSE) {
             return FieldError.of("Utbetalingen kan ikke avbrytes")
                 .nel()
                 .left()
         }
-        return avbrytelse!!.totrinnskontroll.godkjenn(agent).mapLeft { it.toFieldErrors() }.map { godkjent ->
-            copy(avbrytelse = avbrytelse.copy(totrinnskontroll = godkjent), status = UtbetalingStatusType.AVBRUTT)
-        }
+        return avbrytelse!!.totrinnskontroll.sjekkGjeldende(forventetTotrinnskontrollId)
+            .flatMap { it.godkjenn(agent) }
+            .mapLeft { it.toFieldErrors() }.map { godkjent ->
+                copy(avbrytelse = avbrytelse.copy(totrinnskontroll = godkjent), status = UtbetalingStatusType.AVBRUTT)
+            }
     }
 
     fun avslaAbrytelse(
         besluttetAv: NavIdent,
         aarsaker: List<String>,
         forklaring: String?,
+        forventetTotrinnskontrollId: UUID,
     ): Either<List<FieldError>, Utbetaling> {
         if (status != UtbetalingStatusType.TIL_AVBRYTELSE) {
             return FieldError.of("Utbetalingen er ikke til avbrytelse")
                 .nel()
                 .left()
         }
-        return avbrytelse!!.totrinnskontroll.returner(besluttetAv, aarsaker, forklaring).mapLeft { it.toFieldErrors() }
+        return avbrytelse!!.totrinnskontroll.sjekkGjeldende(forventetTotrinnskontrollId)
+            .flatMap { it.returner(besluttetAv, aarsaker, forklaring) }
+            .mapLeft { it.toFieldErrors() }
             .map { retunert ->
                 copy(avbrytelse = avbrytelse.copy(totrinnskontroll = retunert), status = avbrytelse.returnert)
             }

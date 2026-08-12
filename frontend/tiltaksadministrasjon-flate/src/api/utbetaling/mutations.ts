@@ -1,6 +1,7 @@
 import {
-  AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak,
   AarsakerOgForklaringRequestUtbetalingStatusAarsak,
+  BeslutningMedAarsakerRequestUtbetalingLinjeReturnertAarsak,
+  BeslutningMedAarsakerRequestUtbetalingStatusAarsak,
   OpprettUtbetalingLinjerRequest,
   ProblemDetail,
   UtbetalingRequest,
@@ -13,8 +14,9 @@ import { QueryKeys } from "@/api/QueryKeys";
 export function useAttesterUtbetalingLinje() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<unknown, ProblemDetail, { id: string }>({
-    mutationFn: ({ id }) => UtbetalingService.attesterUtbetalingLinje({ path: { id } }),
+  return useApiMutation<unknown, ProblemDetail, { id: string; totrinnskontrollId: string }>({
+    mutationFn: ({ id, totrinnskontrollId }) =>
+      UtbetalingService.attesterUtbetalingLinje({ path: { id }, body: { totrinnskontrollId } }),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
     },
@@ -61,7 +63,7 @@ export function useReturnerUtbetalingLinje() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; body: AarsakerOgForklaringRequestUtbetalingLinjeReturnertAarsak }
+    { id: string; body: BeslutningMedAarsakerRequestUtbetalingLinjeReturnertAarsak }
   >({
     mutationFn: ({ id, body }) => UtbetalingService.returnerUtbetalingLinje({ path: { id }, body }),
     async onSuccess() {
@@ -88,8 +90,12 @@ export function useAvbrytUtbetaling() {
 export function useGodkjennAvbrytelseUtbetaling() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<unknown, ProblemDetail, { id: string }>({
-    mutationFn: ({ id }) => UtbetalingService.godkjennAvbrytelseUtbetaling({ path: { id } }),
+  return useApiMutation<unknown, ProblemDetail, { id: string; totrinnskontrollId: string }>({
+    mutationFn: ({ id, totrinnskontrollId }) =>
+      UtbetalingService.godkjennAvbrytelseUtbetaling({
+        path: { id },
+        body: { totrinnskontrollId },
+      }),
     async onSuccess() {
       await queryClient.invalidateQueries({ queryKey: QueryKeys.utbetaling() });
     },
@@ -102,7 +108,7 @@ export function useAvslaAvbrytelseUtbetaling() {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; body: AarsakerOgForklaringRequestUtbetalingStatusAarsak }
+    { id: string; body: BeslutningMedAarsakerRequestUtbetalingStatusAarsak }
   >({
     mutationFn: ({ id, body }) =>
       UtbetalingService.avslaAvbrytelseUtbetaling({ path: { id }, body }),

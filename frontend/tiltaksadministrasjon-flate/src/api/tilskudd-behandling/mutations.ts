@@ -1,5 +1,5 @@
 import {
-  AarsakerOgForklaringRequestTilskuddBehandlingStatusAarsak,
+  BeslutningMedAarsakerRequestTilskuddBehandlingStatusAarsak,
   ProblemDetail,
   TilskuddBehandlingRequest,
   TilskuddBehandlingService,
@@ -24,8 +24,12 @@ export function useOpprettTilskuddBehandling(gjennomforingId: string) {
 export function useGodkjennTilskuddBehandling(gjennomforingId: string) {
   const queryClient = useQueryClient();
 
-  return useApiMutation<unknown, ProblemDetail, string>({
-    mutationFn: (id) => TilskuddBehandlingService.attesterTilskuddBehandling({ path: { id } }),
+  return useApiMutation<unknown, ProblemDetail, { id: string; totrinnskontrollId: string }>({
+    mutationFn: ({ id, totrinnskontrollId }) =>
+      TilskuddBehandlingService.attesterTilskuddBehandling({
+        path: { id },
+        body: { totrinnskontrollId },
+      }),
     async onSuccess() {
       await queryClient.invalidateQueries({
         queryKey: QueryKeys.tilskuddBehandlinger(gjennomforingId),
@@ -40,7 +44,7 @@ export function useReturnerTilskuddBehandling(gjennomforingId: string) {
   return useApiMutation<
     unknown,
     ProblemDetail,
-    { id: string; body: AarsakerOgForklaringRequestTilskuddBehandlingStatusAarsak }
+    { id: string; body: BeslutningMedAarsakerRequestTilskuddBehandlingStatusAarsak }
   >({
     mutationFn: ({ id, body }) =>
       TilskuddBehandlingService.returnerTilskuddBehandling({ path: { id }, body }),

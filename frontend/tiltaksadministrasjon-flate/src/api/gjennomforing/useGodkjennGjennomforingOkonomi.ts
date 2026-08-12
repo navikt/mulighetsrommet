@@ -6,9 +6,12 @@ import { useApiMutation } from "@/hooks/useApiMutation";
 export function useGodkjennGjennomforingOkonomi() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<unknown, ProblemDetail, { id: string }>({
-    mutationFn: ({ id }) => {
-      return GjennomforingService.godkjennGjennomforingOkonomi({ path: { id } });
+  return useApiMutation<unknown, ProblemDetail, { id: string; totrinnskontrollId: string }>({
+    mutationFn: ({ id, totrinnskontrollId }) => {
+      return GjennomforingService.godkjennGjennomforingOkonomi({
+        path: { id },
+        body: { totrinnskontrollId },
+      });
     },
     async onSuccess(_, { id }) {
       await Promise.all([

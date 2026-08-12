@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.api.mockPdlEmptyResult
 import no.nav.mulighetsrommet.api.mockTilgangsmaskinenForbidden
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.responses.ValidationError
+import no.nav.mulighetsrommet.api.totrinnskontroll.api.BeslutningMedAarsakerRequest
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelsesprosentPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
@@ -188,7 +189,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetalingslinjer/$id/returner") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                    setBody(AarsakerOgForklaringRequest(listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP), null))
+                    setBody(BeslutningMedAarsakerRequest(UUID.randomUUID(), listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP), null))
                 }
 
                 response.status shouldBe HttpStatusCode.Forbidden
@@ -206,7 +207,7 @@ class UtbetalingRoutesTest : FunSpec({
 
                 val response = client.post("/api/tiltaksadministrasjon/utbetalingslinjer/$id/returner") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
-                    setBody(AarsakerOgForklaringRequest(listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP), null))
+                    setBody(BeslutningMedAarsakerRequest(UUID.randomUUID(), listOf(UtbetalingLinjeReturnertAarsak.FEIL_BELOP), null))
                 }
 
                 response.status shouldBe HttpStatusCode.BadRequest
@@ -473,7 +474,8 @@ class UtbetalingRoutesTest : FunSpec({
                     val response = client.put(avslaAbrytelseUrl(UtbetalingFixtures.utbetaling1.id)) {
                         bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                         setBody(
-                            AarsakerOgForklaringRequest<UtbetalingStatusAarsak>(
+                            BeslutningMedAarsakerRequest<UtbetalingStatusAarsak>(
+                                totrinnskontrollId = UUID.randomUUID(),
                                 aarsaker = emptyList(),
                                 forklaring = null,
                             ),

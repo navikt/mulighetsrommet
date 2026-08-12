@@ -8,10 +8,17 @@ interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
   gjennomforingId: string;
+  totrinnskontrollId: string;
   prismodell: PrismodellDto;
 }
 
-export function GodkjennPrisendringModal({ open, setOpen, gjennomforingId, prismodell }: Props) {
+export function GodkjennPrisendringModal({
+  open,
+  setOpen,
+  gjennomforingId,
+  totrinnskontrollId,
+  prismodell,
+}: Props) {
   const godkjennMutation = useGodkjennGjennomforingOkonomi();
 
   function close() {
@@ -19,7 +26,7 @@ export function GodkjennPrisendringModal({ open, setOpen, gjennomforingId, prism
   }
 
   function godkjenn() {
-    godkjennMutation.mutate({ id: gjennomforingId }, { onSuccess: close });
+    godkjennMutation.mutate({ id: gjennomforingId, totrinnskontrollId }, { onSuccess: close });
   }
 
   return (

@@ -40,6 +40,19 @@ class TotrinnskontrollTest : FunSpec({
         }
     }
 
+    context("sjekkGjeldende") {
+        test("er Right når forventet id stemmer") {
+            val opprettelse = opprett()
+            opprettelse.sjekkGjeldende(opprettelse.id).shouldBeRight()
+        }
+
+        test("feiler når forventet id ikke stemmer") {
+            val opprettelse = opprett()
+            opprettelse.sjekkGjeldende(UUID.randomUUID()) shouldBeLeft
+                TotrinnskontrollError.UtdatertGrunnlag(opprettelse.id)
+        }
+    }
+
     context("godkjenn") {
         test("godkjenner og returnerer oppdatert tilstand") {
             val godkjent = opprett().godkjenn(besluttetAv).shouldBeRight()
@@ -104,7 +117,7 @@ class TotrinnskontrollTest : FunSpec({
 
         test("systemet er tillatt å endre fra godkjent til returnert") {
             val godkjent = opprett().godkjenn(besluttetAv).shouldBeRight()
-            godkjent.returner(Tiltaksadministrasjon, listOf("PROPAGERT_RETUR")).shouldBeRight()
+            godkjent.returner(Tiltaksadministrasjon, aarsaker = listOf("PROPAGERT_RETUR")).shouldBeRight()
         }
     }
 
