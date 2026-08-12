@@ -97,7 +97,7 @@ class ArenaAdapterService(
     }
 
     suspend fun removeSanityTiltaksgjennomforing(sanityId: UUID) {
-        sanityService.deleteSanityTiltaksgjennomforing(sanityId)
+        db.session { repository.tiltakDokument.delete(sanityId) }
     }
 
     private suspend fun upsertEgenRegiTiltak(

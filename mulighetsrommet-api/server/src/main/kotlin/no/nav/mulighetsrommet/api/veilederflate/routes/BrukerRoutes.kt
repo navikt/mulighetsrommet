@@ -10,11 +10,9 @@ import kotlinx.serialization.Serializable
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
-import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
-import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Brukerdata
 import no.nav.mulighetsrommet.api.veilederflate.models.Deltakelse
@@ -144,7 +142,7 @@ fun Route.brukerRoutes() {
 
             poaoTilgangService.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), norskIdent)
 
-            val gjennomforing = veilerflateService.hentTiltaksgjennomforing(tiltakId, SanityPerspective.PUBLISHED, CacheUsage.UseCache)
+            val gjennomforing = veilerflateService.hentTiltaksgjennomforing(tiltakId)
             val response = if (gjennomforing.tiltakstype.system != TiltakstypeSystem.TILTAKSADMINISTRASJON) {
                 emptyList()
             } else {

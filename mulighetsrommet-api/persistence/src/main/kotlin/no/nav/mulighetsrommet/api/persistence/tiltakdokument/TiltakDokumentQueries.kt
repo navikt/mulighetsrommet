@@ -303,7 +303,7 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
     )
 
     override fun delete(id: UUID) {
-        session.execute(queryOf("delete from tiltak_dokument where id = ?::uuid", id))
+        session.execute(queryOf("delete from tiltak_dokument where id = ?::uuid or sanity_id = ?::uuid", id, id))
     }
 
     override fun getTiltakDokumentDto(id: UUID): TiltakDokumentDto? {

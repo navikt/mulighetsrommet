@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.plugins.AuthProvider
 import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrifter
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateInnsatsgruppe
@@ -155,7 +154,6 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             search = filter.search,
             apentForPamelding = filter.apentForPamelding,
             erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
-            cacheUsage = CacheUsage.UseCache,
         )
 
         call.respond(result)
@@ -182,11 +180,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
 
         val id: UUID by call.parameters
 
-        val result = veilederflateService.hentTiltaksgjennomforing(
-            id = id,
-            sanityPerspective = SanityPerspective.PUBLISHED,
-            cacheUsage = CacheUsage.UseCache,
-        )
+        val result = veilederflateService.hentTiltaksgjennomforing(id)
 
         call.respond(result)
     }
@@ -262,7 +256,6 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 search = filter.search,
                 apentForPamelding = filter.apentForPamelding,
                 erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
-                cacheUsage = CacheUsage.UseCache,
             )
 
             call.respond(result)
@@ -289,11 +282,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            val result = veilederflateService.hentTiltaksgjennomforing(
-                id = id,
-                sanityPerspective = SanityPerspective.PUBLISHED,
-                cacheUsage = CacheUsage.UseCache,
-            )
+            val result = veilederflateService.hentTiltaksgjennomforing(id)
 
             call.respond(result)
         }
@@ -338,7 +327,6 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                     search = filter.search,
                     apentForPamelding = filter.apentForPamelding,
                     erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
-                    cacheUsage = CacheUsage.NoCache,
                 )
 
                 call.respond(result)
@@ -366,12 +354,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 val id = call.parameters.getOrFail("id")
                     .let { UUID.fromString(it.replace("drafts.", "")) }
 
-                val result = veilederflateService.hentTiltaksgjennomforing(
-                    id = id,
-                    sanityPerspective = SanityPerspective.PREVIEW_DRAFTS,
-                    cacheUsage = CacheUsage.NoCache,
-                )
-
+                val result = veilederflateService.hentTiltaksgjennomforing(id)
                 call.respond(result)
             }
         }
