@@ -5,6 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.TransactionalSession
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
@@ -773,7 +774,7 @@ class UtbetalingQueries(private val session: Session) {
         )
     }
 
-    private fun Row.toInnsendingKompaktDto(): InnsendingKompaktDto = InnsendingKompaktDto(
+    private fun Row.toInnsendingKompaktDto() = InnsendingKompaktDto(
         id = uuid("id"),
         gjennomforingId = uuid("gjennomforing_id"),
         periode = periode("periode"),
@@ -781,6 +782,7 @@ class UtbetalingQueries(private val session: Session) {
         status = UtbetalingStatusDto.fromUtbetalingStatus(
             utbetalingStatus = UtbetalingStatusType.valueOf(string("status")),
             blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
+            avbrytelse = null as TotrinnskontrollDto?, // Henter bare utbetalinger med status GENERERT, så avbrytelse vil aldri bli sett på her
         ),
         arrangor = string("arrangor_navn"),
         tiltakstype = Utbetaling.Tiltakstype(

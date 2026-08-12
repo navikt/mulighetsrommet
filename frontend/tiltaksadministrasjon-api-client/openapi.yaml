@@ -7973,7 +7973,8 @@ components:
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
       - UTBETALT
-      - AVBRUTT
+      - AVBRUTT_AV_ARRANGOR
+      - AVBRUTT_AV_NAV
       - TIL_AVBRYTELSE
     UtbetalingTypeDto:
       type: object

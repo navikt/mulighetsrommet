@@ -176,7 +176,7 @@ export function UtbetalingDetaljerPage() {
         />
       </HStack>
       <VStack gap="space-12">
-        {utbetaling.status.type !== UtbetalingStatusDtoType.AVBRUTT && (
+        {utbetaling.status.type !== UtbetalingStatusDtoType.AVBRUTT_AV_NAV && (
           <ToTrinnsAvbrytelseForklaring avbrytelse={utbetaling.avbrytelse} />
         )}
         <HGrid columns="1fr auto" align="start">
@@ -291,7 +291,7 @@ export function UtbetalingDetaljerPage() {
                 )}
               </VStack>
             </Box>
-            {utbetaling.status.type === UtbetalingStatusDtoType.AVBRUTT &&
+            {utbetaling.status.type === UtbetalingStatusDtoType.AVBRUTT_AV_NAV &&
               utbetaling.avbrytelse && (
                 <>
                   <Separator />
@@ -378,7 +378,8 @@ function UtbetalingLinjeView({
   switch (utbetaling.status.type) {
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
     case UtbetalingStatusDtoType.UBEHANDLET_FORSLAG:
-    case UtbetalingStatusDtoType.AVBRUTT:
+    case UtbetalingStatusDtoType.AVBRUTT_AV_ARRANGOR:
+    case UtbetalingStatusDtoType.AVBRUTT_AV_NAV:
     case UtbetalingStatusDtoType.TIL_AVBRYTELSE:
       return null;
 
