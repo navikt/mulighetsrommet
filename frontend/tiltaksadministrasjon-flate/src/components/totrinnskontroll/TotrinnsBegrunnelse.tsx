@@ -2,7 +2,7 @@ import {
   MetadataFritekstfelt,
   MetadataVStack,
 } from "@mr/frontend-common/components/datadriven/Metadata";
-import { Heading } from "@navikt/ds-react";
+import { Heading, VStack } from "@navikt/ds-react";
 
 interface TotrinnsBegrunnelseProps {
   title: string;
@@ -20,8 +20,10 @@ export function TotrinnsBegrunnelse({ title, aarsaker, forklaring }: TotrinnsBeg
       <Heading level="4" spacing size="small">
         {title}
       </Heading>
-      <MetadataVStack label="Årsaker" value={aarsaker.join(", ")} />
-      <MetadataFritekstfelt label="Forklaring" value={forklaring} />
+      <VStack gap="space-16">
+        <MetadataVStack label="Årsaker" value={aarsaker.join(", ")} />
+        <MetadataFritekstfelt label="Forklaring" value={forklaring} />
+      </VStack>
     </>
   );
 }
