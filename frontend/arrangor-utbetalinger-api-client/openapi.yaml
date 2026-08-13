@@ -818,7 +818,8 @@ components:
       - UBEHANDLET_FORSLAG
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
-      - AVBRUTT
+      - AVBRUTT_AV_NAV
+      - AVBRUTT_AV_ARRANGOR
     PaginatedResponse_ArrangorInnsendingRadDto:
       type: object
       properties:

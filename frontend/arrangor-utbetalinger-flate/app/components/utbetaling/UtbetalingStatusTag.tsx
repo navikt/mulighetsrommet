@@ -35,9 +35,13 @@ const utbetalingStatusConfig: Record<
     label: "Ubehandlede forslag",
     color: "warning",
   },
-  [ArrangorflateUtbetalingStatus.AVBRUTT]: {
+  [ArrangorflateUtbetalingStatus.AVBRUTT_AV_ARRANGOR]: {
     label: "Avbrutt av arrangør",
-    color: "danger",
+    color: "neutral",
+  },
+  [ArrangorflateUtbetalingStatus.AVBRUTT_AV_NAV]: {
+    label: "Avbrutt av Nav",
+    color: "neutral",
   },
 };
 
