@@ -232,7 +232,7 @@ class AdminUtbetalingService(
         utbetalingService.sendTilAvbrytelse(
             id = id,
             agent = navIdent,
-            operation = "Utbetaling sendt til avbrytelse ved behandling av utbetaling",
+            operation = "Utbetaling sendt til avbrytelse",
             aarsaker = request.aarsaker.map { it.name },
             forklaring = request.forklaring,
         )
@@ -306,17 +306,26 @@ class AdminUtbetalingService(
             UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { avbrytHandlingEnabled && utbetaling.kanSettesTilAvbrytelse() },
-            UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytelse) },
-            UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { kanGodkjenneAvbrytning(ansatt, tilAvbrytelse) },
+            UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf { kanGodkjenneAvbrytelse(ansatt, tilAvbrytelse) },
+            UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { kanAvslaAvbrytelse(tilAvbrytelse) },
         )
             .filter { handling ->
                 tilgangTilHandling(handling, ansatt)
             }
             .toSet()
 
-        private fun kanGodkjenneAvbrytning(ansatt: NavAnsatt, tilAvbrytning: TotrinnskontrollDto?) = when (tilAvbrytning) {
+        private fun kanGodkjenneAvbrytelse(ansatt: NavAnsatt, tilAvbrytelse: TotrinnskontrollDto?) = when (tilAvbrytelse) {
             is TotrinnskontrollDto.TilBeslutning ->
-                tilAvbrytning.behandletAv != ansatt
+                tilAvbrytelse.behandletAv.agent != ansatt.navIdent
+
+            is TotrinnskontrollDto.Besluttet,
+            null,
+            -> false
+        }
+
+        private fun kanAvslaAvbrytelse(tilAvbrytelse: TotrinnskontrollDto?) = when (tilAvbrytelse) {
+            is TotrinnskontrollDto.TilBeslutning ->
+                true
 
             is TotrinnskontrollDto.Besluttet,
             null,
