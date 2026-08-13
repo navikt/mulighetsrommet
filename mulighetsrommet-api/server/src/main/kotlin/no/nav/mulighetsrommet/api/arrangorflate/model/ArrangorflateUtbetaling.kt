@@ -49,8 +49,7 @@ data class ArrangorflateUtbetaling(
     val updatedAt: LocalDateTime,
     val tilskuddstype: Tilskuddstype,
     val status: UtbetalingStatusType,
-    @Serializable(with = InstantSerializer::class)
-    val avbruttTidspunkt: Instant?,
+    val arrangorAvbrutt: ArrangorAvbrutt?,
     val blokkeringer: Set<Utbetaling.Blokkering>,
     val avbrytelse: TotrinnskontrollDto?,
 ) {
@@ -98,6 +97,13 @@ data class ArrangorflateUtbetaling(
     data class Korreksjon(
         @Serializable(with = UUIDSerializer::class)
         val gjelderUtbetalingId: UUID,
+        val begrunnelse: String,
+    )
+
+    @Serializable
+    data class ArrangorAvbrutt(
+        @Serializable(with = InstantSerializer::class)
+        val tidspunkt: Instant,
         val begrunnelse: String,
     )
 

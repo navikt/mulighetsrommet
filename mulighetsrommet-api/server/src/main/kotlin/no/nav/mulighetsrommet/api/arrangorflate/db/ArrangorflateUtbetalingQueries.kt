@@ -148,7 +148,12 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             updatedAt = localDateTime("updated_at"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
             utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
-            avbruttTidspunkt = instantOrNull("avbrutt_tidspunkt"),
+            arrangorAvbrutt = instantOrNull("avbrutt_tidspunkt")?.let { tidspunkt ->
+                ArrangorflateUtbetaling.ArrangorAvbrutt(
+                    tidspunkt = tidspunkt,
+                    begrunnelse = string("avbrutt_begrunnelse"),
+                )
+            },
             blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
             avbrytelse = avbrytelse,
         )

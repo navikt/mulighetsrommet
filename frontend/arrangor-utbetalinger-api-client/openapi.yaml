@@ -1699,8 +1699,13 @@ components:
         avbruttDato:
           type: string
           format: date
+        begrunnelse:
+          type:
+          - "null"
+          - string
       required:
       - avbruttDato
+      - begrunnelse
     AVBRUTT_AV_NAV:
       type: object
       properties:

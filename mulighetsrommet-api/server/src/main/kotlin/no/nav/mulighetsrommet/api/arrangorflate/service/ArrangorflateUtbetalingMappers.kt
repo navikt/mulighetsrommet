@@ -99,7 +99,7 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
             DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn() ?: "-")
         },
         kanAvbrytes = kanAvbrytes,
-        avbrytelse = Avbrytelse.fromStatus(status, utbetaling.avbruttTidspunkt?.tilNorskDato(), utbetaling.avbrytelse),
+        avbrytelse = Avbrytelse.fromStatus(status, utbetaling.arrangorAvbrutt, utbetaling.avbrytelse),
         kanRegenereres = kanRegenereres,
         regenerertId = regenerertId,
     )

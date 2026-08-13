@@ -5,6 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
@@ -12,6 +13,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.LabeledDataElement
@@ -87,6 +89,7 @@ sealed class Avbrytelse {
     data class Arrangor(
         @Serializable(with = LocalDateSerializer::class)
         val avbruttDato: LocalDate,
+        val begrunnelse: String?,
     ) : Avbrytelse()
 
     @Serializable
@@ -99,7 +102,7 @@ sealed class Avbrytelse {
     ) : Avbrytelse()
 
     companion object {
-        fun fromStatus(status: ArrangorflateUtbetalingStatus, avbruttDato: LocalDate?, avbrytelseTotrinn: TotrinnskontrollDto?): Avbrytelse? = when (status) {
+        fun fromStatus(status: ArrangorflateUtbetalingStatus, arrangorAvbrutt: ArrangorflateUtbetaling.ArrangorAvbrutt?, avbrytelseTotrinn: TotrinnskontrollDto?): Avbrytelse? = when (status) {
             ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
             ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
             ArrangorflateUtbetalingStatus.UTBETALT,
@@ -108,7 +111,8 @@ sealed class Avbrytelse {
             ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
             -> null
 
-            ArrangorflateUtbetalingStatus.AVBRUTT_AV_ARRANGOR -> Arrangor(avbruttDato ?: throw IllegalStateException("Avbrutt dato må være satt for status AVBRUTT_AV_ARRANGOR"))
+            ArrangorflateUtbetalingStatus.AVBRUTT_AV_ARRANGOR -> arrangorAvbrutt?.let { Arrangor(avbruttDato = it.tidspunkt.tilNorskDato(), begrunnelse = it.begrunnelse) }
+                ?: throw IllegalStateException("Avbrutt tidspunkt må eksistere for status AVBRUTT_AV_ARRANGOR")
 
             ArrangorflateUtbetalingStatus.AVBRUTT_AV_NAV ->
                 (avbrytelseTotrinn as? TotrinnskontrollDto.Besluttet)?.let {
