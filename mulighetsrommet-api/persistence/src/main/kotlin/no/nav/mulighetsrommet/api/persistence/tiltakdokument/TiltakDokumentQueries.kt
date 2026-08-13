@@ -208,6 +208,11 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
         where (:nav_enheter::text[] is null or id in (
             select tiltak_dokument_id from tiltak_dokument_nav_enhet
             where enhetsnummer = any (:nav_enheter)
+               or enhetsnummer in (
+                   select overordnet_enhet from nav_enhet
+                   where enhetsnummer = any (:nav_enheter)
+                     and overordnet_enhet is not null
+               )
         ))
         and (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any (:tiltakskoder))
         and (:publisert::boolean is null or publisert = :publisert)
