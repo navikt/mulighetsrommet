@@ -148,7 +148,7 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
           ]}
         />
         <Box
-          background="neutral-soft"
+          background="default"
           padding="space-24"
           borderRadius="4"
           borderColor="neutral-subtle"

@@ -108,7 +108,7 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             )
         }
         val avbrytelse = uuidOrNull("utbetaling_avbrytelse_totrinnskontroll_id")?.let {
-            TotrinnskontrollQueries(session).getById(it)
+            TotrinnskontrollQueries(session).getDtoById(it)
         }
 
         val arrangorId = uuid("arrangor_id")
@@ -170,7 +170,7 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
         val tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype"))
         val blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet()
         val avbrytelseTotrinnskontroll = uuidOrNull("utbetaling_avbrytelse_totrinnskontroll_id")?.let {
-            TotrinnskontrollQueries(session).getById(it)
+            TotrinnskontrollQueries(session).getDtoById(it)
         }
         val status = UtbetalingStatusType.valueOf(string("status"))
             .let { ArrangorflateUtbetalingStatus.fromUtbetaling(it, blokkeringer, avbrytelseTotrinnskontroll) }

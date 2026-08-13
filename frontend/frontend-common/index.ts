@@ -30,6 +30,7 @@ import { DataElementStatusTag } from "./components/datadriven/DataElementStatusT
 import { DataDetails } from "./components/datadriven/DataDetails";
 import { getDataElement } from "./components/datadriven/DataElement";
 import { PortableText } from "./components/portabletext/PortableText";
+import { TotrinnsBegrunnelse } from "./components/TotrinnsBegrunnelse";
 
 export {
   useDebounce,
@@ -61,4 +62,5 @@ export {
   getDataElement,
   DataDetails,
   PortableText,
+  TotrinnsBegrunnelse,
 };

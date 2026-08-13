@@ -4,6 +4,7 @@ import {
   ArrangforflateUtbetalingLinje,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
+  Avbrytelse,
 } from "@arrangor-utbetalinger/api-client";
 import { Link as ReactRouterLink } from "react-router";
 import { Definisjonsliste, Definition } from "../common/Definisjonsliste";
@@ -11,6 +12,7 @@ import { UtbetalingLinjeStatusTag } from "./UtbetalingLinjeStatusTag";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { useOrgnrFromUrl } from "~/utils/navigation";
 import { formaterDato } from "@mr/frontend-common/utils/date";
+import { TotrinnsBegrunnelse } from "@mr/frontend-common";
 
 interface Props {
   utbetaling: ArrangorflateUtbetalingDto;
@@ -29,10 +31,6 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
     belop: utbetaling.linjer.reduce((acc, cur) => cur.pris.belop + acc, 0),
   };
 
-  const avbruttDato: Definition[] = utbetaling.avbruttDato
-    ? [{ key: "Avbrutt dato", value: formaterDato(utbetaling.avbruttDato) }]
-    : [];
-
   return (
     <VStack gap="space-16">
       <Definisjonsliste
@@ -42,9 +40,10 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
             key: "Status",
             value: <UtbetalingStatusTag status={utbetaling.status} />,
           },
-          ...avbruttDato,
+          ...avbruttDato(utbetaling.avbrytelse),
         ]}
       />
+      <AvbrytelseBegrunnelse avbrytelse={utbetaling.avbrytelse} />
       {erUtbetalt && utbetaling.linjer.length > 0 ? (
         <>
           <Heading size="small" level="4">
@@ -58,6 +57,46 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
       ) : null}
     </VStack>
   );
+}
+
+function avbruttDato(avbrytelse: Avbrytelse | null): Definition[] {
+  if (avbrytelse) {
+    return [{ key: "Status endret", value: formaterDato(avbrytelse.avbruttDato) }];
+  }
+  return [];
+}
+
+function aarsakTilTekst(aarsak: string): string {
+  switch (aarsak) {
+    case "TILSAGN_GJORT_OPP":
+      return "Tilsagnet er gjort opp";
+    case "ANNET":
+      return "ANNET";
+    default:
+      return aarsak;
+  }
+}
+
+interface AvbrytelseBegrunnelseProps {
+  avbrytelse: Avbrytelse | null;
+}
+
+function AvbrytelseBegrunnelse({ avbrytelse }: AvbrytelseBegrunnelseProps) {
+  if (!avbrytelse) return null;
+  switch (avbrytelse.type) {
+    case "AVBRUTT_AV_ARRANGOR":
+      return null;
+    case "AVBRUTT_AV_NAV":
+      return (
+        <TotrinnsBegrunnelse
+          title="Begrunnelse for avbrytelse"
+          aarsaker={avbrytelse.aarsaker.map(aarsakTilTekst)}
+          forklaring={avbrytelse.forklaring}
+          headerSpacing={false}
+          size="medium"
+        />
+      );
+  }
 }
 
 function UtbetalingTilsagndetaljer({ linjer }: { linjer: ArrangforflateUtbetalingLinje[] }) {

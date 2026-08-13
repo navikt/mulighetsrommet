@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.model
 
-import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
-import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 
@@ -20,7 +19,7 @@ enum class ArrangorflateUtbetalingStatus {
         fun fromUtbetaling(
             status: UtbetalingStatusType,
             blokkeringer: Set<Utbetaling.Blokkering>,
-            avbrytelseTotrinnskontroll: Totrinnskontroll?,
+            avbrytelseTotrinnskontroll: TotrinnskontrollDto?,
         ): ArrangorflateUtbetalingStatus = when (status) {
             UtbetalingStatusType.GENERERT -> if (blokkeringer.contains(Utbetaling.Blokkering.UBEHANDLET_FORSLAG)) {
                 UBEHANDLET_FORSLAG
@@ -44,8 +43,8 @@ enum class ArrangorflateUtbetalingStatus {
             UtbetalingStatusType.AVBRUTT -> utledAvbruttStatus(avbrytelseTotrinnskontroll)
         }
 
-        private fun utledAvbruttStatus(avbrytelse: Totrinnskontroll?): ArrangorflateUtbetalingStatus = when {
-            avbrytelse?.status == TotrinnskontrollStatus.GODKJENT -> AVBRUTT_AV_NAV
+        private fun utledAvbruttStatus(avbrytelse: TotrinnskontrollDto?): ArrangorflateUtbetalingStatus = when {
+            avbrytelse is TotrinnskontrollDto.Besluttet && avbrytelse.beslutning == TotrinnskontrollDto.Beslutning.GODKJENT -> AVBRUTT_AV_NAV
             else -> AVBRUTT_AV_ARRANGOR
         }
     }
