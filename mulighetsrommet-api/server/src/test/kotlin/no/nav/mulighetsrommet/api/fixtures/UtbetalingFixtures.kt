@@ -124,6 +124,7 @@ object UtbetalingFixtures {
         updatedAt = utbetalingDto1.updatedAt,
         avbruttTidspunkt = null,
         blokkeringer = emptySet(),
+        avbrytelse = null,
     )
 
     val utbetaling2 = UtbetalingDbo(

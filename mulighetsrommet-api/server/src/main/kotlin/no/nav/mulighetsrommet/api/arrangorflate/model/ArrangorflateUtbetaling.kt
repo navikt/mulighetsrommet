@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
@@ -51,6 +52,7 @@ data class ArrangorflateUtbetaling(
     @Serializable(with = InstantSerializer::class)
     val avbruttTidspunkt: Instant?,
     val blokkeringer: Set<Utbetaling.Blokkering>,
+    val avbrytelse: Totrinnskontroll?,
 ) {
     fun arrangorInnsendtAnnenAvtaltPris(): Boolean {
         return when (beregning) {

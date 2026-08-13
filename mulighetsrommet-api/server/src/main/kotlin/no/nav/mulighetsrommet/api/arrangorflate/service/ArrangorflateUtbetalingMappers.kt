@@ -66,7 +66,7 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
     val innsendtAvArrangorDato = utbetaling.innsending?.tidspunkt?.toLocalDate()
     return ArrangorflateUtbetalingDto(
         id = utbetaling.id,
-        status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer),
+        status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer, utbetaling.avbrytelse),
         innsendtAvArrangorDato = innsendtAvArrangorDato,
         utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
         kanViseBeregning = kanViseBeregningMedDeltakelse,
