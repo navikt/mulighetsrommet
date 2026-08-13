@@ -35,19 +35,9 @@ const createCommonConfig = (dataset: "production" | "test", basePath: string) =>
       enabled: true,
     },
     productionUrl: async (prev, context) => {
-      const { document } = context;
-      if (document._type !== "tiltaksgjennomforing") {
-        return null;
-      }
-
-      const id = document._id?.replace("drafts.", "");
-      const miljo = dataset === "test" ? "dev.nav.no" : "nav.no";
-      return `https://nav-arbeidsmarkedstiltak.intern.${miljo}/preview/tiltak/${id}`;
+      return null;
     },
     actions: (prev, context) => {
-      if (context.schemaType === "tiltaksgjennomforing") {
-        return prev.filter((action) => action.action === "discardChanges");
-      }
       return prev;
     },
   },
