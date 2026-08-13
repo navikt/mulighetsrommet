@@ -69,7 +69,7 @@ import { AvslaAvbrytelseUtbetalingModal } from "@/components/utbetaling/AvslaAvb
 import { useGodkjennAvbrytelseUtbetaling } from "@/api/utbetaling/mutations";
 import { ErrorFieldSummary } from "@/components/skjema/ValideringsfeilOppsummering";
 import { ToTrinnsAvbrytelseForklaring } from "@/components/totrinnskontroll/ToTrinnskontrollAvbrytningForklaring";
-import { TotrinnsBegrunnelse } from "@/components/totrinnskontroll/TotrinnsBegrunnelse";
+import { TotrinnsBegrunnelse } from "@mr/frontend-common/components/TotrinnsBegrunnelse";
 import { aarsakTilTekst } from "@/utils/Utils";
 
 function useUtbetalingDetaljerData() {

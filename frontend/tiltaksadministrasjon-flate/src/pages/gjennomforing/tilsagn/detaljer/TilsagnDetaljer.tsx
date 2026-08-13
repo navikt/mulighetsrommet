@@ -34,7 +34,7 @@ import { TilsagnDeltakerCompact } from "@/components/personalia/TilsagnDeltakerC
 import { aarsakTilTekst } from "@/utils/Utils";
 import { TilsagnStengtePerioder } from "@/components/tilsagn/beregning/TilsagnStengtePerioder";
 import { formaterNavEnhet } from "@/utils/nav-enhet";
-import { TotrinnsBegrunnelse } from "@/components/totrinnskontroll/TotrinnsBegrunnelse";
+import { TotrinnsBegrunnelse } from "@mr/frontend-common/components/TotrinnsBegrunnelse";
 
 export function TilsagnDetaljer() {
   const { tilsagnId } = useRequiredParams(["tilsagnId"]);

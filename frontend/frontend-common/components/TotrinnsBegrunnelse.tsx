@@ -1,8 +1,5 @@
-import {
-  MetadataFritekstfelt,
-  MetadataVStack,
-} from "@mr/frontend-common/components/datadriven/Metadata";
 import { Heading, VStack } from "@navikt/ds-react";
+import { MetadataFritekstfelt, MetadataVStack } from "./datadriven/Metadata";
 
 interface TotrinnsBegrunnelseProps {
   title: string;
