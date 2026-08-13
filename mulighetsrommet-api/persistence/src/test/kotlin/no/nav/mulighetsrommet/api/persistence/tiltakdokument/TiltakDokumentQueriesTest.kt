@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.persistence.tiltakdokument
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
@@ -186,6 +187,58 @@ class TiltakDokumentQueriesTest : FunSpec({
             )
             result.items shouldHaveSize 1
             result.items[0].id shouldBe medEnhetId
+        }
+    }
+
+    test("getAll filtrerer på navEnhet inkluderer dokument med kun fylke når enhet i fylket filtreres") {
+        database.runAndRollback {
+            repository.navEnhet.save(NavEnhetFixtures.Innlandet) // FYLKE 0400
+            repository.navEnhet.save(NavEnhetFixtures.Gjovik) // LOKAL 0502, overordnet 0400
+            repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
+
+            val medFylkeId = UUID.randomUUID()
+            val medEnhetId = UUID.randomUUID()
+            val utenEnhetId = UUID.randomUUID()
+
+            repository.tiltakDokument.save(
+                minimalDokument(id = medFylkeId, navn = "Kun fylke").copy(
+                    navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer),
+                ),
+            )
+            repository.tiltakDokument.save(
+                minimalDokument(id = medEnhetId, navn = "Med enhet").copy(
+                    navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+                ),
+            )
+            repository.tiltakDokument.save(minimalDokument(id = utenEnhetId, navn = "Uten enhet"))
+
+            val result = queries.tiltakDokument.getAllKompaktDto(
+                navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+            )
+            result.items shouldHaveSize 2
+            result.items.map { it.id } shouldContainExactlyInAnyOrder listOf(medFylkeId, medEnhetId)
+        }
+    }
+
+    test("getAll filtrerer på navEnhet ekskluderer dokument med annen fylke") {
+        database.runAndRollback {
+            repository.navEnhet.save(NavEnhetFixtures.Innlandet) // FYLKE 0400
+            repository.navEnhet.save(NavEnhetFixtures.Oslo) // FYLKE 0300
+            repository.navEnhet.save(NavEnhetFixtures.Gjovik) // LOKAL 0502, overordnet 0400
+            repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
+
+            val medAnnenFylkeId = UUID.randomUUID()
+
+            repository.tiltakDokument.save(
+                minimalDokument(id = medAnnenFylkeId, navn = "Annen fylke").copy(
+                    navEnheter = listOf(NavEnhetFixtures.Oslo.enhetsnummer),
+                ),
+            )
+
+            val result = queries.tiltakDokument.getAllKompaktDto(
+                navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
+            )
+            result.items.shouldBeEmpty()
         }
     }
 
