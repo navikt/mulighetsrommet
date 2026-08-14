@@ -818,7 +818,8 @@ components:
       - UBEHANDLET_FORSLAG
       - OVERFORT_TIL_UTBETALING
       - DELVIS_UTBETALT
-      - AVBRUTT
+      - AVBRUTT_AV_NAV
+      - AVBRUTT_AV_ARRANGOR
     PaginatedResponse_ArrangorInnsendingRadDto:
       type: object
       properties:
@@ -1683,6 +1684,46 @@ components:
       - ACTIVATED
       - DEACTIVATED
       - HIDDEN
+    Avbrytelse:
+      anyOf:
+      - $ref: "#/components/schemas/AVBRUTT_AV_ARRANGOR"
+      - $ref: "#/components/schemas/AVBRUTT_AV_NAV"
+      discriminator:
+        propertyName: type
+        mapping:
+          AVBRUTT_AV_ARRANGOR: "#/components/schemas/AVBRUTT_AV_ARRANGOR"
+          AVBRUTT_AV_NAV: "#/components/schemas/AVBRUTT_AV_NAV"
+    AVBRUTT_AV_ARRANGOR:
+      type: object
+      properties:
+        avbruttDato:
+          type: string
+          format: date
+        begrunnelse:
+          type:
+          - "null"
+          - string
+      required:
+      - avbruttDato
+      - begrunnelse
+    AVBRUTT_AV_NAV:
+      type: object
+      properties:
+        avbruttDato:
+          type: string
+          format: date
+        aarsaker:
+          type: array
+          items:
+            type: string
+        forklaring:
+          type:
+          - "null"
+          - string
+      required:
+      - aarsaker
+      - avbruttDato
+      - forklaring
     ArrangorflateUtbetalingDto:
       type: object
       properties:
@@ -1741,13 +1782,12 @@ components:
             $ref: "#/components/schemas/DeltakerAdvarselDto"
         kanAvbrytes:
           $ref: "#/components/schemas/ArrangorAvbrytStatus"
-        avbruttDato:
-          type:
-          - "null"
-          - string
-          format: date
         kanRegenereres:
           type: boolean
+        avbrytelse:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Avbrytelse"
         regenerertId:
           type:
           - "null"
@@ -1756,7 +1796,7 @@ components:
       required:
       - advarsler
       - arrangor
-      - avbruttDato
+      - avbrytelse
       - beregning
       - betalingsinformasjon
       - createdAt

@@ -122,8 +122,9 @@ object UtbetalingFixtures {
         betalingsinformasjon = Betalingsinformasjon.BBan(Kontonummer("11111111111"), null),
         createdAt = utbetalingDto1.createdAt,
         updatedAt = utbetalingDto1.updatedAt,
-        avbruttTidspunkt = null,
+        arrangorAvbrutt = null,
         blokkeringer = emptySet(),
+        avbrytelse = null,
     )
 
     val utbetaling2 = UtbetalingDbo(

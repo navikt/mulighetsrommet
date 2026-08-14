@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
+import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingType
 import no.nav.mulighetsrommet.api.utbetaling.api.toDto
@@ -106,6 +107,9 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
                 UtbetalingBeregningType.valueOf(string("beregning_type")),
             )
         }
+        val avbrytelse = uuidOrNull("utbetaling_avbrytelse_totrinnskontroll_id")?.let {
+            TotrinnskontrollQueries(session).getDtoById(it)
+        }
 
         val arrangorId = uuid("arrangor_id")
         return ArrangorflateUtbetaling(
@@ -144,8 +148,14 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             updatedAt = localDateTime("updated_at"),
             tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype")),
             utbetalesTidligstTidspunkt = instantOrNull("utbetales_tidligst_tidspunkt"),
-            avbruttTidspunkt = instantOrNull("avbrutt_tidspunkt"),
+            arrangorAvbrutt = instantOrNull("avbrutt_tidspunkt")?.let { tidspunkt ->
+                ArrangorflateUtbetaling.ArrangorAvbrutt(
+                    tidspunkt = tidspunkt,
+                    begrunnelse = string("avbrutt_begrunnelse"),
+                )
+            },
             blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet(),
+            avbrytelse = avbrytelse,
         )
     }
 
@@ -164,8 +174,11 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
         val valuta = string("valuta").let { Valuta.valueOf(it) }
         val tilskuddstype = Tilskuddstype.valueOf(string("tilskuddstype"))
         val blokkeringer = array<String>("blokkeringer").map { Utbetaling.Blokkering.valueOf(it) }.toSet()
+        val avbrytelseTotrinnskontroll = uuidOrNull("utbetaling_avbrytelse_totrinnskontroll_id")?.let {
+            TotrinnskontrollQueries(session).getDtoById(it)
+        }
         val status = UtbetalingStatusType.valueOf(string("status"))
-            .let { ArrangorflateUtbetalingStatus.fromUtbetaling(it, blokkeringer) }
+            .let { ArrangorflateUtbetalingStatus.fromUtbetaling(it, blokkeringer, avbrytelseTotrinnskontroll) }
         val godkjentBelop = when (status) {
             ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
             ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
@@ -175,7 +188,8 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
             ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
             ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
-            ArrangorflateUtbetalingStatus.AVBRUTT,
+            ArrangorflateUtbetalingStatus.AVBRUTT_AV_ARRANGOR,
+            ArrangorflateUtbetalingStatus.AVBRUTT_AV_NAV,
             -> null
         }
 

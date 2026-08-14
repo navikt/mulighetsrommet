@@ -1,6 +1,11 @@
 package no.nav.mulighetsrommet.api.arrangorflate.dto
 
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
@@ -8,6 +13,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataDetails
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.LabeledDataElement
@@ -47,9 +53,8 @@ data class ArrangorflateUtbetalingDto(
     val linjer: List<ArrangforflateUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarselDto>,
     val kanAvbrytes: ArrangorAvbrytStatus,
-    @Serializable(with = LocalDateSerializer::class)
-    val avbruttDato: LocalDate?,
     val kanRegenereres: Boolean,
+    val avbrytelse: Avbrytelse?,
     @Serializable(with = UUIDSerializer::class)
     val regenerertId: UUID?,
 )
@@ -73,3 +78,50 @@ data class ArrangforflateUtbetalingLinje(
     val statusSistOppdatert: LocalDateTime?,
     val pris: ValutaBelop,
 )
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonClassDiscriminator("type")
+sealed class Avbrytelse {
+
+    @Serializable
+    @SerialName("AVBRUTT_AV_ARRANGOR")
+    data class Arrangor(
+        @Serializable(with = LocalDateSerializer::class)
+        val avbruttDato: LocalDate,
+        val begrunnelse: String?,
+    ) : Avbrytelse()
+
+    @Serializable
+    @SerialName("AVBRUTT_AV_NAV")
+    data class Nav(
+        @Serializable(with = LocalDateSerializer::class)
+        val avbruttDato: LocalDate,
+        val aarsaker: List<String>,
+        val forklaring: String?,
+    ) : Avbrytelse()
+
+    companion object {
+        fun fromStatus(status: ArrangorflateUtbetalingStatus, arrangorAvbrutt: ArrangorflateUtbetaling.ArrangorAvbrutt?, avbrytelseTotrinn: TotrinnskontrollDto?): Avbrytelse? = when (status) {
+            ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+            ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
+            ArrangorflateUtbetalingStatus.UTBETALT,
+            ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
+            ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+            ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
+            -> null
+
+            ArrangorflateUtbetalingStatus.AVBRUTT_AV_ARRANGOR -> arrangorAvbrutt?.let { Arrangor(avbruttDato = it.tidspunkt.tilNorskDato(), begrunnelse = it.begrunnelse) }
+                ?: throw IllegalStateException("Avbrutt tidspunkt må eksistere for status AVBRUTT_AV_ARRANGOR")
+
+            ArrangorflateUtbetalingStatus.AVBRUTT_AV_NAV ->
+                (avbrytelseTotrinn as? TotrinnskontrollDto.Besluttet)?.let {
+                    Nav(
+                        avbruttDato = it.besluttetTidspunkt.toLocalDate(),
+                        aarsaker = it.aarsaker,
+                        forklaring = it.forklaring,
+                    )
+                } ?: throw IllegalStateException("Forventet besluttet totrinnskontroll når status er AVBRUTT_AV_NAV")
+        }
+    }
+}

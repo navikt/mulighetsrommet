@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.model
 
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 
@@ -10,11 +11,16 @@ enum class ArrangorflateUtbetalingStatus {
     UBEHANDLET_FORSLAG,
     OVERFORT_TIL_UTBETALING,
     DELVIS_UTBETALT,
-    AVBRUTT,
+    AVBRUTT_AV_NAV,
+    AVBRUTT_AV_ARRANGOR,
     ;
 
     companion object {
-        fun fromUtbetaling(status: UtbetalingStatusType, blokkeringer: Set<Utbetaling.Blokkering>): ArrangorflateUtbetalingStatus = when (status) {
+        fun fromUtbetaling(
+            status: UtbetalingStatusType,
+            blokkeringer: Set<Utbetaling.Blokkering>,
+            avbrytelseTotrinnskontroll: TotrinnskontrollDto?,
+        ): ArrangorflateUtbetalingStatus = when (status) {
             UtbetalingStatusType.GENERERT -> if (blokkeringer.contains(Utbetaling.Blokkering.UBEHANDLET_FORSLAG)) {
                 UBEHANDLET_FORSLAG
             } else {
@@ -34,7 +40,12 @@ enum class ArrangorflateUtbetalingStatus {
 
             UtbetalingStatusType.UTBETALT -> UTBETALT
 
-            UtbetalingStatusType.AVBRUTT -> AVBRUTT
+            UtbetalingStatusType.AVBRUTT -> utledAvbruttStatus(avbrytelseTotrinnskontroll)
+        }
+
+        private fun utledAvbruttStatus(avbrytelse: TotrinnskontrollDto?): ArrangorflateUtbetalingStatus = when {
+            avbrytelse is TotrinnskontrollDto.Besluttet && avbrytelse.beslutning == TotrinnskontrollDto.Beslutning.GODKJENT -> AVBRUTT_AV_NAV
+            else -> AVBRUTT_AV_ARRANGOR
         }
     }
 }

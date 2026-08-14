@@ -6,11 +6,12 @@ import {
   ArrangorflateUtbetalingStatus,
 } from "@arrangor-utbetalinger/api-client";
 import { Link as ReactRouterLink } from "react-router";
-import { Definisjonsliste, Definition } from "../common/Definisjonsliste";
+import { Definisjonsliste } from "../common/Definisjonsliste";
 import { UtbetalingLinjeStatusTag } from "./UtbetalingLinjeStatusTag";
 import { UtbetalingStatusTag } from "./UtbetalingStatusTag";
 import { useOrgnrFromUrl } from "~/utils/navigation";
 import { formaterDato } from "@mr/frontend-common/utils/date";
+import { avbruttDato, AvbrytelseBegrunnelse } from "./AvbrytelseBegrunnelse";
 
 interface Props {
   utbetaling: ArrangorflateUtbetalingDto;
@@ -29,10 +30,6 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
     belop: utbetaling.linjer.reduce((acc, cur) => cur.pris.belop + acc, 0),
   };
 
-  const avbruttDato: Definition[] = utbetaling.avbruttDato
-    ? [{ key: "Avbrutt dato", value: formaterDato(utbetaling.avbruttDato) }]
-    : [];
-
   return (
     <VStack gap="space-16">
       <Definisjonsliste
@@ -42,9 +39,10 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
             key: "Status",
             value: <UtbetalingStatusTag status={utbetaling.status} />,
           },
-          ...avbruttDato,
+          ...avbruttDato(utbetaling.avbrytelse),
         ]}
       />
+      <AvbrytelseBegrunnelse avbrytelse={utbetaling.avbrytelse} />
       {erUtbetalt && utbetaling.linjer.length > 0 ? (
         <>
           <Heading size="small" level="4">

@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.Avbrytelse
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
@@ -64,9 +65,10 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
     val kanViseBeregningMedDeltakelse = beregning.deltakelser?.let { kanViseBeregning } ?: false
 
     val innsendtAvArrangorDato = utbetaling.innsending?.tidspunkt?.toLocalDate()
+    val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer, utbetaling.avbrytelse)
     return ArrangorflateUtbetalingDto(
         id = utbetaling.id,
-        status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer),
+        status = status,
         innsendtAvArrangorDato = innsendtAvArrangorDato,
         utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
         kanViseBeregning = kanViseBeregningMedDeltakelse,
@@ -97,7 +99,7 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
             DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn() ?: "-")
         },
         kanAvbrytes = kanAvbrytes,
-        avbruttDato = utbetaling.avbruttTidspunkt?.tilNorskDato(),
+        avbrytelse = Avbrytelse.fromStatus(status, utbetaling.arrangorAvbrutt, utbetaling.avbrytelse),
         kanRegenereres = kanRegenereres,
         regenerertId = regenerertId,
     )

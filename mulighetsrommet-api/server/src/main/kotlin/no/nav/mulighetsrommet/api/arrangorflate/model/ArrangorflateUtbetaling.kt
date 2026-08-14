@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.arrangorflate.model
 
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregning
@@ -48,9 +49,9 @@ data class ArrangorflateUtbetaling(
     val updatedAt: LocalDateTime,
     val tilskuddstype: Tilskuddstype,
     val status: UtbetalingStatusType,
-    @Serializable(with = InstantSerializer::class)
-    val avbruttTidspunkt: Instant?,
+    val arrangorAvbrutt: ArrangorAvbrutt?,
     val blokkeringer: Set<Utbetaling.Blokkering>,
+    val avbrytelse: TotrinnskontrollDto?,
 ) {
     fun arrangorInnsendtAnnenAvtaltPris(): Boolean {
         return when (beregning) {
@@ -96,6 +97,13 @@ data class ArrangorflateUtbetaling(
     data class Korreksjon(
         @Serializable(with = UUIDSerializer::class)
         val gjelderUtbetalingId: UUID,
+        val begrunnelse: String,
+    )
+
+    @Serializable
+    data class ArrangorAvbrutt(
+        @Serializable(with = InstantSerializer::class)
+        val tidspunkt: Instant,
         val begrunnelse: String,
     )
 
