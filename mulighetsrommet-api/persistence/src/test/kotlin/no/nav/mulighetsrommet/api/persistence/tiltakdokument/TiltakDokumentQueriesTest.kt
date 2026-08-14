@@ -342,4 +342,100 @@ class TiltakDokumentQueriesTest : FunSpec({
             repository.tiltakDokument.get(gjennomforingId).shouldBeNull()
         }
     }
+
+    context("upsertFromArena") {
+        test("oppretter ny rad med kun arena-felter som standard") {
+            database.runAndRollback {
+                repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
+
+                val id = UUID.randomUUID()
+                repository.tiltakDokument.upsertFromArena(
+                    minimalDokument(id = id, navn = "Arena-tiltak").copy(
+                        sanityId = UUID.randomUUID(),
+                        tiltaksnummer = "2024/42",
+                    ),
+                )
+
+                val result = repository.tiltakDokument.get(id)
+                result.shouldNotBeNull()
+                result.navn shouldBe "Arena-tiltak"
+                result.tiltaksnummer shouldBe "2024/42"
+                result.beskrivelse shouldBe null
+                result.faneinnhold shouldBe null
+                result.publisert shouldBe false
+            }
+        }
+
+        test("oppdaterer arena-felter uten å overskrive redaktør-felter") {
+            database.runAndRollback {
+                repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
+
+                val id = UUID.randomUUID()
+                val sanityId = UUID.randomUUID()
+
+                repository.tiltakDokument.save(
+                    minimalDokument(id = id, navn = "Originalt navn").copy(
+                        sanityId = sanityId,
+                        tiltaksnummer = "2024/1",
+                        beskrivelse = "Redaktørtekst som skal bevares",
+                    ),
+                )
+
+                repository.tiltakDokument.upsertFromArena(
+                    minimalDokument(id = id, navn = "Oppdatert av arena").copy(
+                        sanityId = sanityId,
+                        tiltaksnummer = "2024/1-oppdatert",
+                    ),
+                )
+
+                val result = repository.tiltakDokument.get(id)
+                result.shouldNotBeNull()
+                result.id shouldBe id
+                result.navn shouldBe "Oppdatert av arena"
+                result.tiltaksnummer shouldBe "2024/1-oppdatert"
+                result.beskrivelse shouldBe "Redaktørtekst som skal bevares"
+            }
+        }
+
+        test("bruker eksisterende rad ved sanity_id-konflikt og bevarer redaktør-felter") {
+            database.runAndRollback {
+                repository.tiltakstype.save(TiltakstypeFixtures.Oppfolging)
+                repository.tiltakstype.save(TiltakstypeFixtures.AFT)
+
+                val migrasjonsId = UUID.randomUUID()
+                val arenaId = UUID.randomUUID()
+                val sanityId = UUID.randomUUID()
+
+                // Rad opprettet av MigrerSanityTiltaksgjennomforinger med tilfeldig id
+                repository.tiltakDokument.save(
+                    minimalDokument(id = migrasjonsId, navn = "Migrasjonsnavn").copy(
+                        sanityId = sanityId,
+                        tiltaksnummer = "2024/1",
+                        beskrivelse = "Redaktørtekst som skal bevares",
+                    ),
+                )
+
+                // Arena-adapter sender oppdatering med sin entity-id – konflikt på sanity_id
+                repository.tiltakDokument.upsertFromArena(
+                    minimalDokument(id = arenaId, navn = "Arena-navn").copy(
+                        sanityId = sanityId,
+                        tiltaksnummer = "2024/1-oppdatert",
+                        tiltakstypeId = TiltakstypeFixtures.AFT.id,
+                    ),
+                )
+
+                // Ingen ny rad med arena-id
+                repository.tiltakDokument.get(arenaId).shouldBeNull()
+
+                // Eksisterende rad oppdatert med arena-felter, id beholdt
+                val result = repository.tiltakDokument.get(migrasjonsId)
+                result.shouldNotBeNull()
+                result.id shouldBe migrasjonsId
+                result.navn shouldBe "Arena-navn"
+                result.tiltaksnummer shouldBe "2024/1-oppdatert"
+                result.tiltakstypeId shouldBe TiltakstypeFixtures.AFT.id
+                result.beskrivelse shouldBe "Redaktørtekst som skal bevares"
+            }
+        }
+    }
 })
