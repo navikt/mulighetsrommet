@@ -11,6 +11,31 @@ class FakeTiltakDokumentRepository : TiltakDokumentRepository {
         store[tiltakDokument.id] = tiltakDokument
     }
 
+    override fun upsertFromArena(tiltakDokument: TiltakDokument) {
+        val existing = store.values.find { it.sanityId == tiltakDokument.sanityId && tiltakDokument.sanityId != null }
+            ?: store[tiltakDokument.id]
+        if (existing != null) {
+            store[existing.id] = existing.copy(
+                sanityId = tiltakDokument.sanityId,
+                navn = tiltakDokument.navn,
+                tiltaksnummer = tiltakDokument.tiltaksnummer,
+                tiltakstypeId = tiltakDokument.tiltakstypeId,
+                arrangorId = tiltakDokument.arrangorId,
+            )
+        } else {
+            store[tiltakDokument.id] = tiltakDokument.copy(
+                stedForGjennomforing = null,
+                faneinnhold = null,
+                beskrivelse = null,
+                publisert = false,
+                administratorer = emptyList(),
+                navEnheter = emptyList(),
+                kontaktpersoner = emptyList(),
+                arrangorKontaktpersoner = emptyList(),
+            )
+        }
+    }
+
     override fun get(id: UUID): TiltakDokument? {
         return store[id]
     }

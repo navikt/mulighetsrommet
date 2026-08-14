@@ -102,10 +102,6 @@ class ArenaAdapterService(
 
     private suspend fun upsertEgenRegiTiltak(
         arenaGjennomforing: ArenaGjennomforingDbo,
-    ): UUID? = upsertEgenRegiTiltakToDb(arenaGjennomforing)
-
-    private suspend fun upsertEgenRegiTiltakToDb(
-        arenaGjennomforing: ArenaGjennomforingDbo,
     ): UUID? {
         require(Tiltakskoder.isEgenRegiTiltak(arenaGjennomforing.arenaKode)) {
             "Gjennomføring for tiltakstype ${arenaGjennomforing.arenaKode} er ikke et egen regi-tiltak"
@@ -138,7 +134,7 @@ class ArenaAdapterService(
             arrangorKontaktpersoner = emptyList(),
         )
 
-        db.transaction { queries.tiltakDokument.save(tiltakDokument) }
+        db.transaction { queries.tiltakDokument.upsertFromArena(tiltakDokument) }
         return arenaGjennomforing.id
     }
 

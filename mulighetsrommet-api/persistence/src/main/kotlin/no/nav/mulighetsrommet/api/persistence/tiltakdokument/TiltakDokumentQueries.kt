@@ -183,6 +183,42 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
         )
     }
 
+    override fun upsertFromArena(tiltakDokument: TiltakDokument): Unit = with(session) {
+        @Language("PostgreSQL")
+        val query = """
+            with resolved as (
+                select coalesce(
+                    (select id from tiltak_dokument where sanity_id = :sanity_id::uuid),
+                    :id::uuid
+                ) as id
+            )
+            insert into tiltak_dokument (id, sanity_id, navn, tiltaksnummer, tiltakstype_id, arrangor_id, sted_for_gjennomforing, faneinnhold, beskrivelse, publisert)
+            select r.id, :sanity_id::uuid, :navn, :tiltaksnummer, :tiltakstype_id::uuid, :arrangor_id::uuid, null, null, null, false
+            from resolved r
+            on conflict (id) do update set
+                sanity_id      = excluded.sanity_id,
+                navn           = excluded.navn,
+                tiltaksnummer  = excluded.tiltaksnummer,
+                tiltakstype_id = excluded.tiltakstype_id,
+                arrangor_id    = excluded.arrangor_id,
+                updated_at     = now()
+        """.trimIndent()
+
+        execute(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to tiltakDokument.id,
+                    "sanity_id" to tiltakDokument.sanityId,
+                    "navn" to tiltakDokument.navn,
+                    "tiltaksnummer" to tiltakDokument.tiltaksnummer,
+                    "tiltakstype_id" to tiltakDokument.tiltakstypeId,
+                    "arrangor_id" to tiltakDokument.arrangorId,
+                ),
+            ),
+        )
+    }
+
     override fun getAllKompaktDto(
         pagination: Pagination,
         navEnheter: List<NavEnhetNummer>,

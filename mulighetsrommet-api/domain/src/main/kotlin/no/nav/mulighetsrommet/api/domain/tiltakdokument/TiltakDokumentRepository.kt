@@ -5,6 +5,8 @@ import java.util.UUID
 interface TiltakDokumentRepository {
     fun save(tiltakDokument: TiltakDokument)
 
+    fun upsertFromArena(tiltakDokument: TiltakDokument)
+
     fun get(id: UUID): TiltakDokument?
 
     fun delete(id: UUID)
