@@ -83,7 +83,7 @@ data class UtbetalingStatusDto(
         OVERFORT_TIL_UTBETALING("Overført til utbetaling", DataElement.Status.Variant.SUCCESS),
         DELVIS_UTBETALT("Delvis utbetalt", DataElement.Status.Variant.SUCCESS),
         UTBETALT("Utbetalt", DataElement.Status.Variant.SUCCESS),
-        AVBRUTT_AV_ARRANGOR("Avbrutt av Arrangør", DataElement.Status.Variant.NEUTRAL),
+        AVBRUTT_AV_ARRANGOR("Avbrutt av arrangør", DataElement.Status.Variant.NEUTRAL),
         AVBRUTT_AV_NAV("Avbrutt av Nav", DataElement.Status.Variant.NEUTRAL),
         TIL_AVBRYTELSE("Til avbrytelse", DataElement.Status.Variant.NEUTRAL),
     }
