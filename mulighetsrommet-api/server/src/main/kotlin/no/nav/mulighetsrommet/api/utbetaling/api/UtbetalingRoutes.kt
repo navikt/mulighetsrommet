@@ -389,7 +389,7 @@ fun Route.utbetalingRoutes() {
                         kontorstruktur,
                         utbetalingPeriode = utbetaling.periode,
                         advarsler = advarsler.map { advarsel ->
-                            DeltakerAdvarselDto.from(advarsel, deltakelsePersoner[advarsel.deltakerId]?.navn())
+                            DeltakerAdvarselDto.from(advarsel, deltakelsePersoner[advarsel.deltakerId]?.navn() ?: "Ukjent person")
                         },
                     )
                 }

@@ -1665,6 +1665,8 @@ components:
         deltakerId:
           type: string
           format: uuid
+        navn:
+          type: string
         beskrivelse:
           type: string
         type:
@@ -1672,6 +1674,7 @@ components:
       required:
       - beskrivelse
       - deltakerId
+      - navn
       - type
     DeltakerAdvarselType:
       type: string

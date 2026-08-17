@@ -41,7 +41,9 @@ export function BlokkeringerVarsler({
               behandle disse før kravet kan sendes inn.
               <List>
                 {advarsler.map((advarsel) => (
-                  <List.Item key={advarsel.deltakerId}>{advarsel.beskrivelse}</List.Item>
+                  <List.Item key={advarsel.deltakerId}>
+                    <b>{advarsel.navn}</b> {advarsel.beskrivelse}
+                  </List.Item>
                 ))}
               </List>
             </InfoCard.Content>
