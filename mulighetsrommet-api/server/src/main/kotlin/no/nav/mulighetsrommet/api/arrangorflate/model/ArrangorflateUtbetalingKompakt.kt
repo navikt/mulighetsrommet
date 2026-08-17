@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.arrangorflate.model
 
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflatePris
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.model.Periode
@@ -16,6 +17,6 @@ data class ArrangorflateUtbetalingKompakt(
     val type: UtbetalingTypeDto,
     val periode: Periode,
     val status: ArrangorflateUtbetalingStatus,
-    val beregnetBelop: ValutaBelop,
-    val godkjentBelop: ValutaBelop?,
+    val pris: ArrangorflatePris,
+    val godkjentPris: ValutaBelop?,
 )

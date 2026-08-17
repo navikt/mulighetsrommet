@@ -47,7 +47,7 @@ export function useUtbetalingWizard(utbetaling: ArrangorflateUtbetalingDto): Utb
 }
 
 function resolveSteps(utbetaling: ArrangorflateUtbetalingDto): Step[] {
-  if (utbetaling.kanRegistrerePris) {
+  if (utbetaling.beregning.pris.type === "KREVER_REGISTRERING") {
     return [
       { name: "Innsendingsinformasjon", path: "innsendingsinformasjon" },
       { name: "Beregning", path: "beregning" },

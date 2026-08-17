@@ -20,7 +20,7 @@ import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { errorAt } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
-import { VedleggSummary } from "~/components/utbetaling/VedleggSummary";
+import { RegistrertBelopOgVedlegg } from "~/components/utbetaling/RegistrertBelopOgVedlegg";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useSyncKontonummer } from "~/hooks/useSyncKontonummer";
@@ -125,13 +125,13 @@ export default function BekreftUtbetaling() {
         ]}
       />
       <Separator />
-      {utbetaling.kanRegistrerePris ? (
-        <VStack gap="space-4">
-          <Definisjonsliste definitions={[{ key: "Beløp", value: `${belop} kr` }]} />
-          <VedleggSummary vedlegg={vedlegg ?? []} />
-        </VStack>
+      {utbetaling.beregning.pris.type === "KREVER_REGISTRERING" && belop != null ? (
+        <RegistrertBelopOgVedlegg
+          belop={{ belop, valuta: utbetaling.valuta }}
+          vedlegg={vedlegg ?? []}
+        />
       ) : (
-      <SatsPerioderOgBelop
+        <SatsPerioderOgBelop
           pris={utbetaling.beregning.pris}
           satsDetaljer={utbetaling.beregning.satsDetaljer}
         />

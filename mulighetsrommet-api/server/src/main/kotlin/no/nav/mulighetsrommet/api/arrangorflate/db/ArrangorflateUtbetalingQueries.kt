@@ -6,6 +6,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflatePris
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
@@ -50,8 +51,8 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             ArrangorflateUtbetalingFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn $direction"
             ArrangorflateUtbetalingFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
             ArrangorflateUtbetalingFilter.OrderBy.PERIODE -> "periode $direction"
-            ArrangorflateUtbetalingFilter.OrderBy.BEREGNET_BELOP -> "belop_beregnet $direction"
-            ArrangorflateUtbetalingFilter.OrderBy.GODKJENT_BELOP -> "sum_utbetaling_linje $direction nulls last"
+            ArrangorflateUtbetalingFilter.OrderBy.PRIS -> "belop_beregnet $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.GODKJENT_PRIS -> "sum_utbetaling_linje $direction nulls last"
             ArrangorflateUtbetalingFilter.OrderBy.STATUS -> "status $direction"
         }
 
@@ -180,7 +181,7 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
         }
         val status = UtbetalingStatusType.valueOf(string("status"))
             .let { ArrangorflateUtbetalingStatus.fromUtbetaling(it, blokkeringer, avbrytelseTotrinnskontroll) }
-        val godkjentBelop = when (status) {
+        val godkjentPris = when (status) {
             ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
             ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
             ArrangorflateUtbetalingStatus.UTBETALT,
@@ -193,14 +194,17 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             ArrangorflateUtbetalingStatus.AVBRUTT_AV_NAV,
             -> null
         }
-
         val type = UtbetalingType.from(uuidOrNull("korreksjon_gjelder_utbetaling_id"), tilskuddstype).toDto()
         return ArrangorflateUtbetalingKompakt(
             id = uuid("id"),
             status = status,
             type = type,
-            beregnetBelop = int("belop_beregnet").withValuta(valuta),
-            godkjentBelop = godkjentBelop,
+            pris = ArrangorflatePris.from(
+                UtbetalingBeregningType.valueOf(string("beregning_type")),
+                status,
+                int("belop_beregnet").withValuta(valuta),
+            ),
+            godkjentPris = godkjentPris,
             periode = periode("periode"),
             gjennomforing = ArrangorflateGjennomforingDto(
                 id = uuid("gjennomforing_id"),

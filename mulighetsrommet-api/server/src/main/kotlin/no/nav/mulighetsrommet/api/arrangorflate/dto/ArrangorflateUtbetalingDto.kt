@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningType
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataDetails
@@ -59,17 +60,37 @@ data class ArrangorflateUtbetalingDto(
     val blokkeringer: Set<Utbetaling.Blokkering>,
     @Serializable(with = UUIDSerializer::class)
     val regenerertId: UUID?,
-    val kanRegistrerePris: Boolean,
 )
 
 @Serializable
 class ArrangorflateBeregning(
     val displayName: String,
-    val pris: ValutaBelop,
+    val pris: ArrangorflatePris,
     val stengt: List<StengtPeriode>,
     val deltakelser: DataDrivenTableDto?,
     val satsDetaljer: List<DataDetails>,
 )
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonClassDiscriminator("type")
+sealed interface ArrangorflatePris {
+    @Serializable
+    @SerialName("BEREGNET")
+    data class Beregnet(val pris: ValutaBelop) : ArrangorflatePris
+
+    @Serializable
+    @SerialName("KREVER_REGISTRERING")
+    data object KreverRegistrering : ArrangorflatePris
+
+    companion object {
+        fun from(beregningType: UtbetalingBeregningType, status: ArrangorflateUtbetalingStatus, pris: ValutaBelop): ArrangorflatePris {
+            val kreverRegistrering = beregningType == UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING &&
+                (status == ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING || status == ArrangorflateUtbetalingStatus.BLOKKERT_FOR_INNSENDING)
+            return if (kreverRegistrering) KreverRegistrering else Beregnet(pris)
+        }
+    }
+}
 
 @Serializable
 data class ArrangforflateUtbetalingLinje(
