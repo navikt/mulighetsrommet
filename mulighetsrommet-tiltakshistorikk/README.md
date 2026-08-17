@@ -6,13 +6,54 @@ Tiltakshistorikk for brukere som deltar eller har deltatt på arbeidsmarkedstilt
 
 ### Datamodell
 
-Datamodellen er definert i [
-`TiltakshistorikkV1Dto.kt`](../common/tiltakshistorikk-client/src/main/kotlin/no/nav/tiltak/historikk/TiltakshistorikkV1Dto.kt)
-og inneholder tre typer deltakelser:
+Se [`TiltakshistorikkV1Dto`](../common/tiltakshistorikk-client/src/main/kotlin/no/nav/tiltak/historikk/TiltakshistorikkV1Dto.kt)
+for datamodell. Det finnes tre typer deltakelser:
 
 - Deltakelser fra Arena (opphav: `ARENA`)
 - Tiltak hos arrangør fra Tiltaksadministrasjon/Modia (opphav: `TEAM_KOMET`)
 - Tiltak hos arbeidsgiver fra Avtale-løsningen til Team Tiltak (opphav: `TEAM_TILTAK`)
+
+### API
+
+Tiltakshistorikk hentes via et POST-endepunkt som aksepterer ett eller flere fødselsnummer.
+Autentisering skjer via M2M-token (Entra ID).
+Se [`TiltakshistorikkClient`](../common/tiltakshistorikk-client/src/main/kotlin/no/nav/tiltak/historikk/TiltakshistorikkClient.kt) for referanseimplementasjon.
+
+**Request:**
+
+```
+POST /api/v1/historikk
+Authorization: Bearer <M2M-token>
+Content-Type: application/json
+```
+
+```json
+{
+  "identer": ["12345678901", "09876543210"]
+}
+```
+
+| Felt      | Type                 | Påkrevd | Beskrivelse                                           |
+|-----------|----------------------|---------|-------------------------------------------------------|
+| `identer` | `String[]` | Ja      | Liste med fødselsnummer det skal hentes historikk for |
+
+**Response:**
+
+```json
+{
+  "historikk": [ ... ],
+  "meldinger": []
+}
+```
+
+| Felt        | Type                        | Beskrivelse                                                                                                                                                   |
+|-------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `historikk` | `TiltakshistorikkV1Dto[]`   | Liste med tiltaksdeltakelser. Hvert element er en av typene `ArenaDeltakelse`, `TeamKometDeltakelse` eller `TeamTiltakAvtale`, diskriminert på feltet `type`. |
+| `meldinger` | `TiltakshistorikkMelding[]` | Varsler om eventuelle feil ved henting av data.                                                                                                               |
+
+Mulige verdier i `meldinger`:
+
+- `MANGLER_HISTORIKK_FRA_TEAM_TILTAK` — historikk fra Team Tiltak er ikke inkludert fordi tjenesten ikke svarte.
 
 ### Historiske identer
 
