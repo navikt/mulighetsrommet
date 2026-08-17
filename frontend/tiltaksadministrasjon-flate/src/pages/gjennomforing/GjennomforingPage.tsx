@@ -18,8 +18,8 @@ import { GjennomforingEnkeltplassIkon } from "@/components/ikoner/GjennomforingE
 import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import { erGodkjent } from "@/utils/totrinnskontroll";
-import { DeltakerHeader } from "@/components/gjennomforing/DeltakerHeader";
 import { isGjennomforingAvtaleDetaljer } from "@/api/gjennomforing/utils";
+import { GjennomforingEnkeltplassHeader } from "@/components/gjennomforing/GjennomforingEnkeltplassHeader";
 
 export function GjennomforingPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -64,7 +64,11 @@ export function GjennomforingPage() {
         status={detaljer.gjennomforing.status.status}
       />
       {"deltaker" in detaljer && detaljer.deltaker && (
-        <DeltakerHeader deltaker={detaljer.deltaker} />
+        <GjennomforingEnkeltplassHeader
+          gjennomforing={detaljer.gjennomforing}
+          deltaker={detaljer.deltaker}
+          short
+        />
       )}
       <Tabs value={currentTab}>
         <Box background="default">
