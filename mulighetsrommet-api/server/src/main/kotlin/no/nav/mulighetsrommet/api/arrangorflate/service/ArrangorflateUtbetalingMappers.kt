@@ -65,7 +65,8 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
     val kanViseBeregningMedDeltakelse = beregning.deltakelser?.let { kanViseBeregning } ?: false
 
     val innsendtAvArrangorDato = utbetaling.innsending?.tidspunkt?.toLocalDate()
-    val status = ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer, utbetaling.avbrytelse)
+    val status =
+        ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer, utbetaling.avbrytelse)
     return ArrangorflateUtbetalingDto(
         id = utbetaling.id,
         status = status,
@@ -102,6 +103,7 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
         avbrytelse = Avbrytelse.fromStatus(status, utbetaling.arrangorAvbrutt, utbetaling.avbrytelse),
         kanRegenereres = kanRegenereres,
         regenerertId = regenerertId,
+        blokkeringer = utbetaling.blokkeringer,
     )
 }
 
@@ -479,7 +481,10 @@ private fun beregningDeltakerTable(
     }
 }
 
-private fun getStengtPerioderPerSats(satsPeriode: Periode, stengtPeriode: Set<StengtPeriode>): List<LabeledDataElement> = if (stengtPeriode.isNotEmpty()) {
+private fun getStengtPerioderPerSats(
+    satsPeriode: Periode,
+    stengtPeriode: Set<StengtPeriode>,
+): List<LabeledDataElement> = if (stengtPeriode.isNotEmpty()) {
     stengtPeriode.map { LabeledDataElement.periode("Stengt periode", it.periode.intersect(satsPeriode) ?: it.periode) }
 } else {
     emptyList()

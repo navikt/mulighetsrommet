@@ -179,7 +179,7 @@ data class DeltakerAdvarselDto(
         fun from(advarsel: DeltakerAdvarsel, navn: String?) = DeltakerAdvarselDto(
             deltakerId = advarsel.deltakerId,
             beskrivelse = when (advarsel.type) {
-                DeltakerAdvarselType.RelevanteForslag -> "$navn har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg"
+                DeltakerAdvarselType.RelevanteForslag -> "$navn har ubehandlede forslag"
                 DeltakerAdvarselType.FeilSluttDato -> "$navn har avsluttende status og sluttdato frem i tid"
             },
             type = advarsel.type,

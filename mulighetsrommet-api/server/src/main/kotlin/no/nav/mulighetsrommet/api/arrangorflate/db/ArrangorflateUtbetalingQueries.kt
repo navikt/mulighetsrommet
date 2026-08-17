@@ -186,7 +186,7 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             -> intOrNull("sum_utbetaling_linje")?.withValuta(valuta)
 
             ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
-            ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
+            ArrangorflateUtbetalingStatus.BLOKKERT_FOR_INNSENDING,
             ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
             ArrangorflateUtbetalingStatus.AVBRUTT_AV_ARRANGOR,
             ArrangorflateUtbetalingStatus.AVBRUTT_AV_NAV,
