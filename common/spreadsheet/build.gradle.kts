@@ -12,5 +12,4 @@ dependencies {
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.mockk)
-    testImplementation(libs.nav.mockOauth2Server)
 }
