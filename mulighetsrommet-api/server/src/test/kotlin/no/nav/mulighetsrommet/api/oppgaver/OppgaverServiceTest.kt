@@ -1,11 +1,13 @@
 package no.nav.mulighetsrommet.api.oppgaver
 
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.forAll
 import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSingleElement
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
@@ -595,6 +597,8 @@ class OppgaverServiceTest : FunSpec({
 
     context("utbetalinger") {
         test("Skal hente oppgaver for utbetalinger med filter") {
+            val tilAvbrytelseId = UUID.randomUUID()
+
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, underenhet1),
@@ -636,6 +640,12 @@ class OppgaverServiceTest : FunSpec({
                         gjennomforingId = VTA1.id,
                         periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
                     ),
+                    UtbetalingFixtures.utbetaling3.copy(
+                        id = tilAvbrytelseId,
+                        status = UtbetalingStatusType.TIL_BEHANDLING,
+                        gjennomforingId = VTA1.id,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
+                    ),
                 ),
                 utbetalingLinjer = listOf(
                     UtbetalingFixtures.utbetalingLinje1.copy(utbetalingId = UtbetalingFixtures.utbetaling2.id),
@@ -644,6 +654,12 @@ class OppgaverServiceTest : FunSpec({
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.GODKJENT)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.GODKJENT)
                 setUtbetalingLinjeStatus(UtbetalingFixtures.utbetalingLinje1, UtbetalingLinjeStatus.GODKJENT)
+                val utbetaling = queries.utbetaling.get(tilAvbrytelseId).shouldNotBeNull()
+                utbetaling.settTilAbrytelse(
+                    agent = NavAnsattFixture.DonaldDuck.navIdent,
+                    aarsaker = listOf("ANNET"),
+                    forklaring = "Skal ikke utbetales",
+                ).map { queries.utbetaling.save(it) }.shouldBeRight()
             }.initialize(database.api)
 
             val service = OppgaverService(database.api, features())
@@ -663,6 +679,7 @@ class OppgaverServiceTest : FunSpec({
             oppgaver shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
                 PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
+                PartialOppgave(tilAvbrytelseId, OppgaveType.UTBETALING_TIL_AVBRYTELSE),
             )
 
             service.oppgaver(
@@ -671,6 +688,19 @@ class OppgaverServiceTest : FunSpec({
                 navEnheter = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
                 arrangorer = setOf(),
                 ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
+                PartialOppgave(tilAvbrytelseId, OppgaveType.UTBETALING_TIL_AVBRYTELSE),
+            )
+
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(NavEnhetFixtures.TiltakOslo.enhetsnummer),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.DonaldDuck.medRoller(
                     roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 ),
             ) shouldMatchAllOppgaver listOf(

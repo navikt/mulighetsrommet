@@ -386,7 +386,8 @@ class OppgaveQueries(private val session: Session) {
                 arrangor.navn as arrangor_navn,
                 arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer,
-                avbrytelse.avbrytelse_behandlet_tidspunkt
+                avbrytelse.avbrytelse_behandlet_tidspunkt,
+                avbrytelse.avbrytelse_behandlet_av
             from utbetaling
                 join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
                 inner join arrangor on gjennomforing.arrangor_id = arrangor.id
@@ -399,11 +400,11 @@ class OppgaveQueries(private val session: Session) {
                 ) ks on true
                 left join lateral (
                     select
-                        t.behandlet_tidspunkt as avbrytelse_behandlet_tidspunkt
-                    from totrinnskontroll t
-                    where t.entity_id = utbetaling.id
-                      and t.type = 'UTBETALING_AVBRYTELSE'
-                      and t.status = 'TIL_BEHANDLING'
+                        t.behandlet_tidspunkt as avbrytelse_behandlet_tidspunkt,
+                        t.behandlet_av as avbrytelse_behandlet_av
+                    from utbetaling_avbrytelse
+                    inner join totrinnskontroll t on utbetaling_avbrytelse.totrinnskontroll_id = t.id
+                    where utbetaling_avbrytelse.utbetaling_id = utbetaling.id
                 ) avbrytelse on true
             where
                 (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
@@ -431,6 +432,7 @@ class OppgaveQueries(private val session: Session) {
                     row.uuid("arrangor_id"),
                 ),
                 avbrytelseBehandletTidspunkt = row.localDateTimeOrNull("avbrytelse_behandlet_tidspunkt"),
+                avbrytelseBehandletAv = row.stringOrNull("avbrytelse_behandlet_av")?.toAgent(),
             )
         }
     }
@@ -623,6 +625,7 @@ data class UtbetalingOppgaveData(
     val gjennomforing: OppgaveGjennomforing,
     val arrangor: OppgaveArrangor,
     val avbrytelseBehandletTidspunkt: LocalDateTime?,
+    val avbrytelseBehandletAv: Agent?,
 )
 
 data class AvtaleManglerAdministratorOppgaveData(
