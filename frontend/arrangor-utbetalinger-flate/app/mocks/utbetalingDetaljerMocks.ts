@@ -6,6 +6,7 @@ import {
   DataElementTextFormat,
   LabeledDataElementType,
   Tiltakskode,
+  UtbetalingBlokkering,
   UtbetalingLinjeStatus,
   Valuta,
 } from "@arrangor-utbetalinger/api-client";
@@ -122,6 +123,7 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.INNSENDING,
+  blokkeringer: [],
   linjer: [
     {
       id: "59b56a35-4406-4c29-b5e6-535a78761044",
@@ -203,6 +205,7 @@ export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   type: { displayName: "Innsending", displayNameLong: null, tagName: null },
   linjer: [],
   advarsler: [],
+  blokkeringer: [],
   innsendingsDetaljer: [
     {
       type: LabeledDataElementType.INLINE,
@@ -232,7 +235,7 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
   kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
   avbrytelse: null,
   id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
-  status: ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
+  status: ArrangorflateUtbetalingStatus.BLOKKERT_FOR_INNSENDING,
   innsendtAvArrangorDato: null,
   utbetalesTidligstDato: null,
   createdAt: "2025-06-17T13:58:12.405867",
@@ -261,6 +264,7 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.INNSENDING,
   linjer: [],
+  blokkeringer: [UtbetalingBlokkering.UBEHANDLET_FORSLAG],
   innsendingsDetaljer: [
     {
       type: LabeledDataElementType.INLINE,
@@ -300,6 +304,7 @@ export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
     tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
   },
   advarsler: [],
+  blokkeringer: [],
   gjennomforing: {
     id: "d29cb67c-8e68-4ece-90dc-ff21c498aa3f",
     navn: "AFT - Arbeidsforberedende trening - Team tiltakspenger",
@@ -381,6 +386,7 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
     satsDetaljer: [],
     pris: { belop: 500, valuta: Valuta.NOK },
   },
+  blokkeringer: [],
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   periode: { start: "2025-01-01", slutt: "2025-02-01" },
   type: utbetalingType.KORRIGERING,
@@ -459,6 +465,7 @@ export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
     deltakelser: vtaManedDeltakelse,
     stengt: [],
   },
+  blokkeringer: [],
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   periode: { start: "2025-06-01", slutt: "2025-07-01" },
   type: utbetalingType.INNSENDING,
@@ -526,6 +533,7 @@ export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   type: { displayName: "Innsending", displayNameLong: null, tagName: null },
   linjer: [],
   advarsler: [],
+  blokkeringer: [],
   innsendingsDetaljer: [
     {
       type: LabeledDataElementType.INLINE,
