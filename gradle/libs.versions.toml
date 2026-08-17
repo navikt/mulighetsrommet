@@ -1,7 +1,8 @@
 [versions]
 common-java-modules = "4.2026.07.30_06.56-134f7640e6dd"
 flyway = "12.11.0"
-jackson = "3.2.1"
+jackson2 = "2.22.2"
+jackson3 = "3.2.1"
 koin-bom = "4.2.2"
 kotest = "6.2.2"
 kotlin = "2.4.0"
@@ -24,9 +25,6 @@ logging = [
     "logback-core",
     "logback-classic",
     "logback-logstashLogbackEncoder",
-    # Jackson benyttes av logstash-logback-encoder og er inkludert her slik at vi har kontroll
-    # på hvilken versjon vi inkluderer
-    "jackson-bom"
 ]
 ktor-openapi = [
     "ktor-openapi",
@@ -54,7 +52,8 @@ netty = [
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
 arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", version.ref = "arrow" }
 
-jackson-bom = { module = "tools.jackson:jackson-bom", version.ref = "jackson" }
+jackson2-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson2" }
+jackson3-bom = { module = "tools.jackson:jackson-bom", version.ref = "jackson3" }
 
 ktor-openapi = "io.github.smiley4:ktor-openapi:5.7.0"
 ktor-swagger-ui = "io.github.smiley4:ktor-swagger-ui:5.7.0"
