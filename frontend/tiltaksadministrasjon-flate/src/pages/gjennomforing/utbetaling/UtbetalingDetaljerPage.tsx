@@ -293,7 +293,11 @@ export function UtbetalingDetaljerPage() {
               )}
           </TwoColumnGrid>
         </HGrid>
-        <UtbetalingBeregningView utbetalingId={utbetaling.id} beregning={beregning} />
+        <UtbetalingBeregningView
+          utbetalingId={utbetaling.id}
+          beregning={beregning}
+          blokkeringer={utbetaling.blokkeringer}
+        />
         <UtbetalingLinjeView
           utbetaling={utbetaling}
           utbetalingLinjer={utbetalingLinjer}
@@ -370,7 +374,7 @@ function UtbetalingLinjeView({
 }: UtbetalingLinjeViewProps) {
   switch (utbetaling.status.type) {
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
-    case UtbetalingStatusDtoType.UBEHANDLET_FORSLAG:
+    case UtbetalingStatusDtoType.BLOKKERT_FOR_INNSENDING:
     case UtbetalingStatusDtoType.AVBRUTT_AV_ARRANGOR:
     case UtbetalingStatusDtoType.AVBRUTT_AV_NAV:
     case UtbetalingStatusDtoType.TIL_AVBRYTELSE:

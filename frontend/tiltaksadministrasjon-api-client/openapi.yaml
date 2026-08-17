@@ -7966,7 +7966,7 @@ components:
       type: string
       enum:
       - VENTER_PA_ARRANGOR
-      - UBEHANDLET_FORSLAG
+      - BLOKKERT_FOR_INNSENDING
       - KLAR_TIL_BEHANDLING
       - TIL_ATTESTERING
       - RETURNERT
@@ -8124,12 +8124,18 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/TotrinnskontrollDto"
+        blokkeringer:
+          type: array
+          items:
+            $ref: "#/components/schemas/Utbetaling.Blokkering"
+          uniqueItems: true
       required:
       - avbruttBegrunnelse
       - avbrytelse
       - begrunnelseMindreBetalt
       - beregning
       - betalingsinformasjon
+      - blokkeringer
       - gjennomforingId
       - id
       - innsendtAvArrangorDato
@@ -8196,6 +8202,11 @@ components:
       - TILTAK_DRIFTSTILSKUDD
       - TILTAK_INVESTERINGER
       - TILTAK_OPPLAERING_TILSKUDD
+    Utbetaling.Blokkering:
+      type: string
+      enum:
+      - UBEHANDLET_FORSLAG
+      - MANGLER_TILSAGN
     UtbetalingHandling:
       type: string
       enum:

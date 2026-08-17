@@ -37,7 +37,7 @@ export function BlokkeringerVarsler({
               <InfoCard.Title>Viktig informasjon om deltakere</InfoCard.Title>
             </InfoCard.Header>
             <InfoCard.Content>
-              Det finnes advarsler i Deltakeroversikten for følgende personer. Nav veileder må
+              Det finnes advarsler i Deltakeroversikten for følgende personer. Nav-veileder må
               behandle disse før kravet kan sendes inn.
               <List>
                 {advarsler.map((advarsel) => (

@@ -38,6 +38,7 @@ data class UtbetalingDto(
     val journalpostId: JournalpostId?,
     val tilskuddstype: Tilskuddstype,
     val avbrytelse: TotrinnskontrollDto?,
+    val blokkeringer: Set<Utbetaling.Blokkering>,
 ) {
     @Serializable
     data class Korreksjon(
@@ -66,6 +67,7 @@ data class UtbetalingDto(
                 type = UtbetalingType.from(utbetaling).toDto(),
                 avbruttBegrunnelse = utbetaling.avbruttBegrunnelse,
                 avbrytelse = avbrytelse,
+                blokkeringer = utbetaling.blokkeringer,
             )
         }
     }
