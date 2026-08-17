@@ -1,6 +1,5 @@
-import { Box, Heading, BodyShort, HGrid } from "@navikt/ds-react";
+import { Heading, HGrid, InlineMessage, Box } from "@navikt/ds-react";
 import { TilsagnDetaljer } from "../tilsagn/TilsagnDetaljer";
-import { UtbetalingManglendeTilsagnAlert } from "../utbetaling/UtbetalingManglendeTilsagnAlert";
 import { ArrangorflateTilsagnDto } from "@arrangor-utbetalinger/api-client";
 
 export function TilgjengeligeTilsagn({ tilsagn }: { tilsagn: ArrangorflateTilsagnDto[] }) {
@@ -9,21 +8,14 @@ export function TilgjengeligeTilsagn({ tilsagn }: { tilsagn: ArrangorflateTilsag
       <Heading level="3" size="small" spacing>
         Tilgjengelige tilsagn
       </Heading>
-      <BodyShort size="small" textColor="subtle" spacing>
-        Under vises informasjon om antatt forbruk.
-        <br />
-        Hva som blir utbetalt avhenger imidlertid av faktisk forbruk i perioden.
-      </BodyShort>
+      <InlineMessage status="info">
+        Under vises informasjon om antatt forbruk. Hva som blir utbetalt avhenger imidlertid av
+        faktisk forbruk i perioden.
+      </InlineMessage>
       <HGrid align="start" columns="1fr" gap="space-16" maxWidth="max-content">
-        {tilsagn.length < 1 ? (
-          <UtbetalingManglendeTilsagnAlert />
-        ) : (
-          <>
-            {tilsagn.map((tilsagn) => (
-              <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} minimal />
-            ))}
-          </>
-        )}
+        {tilsagn.map((tilsagn) => (
+          <TilsagnDetaljer key={tilsagn.id} tilsagn={tilsagn} minimal />
+        ))}
       </HGrid>
     </Box>
   );

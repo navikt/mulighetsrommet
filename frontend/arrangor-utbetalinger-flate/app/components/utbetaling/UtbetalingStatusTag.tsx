@@ -31,8 +31,8 @@ const utbetalingStatusConfig: Record<
     label: "Klar for innsending",
     color: "meta-purple",
   },
-  [ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG]: {
-    label: "Ubehandlede forslag",
+  [ArrangorflateUtbetalingStatus.BLOKKERT_FOR_INNSENDING]: {
+    label: "Blokkert for innsending",
     color: "warning",
   },
   [ArrangorflateUtbetalingStatus.AVBRUTT_AV_ARRANGOR]: {
