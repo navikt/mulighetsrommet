@@ -10,6 +10,7 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
+import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkError
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
@@ -124,7 +125,9 @@ class JournalforUtbetalingTest : FunSpec({
         }
         exception.message shouldBe "Test"
 
-        database.assertTable("scheduled_tasks").hasNumberOfRows(0)
+        database.run {
+            session.list(queryOf("select task_name from scheduled_tasks")) { it.string("task_name") } shouldBe emptyList()
+        }
     }
 
     test("task scheduleres hvis transaction går bra") {
@@ -134,8 +137,8 @@ class JournalforUtbetalingTest : FunSpec({
             task.schedule(JournalforUtbetaling.TaskData(utbetaling.id, emptyList()), session)
         }
 
-        database.assertTable("scheduled_tasks")
-            .row()
-            .value("task_name").isEqualTo("JournalforUtbetaling")
+        database.run {
+            session.single(queryOf("select task_name from scheduled_tasks")) { it.string("task_name") } shouldBe "JournalforUtbetaling"
+        }
     }
 })

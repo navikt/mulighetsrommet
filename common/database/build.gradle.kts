@@ -36,5 +36,4 @@ dependencies {
 
     // Test
     testFixturesImplementation(libs.kotest.junit)
-    testFixturesImplementation(libs.assertj.db)
 }

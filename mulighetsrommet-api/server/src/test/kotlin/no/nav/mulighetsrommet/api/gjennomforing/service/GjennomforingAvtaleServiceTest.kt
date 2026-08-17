@@ -685,7 +685,9 @@ class GjennomforingAvtaleServiceTest : FunSpec({
 
             service.create(request, navIdent).shouldBeRight()
 
-            database.assertTable("user_notification").isEmpty
+            database.api.session {
+                queries.notifications.getAll().shouldBeEmpty()
+            }
         }
 
         test("bare nye administratorer får notifikasjon ved oppdatering") {
@@ -704,10 +706,11 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 identAnsatt1,
             ).shouldBeRight()
 
-            database.assertTable("user_notification")
-                .hasNumberOfRows(1)
-                .column("user_id")
-                .containsValues(identAnsatt2.value)
+            database.api.session {
+                queries.notifications.getAll().shouldHaveSize(1).should { (first) ->
+                    first.user shouldBe identAnsatt2
+                }
+            }
         }
     }
 

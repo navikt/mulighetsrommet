@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.kafka
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import no.nav.common.kafka.consumer.feilhandtering.StoredConsumerRecord
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
@@ -31,12 +32,12 @@ class KafkaConsumerRepositoryTest : FunSpec({
 
         records.forEach { kafkaConsumerRepository.storeRecord(it) }
 
-        database.assertTable("kafka_consumer_record").hasNumberOfRows(3)
+        kafkaConsumerRepository.getAll() shouldHaveSize 3
     }
 
     test("should delete records") {
         kafkaConsumerRepository.deleteRecords(mutableListOf(1))
-        database.assertTable("kafka_consumer_record").hasNumberOfRows(2)
+        kafkaConsumerRepository.getAll() shouldHaveSize 2
     }
 
     test("should retrieve correct key") {
@@ -51,11 +52,13 @@ class KafkaConsumerRepositoryTest : FunSpec({
     }
 
     test("should increment retries") {
-        database.assertTable("kafka_consumer_record").row().value("retries").isEqualTo(0)
+        val recordId = 2L
 
-        kafkaConsumerRepository.incrementRetries(2)
+        kafkaConsumerRepository.getAll().first { it.id == recordId }.retries shouldBe 0
 
-        database.assertTable("kafka_consumer_record").row().value("retries").isEqualTo(1)
+        kafkaConsumerRepository.incrementRetries(recordId)
+
+        kafkaConsumerRepository.getAll().first { it.id == recordId }.retries shouldBe 1
     }
 
     test("should get topic partitions") {

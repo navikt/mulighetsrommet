@@ -27,5 +27,4 @@ dependencies {
     testImplementation(libs.kotest.extensions.testcontainers)
     testImplementation(libs.testcontainers.kafka)
     testImplementation(libs.mockk)
-    testImplementation(libs.assertj.db)
 }

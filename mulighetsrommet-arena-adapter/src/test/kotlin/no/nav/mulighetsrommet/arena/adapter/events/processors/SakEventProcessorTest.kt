@@ -25,10 +25,11 @@ class SakEventProcessorTest : FunSpec({
     }
 
     context("handleEvent") {
+        val saker = SakRepository(database.db)
         val entities = ArenaEntityService(
             mappings = ArenaEntityMappingRepository(database.db),
             tiltakstyper = TiltakstypeRepository(database.db),
-            saker = SakRepository(database.db),
+            saker = saker,
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
         )
 
@@ -48,15 +49,15 @@ class SakEventProcessorTest : FunSpec({
 
                 val e1 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 1) }
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertTable("sak").row().value("lopenummer").isEqualTo(1)
+                saker.get(1)?.lopenummer shouldBe 1
 
                 val e2 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 2) }
                 processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertTable("sak").row().value("lopenummer").isEqualTo(2)
+                saker.get(1)?.lopenummer shouldBe 2
 
                 val e3 = createArenaSakEvent(Insert) { it.copy(LOPENRSAK = 3) }
                 processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertTable("sak").row().value("lopenummer").isEqualTo(3)
+                saker.get(1)?.lopenummer shouldBe 3
             }
         }
     }

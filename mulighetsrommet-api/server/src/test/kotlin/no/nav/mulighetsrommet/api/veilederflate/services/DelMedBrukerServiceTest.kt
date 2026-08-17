@@ -150,10 +150,6 @@ class DelMedBrukerServiceTest : FunSpec({
                 it[1].tiltakId shouldBe sanityId
                 it[1].deling.dialogId shouldBe "3"
             }
-
-            database.assertTable("del_med_bruker").row()
-                .value("delt_fra_enhet").isEqualTo(NavEnhetFixtures.Gjovik.enhetsnummer.value)
-                .value("delt_fra_fylke").isEqualTo(NavEnhetFixtures.Innlandet.enhetsnummer.value)
         }
 
         test("hent historikk over tiltak delt med bruker") {

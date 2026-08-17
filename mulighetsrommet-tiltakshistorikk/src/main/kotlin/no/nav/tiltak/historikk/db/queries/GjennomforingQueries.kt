@@ -1,5 +1,6 @@
 package no.nav.tiltak.historikk.db.queries
 
+import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -69,4 +70,24 @@ class GjennomforingQueries(private val session: Session) {
 
         session.execute(queryOf(query, id))
     }
+
+    fun get(id: UUID): GjennomforingDbo? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from gjennomforing
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.single(queryOf(query, id)) { it.toGjennomforingDbo() }
+    }
 }
+
+private fun Row.toGjennomforingDbo() = GjennomforingDbo(
+    id = uuid("id"),
+    type = GjennomforingType.valueOf(string("gjennomforing_type")),
+    tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+    arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
+    navn = stringOrNull("navn"),
+    deltidsprosent = doubleOrNull("deltidsprosent"),
+)
