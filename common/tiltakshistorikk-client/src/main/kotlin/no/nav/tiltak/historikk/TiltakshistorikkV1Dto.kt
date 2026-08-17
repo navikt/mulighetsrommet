@@ -214,7 +214,7 @@ sealed class TiltakshistorikkV1Dto {
 @Serializable
 data class TiltakshistorikkV1Request(
     val identer: List<NorskIdent>,
-    val maxAgeYears: Int?,
+    val maxAgeYears: Int? = null,
 )
 
 @Serializable

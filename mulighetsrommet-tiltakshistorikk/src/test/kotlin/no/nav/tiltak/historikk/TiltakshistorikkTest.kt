@@ -69,7 +69,7 @@ class TiltakshistorikkTest : FunSpec({
             withTestApplication(oauth, mockEngine) {
                 val response = client.post("/api/v1/historikk") {
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910"))))
                 }
 
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -83,7 +83,7 @@ class TiltakshistorikkTest : FunSpec({
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken(claims = mapOf("roles" to listOf(ACCESS_AS_APPLICATION))).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910"))))
                 }
 
                 response.status shouldBe HttpStatusCode.Unauthorized
@@ -97,7 +97,7 @@ class TiltakshistorikkTest : FunSpec({
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("22345623456")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("22345623456"))))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
@@ -145,7 +145,7 @@ class TiltakshistorikkTest : FunSpec({
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910"))))
                 }
 
                 response.status shouldBe HttpStatusCode.OK
@@ -312,7 +312,7 @@ class TiltakshistorikkTest : FunSpec({
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = null))
+                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910"))))
                 }
 
                 response.status shouldBe HttpStatusCode.OK

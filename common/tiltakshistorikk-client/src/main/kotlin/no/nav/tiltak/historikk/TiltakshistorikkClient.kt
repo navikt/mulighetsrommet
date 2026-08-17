@@ -30,12 +30,9 @@ class TiltakshistorikkClient(
 
     object OkResponse
 
-    suspend fun getHistorikk(
-        identer: List<NorskIdent>,
-        years: Int? = null,
-    ): Either<ResponseException, TiltakshistorikkV1Response> {
+    suspend fun getHistorikk(identer: List<NorskIdent>): Either<ResponseException, TiltakshistorikkV1Response> {
         val response = client.post("$baseUrl/api/v1/historikk") {
-            setBody(TiltakshistorikkV1Request(identer, maxAgeYears = years))
+            setBody(TiltakshistorikkV1Request(identer, maxAgeYears = null))
             bearerAuth(tokenProvider.exchange(AccessType.M2M))
         }
         return onSuccess(response) { response.body() }
