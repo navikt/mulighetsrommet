@@ -42,9 +42,9 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.3",
     "eslint": "10.7.0",
-    "postcss": "8.5.23",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
+    "postcss": "8.5.26",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "react-router": "8.3.0",
     "vitest": "4.1.10"
   },
