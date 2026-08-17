@@ -20,6 +20,7 @@ interface Props<T> {
   header: string;
   ingress?: React.ReactNode;
   buttonLabel: string;
+  textareaLabel?: string;
   aarsaker: { label: string; value: T }[];
   errors?: FieldError[];
   onConfirm: (data: { aarsaker: T[]; forklaring: string | null }) => void;
@@ -37,6 +38,7 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
     header,
     ingress,
     buttonLabel,
+    textareaLabel = "Forklaring",
     aarsaker,
   } = props;
   const [valgteAarsaker, setValgteAarsaker] = useState<T[]>([]);
@@ -74,7 +76,7 @@ export function AarsakerOgForklaringModal<T>(props: Props<T>) {
               </CheckboxGroup>
               <Textarea
                 onChange={(val) => setForklaring(val.currentTarget.value)}
-                label="Forklaring"
+                label={textareaLabel}
                 resize
                 maxLength={FORKLARING_MAX_LENGTH}
               ></Textarea>

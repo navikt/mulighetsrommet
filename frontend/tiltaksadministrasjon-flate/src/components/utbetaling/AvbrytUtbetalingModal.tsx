@@ -52,6 +52,7 @@ export function AvbrytUtbetalingModal({ utbetalingId, open, onClose }: AvbrytUtb
       ingress={<BodyShort>{utbetalingTekster.avbrutt.modal.sendTilAvbrytning.ingress}</BodyShort>}
       aarsaker={avbrytUtbetalingAarsakValg}
       buttonLabel={utbetalingTekster.avbrutt.modal.sendTilAvbrytning.button.label}
+      textareaLabel="Kommentar til arrangør"
       errors={errors}
       onConfirm={(request) => avbrytUtbetaling(request)}
     />
