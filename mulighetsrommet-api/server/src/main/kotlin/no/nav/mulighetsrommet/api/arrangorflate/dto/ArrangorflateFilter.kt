@@ -32,6 +32,7 @@ enum class ArrangorflateFilterType {
             UtbetalingStatusType.TIL_BEHANDLING,
             UtbetalingStatusType.TIL_ATTESTERING,
             UtbetalingStatusType.RETURNERT,
+            UtbetalingStatusType.TIL_AVBRYTELSE,
         )
 
         HISTORISKE -> setOf(
