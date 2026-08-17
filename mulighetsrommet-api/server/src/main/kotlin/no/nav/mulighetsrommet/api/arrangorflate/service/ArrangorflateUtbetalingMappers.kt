@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinj
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateArrangorDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflatePris
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.RegenererStatus
@@ -30,6 +31,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPe
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningOutputDeltakelse
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningType
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
@@ -52,8 +54,18 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
     skalViseBeregningMedDeltakelser: Boolean,
     regenerering: RegenererStatus,
 ): ArrangorflateUtbetalingDto {
+    val status = ArrangorflateUtbetalingStatus.fromUtbetaling(
+        utbetaling.status,
+        utbetaling.blokkeringer,
+        utbetaling.avbrytelse,
+    )
+
     val beregning = ArrangorflateBeregning(
-        pris = utbetaling.beregning.output.pris,
+        pris = ArrangorflatePris.from(
+            UtbetalingBeregningType.from(utbetaling.beregning),
+            status,
+            utbetaling.beregning.output.pris,
+        ),
         deltakelser = if (skalViseBeregningMedDeltakelser) {
             beregningDeltakerTable(utbetaling, deltakereById, personaliaById)
         } else {
@@ -65,8 +77,6 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
     )
 
     val innsendtAvArrangorDato = utbetaling.innsending?.tidspunkt?.toLocalDate()
-    val status =
-        ArrangorflateUtbetalingStatus.fromUtbetaling(utbetaling.status, utbetaling.blokkeringer, utbetaling.avbrytelse)
     return ArrangorflateUtbetalingDto(
         id = utbetaling.id,
         status = status,

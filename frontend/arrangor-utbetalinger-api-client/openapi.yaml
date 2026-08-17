@@ -1518,8 +1518,8 @@ components:
       - TILTAK
       - ARRANGOR
       - PERIODE
-      - BEREGNET_BELOP
-      - GODKJENT_BELOP
+      - PRIS
+      - GODKJENT_PRIS
       - STATUS
     ArrangorflateUtbetalingRadDto:
       type: object
@@ -1535,9 +1535,9 @@ components:
           $ref: "#/components/schemas/ArrangorflateTiltakstypeDto"
         periode:
           $ref: "#/components/schemas/Periode"
-        beregnetBelop:
-          $ref: "#/components/schemas/ValutaBelop"
-        godkjentBelop:
+        pris:
+          $ref: "#/components/schemas/ArrangorflatePris"
+        godkjentPris:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/ValutaBelop"
@@ -1547,14 +1547,33 @@ components:
           $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
       required:
       - arrangor
-      - beregnetBelop
       - gjennomforing
-      - godkjentBelop
+      - godkjentPris
       - periode
+      - pris
       - status
       - tiltakstype
       - type
       - utbetalingId
+    ArrangorflatePris:
+      anyOf:
+      - $ref: "#/components/schemas/BEREGNET"
+      - $ref: "#/components/schemas/KREVER_REGISTRERING"
+      discriminator:
+        propertyName: type
+        mapping:
+          BEREGNET: "#/components/schemas/BEREGNET"
+          KREVER_REGISTRERING: "#/components/schemas/KREVER_REGISTRERING"
+    BEREGNET:
+      type: object
+      properties:
+        pris:
+          $ref: "#/components/schemas/ValutaBelop"
+      required:
+      - pris
+    KREVER_REGISTRERING:
+      type: object
+      properties: {}
     ArrangorflateUtbetalingStatus:
       type: string
       enum:
@@ -1596,7 +1615,7 @@ components:
         displayName:
           type: string
         pris:
-          $ref: "#/components/schemas/ValutaBelop"
+          $ref: "#/components/schemas/ArrangorflatePris"
         stengt:
           type: array
           items:

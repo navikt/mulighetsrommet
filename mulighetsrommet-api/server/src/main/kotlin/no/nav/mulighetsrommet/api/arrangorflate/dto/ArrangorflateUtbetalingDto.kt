@@ -15,6 +15,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningType
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataDetails
@@ -57,11 +58,48 @@ data class ArrangorflateUtbetalingDto(
 @Serializable
 class ArrangorflateBeregning(
     val displayName: String,
-    val pris: ValutaBelop,
+    val pris: ArrangorflatePris,
     val stengt: List<StengtPeriode>,
     val deltakelser: DataDrivenTableDto?,
     val satsDetaljer: List<DataDetails>,
 )
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonClassDiscriminator("type")
+sealed interface ArrangorflatePris {
+    @Serializable
+    @SerialName("BEREGNET")
+    data class Beregnet(val pris: ValutaBelop) : ArrangorflatePris
+
+    @Serializable
+    @SerialName("KREVER_REGISTRERING")
+    data object KreverRegistrering : ArrangorflatePris
+
+    companion object {
+        fun from(
+            beregningType: UtbetalingBeregningType,
+            status: ArrangorflateUtbetalingStatus,
+            pris: ValutaBelop,
+        ): ArrangorflatePris {
+            val kreverRegistrering =
+                beregningType == UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING && when (status) {
+                    ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
+                    ArrangorflateUtbetalingStatus.BLOKKERT_FOR_INNSENDING,
+                    -> true
+
+                    ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
+                    ArrangorflateUtbetalingStatus.UTBETALT,
+                    ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
+                    ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
+                    ArrangorflateUtbetalingStatus.AVBRUTT_AV_NAV,
+                    ArrangorflateUtbetalingStatus.AVBRUTT_AV_ARRANGOR,
+                    -> false
+                }
+            return if (kreverRegistrering) KreverRegistrering else Beregnet(pris)
+        }
+    }
+}
 
 @Serializable
 data class ArrangforflateUtbetalingLinje(

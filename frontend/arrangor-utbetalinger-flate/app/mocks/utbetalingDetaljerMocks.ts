@@ -111,7 +111,7 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
     satsDetaljer: satsDetaljerForhondsgodkjent,
-    pris: { belop: 10149, valuta: Valuta.NOK },
+    pris: { type: "BEREGNET", pris: { belop: 10149, valuta: Valuta.NOK } },
     deltakelser: toSatserUkesverkDeltakelse,
     stengt: [],
   },
@@ -188,7 +188,7 @@ export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   valuta: Valuta.NOK,
   beregning: {
-    pris: { belop: 20000, valuta: Valuta.NOK },
+    pris: { type: "BEREGNET", pris: { belop: 20000, valuta: Valuta.NOK } },
     satsDetaljer: satsDetaljerManedspris,
     deltakelser: avklaringManedDeltakelse,
     stengt: [],
@@ -246,7 +246,7 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
     satsDetaljer: satsDetaljerForhondsgodkjent,
-    pris: { belop: 242904, valuta: Valuta.NOK },
+    pris: { type: "BEREGNET", pris: { belop: 242904, valuta: Valuta.NOK } },
     deltakelser: toSatserUkesverkDeltakelse,
     stengt: [],
   },
@@ -305,7 +305,7 @@ export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
     stengt: [],
     displayName: "Annen avtalt pris",
     satsDetaljer: [],
-    pris: { belop: 234, valuta: Valuta.NOK },
+    pris: { type: "BEREGNET", pris: { belop: 234, valuta: Valuta.NOK } },
   },
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   periode: { start: "2025-05-01", slutt: "2025-08-02" },
@@ -368,7 +368,7 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
     deltakelser: null,
     displayName: "Annen avtalt pris",
     satsDetaljer: [],
-    pris: { belop: 500, valuta: Valuta.NOK },
+    pris: { type: "BEREGNET", pris: { belop: 500, valuta: Valuta.NOK } },
   },
   blokkeringer: [],
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
@@ -442,7 +442,7 @@ export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
     satsDetaljer: satsDetaljerForhondsgodkjent,
-    pris: { belop: 16848, valuta: Valuta.NOK },
+    pris: { type: "BEREGNET", pris: { belop: 16848, valuta: Valuta.NOK } },
     deltakelser: vtaManedDeltakelse,
     stengt: [],
   },
@@ -501,7 +501,7 @@ export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   betalingsinformasjon: { kontonummer: "63728787114", kid: "2851777587" },
   valuta: Valuta.NOK,
   beregning: {
-    pris: { belop: 53100, valuta: Valuta.NOK },
+    pris: { type: "BEREGNET", pris: { belop: 53100, valuta: Valuta.NOK } },
     satsDetaljer: satsDetaljerUkespris,
     deltakelser: arrUkesverkDeltakelse,
     stengt: [],

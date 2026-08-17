@@ -25,9 +25,11 @@ const seesPaaSomUtbetalt = (status: ArrangorflateUtbetalingStatus) =>
 
 export default function UtbetalingStatusList({ utbetaling }: Props) {
   const erUtbetalt = seesPaaSomUtbetalt(utbetaling.status);
+
   const avbrytelse =
     utbetaling.avbrytelse.type === "AVBRUTT" ? utbetaling.avbrytelse.detaljer : null;
-  const godkjentBelop = {
+
+  const godkjentPris = {
     valuta: utbetaling.valuta,
     belop: utbetaling.linjer.reduce((acc, cur) => cur.pris.belop + acc, 0),
   };
@@ -52,7 +54,7 @@ export default function UtbetalingStatusList({ utbetaling }: Props) {
           </Heading>
           <UtbetalingTilsagndetaljer linjer={utbetaling.linjer} />
           <BodyShort>
-            Godkjent beløp til utbetaling: <b>{formaterValutaBelop(godkjentBelop)}</b>
+            Godkjent beløp til utbetaling: <b>{formaterValutaBelop(godkjentPris)}</b>
           </BodyShort>
         </>
       ) : null}

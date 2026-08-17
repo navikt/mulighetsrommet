@@ -1094,15 +1094,7 @@ class UtbetalingQueries(private val session: Session) {
 
 private fun getBeregningParams(id: UUID, beregning: UtbetalingBeregning) = mapOf(
     "id" to id,
-    "beregning_type" to when (beregning) {
-        is UtbetalingBeregningFri -> UtbetalingBeregningType.FRI
-        is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed -> UtbetalingBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
-        is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed -> UtbetalingBeregningType.FAST_SATS_PER_AVTALT_TILTAKSPLASS_PER_MANED
-        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed -> UtbetalingBeregningType.PRIS_PER_MANEDSVERK
-        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke -> UtbetalingBeregningType.PRIS_PER_UKESVERK
-        is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> UtbetalingBeregningType.PRIS_PER_HELE_UKESVERK
-        is UtbetalingBeregningAvtaltPrisPerTimeOppfolging -> UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING
-    }.name,
+    "beregning_type" to UtbetalingBeregningType.from(beregning).name,
     "belop_beregnet" to beregning.output.pris.belop,
     "valuta" to beregning.output.pris.valuta.name,
 )
