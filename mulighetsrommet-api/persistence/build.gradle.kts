@@ -32,7 +32,6 @@ dependencies {
     testImplementation(libs.kotest.assertions.table)
     testImplementation(libs.assertj.db)
     testImplementation(libs.mockk)
-    testImplementation(libs.nav.mockOauth2Server)
 }
 
 tasks.test {
