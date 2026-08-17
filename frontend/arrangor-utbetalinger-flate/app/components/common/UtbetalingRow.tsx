@@ -64,6 +64,7 @@ export function UtbetalingRow({ row }: { row: ArrangorInnsendingRadDto }) {
             as={ReactRouterLink}
             aria-label={`Start innsending for krav om utbetaling for ${row.tiltakNavn}`}
             to={pathTo.opprettKrav(row.organisasjonsnummer, row.gjennomforingId)}
+            className="whitespace-nowrap"
           >
             Start innsending
           </Link>

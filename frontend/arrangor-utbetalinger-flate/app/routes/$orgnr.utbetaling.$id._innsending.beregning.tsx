@@ -1,13 +1,13 @@
-import { BodyShort, GuidePanel, Heading, Link, InfoCard, VStack } from "@navikt/ds-react";
+import { BodyShort, GuidePanel, Heading, Link, VStack } from "@navikt/ds-react";
 import type { MetaFunction } from "react-router";
 import { Link as ReactRouterLink } from "react-router";
 import { getEnvironment } from "~/services/environment";
 import { deltakerOversiktLenke, useIdFromUrl } from "~/utils/navigation";
-import { DeltakelserTable } from "~/components/deltakelse/DeltakelserTable";
 import { tekster } from "~/tekster";
-import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
+import { DataDrivenTable } from "@mr/frontend-common";
+import { StengtePerioder } from "~/components/common/StengtePerioder";
 
 export const meta: MetaFunction = () => {
   return [
@@ -45,27 +45,11 @@ export default function UtbetalingBeregning() {
       </Heading>
       <VStack gap="space-16">
         {utbetaling.beregning.stengt.length > 0 && (
-          <InfoCard data-color="info" size="small">
-            <InfoCard.Header>
-              <InfoCard.Title as="h4">Stengte perioder</InfoCard.Title>
-            </InfoCard.Header>
-            <InfoCard.Content>
-              <BodyShort spacing>{tekster.bokmal.utbetaling.beregning.stengtHosArrangor}</BodyShort>
-              <ul>
-                {utbetaling.beregning.stengt.map(({ periode, beskrivelse }) => (
-                  <li key={periode.start + periode.slutt}>
-                    {formaterPeriode(periode)}: {beskrivelse}
-                  </li>
-                ))}
-              </ul>
-            </InfoCard.Content>
-          </InfoCard>
+          <StengtePerioder perioder={utbetaling.beregning.stengt} />
         )}
-        <DeltakelserTable
-          beregning={utbetaling.beregning}
-          advarsler={utbetaling.advarsler}
-          deltakerlisteUrl={deltakerlisteUrl}
-        />
+        {utbetaling.beregning.deltakelser && (
+          <DataDrivenTable data={utbetaling.beregning.deltakelser} />
+        )}
         <SatsPerioderOgBelop
           satsDetaljer={utbetaling.beregning.satsDetaljer}
           pris={utbetaling.beregning.pris}

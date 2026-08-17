@@ -46,8 +46,6 @@ export const tekster = {
           utro: " Opplysninger om deltakerne må være riktig oppdatert før dere sender inn kravet.",
         },
         stengtHosArrangor: "Det er registrert stengt hos arrangør i følgende perioder:",
-        advarslerFinnes:
-          "Det finnes advarsler på følgende personer. Disse må først fikses før utbetalingen kan sendes inn.",
       },
       oppsummering: {
         bekreftelse:
