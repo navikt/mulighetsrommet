@@ -58,7 +58,7 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
                 arrangor_id            = excluded.arrangor_id,
                 faneinnhold            = excluded.faneinnhold,
                 beskrivelse            = excluded.beskrivelse,
-                sanity_id              = excluded.sanity_id,
+                sanity_id              = coalesce(excluded.sanity_id, tiltak_dokument.sanity_id),
                 tiltaksnummer          = excluded.tiltaksnummer,
                 publisert              = excluded.publisert,
                 updated_at             = now()
