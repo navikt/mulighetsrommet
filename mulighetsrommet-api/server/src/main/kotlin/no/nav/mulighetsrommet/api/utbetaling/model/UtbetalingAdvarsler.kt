@@ -172,12 +172,12 @@ enum class DeltakerAdvarselType {
 data class DeltakerAdvarselDto(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
-    val navn: String,
+    val navn: String?,
     val beskrivelse: String,
     val type: DeltakerAdvarselType,
 ) {
     companion object {
-        fun from(advarsel: DeltakerAdvarsel, navn: String) = DeltakerAdvarselDto(
+        fun from(advarsel: DeltakerAdvarsel, navn: String? = "Ukjent deltaker") = DeltakerAdvarselDto(
             deltakerId = advarsel.deltakerId,
             navn = navn,
             beskrivelse = when (advarsel.type) {

@@ -24,7 +24,6 @@ enum class ArrangorflateUtbetalingStatus {
             UtbetalingStatusType.GENERERT -> if (blokkeringer.isNotEmpty()) {
                 BLOKKERT_FOR_INNSENDING
             } else {
-                // TODO: Håndter Utbetaling.Blokkering.MANGLER_TILSAGN
                 KLAR_FOR_GODKJENNING
             }
 
