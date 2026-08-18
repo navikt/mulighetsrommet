@@ -13,11 +13,7 @@ import { NullstillFilterKnapp } from "@mr/frontend-common/components/nullstillFi
 import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/TilToppenKnapp";
 import { Suspense, useState } from "react";
 
-interface Props {
-  preview?: boolean;
-}
-
-export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
+export function NavArbeidsmarkedstiltakOversikt() {
   const [filterOpen, setFilterOpen] = useState(true);
   const [tagsHeight, setTagsHeight] = useState(0);
 
@@ -33,7 +29,7 @@ export function NavArbeidsmarkedstiltakOversikt({ preview = false }: Props) {
     deleteFilter,
   } = useArbeidsmarkedstiltakFilterUtenBrukerIKontekst();
 
-  const { data: tiltak = [], isPending } = useNavArbeidsmarkedstiltak({ preview });
+  const { data: tiltak = [], isPending } = useNavArbeidsmarkedstiltak();
 
   return (
     <>

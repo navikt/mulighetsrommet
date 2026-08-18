@@ -16,15 +16,13 @@ export function useModiaArbeidsmarkedstiltak() {
   });
 }
 
-export function useNavArbeidsmarkedstiltak({ preview }: { preview: boolean }) {
+export function useNavArbeidsmarkedstiltak() {
   const { isFilterReady, filter } = useGetArbeidsmarkedstiltakFilterAsQuery();
 
   return useApiQuery({
-    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltak({ ...filter, preview }),
+    queryKey: QueryKeys.arbeidsmarkedstiltak.tiltak({ ...filter }),
     queryFn() {
-      return preview
-        ? VeilederTiltakService.getAllPreviewTiltak({ query: filter })
-        : VeilederTiltakService.getAllNavTiltak({ query: filter });
+      return VeilederTiltakService.getAllNavTiltak({ query: filter });
     },
     enabled: isFilterReady,
   });
