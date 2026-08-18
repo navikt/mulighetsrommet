@@ -1,6 +1,6 @@
 import {
   isTiltakGruppe,
-  usePreviewArbeidsmarkedstiltakById,
+  useNavArbeidsmarkedstiltakById,
 } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { DelMedBruker } from "@/apps/modia/delMedBruker/DelMedBruker";
 import { Tilbakeknapp } from "@/components/tilbakeknapp/Tilbakeknapp";
@@ -12,7 +12,7 @@ import { PersonvernContainer } from "@/components/personvern/PersonvernContainer
 import { SidemenyLenker } from "@/components/sidemeny/SidemenyLenker";
 
 export function PreviewArbeidsmarkedstiltakDetaljer() {
-  const { data: tiltak } = usePreviewArbeidsmarkedstiltakById();
+  const { data: tiltak } = useNavArbeidsmarkedstiltakById();
 
   return (
     <>

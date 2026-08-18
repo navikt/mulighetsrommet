@@ -11,7 +11,7 @@ export function PreviewArbeidsmarkedstiltak() {
     <Theme theme="light" data-color="accent" hasBackground={false}>
       <AppContainer header={<ArbeidsmarkedstiltakHeader href={"/preview"} />}>
         <Routes>
-          <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt preview />} />
+          <Route path="oversikt" element={<NavArbeidsmarkedstiltakOversikt />} />
           <Route
             path="tiltak/:id/*"
             element={

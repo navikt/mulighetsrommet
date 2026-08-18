@@ -1,6 +1,5 @@
 import { blockContent } from "./blockContent";
 import { tiltakstype } from "./tiltakstype";
-import { tiltaksgjennomforing } from "./tiltaksgjennomforing";
 import { navKontaktperson } from "./navKontaktperson";
 import { enhet } from "./enhet";
 import { regelverklenke } from "./regelverklenke";
@@ -20,7 +19,6 @@ export const schemas = [
   // The following are document types which will appear
   // in the studio.
   tiltakstype,
-  tiltaksgjennomforing,
   navKontaktperson,
   enhet,
   regelverklenke,

@@ -4,18 +4,17 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
-import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import java.util.UUID
@@ -153,6 +152,9 @@ class DelMedBrukerServiceTest : FunSpec({
         }
 
         test("hent historikk over tiltak delt med bruker") {
+            val tiltakDokumentIdForEnkeltplass = UUID.randomUUID()
+            val tiltakDokumentIdForArbeidstrening = UUID.randomUUID()
+
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(
                     TiltakstypeFixtures.Oppfolging,
@@ -161,31 +163,44 @@ class DelMedBrukerServiceTest : FunSpec({
                 ),
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1.copy(navn = "Delt med bruker - tabell")),
-            ).initialize(database.api)
-
-            val sanityGjennomforingIdForEnkeltplass = UUID.randomUUID()
-            val sanityGjennomforingIdForArbeidstrening = UUID.randomUUID()
-
-            coEvery {
-                sanityService.getAllTiltak(any(), any())
-            } returns listOf(
-                SanityTiltaksgjennomforing(
-                    _id = sanityGjennomforingIdForEnkeltplass.toString(),
-                    tiltaksgjennomforingNavn = "Delt med bruker - Lokalt navn fra Sanity",
-                    tiltakstype = SanityTiltakstype(
-                        _id = UUID.randomUUID().toString(),
-                        tiltakstypeNavn = "Arbeidsmarkedsopplæring (AMO) enkeltplass",
+            ) {
+                repository.tiltakDokument.save(
+                    TiltakDokument(
+                        id = UUID.randomUUID(),
+                        sanityId = tiltakDokumentIdForArbeidstrening,
+                        navn = "Delt med bruker - Sanity",
+                        tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
+                        navEnheter = listOf(NavEnhetNummer("0300")),
+                        arrangorId = null,
+                        stedForGjennomforing = null,
+                        faneinnhold = null,
+                        beskrivelse = null,
+                        publisert = true,
+                        administratorer = emptyList(),
+                        kontaktpersoner = emptyList(),
+                        arrangorKontaktpersoner = emptyList(),
+                        tiltaksnummer = null,
                     ),
-                ),
-                SanityTiltaksgjennomforing(
-                    _id = sanityGjennomforingIdForArbeidstrening.toString(),
-                    tiltaksgjennomforingNavn = "Delt med bruker - Sanity",
-                    tiltakstype = SanityTiltakstype(
-                        _id = UUID.randomUUID().toString(),
-                        tiltakstypeNavn = "Arbeidstrening",
+                )
+                repository.tiltakDokument.save(
+                    TiltakDokument(
+                        id = UUID.randomUUID(),
+                        sanityId = tiltakDokumentIdForEnkeltplass,
+                        navn = "Delt med bruker - Lokalt navn fra Sanity",
+                        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+                        navEnheter = listOf(NavEnhetNummer("0300")),
+                        arrangorId = null,
+                        stedForGjennomforing = null,
+                        faneinnhold = null,
+                        beskrivelse = null,
+                        publisert = true,
+                        administratorer = emptyList(),
+                        kontaktpersoner = emptyList(),
+                        arrangorKontaktpersoner = emptyList(),
+                        tiltaksnummer = null,
                     ),
-                ),
-            )
+                )
+            }.initialize(database.api)
 
             val deling1 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
@@ -200,7 +215,7 @@ class DelMedBrukerServiceTest : FunSpec({
             val deling2 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
                 navIdent = NavIdent("B123456"),
-                sanityId = sanityGjennomforingIdForEnkeltplass,
+                sanityId = tiltakDokumentIdForEnkeltplass,
                 gjennomforingId = null,
                 dialogId = "2",
                 tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
@@ -210,7 +225,7 @@ class DelMedBrukerServiceTest : FunSpec({
             val deling3 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
                 navIdent = NavIdent("B123456"),
-                sanityId = sanityGjennomforingIdForArbeidstrening,
+                sanityId = tiltakDokumentIdForArbeidstrening,
                 gjennomforingId = null,
                 dialogId = "3",
                 tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,

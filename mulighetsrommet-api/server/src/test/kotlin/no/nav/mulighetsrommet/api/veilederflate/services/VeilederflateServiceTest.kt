@@ -9,10 +9,9 @@ import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.kotest.matchers.types.shouldBeTypeOf
-import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
-import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
+import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
@@ -20,12 +19,7 @@ import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
-import no.nav.mulighetsrommet.api.sanity.CacheUsage
-import no.nav.mulighetsrommet.api.sanity.SanityArrangor
-import no.nav.mulighetsrommet.api.sanity.SanityArrangorKontaktperson
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.api.sanity.SanityTiltaksgjennomforing
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet
@@ -51,44 +45,56 @@ class VeilederflateServiceTest : FunSpec({
     val tiltakstypeArbeidstrening = SanityTiltakstype(
         _id = UUID.randomUUID().toString(),
     )
-    val tiltakEnkelAmo = SanityTiltaksgjennomforing(
-        _id = "6c64a4bd-2ae1-4aee-ad19-716884bf3b5e",
-        tiltaksgjennomforingNavn = "Enkel AMO",
+
+    val tiltakEnkelAmo = TiltakDokument(
+        id = UUID.randomUUID(),
+        sanityId = "6c64a4bd-2ae1-4aee-ad19-716884bf3b5e".toUUID(),
+        navn = "Enkel AMO",
         tiltaksnummer = "2023#176408",
-        tiltakstype = tiltakstypeEnkelAmo,
-        fylke = NavEnhetNummer("0300"),
-        enheter = emptyList(),
-        arrangor = SanityArrangor(
-            _id = UUID.randomUUID(),
-            navn = "Fretex",
-            organisasjonsnummer = null,
-            kontaktpersoner = listOf(
-                SanityArrangorKontaktperson(
-                    _id = UUID.randomUUID(),
-                    navn = "Donald",
-                    telefon = "12341234",
-                    epost = "donald@fretex.no",
-                    beskrivelse = "Daglig leder",
-                ),
-            ),
-        ),
+        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+        navEnheter = listOf(NavEnhetNummer("0300")),
+        arrangorId = ArrangorFixtures.hovedenhet.id,
+        stedForGjennomforing = null,
+        faneinnhold = null,
+        beskrivelse = null,
+        publisert = true,
+        administratorer = emptyList(),
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersoner = emptyList(),
     )
-    val tiltakArbeidstrening1 = SanityTiltaksgjennomforing(
-        _id = "f21d1e35-d63b-4de7-a0a5-589e57111527",
-        tiltaksgjennomforingNavn = "Arbeidstrening Innlandet",
+
+    val tiltakArbeidstrening1 = TiltakDokument(
+        id = UUID.randomUUID(),
+        sanityId = "f21d1e35-d63b-4de7-a0a5-589e57111527".toUUID(),
+        navn = "Arbeidstrening Innlandet",
         tiltaksnummer = null,
-        tiltakstype = tiltakstypeArbeidstrening,
-        fylke = NavEnhetNummer("0400"),
-        enheter = null,
+        tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
+        navEnheter = listOf(NavEnhetNummer("0400"), NavEnhetNummer("0501")),
+        arrangorId = null,
+        stedForGjennomforing = null,
+        faneinnhold = null,
+        beskrivelse = null,
+        publisert = true,
+        administratorer = emptyList(),
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersoner = emptyList(),
     )
-    val tiltakArbeidstrening2 = SanityTiltaksgjennomforing(
-        _id = "82cebdb9-24ef-4f6d-b6b2-6ed45c67d3b6",
-        tiltaksgjennomforingNavn = "Arbeidstrening",
-        tiltaksnummer = null,
-        fylke = NavEnhetNummer("0400"),
-        tiltakstype = tiltakstypeArbeidstrening,
-        enheter = listOf(NavEnhetNummer("0501")),
+
+    val tiltakArbeidstrening2 = TiltakDokument(
+        navEnheter = listOf(NavEnhetNummer("0501"), NavEnhetNummer("0400")),
         faneinnhold = Faneinnhold(forHvemInfoboks = "infoboks"),
+        id = UUID.randomUUID(),
+        sanityId = "82cebdb9-24ef-4f6d-b6b2-6ed45c67d3b6".toUUID(),
+        navn = "Arbeidstrening",
+        tiltaksnummer = null,
+        tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
+        arrangorId = null,
+        stedForGjennomforing = null,
+        beskrivelse = null,
+        publisert = true,
+        administratorer = emptyList(),
+        kontaktpersoner = emptyList(),
+        arrangorKontaktpersoner = emptyList(),
     )
 
     val domain = MulighetsrommetTestDomain(
@@ -127,6 +133,9 @@ class VeilederflateServiceTest : FunSpec({
             GjennomforingFixtures.Oppfolging1.id,
             setOf(NavEnhetFixtures.Innlandet.enhetsnummer),
         )
+        repository.tiltakDokument.save(tiltakEnkelAmo)
+        repository.tiltakDokument.save(tiltakArbeidstrening1)
+        repository.tiltakDokument.save(tiltakArbeidstrening2)
     }
 
     beforeSpec {
@@ -134,12 +143,6 @@ class VeilederflateServiceTest : FunSpec({
     }
 
     val sanityService: SanityService = mockk(relaxed = true)
-    coEvery { sanityService.getAllTiltak(any(), any()) } returns listOf(
-        tiltakEnkelAmo,
-        tiltakArbeidstrening1,
-        tiltakArbeidstrening2,
-    )
-    coEvery { sanityService.getTiltak(tiltakArbeidstrening1._id.toUUID(), any(), any()) } returns tiltakArbeidstrening1
 
     fun createService(
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(
@@ -156,7 +159,6 @@ class VeilederflateServiceTest : FunSpec({
             db = database.api,
             tiltakstypeService = tiltakstypeService,
             sanityService = sanityService,
-            navEnhetService = NavEnhetService(SqlNavEnhetRepository(database.api.db)),
         )
     }
 
@@ -180,7 +182,6 @@ class VeilederflateServiceTest : FunSpec({
                 enheter = nonEmptyListOf(NavEnhetNummer("0501")),
                 apentForPamelding = listOf(ApentForPamelding.APENT),
                 innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-                cacheUsage = CacheUsage.NoCache,
                 erSykmeldtMedArbeidsgiver = false,
             )
 
@@ -190,14 +191,10 @@ class VeilederflateServiceTest : FunSpec({
         test("hentTiltaksgjennomforing henter gjennomføringer selv om tiltakstypen er uten VISES_I_MODIA") {
             veilederFlateService.hentTiltaksgjennomforing(
                 GjennomforingFixtures.Oppfolging1.id,
-                SanityPerspective.PUBLISHED,
-                CacheUsage.NoCache,
             ).shouldNotBeNull()
 
             veilederFlateService.hentTiltaksgjennomforing(
-                tiltakArbeidstrening1._id.toUUID(),
-                SanityPerspective.PUBLISHED,
-                CacheUsage.NoCache,
+                tiltakArbeidstrening1.sanityId!!,
             ).shouldNotBeNull()
         }
     }
@@ -209,13 +206,12 @@ class VeilederflateServiceTest : FunSpec({
             enheter = nonEmptyListOf(NavEnhetNummer("0300")),
             apentForPamelding = listOf(ApentForPamelding.APENT),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
-            cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         )
 
         tiltak.shouldHaveSize(1).first().shouldBeInstanceOf<VeilederflateTiltakEnkeltplassAnskaffet>().should {
-            it.sanityId shouldBe tiltakEnkelAmo._id
-            it.arrangor.selskapsnavn shouldBe "Fretex"
+            it.sanityId shouldBe tiltakEnkelAmo.sanityId.toString()
+            it.arrangor.selskapsnavn shouldBe "Hovedenhet AS"
         }
     }
 
@@ -230,7 +226,6 @@ class VeilederflateServiceTest : FunSpec({
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-            cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldBeEmpty()
 
@@ -242,7 +237,6 @@ class VeilederflateServiceTest : FunSpec({
             enheter = nonEmptyListOf(NavEnhetNummer("0400")),
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
-            cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldHaveSize(1).should { (first) ->
             first.shouldBeInstanceOf<VeilederflateTiltakGruppe>().id shouldBe GjennomforingFixtures.Oppfolging1.id
@@ -257,7 +251,6 @@ class VeilederflateServiceTest : FunSpec({
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
             apentForPamelding = null,
-            cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldHaveSize(1).should { (first) ->
             first.shouldBeInstanceOf<VeilederflateTiltakGruppe>().id shouldBe GjennomforingFixtures.Oppfolging1.id
@@ -268,7 +261,6 @@ class VeilederflateServiceTest : FunSpec({
             innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING_NEDSATT_ARBEIDSEVNE,
             tiltakskoder = listOf(Tiltakskode.OPPFOLGING),
             apentForPamelding = listOf(ApentForPamelding.STENGT),
-            cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldBeEmpty()
     }
@@ -280,29 +272,26 @@ class VeilederflateServiceTest : FunSpec({
             enheter = nonEmptyListOf(NavEnhetNummer("0501")),
             apentForPamelding = listOf(ApentForPamelding.APENT),
             innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-            cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldHaveSize(2).should { (first, second) ->
-            first.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening1._id
-            second.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening2._id
+            first.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening1.sanityId.toString()
+            second.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening2.sanityId.toString()
         }
 
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0501")),
             apentForPamelding = null,
             innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-            cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldHaveSize(2).should { (first, second) ->
-            first.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening1._id
-            second.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening2._id
+            first.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening1.sanityId.toString()
+            second.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening2.sanityId.toString()
         }
 
         veilederFlateService.hentTiltaksgjennomforinger(
             enheter = nonEmptyListOf(NavEnhetNummer("0501")),
             apentForPamelding = listOf(ApentForPamelding.STENGT),
             innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
-            cacheUsage = CacheUsage.NoCache,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldBeEmpty()
     }
@@ -357,118 +346,6 @@ class VeilederflateServiceTest : FunSpec({
             )
         }
 
-        test("returnerer rad fra DB når individuell gjennomforing er publisert og matcher enhet") {
-            val sanityId = tiltakEnkelAmo._id.toUUID()
-            val tiltakDokumentId = UUID.randomUUID()
-            database.run {
-                queries.tiltakDokument.save(
-                    TiltakDokument(
-                        id = tiltakDokumentId,
-                        navn = "IPS Innlandet",
-                        tiltakstypeId = TiltakstypeFixtures.IPS.id,
-                        tiltaksnummer = "2024#99001",
-                        sanityId = sanityId,
-                        stedForGjennomforing = null,
-                        arrangorId = null,
-                        faneinnhold = null,
-                        beskrivelse = null,
-                        administratorer = emptyList(),
-                        kontaktpersoner = emptyList(),
-                        arrangorKontaktpersoner = emptyList(),
-                        navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
-                        publisert = true,
-                    ),
-                )
-            }
-
-            val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
-                enheter = nonEmptyListOf(NavEnhetFixtures.Gjovik.enhetsnummer),
-                innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
-                cacheUsage = CacheUsage.NoCache,
-                erSykmeldtMedArbeidsgiver = false,
-            )
-
-            tiltak.shouldHaveSize(1).first().shouldBeInstanceOf<VeilederflateTiltakEnkeltplass>().should {
-                it.navn shouldBe "IPS Innlandet"
-                it.tiltaksnummer shouldBe "2024#99001"
-            }
-        }
-
-        test("returnerer ikke rad fra DB når individuell gjennomforing ikke er publisert") {
-            val sanityId = UUID.randomUUID()
-            database.run {
-                queries.tiltakDokument.save(
-                    TiltakDokument(
-                        id = UUID.randomUUID(),
-                        navn = "Upublisert IPS",
-                        tiltakstypeId = TiltakstypeFixtures.IPS.id,
-                        tiltaksnummer = "2024#99002",
-                        sanityId = sanityId,
-                        stedForGjennomforing = null,
-                        arrangorId = null,
-                        faneinnhold = null,
-                        beskrivelse = null,
-                        publisert = false,
-                        administratorer = emptyList(),
-                        kontaktpersoner = emptyList(),
-                        arrangorKontaktpersoner = emptyList(),
-                        navEnheter = listOf(NavEnhetFixtures.Innlandet.enhetsnummer),
-                    ),
-                )
-            }
-
-            val tiltak = veilederFlateService.hentTiltaksgjennomforinger(
-                enheter = nonEmptyListOf(NavEnhetFixtures.Gjovik.enhetsnummer),
-                innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
-                apentForPamelding = null,
-                cacheUsage = CacheUsage.NoCache,
-                erSykmeldtMedArbeidsgiver = false,
-            )
-
-            tiltak.shouldBeEmpty()
-        }
-
-        test("DB-rad skygger over Sanity-doc med samme sanityId") {
-            // tiltakArbeidstrening1 finnes i Sanity-mocken — vi lager en DB-rad med samme sanityId
-            val overlappendeSanityId = tiltakArbeidstrening1._id.toUUID()
-            val serviceWithArbeidstrening = createService() // default: inkluderer ARBEIDSTRENING
-            val dbId = UUID.randomUUID()
-            database.run {
-                queries.tiltakDokument.save(
-                    TiltakDokument(
-                        id = dbId,
-                        navn = "DB-versjon av Arbeidstrening",
-                        tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
-                        tiltaksnummer = "2024#99003",
-                        sanityId = overlappendeSanityId,
-                        stedForGjennomforing = null,
-                        arrangorId = null,
-                        faneinnhold = null,
-                        beskrivelse = null,
-                        administratorer = emptyList(),
-                        kontaktpersoner = emptyList(),
-                        arrangorKontaktpersoner = emptyList(),
-                        navEnheter = listOf(NavEnhetFixtures.Gjovik.enhetsnummer),
-                        publisert = true,
-                    ),
-                )
-            }
-
-            val tiltak = serviceWithArbeidstrening.hentTiltaksgjennomforinger(
-                enheter = nonEmptyListOf(NavEnhetFixtures.Gjovik.enhetsnummer),
-                innsatsgruppe = Innsatsgruppe.TRENGER_VEILEDNING,
-                cacheUsage = CacheUsage.NoCache,
-                erSykmeldtMedArbeidsgiver = false,
-            )
-
-            // Kun én rad — DB-versjonen. Sanity-doc med samme sanityId skal ikke dukke opp i tillegg.
-            tiltak.filter { it.navn == "Arbeidstrening Innlandet" || it.navn == "DB-versjon av Arbeidstrening" }
-                .shouldHaveSize(1)
-                .first() should {
-                it.navn shouldBe "DB-versjon av Arbeidstrening"
-            }
-        }
-
         test("hentTiltaksgjennomforing finner rad direkte på intern id") {
             val internId = UUID.randomUUID()
             database.run {
@@ -492,11 +369,7 @@ class VeilederflateServiceTest : FunSpec({
                 )
             }
 
-            val tiltak = veilederFlateService.hentTiltaksgjennomforing(
-                internId,
-                SanityPerspective.PUBLISHED,
-                CacheUsage.NoCache,
-            )
+            val tiltak = veilederFlateService.hentTiltaksgjennomforing(internId)
             tiltak.navn shouldBe "IPS direkte oppslag"
         }
 
@@ -523,11 +396,7 @@ class VeilederflateServiceTest : FunSpec({
                 )
             }
 
-            val tiltak = veilederFlateService.hentTiltaksgjennomforing(
-                sanityId,
-                SanityPerspective.PUBLISHED,
-                CacheUsage.NoCache,
-            )
+            val tiltak = veilederFlateService.hentTiltaksgjennomforing(sanityId)
             tiltak.navn shouldBe "IPS via sanityId"
         }
     }

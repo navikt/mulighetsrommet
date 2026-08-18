@@ -8,14 +8,10 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.RoutingContext
 import io.ktor.server.routing.route
-import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
-import no.nav.mulighetsrommet.api.plugins.AuthProvider
-import no.nav.mulighetsrommet.api.plugins.authenticate
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
-import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrifter
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateInnsatsgruppe
@@ -155,7 +151,6 @@ fun Route.arbeidsmarkedstiltakRoutes() {
             search = filter.search,
             apentForPamelding = filter.apentForPamelding,
             erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
-            cacheUsage = CacheUsage.UseCache,
         )
 
         call.respond(result)
@@ -182,11 +177,7 @@ fun Route.arbeidsmarkedstiltakRoutes() {
 
         val id: UUID by call.parameters
 
-        val result = veilederflateService.hentTiltaksgjennomforing(
-            id = id,
-            sanityPerspective = SanityPerspective.PUBLISHED,
-            cacheUsage = CacheUsage.UseCache,
-        )
+        val result = veilederflateService.hentTiltaksgjennomforing(id)
 
         call.respond(result)
     }
@@ -262,7 +253,6 @@ fun Route.arbeidsmarkedstiltakRoutes() {
                 search = filter.search,
                 apentForPamelding = filter.apentForPamelding,
                 erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
-                cacheUsage = CacheUsage.UseCache,
             )
 
             call.respond(result)
@@ -289,91 +279,9 @@ fun Route.arbeidsmarkedstiltakRoutes() {
         }) {
             val id: UUID by call.parameters
 
-            val result = veilederflateService.hentTiltaksgjennomforing(
-                id = id,
-                sanityPerspective = SanityPerspective.PUBLISHED,
-                cacheUsage = CacheUsage.UseCache,
-            )
+            val result = veilederflateService.hentTiltaksgjennomforing(id)
 
             call.respond(result)
-        }
-    }
-
-    authenticate(AuthProvider.NAV_ANSATT_WITH_ROLES) {
-        route("/preview") {
-            get("/gjennomforinger", {
-                tags = setOf("VeilederTiltak")
-                operationId = "getAllPreviewTiltak"
-                request {
-                    queryParameter<Innsatsgruppe>("innsatsgruppe")
-                    queryParameter<List<String>>("enheter") {
-                        explode = true
-                    }
-                    queryParameter<String>("search")
-                    queryParameter<List<ApentForPamelding>>("apentForPamelding") {
-                        explode = true
-                    }
-                    queryParameter<List<String>>("tiltakstyper") {
-                        explode = true
-                    }
-                    queryParameter<Boolean>("erSykmeldtMedArbeidsgiver")
-                }
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Alle tiltak som matcher filteret"
-                        body<List<VeilederflateTiltak>>()
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val filter = getArbeidsmarkedstiltakFilter()
-
-                val result = veilederflateService.hentTiltaksgjennomforinger(
-                    enheter = filter.enheter,
-                    innsatsgruppe = filter.innsatsgruppe,
-                    tiltakskoder = filter.tiltakstyper,
-                    search = filter.search,
-                    apentForPamelding = filter.apentForPamelding,
-                    erSykmeldtMedArbeidsgiver = filter.erSykmeldtMedArbeidsgiver,
-                    cacheUsage = CacheUsage.NoCache,
-                )
-
-                call.respond(result)
-            }
-
-            get("/gjennomforinger/{id}", {
-                tags = setOf("VeilederTiltak")
-                operationId = "getPreviewTiltak"
-                request {
-                    pathParameter<String>("id") {
-                        required = true
-                    }
-                }
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Tiltak for gitt id"
-                        body<VeilederflateTiltak>()
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val id = call.parameters.getOrFail("id")
-                    .let { UUID.fromString(it.replace("drafts.", "")) }
-
-                val result = veilederflateService.hentTiltaksgjennomforing(
-                    id = id,
-                    sanityPerspective = SanityPerspective.PREVIEW_DRAFTS,
-                    cacheUsage = CacheUsage.NoCache,
-                )
-
-                call.respond(result)
-            }
         }
     }
 }

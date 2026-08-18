@@ -76,12 +76,3 @@ export function useNavArbeidsmarkedstiltakById() {
     queryFn: () => VeilederTiltakService.getNavTiltak({ path: { id } }),
   });
 }
-
-export function usePreviewArbeidsmarkedstiltakById() {
-  const id = useTiltakIdFraUrl();
-
-  return useApiSuspenseQuery({
-    queryKey: QueryKeys.arbeidsmarkedstiltak.previewTiltakById(id),
-    queryFn: () => VeilederTiltakService.getPreviewTiltak({ path: { id } }),
-  });
-}

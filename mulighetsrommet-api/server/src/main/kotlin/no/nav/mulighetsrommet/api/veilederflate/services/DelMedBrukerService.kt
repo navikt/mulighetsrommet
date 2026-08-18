@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.veilederflate.services
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.sanity.CacheUsage
 import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.veilederflate.models.DelingMedBruker
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltMedBrukerDto
@@ -99,7 +98,7 @@ class DelMedBrukerService(
         session.list(queryOf(query, fnr.value)) { it.toDelMedBrukerDto() }
     }
 
-    suspend fun getAllTiltakDeltMedBruker(fnr: NorskIdent): List<TiltakDeltMedBrukerDto> = db.session {
+    fun getAllTiltakDeltMedBruker(fnr: NorskIdent): List<TiltakDeltMedBrukerDto> = db.session {
         @Language("PostgreSQL")
         val query = """
             select del_med_bruker.id,
@@ -116,8 +115,6 @@ class DelMedBrukerService(
                 left join gjennomforing on del_med_bruker.gjennomforing_id = gjennomforing.id
             where norsk_ident = ?
         """.trimIndent()
-
-        val tiltakFraSanity = sanityService.getAllTiltak(search = null, CacheUsage.UseCache).associateBy { it._id }
 
         val historikk = session.list(queryOf(query, fnr.value)) { row ->
             val tiltakstype = TiltakstypeDeltMedBruker(
@@ -138,7 +135,7 @@ class DelMedBrukerService(
                 }
                 ?: run {
                     val id = row.uuid("sanity_id")
-                    val navn = tiltakFraSanity[id.toString()]?.tiltaksgjennomforingNavn ?: ""
+                    val navn = db.session { queries.tiltakDokument.get(id) }?.navn ?: ""
                     TiltakDeltMedBruker(id, navn)
                 }
             TiltakDeltMedBrukerDto(tiltak, deling, tiltakstype)

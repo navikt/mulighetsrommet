@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.domain.navansatt.Rolle.TILTAKADMINISTRASJON_GE
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import java.time.LocalDate
 
@@ -37,13 +36,11 @@ class NavAnsattSyncServiceTest : FunSpec({
         database.truncateAll()
     }
 
-    val sanityService: SanityService = mockk(relaxed = true)
     val navAnsattService: NavAnsattService = mockk()
 
     fun createService() = NavAnsattSyncService(
         db = database.api,
         navAnsattService = navAnsattService,
-        sanityService = sanityService,
     )
 
     context("should schedule nav_ansatt to be deleted when they are not in the list of ansatte to sync") {
