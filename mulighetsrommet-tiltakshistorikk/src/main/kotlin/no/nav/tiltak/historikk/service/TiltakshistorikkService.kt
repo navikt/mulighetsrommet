@@ -34,11 +34,11 @@ class TiltakshistorikkService(
     private val log = LoggerFactory.getLogger(javaClass)
 
     suspend fun getTiltakshistorikk(request: TiltakshistorikkV1Request): TiltakshistorikkV1Response = coroutineScope {
-        val (identer, years) = request
+        val (identer) = request
 
-        val arenaDeltakelser = async { getHistorikkArena(identer, years) }
-        val teamKometDeltakelser = async { getHistorikkTeamKomet(identer, years) }
-        val teamTiltakAvtaler = async { getHistorikkTeamTiltak(identer, years) }
+        val arenaDeltakelser = async { getHistorikkArena(identer) }
+        val teamKometDeltakelser = async { getHistorikkTeamKomet(identer) }
+        val teamTiltakAvtaler = async { getHistorikkTeamTiltak(identer) }
 
         val deltakelser = arenaDeltakelser.await() + teamKometDeltakelser.await()
 
@@ -58,16 +58,14 @@ class TiltakshistorikkService(
 
     private fun getHistorikkTeamKomet(
         identer: List<NorskIdent>,
-        maxAgeYears: Int?,
     ): List<TiltakshistorikkV1Dto.TeamKometDeltakelse> = db.session {
-        queries.kometDeltaker.getKometHistorikk(identer, maxAgeYears)
+        queries.kometDeltaker.getKometHistorikk(identer)
     }
 
     private fun getHistorikkArena(
         identer: List<NorskIdent>,
-        maxAgeYears: Int?,
     ): List<TiltakshistorikkV1Dto.ArenaDeltakelse> = db.session {
-        val deltakelser = queries.arenaDeltaker.getArenaHistorikk(identer, maxAgeYears)
+        val deltakelser = queries.arenaDeltaker.getArenaHistorikk(identer)
 
         deltakelser.filter { deltakelse ->
             val tiltakskode = arenaKodeToTeamTiltakKode(deltakelse.tiltakstype.tiltakskode) ?: return@filter true
@@ -77,9 +75,7 @@ class TiltakshistorikkService(
 
     private suspend fun getHistorikkTeamTiltak(
         identer: List<NorskIdent>,
-        maxAgeYears: Int?,
     ): Either<NonEmptySet<TiltakshistorikkMelding>, List<TiltakshistorikkV1Dto.TeamTiltakAvtale>> {
-        val minAvtaleDato = maxAgeYears?.let { LocalDate.now().minusYears(it.toLong()) } ?: LocalDate.MIN
         return identer
             .mapOrAccumulate {
                 tiltakDatadelingClient.getAvtalerForPerson(
@@ -92,12 +88,6 @@ class TiltakshistorikkService(
                     .flatten()
                     .filter { avtale ->
                         belongsToTeamTiltak(avtale.tiltakstype, cutOffDatoMapping, avtale.sluttDato)
-                    }
-                    .filter { avtale ->
-                        val avtaleDato = avtale.sluttDato
-                            ?: avtale.startDato
-                            ?: avtale.opprettetTidspunkt.toLocalDate()
-                        !avtaleDato.isBefore(minAvtaleDato)
                     }
                     .map { avtale ->
                         val tiltakstype = getTiltakstype(avtale.tiltakstype)
