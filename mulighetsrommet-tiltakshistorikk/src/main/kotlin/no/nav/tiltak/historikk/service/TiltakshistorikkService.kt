@@ -137,6 +137,8 @@ private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: Tiltakstype, arbeids
     norskIdent = avtale.deltakerFnr,
     startDato = avtale.startDato,
     sluttDato = avtale.sluttDato,
+    opprettetTidspunkt = avtale.opprettetTidspunkt.toInstant(),
+    oppdatertTidspunkt = avtale.endretTidspunkt.toInstant(),
     id = avtale.avtaleId,
     tittel = Tiltaksnavn.hosTitleCaseVirksomhet(tiltakstype.navn, arbeidsgiver?.navn),
     tiltakstype = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakstype(

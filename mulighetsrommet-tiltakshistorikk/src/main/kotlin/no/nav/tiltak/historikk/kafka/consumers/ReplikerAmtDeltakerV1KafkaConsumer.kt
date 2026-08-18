@@ -43,8 +43,8 @@ class ReplikerAmtDeltakerV1KafkaConsumer(
                 val incoming = amtDeltaker.toKometDeltaker()
                 val stored = queries.kometDeltaker.get(key)
 
-                if (stored != null && incoming.endretTidspunkt < stored.endretTidspunkt) {
-                    logger.info("Hopper over deltaker med id=$key fordi innkommende endretTidspunkt er eldre enn lagret")
+                if (stored != null && incoming.oppdatertTidspunkt < stored.oppdatertTidspunkt) {
+                    logger.info("Hopper over deltaker med id=$key fordi innkommende oppdatertTidspunkt er eldre enn lagret")
                     return@session
                 }
 
@@ -67,8 +67,8 @@ fun AmtDeltakerV1Dto.toKometDeltaker() = KometDeltaker(
     statusType = status.type,
     statusOpprettetTidspunkt = status.opprettetDato,
     statusAarsak = status.aarsak,
-    registrertTidspunkt = registrertDato.truncatedTo(ChronoUnit.MICROS),
-    endretTidspunkt = endretDato.truncatedTo(ChronoUnit.MICROS),
+    opprettetTidspunkt = registrertDato.truncatedTo(ChronoUnit.MICROS),
+    oppdatertTidspunkt = endretDato.truncatedTo(ChronoUnit.MICROS),
     dagerPerUke = dagerPerUke,
     prosentStilling = prosentStilling,
 )

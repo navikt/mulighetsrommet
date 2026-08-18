@@ -11,9 +11,11 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -47,6 +49,16 @@ sealed class TiltakshistorikkV1Dto {
      * Sluttdato i tiltaket.
      */
     abstract val sluttDato: LocalDate?
+
+    /**
+     * Tidspunkt for når deltakelsen ble opprettet i kildesystemet.
+     */
+    abstract val opprettetTidspunkt: Instant
+
+    /**
+     * Tidspunkt for siste endring av deltakelsen i kildesystemet.
+     */
+    abstract val oppdatertTidspunkt: Instant
 
     /**
      * Beskrivende tittel/leslig navn for tiltaksdeltakelsen.
@@ -119,6 +131,10 @@ sealed class TiltakshistorikkV1Dto {
         override val startDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
+        @Serializable(with = InstantSerializer::class)
+        override val opprettetTidspunkt: Instant,
+        @Serializable(with = InstantSerializer::class)
+        override val oppdatertTidspunkt: Instant,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val tittel: String,
@@ -147,6 +163,10 @@ sealed class TiltakshistorikkV1Dto {
         override val startDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
+        @Serializable(with = InstantSerializer::class)
+        override val opprettetTidspunkt: Instant,
+        @Serializable(with = InstantSerializer::class)
+        override val oppdatertTidspunkt: Instant,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val tittel: String,
@@ -185,6 +205,10 @@ sealed class TiltakshistorikkV1Dto {
         override val startDato: LocalDate?,
         @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
+        @Serializable(with = InstantSerializer::class)
+        override val opprettetTidspunkt: Instant,
+        @Serializable(with = InstantSerializer::class)
+        override val oppdatertTidspunkt: Instant,
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val tittel: String,

@@ -32,6 +32,7 @@ import no.nav.tiltak.historikk.kafka.consumers.toGjennomforing
 import no.nav.tiltak.historikk.kafka.consumers.toKometDeltaker
 import no.nav.tiltak.historikk.plugins.ACCESS_AS_APPLICATION
 import no.nav.tiltak.historikk.plugins.TiltakshistorikkReadRoles
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -159,6 +160,8 @@ class TiltakshistorikkTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2023, 1, 1),
                         sluttDato = LocalDate.of(2023, 1, 31),
+                        opprettetTidspunkt = Instant.parse("2023-12-31T23:00:00Z"),
+                        oppdatertTidspunkt = Instant.parse("2023-12-31T23:00:00Z"),
                         tittel = "Arbeidstrening hos Arrangør",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "ARBTREN",
@@ -183,6 +186,8 @@ class TiltakshistorikkTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
+                        opprettetTidspunkt = Instant.parse("2023-12-31T23:00:00Z"),
+                        oppdatertTidspunkt = Instant.parse("2023-12-31T23:00:00Z"),
                         tittel = "Mentor hos Arrangør",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "MENTOR",
@@ -207,6 +212,8 @@ class TiltakshistorikkTest : FunSpec({
                         status = ArenaDeltakerStatus.GJENNOMFORES,
                         startDato = LocalDate.of(2024, 2, 1),
                         sluttDato = LocalDate.of(2024, 2, 29),
+                        opprettetTidspunkt = Instant.parse("2023-12-31T23:00:00Z"),
+                        oppdatertTidspunkt = Instant.parse("2023-12-31T23:00:00Z"),
                         tittel = "Arbeidsmarkedsopplæring (AMO) hos Arrangør",
                         tiltakstype = TiltakshistorikkV1Dto.ArenaDeltakelse.Tiltakstype(
                             tiltakskode = "AMO",
@@ -228,6 +235,8 @@ class TiltakshistorikkTest : FunSpec({
                         norskIdent = NorskIdent("12345678910"),
                         startDato = LocalDate.of(2024, 1, 1),
                         sluttDato = LocalDate.of(2024, 12, 31),
+                        opprettetTidspunkt = Instant.parse("2022-12-31T23:00:00Z"),
+                        oppdatertTidspunkt = Instant.parse("2022-12-31T23:00:00Z"),
                         id = TEAM_TILTAK_ARBEIDSTRENING_ID,
                         tittel = "Arbeidstrening hos Arbeidsgiver",
                         tiltakstype = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakstype(
@@ -247,6 +256,8 @@ class TiltakshistorikkTest : FunSpec({
                         id = TEAM_KOMET_GRUPPE_AMO_ID,
                         startDato = null,
                         sluttDato = null,
+                        opprettetTidspunkt = Instant.parse("2002-02-28T23:00:00Z"),
+                        oppdatertTidspunkt = Instant.parse("2002-02-28T23:00:00Z"),
                         tittel = "Arbeidsmarkedsopplæring (gruppe) hos Arrangør",
                         status = TiltakshistorikkV1Dto.TeamKometDeltakelse.Status(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,

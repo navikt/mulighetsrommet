@@ -15,8 +15,8 @@ data class KometDeltaker(
     val statusType: DeltakerStatusType,
     val statusOpprettetTidspunkt: LocalDateTime,
     val statusAarsak: DeltakerStatusAarsakType?,
-    val registrertTidspunkt: LocalDateTime,
-    val endretTidspunkt: LocalDateTime,
+    val opprettetTidspunkt: LocalDateTime,
+    val oppdatertTidspunkt: LocalDateTime,
     val dagerPerUke: Float?,
     val prosentStilling: Float?,
 )
