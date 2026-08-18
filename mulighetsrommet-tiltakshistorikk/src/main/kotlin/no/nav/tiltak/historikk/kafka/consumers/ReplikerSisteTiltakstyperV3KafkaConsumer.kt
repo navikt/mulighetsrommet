@@ -8,7 +8,7 @@ import no.nav.mulighetsrommet.api.contracts.tiltakstype.TiltakstypeV3Dto
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import no.nav.tiltak.historikk.db.queries.TiltakstypeDbo
+import no.nav.tiltak.historikk.model.Tiltakstype
 import java.util.UUID
 
 class ReplikerSisteTiltakstyperV3KafkaConsumer(
@@ -19,11 +19,11 @@ class ReplikerSisteTiltakstyperV3KafkaConsumer(
 ) {
     override suspend fun consume(key: UUID, message: JsonElement): Unit = db.session {
         val tiltakstype = Json.decodeFromJsonElement<TiltakstypeV3Dto>(message)
-        queries.tiltakstype.upsert(tiltakstype.toTiltakstypeDbo())
+        queries.tiltakstype.upsert(tiltakstype.toTiltakstype())
     }
 }
 
-private fun TiltakstypeV3Dto.toTiltakstypeDbo(): TiltakstypeDbo = TiltakstypeDbo(
+private fun TiltakstypeV3Dto.toTiltakstype(): Tiltakstype = Tiltakstype(
     navn = navn,
     tiltakskode = tiltakskode.name,
     arenaTiltakskode = tiltakskode.arenakode,

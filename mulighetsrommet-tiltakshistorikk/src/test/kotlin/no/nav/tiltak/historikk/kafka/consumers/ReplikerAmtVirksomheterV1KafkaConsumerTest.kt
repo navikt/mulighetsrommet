@@ -14,7 +14,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListe
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
+import no.nav.tiltak.historikk.model.Virksomhet
 import no.nav.tiltak.historikk.service.VirksomhetService
 
 class ReplikerAmtVirksomheterV1KafkaConsumerTest : FunSpec({
@@ -28,14 +28,14 @@ class ReplikerAmtVirksomheterV1KafkaConsumerTest : FunSpec({
         overordnetEnhetOrganisasjonsnummer = overordnetEnhetOrganisasjonsnummer,
     )
 
-    var virksomhetOverordnetEnhet = VirksomhetDbo(
+    var virksomhetOverordnetEnhet = Virksomhet(
         organisasjonsnummer = overordnetEnhetOrganisasjonsnummer,
         navn = "Overordnet enhet",
         overordnetEnhetOrganisasjonsnummer = null,
         organisasjonsform = "AS",
         slettetDato = null,
     )
-    var virksomhet = VirksomhetDbo(
+    var virksomhet = Virksomhet(
         organisasjonsnummer = organisasjonsnummer,
         navn = "Gammelt navn",
         overordnetEnhetOrganisasjonsnummer = overordnetEnhetOrganisasjonsnummer,

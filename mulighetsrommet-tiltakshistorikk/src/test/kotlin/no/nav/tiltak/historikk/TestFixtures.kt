@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.tiltak.historikk.db.queries.TiltakstypeDbo
-import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
+import no.nav.tiltak.historikk.model.Tiltakstype
+import no.nav.tiltak.historikk.model.Virksomhet
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -18,7 +18,7 @@ import java.util.UUID
 
 object TestFixtures {
     object Tiltakstype {
-        val gruppeAmo = TiltakstypeDbo(
+        val gruppeAmo = Tiltakstype(
             navn = "Arbeidsmarkedsopplæring (gruppe)",
             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING.name,
             arenaTiltakskode = "GRUPPEAMO",
@@ -27,7 +27,7 @@ object TestFixtures {
             ),
         )
 
-        val enkelAmo = TiltakstypeDbo(
+        val enkelAmo = Tiltakstype(
             navn = "Arbeidsmarkedsopplæring (enkeltplass)",
             tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING.name,
             arenaTiltakskode = "ENKELAMO",
@@ -36,7 +36,7 @@ object TestFixtures {
             ),
         )
 
-        val amo = TiltakstypeDbo(
+        val amo = Tiltakstype(
             navn = "Arbeidsmarkedsopplæring (AMO)",
             tiltakskode = null,
             arenaTiltakskode = "AMO",
@@ -45,7 +45,7 @@ object TestFixtures {
             ),
         )
 
-        val mentor = TiltakstypeDbo(
+        val mentor = Tiltakstype(
             navn = "Mentor",
             tiltakskode = "MENTOR",
             arenaTiltakskode = "MENTOR",
@@ -54,7 +54,7 @@ object TestFixtures {
             ),
         )
 
-        val arbeidstrening = TiltakstypeDbo(
+        val arbeidstrening = Tiltakstype(
             navn = "Arbeidstrening",
             tiltakskode = "ARBEIDSTRENING",
             arenaTiltakskode = "ARBTREN",
@@ -65,7 +65,7 @@ object TestFixtures {
     }
 
     object Virksomhet {
-        val arrangorHovedenhet = VirksomhetDbo(
+        val arrangorHovedenhet = Virksomhet(
             organisasjonsnummer = Organisasjonsnummer("912345678"),
             overordnetEnhetOrganisasjonsnummer = null,
             navn = "Arrangør Foretak",
@@ -73,7 +73,7 @@ object TestFixtures {
             slettetDato = null,
         )
 
-        val arrangor = VirksomhetDbo(
+        val arrangor = Virksomhet(
             organisasjonsnummer = Organisasjonsnummer("987654321"),
             overordnetEnhetOrganisasjonsnummer = null,
             navn = "Arrangør",
@@ -81,7 +81,7 @@ object TestFixtures {
             slettetDato = null,
         )
 
-        val arbeidsgiver = VirksomhetDbo(
+        val arbeidsgiver = Virksomhet(
             organisasjonsnummer = Organisasjonsnummer("876543210"),
             overordnetEnhetOrganisasjonsnummer = null,
             navn = "Arbeidsgiver",

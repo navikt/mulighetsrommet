@@ -4,26 +4,13 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.tiltak.historikk.model.Gjennomforing
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
-data class GjennomforingDbo(
-    val id: UUID,
-    val type: GjennomforingType,
-    val tiltakskode: Tiltakskode,
-    val arrangorOrganisasjonsnummer: String,
-    val navn: String?,
-    val deltidsprosent: Double?,
-)
-
-enum class GjennomforingType {
-    GRUPPE,
-    ENKELTPLASS,
-}
-
 class GjennomforingQueries(private val session: Session) {
 
-    fun upsert(gjennomforing: GjennomforingDbo) {
+    fun upsert(gjennomforing: Gjennomforing) {
         @Language("PostgreSQL")
         val query = """
             insert into gjennomforing(
@@ -71,7 +58,7 @@ class GjennomforingQueries(private val session: Session) {
         session.execute(queryOf(query, id))
     }
 
-    fun get(id: UUID): GjennomforingDbo? {
+    fun get(id: UUID): Gjennomforing? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -79,13 +66,13 @@ class GjennomforingQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, id)) { it.toGjennomforingDbo() }
+        return session.single(queryOf(query, id)) { it.toGjennomforing() }
     }
 }
 
-private fun Row.toGjennomforingDbo() = GjennomforingDbo(
+private fun Row.toGjennomforing() = Gjennomforing(
     id = uuid("id"),
-    type = GjennomforingType.valueOf(string("gjennomforing_type")),
+    type = Gjennomforing.Type.valueOf(string("gjennomforing_type")),
     tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
     arrangorOrganisasjonsnummer = string("arrangor_organisasjonsnummer"),
     navn = stringOrNull("navn"),

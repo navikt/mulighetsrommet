@@ -4,26 +4,15 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.tiltak.historikk.clients.Avtale
+import no.nav.tiltak.historikk.model.Tiltakstype
 import org.intellij.lang.annotations.Language
-import java.util.UUID
-
-data class TiltakstypeDbo(
-    val navn: String,
-    val tiltakskode: String?,
-    val arenaTiltakskode: String?,
-    val tiltakstypeId: UUID,
-)
 
 class TiltakstypeQueries(private val session: Session) {
-    fun upsert(tiltakstype: TiltakstypeDbo) {
+    fun upsert(tiltakstype: Tiltakstype) {
         @Language("PostgreSQL")
         val query = """
             insert into tiltakstype(arena_tiltakskode, tiltakskode, navn, tiltakstype_id)
-            values (
-            :arena_tiltakskode,
-            :tiltakskode,
-            :navn,
-            :tiltakstype_id::uuid)
+            values (:arena_tiltakskode, :tiltakskode, :navn, :tiltakstype_id::uuid)
             on conflict (tiltakstype_id) do update
                 set arena_tiltakskode = excluded.arena_tiltakskode,
                     navn = excluded.navn,
@@ -42,7 +31,7 @@ class TiltakstypeQueries(private val session: Session) {
         )
     }
 
-    fun getByTiltakskode(tiltakstype: Avtale.Tiltakstype): TiltakstypeDbo {
+    fun getByTiltakskode(tiltakstype: Avtale.Tiltakstype): Tiltakstype {
         @Language("PostgreSQL")
         val query = """
             select navn, tiltakskode, arena_tiltakskode, tiltakstype_id
@@ -50,7 +39,7 @@ class TiltakstypeQueries(private val session: Session) {
             where tiltakskode = ?
         """.trimIndent()
         return session.requireSingle(queryOf(query, tiltakstype.name)) { row ->
-            TiltakstypeDbo(
+            Tiltakstype(
                 navn = row.string("navn"),
                 tiltakskode = row.string("tiltakskode"),
                 arenaTiltakskode = row.stringOrNull("arena_tiltakskode"),

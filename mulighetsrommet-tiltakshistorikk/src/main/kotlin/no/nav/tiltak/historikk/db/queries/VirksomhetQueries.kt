@@ -3,20 +3,12 @@ package no.nav.tiltak.historikk.db.queries
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.tiltak.historikk.model.Virksomhet
 import org.intellij.lang.annotations.Language
-import java.time.LocalDate
-
-data class VirksomhetDbo(
-    val organisasjonsnummer: Organisasjonsnummer,
-    val overordnetEnhetOrganisasjonsnummer: Organisasjonsnummer?,
-    val navn: String?,
-    val organisasjonsform: String?,
-    val slettetDato: LocalDate?,
-)
 
 class VirksomhetQueries(private val session: Session) {
 
-    fun upsert(virksomhet: VirksomhetDbo) {
+    fun upsert(virksomhet: Virksomhet) {
         @Language("PostgreSQL")
         val query = """
             insert into virksomhet (organisasjonsnummer, overordnet_enhet_organisasjonsnummer, navn, organisasjonsform, slettet_dato)
@@ -39,7 +31,7 @@ class VirksomhetQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun get(organisasjonsnummer: Organisasjonsnummer): VirksomhetDbo? {
+    fun get(organisasjonsnummer: Organisasjonsnummer): Virksomhet? {
         @Language("PostgreSQL")
         val query = """
             select organisasjonsnummer, overordnet_enhet_organisasjonsnummer, navn, organisasjonsform, slettet_dato
@@ -48,7 +40,7 @@ class VirksomhetQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(query, organisasjonsnummer.value)) { row ->
-            VirksomhetDbo(
+            Virksomhet(
                 organisasjonsnummer = Organisasjonsnummer(row.string("organisasjonsnummer")),
                 overordnetEnhetOrganisasjonsnummer = row.stringOrNull("overordnet_enhet_organisasjonsnummer")?.let {
                     Organisasjonsnummer(it)
