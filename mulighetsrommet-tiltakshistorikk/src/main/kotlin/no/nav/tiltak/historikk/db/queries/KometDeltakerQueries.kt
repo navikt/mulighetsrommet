@@ -193,7 +193,7 @@ private fun Row.toTeamKometDeltakelse(): TiltakshistorikkV1Dto.TeamKometDeltakel
             aarsak = stringOrNull("status_aarsak")?.let { aarsak ->
                 DeltakerStatusAarsakType.valueOf(aarsak)
             },
-            opprettetDato = localDateTime("status_opprettet_tidspunkt"),
+            opprettetTidspunkt = localDateTime("status_opprettet_tidspunkt"),
         ),
         tiltakstype = tiltakstype,
         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
