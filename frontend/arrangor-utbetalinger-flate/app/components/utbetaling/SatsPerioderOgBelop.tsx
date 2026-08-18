@@ -14,7 +14,7 @@ export function SatsPerioderOgBelop({
   return (
     <Box width="50%">
       <Heading level="3" size="medium">
-        Beregning
+        Utbetaling
       </Heading>
       {satsDetaljer.map((s) => (
         <Box key={s.header} marginBlock="space-8 space-0">
