@@ -16,9 +16,6 @@ import no.nav.mulighetsrommet.api.persistence.truncateTablesWithDynamicData
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
-import org.assertj.db.api.Assertions
-import org.assertj.db.api.TableAssert
-import org.assertj.db.type.AssertDbConnectionFactory
 
 class ApiDatabaseTestListener(
     private val config: DatabaseConfig = ApplicationConfigTest.database,
@@ -57,12 +54,6 @@ class ApiDatabaseTestListener(
     override suspend fun afterSpec(spec: Spec) {
         truncateAll()
         delegate?.close()
-    }
-
-    fun assertTable(tableName: String): TableAssert {
-        val connection = AssertDbConnectionFactory.of(api.getDatasource()).create()
-        val table = connection.table(tableName).build()
-        return Assertions.assertThat(table)
     }
 
     inline fun <T> run(block: TransactionalQueryContext.(TransactionalSession) -> T): T = api.transaction {

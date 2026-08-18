@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.coVerify
 import io.mockk.spyk
 import kotlinx.serialization.json.JsonObject
@@ -88,9 +89,10 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
 
-            database.assertTable("arena_events").row()
-                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
-                .value("message").isNull
+            events.get(table, pendingEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Processed
+                it?.message shouldBe null
+            }
         }
 
         test("should handle multiple processors for the same event") {
@@ -109,9 +111,10 @@ class ArenaEventServiceTest : FunSpec({
                 processor2.handleEvent(pendingEvent)
             }
 
-            database.assertTable("arena_events").row()
-                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
-                .value("message").isNull
+            events.get(table, pendingEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Processed
+                it?.message shouldBe null
+            }
         }
 
         test("should not replay dependent events when event gets processed successfully") {
@@ -170,25 +173,25 @@ class ArenaEventServiceTest : FunSpec({
             }
 
             // Verifiser tilstand i underliggende tabeller
-            database.assertTable("arena_events")
-                .row()
-                .value("arena_id").isEqualTo(processedEvent.arenaId)
-                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
-                .value("message").isNull
-                .row()
-                .value("arena_id").isEqualTo(dependentEvent.arenaId)
-                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
-                .value("message").isNull
+            events.get(table, processedEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Processed
+                it?.message shouldBe null
+            }
+            events.get(table, dependentEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Processed
+                it?.message shouldBe null
+            }
 
-            database.assertTable("arena_entity_mapping")
-                .row()
-                .value("entity_id").isEqualTo(processedEventMapping.entityId)
-                .value("status").isEqualTo(Handled.name)
-                .value("message").isNull
-                .row()
-                .value("entity_id").isEqualTo(dependentEventMapping.entityId)
-                .value("status").isEqualTo(Handled.name)
-                .value("message").isNull
+            entitiesRepository.get(table, processedEvent.arenaId).let {
+                it?.entityId shouldBe processedEventMapping.entityId
+                it?.status shouldBe Handled
+                it?.message shouldBe null
+            }
+            entitiesRepository.get(table, dependentEvent.arenaId).let {
+                it?.entityId shouldBe dependentEventMapping.entityId
+                it?.status shouldBe Handled
+                it?.message shouldBe null
+            }
         }
 
         test("should replay dependent events when entity transitions from Ignored to Handled") {
@@ -271,9 +274,10 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
 
-            database.assertTable("arena_events").row()
-                .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
-                .value("message").isEqualTo("Event processing failed: :(")
+            events.get(table, pendingEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Failed
+                it?.message shouldBe "Event processing failed: :("
+            }
         }
 
         test("should not process the event by a second processor when the first processor fails to handle the event") {
@@ -293,9 +297,10 @@ class ArenaEventServiceTest : FunSpec({
                 processor2.handleEvent(any())
             }
 
-            database.assertTable("arena_events").row()
-                .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
-                .value("message").isEqualTo("Event processing failed: :(")
+            events.get(table, pendingEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Failed
+                it?.message shouldBe "Event processing failed: :("
+            }
         }
 
         test("should not process the event by a second processor when the first processor marks the entity as Ignored") {
@@ -315,12 +320,14 @@ class ArenaEventServiceTest : FunSpec({
                 processor2.handleEvent(any())
             }
 
-            database.assertTable("arena_events").row()
-                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
-                .value("message").isNull
-            database.assertTable("arena_entity_mapping").row()
-                .value("status").isEqualTo(Ignored.name)
-                .value("message").isEqualTo(":/")
+            events.get(table, pendingEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Processed
+                it?.message shouldBe null
+            }
+            entitiesRepository.get(table, pendingEvent.arenaId).let {
+                it?.status shouldBe Ignored
+                it?.message shouldBe ":/"
+            }
         }
 
         test("should not process the event when it's rejected by a all processors") {
@@ -333,8 +340,7 @@ class ArenaEventServiceTest : FunSpec({
                 processor.handleEvent(any())
             }
 
-            database.assertTable("arena_events").row()
-                .value("processing_status").isEqualTo(ProcessingStatus.Pending.name)
+            events.get(table, pendingEvent.arenaId)?.status shouldBe ProcessingStatus.Pending
         }
 
         test("should save the event as Failed when processing fails with an exception") {
@@ -345,9 +351,10 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEvent)
 
-            database.assertTable("arena_events").row()
-                .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
-                .value("message").isEqualTo("Oh no!")
+            events.get(table, pendingEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Failed
+                it?.message shouldBe "Oh no!"
+            }
         }
 
         test("should delete the entity if it was upserted but now should be ignored") {
@@ -365,11 +372,11 @@ class ArenaEventServiceTest : FunSpec({
                 processor.deleteEntity(processedEvent)
             }
 
-            database.assertTable("arena_events").row()
-                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
-            database.assertTable("arena_entity_mapping").row()
-                .value("status").isEqualTo(Ignored.name)
-                .value("message").isEqualTo("test")
+            events.get(table, processedEvent.arenaId)?.status shouldBe ProcessingStatus.Processed
+            entitiesRepository.get(table, processedEvent.arenaId).let {
+                it?.status shouldBe Ignored
+                it?.message shouldBe "test"
+            }
         }
 
         test("should save the event as Failed when delete fails") {
@@ -391,13 +398,15 @@ class ArenaEventServiceTest : FunSpec({
                 processor.deleteEntity(processedEvent)
             }
 
-            database.assertTable("arena_events").row()
-                .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
-                .value("message").isEqualTo("Event processing failed: :(")
-            database.assertTable("arena_entity_mapping").row()
-                .value("entity_id").isEqualTo(processedEventMapping.entityId)
-                .value("status").isEqualTo(Handled.name)
-                .value("message").isNull
+            events.get(table, processedEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Failed
+                it?.message shouldBe "Event processing failed: :("
+            }
+            entitiesRepository.get(table, processedEvent.arenaId).let {
+                it?.entityId shouldBe processedEventMapping.entityId
+                it?.status shouldBe Handled
+                it?.message shouldBe null
+            }
         }
 
         test("should replay dependent events when delete fails with a foreign key violation") {
@@ -452,24 +461,24 @@ class ArenaEventServiceTest : FunSpec({
             }
 
             // Verifiser tilstand i underliggende tabeller
-            database.assertTable("arena_events")
-                .row()
-                .value("arena_id").isEqualTo(dependentEvent.arenaId)
-                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
-                .value("message").isNull
-                .row()
-                .value("arena_id").isEqualTo(processedEvent.arenaId)
-                .value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
-                .value("message").isEqualTo("Dependent event has not yet been processed: :(")
-            database.assertTable("arena_entity_mapping")
-                .row()
-                .value("entity_id").isEqualTo(dependentEventMapping.entityId)
-                .value("status").isEqualTo(Handled.name)
-                .value("message").isNull
-                .row()
-                .value("entity_id").isEqualTo(processedEventMapping.entityId)
-                .value("status").isEqualTo(Handled.name)
-                .value("message").isNull
+            events.get(dependentEvent.arenaTable, dependentEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Processed
+                it?.message shouldBe null
+            }
+            events.get(processedEvent.arenaTable, processedEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Failed
+                it?.message shouldBe "Dependent event has not yet been processed: :("
+            }
+            entitiesRepository.get(dependentEvent.arenaTable, dependentEvent.arenaId).let {
+                it?.entityId shouldBe dependentEventMapping.entityId
+                it?.status shouldBe Handled
+                it?.message shouldBe null
+            }
+            entitiesRepository.get(processedEvent.arenaTable, processedEvent.arenaId).let {
+                it?.entityId shouldBe processedEventMapping.entityId
+                it?.status shouldBe Handled
+                it?.message shouldBe null
+            }
         }
 
         test("should not delete the entity if it was unhandled but now should be ignored") {
@@ -485,11 +494,11 @@ class ArenaEventServiceTest : FunSpec({
                 processor.deleteEntity(pendingEvent)
             }
 
-            database.assertTable("arena_events").row()
-                .value("processing_status").isEqualTo(ProcessingStatus.Processed.name)
-                .value("message").isNull
-            database.assertTable("arena_entity_mapping").row()
-                .value("status").isEqualTo(Ignored.name)
+            events.get(table, pendingEvent.arenaId).let {
+                it?.status shouldBe ProcessingStatus.Processed
+                it?.message shouldBe null
+            }
+            entitiesRepository.get(table, pendingEvent.arenaId)?.status shouldBe Ignored
         }
 
         test("should use EKSTERN_ID if exists for table Tiltaksgjennomforing") {
@@ -498,9 +507,10 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEventWithEksternId.copy(arenaTable = ArenaTable.Tiltaksgjennomforing))
 
-            database.assertTable("arena_entity_mapping").row()
-                .value("entity_id").isEqualTo(eksternId)
-                .value("arena_id").isEqualTo(pendingEventWithEksternId.arenaId)
+            entitiesRepository.get(ArenaTable.Tiltaksgjennomforing, pendingEventWithEksternId.arenaId).let {
+                it?.entityId shouldBe eksternId
+                it?.arenaId shouldBe pendingEventWithEksternId.arenaId
+            }
         }
 
         test("should not EKSTERN_ID if exists for other tables than Tiltaksgjennomforing") {
@@ -509,9 +519,10 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(processor), entities = entities)
             service.processEvent(pendingEventWithEksternId)
 
-            database.assertTable("arena_entity_mapping").row()
-                .value("entity_id").isNotEqualTo(eksternId)
-                .value("arena_id").isEqualTo(pendingEventWithEksternId.arenaId)
+            entitiesRepository.get(pendingEventWithEksternId.arenaTable, pendingEventWithEksternId.arenaId).let {
+                it?.entityId shouldNotBe eksternId
+                it?.arenaId shouldBe pendingEventWithEksternId.arenaId
+            }
         }
     }
 
@@ -552,10 +563,9 @@ class ArenaEventServiceTest : FunSpec({
             val service = ArenaEventService(events = events, processors = listOf(), entities = entities)
             service.setReplayStatusForEvents(table, Handled)
 
-            database.assertTable("arena_events")
-                .row().value("processing_status").isEqualTo(ProcessingStatus.Pending.name)
-                .row().value("processing_status").isEqualTo(ProcessingStatus.Replay.name)
-                .row().value("processing_status").isEqualTo(ProcessingStatus.Failed.name)
+            events.get(table, pendingEvent.arenaId)?.status shouldBe ProcessingStatus.Pending
+            events.get(table, processedEvent.arenaId)?.status shouldBe ProcessingStatus.Replay
+            events.get(table, failedEvent.arenaId)?.status shouldBe ProcessingStatus.Failed
         }
     }
 
@@ -589,9 +599,8 @@ class ArenaEventServiceTest : FunSpec({
                 processor.handleEvent(any())
             }
 
-            database.assertTable("arena_events")
-                .row().value("retries").isEqualTo(0)
-                .row().value("retries").isEqualTo(0)
+            events.get(table, pendingEvent.arenaId)?.retries shouldBe 0
+            events.get(table, processedEvent.arenaId)?.retries shouldBe 0
         }
 
         test("should retry events that has been retried less times than the configured maxRetries") {
@@ -611,9 +620,8 @@ class ArenaEventServiceTest : FunSpec({
                 processor.handleEvent(any())
             }
 
-            database.assertTable("arena_events")
-                .row().value("retries").isEqualTo(1)
-                .row().value("retries").isEqualTo(1)
+            events.get(table, pendingEvent.arenaId)?.retries shouldBe 1
+            events.get(table, processedEvent.arenaId)?.retries shouldBe 1
         }
     }
 

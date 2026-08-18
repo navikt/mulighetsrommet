@@ -145,9 +145,9 @@ class VedtaksbrevTaskTest : FunSpec({
 
         task.distribuerDok(behandlingId).shouldBeRight().bestillingsId shouldBe "BEST-1"
 
-        database.assertTable("tilskudd_behandling")
-            .row()
-            .value("vedtak_journalpost_distribuering_id").isEqualTo("BEST-1")
+        database.api.session {
+            queries.tilskuddBehandling.getVedtakJournalpostDistribueringId(behandlingId) shouldBe "BEST-1"
+        }
 
         coVerify(exactly = 1) {
             dokdistClient.distribuerJournalpost(

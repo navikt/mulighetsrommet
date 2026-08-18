@@ -84,7 +84,7 @@ class DelMedBrukerService(
 
         val params = mapOf("norsk_ident" to fnr.value, "id" to sanityOrGjennomforingId)
 
-        session.single(queryOf(query, params)) { it.toDelMedBruker() }
+        session.single(queryOf(query, params)) { it.toDelMedBrukerDto() }
     }
 
     fun getAllDistinctDelingMedBruker(fnr: NorskIdent): List<DeltMedBrukerDto> = db.session {
@@ -96,7 +96,7 @@ class DelMedBrukerService(
             order by gjennomforing_id, sanity_id, created_at desc
         """.trimIndent()
 
-        session.list(queryOf(query, fnr.value)) { it.toDelMedBruker() }
+        session.list(queryOf(query, fnr.value)) { it.toDelMedBrukerDto() }
     }
 
     suspend fun getAllTiltakDeltMedBruker(fnr: NorskIdent): List<TiltakDeltMedBrukerDto> = db.session {
@@ -148,7 +148,7 @@ class DelMedBrukerService(
     }
 }
 
-private fun Row.toDelMedBruker() = DeltMedBrukerDto(
+private fun Row.toDelMedBrukerDto() = DeltMedBrukerDto(
     tiltakId = uuid("tiltak_id"),
     deling = DelingMedBruker(
         dialogId = string("dialog_id"),

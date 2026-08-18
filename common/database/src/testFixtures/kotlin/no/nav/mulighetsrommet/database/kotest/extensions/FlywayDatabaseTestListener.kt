@@ -9,11 +9,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
-import org.assertj.db.api.Assertions
-import org.assertj.db.api.RequestAssert
-import org.assertj.db.api.TableAssert
-import org.assertj.db.type.AssertDbConnectionFactory
-import org.intellij.lang.annotations.Language
 
 class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpecListener, AfterSpecListener {
     private var delegate: Database? = null
@@ -41,18 +36,6 @@ class FlywayDatabaseTestListener(private val config: DatabaseConfig) : BeforeSpe
     override suspend fun afterSpec(spec: Spec) {
         truncateAll()
         delegate?.close()
-    }
-
-    fun assertTable(tableName: String): TableAssert {
-        val connection = AssertDbConnectionFactory.of(db.getDatasource()).create()
-        val table = connection.table(tableName).build()
-        return Assertions.assertThat(table)
-    }
-
-    fun assertRequest(@Language("PostgreSQL") sql: String): RequestAssert {
-        val connection = AssertDbConnectionFactory.of(db.getDatasource()).create()
-        val request = connection.request(sql).build()
-        return Assertions.assertThat(request)
     }
 
     inline fun <T> run(block: (TransactionalSession) -> T): T = db.transaction {

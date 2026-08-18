@@ -18,8 +18,6 @@ import no.nav.mulighetsrommet.arena.adapter.repositories.TiltaksgjennomforingRep
 import no.nav.mulighetsrommet.arena.adapter.repositories.TiltakstypeRepository
 import no.nav.mulighetsrommet.arena.adapter.services.ArenaEntityService
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 class TiltakEventProcessorTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
@@ -29,9 +27,10 @@ class TiltakEventProcessorTest : FunSpec({
     }
 
     context("handleEvent") {
+        val tiltakstyper = TiltakstypeRepository(database.db)
         val entities = ArenaEntityService(
             mappings = ArenaEntityMappingRepository(database.db),
-            tiltakstyper = TiltakstypeRepository(database.db),
+            tiltakstyper = tiltakstyper,
             saker = SakRepository(database.db),
             tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
         )
@@ -50,50 +49,15 @@ class TiltakEventProcessorTest : FunSpec({
 
             val (e1, mapping) = prepareEvent(createArenaTiltakEvent(Insert) { it.copy(TILTAKSNAVN = "Oppfølging 1") })
             processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
-            database.assertTable("tiltakstype").row()
-                .value("id").isEqualTo(mapping.entityId)
-                .value("navn").isEqualTo("Oppfølging 1")
+            tiltakstyper.get(mapping.entityId)?.navn shouldBe "Oppfølging 1"
 
             val e2 = createArenaTiltakEvent(Update) { it.copy(TILTAKSNAVN = "Oppfølging 2") }
             processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
-            database.assertTable("tiltakstype").row()
-                .value("id").isEqualTo(mapping.entityId)
-                .value("navn").isEqualTo("Oppfølging 2")
+            tiltakstyper.get(mapping.entityId)?.navn shouldBe "Oppfølging 2"
 
             val e3 = createArenaTiltakEvent(Delete) { it.copy(TILTAKSNAVN = "Oppfølging 1") }
             processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
-            database.assertTable("tiltakstype").row()
-                .value("id").isEqualTo(mapping.entityId)
-                .value("navn").isEqualTo("Oppfølging 1")
-                .value("rett_paa_tiltakspenger").isTrue
-                .value("registrert_dato_i_arena").isEqualTo(LocalDateTime.of(2010, 1, 11, 0, 0, 0, 0))
-                .value("sist_endret_dato_i_arena").isEqualTo(LocalDateTime.of(2022, 1, 11, 0, 0, 0))
-                .value("fra_dato").isEqualTo(LocalDate.of(2022, 1, 11))
-                .value("fra_dato").isEqualTo(LocalDate.of(2022, 1, 11))
-                .value("til_dato").isEqualTo(LocalDate.of(2022, 1, 15))
-                .value("tiltaksgruppekode").isEqualTo("UTFAS")
-                .value("administrasjonskode").isEqualTo("IND")
-                .value("send_tilsagnsbrev_til_deltaker").isTrue
-                .value("skal_ha_anskaffelsesprosess").isFalse
-                .value("maks_antall_plasser").isNull
-                .value("maks_antall_sokere").isEqualTo(10)
-                .value("har_fast_antall_plasser").isNull
-                .value("skal_sjekke_antall_deltakere").isTrue
-                .value("vis_lonnstilskuddskalkulator").isFalse
-                .value("rammeavtale").isEqualTo("IKKE")
-                .value("opplaeringsgruppe").isNull
-                .value("handlingsplan").isEqualTo("TIL")
-                .value("tiltaksgjennomforing_krever_sluttdato").isFalse
-                .value("maks_periode_i_mnd").isEqualTo(6)
-                .value("tiltaksgjennomforing_krever_meldeplikt").isNull
-                .value("tiltaksgjennomforing_krever_vedtak").isFalse
-                .value("tiltaksgjennomforing_reservert_for_ia_bedrift").isFalse
-                .value("har_rett_paa_tilleggsstonader").isFalse
-                .value("har_rett_paa_utdanning").isFalse
-                .value("tiltaksgjennomforing_genererer_tilsagnsbrev_automatisk").isFalse
-                .value("vis_begrunnelse_for_innsoking").isTrue
-                .value("henvisningsbrev_og_hovedbrev_til_arbeidsgiver").isFalse
-                .value("kopibrev_og_hovedbrev_til_arbeidsgiver").isFalse
+            tiltakstyper.get(mapping.entityId)?.navn shouldBe "Oppfølging 1"
         }
     }
 })

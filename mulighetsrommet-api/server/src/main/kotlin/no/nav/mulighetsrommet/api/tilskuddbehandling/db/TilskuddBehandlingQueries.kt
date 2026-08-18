@@ -199,6 +199,17 @@ class TilskuddBehandlingQueries(private val session: Session) {
         return session.single(queryOf(query, mapOf("id" to id))) { it.toTilskuddBehandlingDto() }
     }
 
+    fun getVedtakJournalpostDistribueringId(id: UUID): String? {
+        @Language("PostgreSQL")
+        val query = """
+            select vedtak_journalpost_distribuering_id
+            from tilskudd_behandling
+            where id = :id::uuid
+        """.trimIndent()
+
+        return session.single(queryOf(query, mapOf("id" to id))) { it.stringOrNull("vedtak_journalpost_distribuering_id") }
+    }
+
     fun getOrError(id: UUID): TilskuddBehandlingDto {
         return checkNotNull(get(id)) { "Tilskuddsbehadling med id $id finnes ikke" }
     }

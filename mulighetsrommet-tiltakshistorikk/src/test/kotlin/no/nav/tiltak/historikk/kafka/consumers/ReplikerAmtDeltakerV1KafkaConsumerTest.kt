@@ -1,6 +1,8 @@
 package no.nav.tiltak.historikk.kafka.consumers
 
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
@@ -37,9 +39,9 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
         test("upsert deltakere from topic") {
             deltakerConsumer.consume(amtDeltaker1.id, Json.encodeToJsonElement(amtDeltaker1))
 
-            database.assertTable("komet_deltaker")
-                .row()
-                .value("id").isEqualTo(amtDeltaker1.id)
+            db.session {
+                queries.kometDeltaker.get(amtDeltaker1.id)?.id shouldBe amtDeltaker1.id
+            }
         }
 
         test("delete deltakere for tombstone messages") {
@@ -49,7 +51,9 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
 
             deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
 
-            database.assertTable("komet_deltaker").isEmpty
+            db.session {
+                queries.kometDeltaker.get(amtDeltaker1.id).shouldBeNull()
+            }
         }
 
         test("delete deltakere that have status FEILREGISTRERT") {
@@ -66,7 +70,9 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
             )
             deltakerConsumer.consume(feilregistrertDeltaker1.id, Json.encodeToJsonElement(feilregistrertDeltaker1))
 
-            database.assertTable("komet_deltaker").isEmpty
+            db.session {
+                queries.kometDeltaker.get(feilregistrertDeltaker1.id).shouldBeNull()
+            }
         }
     }
 })

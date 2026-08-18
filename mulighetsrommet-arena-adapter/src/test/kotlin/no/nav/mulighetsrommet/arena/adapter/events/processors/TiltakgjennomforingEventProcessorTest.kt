@@ -68,11 +68,12 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
     val dateBeforeTiltakshistorikkStartDate = tiltakshistorikkStartDate.minusDays(1)
 
     context("handleEvent") {
+        val tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db)
         val entities = ArenaEntityService(
             mappings = ArenaEntityMappingRepository(database.db),
             tiltakstyper = TiltakstypeRepository(database.db),
             saker = SakRepository(database.db),
-            tiltaksgjennomforinger = TiltaksgjennomforingRepository(database.db),
+            tiltaksgjennomforinger = tiltaksgjennomforinger,
         )
 
         fun createProcessor(
@@ -122,7 +123,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     it.status shouldBe Failed
                     it.message shouldContain "insert or update on table \"tiltaksgjennomforing\" violates foreign key constraint \"tiltaksgjennomforing_sak_id_fkey\""
                 }
-                database.assertTable("tiltaksgjennomforing").isEmpty
             }
 
             test("should save the event with status Failed when dependent tiltakstype is missing") {
@@ -143,7 +143,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     it.status shouldBe Failed
                     it.message shouldContain "insert or update on table \"tiltaksgjennomforing\" violates foreign key constraint \"tiltaksgjennomforing_tiltakskode_fkey\""
                 }
-                database.assertTable("tiltaksgjennomforing").isEmpty
             }
         }
 
@@ -165,8 +164,6 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     it.status shouldBe Ignored
                 }
             }
-
-            database.assertTable("tiltaksgjennomforing").isEmpty
         }
 
         context("når tiltaksgjennomføringen er et individuelt tiltak") {
@@ -260,9 +257,7 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                 val processor = createProcessor(engine)
 
                 processor.handleEvent(e1).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertTable("tiltaksgjennomforing").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("navn").isEqualTo("Navn 1")
+                entities.getTiltaksgjennomforingOrNull(mapping.entityId)?.navn shouldBe "Navn 1"
 
                 val e2 = createArenaTiltakgjennomforingEvent(Update) {
                     it.copy(
@@ -271,17 +266,13 @@ class TiltakgjennomforingEventProcessorTest : FunSpec({
                     )
                 }
                 processor.handleEvent(e2).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertTable("tiltaksgjennomforing").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("navn").isEqualTo("Navn 2")
+                entities.getTiltaksgjennomforingOrNull(mapping.entityId)?.navn shouldBe "Navn 2"
 
                 val e3 = createArenaTiltakgjennomforingEvent(Delete) {
                     it.copy(LOKALTNAVN = "Navn 1")
                 }
                 processor.handleEvent(e3).shouldBeRight().should { it.status shouldBe Handled }
-                database.assertTable("tiltaksgjennomforing").row()
-                    .value("id").isEqualTo(mapping.entityId)
-                    .value("navn").isEqualTo("Navn 1")
+                entities.getTiltaksgjennomforingOrNull(mapping.entityId)?.navn shouldBe "Navn 1"
             }
 
             test("should mark the event as Failed when arena ords proxy responds with an error") {

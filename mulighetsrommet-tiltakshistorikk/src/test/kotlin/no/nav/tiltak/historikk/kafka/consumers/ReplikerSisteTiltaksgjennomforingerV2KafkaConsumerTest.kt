@@ -2,6 +2,8 @@ package no.nav.tiltak.historikk.kafka.consumers
 
 import arrow.core.right
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -17,6 +19,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
+import no.nav.tiltak.historikk.db.queries.GjennomforingDbo
 import no.nav.tiltak.historikk.db.queries.GjennomforingType
 import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
 import no.nav.tiltak.historikk.service.VirksomhetService
@@ -53,34 +56,31 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
             consumer.consume(gruppe.id, Json.encodeToJsonElement(gruppe))
             consumer.consume(enkeltplass.id, Json.encodeToJsonElement(enkeltplass))
 
-            database.assertRequest("select * from gjennomforing order by created_at")
-                .hasNumberOfRows(2)
-                .row()
-                .value("id").isEqualTo(gruppe.id)
-                .value("gjennomforing_type").isEqualTo(GjennomforingType.GRUPPE.name)
-                .value("tiltakskode").isEqualTo(Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING.name)
-                .value("arrangor_organisasjonsnummer").isEqualTo("987654321")
-                .value("navn").isEqualTo("Gruppe AMO")
-                .value("deltidsprosent").isEqualTo(80.0)
-                .row()
-                .value("id").isEqualTo(enkeltplass.id)
-                .value("gjennomforing_type").isEqualTo(GjennomforingType.ENKELTPLASS.name)
-                .value("tiltakskode").isEqualTo(Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING.name)
-                .value("arrangor_organisasjonsnummer").isEqualTo("987654321")
-                .value("navn").isNull
-                .value("deltidsprosent").isNull
+            db.session {
+                queries.gjennomforing.get(gruppe.id) shouldBe GjennomforingDbo(
+                    id = gruppe.id,
+                    type = GjennomforingType.GRUPPE,
+                    tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+                    arrangorOrganisasjonsnummer = "987654321",
+                    navn = "Gruppe AMO",
+                    deltidsprosent = 80.0,
+                )
+                queries.gjennomforing.get(enkeltplass.id) shouldBe GjennomforingDbo(
+                    id = enkeltplass.id,
+                    type = GjennomforingType.ENKELTPLASS,
+                    tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+                    arrangorOrganisasjonsnummer = "987654321",
+                    navn = null,
+                    deltidsprosent = null,
+                )
+            }
 
             var updatedGruppe: TiltaksgjennomforingV2Dto = TestFixtures.Gjennomforing.gruppeAmo.copy(navn = "Nytt navn")
             consumer.consume(gruppe.id, Json.encodeToJsonElement(updatedGruppe))
 
-            database.assertRequest("select * from gjennomforing order by updated_at desc")
-                .hasNumberOfRows(2)
-                .row()
-                .value("id").isEqualTo(gruppe.id)
-                .value("navn").isEqualTo("Nytt navn")
-                .row()
-                .value("id").isEqualTo(enkeltplass.id)
-                .value("navn").isNull
+            db.session {
+                queries.gjennomforing.get(gruppe.id)?.navn shouldBe "Nytt navn"
+            }
         }
 
         test("delete gjennomforing for tombstone messages") {
@@ -90,10 +90,18 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
             }
 
             consumer.consume(gruppe.id, JsonNull)
-            database.assertRequest("select * from gjennomforing").hasNumberOfRows(1)
+
+            db.session {
+                queries.gjennomforing.get(gruppe.id).shouldBeNull()
+                queries.gjennomforing.get(enkeltplass.id).shouldNotBeNull()
+            }
 
             consumer.consume(enkeltplass.id, JsonNull)
-            database.assertRequest("select * from gjennomforing").hasNumberOfRows(0)
+
+            db.session {
+                queries.gjennomforing.get(gruppe.id).shouldBeNull()
+                queries.gjennomforing.get(enkeltplass.id).shouldBeNull()
+            }
         }
     }
 
@@ -117,10 +125,9 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
             val consumer = ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter)
             consumer.consume(gruppe.id, Json.encodeToJsonElement(gruppe))
 
-            database.assertRequest("select * from gjennomforing")
-                .hasNumberOfRows(1)
-                .row()
-                .value("arrangor_organisasjonsnummer").isEqualTo("987654321")
+            db.session {
+                queries.gjennomforing.get(gruppe.id)?.arrangorOrganisasjonsnummer shouldBe "987654321"
+            }
 
             virksomheter.getVirksomhet(Organisasjonsnummer("987654321")).shouldBe(TestFixtures.Virksomhet.arrangor)
         }
@@ -136,10 +143,9 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
             val consumer = ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(db, virksomheter)
             consumer.consume(gjennomforing.id, Json.encodeToJsonElement(gjennomforing))
 
-            database.assertRequest("select * from gjennomforing")
-                .hasNumberOfRows(1)
-                .row()
-                .value("arrangor_organisasjonsnummer").isEqualTo("111222333")
+            db.session {
+                queries.gjennomforing.get(gjennomforing.id)?.arrangorOrganisasjonsnummer shouldBe "111222333"
+            }
 
             virksomheter.getVirksomhet(Organisasjonsnummer("111222333")) shouldBe VirksomhetDbo(
                 organisasjonsnummer = Organisasjonsnummer("111222333"),

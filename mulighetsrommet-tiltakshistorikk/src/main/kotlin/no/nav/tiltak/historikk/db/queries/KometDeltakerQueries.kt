@@ -131,6 +131,36 @@ class KometDeltakerQueries(private val session: Session) {
 
         session.execute(queryOf(query, id))
     }
+
+    fun get(id: UUID): AmtDeltakerV1Dto? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from komet_deltaker
+            where id = ?::uuid
+        """.trimIndent()
+
+        return session.single(queryOf(query, id)) { it.toAmtDeltakerV1Dto() }
+    }
+}
+
+private fun Row.toAmtDeltakerV1Dto(): AmtDeltakerV1Dto {
+    return AmtDeltakerV1Dto(
+        id = uuid("id"),
+        gjennomforingId = uuid("gjennomforing_id"),
+        personIdent = string("person_ident"),
+        startDato = localDateOrNull("start_dato"),
+        sluttDato = localDateOrNull("slutt_dato"),
+        status = AmtDeltakerV1Dto.DeltakerStatusDto(
+            type = DeltakerStatusType.valueOf(string("status_type")),
+            aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatusAarsakType.valueOf(it) },
+            opprettetDato = localDateTime("status_opprettet_dato"),
+        ),
+        registrertDato = localDateTime("registrert_dato"),
+        endretDato = localDateTime("endret_dato"),
+        dagerPerUke = floatOrNull("dager_per_uke"),
+        prosentStilling = floatOrNull("prosent_stilling"),
+    )
 }
 
 private fun Row.toTeamKometDeltakelse(): TiltakshistorikkV1Dto.TeamKometDeltakelse {
