@@ -1,7 +1,9 @@
 package no.nav.tiltak.historikk
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonNames
 import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
@@ -163,11 +165,13 @@ sealed class TiltakshistorikkV1Dto {
             val navn: String,
         )
 
+        @OptIn(ExperimentalSerializationApi::class)
         @Serializable
         data class Status(
             val type: DeltakerStatusType,
             val aarsak: DeltakerStatusAarsakType?,
             // TODO endre til `opprettetTidspunkt`, men avklare med konsumenter først
+            @JsonNames("opprettetTidspunkt")
             @Serializable(with = LocalDateTimeSerializer::class)
             val opprettetDato: LocalDateTime,
         )
