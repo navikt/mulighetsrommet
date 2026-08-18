@@ -326,34 +326,6 @@ class TiltakshistorikkTest : FunSpec({
                 )
             }
         }
-
-        test("filtrerer vekk historikk som er eldre enn maxAgeYears") {
-            val mockEngine = mockTiltakDatadeling(
-                response = GraphqlResponse(
-                    data = GetAvtalerForPersonResponse(
-                        avtalerForPerson = listOf(),
-                    ),
-                ),
-            )
-
-            withTestApplication(oauth, mockEngine) {
-                val response = client.post("/api/v1/historikk") {
-                    bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
-                    contentType(ContentType.Application.Json)
-                    setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910")), maxAgeYears = 15))
-                }
-
-                response.status shouldBe HttpStatusCode.OK
-
-                val historikk = response.body<TiltakshistorikkV1Response>().historikk.map { it.id }
-
-                historikk shouldContainExactlyInAnyOrder listOf(
-                    ARENA_ENKEL_AMO_ID,
-                    ARENA_MENTOR_ID,
-                    ARENA_ARBEIDSTRENING_ID,
-                )
-            }
-        }
     }
 })
 

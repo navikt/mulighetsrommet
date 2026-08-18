@@ -135,7 +135,6 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
                 queries.arenaDeltaker.getArenaHistorikk(
                     identer = listOf(NorskIdent("12345678910")),
-                    maxAgeYears = null,
                 ) shouldContainExactlyInAnyOrder listOf(
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         id = mentorArenaDeltakelse.id,
@@ -203,7 +202,6 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
                 queries.arenaDeltaker.getArenaHistorikk(
                     identer = listOf(NorskIdent("12345678910")),
-                    maxAgeYears = null,
                 ) shouldBe listOf(
                     TiltakshistorikkV1Dto.ArenaDeltakelse(
                         id = arbeidstreningArenaDeltakelse.id,
@@ -241,44 +239,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
                 queries.arenaDeltaker.getArenaHistorikk(
                     identer = listOf(NorskIdent("12345678910")),
-                    maxAgeYears = null,
                 ).shouldBeEmpty()
-            }
-        }
-
-        test("filtrerer Arena-deltakere basert på maxAgeYears") {
-            val mentorArenaDeltakelseUtenSlutt = TiltakshistorikkArenaDeltaker(
-                id = UUID.randomUUID(),
-                arenaGjennomforingId = arenaMentor.id,
-                arenaDeltakerId = 3,
-                norskIdent = NorskIdent("12345678910"),
-                status = ArenaDeltakerStatus.GJENNOMFORES,
-                startDato = LocalDateTime.of(2002, 2, 1, 0, 0, 0),
-                sluttDato = null,
-                arenaRegDato = LocalDateTime.of(2002, 1, 1, 0, 0, 0),
-                arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-                dagerPerUke = 5.0,
-                deltidsprosent = 100.0,
-            )
-
-            db.transaction {
-                queries.arenaDeltaker.upsertArenaDeltaker(arbeidstreningArenaDeltakelse)
-                queries.arenaDeltaker.upsertArenaDeltaker(mentorArenaDeltakelse)
-                queries.arenaDeltaker.upsertArenaDeltaker(mentorArenaDeltakelseUtenSlutt)
-
-                queries.arenaDeltaker.getArenaHistorikk(
-                    identer = listOf(arbeidstreningArenaDeltakelse.norskIdent),
-                    maxAgeYears = 5,
-                ).map { it.id } shouldContainExactlyInAnyOrder listOf(arbeidstreningArenaDeltakelse.id)
-
-                queries.arenaDeltaker.getArenaHistorikk(
-                    identer = listOf(arbeidstreningArenaDeltakelse.norskIdent),
-                    maxAgeYears = null,
-                ).map { it.id } shouldContainExactlyInAnyOrder listOf(
-                    arbeidstreningArenaDeltakelse.id,
-                    mentorArenaDeltakelse.id,
-                    mentorArenaDeltakelseUtenSlutt.id,
-                )
             }
         }
 
@@ -317,7 +278,6 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
                 val historikk = queries.arenaDeltaker.getArenaHistorikk(
                     identer = listOf(NorskIdent("11111111111"), NorskIdent("22222222222")),
-                    maxAgeYears = null,
                 )
 
                 historikk.map { it.id } shouldContainExactlyInAnyOrder listOf(deltaker1.id, deltaker2.id)
@@ -351,7 +311,6 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
                 queries.kometDeltaker.getKometHistorikk(
                     identer = listOf(NorskIdent(amtDeltaker.personIdent)),
-                    maxAgeYears = null,
                 ) shouldBe listOf(
                     TiltakshistorikkV1Dto.TeamKometDeltakelse(
                         id = amtDeltaker.id,
@@ -389,67 +348,6 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                 )
             }
         }
-
-        test("filtrerer Komet-deltakere basert på maxAgeYears") {
-            db.transaction {
-                val amtDeltakerReg2005 = AmtDeltakerV1Dto(
-                    id = UUID.randomUUID(),
-                    gjennomforingId = gruppeAmo.id,
-                    personIdent = "10101010100",
-                    startDato = null,
-                    sluttDato = null,
-                    status = AmtDeltakerV1Dto.DeltakerStatusDto(
-                        type = DeltakerStatusType.VENTER_PA_OPPSTART,
-                        aarsak = null,
-                        opprettetDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                    ),
-                    registrertDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                    endretDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                    dagerPerUke = 2.5f,
-                    prosentStilling = null,
-                    deltakelsesmengder = listOf(),
-                )
-                val amtDeltakerReg2005Slutt2024 = AmtDeltakerV1Dto(
-                    id = UUID.randomUUID(),
-                    gjennomforingId = gruppeAmo.id,
-                    personIdent = "10101010100",
-                    startDato = null,
-                    sluttDato = LocalDate.of(2024, 1, 1),
-                    status = AmtDeltakerV1Dto.DeltakerStatusDto(
-                        type = DeltakerStatusType.VENTER_PA_OPPSTART,
-                        aarsak = null,
-                        opprettetDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                    ),
-                    registrertDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                    endretDato = LocalDateTime.of(2005, 3, 1, 0, 0, 0),
-                    dagerPerUke = 2.5f,
-                    prosentStilling = null,
-                    deltakelsesmengder = listOf(),
-                )
-
-                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker)
-                queries.kometDeltaker.upsertKometDeltaker(amtDeltakerReg2005)
-                queries.kometDeltaker.upsertKometDeltaker(amtDeltakerReg2005Slutt2024)
-
-                queries.kometDeltaker.getKometHistorikk(
-                    identer = listOf(NorskIdent(amtDeltaker.personIdent)),
-                    maxAgeYears = null,
-                ).map { it.id } shouldContainExactlyInAnyOrder listOf(
-                    amtDeltaker.id,
-                    amtDeltakerReg2005.id,
-                    amtDeltakerReg2005Slutt2024.id,
-                )
-
-                queries.kometDeltaker.getKometHistorikk(
-                    identer = listOf(NorskIdent(amtDeltaker.personIdent)),
-                    maxAgeYears = 5,
-                ).map { it.id } shouldContainExactlyInAnyOrder listOf(
-                    amtDeltaker.id,
-                    amtDeltakerReg2005Slutt2024.id,
-                )
-            }
-        }
-
         test("sletter Komet-deltaker") {
             db.transaction {
                 val testDeltaker = AmtDeltakerV1Dto(
@@ -474,14 +372,12 @@ class TiltakshistorikkDatabaseTest : FunSpec({
 
                 queries.kometDeltaker.getKometHistorikk(
                     identer = listOf(NorskIdent(testDeltaker.personIdent)),
-                    maxAgeYears = null,
                 ).map { it.id } shouldBe listOf(testDeltaker.id)
 
                 queries.kometDeltaker.deleteKometDeltaker(testDeltaker.id)
 
                 queries.kometDeltaker.getKometHistorikk(
                     identer = listOf(NorskIdent(testDeltaker.personIdent)),
-                    maxAgeYears = null,
                 ).shouldBeEmpty()
             }
         }

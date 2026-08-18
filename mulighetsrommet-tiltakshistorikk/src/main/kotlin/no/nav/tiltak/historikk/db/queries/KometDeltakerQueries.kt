@@ -81,7 +81,6 @@ class KometDeltakerQueries(private val session: Session) {
 
     fun getKometHistorikk(
         identer: List<NorskIdent>,
-        maxAgeYears: Int?,
     ): List<TiltakshistorikkV1Dto.TeamKometDeltakelse> {
         @Language("PostgreSQL")
         val query = """
@@ -110,13 +109,11 @@ class KometDeltakerQueries(private val session: Session) {
                     join virksomhet arrangor on gjennomforing.arrangor_organisasjonsnummer = arrangor.organisasjonsnummer
                     left join virksomhet arrangor_hovedenhet on arrangor.overordnet_enhet_organisasjonsnummer = arrangor_hovedenhet.organisasjonsnummer
                 where deltaker.person_ident = any(:identer)
-                and (:max_age_years::integer is null or age(coalesce(deltaker.slutt_dato, deltaker.registrert_dato)) < make_interval(years => :max_age_years::integer))
                 order by deltaker.start_dato desc nulls last;
         """.trimIndent()
 
         val params = mapOf(
             "identer" to session.createArrayOfValue(identer) { it.value },
-            "max_age_years" to maxAgeYears,
         )
 
         return session.list(queryOf(query, params)) { it.toTeamKometDeltakelse() }
