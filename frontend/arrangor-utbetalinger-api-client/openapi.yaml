@@ -1666,7 +1666,9 @@ components:
           type: string
           format: uuid
         navn:
-          type: string
+          type:
+          - "null"
+          - string
         beskrivelse:
           type: string
         type:
