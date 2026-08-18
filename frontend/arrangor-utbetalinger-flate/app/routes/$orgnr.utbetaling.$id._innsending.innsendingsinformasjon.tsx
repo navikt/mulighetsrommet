@@ -6,6 +6,7 @@ import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
 import { TilgjengeligeTilsagn } from "~/components/common/TilgjengeligeTilsagn";
+import { BlokkeringerVarsler } from "~/components/common/BlokkeringerVarsler";
 
 export const meta: MetaFunction = () => {
   return [
@@ -41,13 +42,13 @@ export default function TilsagnDetaljerPage() {
             },
             { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
             { key: "Utbetalingsperiode", value: formaterPeriode(utbetaling.periode) },
-            {
-              key: "Frist for innsending",
-              value: "Kravet må sendes inn senest to måneder etter at tilsagnsperioden går ut.",
-            },
           ]}
         />
         <TilgjengeligeTilsagn tilsagn={tilsagn} />
+        <BlokkeringerVarsler
+          blokkeringer={utbetaling.blokkeringer}
+          advarsler={utbetaling.advarsler}
+        />
       </VStack>
     </>
   );

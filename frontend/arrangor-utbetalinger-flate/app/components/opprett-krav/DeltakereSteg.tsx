@@ -1,15 +1,14 @@
 import {
   OpprettKravDeltakere,
   OpprettKravDeltakereGuidePanelType,
-  StengtPeriode,
 } from "@arrangor-utbetalinger/api-client";
-import { BodyShort, GuidePanel, Heading, Link, InfoCard, VStack } from "@navikt/ds-react";
+import { BodyShort, GuidePanel, Heading, Link, VStack } from "@navikt/ds-react";
 import { LabeledDataElementList } from "../common/Definisjonsliste";
 import { DataDrivenTable } from "@mr/frontend-common";
-import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { tekster } from "~/tekster";
 import { Link as ReactRouterLink } from "react-router";
 import { Laster } from "../common/Laster";
+import { StengtePerioder } from "../common/StengtePerioder";
 
 interface DeltakereStepProps {
   deltakere: OpprettKravDeltakere | null;
@@ -32,21 +31,7 @@ export default function DeltakereSteg({ deltakere, deltakerlisteUrl }: Deltakere
       />
       <VStack gap="space-16">
         {deltakere.stengtHosArrangor.length > 0 && (
-          <InfoCard data-color="info" size="small">
-            <InfoCard.Header>
-              <InfoCard.Title as="h4">Stengte perioder</InfoCard.Title>
-            </InfoCard.Header>
-            <InfoCard.Content>
-              <BodyShort spacing>{tekster.bokmal.utbetaling.beregning.stengtHosArrangor}</BodyShort>
-              <ul>
-                {deltakere.stengtHosArrangor.map(({ periode, beskrivelse }: StengtPeriode) => (
-                  <li key={periode.start + periode.slutt}>
-                    {formaterPeriode(periode)}: {beskrivelse}
-                  </li>
-                ))}
-              </ul>
-            </InfoCard.Content>
-          </InfoCard>
+          <StengtePerioder perioder={deltakere.stengtHosArrangor} />
         )}
         <DataDrivenTable data={deltakere.tabell} />
         <VStack gap="space-8">

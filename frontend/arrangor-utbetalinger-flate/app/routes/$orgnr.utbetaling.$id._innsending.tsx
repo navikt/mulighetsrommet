@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { Box, Button, Hide, HStack, Link, Stepper, VStack } from "@navikt/ds-react";
 import { Laster } from "~/components/common/Laster";
 import { useUtbetalingWizard } from "~/hooks/useUtbetalingWizard";
-import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
 import { pathTo, useIdFromUrl } from "~/utils/navigation";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
@@ -11,11 +10,8 @@ import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 export default function InnsendingLayout() {
   const id = useIdFromUrl();
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
-  const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id);
 
   const wizard = useUtbetalingWizard(utbetaling);
-
-  const harTilsagn = tilsagn.length > 0;
 
   return (
     <VStack gap="space-16" justify="center">
@@ -44,7 +40,7 @@ export default function InnsendingLayout() {
           <Outlet />
         </Suspense>
 
-        {harTilsagn && !wizard.isLastStep && (
+        {!wizard.isLastStep && (
           <HStack gap="space-16" marginBlock="space-16 space-0">
             {wizard.isFirstStep ? (
               <Button

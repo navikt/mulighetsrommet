@@ -19,6 +19,7 @@ import {
   useDatepicker,
   VStack,
   Box,
+  InfoCard,
 } from "@navikt/ds-react";
 import { SyntheticEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { OpprettKravFormState } from "~/routes/$orgnr.opprett-krav.$gjennomforingid";
@@ -125,7 +126,20 @@ export default function InnsendingsinformasjonSteg({
             updateFormState={updateFormState}
           />
         </Box>
-        {valgtPeriode && <TilgjengeligeTilsagn tilsagn={relevanteTilsagn} />}
+        {valgtPeriode && relevanteTilsagn.length > 0 && (
+          <TilgjengeligeTilsagn tilsagn={relevanteTilsagn} />
+        )}
+        {valgtPeriode && relevanteTilsagn.length === 0 && (
+          <InfoCard data-color="warning">
+            <InfoCard.Header>
+              <InfoCard.Title>Tilsagn mangler</InfoCard.Title>
+            </InfoCard.Header>
+            <InfoCard.Content>
+              Det finnes ingen godkjente tilsagn for dette kravet. Dere kan ikke sende inn kravet
+              før Nav har godkjent et tilsagn for utbetalingsperioden.
+            </InfoCard.Content>
+          </InfoCard>
+        )}
       </VStack>
     </>
   );

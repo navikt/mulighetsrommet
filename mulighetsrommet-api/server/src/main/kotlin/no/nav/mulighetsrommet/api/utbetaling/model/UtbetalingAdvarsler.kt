@@ -172,15 +172,17 @@ enum class DeltakerAdvarselType {
 data class DeltakerAdvarselDto(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
+    val navn: String?,
     val beskrivelse: String,
     val type: DeltakerAdvarselType,
 ) {
     companion object {
-        fun from(advarsel: DeltakerAdvarsel, navn: String?) = DeltakerAdvarselDto(
+        fun from(advarsel: DeltakerAdvarsel, navn: String? = "Ukjent deltaker") = DeltakerAdvarselDto(
             deltakerId = advarsel.deltakerId,
+            navn = navn,
             beskrivelse = when (advarsel.type) {
-                DeltakerAdvarselType.RelevanteForslag -> "$navn har ubehandlede forslag. Disse må først godkjennes av Nav-veileder før utbetalingen oppdaterer seg"
-                DeltakerAdvarselType.FeilSluttDato -> "$navn har avsluttende status og sluttdato frem i tid"
+                DeltakerAdvarselType.RelevanteForslag -> "har ubehandlede forslag"
+                DeltakerAdvarselType.FeilSluttDato -> "har avsluttende status og sluttdato frem i tid"
             },
             type = advarsel.type,
         )

@@ -141,7 +141,7 @@ function utbetalingLenkeText(status: UtbetalingStatusDtoType) {
     case UtbetalingStatusDtoType.RETURNERT:
       return "Behandle";
     case UtbetalingStatusDtoType.VENTER_PA_ARRANGOR:
-    case UtbetalingStatusDtoType.UBEHANDLET_FORSLAG:
+    case UtbetalingStatusDtoType.BLOKKERT_FOR_INNSENDING:
     case UtbetalingStatusDtoType.OVERFORT_TIL_UTBETALING:
     case UtbetalingStatusDtoType.DELVIS_UTBETALT:
     case UtbetalingStatusDtoType.UTBETALT:

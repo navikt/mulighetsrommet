@@ -8,7 +8,7 @@ enum class ArrangorflateUtbetalingStatus {
     KLAR_FOR_GODKJENNING,
     BEHANDLES_AV_NAV,
     UTBETALT,
-    UBEHANDLET_FORSLAG,
+    BLOKKERT_FOR_INNSENDING,
     OVERFORT_TIL_UTBETALING,
     DELVIS_UTBETALT,
     AVBRUTT_AV_NAV,
@@ -21,10 +21,9 @@ enum class ArrangorflateUtbetalingStatus {
             blokkeringer: Set<Utbetaling.Blokkering>,
             avbrytelseTotrinnskontroll: TotrinnskontrollDto?,
         ): ArrangorflateUtbetalingStatus = when (status) {
-            UtbetalingStatusType.GENERERT -> if (blokkeringer.contains(Utbetaling.Blokkering.UBEHANDLET_FORSLAG)) {
-                UBEHANDLET_FORSLAG
+            UtbetalingStatusType.GENERERT -> if (blokkeringer.isNotEmpty()) {
+                BLOKKERT_FOR_INNSENDING
             } else {
-                // TODO: Håndter Utbetaling.Blokkering.MANGLER_TILSAGN
                 KLAR_FOR_GODKJENNING
             }
 

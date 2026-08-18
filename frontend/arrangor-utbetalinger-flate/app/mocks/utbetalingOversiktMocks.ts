@@ -57,7 +57,7 @@ const solrikAftDataRow: ArrangorInnsendingRadDto = {
   sluttDato: "2025-02-01",
   belop: { belop: 242904, valuta: Valuta.NOK },
   type: "INNSENDING",
-  status: ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
+  status: ArrangorflateUtbetalingStatus.BLOKKERT_FOR_INNSENDING,
 };
 
 const aftTiltakspengerTableRow: ArrangorInnsendingRadDto = {

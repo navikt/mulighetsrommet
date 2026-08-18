@@ -1,5 +1,5 @@
 import { Accordion, BodyShort, Button, HStack, InfoCard, List, VStack } from "@navikt/ds-react";
-import { UtbetalingBeregningDto } from "@tiltaksadministrasjon/api-client";
+import { UtbetalingBeregningDto, UtbetalingBlokkering } from "@tiltaksadministrasjon/api-client";
 import { useState } from "react";
 import UtbetalingBeregning from "./UtbetalingBeregning";
 import { UtbetalingBeregningModal } from "./UtbetalingBeregningModal";
@@ -7,13 +7,14 @@ import { UtbetalingBeregningModal } from "./UtbetalingBeregningModal";
 interface Props {
   beregning: UtbetalingBeregningDto;
   utbetalingId: string;
+  blokkeringer: UtbetalingBlokkering[];
 }
 
-export default function UtbetalingBeregningView({ beregning, utbetalingId }: Props) {
+export default function UtbetalingBeregningView({ beregning, utbetalingId, blokkeringer }: Props) {
   const [beregningModalOpen, setBeregningModalOpen] = useState<boolean>(false);
 
   return (
-    <>
+    <VStack gap="space-16">
       {beregning.advarsler.length > 0 && (
         <InfoCard data-color="warning">
           <InfoCard.Header>
@@ -21,14 +22,25 @@ export default function UtbetalingBeregningView({ beregning, utbetalingId }: Pro
           </InfoCard.Header>
           <InfoCard.Content>
             <BodyShort spacing>
-              Det finnes advarsler på følgende personer. Disse må først fikses før utbetalingen kan
-              sendes inn.
+              Det finnes advarsler i Deltakeroversikten for følgende personer.
             </BodyShort>
             <List>
               {beregning.advarsler.map((advarsel) => (
-                <List.Item key={advarsel.deltakerId}>{advarsel.beskrivelse}</List.Item>
+                <List.Item key={advarsel.deltakerId}>
+                  <b>{advarsel.navn}</b> {advarsel.beskrivelse}
+                </List.Item>
               ))}
             </List>
+          </InfoCard.Content>
+        </InfoCard>
+      )}
+      {blokkeringer.includes(UtbetalingBlokkering.MANGLER_TILSAGN) && (
+        <InfoCard data-color="warning">
+          <InfoCard.Header>
+            <InfoCard.Title>Tilsagn mangler</InfoCard.Title>
+          </InfoCard.Header>
+          <InfoCard.Content>
+            Det finnes ingen godkjente tilsagn tilgjengelig for denne utbetalingen.
           </InfoCard.Content>
         </InfoCard>
       )}
@@ -58,6 +70,6 @@ export default function UtbetalingBeregningView({ beregning, utbetalingId }: Pro
           </Accordion.Content>
         </Accordion.Item>
       </Accordion>
-    </>
+    </VStack>
   );
 }

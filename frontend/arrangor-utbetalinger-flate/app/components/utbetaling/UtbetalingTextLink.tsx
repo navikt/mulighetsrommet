@@ -16,41 +16,37 @@ export function UtbetalingTextLink({
   utbetalingId,
   orgnr,
 }: UtbetalingTextLinkProps) {
+  let linkText: string;
+  let linkPath: string;
+
   switch (status) {
     case ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING:
-      return (
-        <Link
-          as={ReactRouterLink}
-          aria-label={`Start innsending for krav om utbetaling for ${gjennomforingNavn}`}
-          to={pathTo.innsendingsinformasjon(orgnr, utbetalingId)}
-        >
-          Start innsending
-        </Link>
-      );
-    case ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG:
-      return (
-        <Link
-          as={ReactRouterLink}
-          aria-label={`Se innsending for krav om utbetaling for ${gjennomforingNavn}`}
-          to={pathTo.beregning(orgnr, utbetalingId)}
-        >
-          Se innsending
-        </Link>
-      );
+      linkText = "Start innsending";
+      linkPath = pathTo.innsendingsinformasjon(orgnr, utbetalingId);
+      break;
+    case ArrangorflateUtbetalingStatus.BLOKKERT_FOR_INNSENDING:
+      linkText = "Se innsending";
+      linkPath = pathTo.innsendingsinformasjon(orgnr, utbetalingId);
+      break;
     case ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV:
     case ArrangorflateUtbetalingStatus.UTBETALT:
     case ArrangorflateUtbetalingStatus.AVBRUTT_AV_ARRANGOR:
     case ArrangorflateUtbetalingStatus.AVBRUTT_AV_NAV:
     case ArrangorflateUtbetalingStatus.DELVIS_UTBETALT:
     case ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING:
-      return (
-        <Link
-          as={ReactRouterLink}
-          aria-label={`Se detaljer for krav om utbetaling for ${gjennomforingNavn}`}
-          to={pathTo.detaljer(orgnr, utbetalingId)}
-        >
-          Se detaljer
-        </Link>
-      );
+      linkText = "Se detaljer";
+      linkPath = pathTo.detaljer(orgnr, utbetalingId);
+      break;
   }
+
+  return (
+    <Link
+      as={ReactRouterLink}
+      aria-label={`${linkText} for krav om utbetaling for ${gjennomforingNavn}`}
+      to={linkPath}
+      className="whitespace-nowrap"
+    >
+      {linkText}
+    </Link>
+  );
 }

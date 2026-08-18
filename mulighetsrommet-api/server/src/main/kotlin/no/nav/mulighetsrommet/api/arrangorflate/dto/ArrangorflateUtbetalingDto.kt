@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataDetails
@@ -55,6 +56,7 @@ data class ArrangorflateUtbetalingDto(
     val kanAvbrytes: ArrangorAvbrytStatus,
     val kanRegenereres: Boolean,
     val avbrytelse: Avbrytelse?,
+    val blokkeringer: Set<Utbetaling.Blokkering>,
     @Serializable(with = UUIDSerializer::class)
     val regenerertId: UUID?,
 )
@@ -102,16 +104,25 @@ sealed class Avbrytelse {
     ) : Avbrytelse()
 
     companion object {
-        fun fromStatus(status: ArrangorflateUtbetalingStatus, arrangorAvbrutt: ArrangorflateUtbetaling.ArrangorAvbrutt?, avbrytelseTotrinn: TotrinnskontrollDto?): Avbrytelse? = when (status) {
+        fun fromStatus(
+            status: ArrangorflateUtbetalingStatus,
+            arrangorAvbrutt: ArrangorflateUtbetaling.ArrangorAvbrutt?,
+            avbrytelseTotrinn: TotrinnskontrollDto?,
+        ): Avbrytelse? = when (status) {
             ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
             ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
             ArrangorflateUtbetalingStatus.UTBETALT,
-            ArrangorflateUtbetalingStatus.UBEHANDLET_FORSLAG,
+            ArrangorflateUtbetalingStatus.BLOKKERT_FOR_INNSENDING,
             ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
             ArrangorflateUtbetalingStatus.DELVIS_UTBETALT,
             -> null
 
-            ArrangorflateUtbetalingStatus.AVBRUTT_AV_ARRANGOR -> arrangorAvbrutt?.let { Arrangor(avbruttDato = it.tidspunkt.tilNorskDato(), begrunnelse = it.begrunnelse) }
+            ArrangorflateUtbetalingStatus.AVBRUTT_AV_ARRANGOR -> arrangorAvbrutt?.let {
+                Arrangor(
+                    avbruttDato = it.tidspunkt.tilNorskDato(),
+                    begrunnelse = it.begrunnelse,
+                )
+            }
                 ?: throw IllegalStateException("Avbrutt tidspunkt må eksistere for status AVBRUTT_AV_ARRANGOR")
 
             ArrangorflateUtbetalingStatus.AVBRUTT_AV_NAV ->

@@ -16,17 +16,16 @@ import { MetaFunction, useLocation, useNavigate } from "react-router";
 import { KontonummerInput } from "~/components/utbetaling/KontonummerInput";
 import { Definisjonsliste } from "~/components/common/Definisjonsliste";
 import { tekster } from "~/tekster";
-import { UtbetalingManglendeTilsagnAlert } from "~/components/utbetaling/UtbetalingManglendeTilsagnAlert";
 import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { errorAt } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useSyncKontonummer } from "~/hooks/useSyncKontonummer";
 import { useGodkjennUtbetaling } from "~/hooks/useGodkjennUtbetaling";
 import { useUtbetalingWizard } from "~/hooks/useUtbetalingWizard";
+import { BlokkeringerVarsler } from "~/components/common/BlokkeringerVarsler";
 
 export const meta: MetaFunction = () => {
   return [
@@ -45,7 +44,6 @@ export default function BekreftUtbetaling() {
   const { updatedAt } = useLocation().state || {};
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
-  const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id);
   const syncKontonummer = useSyncKontonummer(id);
   const godkjennUtbetaling = useGodkjennUtbetaling();
 
@@ -104,8 +102,6 @@ export default function BekreftUtbetaling() {
     }
   }, [hasError]);
 
-  const harTilsagn = tilsagn.length > 0;
-
   return (
     <>
       <Heading level="2" spacing size="large">
@@ -123,18 +119,13 @@ export default function BekreftUtbetaling() {
             value: `${utbetaling.gjennomforing.navn} (${utbetaling.gjennomforing.lopenummer})`,
           },
           { key: "Tiltakstype", value: utbetaling.tiltakstype.navn },
-        ]}
-      />
-      <Separator />
-      <Definisjonsliste
-        title={"Utbetaling"}
-        definitions={[
           {
             key: "Utbetalingsperiode",
             value: formaterPeriode(utbetaling.periode),
           },
         ]}
       />
+      <Separator />
       <SatsPerioderOgBelop
         pris={utbetaling.beregning.pris}
         satsDetaljer={utbetaling.beregning.satsDetaljer}
@@ -142,66 +133,68 @@ export default function BekreftUtbetaling() {
       <Separator />
       <form onSubmit={handleSubmit}>
         <Box marginBlock="space-0 space-16">
-          {harTilsagn ? (
-            <>
-              <Heading size="medium" level="3" spacing>
-                Betalingsinformasjon
-              </Heading>
-              <VStack gap="space-16">
-                <KontonummerInput
-                  kontonummer={utbetaling.betalingsinformasjon?.kontonummer ?? undefined}
-                  error={errors.find((error) => error.pointer === "/kontonummer")?.detail}
-                  onClick={() => handleHentKontonummer()}
-                />
-                <TextField
-                  label="KID-nummer for utbetaling (valgfritt)"
-                  size="small"
-                  name="kid"
-                  htmlSize={35}
-                  error={errors.find((error) => error.pointer === "/kid")?.detail}
-                  value={kid}
-                  onChange={(e) => setKid(e.target.value)}
-                  maxLength={25}
-                  id="kid"
-                />
-              </VStack>
-              <Separator />
-              <CheckboxGroup error={errorAt("/bekreftelse", errors)} legend="Bekreftelse">
-                <Checkbox
-                  name="bekreftelse"
-                  value="bekreftet"
-                  id="bekreftelse"
-                  checked={bekreftelse}
-                  onChange={(e) => setBekreftelse(e.target.checked)}
-                  error={errorAt("/bekreftelse", errors) !== undefined}
-                >
-                  {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
-                </Checkbox>
-              </CheckboxGroup>
-              {hasError && (
-                <ErrorSummary ref={errorSummaryRef}>
-                  {errors.map((error: FieldError) => {
-                    return (
-                      <ErrorSummary.Item
-                        href={`#${jsonPointerToFieldPath(error.pointer)}`}
-                        key={jsonPointerToFieldPath(error.pointer)}
-                      >
-                        {error.detail}
-                      </ErrorSummary.Item>
-                    );
-                  })}
-                </ErrorSummary>
-              )}
-            </>
-          ) : (
-            <UtbetalingManglendeTilsagnAlert />
+          <Heading size="medium" level="3" spacing>
+            Betalingsinformasjon
+          </Heading>
+          <VStack gap="space-16">
+            <KontonummerInput
+              kontonummer={utbetaling.betalingsinformasjon?.kontonummer ?? undefined}
+              error={errors.find((error) => error.pointer === "/kontonummer")?.detail}
+              onClick={() => handleHentKontonummer()}
+            />
+            <TextField
+              label="KID-nummer for utbetaling (valgfritt)"
+              size="small"
+              name="kid"
+              htmlSize={35}
+              error={errors.find((error) => error.pointer === "/kid")?.detail}
+              value={kid}
+              onChange={(e) => setKid(e.target.value)}
+              maxLength={25}
+              id="kid"
+            />
+          </VStack>
+          <Separator />
+          <Heading size="medium" level="3">
+            Bekreftelse
+          </Heading>
+          <CheckboxGroup error={errorAt("/bekreftelse", errors)} hideLegend legend="Bekreftelse">
+            <Checkbox
+              name="bekreftelse"
+              value="bekreftet"
+              id="bekreftelse"
+              checked={bekreftelse}
+              onChange={(e) => setBekreftelse(e.target.checked)}
+              error={errorAt("/bekreftelse", errors) !== undefined}
+            >
+              {tekster.bokmal.utbetaling.oppsummering.bekreftelse}
+            </Checkbox>
+            <Separator />
+            <BlokkeringerVarsler
+              blokkeringer={utbetaling.blokkeringer}
+              advarsler={utbetaling.advarsler}
+            />
+          </CheckboxGroup>
+          {hasError && (
+            <ErrorSummary ref={errorSummaryRef}>
+              {errors.map((error: FieldError) => {
+                return (
+                  <ErrorSummary.Item
+                    href={`#${jsonPointerToFieldPath(error.pointer)}`}
+                    key={jsonPointerToFieldPath(error.pointer)}
+                  >
+                    {error.detail}
+                  </ErrorSummary.Item>
+                );
+              })}
+            </ErrorSummary>
           )}
         </Box>
         <HStack gap="space-16">
           <Button type="button" variant="tertiary" onClick={wizard.goToPrevious}>
             Tilbake
           </Button>
-          {harTilsagn && (
+          {utbetaling.blokkeringer.length === 0 && (
             <Button type="submit" loading={godkjennUtbetaling.isPending}>
               Bekreft og send inn
             </Button>

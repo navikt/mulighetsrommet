@@ -24,10 +24,9 @@ data class UtbetalingStatusDto(
 
         private fun fromUtbetalingStatus(utbetalingStatus: UtbetalingStatusType, blokkeringer: Set<Utbetaling.Blokkering>, utledAvbrutt: () -> Type): UtbetalingStatusDto {
             val type = when (utbetalingStatus) {
-                UtbetalingStatusType.GENERERT -> if (blokkeringer.contains(Utbetaling.Blokkering.UBEHANDLET_FORSLAG)) {
-                    Type.UBEHANDLET_FORSLAG
+                UtbetalingStatusType.GENERERT -> if (blokkeringer.isNotEmpty()) {
+                    Type.BLOKKERT_FOR_INNSENDING
                 } else {
-                    // TODO: Håndter Utbetaling.Blokkering.MANGLER_TILSAGN
                     Type.VENTER_PA_ARRANGOR
                 }
 
@@ -76,7 +75,7 @@ data class UtbetalingStatusDto(
 
     enum class Type(val beskrivelse: String, val variant: DataElement.Status.Variant) {
         VENTER_PA_ARRANGOR("Venter på arrangør", DataElement.Status.Variant.ALT_1),
-        UBEHANDLET_FORSLAG("Ubehandlede forslag", DataElement.Status.Variant.WARNING),
+        BLOKKERT_FOR_INNSENDING("Blokkert for innsending", DataElement.Status.Variant.WARNING),
         KLAR_TIL_BEHANDLING("Klar til behandling", DataElement.Status.Variant.SUCCESS),
         TIL_ATTESTERING("Til attestering", DataElement.Status.Variant.INFO),
         RETURNERT("Returnert", DataElement.Status.Variant.ERROR),
