@@ -28,7 +28,8 @@ import no.nav.tiltak.historikk.clients.Avtale
 import no.nav.tiltak.historikk.clients.GetAvtalerForPersonResponse
 import no.nav.tiltak.historikk.clients.GraphqlResponse
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import no.nav.tiltak.historikk.kafka.consumers.toGjennomforingDbo
+import no.nav.tiltak.historikk.kafka.consumers.toGjennomforing
+import no.nav.tiltak.historikk.kafka.consumers.toKometDeltaker
 import no.nav.tiltak.historikk.plugins.ACCESS_AS_APPLICATION
 import no.nav.tiltak.historikk.plugins.TiltakshistorikkReadRoles
 import java.time.LocalDate
@@ -419,7 +420,7 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     queries.tiltakstype.upsert(gruppeAmoTiltakstype)
 
     val gruppeAmoGjennomforing = TestFixtures.Gjennomforing.gruppeAmo
-    queries.gjennomforing.upsert(gruppeAmoGjennomforing.toGjennomforingDbo())
+    queries.gjennomforing.upsert(gruppeAmoGjennomforing.toGjennomforing())
 
     val amtDeltaker = AmtDeltakerV1Dto(
         id = TEAM_KOMET_GRUPPE_AMO_ID,
@@ -438,5 +439,5 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         prosentStilling = 100f,
         deltakelsesmengder = listOf(),
     )
-    queries.kometDeltaker.upsertKometDeltaker(amtDeltaker)
+    queries.kometDeltaker.upsertKometDeltaker(amtDeltaker.toKometDeltaker())
 }

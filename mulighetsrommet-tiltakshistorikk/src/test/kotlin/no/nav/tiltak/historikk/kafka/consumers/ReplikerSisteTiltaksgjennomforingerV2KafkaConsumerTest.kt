@@ -19,9 +19,8 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import no.nav.tiltak.historikk.db.queries.GjennomforingDbo
-import no.nav.tiltak.historikk.db.queries.GjennomforingType
-import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
+import no.nav.tiltak.historikk.model.Gjennomforing
+import no.nav.tiltak.historikk.model.Virksomhet
 import no.nav.tiltak.historikk.service.VirksomhetService
 
 class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
@@ -57,17 +56,17 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
             consumer.consume(enkeltplass.id, Json.encodeToJsonElement(enkeltplass))
 
             db.session {
-                queries.gjennomforing.get(gruppe.id) shouldBe GjennomforingDbo(
+                queries.gjennomforing.get(gruppe.id) shouldBe Gjennomforing(
                     id = gruppe.id,
-                    type = GjennomforingType.GRUPPE,
+                    type = Gjennomforing.Type.GRUPPE,
                     tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                     arrangorOrganisasjonsnummer = "987654321",
                     navn = "Gruppe AMO",
                     deltidsprosent = 80.0,
                 )
-                queries.gjennomforing.get(enkeltplass.id) shouldBe GjennomforingDbo(
+                queries.gjennomforing.get(enkeltplass.id) shouldBe Gjennomforing(
                     id = enkeltplass.id,
-                    type = GjennomforingType.ENKELTPLASS,
+                    type = Gjennomforing.Type.ENKELTPLASS,
                     tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
                     arrangorOrganisasjonsnummer = "987654321",
                     navn = null,
@@ -85,8 +84,8 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
 
         test("delete gjennomforing for tombstone messages") {
             db.session {
-                queries.gjennomforing.upsert(gruppe.toGjennomforingDbo())
-                queries.gjennomforing.upsert(enkeltplass.toGjennomforingDbo())
+                queries.gjennomforing.upsert(gruppe.toGjennomforing())
+                queries.gjennomforing.upsert(enkeltplass.toGjennomforing())
             }
 
             consumer.consume(gruppe.id, JsonNull)
@@ -147,7 +146,7 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumerTest : FunSpec({
                 queries.gjennomforing.get(gjennomforing.id)?.arrangorOrganisasjonsnummer shouldBe "111222333"
             }
 
-            virksomheter.getVirksomhet(Organisasjonsnummer("111222333")) shouldBe VirksomhetDbo(
+            virksomheter.getVirksomhet(Organisasjonsnummer("111222333")) shouldBe Virksomhet(
                 organisasjonsnummer = Organisasjonsnummer("111222333"),
                 overordnetEnhetOrganisasjonsnummer = null,
                 navn = null,

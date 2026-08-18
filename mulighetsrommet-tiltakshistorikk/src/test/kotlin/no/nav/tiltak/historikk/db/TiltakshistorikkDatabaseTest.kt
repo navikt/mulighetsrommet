@@ -15,8 +15,9 @@ import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.databaseConfig
-import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
-import no.nav.tiltak.historikk.kafka.consumers.toGjennomforingDbo
+import no.nav.tiltak.historikk.kafka.consumers.toGjennomforing
+import no.nav.tiltak.historikk.kafka.consumers.toKometDeltaker
+import no.nav.tiltak.historikk.model.Virksomhet
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -28,7 +29,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         val db = TiltakshistorikkDatabase(database.db)
 
         test("oppretter, henter og sletter virksomhet") {
-            val virksomhetForetak = VirksomhetDbo(
+            val virksomhetForetak = Virksomhet(
                 organisasjonsnummer = Organisasjonsnummer("987654321"),
                 overordnetEnhetOrganisasjonsnummer = null,
                 navn = "Virksomhet Foretak",
@@ -36,7 +37,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                 slettetDato = null,
             )
 
-            val virksomhetAvdeling = VirksomhetDbo(
+            val virksomhetAvdeling = Virksomhet(
                 organisasjonsnummer = Organisasjonsnummer("876543210"),
                 overordnetEnhetOrganisasjonsnummer = Organisasjonsnummer("987654321"),
                 navn = "Virksomhet Avdeling",
@@ -59,7 +60,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
         }
 
         test("oppdaterer eksisterende virksomhet ved upsert") {
-            val virksomhet = VirksomhetDbo(
+            val virksomhet = Virksomhet(
                 organisasjonsnummer = Organisasjonsnummer("888999777"),
                 overordnetEnhetOrganisasjonsnummer = null,
                 navn = "Original Navn",
@@ -301,13 +302,13 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                 queries.virksomhet.upsert(hovedenhet)
                 queries.virksomhet.upsert(underenhet)
                 queries.tiltakstype.upsert(TestFixtures.Tiltakstype.gruppeAmo)
-                queries.gjennomforing.upsert(gruppeAmo.toGjennomforingDbo())
+                queries.gjennomforing.upsert(gruppeAmo.toGjennomforing())
             }
         }
 
         test("oppretter og henter Komet-deltaker med tilhørende gjennomføring") {
             db.transaction {
-                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker)
+                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker.toKometDeltaker())
 
                 queries.kometDeltaker.getKometHistorikk(
                     identer = listOf(NorskIdent(amtDeltaker.personIdent)),
@@ -348,6 +349,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                 )
             }
         }
+
         test("sletter Komet-deltaker") {
             db.transaction {
                 val testDeltaker = AmtDeltakerV1Dto(
@@ -368,7 +370,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                     deltakelsesmengder = listOf(),
                 )
 
-                queries.kometDeltaker.upsertKometDeltaker(testDeltaker)
+                queries.kometDeltaker.upsertKometDeltaker(testDeltaker.toKometDeltaker())
 
                 queries.kometDeltaker.getKometHistorikk(
                     identer = listOf(NorskIdent(testDeltaker.personIdent)),

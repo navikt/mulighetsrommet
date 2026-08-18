@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.tiltak.historikk.TestFixtures
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
@@ -28,7 +29,7 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
             db.session {
                 queries.tiltakstype.upsert(TestFixtures.Tiltakstype.gruppeAmo)
                 queries.virksomhet.upsert(TestFixtures.Virksomhet.arrangor)
-                queries.gjennomforing.upsert(TestFixtures.Gjennomforing.gruppeAmo.toGjennomforingDbo())
+                queries.gjennomforing.upsert(TestFixtures.Gjennomforing.gruppeAmo.toGjennomforing())
             }
         }
 
@@ -46,7 +47,7 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
 
         test("delete deltakere for tombstone messages") {
             db.session {
-                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1)
+                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1.toKometDeltaker())
             }
 
             deltakerConsumer.consume(amtDeltaker1.id, JsonNull)
@@ -56,9 +57,41 @@ class ReplikerAmtDeltakerV1KafkaConsumerTest : FunSpec({
             }
         }
 
+        test("hopper over deltaker hvis innkommende endretTidspunkt er eldre enn lagret") {
+            db.session {
+                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1.toKometDeltaker())
+            }
+
+            val utdatertDeltaker = amtDeltaker1.copy(
+                endretDato = amtDeltaker1.endretDato.minusDays(1),
+                startDato = LocalDate.of(2025, 1, 1),
+            )
+            deltakerConsumer.consume(utdatertDeltaker.id, Json.encodeToJsonElement(utdatertDeltaker))
+
+            db.session {
+                queries.kometDeltaker.get(amtDeltaker1.id)?.startDato shouldBe amtDeltaker1.startDato
+            }
+        }
+
+        test("oppdaterer deltaker hvis innkommende endretTidspunkt er nyere enn lagret") {
+            db.session {
+                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1.toKometDeltaker())
+            }
+
+            val oppdatertDeltaker = amtDeltaker1.copy(
+                endretDato = amtDeltaker1.endretDato.plusDays(1),
+                startDato = LocalDate.of(2025, 1, 1),
+            )
+            deltakerConsumer.consume(oppdatertDeltaker.id, Json.encodeToJsonElement(oppdatertDeltaker))
+
+            db.session {
+                queries.kometDeltaker.get(amtDeltaker1.id)?.startDato shouldBe oppdatertDeltaker.startDato
+            }
+        }
+
         test("delete deltakere that have status FEILREGISTRERT") {
             db.session {
-                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1)
+                queries.kometDeltaker.upsertKometDeltaker(amtDeltaker1.toKometDeltaker())
             }
 
             val feilregistrertDeltaker1 = amtDeltaker1.copy(
