@@ -81,6 +81,31 @@ allprojects {
     }
 }
 
+subprojects {
+    // Vi har ikke Jackson som en direkte avhengighet, men flere biblioteker drar det inn transitivt.
+    // Disse constraintene lar oss overstyre versjonene sentralt når CVE-er dukker opp.
+    fun addJacksonVersionConstraints(configurationName: String) {
+        dependencies {
+            constraints {
+                add(configurationName, rootProject.libs.jackson2.bom) {
+                    because("CVE i transitive avhengigheter til Jackson 2")
+                }
+                add(configurationName, rootProject.libs.jackson3.bom) {
+                    because("CVE i transitive avhengigheter til Jackson 3")
+                }
+            }
+        }
+    }
+
+    pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
+        addJacksonVersionConstraints("implementation")
+    }
+
+    pluginManager.withPlugin("java-test-fixtures") {
+        addJacksonVersionConstraints("testFixturesImplementation")
+    }
+}
+
 tasks.register("writeLocks") {
     val configCacheRequested = (gradle as org.gradle.api.internal.GradleInternal)
         .services.get(BuildFeatures::class.java)
