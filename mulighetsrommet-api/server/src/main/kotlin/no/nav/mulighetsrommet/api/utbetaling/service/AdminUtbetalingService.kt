@@ -30,8 +30,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeReturnertAarsa
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
-import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
-import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -48,7 +46,6 @@ class AdminUtbetalingService(
     private val db: ApiDatabase,
     private val utbetalingService: UtbetalingService,
     private val personaliaService: PersonaliaService,
-    private val featureToggleService: FeatureToggleService,
 ) {
     fun getUtbetalingDetaljer(id: UUID, navIdent: NavIdent): UtbetalingDetaljerDto = db.session {
         val utbetaling = queries.utbetaling.getOrError(id)
@@ -61,9 +58,7 @@ class AdminUtbetalingService(
         )
 
         val ansatt = queries.ansatt.getOrError(navIdent)
-        val avbrytHandlingEnabled =
-            featureToggleService.isEnabled(FeatureToggle.TILTAKSADMINISTRASJON_AVBRYT_UTBETALING_HANDLING)
-        val handlinger = utbetalingHandlinger(utbetaling, ansatt, dto.avbrytelse, avbrytHandlingEnabled)
+        val handlinger = utbetalingHandlinger(utbetaling, ansatt, dto.avbrytelse)
 
         return UtbetalingDetaljerDto(utbetaling = dto, handlinger = handlinger)
     }
@@ -297,7 +292,6 @@ class AdminUtbetalingService(
             utbetaling: Utbetaling,
             ansatt: NavAnsatt,
             tilAvbrytelse: TotrinnskontrollDto?,
-            avbrytHandlingEnabled: Boolean,
         ) = setOfNotNull(
             UtbetalingHandling.SEND_TIL_ATTESTERING.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.SLETT.takeIf { utbetaling.erTilBehandling() && utbetaling.erKorreksjon() },
@@ -305,7 +299,7 @@ class AdminUtbetalingService(
             UtbetalingHandling.REDIGER.takeIf { kanRedigeres(utbetaling) },
             UtbetalingHandling.HENT_GODKJENTE_TILSAGN.takeIf { utbetaling.erTilBehandling() },
             UtbetalingHandling.OPPRETT_TILSAGN.takeIf { utbetaling.erTilBehandling() },
-            UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { avbrytHandlingEnabled && utbetaling.kanSettesTilAvbrytelse() },
+            UtbetalingHandling.SEND_TIL_AVBRYTELSE.takeIf { utbetaling.kanSettesTilAvbrytelse() },
             UtbetalingHandling.GODKJENN_AVBRYTELSE.takeIf { kanGodkjenneAvbrytelse(ansatt, tilAvbrytelse) },
             UtbetalingHandling.AVSLA_AVBRYTELSE.takeIf { kanAvslaAvbrytelse(tilAvbrytelse) },
         )

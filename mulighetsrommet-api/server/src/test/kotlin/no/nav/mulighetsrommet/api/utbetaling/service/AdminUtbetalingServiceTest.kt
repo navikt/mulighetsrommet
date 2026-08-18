@@ -57,7 +57,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusAarsak
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.JournalpostId
@@ -103,7 +102,6 @@ class AdminUtbetalingServiceTest : FunSpec({
     fun createUtbetalingService(
         tilsagnService: TilsagnService = createTilsagnService(),
         tidligstTidspunktForUtbetaling: TidligstTidspunktForUtbetalingCalculator = umiddelbarUtbetaling,
-        featureToggleService: FeatureToggleService = mockk(),
     ): AdminUtbetalingService {
         val utbetalingService = UtbetalingService(
             config = UtbetalingService.Config(
@@ -116,7 +114,6 @@ class AdminUtbetalingServiceTest : FunSpec({
             db = database.api,
             utbetalingService = utbetalingService,
             personaliaService = mockk(),
-            featureToggleService = featureToggleService,
         )
     }
 
@@ -1518,9 +1515,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     gjennomforinger = listOf(AFT1),
                     utbetalinger = listOf(utbetaling1.copy(status = UtbetalingStatusType.GENERERT)),
                 ).initialize(database.api)
-                val featureToggleService = mockk<FeatureToggleService>()
-                coEvery { featureToggleService.isEnabled(any()) } returns true
-                val service = createUtbetalingService(featureToggleService = featureToggleService)
+                val service = createUtbetalingService()
 
                 val aarsakerOgForklaring = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)
                 service.sendTilAvbrytelse(utbetaling1.id, navIdent, aarsakerOgForklaring).shouldBeRight()
@@ -1573,9 +1568,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     gjennomforinger = listOf(AFT1),
                     utbetalinger = listOf(utbetaling1),
                 ).initialize(database.api)
-                val featureToggleService = mockk<FeatureToggleService>()
-                coEvery { featureToggleService.isEnabled(any()) } returns true
-                val service = createUtbetalingService(featureToggleService = featureToggleService)
+                val service = createUtbetalingService()
 
                 val aarsakerOgForklaring = AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)
                 service.sendTilAvbrytelse(utbetaling1.id, NavAnsattFixture.MikkeMus.navIdent, aarsakerOgForklaring).shouldBeRight()
@@ -1608,9 +1601,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                     utbetalinger = listOf(utbetaling1.copy(status = originalStatus)),
                 ).initialize(database.api)
 
-                val featureToggleService = mockk<FeatureToggleService>()
-                coEvery { featureToggleService.isEnabled(any()) } returns true
-                val service = createUtbetalingService(featureToggleService = featureToggleService)
+                val service = createUtbetalingService()
 
                 service.sendTilAvbrytelse(utbetaling1.id, navIdent, AarsakerOgForklaringRequest(aarsaker = listOf(UtbetalingStatusAarsak.TILSAGN_GJORT_OPP), forklaring = null)).shouldBeRight()
 
