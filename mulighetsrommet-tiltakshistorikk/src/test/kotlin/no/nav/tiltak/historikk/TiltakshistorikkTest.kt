@@ -262,7 +262,7 @@ class TiltakshistorikkTest : FunSpec({
                         status = TiltakshistorikkV1Dto.TeamKometDeltakelse.Status(
                             type = DeltakerStatusType.VENTER_PA_OPPSTART,
                             aarsak = null,
-                            opprettetDato = LocalDateTime.of(2002, 3, 1, 0, 0),
+                            opprettetTidspunkt = LocalDateTime.of(2002, 3, 1, 0, 0),
                         ),
                         tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
                             tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,

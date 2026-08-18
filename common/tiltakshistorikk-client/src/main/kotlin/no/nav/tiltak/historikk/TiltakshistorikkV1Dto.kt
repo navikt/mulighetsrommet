@@ -190,10 +190,9 @@ sealed class TiltakshistorikkV1Dto {
         data class Status(
             val type: DeltakerStatusType,
             val aarsak: DeltakerStatusAarsakType?,
-            // TODO endre til `opprettetTidspunkt`, men avklare med konsumenter først
-            @JsonNames("opprettetTidspunkt")
+            @JsonNames("opprettetDato")
             @Serializable(with = LocalDateTimeSerializer::class)
-            val opprettetDato: LocalDateTime,
+            val opprettetTidspunkt: LocalDateTime,
         )
     }
 

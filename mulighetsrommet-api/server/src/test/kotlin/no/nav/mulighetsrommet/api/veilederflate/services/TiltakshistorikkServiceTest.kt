@@ -61,7 +61,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         norskIdent = NorskIdent("12345678910"),
         status = TiltakshistorikkV1Dto.TeamKometDeltakelse.Status(
             type = DeltakerStatusType.VENTELISTE,
-            opprettetDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+            opprettetTidspunkt = LocalDateTime.of(2018, 12, 3, 0, 0),
             aarsak = null,
         ),
         startDato = LocalDate.of(2018, 12, 3),
