@@ -20,7 +20,9 @@ import no.nav.mulighetsrommet.api.utbetaling.service.AdminUtbetalingService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.featuretoggle.model.FeatureToggle
 import no.nav.mulighetsrommet.featuretoggle.service.FeatureToggleService
+import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import java.util.UUID
 
@@ -472,6 +474,7 @@ private fun tilAvbrytelseOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt)
     createdAt = data.avbrytelseBehandletTidspunkt ?: data.createdAt,
     arrangor = data.arrangor,
 ).takeIf { AdminUtbetalingService.tilgangTilHandling(UtbetalingHandling.GODKJENN_AVBRYTELSE, ansatt) }
+    .takeIf { !isSame(ansatt.navIdent, data.avbrytelseBehandletAv) }
 
 private fun AvtaleManglerAdministratorOppgaveData.toOppgave(ansatt: NavAnsatt) = Oppgave(
     id = id,
@@ -618,4 +621,8 @@ private fun getOkonomiOppgaveTitle(tiltakstype: OppgaveTiltakstype, gjennomforin
         is OppgaveGjennomforing.Gruppetiltak -> "${gjennomforing.navn} (${gjennomforing.lopenummer})"
         is OppgaveGjennomforing.Enkeltplass -> "${tiltakstype.navn} (${gjennomforing.lopenummer})"
     }
+}
+
+private fun isSame(ansatt: NavIdent, behandletAv: Agent?): Boolean {
+    return behandletAv is NavIdent && ansatt == behandletAv
 }
