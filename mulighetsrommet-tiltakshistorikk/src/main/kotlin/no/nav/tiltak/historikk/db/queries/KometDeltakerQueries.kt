@@ -8,7 +8,6 @@ import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.model.KometDeltaker
 import no.nav.tiltak.historikk.util.Tiltaksnavn
@@ -162,7 +161,7 @@ private fun Row.toTiltakshistorikkKometDeltaker(): KometDeltaker {
 
 private fun Row.toTeamKometDeltakelse(): TiltakshistorikkV1Dto.TeamKometDeltakelse {
     val tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
-        tiltakskode = Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
+        tiltakskode = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakskode.valueOf(string("tiltakstype_tiltakskode")),
         navn = string("tiltakstype_navn"),
     )
     val arrangor = TiltakshistorikkV1Dto.Arrangor(

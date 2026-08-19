@@ -212,12 +212,12 @@ enum class Tiltakskode(
         arenakode = "ARBTREN",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
-    MIDLERTIDIG_LONNSTLSKUDD(
+    MIDLERTIDIG_LONNSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "MIDLONTIL",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
-    VARIG_LONNSTILSKUD(
+    VARIG_LONNSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "VARLONTIL",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
@@ -227,7 +227,7 @@ enum class Tiltakskode(
         arenakode = "MENTOR",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
-    INKLUDERINGSTILSKUD(
+    INKLUDERINGSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "INKLUTILS",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
@@ -242,7 +242,7 @@ enum class Tiltakskode(
         arenakode = "VATIAROR",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
-    FIREARIG_LONNSTILSUDD(
+    FIREARIG_LONNSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = null,
         egenskaper = setOf(),

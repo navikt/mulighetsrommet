@@ -17,7 +17,6 @@ import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.respondJson
-import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -243,7 +242,7 @@ class TiltakshistorikkTest : FunSpec({
                             tiltakskode = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.ARBEIDSTRENING,
                             navn = "Arbeidstrening",
                         ),
-                        status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
+                        status = TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.GJENNOMFORES,
                         stillingsprosent = 77f,
                         dagerPerUke = 2.5f,
                         arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(
@@ -265,7 +264,7 @@ class TiltakshistorikkTest : FunSpec({
                             opprettetTidspunkt = LocalDateTime.of(2002, 3, 1, 0, 0),
                         ),
                         tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
-                            tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+                            tiltakskode = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                             navn = "Arbeidsmarkedsopplæring (gruppe)",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
