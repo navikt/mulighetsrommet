@@ -25,7 +25,7 @@ class ReplikerSisteTiltakstyperV3KafkaConsumer(
 
 private fun TiltakstypeV3Dto.toTiltakstype(): Tiltakstype = Tiltakstype(
     navn = navn,
-    tiltakskode = tiltakskode.name,
+    tiltakskode = tiltakskode,
     arenaTiltakskode = tiltakskode.arenakode,
     tiltakstypeId = id,
 )

@@ -3,7 +3,6 @@
 package no.nav.mulighetsrommet.model
 
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.JsonNames
 
 enum class Tiltakskode(
     val system: TiltakstypeSystem,
@@ -217,15 +216,11 @@ enum class Tiltakskode(
         arenakode = "ARBTREN",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
-
-    @JsonNames("MIDLERTIDIG_LONNSTLSKUDD")
     MIDLERTIDIG_LONNSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "MIDLONTIL",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
-
-    @JsonNames("VARIG_LONNSTILSKUD")
     VARIG_LONNSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "VARLONTIL",
@@ -236,8 +231,6 @@ enum class Tiltakskode(
         arenakode = "MENTOR",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
-
-    @JsonNames("INKLUDERINGSTILSKUD")
     INKLUDERINGSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "INKLUTILS",
@@ -253,8 +246,6 @@ enum class Tiltakskode(
         arenakode = "VATIAROR",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
-
-    @JsonNames("FIREARIG_LONNSTILSUDD")
     FIREARIG_LONNSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = null,

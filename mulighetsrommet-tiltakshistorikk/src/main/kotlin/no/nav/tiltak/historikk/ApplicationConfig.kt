@@ -22,6 +22,7 @@ data class AppConfig(
     val auth: AuthConfig,
     val kafka: KafkaConfig,
     val clients: ClientConfig,
+    val useKafkaForTeamTiltak: Boolean = false,
     val arbeidsgiverTiltakCutOffDatoMapping: Map<Avtale.Tiltakstype, LocalDate> = mapOf(
         Avtale.Tiltakstype.SOMMERJOBB to LocalDate.of(2021, 1, 1),
         Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
@@ -78,5 +79,10 @@ data class KafkaConsumers(
         id = "repliker-amt-virksomheter",
         topic = "amt.virksomheter-v1",
         consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.amt-virksomheter.v1"),
+    ),
+    val replikerTiltakAvtale: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "repliker-tiltak-avtale",
+        topic = "team-tiltak.tiltak-avtale-hendelse-compact",
+        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.tiltak-avtale.v1"),
     ),
 )

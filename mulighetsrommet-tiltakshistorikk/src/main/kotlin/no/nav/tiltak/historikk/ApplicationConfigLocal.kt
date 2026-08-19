@@ -78,6 +78,11 @@ val ApplicationConfigLocal = AppConfig(
                 topic = "amt.virksomheter-v1",
                 consumerProperties = consumerProperties,
             ),
+            replikerTiltakAvtale = KafkaTopicConsumer.Config(
+                id = "repliker-tiltak-avtale",
+                topic = "tiltak-avtale-hendelse-compact",
+                consumerProperties = consumerProperties,
+            ),
         ),
     ),
     clients = ClientConfig(

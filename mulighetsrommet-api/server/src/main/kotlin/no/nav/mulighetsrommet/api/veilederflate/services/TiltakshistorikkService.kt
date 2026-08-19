@@ -17,8 +17,8 @@ import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseStatus
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTilstand
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
-import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
+import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskoder
@@ -149,7 +149,7 @@ class TiltakshistorikkService(
                 sluttDato = deltakelse.sluttDato,
             ),
             status = DeltakelseStatus(
-                type = deltakelse.status.toDataElement(),
+                type = getStatusDataElement(deltakelse.status),
                 aarsak = null,
             ),
             tittel = deltakelse.tittel,
@@ -281,21 +281,44 @@ private fun getTilstand(type: DeltakerStatusType): DeltakelseTilstand = when (ty
     -> DeltakelseTilstand.AVSLUTTET
 }
 
-private fun getTilstand(status: ArbeidsgiverAvtaleStatus): DeltakelseTilstand = when (status) {
-    ArbeidsgiverAvtaleStatus.PAABEGYNT,
+private fun getTilstand(status: TiltakshistorikkV1Dto.TeamTiltakAvtale.Status): DeltakelseTilstand = when (status) {
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.PAABEGYNT,
     -> DeltakelseTilstand.KLADD
 
-    ArbeidsgiverAvtaleStatus.MANGLER_GODKJENNING,
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.MANGLER_GODKJENNING,
     -> DeltakelseTilstand.UTKAST
 
-    ArbeidsgiverAvtaleStatus.KLAR_FOR_OPPSTART,
-    ArbeidsgiverAvtaleStatus.GJENNOMFORES,
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.KLAR_FOR_OPPSTART,
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.GJENNOMFORES,
     -> DeltakelseTilstand.AKTIV
 
-    ArbeidsgiverAvtaleStatus.AVSLUTTET,
-    ArbeidsgiverAvtaleStatus.AVBRUTT,
-    ArbeidsgiverAvtaleStatus.ANNULLERT,
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.AVSLUTTET,
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.AVBRUTT,
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.ANNULLERT,
     -> DeltakelseTilstand.AVSLUTTET
+}
+
+private fun getStatusDataElement(status: TiltakshistorikkV1Dto.TeamTiltakAvtale.Status): DataElement.Status = when (status) {
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.PAABEGYNT,
+    -> DataElement.Status("Påbegynt", DataElement.Status.Variant.WARNING)
+
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.MANGLER_GODKJENNING,
+    -> DataElement.Status("Mangler godkjenning", DataElement.Status.Variant.INFO)
+
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.KLAR_FOR_OPPSTART,
+    -> DataElement.Status("Klar for oppstart", DataElement.Status.Variant.INFO)
+
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.GJENNOMFORES,
+    -> DataElement.Status("Gjennomføres", DataElement.Status.Variant.BLANK)
+
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.AVSLUTTET,
+    -> DataElement.Status("Avsluttet", DataElement.Status.Variant.ALT_1)
+
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.AVBRUTT,
+    -> DataElement.Status("Avbrutt", DataElement.Status.Variant.NEUTRAL)
+
+    TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.ANNULLERT,
+    -> DataElement.Status("Annullert", DataElement.Status.Variant.NEUTRAL)
 }
 
 enum class DeltakelserMelding {

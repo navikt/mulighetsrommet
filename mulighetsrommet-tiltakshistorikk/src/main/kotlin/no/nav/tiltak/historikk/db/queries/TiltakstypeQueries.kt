@@ -3,6 +3,7 @@ package no.nav.tiltak.historikk.db.queries
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.clients.Avtale
 import no.nav.tiltak.historikk.model.Tiltakstype
 import org.intellij.lang.annotations.Language
@@ -23,7 +24,7 @@ class TiltakstypeQueries(private val session: Session) {
                 query,
                 mapOf(
                     "arena_tiltakskode" to tiltakstype.arenaTiltakskode,
-                    "tiltakskode" to tiltakstype.tiltakskode,
+                    "tiltakskode" to tiltakstype.tiltakskode?.name,
                     "navn" to tiltakstype.navn,
                     "tiltakstype_id" to tiltakstype.tiltakstypeId,
                 ),
@@ -41,7 +42,7 @@ class TiltakstypeQueries(private val session: Session) {
         return session.requireSingle(queryOf(query, tiltakstype.name)) { row ->
             Tiltakstype(
                 navn = row.string("navn"),
-                tiltakskode = row.string("tiltakskode"),
+                tiltakskode = Tiltakskode.valueOf(row.string("tiltakskode")),
                 arenaTiltakskode = row.stringOrNull("arena_tiltakskode"),
                 tiltakstypeId = row.uuid("tiltakstype_id"),
             )
