@@ -63,10 +63,12 @@ class TiltakDokumentAdminService(
         val tiltakstype = db.session { repository.tiltakstype.get(request.tiltakstypeId) }
             ?: return FieldError.of("Fant ikke tiltakstype", TiltakDokumentRequest::tiltakstypeId).nel().left()
 
-        return TiltakDokumentValidator.validate(request, tiltakstype)
+        val previous = db.session { queries.tiltakDokument.getTiltakDokumentDto(request.id) }
+
+        return TiltakDokumentValidator.validate(request, tiltakstype, previous)
             .map { tiltakDokument ->
                 db.transaction {
-                    val isNew = queries.tiltakDokument.getTiltakDokumentDto(request.id) == null
+                    val isNew = previous == null
                     repository.tiltakDokument.save(tiltakDokument)
                     val dto = queries.tiltakDokument.getTiltakDokumentDto(request.id)!!
                     val operation = if (isNew) "Opprettet tiltaksdokument" else "Endret tiltaksdokument"
