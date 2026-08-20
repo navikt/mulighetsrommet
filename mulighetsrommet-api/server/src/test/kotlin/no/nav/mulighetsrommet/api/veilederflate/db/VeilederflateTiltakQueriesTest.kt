@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.veilederflate.db
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -11,8 +12,10 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Gjovik
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Innlandet
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Lillehammer
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures.Oslo
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.ArbeidsrettetRehabilitering
@@ -324,6 +327,93 @@ class VeilederflateTiltakQueriesTest : FunSpec({
                         ),
                     )
                 }
+            }
+        }
+    }
+
+    context("getAllTiltakDokument") {
+        fun minimalDokument(
+            id: UUID = UUID.randomUUID(),
+            navn: String = "Test",
+            navEnheter: List<NavEnhetNummer> = emptyList(),
+        ) = TiltakDokument(
+            id = id,
+            navn = navn,
+            tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
+            stedForGjennomforing = null,
+            arrangorId = null,
+            faneinnhold = null,
+            beskrivelse = null,
+            tiltaksnummer = null,
+            sanityId = null,
+            publisert = true,
+            administratorer = emptyList(),
+            navEnheter = navEnheter,
+            kontaktpersoner = emptyList(),
+            arrangorKontaktpersoner = emptyList(),
+        )
+
+        test("inkluderer dokument med kun fylke når enhet i fylket filtreres") {
+            database.runAndRollback {
+                val domain = MulighetsrommetTestDomain(
+                    navEnheter = listOf(Innlandet, Gjovik, Oslo),
+                    tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                )
+                domain.initialize()
+
+                val medFylkeId = UUID.randomUUID()
+                val medEnhetId = UUID.randomUUID()
+
+                repository.tiltakDokument.save(
+                    minimalDokument(id = medFylkeId, navn = "Kun fylke", navEnheter = listOf(Innlandet.enhetsnummer)),
+                )
+                repository.tiltakDokument.save(
+                    minimalDokument(id = medEnhetId, navn = "Med enhet", navEnheter = listOf(Gjovik.enhetsnummer)),
+                )
+
+                val result = queries.veilderTiltak.getAllTiltakDokument(
+                    brukersEnheter = listOf(Gjovik.enhetsnummer),
+                )
+                result shouldHaveSize 2
+                result.map { it.id } shouldContainExactlyInAnyOrder listOf(medFylkeId, medEnhetId)
+            }
+        }
+
+        test("ekskluderer dokument med annen fylke") {
+            database.runAndRollback {
+                val domain = MulighetsrommetTestDomain(
+                    navEnheter = listOf(Innlandet, Gjovik, Oslo),
+                    tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                )
+                domain.initialize()
+
+                repository.tiltakDokument.save(
+                    minimalDokument(navn = "Annen fylke", navEnheter = listOf(Oslo.enhetsnummer)),
+                )
+
+                val result = queries.veilderTiltak.getAllTiltakDokument(
+                    brukersEnheter = listOf(Gjovik.enhetsnummer),
+                )
+                result.shouldBeEmpty()
+            }
+        }
+
+        test("eksluderer dokument med riktig fylke men feil underenhet") {
+            database.runAndRollback {
+                val domain = MulighetsrommetTestDomain(
+                    navEnheter = listOf(Innlandet, Gjovik, Oslo, Lillehammer),
+                    tiltakstyper = listOf(TiltakstypeFixtures.Oppfolging),
+                )
+                domain.initialize()
+
+                repository.tiltakDokument.save(
+                    minimalDokument(navn = "Riktig fylke, feil underenhet", navEnheter = listOf(Innlandet.enhetsnummer, Lillehammer.enhetsnummer)),
+                )
+
+                val result = queries.veilderTiltak.getAllTiltakDokument(
+                    brukersEnheter = listOf(Gjovik.enhetsnummer),
+                )
+                result.shouldBeEmpty()
             }
         }
     }

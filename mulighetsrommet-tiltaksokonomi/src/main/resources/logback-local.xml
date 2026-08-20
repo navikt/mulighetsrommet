@@ -10,5 +10,6 @@
     </root>
 
     <logger name="io.netty" level="INFO"/>
+    <logger name="org.apache.kafka.clients.NetworkClient" level="ERROR"/>
     <logger name="no.nav.mulighetsrommet" level="INFO"/>
 </included>

@@ -96,8 +96,14 @@ class VeilederflateTiltakQueries(private val session: Session) {
         where publisert
             and (:tiltakskoder::text[] is null or tiltakstype_tiltakskode = any(:tiltakskoder))
             and exists(select true
-            from jsonb_array_elements(nav_enheter_json) as nav_enhet
-                where nav_enhet ->> 'enhetsnummer' = any(:brukers_enheter))
+            from jsonb_array_elements(nav_enheter_json) as doc_enhet
+                where doc_enhet ->> 'enhetsnummer' = any(:brukers_enheter)
+                   or (jsonb_array_length(nav_enheter_json) = 1
+                       and doc_enhet ->> 'enhetsnummer' in (
+                           select overordnet_enhet from nav_enhet
+                           where enhetsnummer = any(:brukers_enheter)
+                             and overordnet_enhet is not null
+                       )))
         """.trimIndent()
 
         return list(queryOf(query, parameters)) { toVeilederflateTiltakDokument(it) }
