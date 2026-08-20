@@ -1533,14 +1533,8 @@ components:
           $ref: "#/components/schemas/ArrangorflateArrangorDto"
         tiltakstype:
           $ref: "#/components/schemas/ArrangorflateTiltakstypeDto"
-        startDato:
-          type: string
-          format: date
-        sluttDato:
-          type:
-          - "null"
-          - string
-          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
         beregnetBelop:
           $ref: "#/components/schemas/ValutaBelop"
         godkjentBelop:
@@ -1556,8 +1550,7 @@ components:
       - beregnetBelop
       - gjennomforing
       - godkjentBelop
-      - sluttDato
-      - startDato
+      - periode
       - status
       - tiltakstype
       - type

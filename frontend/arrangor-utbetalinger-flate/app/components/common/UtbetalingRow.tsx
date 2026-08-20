@@ -1,5 +1,5 @@
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
-import { formaterPeriodeUdefinertSlutt } from "@mr/frontend-common/utils/date";
+import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { Table } from "@navikt/ds-react";
 import { UtbetalingStatusTag } from "../utbetaling/UtbetalingStatusTag";
 import { UtbetalingTextLink } from "../utbetaling/UtbetalingTextLink";
@@ -38,9 +38,7 @@ export function UtbetalingRow({ row, type }: UtbetalingRowProps) {
 
       <ArrangorDataCell arrangor={row.arrangor} />
 
-      <Table.DataCell>
-        {formaterPeriodeUdefinertSlutt({ start: row.startDato, slutt: row.sluttDato })}
-      </Table.DataCell>
+      <Table.DataCell>{formaterPeriode(row.periode)}</Table.DataCell>
 
       <Table.DataCell align="right" className="whitespace-nowrap">
         {formaterValutaBelop(row.beregnetBelop)}

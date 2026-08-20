@@ -1,4 +1,8 @@
-import { formaterPeriodeUdefinertSlutt } from "@mr/frontend-common/utils/date";
+import {
+  addDuration,
+  formaterPeriodeUdefinertSlutt,
+  yyyyMMddFormatting,
+} from "@mr/frontend-common/utils/date";
 import { Link, Table } from "@navikt/ds-react";
 import { Link as ReactRouterLink } from "react-router";
 import { ArrangorflateTiltakRadDto } from "@arrangor-utbetalinger/api-client";
@@ -14,6 +18,11 @@ export const kolonner: Array<Kolonne> = [
 ];
 
 export function TiltakRow({ row }: { row: ArrangorflateTiltakRadDto }) {
+  // Gjennomføringens sluttdato er inklusiv, mens formaterPeriodeUdefinertSlutt forventer eksklusiv sluttdato
+  const eksklusivSluttDato = row.sluttDato
+    ? yyyyMMddFormatting(addDuration(row.sluttDato, { days: 1 }))
+    : undefined;
+
   return (
     <Table.Row>
       <TiltakHeaderCell tiltakstype={row.tiltakstype} gjennomforing={row.gjennomforing} />
@@ -21,7 +30,7 @@ export function TiltakRow({ row }: { row: ArrangorflateTiltakRadDto }) {
       <ArrangorDataCell arrangor={row.arrangor} />
 
       <Table.DataCell>
-        {formaterPeriodeUdefinertSlutt({ start: row.startDato, slutt: row.sluttDato })}
+        {formaterPeriodeUdefinertSlutt({ start: row.startDato, slutt: eksklusivSluttDato })}
       </Table.DataCell>
 
       <Table.DataCell>

@@ -13,7 +13,7 @@ data class ArrangorflateTiltakRadDto(
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
-    val sluttDato: LocalDate?, // Eksklusive
+    val sluttDato: LocalDate?,
 )
 
 fun ArrangorflateTiltak.toRadDto(): ArrangorflateTiltakRadDto = ArrangorflateTiltakRadDto(
@@ -32,5 +32,5 @@ fun ArrangorflateTiltak.toRadDto(): ArrangorflateTiltakRadDto = ArrangorflateTil
         tiltakskode = tiltakstype.tiltakskode,
     ),
     startDato = startDato,
-    sluttDato = sluttDato?.plusDays(1), // Eksklusive
+    sluttDato = sluttDato,
 )
