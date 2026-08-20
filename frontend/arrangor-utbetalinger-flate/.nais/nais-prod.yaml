@@ -6,9 +6,11 @@ metadata:
   labels:
     team: team-mulighetsrommet
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "50M"
-    nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    haproxy.org/backend-config-snippet: |
+      option http-buffer-request
+      acl body_too_large req.body_size gt 52428800
+      http-request deny deny_status 413 if body_too_large
+    haproxy.com/timeout-server: "300s"
 spec:
   image: "{{ image }}"
   port: 3000

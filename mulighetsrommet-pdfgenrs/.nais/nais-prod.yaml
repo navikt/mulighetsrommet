@@ -4,7 +4,10 @@ metadata:
   name: pdfgenrs
   namespace: team-mulighetsrommet
   annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "20M"
+    haproxy.org/backend-config-snippet: |
+      option http-buffer-request
+      acl body_too_large req.body_size gt 20971520
+      http-request deny deny_status 413 if body_too_large
   labels:
     team: team-mulighetsrommet
 spec:
