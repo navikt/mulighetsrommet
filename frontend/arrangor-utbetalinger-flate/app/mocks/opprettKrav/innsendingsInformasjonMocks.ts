@@ -38,7 +38,7 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingSteg = {
       label: "Tiltaksnavn",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingAFT.tiltakNavn,
+        value: gjennomforingAFT.gjennomforing.navn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -47,7 +47,7 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingSteg = {
       label: "Tiltakstype",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingAFT.tiltakstypeNavn,
+        value: gjennomforingAFT.tiltakstype.navn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -58,12 +58,12 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingSteg = {
       id: "df4553e5-6a42-4a21-85a1-e0db8b5cb70a",
       deltakere: [],
       tiltakstype: {
-        navn: gjennomforingAFT.tiltakstypeNavn,
+        navn: gjennomforingAFT.tiltakstype.navn,
         tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
       },
       gjennomforing: {
-        id: gjennomforingAFT.gjennomforingId,
-        navn: gjennomforingAFT.tiltakNavn,
+        id: gjennomforingAFT.gjennomforing.id,
+        navn: gjennomforingAFT.gjennomforing.navn,
         lopenummer: "2025/10000",
       },
       arrangor: arrangorMock,
@@ -145,7 +145,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingSteg = {
       label: "Tiltaksnavn",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingAvklaring.tiltakNavn,
+        value: gjennomforingAvklaring.gjennomforing.navn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -154,7 +154,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingSteg = {
       label: "Tiltakstype",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingAvklaring.tiltakstypeNavn,
+        value: gjennomforingAvklaring.tiltakstype.navn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -165,12 +165,12 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingSteg = {
       id: "b0a3c090-1f8c-44f3-b334-2b22022b3ce9",
       deltakere: [],
       tiltakstype: {
-        navn: gjennomforingAvklaring.tiltakstypeNavn,
+        navn: gjennomforingAvklaring.tiltakstype.navn,
         tiltakskode: Tiltakskode.AVKLARING,
       },
       gjennomforing: {
-        id: gjennomforingAvklaring.gjennomforingId,
-        navn: gjennomforingAvklaring.tiltakNavn,
+        id: gjennomforingAvklaring.gjennomforing.id,
+        navn: gjennomforingAvklaring.gjennomforing.navn,
         lopenummer: "2025/10001",
       },
       arrangor: arrangorMock,
@@ -237,7 +237,7 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingSteg = {
       label: "Tiltaksnavn",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingOppfolging.tiltakNavn,
+        value: gjennomforingOppfolging.gjennomforing.navn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -246,7 +246,7 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingSteg = {
       label: "Tiltakstype",
       type: LabeledDataElementType.INLINE,
       value: {
-        value: gjennomforingOppfolging.tiltakstypeNavn,
+        value: gjennomforingOppfolging.tiltakstype.navn,
         type: "DATA_ELEMENT_TEXT",
         format: null,
       },
@@ -256,12 +256,12 @@ const innsendingsInformasjonOppfolging: OpprettKravInnsendingSteg = {
     {
       id: "6e716b3b-6a85-4791-a8bf-fa90a5dfb6be",
       tiltakstype: {
-        navn: gjennomforingOppfolging.tiltakstypeNavn,
+        navn: gjennomforingOppfolging.tiltakstype.navn,
         tiltakskode: Tiltakskode.OPPFOLGING,
       },
       gjennomforing: {
-        id: gjennomforingOppfolging.gjennomforingId,
-        navn: gjennomforingOppfolging.tiltakNavn,
+        id: gjennomforingOppfolging.gjennomforing.id,
+        navn: gjennomforingOppfolging.gjennomforing.navn,
         lopenummer: "2025/10002",
       },
       arrangor: arrangorMock,

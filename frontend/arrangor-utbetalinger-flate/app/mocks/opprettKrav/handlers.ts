@@ -1,9 +1,9 @@
 import {
   OpprettKravDeltakere,
-  ArrangorInnsendingRadDto,
+  ArrangorflateTiltakRadDto,
   OpprettKravData,
   ArrangorflateFilterType,
-  PaginatedResponseArrangorInnsendingRadDto,
+  PaginatedResponseArrangorflateTiltakRadDto,
 } from "@arrangor-utbetalinger/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { oversiktAktiveGjennomforinger } from "./gjennomforingMocks";
@@ -23,16 +23,16 @@ function opprettKravData(id: string): OpprettKravData {
 }
 
 export const handlers = [
-  http.get<PathParams, ArrangorInnsendingRadDto[]>(
+  http.get<PathParams, ArrangorflateTiltakRadDto[]>(
     "*/api-proxy/api/arrangorflate/tiltaksoversikt",
     ({ request }) => {
       const type = new URL(request.url).searchParams.get("type");
       if (type === ArrangorflateFilterType.AKTIVE) {
-        return HttpResponse.json<PaginatedResponseArrangorInnsendingRadDto>(
+        return HttpResponse.json<PaginatedResponseArrangorflateTiltakRadDto>(
           oversiktAktiveGjennomforinger,
         );
       }
-      return HttpResponse.json<PaginatedResponseArrangorInnsendingRadDto>({
+      return HttpResponse.json<PaginatedResponseArrangorflateTiltakRadDto>({
         pagination: { totalCount: 0, pageSize: 25, totalPages: 1 },
         data: [],
       });

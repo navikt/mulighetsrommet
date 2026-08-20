@@ -1,25 +1,24 @@
 import {
   Box,
   Heading,
-  Tabs,
   Link,
-  VStack,
-  SortState,
   PaginationProps,
   Search,
+  SortState,
+  Tabs,
+  VStack,
 } from "@navikt/ds-react";
 import {
   ArrangorflateFilterDirection,
   ArrangorflateFilterType,
   ArrangorflateTiltakFilterOrderBy,
-  ArrangorInnsendingRadDto,
+  ArrangorflateTiltakRadDto,
 } from "@arrangor-utbetalinger/api-client";
 import { Suspense, useEffect, useState } from "react";
 import { Link as ReactRouterLink, MetaFunction } from "react-router";
 import { tekster } from "~/tekster";
 import { useTabState } from "~/hooks/useTabState";
-import { Kolonne, Tabellvisning } from "~/components/common/Tabellvisning";
-import { UtbetalingRow } from "~/components/common/UtbetalingRow";
+import { Tabellvisning } from "~/components/common/Tabellvisning";
 import { ChevronLeftIcon } from "@navikt/aksel-icons";
 import { pathTo } from "~/utils/navigation";
 import { Laster } from "~/components/common/Laster";
@@ -30,6 +29,7 @@ import {
 import { flipObject } from "~/utils/object";
 import { useDebounce } from "@mr/frontend-common";
 import { IngenTreff } from "~/components/IngenTreff";
+import { kolonner, TiltakRow } from "~/components/common/TiltakRow";
 
 export const meta: MetaFunction = () => {
   return [
@@ -174,8 +174,8 @@ function TiltaksOversiktContent({ type }: { type: ArrangorflateFilterType }) {
         pagination={paginationProps}
       >
         <Suspense fallback={<Laster tekst="Laster tiltak..." size="xlarge" />}>
-          {paginertTiltaksRader.data.map((row: ArrangorInnsendingRadDto) => (
-            <UtbetalingRow key={row.gjennomforingId} row={row} />
+          {paginertTiltaksRader.data.map((row: ArrangorflateTiltakRadDto) => (
+            <TiltakRow key={row.gjennomforing.id} row={row} />
           ))}
         </Suspense>
       </Tabellvisning>
@@ -183,9 +183,3 @@ function TiltaksOversiktContent({ type }: { type: ArrangorflateFilterType }) {
     </>
   );
 }
-
-const kolonner: Array<Kolonne> = [
-  { key: "tiltakNavn", label: "Tiltak", sortable: true },
-  { key: "arrangorNavn", label: "Arrangør", sortable: true },
-  { key: "startDato", label: "Periode", sortable: true },
-];

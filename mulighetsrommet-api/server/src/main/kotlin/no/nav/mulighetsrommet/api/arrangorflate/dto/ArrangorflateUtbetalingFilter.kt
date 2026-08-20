@@ -19,7 +19,8 @@ data class ArrangorflateUtbetalingFilter(
         TILTAK,
         ARRANGOR,
         PERIODE,
-        BELOP,
+        BEREGNET_BELOP,
+        GODKJENT_BELOP,
         STATUS,
         ;
 
