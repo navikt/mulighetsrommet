@@ -175,7 +175,7 @@ function TiltaksOversiktContent({ type }: { type: ArrangorflateFilterType }) {
       >
         <Suspense fallback={<Laster tekst="Laster tiltak..." size="xlarge" />}>
           {paginertTiltaksRader.data.map((row: ArrangorflateTiltakRadDto) => (
-            <TiltakRow key={row.gjennomforingId} row={row} />
+            <TiltakRow key={row.gjennomforing.id} row={row} />
           ))}
         </Suspense>
       </Tabellvisning>

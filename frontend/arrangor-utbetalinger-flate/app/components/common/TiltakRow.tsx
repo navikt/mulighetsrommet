@@ -16,13 +16,9 @@ export const kolonner: Array<Kolonne> = [
 export function TiltakRow({ row }: { row: ArrangorflateTiltakRadDto }) {
   return (
     <Table.Row>
-      <TiltakHeaderCell
-        tiltakstype={row.tiltakstypeNavn}
-        navn={row.tiltakNavn}
-        lopenummer={row.lopenummer}
-      />
+      <TiltakHeaderCell tiltakstype={row.tiltakstype} gjennomforing={row.gjennomforing} />
 
-      <ArrangorDataCell navn={row.arrangorNavn} organisasjonsnummer={row.organisasjonsnummer} />
+      <ArrangorDataCell arrangor={row.arrangor} />
 
       <Table.DataCell>
         {formaterPeriodeUdefinertSlutt({ start: row.startDato, slutt: row.sluttDato })}
@@ -31,8 +27,8 @@ export function TiltakRow({ row }: { row: ArrangorflateTiltakRadDto }) {
       <Table.DataCell>
         <Link
           as={ReactRouterLink}
-          aria-label={`Start innsending for krav om utbetaling for ${row.tiltakNavn}`}
-          to={pathTo.opprettKrav(row.organisasjonsnummer, row.gjennomforingId)}
+          aria-label={`Start innsending for krav om utbetaling for ${row.gjennomforing.navn}`}
+          to={pathTo.opprettKrav(row.arrangor.organisasjonsnummer, row.gjennomforing.id)}
           className="whitespace-nowrap"
         >
           Start innsending

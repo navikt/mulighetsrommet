@@ -3,8 +3,6 @@ package no.nav.mulighetsrommet.api.arrangorflate.dto
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -15,33 +13,28 @@ import java.util.UUID
 data class ArrangorflateUtbetalingRadDto(
     @Serializable(with = UUIDSerializer::class)
     val utbetalingId: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
-    val arrangorNavn: String,
-    val organisasjonsnummer: Organisasjonsnummer,
-    val tiltakstypeNavn: String,
-    val tiltakNavn: String,
-    val lopenummer: Tiltaksnummer,
+    val gjennomforing: ArrangorflateGjennomforingDto,
+    val arrangor: ArrangorflateArrangorDto,
+    val tiltakstype: ArrangorflateTiltakstypeDto,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val belop: ValutaBelop,
+    val beregnetBelop: ValutaBelop,
+    val godkjentBelop: ValutaBelop?,
     val type: String,
     val status: ArrangorflateUtbetalingStatus,
 )
 
 fun ArrangorflateUtbetalingKompakt.toRadDto(): ArrangorflateUtbetalingRadDto = ArrangorflateUtbetalingRadDto(
-    utbetalingId = this.id,
-    gjennomforingId = this.gjennomforing.id,
-    arrangorNavn = this.arrangor.navn,
-    organisasjonsnummer = this.arrangor.organisasjonsnummer,
-    tiltakstypeNavn = this.tiltakstype.navn,
-    tiltakNavn = this.gjennomforing.navn,
-    lopenummer = this.gjennomforing.lopenummer,
-    startDato = this.periode.start,
-    sluttDato = this.periode.slutt,
-    belop = this.beregnetBelop,
-    type = this.type.displayName,
-    status = this.status,
+    utbetalingId = id,
+    gjennomforing = gjennomforing,
+    arrangor = arrangor,
+    tiltakstype = tiltakstype,
+    startDato = periode.start,
+    sluttDato = periode.slutt,
+    beregnetBelop = beregnetBelop,
+    godkjentBelop = godkjentBelop,
+    type = type.displayName,
+    status = status,
 )

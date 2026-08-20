@@ -742,19 +742,12 @@ components:
     ArrangorflateTiltakRadDto:
       type: object
       properties:
-        gjennomforingId:
-          type: string
-          format: uuid
-        arrangorNavn:
-          type: string
-        organisasjonsnummer:
-          type: string
-        tiltakstypeNavn:
-          type: string
-        tiltakNavn:
-          type: string
-        lopenummer:
-          type: string
+        gjennomforing:
+          $ref: "#/components/schemas/ArrangorflateGjennomforingDto"
+        arrangor:
+          $ref: "#/components/schemas/ArrangorflateArrangorDto"
+        tiltakstype:
+          $ref: "#/components/schemas/ArrangorflateTiltakstypeDto"
         startDato:
           type: string
           format: date
@@ -764,14 +757,81 @@ components:
           - string
           format: date
       required:
-      - arrangorNavn
-      - gjennomforingId
-      - lopenummer
-      - organisasjonsnummer
+      - arrangor
+      - gjennomforing
       - sluttDato
       - startDato
-      - tiltakNavn
-      - tiltakstypeNavn
+      - tiltakstype
+    ArrangorflateGjennomforingDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        navn:
+          type: string
+        lopenummer:
+          type: string
+      required:
+      - id
+      - lopenummer
+      - navn
+    ArrangorflateArrangorDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        navn:
+          type: string
+      required:
+      - id
+      - navn
+      - organisasjonsnummer
+    ArrangorflateTiltakstypeDto:
+      type: object
+      properties:
+        navn:
+          type: string
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
+      required:
+      - navn
+      - tiltakskode
+    Tiltakskode:
+      type: string
+      enum:
+      - ARBEIDSRETTET_REHABILITERING
+      - AVKLARING
+      - DIGITALT_OPPFOLGINGSTILTAK
+      - JOBBKLUBB
+      - OPPFOLGING
+      - ARBEIDSFORBEREDENDE_TRENING
+      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
+      - TILRETTELAGT_ARBEID_ORDINAER
+      - ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
+      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
+      - FAG_OG_YRKESOPPLAERING
+      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
+      - GRUPPE_FAG_OG_YRKESOPPLAERING
+      - HOYERE_UTDANNING
+      - HOYERE_YRKESFAGLIG_UTDANNING
+      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
+      - STUDIESPESIALISERING
+      - INDIVIDUELL_JOBBSTOTTE
+      - INDIVIDUELL_JOBBSTOTTE_UNG
+      - ARBEID_MED_STOTTE
+      - ARBEIDSTRENING
+      - MIDLERTIDIG_LONNSTLSKUDD
+      - VARIG_LONNSTILSKUD
+      - MENTOR
+      - INKLUDERINGSTILSKUD
+      - SOMMERJOBB
+      - VTAO
+      - FIREARIG_LONNSTILSUDD
     PaginatedResponse_ArrangorflateTiltakRadDto:
       type: object
       properties:
@@ -1062,76 +1122,6 @@ components:
       - status
       - tiltakstype
       - type
-    ArrangorflateTiltakstypeDto:
-      type: object
-      properties:
-        navn:
-          type: string
-        tiltakskode:
-          $ref: "#/components/schemas/Tiltakskode"
-      required:
-      - navn
-      - tiltakskode
-    Tiltakskode:
-      type: string
-      enum:
-      - ARBEIDSRETTET_REHABILITERING
-      - AVKLARING
-      - DIGITALT_OPPFOLGINGSTILTAK
-      - JOBBKLUBB
-      - OPPFOLGING
-      - ARBEIDSFORBEREDENDE_TRENING
-      - VARIG_TILRETTELAGT_ARBEID_SKJERMET
-      - TILRETTELAGT_ARBEID_ORDINAER
-      - ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING
-      - ENKELTPLASS_FAG_OG_YRKESOPPLAERING
-      - FAG_OG_YRKESOPPLAERING
-      - GRUPPE_ARBEIDSMARKEDSOPPLAERING
-      - GRUPPE_FAG_OG_YRKESOPPLAERING
-      - HOYERE_UTDANNING
-      - HOYERE_YRKESFAGLIG_UTDANNING
-      - NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV
-      - STUDIESPESIALISERING
-      - INDIVIDUELL_JOBBSTOTTE
-      - INDIVIDUELL_JOBBSTOTTE_UNG
-      - ARBEID_MED_STOTTE
-      - ARBEIDSTRENING
-      - MIDLERTIDIG_LONNSTLSKUDD
-      - VARIG_LONNSTILSKUD
-      - MENTOR
-      - INKLUDERINGSTILSKUD
-      - SOMMERJOBB
-      - VTAO
-      - FIREARIG_LONNSTILSUDD
-    ArrangorflateGjennomforingDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        navn:
-          type: string
-        lopenummer:
-          type: string
-      required:
-      - id
-      - lopenummer
-      - navn
-    ArrangorflateArrangorDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        organisasjonsnummer:
-          type: string
-        navn:
-          type: string
-      required:
-      - id
-      - navn
-      - organisasjonsnummer
     TilsagnType:
       type: string
       enum:
@@ -1528,7 +1518,8 @@ components:
       - TILTAK
       - ARRANGOR
       - PERIODE
-      - BELOP
+      - BEREGNET_BELOP
+      - GODKJENT_BELOP
       - STATUS
     ArrangorflateUtbetalingRadDto:
       type: object
@@ -1536,19 +1527,12 @@ components:
         utbetalingId:
           type: string
           format: uuid
-        gjennomforingId:
-          type: string
-          format: uuid
-        arrangorNavn:
-          type: string
-        organisasjonsnummer:
-          type: string
-        tiltakstypeNavn:
-          type: string
-        tiltakNavn:
-          type: string
-        lopenummer:
-          type: string
+        gjennomforing:
+          $ref: "#/components/schemas/ArrangorflateGjennomforingDto"
+        arrangor:
+          $ref: "#/components/schemas/ArrangorflateArrangorDto"
+        tiltakstype:
+          $ref: "#/components/schemas/ArrangorflateTiltakstypeDto"
         startDato:
           type: string
           format: date
@@ -1557,23 +1541,25 @@ components:
           - "null"
           - string
           format: date
-        belop:
+        beregnetBelop:
           $ref: "#/components/schemas/ValutaBelop"
+        godkjentBelop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
         type:
           type: string
         status:
           $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
       required:
-      - arrangorNavn
-      - belop
-      - gjennomforingId
-      - lopenummer
-      - organisasjonsnummer
+      - arrangor
+      - beregnetBelop
+      - gjennomforing
+      - godkjentBelop
       - sluttDato
       - startDato
       - status
-      - tiltakNavn
-      - tiltakstypeNavn
+      - tiltakstype
       - type
       - utbetalingId
     ArrangorflateUtbetalingStatus:

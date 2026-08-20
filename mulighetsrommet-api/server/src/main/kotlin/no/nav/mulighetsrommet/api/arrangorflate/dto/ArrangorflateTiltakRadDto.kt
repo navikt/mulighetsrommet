@@ -2,22 +2,14 @@ package no.nav.mulighetsrommet.api.arrangorflate.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
-import java.util.UUID
 
 @Serializable
 data class ArrangorflateTiltakRadDto(
-    @Serializable(with = UUIDSerializer::class)
-    val gjennomforingId: UUID,
-    val arrangorNavn: String,
-    val organisasjonsnummer: Organisasjonsnummer,
-    val tiltakstypeNavn: String,
-    val tiltakNavn: String,
-    val lopenummer: Tiltaksnummer,
+    val gjennomforing: ArrangorflateGjennomforingDto,
+    val arrangor: ArrangorflateArrangorDto,
+    val tiltakstype: ArrangorflateTiltakstypeDto,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -25,12 +17,20 @@ data class ArrangorflateTiltakRadDto(
 )
 
 fun ArrangorflateTiltak.toRadDto(): ArrangorflateTiltakRadDto = ArrangorflateTiltakRadDto(
-    gjennomforingId = this.id,
-    arrangorNavn = this.arrangor.navn,
-    organisasjonsnummer = this.arrangor.organisasjonsnummer,
-    tiltakstypeNavn = this.tiltakstype.navn,
-    tiltakNavn = this.navn,
-    lopenummer = this.lopenummer,
-    startDato = this.startDato,
-    sluttDato = this.sluttDato?.plusDays(1), // Eksklusive
+    gjennomforing = ArrangorflateGjennomforingDto(
+        id = id,
+        navn = navn,
+        lopenummer = lopenummer,
+    ),
+    arrangor = ArrangorflateArrangorDto(
+        id = arrangor.id,
+        organisasjonsnummer = arrangor.organisasjonsnummer,
+        navn = arrangor.navn,
+    ),
+    tiltakstype = ArrangorflateTiltakstypeDto(
+        navn = tiltakstype.navn,
+        tiltakskode = tiltakstype.tiltakskode,
+    ),
+    startDato = startDato,
+    sluttDato = sluttDato?.plusDays(1), // Eksklusive
 )

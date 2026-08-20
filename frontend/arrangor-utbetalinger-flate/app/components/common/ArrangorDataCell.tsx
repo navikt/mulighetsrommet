@@ -1,14 +1,14 @@
 import { Table } from "@navikt/ds-react";
+import { ArrangorflateArrangorDto } from "@arrangor-utbetalinger/api-client";
 
 interface Props {
-  navn: string;
-  organisasjonsnummer: string;
+  arrangor: ArrangorflateArrangorDto;
 }
 
-export function ArrangorDataCell({ navn, organisasjonsnummer }: Props) {
+export function ArrangorDataCell({ arrangor }: Props) {
   return (
     <Table.DataCell>
-      {navn} ({organisasjonsnummer})
+      {arrangor.navn} ({arrangor.organisasjonsnummer})
     </Table.DataCell>
   );
 }

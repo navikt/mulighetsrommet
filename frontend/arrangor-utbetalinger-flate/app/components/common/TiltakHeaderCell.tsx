@@ -1,17 +1,20 @@
 import { BodyShort, Table } from "@navikt/ds-react";
+import {
+  ArrangorflateGjennomforingDto,
+  ArrangorflateTiltakstypeDto,
+} from "@arrangor-utbetalinger/api-client";
 
 interface Props {
-  tiltakstype: string;
-  navn: string;
-  lopenummer: string;
+  tiltakstype: ArrangorflateTiltakstypeDto;
+  gjennomforing: ArrangorflateGjennomforingDto;
 }
 
-export function TiltakHeaderCell({ tiltakstype, navn, lopenummer }: Props) {
+export function TiltakHeaderCell({ tiltakstype, gjennomforing }: Props) {
   return (
     <Table.HeaderCell scope="row">
-      <strong>{tiltakstype}</strong>
+      <strong>{tiltakstype.navn}</strong>
       <BodyShort>
-        {navn} ({lopenummer})
+        {gjennomforing.navn} ({gjennomforing.lopenummer})
       </BodyShort>
     </Table.HeaderCell>
   );

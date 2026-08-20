@@ -219,7 +219,7 @@ class ArrangorflateServiceTest : FunSpec({
         val filter = ArrangorflateUtbetalingFilter(
             arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
             type = ArrangorflateFilterType.AKTIVE,
-            orderBy = ArrangorflateUtbetalingFilter.OrderBy.BELOP,
+            orderBy = ArrangorflateUtbetalingFilter.OrderBy.BEREGNET_BELOP,
             direction = ArrangorflateFilterDirection.ASC,
         )
         val (_, items) = arrangorflateService.getAllUtbetalingKompakt(filter)
