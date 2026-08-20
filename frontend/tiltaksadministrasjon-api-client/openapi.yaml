@@ -6828,12 +6828,15 @@ components:
             $ref: "#/components/schemas/TiltakDokumentDto.ArrangorKontaktperson"
         veilederinfo:
           $ref: "#/components/schemas/TiltakDokumentDto.Veilederinfo"
+        publisert:
+          type: boolean
       required:
       - administratorer
       - arrangor
       - arrangorKontaktpersoner
       - id
       - navn
+      - publisert
       - sanityId
       - stedForGjennomforing
       - tiltaksnummer
