@@ -23,6 +23,7 @@ data class TiltakDokumentDto(
     val administratorer: List<Administrator>,
     val arrangorKontaktpersoner: List<ArrangorKontaktperson>,
     val veilederinfo: Veilederinfo,
+    val publisert: Boolean,
 ) {
     @Serializable
     data class Veilederinfo(

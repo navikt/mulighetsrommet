@@ -47,7 +47,7 @@ object TiltakDokumentValidator {
             arrangorId = request.arrangorId,
             faneinnhold = vi.faneinnhold,
             beskrivelse = vi.beskrivelse,
-            publisert = false,
+            publisert = previous?.publisert ?: false,
             administratorer = request.administratorer.toList(),
             navEnheter = navEnheter.toList(),
             kontaktpersoner = vi.kontaktpersoner.map {
