@@ -213,4 +213,5 @@ private fun tiltakDokumentDto(id: UUID, tiltakskode: Tiltakskode) = TiltakDokume
         kontorstruktur = emptyList(),
         kontaktpersoner = emptyList(),
     ),
+    publisert = false,
 )

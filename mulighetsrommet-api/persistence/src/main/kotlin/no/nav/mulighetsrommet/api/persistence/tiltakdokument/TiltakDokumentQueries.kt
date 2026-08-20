@@ -394,6 +394,7 @@ class TiltakDokumentQueries(private val session: Session) : TiltakDokumentReposi
                     ?.let { Json.decodeFromString<List<TiltakDokumentDto.Kontaktperson>>(it) }
                     ?: emptyList(),
             ),
+            publisert = row.boolean("publisert"),
         )
     }
 
