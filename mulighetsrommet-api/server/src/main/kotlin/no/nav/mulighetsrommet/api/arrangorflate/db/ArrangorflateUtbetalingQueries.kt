@@ -198,7 +198,7 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             id = uuid("id"),
             status = status,
             type = type,
-            pris = int("belop_beregnet").withValuta(valuta),
+            beregnetBelop = int("belop_beregnet").withValuta(valuta),
             godkjentBelop = godkjentBelop,
             periode = periode("periode"),
             gjennomforing = ArrangorflateGjennomforingDto(

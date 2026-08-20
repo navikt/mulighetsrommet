@@ -2,22 +2,17 @@ package no.nav.mulighetsrommet.api.arrangorflate.dto
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTiltak
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
-import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
-data class ArrangorInnsendingRadDto(
+data class ArrangorflateTiltakRadDto(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    @Serializable(with = UUIDSerializer::class)
-    val utbetalingId: UUID? = null,
     val arrangorNavn: String,
     val organisasjonsnummer: Organisasjonsnummer,
     val tiltakstypeNavn: String,
@@ -27,12 +22,9 @@ data class ArrangorInnsendingRadDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?, // Eksklusive
-    val belop: ValutaBelop?,
-    val type: String?,
-    val status: ArrangorflateUtbetalingStatus?,
 )
 
-fun ArrangorflateTiltak.toRadDto(): ArrangorInnsendingRadDto = ArrangorInnsendingRadDto(
+fun ArrangorflateTiltak.toRadDto(): ArrangorflateTiltakRadDto = ArrangorflateTiltakRadDto(
     gjennomforingId = this.id,
     arrangorNavn = this.arrangor.navn,
     organisasjonsnummer = this.arrangor.organisasjonsnummer,
@@ -41,22 +33,4 @@ fun ArrangorflateTiltak.toRadDto(): ArrangorInnsendingRadDto = ArrangorInnsendin
     lopenummer = this.lopenummer,
     startDato = this.startDato,
     sluttDato = this.sluttDato?.plusDays(1), // Eksklusive
-    belop = null,
-    type = null,
-    status = null,
-)
-
-fun ArrangorflateUtbetalingKompakt.toRadDto(): ArrangorInnsendingRadDto = ArrangorInnsendingRadDto(
-    utbetalingId = this.id,
-    gjennomforingId = this.gjennomforing.id,
-    arrangorNavn = this.arrangor.navn,
-    organisasjonsnummer = this.arrangor.organisasjonsnummer,
-    tiltakstypeNavn = this.tiltakstype.navn,
-    tiltakNavn = this.gjennomforing.navn,
-    lopenummer = this.gjennomforing.lopenummer,
-    startDato = this.periode.start,
-    sluttDato = this.periode.slutt,
-    belop = this.pris,
-    type = this.type.displayName,
-    status = this.status,
 )

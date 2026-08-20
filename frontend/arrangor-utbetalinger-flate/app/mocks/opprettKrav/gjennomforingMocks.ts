@@ -1,7 +1,7 @@
 import {
   ArrangorflateArrangorDto,
-  ArrangorInnsendingRadDto,
-  PaginatedResponseArrangorInnsendingRadDto,
+  ArrangorflateTiltakRadDto,
+  PaginatedResponseArrangorflateTiltakRadDto,
 } from "@arrangor-utbetalinger/api-client";
 
 export const gjennomforingIdAFT = "54d0d2af-f329-480d-a427-30de446fea10";
@@ -16,9 +16,8 @@ export const arrangorMock: ArrangorflateArrangorDto = {
   organisasjonsnummer: "123456789",
 };
 
-export const gjennomforingAFT: ArrangorInnsendingRadDto = {
+export const gjennomforingAFT: ArrangorflateTiltakRadDto = {
   gjennomforingId: gjennomforingIdAFT,
-  utbetalingId: null,
   tiltakNavn: "Et AFT-tiltak Investering",
   tiltakstypeNavn: "Arbeidsforberedende trening",
   arrangorNavn: arrangorMock.navn,
@@ -26,14 +25,10 @@ export const gjennomforingAFT: ArrangorInnsendingRadDto = {
   startDato: new Date(today.getFullYear() - 5, 7, 1).toISOString().slice(0, 10),
   sluttDato: null,
   lopenummer: "2024/12345",
-  belop: null,
-  type: null,
-  status: null,
 };
 
-export const gjennomforingAvklaring: ArrangorInnsendingRadDto = {
+export const gjennomforingAvklaring: ArrangorflateTiltakRadDto = {
   gjennomforingId: gjennomforingIdAvklaring,
-  utbetalingId: null,
   tiltakNavn: "Et avklaringstiltak med annen avtalt pris",
   tiltakstypeNavn: "Avklaring",
   arrangorNavn: arrangorMock.navn,
@@ -41,14 +36,10 @@ export const gjennomforingAvklaring: ArrangorInnsendingRadDto = {
   startDato: new Date(today.getFullYear() - 1, 1, 1).toISOString().slice(0, 10),
   sluttDato: new Date(today.getFullYear() + 1, 11, 31).toISOString().slice(0, 10),
   lopenummer: "2025/54321",
-  belop: null,
-  type: null,
-  status: null,
 };
 
-export const gjennomforingOppfolging: ArrangorInnsendingRadDto = {
+export const gjennomforingOppfolging: ArrangorflateTiltakRadDto = {
   gjennomforingId: gjennomforingIdOppfolging,
-  utbetalingId: null,
   tiltakNavn: "Et oppfølgingstiltak med avtalt timespris",
   tiltakstypeNavn: "Oppfølging",
   arrangorNavn: arrangorMock.navn,
@@ -56,12 +47,9 @@ export const gjennomforingOppfolging: ArrangorInnsendingRadDto = {
   startDato: new Date(today.getFullYear() - 1, 1, 1).toISOString().slice(0, 10),
   sluttDato: new Date(today.getFullYear() + 1, 11, 31).toISOString().slice(0, 10),
   lopenummer: "2025/12354",
-  belop: null,
-  type: null,
-  status: null,
 };
 
-export const oversiktAktiveGjennomforinger: PaginatedResponseArrangorInnsendingRadDto = {
+export const oversiktAktiveGjennomforinger: PaginatedResponseArrangorflateTiltakRadDto = {
   pagination: {
     totalCount: 3,
     pageSize: 25,

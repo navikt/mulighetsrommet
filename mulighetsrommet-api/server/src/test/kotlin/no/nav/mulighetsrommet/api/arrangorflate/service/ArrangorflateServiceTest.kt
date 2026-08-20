@@ -169,10 +169,10 @@ class ArrangorflateServiceTest : FunSpec({
         items shouldHaveSize 2
 
         val forhandsgodkjent = items.first { it.id == utbetaling.id }
-        forhandsgodkjent.pris shouldBe 10000.NOK
+        forhandsgodkjent.beregnetBelop shouldBe 10000.NOK
 
         val fri = items.first { it.id == friUtbetaling.id }
-        fri.pris shouldBe 5000.NOK
+        fri.beregnetBelop shouldBe 5000.NOK
     }
 
     test("getAllUtbetalingKompakt returnerer tom liste for historiske når alle utbetalinger er aktive") {
@@ -226,9 +226,9 @@ class ArrangorflateServiceTest : FunSpec({
 
         items shouldHaveSize 2
         items[0].id shouldBe friUtbetaling.id
-        items[0].pris shouldBe 5000.NOK
+        items[0].beregnetBelop shouldBe 5000.NOK
         items[1].id shouldBe utbetaling.id
-        items[1].pris shouldBe 10000.NOK
+        items[1].beregnetBelop shouldBe 10000.NOK
     }
 
     test("getAllUtbetalingKompakt paginerer resultater riktig") {

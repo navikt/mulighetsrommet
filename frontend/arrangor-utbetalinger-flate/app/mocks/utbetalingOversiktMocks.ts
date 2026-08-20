@@ -1,7 +1,7 @@
 import {
-  ArrangorInnsendingRadDto,
+  ArrangorflateUtbetalingRadDto,
   ArrangorflateUtbetalingStatus,
-  PaginatedResponseArrangorInnsendingRadDto,
+  PaginatedResponseArrangorflateUtbetalingRadDto,
   Valuta,
 } from "@arrangor-utbetalinger/api-client";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
@@ -15,7 +15,7 @@ import {
   aftUtbetalt,
 } from "./utbetalingDetaljerMocks";
 
-const arrUkesprisKlarTilGodkjenningTableRow: ArrangorInnsendingRadDto = {
+const arrUkesprisKlarTilGodkjenningTableRow: ArrangorflateUtbetalingRadDto = {
   utbetalingId: arrUkesprisKlarTilGodkjenning.id,
   arrangorNavn: arrangorMock.navn,
   organisasjonsnummer: arrangorMock.organisasjonsnummer,
@@ -30,7 +30,7 @@ const arrUkesprisKlarTilGodkjenningTableRow: ArrangorInnsendingRadDto = {
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
 };
 
-const avklaringManedKlarTilInnsendingTableRow: ArrangorInnsendingRadDto = {
+const avklaringManedKlarTilInnsendingTableRow: ArrangorflateUtbetalingRadDto = {
   utbetalingId: avklaringManedKlarTilGodkjenning.id,
   gjennomforingId: avklaringManedKlarTilGodkjenning.gjennomforing.id,
   arrangorNavn: arrangorMock.navn,
@@ -45,7 +45,7 @@ const avklaringManedKlarTilInnsendingTableRow: ArrangorInnsendingRadDto = {
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
 };
 
-const solrikAftDataRow: ArrangorInnsendingRadDto = {
+const solrikAftDataRow: ArrangorflateUtbetalingRadDto = {
   utbetalingId: aftKreverEndring.id,
   gjennomforingId: aftKreverEndring.gjennomforing.id,
   arrangorNavn: arrangorMock.navn,
@@ -60,7 +60,7 @@ const solrikAftDataRow: ArrangorInnsendingRadDto = {
   status: ArrangorflateUtbetalingStatus.BLOKKERT_FOR_INNSENDING,
 };
 
-const aftTiltakspengerTableRow: ArrangorInnsendingRadDto = {
+const aftTiltakspengerTableRow: ArrangorflateUtbetalingRadDto = {
   gjennomforingId: aftBehandlesAvNav.gjennomforing.id,
   utbetalingId: aftBehandlesAvNav.id,
   arrangorNavn: arrangorMock.navn,
@@ -75,7 +75,7 @@ const aftTiltakspengerTableRow: ArrangorInnsendingRadDto = {
   status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
 };
 
-const aftTiltakspengerOverfortTilUtbetalingTableRow: ArrangorInnsendingRadDto = {
+const aftTiltakspengerOverfortTilUtbetalingTableRow: ArrangorflateUtbetalingRadDto = {
   gjennomforingId: avklaringOverfortTilUtbetaling.gjennomforing.id,
   utbetalingId: avklaringOverfortTilUtbetaling.id,
   arrangorNavn: arrangorMock.navn,
@@ -90,7 +90,7 @@ const aftTiltakspengerOverfortTilUtbetalingTableRow: ArrangorInnsendingRadDto = 
   status: ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
 };
 
-const mayRainAftTableRow: ArrangorInnsendingRadDto = {
+const mayRainAftTableRow: ArrangorflateUtbetalingRadDto = {
   gjennomforingId: vtaKlarForGodkjenning.gjennomforing.id,
   utbetalingId: vtaKlarForGodkjenning.id,
   arrangorNavn: arrangorMock.navn,
@@ -105,7 +105,7 @@ const mayRainAftTableRow: ArrangorInnsendingRadDto = {
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
 };
 
-const aftFoobarTableRow: ArrangorInnsendingRadDto = {
+const aftFoobarTableRow: ArrangorflateUtbetalingRadDto = {
   gjennomforingId: aftUtbetalt.gjennomforing.id,
   utbetalingId: aftUtbetalt.id,
   arrangorNavn: arrangorMock.navn,
@@ -120,7 +120,7 @@ const aftFoobarTableRow: ArrangorInnsendingRadDto = {
   status: ArrangorflateUtbetalingStatus.UTBETALT,
 };
 
-const utbetalingTabellOversiktAktiveRader: ArrangorInnsendingRadDto[] = [
+const utbetalingTabellOversiktAktiveRader: ArrangorflateUtbetalingRadDto[] = [
   solrikAftDataRow,
   aftTiltakspengerTableRow,
   mayRainAftTableRow,
@@ -128,7 +128,7 @@ const utbetalingTabellOversiktAktiveRader: ArrangorInnsendingRadDto[] = [
   arrUkesprisKlarTilGodkjenningTableRow,
 ];
 
-export const utbetalingTabellOversiktAktive: PaginatedResponseArrangorInnsendingRadDto = {
+export const utbetalingTabellOversiktAktive: PaginatedResponseArrangorflateUtbetalingRadDto = {
   pagination: {
     totalCount: 5,
     pageSize: 20,
@@ -137,12 +137,12 @@ export const utbetalingTabellOversiktAktive: PaginatedResponseArrangorInnsending
   data: utbetalingTabellOversiktAktiveRader,
 };
 
-const utbetalingTabellOversiktHistoriskeRader: ArrangorInnsendingRadDto[] = [
+const utbetalingTabellOversiktHistoriskeRader: ArrangorflateUtbetalingRadDto[] = [
   aftFoobarTableRow,
   aftTiltakspengerOverfortTilUtbetalingTableRow,
 ];
 
-export const utbetalingTabellOversiktHistoriske: PaginatedResponseArrangorInnsendingRadDto = {
+export const utbetalingTabellOversiktHistoriske: PaginatedResponseArrangorflateUtbetalingRadDto = {
   pagination: {
     totalCount: 2,
     pageSize: 20,

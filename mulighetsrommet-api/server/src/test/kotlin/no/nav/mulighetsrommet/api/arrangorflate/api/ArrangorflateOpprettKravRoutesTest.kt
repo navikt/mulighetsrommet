@@ -18,7 +18,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
-import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorInnsendingRadDto
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakRadDto
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
@@ -102,7 +102,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             }
 
             response.status shouldBe HttpStatusCode.OK
-            val body = response.body<PaginatedResponse<ArrangorInnsendingRadDto>>()
+            val body = response.body<PaginatedResponse<ArrangorflateTiltakRadDto>>()
             body.shouldNotBeNull()
             body.data.size shouldBeGreaterThan 0
         }

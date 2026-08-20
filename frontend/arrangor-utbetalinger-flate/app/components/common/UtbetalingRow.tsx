@@ -1,12 +1,13 @@
 import { UtbetalingTypeTag } from "@mr/frontend-common/components/utbetaling/UtbetalingTypeTag";
 import { formaterPeriodeUdefinertSlutt } from "@mr/frontend-common/utils/date";
-import { BodyShort, Link, Table } from "@navikt/ds-react";
-import { Link as ReactRouterLink } from "react-router";
+import { Table } from "@navikt/ds-react";
 import { UtbetalingStatusTag } from "../utbetaling/UtbetalingStatusTag";
 import { UtbetalingTextLink } from "../utbetaling/UtbetalingTextLink";
-import { ArrangorInnsendingRadDto } from "@arrangor-utbetalinger/api-client";
-import { pathTo } from "~/utils/navigation";
+import { ArrangorflateUtbetalingRadDto } from "@arrangor-utbetalinger/api-client";
 import { Kolonne } from "./Tabellvisning";
+import { TiltakHeaderCell } from "~/components/common/TiltakHeaderCell";
+import { ArrangorDataCell } from "~/components/common/ArrangorDataCell";
+import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 
 export const utbetalingKolonner: Array<Kolonne> = [
   { key: "tiltakNavn", label: "Tiltak", sortable: true },
@@ -16,59 +17,40 @@ export const utbetalingKolonner: Array<Kolonne> = [
   { key: "type", label: "Type" },
   { key: "status", label: "Status", sortable: true },
 ];
-export function UtbetalingRow({ row }: { row: ArrangorInnsendingRadDto }) {
+export function UtbetalingRow({ row }: { row: ArrangorflateUtbetalingRadDto }) {
   return (
     <Table.Row>
-      <Table.HeaderCell scope="row">
-        <strong>{row.tiltakstypeNavn}</strong>
-        <BodyShort>
-          {row.tiltakNavn} ({row.lopenummer})
-        </BodyShort>
-      </Table.HeaderCell>
+      <TiltakHeaderCell
+        tiltakstype={row.tiltakstypeNavn}
+        navn={row.tiltakNavn}
+        lopenummer={row.lopenummer}
+      />
 
-      <Table.DataCell>
-        {row.arrangorNavn} ({row.organisasjonsnummer})
-      </Table.DataCell>
+      <ArrangorDataCell navn={row.arrangorNavn} organisasjonsnummer={row.organisasjonsnummer} />
 
       <Table.DataCell>
         {formaterPeriodeUdefinertSlutt({ start: row.startDato, slutt: row.sluttDato })}
       </Table.DataCell>
 
-      {row.belop ? (
-        <Table.DataCell
-          align="right"
-          className="whitespace-nowrap"
-        >{`${row.belop.belop} ${row.belop.valuta}`}</Table.DataCell>
-      ) : null}
-      {row.type ? (
-        <Table.DataCell>
-          <UtbetalingTypeTag type={row.type} />
-        </Table.DataCell>
-      ) : null}
-      {row.status ? (
-        <Table.DataCell>
-          <UtbetalingStatusTag status={row.status} />
-        </Table.DataCell>
-      ) : null}
+      <Table.DataCell align="right" className="whitespace-nowrap">
+        {formaterValutaBelop(row.belop)}
+      </Table.DataCell>
 
       <Table.DataCell>
-        {row.status && row.utbetalingId ? (
-          <UtbetalingTextLink
-            status={row.status}
-            gjennomforingNavn={row.tiltakNavn}
-            utbetalingId={row.utbetalingId}
-            orgnr={row.organisasjonsnummer}
-          />
-        ) : (
-          <Link
-            as={ReactRouterLink}
-            aria-label={`Start innsending for krav om utbetaling for ${row.tiltakNavn}`}
-            to={pathTo.opprettKrav(row.organisasjonsnummer, row.gjennomforingId)}
-            className="whitespace-nowrap"
-          >
-            Start innsending
-          </Link>
-        )}
+        <UtbetalingTypeTag type={row.type} />
+      </Table.DataCell>
+
+      <Table.DataCell>
+        <UtbetalingStatusTag status={row.status} />
+      </Table.DataCell>
+
+      <Table.DataCell>
+        <UtbetalingTextLink
+          status={row.status}
+          gjennomforingNavn={row.tiltakNavn}
+          utbetalingId={row.utbetalingId}
+          orgnr={row.organisasjonsnummer}
+        />
       </Table.DataCell>
     </Table.Row>
   );

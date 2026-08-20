@@ -65,7 +65,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginatedResponse_ArrangorInnsendingRadDto"
+                $ref: "#/components/schemas/PaginatedResponse_ArrangorflateTiltakRadDto"
         default:
           description: Problem details
           headers: {}
@@ -381,7 +381,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/PaginatedResponse_ArrangorInnsendingRadDto"
+                $ref: "#/components/schemas/PaginatedResponse_ArrangorflateUtbetalingRadDto"
         default:
           description: Problem details
           headers: {}
@@ -739,16 +739,11 @@ components:
       - pageSize
       - totalCount
       - totalPages
-    ArrangorInnsendingRadDto:
+    ArrangorflateTiltakRadDto:
       type: object
       properties:
         gjennomforingId:
           type: string
-          format: uuid
-        utbetalingId:
-          type:
-          - "null"
-          - string
           format: uuid
         arrangorNavn:
           type: string
@@ -768,59 +763,16 @@ components:
           - "null"
           - string
           format: date
-        belop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ValutaBelop"
-        type:
-          type:
-          - "null"
-          - string
-        status:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
       required:
       - arrangorNavn
-      - belop
       - gjennomforingId
       - lopenummer
       - organisasjonsnummer
       - sluttDato
       - startDato
-      - status
       - tiltakNavn
       - tiltakstypeNavn
-      - type
-      - utbetalingId
-    ValutaBelop:
-      type: object
-      properties:
-        belop:
-          type: integer
-          format: int32
-        valuta:
-          $ref: "#/components/schemas/Valuta"
-      required:
-      - belop
-      - valuta
-    Valuta:
-      type: string
-      enum:
-      - NOK
-      - SEK
-    ArrangorflateUtbetalingStatus:
-      type: string
-      enum:
-      - KLAR_FOR_GODKJENNING
-      - BEHANDLES_AV_NAV
-      - UTBETALT
-      - BLOKKERT_FOR_INNSENDING
-      - OVERFORT_TIL_UTBETALING
-      - DELVIS_UTBETALT
-      - AVBRUTT_AV_NAV
-      - AVBRUTT_AV_ARRANGOR
-    PaginatedResponse_ArrangorInnsendingRadDto:
+    PaginatedResponse_ArrangorflateTiltakRadDto:
       type: object
       properties:
         pagination:
@@ -828,7 +780,7 @@ components:
         data:
           type: array
           items:
-            $ref: "#/components/schemas/ArrangorInnsendingRadDto"
+            $ref: "#/components/schemas/ArrangorflateTiltakRadDto"
       required:
       - data
       - pagination
@@ -1208,6 +1160,22 @@ components:
       - ANNULLERT
       - TIL_OPPGJOR
       - OPPGJORT
+    ValutaBelop:
+      type: object
+      properties:
+        belop:
+          type: integer
+          format: int32
+        valuta:
+          $ref: "#/components/schemas/Valuta"
+      required:
+      - belop
+      - valuta
+    Valuta:
+      type: string
+      enum:
+      - NOK
+      - SEK
     DataDetails:
       type: object
       properties:
@@ -1562,6 +1530,75 @@ components:
       - PERIODE
       - BELOP
       - STATUS
+    ArrangorflateUtbetalingRadDto:
+      type: object
+      properties:
+        utbetalingId:
+          type: string
+          format: uuid
+        gjennomforingId:
+          type: string
+          format: uuid
+        arrangorNavn:
+          type: string
+        organisasjonsnummer:
+          type: string
+        tiltakstypeNavn:
+          type: string
+        tiltakNavn:
+          type: string
+        lopenummer:
+          type: string
+        startDato:
+          type: string
+          format: date
+        sluttDato:
+          type:
+          - "null"
+          - string
+          format: date
+        belop:
+          $ref: "#/components/schemas/ValutaBelop"
+        type:
+          type: string
+        status:
+          $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
+      required:
+      - arrangorNavn
+      - belop
+      - gjennomforingId
+      - lopenummer
+      - organisasjonsnummer
+      - sluttDato
+      - startDato
+      - status
+      - tiltakNavn
+      - tiltakstypeNavn
+      - type
+      - utbetalingId
+    ArrangorflateUtbetalingStatus:
+      type: string
+      enum:
+      - KLAR_FOR_GODKJENNING
+      - BEHANDLES_AV_NAV
+      - UTBETALT
+      - BLOKKERT_FOR_INNSENDING
+      - OVERFORT_TIL_UTBETALING
+      - DELVIS_UTBETALT
+      - AVBRUTT_AV_NAV
+      - AVBRUTT_AV_ARRANGOR
+    PaginatedResponse_ArrangorflateUtbetalingRadDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorflateUtbetalingRadDto"
+      required:
+      - data
+      - pagination
     BBan:
       type: object
       properties:
