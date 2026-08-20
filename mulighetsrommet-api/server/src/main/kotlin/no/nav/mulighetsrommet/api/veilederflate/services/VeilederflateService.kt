@@ -79,7 +79,7 @@ class VeilederflateService(
         erSykmeldtMedArbeidsgiver: Boolean,
     ): List<VeilederflateTiltak> = coroutineScope {
         val tiltakDokumenter = async {
-            hentSanityTiltak(enheter, tiltakskoder, innsatsgruppe, apentForPamelding, search)
+            hentTiltakDokumenter(enheter, tiltakskoder, innsatsgruppe, apentForPamelding, search)
         }
 
         val gruppeGjennomforinger = async {
@@ -133,7 +133,7 @@ class VeilederflateService(
         }
     }
 
-    private suspend fun hentSanityTiltak(
+    private suspend fun hentTiltakDokumenter(
         enheter: NonEmptyList<NavEnhetNummer>,
         tiltakskoder: List<Tiltakskode>?,
         innsatsgruppe: Innsatsgruppe,
