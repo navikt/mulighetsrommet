@@ -1,7 +1,8 @@
 import {
   ArrangorflateArrangorDto,
-  ArrangorInnsendingRadDto,
-  PaginatedResponseArrangorInnsendingRadDto,
+  ArrangorflateTiltakRadDto,
+  PaginatedResponseArrangorflateTiltakRadDto,
+  Tiltakskode,
 } from "@arrangor-utbetalinger/api-client";
 
 export const gjennomforingIdAFT = "54d0d2af-f329-480d-a427-30de446fea10";
@@ -16,52 +17,46 @@ export const arrangorMock: ArrangorflateArrangorDto = {
   organisasjonsnummer: "123456789",
 };
 
-export const gjennomforingAFT: ArrangorInnsendingRadDto = {
-  gjennomforingId: gjennomforingIdAFT,
-  utbetalingId: null,
-  tiltakNavn: "Et AFT-tiltak Investering",
-  tiltakstypeNavn: "Arbeidsforberedende trening",
-  arrangorNavn: arrangorMock.navn,
-  organisasjonsnummer: arrangorMock.organisasjonsnummer,
+export const gjennomforingAFT: ArrangorflateTiltakRadDto = {
+  gjennomforing: {
+    id: gjennomforingIdAFT,
+    navn: "Et AFT-tiltak Investering",
+    lopenummer: "2024/12345",
+  },
+  tiltakstype: {
+    navn: "Arbeidsforberedende trening",
+    tiltakskode: Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
+  },
+  arrangor: arrangorMock,
   startDato: new Date(today.getFullYear() - 5, 7, 1).toISOString().slice(0, 10),
   sluttDato: null,
-  lopenummer: "2024/12345",
-  belop: null,
-  type: null,
-  status: null,
 };
 
-export const gjennomforingAvklaring: ArrangorInnsendingRadDto = {
-  gjennomforingId: gjennomforingIdAvklaring,
-  utbetalingId: null,
-  tiltakNavn: "Et avklaringstiltak med annen avtalt pris",
-  tiltakstypeNavn: "Avklaring",
-  arrangorNavn: arrangorMock.navn,
-  organisasjonsnummer: arrangorMock.organisasjonsnummer,
+export const gjennomforingAvklaring: ArrangorflateTiltakRadDto = {
+  gjennomforing: {
+    id: gjennomforingIdAvklaring,
+    navn: "Et avklaringstiltak med annen avtalt pris",
+    lopenummer: "2025/54321",
+  },
+  tiltakstype: { navn: "Avklaring", tiltakskode: Tiltakskode.AVKLARING },
+  arrangor: arrangorMock,
   startDato: new Date(today.getFullYear() - 1, 1, 1).toISOString().slice(0, 10),
   sluttDato: new Date(today.getFullYear() + 1, 11, 31).toISOString().slice(0, 10),
-  lopenummer: "2025/54321",
-  belop: null,
-  type: null,
-  status: null,
 };
 
-export const gjennomforingOppfolging: ArrangorInnsendingRadDto = {
-  gjennomforingId: gjennomforingIdOppfolging,
-  utbetalingId: null,
-  tiltakNavn: "Et oppfølgingstiltak med avtalt timespris",
-  tiltakstypeNavn: "Oppfølging",
-  arrangorNavn: arrangorMock.navn,
-  organisasjonsnummer: arrangorMock.organisasjonsnummer,
+export const gjennomforingOppfolging: ArrangorflateTiltakRadDto = {
+  gjennomforing: {
+    id: gjennomforingIdOppfolging,
+    navn: "Et oppfølgingstiltak med avtalt timespris",
+    lopenummer: "2025/12354",
+  },
+  tiltakstype: { navn: "Oppfølging", tiltakskode: Tiltakskode.OPPFOLGING },
+  arrangor: arrangorMock,
   startDato: new Date(today.getFullYear() - 1, 1, 1).toISOString().slice(0, 10),
   sluttDato: new Date(today.getFullYear() + 1, 11, 31).toISOString().slice(0, 10),
-  lopenummer: "2025/12354",
-  belop: null,
-  type: null,
-  status: null,
 };
 
-export const oversiktAktiveGjennomforinger: PaginatedResponseArrangorInnsendingRadDto = {
+export const oversiktAktiveGjennomforinger: PaginatedResponseArrangorflateTiltakRadDto = {
   pagination: {
     totalCount: 3,
     pageSize: 25,

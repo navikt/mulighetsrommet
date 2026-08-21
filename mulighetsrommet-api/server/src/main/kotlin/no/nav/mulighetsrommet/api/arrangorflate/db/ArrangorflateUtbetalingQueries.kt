@@ -50,7 +50,8 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             ArrangorflateUtbetalingFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn $direction"
             ArrangorflateUtbetalingFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
             ArrangorflateUtbetalingFilter.OrderBy.PERIODE -> "periode $direction"
-            ArrangorflateUtbetalingFilter.OrderBy.BELOP -> "belop_beregnet $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.BEREGNET_BELOP -> "belop_beregnet $direction"
+            ArrangorflateUtbetalingFilter.OrderBy.GODKJENT_BELOP -> "sum_utbetaling_linje $direction nulls last"
             ArrangorflateUtbetalingFilter.OrderBy.STATUS -> "status $direction"
         }
 
@@ -198,7 +199,7 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
             id = uuid("id"),
             status = status,
             type = type,
-            pris = int("belop_beregnet").withValuta(valuta),
+            beregnetBelop = int("belop_beregnet").withValuta(valuta),
             godkjentBelop = godkjentBelop,
             periode = periode("periode"),
             gjennomforing = ArrangorflateGjennomforingDto(

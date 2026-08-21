@@ -99,7 +99,8 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateFilterType }) {
     tiltakNavn: ArrangorflateUtbetalingFilterOrderBy.TILTAK,
     arrangorNavn: ArrangorflateUtbetalingFilterOrderBy.ARRANGOR,
     startDato: ArrangorflateUtbetalingFilterOrderBy.PERIODE,
-    belop: ArrangorflateUtbetalingFilterOrderBy.BELOP,
+    beregnetBelop: ArrangorflateUtbetalingFilterOrderBy.BEREGNET_BELOP,
+    godkjentBelop: ArrangorflateUtbetalingFilterOrderBy.GODKJENT_BELOP,
     status: ArrangorflateUtbetalingFilterOrderBy.STATUS,
   };
 
@@ -114,7 +115,7 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateFilterType }) {
     });
 
   function filterToSortState({ orderBy, direction }: ArrangorflateUtbetalingFilter): SortState {
-    const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltaksNavn";
+    const newOrderBy: SortState["orderBy"] = (orderBy && paramToSortKey[orderBy]) || "tiltakNavn";
     const newDirection: SortState["direction"] =
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       (direction && paramToSortDirection[direction]) || "ascending";
@@ -167,14 +168,14 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateFilterType }) {
         />
       </Box>
       <Tabellvisning
-        kolonner={utbetalingKolonner}
+        kolonner={utbetalingKolonner(type)}
         sort={filterToSortState(filter)}
         onSortChange={(key) => sortChange(utbetalingSortKeyToParam[key])}
         pagination={paginationProps}
       >
         <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
           {paginertUtbetalingRader.data.map((rad, i) => (
-            <UtbetalingRow key={rad.gjennomforingId + i} row={rad} />
+            <UtbetalingRow key={rad.gjennomforing.id + i} row={rad} type={type} />
           ))}
         </Suspense>
       </Tabellvisning>

@@ -6,7 +6,7 @@ import {
   UtbetalingStatusDtoType,
 } from "@tiltaksadministrasjon/api-client";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { HelpText, HStack, Table, VStack, Link } from "@navikt/ds-react";
+import { HelpText, HStack, Table, VStack, Link, BodyShort } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
 import { useMemo } from "react";
 import { Link as ReactRouterLink } from "react-router";
@@ -35,6 +35,7 @@ export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
         ...u,
         periodeStart: u.periode.start,
         periodeSlutt: u.periode.slutt,
+        statusType: u.status.type,
       }));
     }, [utbetalinger]),
   );
@@ -68,18 +69,18 @@ export function UtbetalingTable({ gjennomforingId, utbetalinger }: Props) {
                 Type
                 <HelpText title="Hva betyr forkortelsene?">
                   <VStack gap="space-4" className="text-left">
-                    <div>
+                    <BodyShort>
                       <b>KOR:</b> Korreksjon på utbetaling
-                    </div>
-                    <div>
+                    </BodyShort>
+                    <BodyShort>
                       <b>INV:</b> Utbetaling for investering
-                    </div>
+                    </BodyShort>
                   </VStack>
                 </HelpText>
               </HStack>
             </TableColumnHeader>
           )}
-          <TableColumnHeader sortKey="status" sortable>
+          <TableColumnHeader sortKey="statusType" sortable>
             Status
           </TableColumnHeader>
           <TableColumnHeader></TableColumnHeader>

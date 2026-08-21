@@ -2,8 +2,8 @@ import { DefaultBodyType, http, HttpResponse, PathParams } from "msw";
 import {
   ArrangorflateTilsagnRadDto,
   ArrangorflateUtbetalingDto,
+  ArrangorflateUtbetalingRadDto,
   ArrangorflateUtbetalingStatus,
-  ArrangorInnsendingRadDto,
 } from "@arrangor-utbetalinger/api-client";
 import {
   utbetalingTabellOversiktAktive,
@@ -18,7 +18,7 @@ export const handlers = [
   http.post<PathParams, DefaultBodyType>("*/api-proxy/api/arrangorflate/vedlegg/scan", () =>
     HttpResponse.json(true),
   ),
-  http.get<PathParams, ArrangorInnsendingRadDto[]>(
+  http.get<PathParams, ArrangorflateUtbetalingRadDto[]>(
     "*/api-proxy/api/arrangorflate/utbetaling",
     ({ request }) => {
       const type = new URL(request.url).searchParams.get("type");
