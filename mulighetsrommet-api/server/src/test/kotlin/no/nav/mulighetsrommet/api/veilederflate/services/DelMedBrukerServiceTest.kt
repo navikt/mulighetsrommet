@@ -4,7 +4,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import io.mockk.mockk
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
@@ -12,7 +11,6 @@ import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
-import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -21,10 +19,9 @@ import java.util.UUID
 
 class DelMedBrukerServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
-    val sanityService: SanityService = mockk(relaxed = true)
 
     context("DelMedBrukerService") {
-        val service = DelMedBrukerService(database.api, sanityService, NavEnhetService(SqlNavEnhetRepository(database.api.db)))
+        val service = DelMedBrukerService(database.api, NavEnhetService(SqlNavEnhetRepository(database.api.db)))
 
         beforeEach {
             MulighetsrommetTestDomain(

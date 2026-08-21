@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.veilederflate.services
 import kotliquery.Row
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.veilederflate.models.DelingMedBruker
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltMedBrukerDto
 import no.nav.mulighetsrommet.api.veilederflate.models.TiltakDeltMedBruker
@@ -20,7 +19,6 @@ import java.util.UUID
 
 class DelMedBrukerService(
     private val db: ApiDatabase,
-    private val sanityService: SanityService,
     private val navEnhetService: NavEnhetService,
 ) {
     private val logger = LoggerFactory.getLogger(DelMedBrukerService::class.java)

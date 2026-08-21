@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.api.sanity.SanityResponse
 import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.slf4j.LoggerFactory
@@ -56,10 +55,6 @@ class MigrerSanityTiltaksgjennomforinger(
 
         logger.debug("Migrerer ${alleDokumenter.size} tiltaksgjennomføringer")
 
-        val tiltakstypePerSanityId = db.session {
-            queries.tiltakstype.getAll(tiltakskoder = emptySet()).associateBy { it.sanityId?.toString() }
-        }
-
         var antallOpprettet = 0
         var antallOppdatert = 0
         var antallFeilet = 0
@@ -71,24 +66,6 @@ class MigrerSanityTiltaksgjennomforinger(
                 continue
             }
             runCatching {
-                val navn = requireNotNull(tiltak.tiltaksgjennomforingNavn) {
-                    "tiltaksgjennomforingNavn mangler"
-                }
-                val publisert = sanityId in publiserteSanityIds
-
-                val tiltakstypeId = requireNotNull(tiltakstypePerSanityId[tiltak.tiltakstype._id]?.id) {
-                    "Fant ikke tiltakstype med sanityId=${tiltak.tiltakstype._id} " +
-                        "for gjennomforing sanityId=$sanityId"
-                }
-
-                val arrangorId = tiltak.arrangor?.organisasjonsnummer?.let { orgnr ->
-                    db.session { queries.arrangor.getByOrganisasjonsnummer(orgnr) }?.id.also {
-                        if (it == null) {
-                            logger.warn("Fant ikke arrangør med orgnr=$orgnr for gjennomforing sanityId=$sanityId")
-                        }
-                    }
-                }
-
                 // Reuse existing DB id if sanity_id already exists (ensures idempotency)
                 val eksisterende = db.session { repository.tiltakDokument.get(sanityId) }
                 val id = eksisterende?.id ?: UUID.randomUUID()
@@ -98,42 +75,32 @@ class MigrerSanityTiltaksgjennomforinger(
                     tiltak.enheterRefs?.filterNotNull()?.mapNotNull { parseEnhetsnummer(it) }?.forEach { add(it) }
                 }
                 db.session {
-                    val administratorer = tiltak.redaktor
-                        ?.filterNotNull()
-                        ?.mapNotNull { runCatching { NavIdent(it) }.getOrNull() }
-                        ?: eksisterende?.administratorer
-                        ?: emptyList()
-
-                    val kontaktpersoner = tiltak.kontaktpersoner
-                        ?.filterNotNull()
-                        ?.mapNotNull { runCatching { TiltakDokument.Kontaktperson(NavIdent(it), beskrivelse = null) }.getOrNull() }
-                        ?: eksisterende?.kontaktpersoner
-                        ?: emptyList()
-
                     val faneinnhold = tiltak.faneinnhold?.copy(
                         delMedBruker = tiltak.delingMedBruker ?: tiltak.faneinnhold.delMedBruker,
                     ) ?: tiltak.delingMedBruker?.let {
                         Faneinnhold(delMedBruker = it)
                     }
 
-                    repository.tiltakDokument.save(
-                        TiltakDokument(
-                            id = id,
-                            navn = navn,
-                            tiltakstypeId = tiltakstypeId,
-                            stedForGjennomforing = tiltak.stedForGjennomforing,
-                            arrangorId = arrangorId,
-                            faneinnhold = faneinnhold,
-                            beskrivelse = tiltak.beskrivelse,
-                            tiltaksnummer = tiltak.tiltaksnummer,
-                            sanityId = sanityId,
-                            administratorer = administratorer,
-                            kontaktpersoner = kontaktpersoner,
-                            navEnheter = navEnheter,
-                            arrangorKontaktpersoner = eksisterende?.arrangorKontaktpersoner ?: emptyList(),
-                            publisert = publisert,
-                        ),
-                    )
+                    if (eksisterende != null) {
+                        repository.tiltakDokument.save(
+                            TiltakDokument(
+                                id = id,
+                                navn = eksisterende.navn,
+                                tiltakstypeId = eksisterende.tiltakstypeId,
+                                stedForGjennomforing = eksisterende.stedForGjennomforing,
+                                arrangorId = eksisterende.arrangorId,
+                                faneinnhold = faneinnhold,
+                                beskrivelse = eksisterende.beskrivelse,
+                                tiltaksnummer = tiltak.tiltaksnummer,
+                                sanityId = sanityId,
+                                administratorer = eksisterende.administratorer,
+                                kontaktpersoner = eksisterende.kontaktpersoner,
+                                navEnheter = eksisterende.navEnheter,
+                                arrangorKontaktpersoner = eksisterende.arrangorKontaktpersoner,
+                                publisert = eksisterende.publisert,
+                            ),
+                        )
+                    }
 
                     logger.debug(
                         "sanityId={}, navEnheter={} (fylkeRef={}, enheterRefs={})",
@@ -145,7 +112,6 @@ class MigrerSanityTiltaksgjennomforinger(
                 }
 
                 if (eksisterende != null) antallOppdatert++ else antallOpprettet++
-                logger.debug("Migrert sanityId={}, id={}, publisert={}", sanityId, id, publisert)
             }.onFailure { e ->
                 logger.error("Feil ved migrering av tiltaksgjennomforing med sanityId=$sanityId: ${e.message}", e)
                 antallFeilet++
