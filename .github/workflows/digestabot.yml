@@ -21,3 +21,4 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           team: team-mulighetsrommet
+          branch-for-pr: VALP-BAU/update-digests
