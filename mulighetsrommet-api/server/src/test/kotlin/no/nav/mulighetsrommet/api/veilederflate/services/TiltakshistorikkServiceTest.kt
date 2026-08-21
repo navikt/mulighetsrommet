@@ -37,6 +37,7 @@ import no.nav.tiltak.historikk.TiltakshistorikkClient
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto.Arrangor
 import no.nav.tiltak.historikk.TiltakshistorikkV1Response
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -60,7 +61,7 @@ class TiltakshistorikkServiceTest : FunSpec({
         norskIdent = NorskIdent("12345678910"),
         status = TiltakshistorikkV1Dto.TeamKometDeltakelse.Status(
             type = DeltakerStatusType.VENTELISTE,
-            opprettetDato = LocalDateTime.of(2018, 12, 3, 0, 0),
+            opprettetTidspunkt = LocalDateTime.of(2018, 12, 3, 0, 0),
             aarsak = null,
         ),
         startDato = LocalDate.of(2018, 12, 3),
@@ -72,6 +73,8 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         deltidsprosent = 100f,
         dagerPerUke = 5f,
+        opprettetTidspunkt = Instant.parse("2018-12-03T00:00:00Z"),
+        oppdatertTidspunkt = Instant.parse("2018-12-03T00:00:00Z"),
     )
 
     val tiltakshistorikkIps = TiltakshistorikkV1Dto.ArenaDeltakelse(
@@ -97,6 +100,8 @@ class TiltakshistorikkServiceTest : FunSpec({
         ),
         deltidsprosent = 100f,
         dagerPerUke = 5f,
+        opprettetTidspunkt = Instant.parse("2018-12-03T00:00:00Z"),
+        oppdatertTidspunkt = Instant.parse("2018-12-03T00:00:00Z"),
     )
 
     val tiltakshistorikkArbeidstrening = TiltakshistorikkV1Dto.TeamTiltakAvtale(
@@ -116,6 +121,8 @@ class TiltakshistorikkServiceTest : FunSpec({
             organisasjonsnummer = ArrangorFixtures.underenhet2.organisasjonsnummer,
             navn = "Underenhet 2 AS",
         ),
+        opprettetTidspunkt = Instant.parse("2020-01-01T00:00:00Z"),
+        oppdatertTidspunkt = Instant.parse("2020-01-01T00:00:00Z"),
     )
 
     val deltakelseOppfolgingFraKomet = DeltakelseFraKomet(
@@ -419,6 +426,8 @@ class TiltakshistorikkServiceTest : FunSpec({
             ),
             deltidsprosent = 100f,
             dagerPerUke = 5f,
+            opprettetTidspunkt = Instant.parse("2018-12-03T00:00:00Z"),
+            oppdatertTidspunkt = Instant.parse("2018-12-03T00:00:00Z"),
         )
 
         val deltakelseEnkelAmo = DeltakelseFraKomet(

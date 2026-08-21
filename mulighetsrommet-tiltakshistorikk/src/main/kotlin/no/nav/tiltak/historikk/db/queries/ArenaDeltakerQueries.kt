@@ -84,6 +84,8 @@ class ArenaDeltakerQueries(private val session: Session) {
                     deltaker.slutt_dato,
                     deltaker.deltidsprosent,
                     deltaker.dager_per_uke,
+                    deltaker.arena_reg_dato as opprettet_tidspunkt,
+                    deltaker.arena_mod_dato as endret_tidspunkt,
                     tiltakstype.arena_tiltakskode as tiltakstype_tiltakskode,
                     tiltakstype.navn as tiltakstype_navn,
                     gjennomforing.id as gjennomforing_id,
@@ -144,6 +146,8 @@ private fun Row.toArenaDeltakelse(): TiltakshistorikkV1Dto.ArenaDeltakelse {
         status = ArenaDeltakerStatus.valueOf(string("status")),
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
+        opprettetTidspunkt = instant("opprettet_tidspunkt"),
+        oppdatertTidspunkt = instant("endret_tidspunkt"),
         tittel = Tiltaksnavn.hosTitleCaseVirksomhet(tiltakstype.navn, arrangor.underenhet.navn),
         tiltakstype = tiltakstype,
         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(

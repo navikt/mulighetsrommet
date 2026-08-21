@@ -15,13 +15,13 @@ import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.db.QueryContext
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
+import no.nav.tiltak.historikk.model.Virksomhet
 
 class VirksomhetService(
     private val db: TiltakshistorikkDatabase,
     private val brreg: BrregClient,
 ) {
-    fun getVirksomhet(organisasjonsnummer: Organisasjonsnummer): VirksomhetDbo? = db.session {
+    fun getVirksomhet(organisasjonsnummer: Organisasjonsnummer): Virksomhet? = db.session {
         queries.virksomhet.get(organisasjonsnummer)
     }
 
@@ -29,13 +29,13 @@ class VirksomhetService(
         queries.virksomhet.delete(organisasjonsnummer)
     }
 
-    suspend fun getOrSyncVirksomhetIfNotExists(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> {
+    suspend fun getOrSyncVirksomhetIfNotExists(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, Virksomhet> {
         return getVirksomhet(organisasjonsnummer)?.right() ?: return getAndSyncVirksomhet(organisasjonsnummer)
     }
 
-    suspend fun getAndSyncVirksomhet(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> = db.session {
+    suspend fun getAndSyncVirksomhet(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, Virksomhet> = db.session {
         if (erUtenlandskVirksomhet(organisasjonsnummer)) {
-            return VirksomhetDbo(organisasjonsnummer, null, null, null, null)
+            return Virksomhet(organisasjonsnummer, null, null, null, null)
                 .also { queries.virksomhet.upsert(it) }
                 .right()
         }
@@ -51,7 +51,7 @@ class VirksomhetService(
         return organisasjonsnummer.value.first() == '1'
     }
 
-    private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, VirksomhetDbo> {
+    private suspend fun QueryContext.syncFromBrreg(organisasjonsnummer: Organisasjonsnummer): Either<BrregError, Virksomhet> {
         return brreg.getBrregEnhet(organisasjonsnummer)
             .flatMap { enhet ->
                 val overordnetEnhet = when (enhet) {
@@ -79,8 +79,8 @@ class VirksomhetService(
     }
 }
 
-private fun FjernetBrregEnhetDto.toVirksomhetDbo(): VirksomhetDbo {
-    return VirksomhetDbo(
+private fun FjernetBrregEnhetDto.toVirksomhetDbo(): Virksomhet {
+    return Virksomhet(
         organisasjonsnummer = organisasjonsnummer,
         overordnetEnhetOrganisasjonsnummer = null,
         navn = null,
@@ -89,8 +89,8 @@ private fun FjernetBrregEnhetDto.toVirksomhetDbo(): VirksomhetDbo {
     )
 }
 
-private fun BrregEnhet.toVirksomhetDbo(): VirksomhetDbo = when (this) {
-    is BrregHovedenhetDto -> VirksomhetDbo(
+private fun BrregEnhet.toVirksomhetDbo(): Virksomhet = when (this) {
+    is BrregHovedenhetDto -> Virksomhet(
         organisasjonsnummer = organisasjonsnummer,
         overordnetEnhetOrganisasjonsnummer = null,
         navn = navn,
@@ -98,7 +98,7 @@ private fun BrregEnhet.toVirksomhetDbo(): VirksomhetDbo = when (this) {
         slettetDato = null,
     )
 
-    is SlettetBrregHovedenhetDto -> VirksomhetDbo(
+    is SlettetBrregHovedenhetDto -> Virksomhet(
         organisasjonsnummer = organisasjonsnummer,
         overordnetEnhetOrganisasjonsnummer = null,
         navn = navn,
@@ -106,7 +106,7 @@ private fun BrregEnhet.toVirksomhetDbo(): VirksomhetDbo = when (this) {
         slettetDato = slettetDato,
     )
 
-    is BrregUnderenhetDto -> VirksomhetDbo(
+    is BrregUnderenhetDto -> Virksomhet(
         organisasjonsnummer = organisasjonsnummer,
         overordnetEnhetOrganisasjonsnummer = overordnetEnhet,
         navn = navn,
@@ -114,7 +114,7 @@ private fun BrregEnhet.toVirksomhetDbo(): VirksomhetDbo = when (this) {
         slettetDato = null,
     )
 
-    is SlettetBrregUnderenhetDto -> VirksomhetDbo(
+    is SlettetBrregUnderenhetDto -> Virksomhet(
         organisasjonsnummer = organisasjonsnummer,
         overordnetEnhetOrganisasjonsnummer = null,
         navn = navn,

@@ -19,8 +19,8 @@ import no.nav.tiltak.historikk.clients.Avtale
 import no.nav.tiltak.historikk.clients.GraphqlRequest
 import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import no.nav.tiltak.historikk.db.queries.TiltakstypeDbo
-import no.nav.tiltak.historikk.db.queries.VirksomhetDbo
+import no.nav.tiltak.historikk.model.Tiltakstype
+import no.nav.tiltak.historikk.model.Virksomhet
 import no.nav.tiltak.historikk.util.Tiltaksnavn
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
@@ -101,13 +101,13 @@ class TiltakshistorikkService(
             }
     }
 
-    private suspend fun getArbeidsgiver(organisasjonsnummer: String): VirksomhetDbo? {
+    private suspend fun getArbeidsgiver(organisasjonsnummer: String): Virksomhet? {
         return virksomheter.getOrSyncVirksomhetIfNotExists(Organisasjonsnummer(organisasjonsnummer))
             .onLeft { log.warn("Klarte ikke utlede arbeidsgiver for organisasjonsnummer=$organisasjonsnummer") }
             .getOrNull()
     }
 
-    private fun getTiltakstype(tiltakskode: Avtale.Tiltakstype): TiltakstypeDbo = db.session {
+    private fun getTiltakstype(tiltakskode: Avtale.Tiltakstype): Tiltakstype = db.session {
         queries.tiltakstype.getByTiltakskode(tiltakskode)
     }
 }
@@ -133,10 +133,12 @@ private fun arenaKodeToTeamTiltakKode(arenaKode: String): Avtale.Tiltakstype? {
     }
 }
 
-private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: TiltakstypeDbo, arbeidsgiver: VirksomhetDbo?) = TiltakshistorikkV1Dto.TeamTiltakAvtale(
+private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: Tiltakstype, arbeidsgiver: Virksomhet?) = TiltakshistorikkV1Dto.TeamTiltakAvtale(
     norskIdent = avtale.deltakerFnr,
     startDato = avtale.startDato,
     sluttDato = avtale.sluttDato,
+    opprettetTidspunkt = avtale.opprettetTidspunkt.toInstant(),
+    oppdatertTidspunkt = avtale.endretTidspunkt.toInstant(),
     id = avtale.avtaleId,
     tittel = Tiltaksnavn.hosTitleCaseVirksomhet(tiltakstype.navn, arbeidsgiver?.navn),
     tiltakstype = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakstype(

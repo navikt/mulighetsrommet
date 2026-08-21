@@ -9,8 +9,7 @@ import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
-import no.nav.tiltak.historikk.db.queries.GjennomforingDbo
-import no.nav.tiltak.historikk.db.queries.GjennomforingType
+import no.nav.tiltak.historikk.model.Gjennomforing
 import no.nav.tiltak.historikk.service.VirksomhetService
 import java.util.UUID
 
@@ -39,25 +38,25 @@ class ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer(
     }
 
     private fun upsertGjennomforing(gjennomforing: TiltaksgjennomforingV2Dto): Unit = db.session {
-        val dbo = gjennomforing.toGjennomforingDbo()
+        val dbo = gjennomforing.toGjennomforing()
         queries.gjennomforing.upsert(dbo)
     }
 }
 
-fun TiltaksgjennomforingV2Dto.toGjennomforingDbo(): GjennomforingDbo {
+fun TiltaksgjennomforingV2Dto.toGjennomforing(): Gjennomforing {
     return when (this) {
-        is TiltaksgjennomforingV2Dto.Gruppe -> GjennomforingDbo(
+        is TiltaksgjennomforingV2Dto.Gruppe -> Gjennomforing(
             id = id,
-            type = GjennomforingType.GRUPPE,
+            type = Gjennomforing.Type.GRUPPE,
             tiltakskode = tiltakskode,
             arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
             navn = navn,
             deltidsprosent = deltidsprosent,
         )
 
-        is TiltaksgjennomforingV2Dto.Enkeltplass -> GjennomforingDbo(
+        is TiltaksgjennomforingV2Dto.Enkeltplass -> Gjennomforing(
             id = id,
-            type = GjennomforingType.ENKELTPLASS,
+            type = Gjennomforing.Type.ENKELTPLASS,
             tiltakskode = tiltakskode,
             arrangorOrganisasjonsnummer = arrangor.organisasjonsnummer.value,
             navn = null,

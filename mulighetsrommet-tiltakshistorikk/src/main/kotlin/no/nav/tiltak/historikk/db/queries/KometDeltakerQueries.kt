@@ -3,7 +3,6 @@ package no.nav.tiltak.historikk.db.queries
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
-import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.createArrayOfValue
 import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -11,13 +10,14 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
+import no.nav.tiltak.historikk.model.KometDeltaker
 import no.nav.tiltak.historikk.util.Tiltaksnavn
 import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class KometDeltakerQueries(private val session: Session) {
 
-    fun upsertKometDeltaker(deltaker: AmtDeltakerV1Dto) {
+    fun upsertKometDeltaker(deltaker: KometDeltaker) {
         @Language("PostgreSQL")
         val query = """
             insert into komet_deltaker (
@@ -27,10 +27,10 @@ class KometDeltakerQueries(private val session: Session) {
                 start_dato,
                 slutt_dato,
                 status_type,
-                status_opprettet_dato,
+                status_opprettet_tidspunkt,
                 status_aarsak,
-                registrert_dato,
-                endret_dato,
+                opprettet_tidspunkt,
+                oppdatert_tidspunkt,
                 dager_per_uke,
                 prosent_stilling
             ) values (
@@ -40,10 +40,10 @@ class KometDeltakerQueries(private val session: Session) {
                 :start_dato,
                 :slutt_dato,
                 :status_type,
-                :status_opprettet_dato,
+                :status_opprettet_tidspunkt,
                 :status_aarsak,
-                :registrert_dato,
-                :endret_dato,
+                :opprettet_tidspunkt,
+                :oppdatert_tidspunkt,
                 :dager_per_uke,
                 :prosent_stilling
             )
@@ -53,10 +53,10 @@ class KometDeltakerQueries(private val session: Session) {
                 start_dato                  = excluded.start_dato,
                 slutt_dato                  = excluded.slutt_dato,
                 status_type                 = excluded.status_type,
-                status_opprettet_dato       = excluded.status_opprettet_dato,
+                status_opprettet_tidspunkt  = excluded.status_opprettet_tidspunkt,
                 status_aarsak               = excluded.status_aarsak,
-                registrert_dato             = excluded.registrert_dato,
-                endret_dato                 = excluded.endret_dato,
+                opprettet_tidspunkt         = excluded.opprettet_tidspunkt,
+                oppdatert_tidspunkt         = excluded.oppdatert_tidspunkt,
                 dager_per_uke               = excluded.dager_per_uke,
                 prosent_stilling            = excluded.prosent_stilling
         """.trimIndent()
@@ -67,11 +67,11 @@ class KometDeltakerQueries(private val session: Session) {
             "person_ident" to deltaker.personIdent,
             "start_dato" to deltaker.startDato,
             "slutt_dato" to deltaker.sluttDato,
-            "status_type" to deltaker.status.type.name,
-            "status_opprettet_dato" to deltaker.status.opprettetDato,
-            "status_aarsak" to deltaker.status.aarsak?.name,
-            "registrert_dato" to deltaker.registrertDato,
-            "endret_dato" to deltaker.endretDato,
+            "status_type" to deltaker.statusType.name,
+            "status_opprettet_tidspunkt" to deltaker.statusOpprettetTidspunkt,
+            "status_aarsak" to deltaker.statusAarsak?.name,
+            "opprettet_tidspunkt" to deltaker.opprettetTidspunkt,
+            "oppdatert_tidspunkt" to deltaker.oppdatertTidspunkt,
             "dager_per_uke" to deltaker.dagerPerUke,
             "prosent_stilling" to deltaker.prosentStilling,
         )
@@ -91,9 +91,11 @@ class KometDeltakerQueries(private val session: Session) {
                     deltaker.slutt_dato,
                     deltaker.status_type,
                     deltaker.status_aarsak,
-                    deltaker.status_opprettet_dato,
+                    deltaker.status_opprettet_tidspunkt,
                     deltaker.prosent_stilling,
                     deltaker.dager_per_uke,
+                    deltaker.opprettet_tidspunkt,
+                    deltaker.oppdatert_tidspunkt,
                     gjennomforing.id as gjennomforing_id,
                     gjennomforing.navn as gjennomforing_navn,
                     gjennomforing.deltidsprosent as gjennomforing_deltidsprosent,
@@ -129,7 +131,7 @@ class KometDeltakerQueries(private val session: Session) {
         session.execute(queryOf(query, id))
     }
 
-    fun get(id: UUID): AmtDeltakerV1Dto? {
+    fun get(id: UUID): KometDeltaker? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -137,24 +139,22 @@ class KometDeltakerQueries(private val session: Session) {
             where id = ?::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, id)) { it.toAmtDeltakerV1Dto() }
+        return session.single(queryOf(query, id)) { it.toTiltakshistorikkKometDeltaker() }
     }
 }
 
-private fun Row.toAmtDeltakerV1Dto(): AmtDeltakerV1Dto {
-    return AmtDeltakerV1Dto(
+private fun Row.toTiltakshistorikkKometDeltaker(): KometDeltaker {
+    return KometDeltaker(
         id = uuid("id"),
         gjennomforingId = uuid("gjennomforing_id"),
         personIdent = string("person_ident"),
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = AmtDeltakerV1Dto.DeltakerStatusDto(
-            type = DeltakerStatusType.valueOf(string("status_type")),
-            aarsak = stringOrNull("status_aarsak")?.let { DeltakerStatusAarsakType.valueOf(it) },
-            opprettetDato = localDateTime("status_opprettet_dato"),
-        ),
-        registrertDato = localDateTime("registrert_dato"),
-        endretDato = localDateTime("endret_dato"),
+        statusType = DeltakerStatusType.valueOf(string("status_type")),
+        statusAarsak = stringOrNull("status_aarsak")?.let { DeltakerStatusAarsakType.valueOf(it) },
+        statusOpprettetTidspunkt = localDateTime("status_opprettet_tidspunkt"),
+        opprettetTidspunkt = localDateTime("opprettet_tidspunkt"),
+        oppdatertTidspunkt = localDateTime("oppdatert_tidspunkt"),
         dagerPerUke = floatOrNull("dager_per_uke"),
         prosentStilling = floatOrNull("prosent_stilling"),
     )
@@ -182,6 +182,8 @@ private fun Row.toTeamKometDeltakelse(): TiltakshistorikkV1Dto.TeamKometDeltakel
         id = uuid("id"),
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
+        opprettetTidspunkt = instant("opprettet_tidspunkt"),
+        oppdatertTidspunkt = instant("oppdatert_tidspunkt"),
         tittel = Tiltaksnavn.hosTitleCaseVirksomhet(
             tiltakstype.navn,
             arrangor.hovedenhet?.navn ?: arrangor.underenhet.navn,
@@ -191,7 +193,7 @@ private fun Row.toTeamKometDeltakelse(): TiltakshistorikkV1Dto.TeamKometDeltakel
             aarsak = stringOrNull("status_aarsak")?.let { aarsak ->
                 DeltakerStatusAarsakType.valueOf(aarsak)
             },
-            opprettetDato = localDateTime("status_opprettet_dato"),
+            opprettetTidspunkt = localDateTime("status_opprettet_tidspunkt"),
         ),
         tiltakstype = tiltakstype,
         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(

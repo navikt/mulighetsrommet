@@ -10,7 +10,9 @@ import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
+import no.nav.tiltak.historikk.model.KometDeltaker
 import org.slf4j.LoggerFactory
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 class ReplikerAmtDeltakerV1KafkaConsumer(
@@ -38,8 +40,16 @@ class ReplikerAmtDeltakerV1KafkaConsumer(
             }
 
             else -> {
+                val incoming = amtDeltaker.toKometDeltaker()
+                val stored = queries.kometDeltaker.get(key)
+
+                if (stored != null && incoming.oppdatertTidspunkt < stored.oppdatertTidspunkt) {
+                    logger.info("Hopper over deltaker med id=$key fordi innkommende oppdatertTidspunkt er eldre enn lagret")
+                    return@session
+                }
+
                 logger.info("Forsøker å lagre deltaker med id=$key")
-                query { queries.kometDeltaker.upsertKometDeltaker(amtDeltaker) }.onLeft {
+                query { queries.kometDeltaker.upsertKometDeltaker(incoming) }.onLeft {
                     logger.warn("Feil under konsumering av deltaker med id=$key", it.error)
                     throw it.error
                 }
@@ -47,3 +57,18 @@ class ReplikerAmtDeltakerV1KafkaConsumer(
         }
     }
 }
+
+fun AmtDeltakerV1Dto.toKometDeltaker() = KometDeltaker(
+    id = id,
+    gjennomforingId = gjennomforingId,
+    personIdent = personIdent,
+    startDato = startDato,
+    sluttDato = sluttDato,
+    statusType = status.type,
+    statusOpprettetTidspunkt = status.opprettetDato,
+    statusAarsak = status.aarsak,
+    opprettetTidspunkt = registrertDato.truncatedTo(ChronoUnit.MICROS),
+    oppdatertTidspunkt = endretDato.truncatedTo(ChronoUnit.MICROS),
+    dagerPerUke = dagerPerUke,
+    prosentStilling = prosentStilling,
+)
