@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "**/Dockerfile"
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Verify only digest/version updated in Dockerfiles
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          python3 - <<'EOF'
+          import subprocess, sys, re
+          from collections import defaultdict
+          import os
+
+          base_ref = os.environ["BASE_REF"]
+          result = subprocess.run(
+              ["git", "diff", f"origin/{base_ref}...HEAD", "--", "**/Dockerfile"],
+              capture_output=True, text=True,
+          )
+
+          diff = result.stdout
+          if not diff.strip():
+              print("No Dockerfile content changed.")
+              sys.exit(0)
+
+          current_file = None
+          removed = defaultdict(list)
+          added = defaultdict(list)
+
+          for line in diff.splitlines():
+              if line.startswith("diff --git"):
+                  current_file = line.split(" b/")[-1]
+              elif line.startswith(("---", "+++", "@@", "index", "\\")):
+                  continue
+              elif line.startswith("-") and current_file:
+                  content = line[1:].strip()
+                  if content:
+                      removed[current_file].append(content)
+              elif line.startswith("+") and current_file:
+                  content = line[1:].strip()
+                  if content:
+                      added[current_file].append(content)
+
+          def image_name(from_line):
+              """Return the image name without tag or digest from a FROM line."""
+              parts = from_line.split()
+              # Skip optional --platform=... flag
+              img = next((p for p in parts[1:] if not p.startswith("--")), None)
+              if img is None:
+                  return None
+              # Strip AS alias
+              img = img.split()[0]
+              return re.split(r"[:@]", img)[0]
+
+          errors = []
+
+          all_files = set(removed) | set(added)
+          for file in sorted(all_files):
+              rem = removed[file]
+              add = added[file]
+
+              for line in rem + add:
+                  if not line.upper().startswith("FROM "):
+                      errors.append(f"  {file}: non-FROM line changed: {line!r}")
+
+              if len(rem) != len(add):
+                  errors.append(
+                      f"  {file}: FROM line count mismatch "
+                      f"({len(rem)} removed, {len(add)} added)"
+                  )
+                  continue
+
+              for old, new in zip(rem, add):
+                  old_name = image_name(old)
+                  new_name = image_name(new)
+                  if old_name != new_name:
+                      errors.append(
+                          f"  {file}: image name changed: {old_name!r} → {new_name!r}"
+                      )
+
+          if errors:
+              print("❌ Dockerfile changes contain more than a digest/version update:")
+              for e in errors:
+                  print(e)
+              sys.exit(1)
+
+          print("✅ All Dockerfile changes are digest/version updates only.")
+          EOF
