@@ -1,4 +1,4 @@
-name: CI
+name: CI (version/hash change check)
 
 on:
   pull_request:
