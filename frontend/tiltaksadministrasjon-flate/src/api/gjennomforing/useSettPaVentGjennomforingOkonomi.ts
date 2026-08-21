@@ -6,11 +6,15 @@ import { useApiMutation } from "@/hooks/useApiMutation";
 export function useSettPaVentGjennomforingOkonomi() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<unknown, ProblemDetail, { id: string; forklaring: string | null }>({
-    mutationFn: ({ id, forklaring }) => {
+  return useApiMutation<
+    unknown,
+    ProblemDetail,
+    { id: string; forklaring: string | null; totrinnskontrollId: string }
+  >({
+    mutationFn: ({ id, forklaring, totrinnskontrollId }) => {
       return GjennomforingService.settPaVentGjennomforingOkonomi({
         path: { id },
-        body: { forklaring },
+        body: { forklaring, totrinnskontrollId },
       });
     },
     async onSuccess(_, { id }) {

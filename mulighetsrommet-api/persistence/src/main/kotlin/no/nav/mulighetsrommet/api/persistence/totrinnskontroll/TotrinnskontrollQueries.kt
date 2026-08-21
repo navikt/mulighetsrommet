@@ -204,6 +204,7 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
     }
 
     private fun Row.toDto(): TotrinnskontrollDto {
+        val id = uuid("id")
         val behandletAv = string("behandlet_av").toAgent()
         val behandletAvNavn = stringOrNull("behandlet_av_navn")
         val behandletTidspunkt = localDateTime("behandlet_tidspunkt")
@@ -213,6 +214,7 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
 
         return if (status == TotrinnskontrollStatus.TIL_BEHANDLING) {
             TotrinnskontrollDto.TilBeslutning(
+                id = id,
                 behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
                 behandletTidspunkt = behandletTidspunkt,
                 aarsaker = aarsaker,
@@ -222,6 +224,7 @@ class TotrinnskontrollQueries(val session: Session) : TotrinnskontrollQueryHandl
             val besluttetAv = string("besluttet_av").toAgent()
             val besluttetAvNavn = stringOrNull("besluttet_av_navn")
             TotrinnskontrollDto.Besluttet(
+                id = id,
                 behandletAv = AgentDto.fromAgent(behandletAv, behandletAvNavn),
                 behandletTidspunkt = behandletTidspunkt,
                 aarsaker = aarsaker,

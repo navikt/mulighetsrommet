@@ -167,7 +167,8 @@ class GjennomforingEnkeltplassService(
 
         val enkeltplass = getAndAquireLock(gjennomforingId)
 
-        val okonomi = enkeltplass.okonomi ?: error("Kan ikke endre prismodell før deltaker er søkt inn")
+        val okonomi = enkeltplass.okonomi
+            ?: return FieldError.of("Kan ikke endre prismodell før deltaker er søkt inn").nel().left()
 
         when (okonomi.status) {
             TotrinnskontrollStatus.TIL_BEHANDLING,
@@ -309,33 +310,56 @@ class GjennomforingEnkeltplassService(
 
     fun settOkonomiGodkjent(
         id: UUID,
+        forventetTotrinnskontrollId: UUID,
         agent: Agent,
     ): Validated<Enkeltplass> = db.transaction {
         val enkeltplass = getAndAquireLock(id)
 
         if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
+            if (enkeltplass.prisendring.totrinnskontroll.id != forventetTotrinnskontrollId) {
+                return FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel().left()
+            }
+
             return godkjennPrisendring(id, enkeltplass.prisendring.totrinnskontroll, agent)
         }
 
         val okonomi = enkeltplass.okonomi
             ?: return FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel().left()
 
+        if (okonomi.id != forventetTotrinnskontrollId) {
+            return FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel().left()
+        }
+
         return settOkonomiGodkjent(id, okonomi, agent)
     }
 
     fun settOkonomiPaVent(
         id: UUID,
+        forventetTotrinnskontrollId: UUID,
         navIdent: NavIdent,
         forklaring: String?,
     ): Validated<Enkeltplass> = db.transaction {
         val enkeltplass = getAndAquireLock(id)
 
         if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
-            return settPrisendringPaVent(id, enkeltplass.prisendring.totrinnskontroll, navIdent, forklaring)
+            if (enkeltplass.prisendring.totrinnskontroll.id != forventetTotrinnskontrollId) {
+                return FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel().left()
+            }
+
+            return settPrisendringPaVent(
+                id,
+                enkeltplass.prisendring.totrinnskontroll,
+                navIdent,
+                forklaring,
+            )
         }
 
         val okonomi = enkeltplass.okonomi
             ?: return FieldError.of("Økonomi har ikke blitt sendt til godkjenning").nel().left()
+
+        if (okonomi.id != forventetTotrinnskontrollId) {
+            return FieldError.of("Grunnlaget har endret seg siden det ble hentet. Forsøk igjen.").nel().left()
+        }
 
         settOkonomiPaVent(id, okonomi, navIdent, forklaring)
     }

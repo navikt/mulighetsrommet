@@ -468,6 +468,7 @@ fun Route.gjennomforingRoutes() {
                 operationId = "godkjennGjennomforingOkonomi"
                 request {
                     pathParameterUuid("id")
+                    body<GodkjennOkonomiRequest>()
                 }
                 response {
                     code(HttpStatusCode.OK) {
@@ -480,9 +481,10 @@ fun Route.gjennomforingRoutes() {
                 }
             }) {
                 val id = call.parameters.getOrFail<UUID>("id")
+                val request = call.receive<GodkjennOkonomiRequest>()
                 val navIdent = getNavIdent()
 
-                val result = enkeltplasser.settOkonomiGodkjent(id, navIdent)
+                val result = enkeltplasser.settOkonomiGodkjent(id, request.totrinnskontrollId, navIdent)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -510,7 +512,8 @@ fun Route.gjennomforingRoutes() {
                 val navIdent = getNavIdent()
                 val request = call.receive<SettPaVentOkonomiRequest>()
 
-                val result = enkeltplasser.settOkonomiPaVent(id, navIdent, request.forklaring)
+                val result = enkeltplasser
+                    .settOkonomiPaVent(id, request.totrinnskontrollId, navIdent, request.forklaring)
                     .mapLeft { ValidationError(errors = it) }
                     .map { HttpStatusCode.OK }
 
@@ -803,6 +806,14 @@ data class PublisertRequest(
 @Serializable
 data class SettPaVentOkonomiRequest(
     val forklaring: String? = null,
+    @Serializable(with = UUIDSerializer::class)
+    val totrinnskontrollId: UUID,
+)
+
+@Serializable
+data class GodkjennOkonomiRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val totrinnskontrollId: UUID,
 )
 
 @Serializable

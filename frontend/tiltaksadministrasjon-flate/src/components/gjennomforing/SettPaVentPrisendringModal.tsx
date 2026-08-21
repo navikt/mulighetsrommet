@@ -7,9 +7,15 @@ interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
   gjennomforingId: string;
+  totrinnskontrollId: string;
 }
 
-export function SettPaVentPrisendringModal({ open, setOpen, gjennomforingId }: Props) {
+export function SettPaVentPrisendringModal({
+  open,
+  setOpen,
+  gjennomforingId,
+  totrinnskontrollId,
+}: Props) {
   const settPaVentMutation = useSettPaVentGjennomforingOkonomi();
   const [forklaring, setForklaring] = useState("");
 
@@ -20,7 +26,7 @@ export function SettPaVentPrisendringModal({ open, setOpen, gjennomforingId }: P
 
   function settPaVent() {
     settPaVentMutation.mutate(
-      { id: gjennomforingId, forklaring: forklaring || null },
+      { id: gjennomforingId, forklaring: forklaring || null, totrinnskontrollId },
       { onSuccess: close },
     );
   }

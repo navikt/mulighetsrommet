@@ -177,30 +177,40 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
           </Button>
         )}
       </HStack>
-      <GodkjennOkonomiModal
-        open={godkjennOpen}
-        setOpen={setGodkjennOpen}
-        gjennomforingId={gjennomforing.id}
-        prismodell={prismodell}
-      />
-      <SettPaVentOkonomiModal
-        open={settPaVentOpen}
-        setOpen={setSettPaVentOpen}
-        gjennomforingId={gjennomforing.id}
-      />
+      {okonomi && (
+        <GodkjennOkonomiModal
+          open={godkjennOpen}
+          setOpen={setGodkjennOpen}
+          gjennomforingId={gjennomforing.id}
+          totrinnskontrollId={okonomi.id}
+          prismodell={prismodell}
+        />
+      )}
+      {okonomi && (
+        <SettPaVentOkonomiModal
+          open={settPaVentOpen}
+          setOpen={setSettPaVentOpen}
+          gjennomforingId={gjennomforing.id}
+          totrinnskontrollId={okonomi.id}
+        />
+      )}
       {prisendring && (
         <GodkjennPrisendringModal
           open={godkjennPrisendringOpen}
           setOpen={setGodkjennPrisendringOpen}
           gjennomforingId={gjennomforing.id}
+          totrinnskontrollId={prisendring.totrinnskontroll.id}
           prismodell={prisendring.prismodell}
         />
       )}
-      <SettPaVentPrisendringModal
-        open={settPrisendringPaVentOpen}
-        setOpen={setSettPrisendringPaVentOpen}
-        gjennomforingId={gjennomforing.id}
-      />
+      {prisendring && (
+        <SettPaVentPrisendringModal
+          open={settPrisendringPaVentOpen}
+          setOpen={setSettPrisendringPaVentOpen}
+          gjennomforingId={gjennomforing.id}
+          totrinnskontrollId={prisendring.totrinnskontroll.id}
+        />
+      )}
     </VStack>
   );
 }
