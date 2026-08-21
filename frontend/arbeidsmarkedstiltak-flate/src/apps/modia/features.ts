@@ -1,3 +1,4 @@
+import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 import {
   TiltakstypeEgenskap,
   TiltakstypeFeature,
@@ -12,6 +13,9 @@ import {
 export function isOppskrifterEnabled(tiltak: VeilederflateTiltak): boolean {
   if (tiltak.fylker.length === 0) {
     return true;
+  }
+  if (isTiltakGruppe(tiltak)) {
+    return false;
   }
 
   const fylkerSomIkkeVilHaOppskrifter = [
