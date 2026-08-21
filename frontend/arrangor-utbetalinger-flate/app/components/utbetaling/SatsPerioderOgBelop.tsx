@@ -1,16 +1,15 @@
 import { Box, Heading } from "@navikt/ds-react";
-import { DataDetails, ValutaBelop } from "@arrangor-utbetalinger/api-client";
+import { ArrangorflatePris, DataDetails } from "@arrangor-utbetalinger/api-client";
 import { getDataElement } from "@mr/frontend-common";
-import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { MetadataHGrid } from "@mr/frontend-common/components/datadriven/Metadata";
+import { formaterArrangorflatePris } from "~/utils/utbetaling";
 
-export function SatsPerioderOgBelop({
-  pris,
-  satsDetaljer,
-}: {
-  pris: ValutaBelop;
+interface SatsPerioderOgBelopProps {
+  pris: ArrangorflatePris;
   satsDetaljer: DataDetails[];
-}) {
+}
+
+export function SatsPerioderOgBelop({ pris, satsDetaljer }: SatsPerioderOgBelopProps) {
   return (
     <Box width="50%">
       <Heading level="3" size="medium">
@@ -27,7 +26,7 @@ export function SatsPerioderOgBelop({
           ))}
         </Box>
       ))}
-      <MetadataHGrid label="Beløp" value={formaterValutaBelop(pris)} />
+      <MetadataHGrid label="Beløp" value={formaterArrangorflatePris(pris)} />
     </Box>
   );
 }

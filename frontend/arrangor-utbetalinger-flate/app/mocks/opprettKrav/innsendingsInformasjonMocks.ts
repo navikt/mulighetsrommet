@@ -1,23 +1,21 @@
 import {
   DataElementTextFormat,
-  LabeledDataElementType,
   GuidePanelType,
+  LabeledDataElementType,
+  OpprettKravInnsendingSteg,
   Periode,
   TilsagnStatus,
   TilsagnType,
-  Valuta,
   Tiltakskode,
-  OpprettKravInnsendingSteg,
+  Valuta,
 } from "@arrangor-utbetalinger/api-client";
-import { formaterPeriode, subDuration, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
+import { formaterPeriode, yyyyMMddFormatting } from "@mr/frontend-common/utils/date";
 import {
   arrangorMock,
   gjennomforingAFT,
   gjennomforingAvklaring,
   gjennomforingIdAFT,
   gjennomforingIdAvklaring,
-  gjennomforingIdOppfolging,
-  gjennomforingOppfolging,
 } from "./gjennomforingMocks";
 
 const today: Date = new Date();
@@ -126,7 +124,7 @@ export const innsendingsInformasjonAFT: OpprettKravInnsendingSteg = {
       beskrivelse: null,
     },
   ],
-  datoVelger: { type: "DatoVelgerRange", maksSluttdato: yyyyMMddFormatting(new Date())! },
+  datoVelger: { maksSluttdato: yyyyMMddFormatting(new Date())! },
 };
 
 const innsendingsInformasjonAvklaring: OpprettKravInnsendingSteg = {
@@ -216,118 +214,7 @@ const innsendingsInformasjonAvklaring: OpprettKravInnsendingSteg = {
     },
   ],
   datoVelger: {
-    type: "DatoVelgerRange",
     maksSluttdato: new Date(31, 12, today.getFullYear()).toISOString().slice(0, 8),
-  },
-};
-
-const innsendingsInformasjonOppfolging: OpprettKravInnsendingSteg = {
-  guidePanel: GuidePanelType.TIMESPRIS,
-  definisjonsListe: [
-    {
-      label: "Arrangør",
-      type: LabeledDataElementType.INLINE,
-      value: {
-        value: arrangorMock.navn,
-        format: null,
-        type: "DATA_ELEMENT_TEXT",
-      },
-    },
-    {
-      label: "Tiltaksnavn",
-      type: LabeledDataElementType.INLINE,
-      value: {
-        value: gjennomforingOppfolging.gjennomforing.navn,
-        type: "DATA_ELEMENT_TEXT",
-        format: null,
-      },
-    },
-    {
-      label: "Tiltakstype",
-      type: LabeledDataElementType.INLINE,
-      value: {
-        value: gjennomforingOppfolging.tiltakstype.navn,
-        type: "DATA_ELEMENT_TEXT",
-        format: null,
-      },
-    },
-  ],
-  tilsagn: [
-    {
-      id: "6e716b3b-6a85-4791-a8bf-fa90a5dfb6be",
-      tiltakstype: {
-        navn: gjennomforingOppfolging.tiltakstype.navn,
-        tiltakskode: Tiltakskode.OPPFOLGING,
-      },
-      gjennomforing: {
-        id: gjennomforingOppfolging.gjennomforing.id,
-        navn: gjennomforingOppfolging.gjennomforing.navn,
-        lopenummer: "2025/10002",
-      },
-      arrangor: arrangorMock,
-      type: TilsagnType.TILSAGN,
-      periode: tilsagnsPeriode(),
-      status: TilsagnStatus.GODKJENT,
-      bruktBelop: { belop: 0, valuta: Valuta.NOK },
-      gjenstaendeBelop: { belop: 30720, valuta: Valuta.NOK },
-      beregning: {
-        header: null,
-        entries: [
-          {
-            type: LabeledDataElementType.INLINE,
-            label: "Tilsagnsperiode",
-            value: {
-              type: "DATA_ELEMENT_PERIODE",
-              start: "01.10.2025",
-              slutt: "31.12.2025",
-            },
-          },
-          {
-            type: LabeledDataElementType.INLINE,
-            label: "Antall plasser",
-            value: {
-              type: "DATA_ELEMENT_TEXT",
-              value: "20",
-              format: DataElementTextFormat.NUMBER,
-            },
-          },
-          {
-            type: LabeledDataElementType.INLINE,
-            label: "Pris per time oppfølging",
-            value: {
-              type: "DATA_ELEMENT_MONEY_AMOUNT",
-              value: "768",
-              currency: "NOK",
-            },
-          },
-          {
-            type: LabeledDataElementType.INLINE,
-            label: "Totalbeløp",
-            value: {
-              type: "DATA_ELEMENT_MONEY_AMOUNT",
-              value: "30720",
-              currency: "NOK",
-            },
-          },
-          {
-            type: LabeledDataElementType.INLINE,
-            label: "Gjenstående beløp",
-            value: {
-              type: "DATA_ELEMENT_MONEY_AMOUNT",
-              value: "30720",
-              currency: "NOK",
-            },
-          },
-        ],
-      },
-      bestillingsnummer: "A-2025/9123-1",
-      beskrivelse: null,
-      deltakere: [],
-    },
-  ],
-  datoVelger: {
-    type: "DatoVelgerSelect",
-    periodeForslag: utbetalingsPerioder(),
   },
 };
 
@@ -345,22 +232,7 @@ function tilsagnsPeriode(): Periode {
   };
 }
 
-function utbetalingsPerioder(): Periode[] {
-  const ekslusivSluttDato = new Date(today.getFullYear(), today.getMonth(), 1);
-  const periodeList = [];
-  for (let i = 0; i < 6; i++) {
-    const sluttdato = subDuration(ekslusivSluttDato, { months: i });
-    periodeList.push({
-      start: yyyyMMddFormatting(subDuration(sluttdato, { months: 1 }))!,
-      slutt: yyyyMMddFormatting(sluttdato)!,
-    });
-  }
-
-  return periodeList.sort();
-}
-
 export const innsendingsInformasjon: Record<string, OpprettKravInnsendingSteg> = {
   [gjennomforingIdAFT]: innsendingsInformasjonAFT,
   [gjennomforingIdAvklaring]: innsendingsInformasjonAvklaring,
-  [gjennomforingIdOppfolging]: innsendingsInformasjonOppfolging,
 };

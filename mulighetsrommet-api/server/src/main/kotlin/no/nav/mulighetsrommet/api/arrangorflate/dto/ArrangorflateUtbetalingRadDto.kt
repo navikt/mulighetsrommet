@@ -16,8 +16,8 @@ data class ArrangorflateUtbetalingRadDto(
     val arrangor: ArrangorflateArrangorDto,
     val tiltakstype: ArrangorflateTiltakstypeDto,
     val periode: Periode,
-    val beregnetBelop: ValutaBelop,
-    val godkjentBelop: ValutaBelop?,
+    val pris: ArrangorflatePris,
+    val godkjentPris: ValutaBelop?,
     val type: String,
     val status: ArrangorflateUtbetalingStatus,
 )
@@ -28,8 +28,8 @@ fun ArrangorflateUtbetalingKompakt.toRadDto(): ArrangorflateUtbetalingRadDto = A
     arrangor = arrangor,
     tiltakstype = tiltakstype,
     periode = periode,
-    beregnetBelop = beregnetBelop,
-    godkjentBelop = godkjentBelop,
+    pris = pris,
+    godkjentPris = godkjentPris,
     type = type.displayName,
     status = status,
 )

@@ -1,15 +1,25 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
+import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.getOrElse
+import arrow.core.left
+import arrow.core.nel
+import arrow.core.raise.either
+import arrow.core.raise.ensure
+import arrow.core.raise.ensureNotNull
+import arrow.core.right
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.PartData
+import io.ktor.http.content.forEachPart
 import io.ktor.server.application.log
 import io.ktor.server.auth.principal
 import io.ktor.server.plugins.NotFoundException
 import io.ktor.server.request.receive
+import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.Route
@@ -37,6 +47,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTilsagnKompak
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingService
+import no.nav.mulighetsrommet.api.arrangorflate.service.GodkjennUtbetaling
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.plugins.ArrangorflatePrincipal
@@ -47,6 +58,9 @@ import no.nav.mulighetsrommet.api.shared.map
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.utbetaling.mapper.UbetalingToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
+import no.nav.mulighetsrommet.clamav.ClamAvClient
+import no.nav.mulighetsrommet.clamav.Status
+import no.nav.mulighetsrommet.clamav.Vedlegg
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.exception.Forbidden
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
@@ -115,6 +129,7 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
     val pdfClient: PdfGenClient by inject()
     val arrangorflateService: ArrangorflateService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
+    val clamAvClient: ClamAvClient by inject()
 
     suspend fun RoutingContext.getTilsagnOrRespondWithClientError(): ArrangorflateTilsagnDto {
         val id: UUID by call.parameters
@@ -290,7 +305,9 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
             operationId = "godkjennUtbetaling"
             request {
                 pathParameterUuid("id")
-                body<GodkjennUtbetaling>()
+                body<GodkjennUtbetalingRequest> {
+                    mediaTypes(ContentType.MultiPart.FormData)
+                }
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -308,11 +325,25 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
         }) {
             val utbetaling = getArrangorflateUtbetalingOrRespondWithClientError()
 
-            val request = call.receive<GodkjennUtbetaling>()
-
-            request.validate(utbetaling)
-                .flatMap { kid ->
-                    utbetalingService.godkjentAvArrangor(utbetaling.id, kid)
+            receiveGodkjennUtbetalingRequest()
+                .flatMap { request ->
+                    // TODO: denne valideringen kan kanskje heller gjøres i service
+                    if (clamAvClient.virusScanVedlegg(request.vedlegg.orEmpty()).any { it.Result == Status.FOUND }) {
+                        FieldError.of("Virus funnet i minst ett vedlegg").nel().left()
+                    } else if (request.updatedAt != utbetaling.updatedAt.toString()) {
+                        FieldError.of("Informasjonen i kravet har endret seg. Vennligst se over på nytt.").nel().left()
+                    } else {
+                        request.right()
+                    }
+                }
+                .flatMap { request ->
+                    val command = GodkjennUtbetaling(
+                        utbetaling.id,
+                        request.kid,
+                        request.belop,
+                        request.vedlegg.orEmpty(),
+                    )
+                    utbetalingService.godkjentAvArrangor(command)
                 }
                 .onLeft { errors ->
                     call.respondWithProblemDetail(ValidationError("Utbetalingen kan ikke godkjennes", errors))
@@ -537,20 +568,74 @@ data class KontonummerResponse(
 )
 
 @Serializable
-data class GodkjennUtbetaling(
+data class GodkjennUtbetalingRequest(
     val updatedAt: String,
-    val kid: String?,
-) {
-    @OptIn(ExperimentalContracts::class)
-    fun validate(utbetaling: ArrangorflateUtbetaling): Validated<Kid?> = validation {
-        validate(updatedAt == utbetaling.updatedAt.toString()) {
-            FieldError.of("Informasjonen i kravet har endret seg. Vennligst se over på nytt.")
+    val kid: Kid?,
+    val belop: Int?,
+    val vedlegg: List<Vedlegg>?,
+)
+
+private suspend fun RoutingContext.receiveGodkjennUtbetalingRequest(): Either<List<FieldError>, GodkjennUtbetalingRequest> = either {
+    var updatedAt: String? = null
+    var kid: String? = null
+    var belop: String? = null
+    var vedlegg: MutableList<Vedlegg>? = null
+
+    val multipart = call.receiveMultipart()
+
+    multipart.forEachPart { part ->
+        when (part) {
+            is PartData.FormItem -> {
+                when (part.name) {
+                    "updatedAt" -> updatedAt = part.value
+                    "kid" -> kid = part.value
+                    "belop" -> belop = part.value
+                }
+            }
+
+            is PartData.FileItem -> {
+                if (part.name == "vedlegg") {
+                    if (vedlegg == null) {
+                        vedlegg = mutableListOf()
+                    }
+                    vedlegg.add(receiveVedleggPart(part).bind())
+                }
+            }
+
+            else -> {}
         }
-        requireValid(kid == null || Kid.parse(kid) != null) {
-            FieldError.of("Ugyldig kid", GodkjennUtbetaling::kid)
-        }
-        kid?.let { Kid.parseOrThrow(it) }
+
+        part.release()
     }
+
+    ensureNotNull(updatedAt) {
+        raise(listOf(FieldError.of("Siste tidspunkt for oppdatering må være satt")))
+    }
+
+    val parsedBelop = belop
+        ?.let {
+            ensureNotNull(it.toIntOrNull()) {
+                listOf(FieldError.of("Beløp må være et gyldig heltall", GodkjennUtbetalingRequest::belop))
+            }
+        }
+        ?.also {
+            ensure(it > 0) {
+                listOf(FieldError.of("Beløp må være et heltall større enn 0", GodkjennUtbetalingRequest::belop))
+            }
+        }
+
+    val parsedKid = kid?.let {
+        ensureNotNull(Kid.parse(it)) {
+            listOf(FieldError.of("Ugyldig kid", GodkjennUtbetalingRequest::kid))
+        }
+    }
+
+    GodkjennUtbetalingRequest(
+        updatedAt = updatedAt,
+        kid = parsedKid,
+        belop = parsedBelop,
+        vedlegg = vedlegg,
+    )
 }
 
 @Serializable

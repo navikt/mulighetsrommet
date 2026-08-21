@@ -40,12 +40,14 @@ import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerAvtaltTiltaksplass
 import no.nav.mulighetsrommet.api.utbetaling.model.FastSatsPerTiltaksplassPerManedBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerHeleUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerManedBeregning
+import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerTimeOppfolgingBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.PrisPerUkeBeregning
 import no.nav.mulighetsrommet.api.utbetaling.model.SatsPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
@@ -59,6 +61,7 @@ import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
 import java.time.LocalDate
@@ -108,6 +111,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 PrisPerUkeBeregning,
                 PrisPerHeleUkeBeregning,
                 FastSatsPerAvtaltTiltaksplassPerManedBeregning,
+                PrisPerTimeOppfolgingBeregning,
             ),
         )
     }
@@ -862,7 +866,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                 queries.utbetaling.getOrError(utbetaling.id)
             }
 
-            val regenerert = service.regenererUtbetaling(utbetaling).shouldNotBeNull()
+            val regenerert = service.regenererUtbetaling(utbetaling.id).shouldNotBeNull()
             regenerert.id shouldNotBe utbetaling.id
             regenerert.beregning shouldBe utbetaling.beregning
         }
@@ -886,10 +890,12 @@ class GenererUtbetalingServiceTest : FunSpec({
                 queries.utbetaling.getOrError(utbetaling.id)
             }
 
-            service.regenererUtbetaling(utbetaling)
-            shouldThrow<IllegalArgumentException> {
-                service.regenererUtbetaling(utbetaling).shouldBeNull()
+            val regenerert = service.regenererUtbetaling(utbetaling.id)
+
+            val exception = shouldThrow<IllegalArgumentException> {
+                service.regenererUtbetaling(utbetaling.id)
             }
+            exception.message shouldBe "Allerede regenerert med id=${regenerert.id}"
         }
     }
 
@@ -1110,4 +1116,194 @@ class GenererUtbetalingServiceTest : FunSpec({
             }
         }
     }
+
+    context("generering og oppdatering av PrisPerTimeOppfolging utbetalinger") {
+        val service = createUtbetalingService()
+
+        val prismodell = PrismodellFixtures.AvtaltPrisPerTimeOppfolging
+        val avtale = AvtaleFixtures.oppfolging.copy(prisinfo = Avtale.Prisinfo.Egendefinert(listOf(prismodell)))
+        val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(prismodellId = prismodell.id)
+
+        val deltaker = DeltakerFixtures.createDeltaker(
+            gjennomforingId = gjennomforing.id,
+            startDato = LocalDate.of(2025, 1, 1),
+            sluttDato = LocalDate.of(2025, 1, 15),
+            status = DeltakerStatusType.HAR_SLUTTET,
+        )
+
+        beforeEach {
+            MulighetsrommetTestDomain(
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, ArrangorFixtures.underenhet1),
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(gjennomforing),
+                prismodeller = listOf(prismodell),
+            ).initialize(database.api)
+        }
+
+        test("genererer PrisPerTimeOppfolging utbetaling med 0 NOK") {
+            MulighetsrommetTestDomain(
+                deltakere = listOf(deltaker),
+            ).initialize(database.api)
+
+            val utbetaling = service.genererUtbetalingerForPeriode(januar)
+                .shouldHaveSize(1)
+                .first()
+
+            utbetaling.gjennomforing.id shouldBe gjennomforing.id
+            utbetaling.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerTimeOppfolging>().should {
+                it.output.pris shouldBe 0.NOK
+                it.input.pris shouldBe 0.NOK
+                it.input.deltakelser.shouldHaveSize(1)
+            }
+        }
+
+        test("oppdaterer deltakelsesdata for PrisPerTimeOppfolging utbetaling i status GENERERT mens pris forblir 0") {
+            val utbetaling = utbetaling1.copy(
+                gjennomforingId = gjennomforing.id,
+                periode = januar,
+                beregning = getBeregningPrisPerTimeOppfolging(
+                    periode = januar,
+                    pris = 0.NOK,
+                    deltakelse = DeltakelsePeriode(UUID.randomUUID(), januar),
+                ),
+            )
+
+            MulighetsrommetTestDomain(
+                utbetalinger = listOf(utbetaling),
+                deltakere = listOf(deltaker),
+            ).initialize(database.api)
+
+            val oppdatert = service.oppdaterUtbetalingerForGjennomforing(gjennomforing.id)
+                .shouldHaveSize(1)
+                .first()
+
+            oppdatert.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerTimeOppfolging>().should {
+                it.input.pris shouldBe 0.NOK
+                it.input.deltakelser.shouldHaveSize(1)
+                it.input.deltakelser.first().deltakelseId shouldBe deltaker.id
+                it.input.deltakelser.first().periode shouldBe Periode(
+                    LocalDate.of(2025, 1, 1),
+                    LocalDate.of(2025, 1, 16),
+                )
+            }
+        }
+
+        test("oppdaterer deltakelsesdata for PrisPerTimeOppfolging utbetaling i status TIL_BEHANDLING og bevarer arrangor-pris") {
+            val utbetaling = utbetaling1.copy(
+                gjennomforingId = gjennomforing.id,
+                periode = januar,
+                beregning = getBeregningPrisPerTimeOppfolging(
+                    periode = januar,
+                    pris = 500.NOK,
+                    deltakelse = DeltakelsePeriode(deltaker.id, januar),
+                ),
+                status = UtbetalingStatusType.TIL_BEHANDLING,
+            )
+
+            MulighetsrommetTestDomain(
+                utbetalinger = listOf(utbetaling),
+                deltakere = listOf(deltaker),
+            ).initialize(database.api)
+
+            val oppdatert = service.oppdaterUtbetalingerForGjennomforing(gjennomforing.id)
+                .shouldHaveSize(1)
+                .first()
+
+            oppdatert.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerTimeOppfolging>().should {
+                it.input.pris shouldBe 500.NOK
+                it.output.pris shouldBe 500.NOK
+                it.input.deltakelser.shouldHaveSize(1)
+                it.input.deltakelser.first().periode shouldBe Periode(
+                    LocalDate.of(2025, 1, 1),
+                    LocalDate.of(2025, 1, 16),
+                )
+            }
+        }
+
+        test("oppdaterer ikke PrisPerTimeOppfolging utbetaling i status TIL_ATTESTERING") {
+            val utbetaling = utbetaling1.copy(
+                gjennomforingId = gjennomforing.id,
+                periode = januar,
+                beregning = getBeregningPrisPerTimeOppfolging(
+                    periode = januar,
+                    pris = 500.NOK,
+                    deltakelse = DeltakelsePeriode(deltaker.id, januar),
+                ),
+                status = UtbetalingStatusType.TIL_ATTESTERING,
+            )
+
+            MulighetsrommetTestDomain(
+                utbetalinger = listOf(utbetaling),
+                deltakere = listOf(deltaker),
+            ).initialize(database.api)
+
+            service.oppdaterUtbetalingerForGjennomforing(gjennomforing.id).shouldBeEmpty()
+
+            database.run {
+                queries.utbetaling.getOrError(utbetaling1.id).beregning shouldBe utbetaling.beregning
+            }
+        }
+
+        test("oppdaterer ikke beregning hvis deltakelsesdata er uendret") {
+            val utbetaling = utbetaling1.copy(
+                gjennomforingId = gjennomforing.id,
+                periode = januar,
+                beregning = getBeregningPrisPerTimeOppfolging(
+                    periode = januar,
+                    pris = 500.NOK,
+                    deltakelse = DeltakelsePeriode(
+                        deltaker.id,
+                        Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 1, 16)),
+                    ),
+                ),
+                status = UtbetalingStatusType.TIL_BEHANDLING,
+            )
+
+            MulighetsrommetTestDomain(
+                utbetalinger = listOf(utbetaling),
+                deltakere = listOf(deltaker),
+            ).initialize(database.api)
+
+            service.oppdaterUtbetalingerForGjennomforing(gjennomforing.id).shouldBeEmpty()
+        }
+
+        test("regenererUtbetaling bevarer arrangor-pris for PrisPerTimeOppfolging-utbetaling") {
+            val utbetaling = utbetaling1.copy(
+                gjennomforingId = gjennomforing.id,
+                periode = januar,
+                beregning = getBeregningPrisPerTimeOppfolging(
+                    periode = januar,
+                    pris = 500.NOK,
+                    deltakelse = DeltakelsePeriode(deltaker.id, januar),
+                ),
+                status = UtbetalingStatusType.AVBRUTT,
+            )
+
+            MulighetsrommetTestDomain(
+                utbetalinger = listOf(utbetaling),
+                deltakere = listOf(deltaker),
+            ).initialize(database.api)
+
+            val regenerert = service.regenererUtbetaling(utbetaling1.id)
+
+            regenerert.beregning.shouldBeTypeOf<UtbetalingBeregningAvtaltPrisPerTimeOppfolging>().should {
+                it.input.pris shouldBe 500.NOK
+                it.output.pris shouldBe 500.NOK
+            }
+        }
+    }
 })
+
+private fun getBeregningPrisPerTimeOppfolging(
+    periode: Periode,
+    deltakelse: DeltakelsePeriode,
+    pris: ValutaBelop,
+): UtbetalingBeregningAvtaltPrisPerTimeOppfolging = UtbetalingBeregningAvtaltPrisPerTimeOppfolging(
+    input = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Input(
+        satser = setOf(SatsPeriode(periode, 1234.NOK)),
+        pris = pris,
+        stengt = setOf(),
+        deltakelser = setOf(deltakelse),
+    ),
+    output = UtbetalingBeregningAvtaltPrisPerTimeOppfolging.Output(pris),
+)

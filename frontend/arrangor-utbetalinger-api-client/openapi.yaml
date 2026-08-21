@@ -154,57 +154,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/arrangorflate/arrangor/{orgnr}/gjennomforing/{gjennomforingId}/opprett-krav/deltakere:
-    get:
-      tags:
-      - Arrangorflate
-      description: Hent deltakertabell
-      operationId: getOpprettKravDeltakere
-      parameters:
-      - name: orgnr
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: gjennomforingId
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: periodeStart
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      - name: periodeSlutt
-        in: query
-        required: false
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-      responses:
-        "200":
-          description: Innsendingsdetaljer
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OpprettKravDeltakere"
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/arrangorflate/orgnr-tilganger:
     get:
       tags:
@@ -438,9 +387,9 @@ paths:
           format: uuid
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: "#/components/schemas/GodkjennUtbetaling"
+              $ref: "#/components/schemas/GodkjennUtbetalingRequest"
         required: false
       responses:
         "200":
@@ -881,7 +830,6 @@ components:
       type: string
       enum:
       - INFORMASJON
-      - DELTAKERLISTE
       - UTBETALING
       - VEDLEGG
       - OPPSUMMERING
@@ -911,7 +859,6 @@ components:
       type: string
       enum:
       - INVESTERING_VTA_AFT
-      - TIMESPRIS
       - AVTALT_PRIS
     LabeledDataElement:
       type: object
@@ -1195,15 +1142,6 @@ components:
       - navn
       - norskIdent
     DatoVelger:
-      anyOf:
-      - $ref: "#/components/schemas/DatoVelgerRange"
-      - $ref: "#/components/schemas/DatoVelgerSelect"
-      discriminator:
-        propertyName: type
-        mapping:
-          DatoVelgerRange: "#/components/schemas/DatoVelgerRange"
-          DatoVelgerSelect: "#/components/schemas/DatoVelgerSelect"
-    DatoVelgerRange:
       type: object
       properties:
         maksSluttdato:
@@ -1211,15 +1149,6 @@ components:
           format: date
       required:
       - maksSluttdato
-    DatoVelgerSelect:
-      type: object
-      properties:
-        periodeForslag:
-          type: array
-          items:
-            $ref: "#/components/schemas/Periode"
-      required:
-      - periodeForslag
     OpprettKravUtbetalingSteg:
       type: object
       properties:
@@ -1249,7 +1178,6 @@ components:
       type: string
       enum:
       - INVESTERING_VTA_AFT
-      - TIMESPRIS
       - AVTALT_PRIS
     OpprettKravData:
       type: object
@@ -1269,11 +1197,222 @@ components:
       - steg
       - utbetalingSteg
       - vedleggSteg
-    OpprettKravDeltakere.GuidePanelType:
+    PeriodeType:
       type: string
       enum:
-      - GENERELL
-      - TIMESPRIS
+      - Inklusiv
+      - Eksklusiv
+    OpprettKravUtbetalingRequest:
+      type: object
+      properties:
+        periodeStart:
+          type: string
+        periodeSlutt:
+          type: string
+        periodeType:
+          $ref: "#/components/schemas/PeriodeType"
+        kidNummer:
+          type:
+          - "null"
+          - string
+        belop:
+          type: integer
+          format: int32
+        vedlegg:
+          type: array
+          items:
+            type: string
+            format: binary
+      required:
+      - belop
+      - kidNummer
+      - periodeSlutt
+      - periodeStart
+      - periodeType
+      - vedlegg
+    OpprettKravUtbetalingResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+      - id
+    ArrangorflateTilsagnFilter.OrderBy:
+      type: string
+      enum:
+      - TILTAK
+      - ARRANGOR
+      - START_DATO
+      - SLUTT_DATO
+      - TILSAGN
+      - STATUS
+    ArrangorflateTilsagnRadDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        organisasjonsnummer:
+          type: string
+        tiltakTypeNavn:
+          type: string
+        tiltakNavn:
+          type: string
+        arrangorNavn:
+          type: string
+        periode:
+          $ref: "#/components/schemas/Periode"
+        tilsagnType:
+          type: string
+        bestillingsnummer:
+          type: string
+        status:
+          $ref: "#/components/schemas/TilsagnStatus"
+      required:
+      - arrangorNavn
+      - bestillingsnummer
+      - id
+      - organisasjonsnummer
+      - periode
+      - status
+      - tilsagnType
+      - tiltakNavn
+      - tiltakTypeNavn
+    PaginatedResponse_ArrangorflateTilsagnRadDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorflateTilsagnRadDto"
+      required:
+      - data
+      - pagination
+    ArrangorflateUtbetalingFilter.OrderBy:
+      type: string
+      enum:
+      - TILTAK
+      - ARRANGOR
+      - PERIODE
+      - PRIS
+      - GODKJENT_PRIS
+      - STATUS
+    ArrangorflateUtbetalingRadDto:
+      type: object
+      properties:
+        utbetalingId:
+          type: string
+          format: uuid
+        gjennomforing:
+          $ref: "#/components/schemas/ArrangorflateGjennomforingDto"
+        arrangor:
+          $ref: "#/components/schemas/ArrangorflateArrangorDto"
+        tiltakstype:
+          $ref: "#/components/schemas/ArrangorflateTiltakstypeDto"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        pris:
+          $ref: "#/components/schemas/ArrangorflatePris"
+        godkjentPris:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
+        type:
+          type: string
+        status:
+          $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
+      required:
+      - arrangor
+      - gjennomforing
+      - godkjentPris
+      - periode
+      - pris
+      - status
+      - tiltakstype
+      - type
+      - utbetalingId
+    ArrangorflatePris:
+      anyOf:
+      - $ref: "#/components/schemas/BEREGNET"
+      - $ref: "#/components/schemas/KREVER_REGISTRERING"
+      discriminator:
+        propertyName: type
+        mapping:
+          BEREGNET: "#/components/schemas/BEREGNET"
+          KREVER_REGISTRERING: "#/components/schemas/KREVER_REGISTRERING"
+    BEREGNET:
+      type: object
+      properties:
+        pris:
+          $ref: "#/components/schemas/ValutaBelop"
+      required:
+      - pris
+    KREVER_REGISTRERING:
+      type: object
+      properties: {}
+    ArrangorflateUtbetalingStatus:
+      type: string
+      enum:
+      - KLAR_FOR_GODKJENNING
+      - BEHANDLES_AV_NAV
+      - UTBETALT
+      - BLOKKERT_FOR_INNSENDING
+      - OVERFORT_TIL_UTBETALING
+      - DELVIS_UTBETALT
+      - AVBRUTT_AV_NAV
+      - AVBRUTT_AV_ARRANGOR
+    PaginatedResponse_ArrangorflateUtbetalingRadDto:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/PaginationSummary"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArrangorflateUtbetalingRadDto"
+      required:
+      - data
+      - pagination
+    BBan:
+      type: object
+      properties:
+        kontonummer:
+          type: string
+        kid:
+          type:
+          - "null"
+          - string
+      required:
+      - kid
+      - kontonummer
+    ArrangorflateBeregning:
+      type: object
+      properties:
+        displayName:
+          type: string
+        pris:
+          $ref: "#/components/schemas/ArrangorflatePris"
+        stengt:
+          type: array
+          items:
+            $ref: "#/components/schemas/StengtPeriode"
+        deltakelser:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/DataDrivenTableDto"
+        satsDetaljer:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataDetails"
+      required:
+      - deltakelser
+      - displayName
+      - pris
+      - satsDetaljer
+      - stengt
     StengtPeriode:
       type: object
       properties:
@@ -1397,224 +1536,6 @@ components:
       - warning
       - danger
       - neutral
-    OpprettKravDeltakere:
-      type: object
-      properties:
-        guidePanel:
-          $ref: "#/components/schemas/OpprettKravDeltakere.GuidePanelType"
-        stengtHosArrangor:
-          type: array
-          items:
-            $ref: "#/components/schemas/StengtPeriode"
-          uniqueItems: true
-        tabell:
-          $ref: "#/components/schemas/DataDrivenTableDto"
-        tabellFooter:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataDetails"
-      required:
-      - guidePanel
-      - stengtHosArrangor
-      - tabell
-      - tabellFooter
-    PeriodeType:
-      type: string
-      enum:
-      - Inklusiv
-      - Eksklusiv
-    OpprettKravUtbetalingRequest:
-      type: object
-      properties:
-        periodeStart:
-          type: string
-        periodeSlutt:
-          type: string
-        periodeType:
-          $ref: "#/components/schemas/PeriodeType"
-        kidNummer:
-          type:
-          - "null"
-          - string
-        belop:
-          type: integer
-          format: int32
-        vedlegg:
-          type: array
-          items:
-            type: string
-            format: binary
-      required:
-      - belop
-      - kidNummer
-      - periodeSlutt
-      - periodeStart
-      - periodeType
-      - vedlegg
-    OpprettKravUtbetalingResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-      required:
-      - id
-    ArrangorflateTilsagnFilter.OrderBy:
-      type: string
-      enum:
-      - TILTAK
-      - ARRANGOR
-      - START_DATO
-      - SLUTT_DATO
-      - TILSAGN
-      - STATUS
-    ArrangorflateTilsagnRadDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        organisasjonsnummer:
-          type: string
-        tiltakTypeNavn:
-          type: string
-        tiltakNavn:
-          type: string
-        arrangorNavn:
-          type: string
-        periode:
-          $ref: "#/components/schemas/Periode"
-        tilsagnType:
-          type: string
-        bestillingsnummer:
-          type: string
-        status:
-          $ref: "#/components/schemas/TilsagnStatus"
-      required:
-      - arrangorNavn
-      - bestillingsnummer
-      - id
-      - organisasjonsnummer
-      - periode
-      - status
-      - tilsagnType
-      - tiltakNavn
-      - tiltakTypeNavn
-    PaginatedResponse_ArrangorflateTilsagnRadDto:
-      type: object
-      properties:
-        pagination:
-          $ref: "#/components/schemas/PaginationSummary"
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrangorflateTilsagnRadDto"
-      required:
-      - data
-      - pagination
-    ArrangorflateUtbetalingFilter.OrderBy:
-      type: string
-      enum:
-      - TILTAK
-      - ARRANGOR
-      - PERIODE
-      - BEREGNET_BELOP
-      - GODKJENT_BELOP
-      - STATUS
-    ArrangorflateUtbetalingRadDto:
-      type: object
-      properties:
-        utbetalingId:
-          type: string
-          format: uuid
-        gjennomforing:
-          $ref: "#/components/schemas/ArrangorflateGjennomforingDto"
-        arrangor:
-          $ref: "#/components/schemas/ArrangorflateArrangorDto"
-        tiltakstype:
-          $ref: "#/components/schemas/ArrangorflateTiltakstypeDto"
-        periode:
-          $ref: "#/components/schemas/Periode"
-        beregnetBelop:
-          $ref: "#/components/schemas/ValutaBelop"
-        godkjentBelop:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/ValutaBelop"
-        type:
-          type: string
-        status:
-          $ref: "#/components/schemas/ArrangorflateUtbetalingStatus"
-      required:
-      - arrangor
-      - beregnetBelop
-      - gjennomforing
-      - godkjentBelop
-      - periode
-      - status
-      - tiltakstype
-      - type
-      - utbetalingId
-    ArrangorflateUtbetalingStatus:
-      type: string
-      enum:
-      - KLAR_FOR_GODKJENNING
-      - BEHANDLES_AV_NAV
-      - UTBETALT
-      - BLOKKERT_FOR_INNSENDING
-      - OVERFORT_TIL_UTBETALING
-      - DELVIS_UTBETALT
-      - AVBRUTT_AV_NAV
-      - AVBRUTT_AV_ARRANGOR
-    PaginatedResponse_ArrangorflateUtbetalingRadDto:
-      type: object
-      properties:
-        pagination:
-          $ref: "#/components/schemas/PaginationSummary"
-        data:
-          type: array
-          items:
-            $ref: "#/components/schemas/ArrangorflateUtbetalingRadDto"
-      required:
-      - data
-      - pagination
-    BBan:
-      type: object
-      properties:
-        kontonummer:
-          type: string
-        kid:
-          type:
-          - "null"
-          - string
-      required:
-      - kid
-      - kontonummer
-    ArrangorflateBeregning:
-      type: object
-      properties:
-        displayName:
-          type: string
-        pris:
-          $ref: "#/components/schemas/ValutaBelop"
-        stengt:
-          type: array
-          items:
-            $ref: "#/components/schemas/StengtPeriode"
-        deltakelser:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/DataDrivenTableDto"
-        satsDetaljer:
-          type: array
-          items:
-            $ref: "#/components/schemas/DataDetails"
-      required:
-      - deltakelser
-      - displayName
-      - pris
-      - satsDetaljer
-      - stengt
     UtbetalingTypeDto:
       type: object
       properties:
@@ -1848,7 +1769,7 @@ components:
       - updatedAt
       - utbetalesTidligstDato
       - valuta
-    GodkjennUtbetaling:
+    GodkjennUtbetalingRequest:
       type: object
       properties:
         updatedAt:
@@ -1857,9 +1778,23 @@ components:
           type:
           - "null"
           - string
+        belop:
+          type:
+          - "null"
+          - integer
+          format: int32
+        vedlegg:
+          type:
+          - "null"
+          - array
+          items:
+            type: string
+            format: binary
       required:
+      - belop
       - kid
       - updatedAt
+      - vedlegg
     FieldError:
       type: object
       properties:

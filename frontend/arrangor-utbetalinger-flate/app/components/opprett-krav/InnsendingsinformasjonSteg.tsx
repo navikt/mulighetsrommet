@@ -9,19 +9,18 @@ import {
 } from "@arrangor-utbetalinger/api-client";
 import {
   BodyShort,
+  Box,
   DatePicker,
   GuidePanel,
   Heading,
   HStack,
   Label,
   Link,
-  Select,
   useDatepicker,
   VStack,
-  Box,
   InfoCard,
 } from "@navikt/ds-react";
-import { SyntheticEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { OpprettKravFormState } from "~/routes/$orgnr.opprett-krav.$gjennomforingid";
 import { filtrerOverlappendePerioder } from "~/utils/periode-filtrering";
 import { LabeledDataElementList } from "../common/Definisjonsliste";
@@ -30,7 +29,6 @@ import { errorAt } from "~/utils/validering";
 import {
   addDuration,
   formaterDato,
-  formaterPeriode,
   isLaterOrSameDay,
   parseDate,
   subDuration,
@@ -161,12 +159,6 @@ function GuidePanelInformation({ type }: GuidePanelInformationProps) {
           </Link>
         </GuidePanel>
       );
-    case GuidePanelType.TIMESPRIS:
-      return (
-        <GuidePanel>
-          I dette skjemaet kan du sende inn fakturakrav for tiltak med avtalt timespris
-        </GuidePanel>
-      );
     case GuidePanelType.AVTALT_PRIS:
       return (
         <GuidePanel>
@@ -194,77 +186,14 @@ function PeriodeVelgerVarianter({
   sessionPeriodeSlutt,
   errors,
 }: PeriodeVelgerVarianterProps) {
-  switch (type.type) {
-    case "DatoVelgerSelect":
-      return (
-        <PeriodeSelect
-          periodeForslag={type.periodeForslag}
-          onChange={onChange}
-          sessionPeriodeStart={sessionPeriodeStart}
-          sessionPeriodeSlutt={sessionPeriodeSlutt}
-        />
-      );
-    case "DatoVelgerRange":
-      return (
-        <PeriodeVelger
-          maksSluttdato={type.maksSluttdato}
-          onChange={onChange}
-          sessionPeriodeStart={sessionPeriodeStart}
-          sessionPeriodeSlutt={sessionPeriodeSlutt}
-          errors={errors}
-        />
-      );
-  }
-}
-
-interface PeriodeSelectProps {
-  onChange: (data: DatoVelgerPeriodeChange) => void;
-  periodeForslag: Array<Periode>;
-  sessionPeriodeStart?: string;
-  sessionPeriodeSlutt?: string;
-}
-
-function PeriodeSelect({
-  onChange: onPeriodeSelected,
-  periodeForslag,
-  sessionPeriodeStart,
-  sessionPeriodeSlutt,
-}: PeriodeSelectProps) {
-  function onChange(e: SyntheticEvent<HTMLSelectElement, Event>) {
-    const selectedValue = (e.target as HTMLSelectElement).value;
-    if (!selectedValue) {
-      onPeriodeSelected({ periodeType: PeriodeType.EKSKLUSIV });
-      return;
-    }
-    const selectedPeriode = periodeForslag[Number(selectedValue)];
-    onPeriodeSelected({
-      periodeType: PeriodeType.EKSKLUSIV,
-      periodeStart: selectedPeriode.start,
-      periodeSlutt: selectedPeriode.slutt,
-    });
-  }
-
   return (
-    <HStack gap="space-4">
-      <Select
-        hideLabel
-        label="Hvilken periode gjelder kravet for?"
-        size="small"
-        name="periode"
-        defaultValue={periodeForslag.findIndex(
-          (periode) =>
-            periode.start === sessionPeriodeStart && periode.slutt === sessionPeriodeSlutt,
-        )}
-        onChange={onChange}
-      >
-        <option value="">Velg periode</option>
-        {periodeForslag.map((periode, index) => (
-          <option key={periode.start} value={index}>
-            {formaterPeriode(periode)}
-          </option>
-        ))}
-      </Select>
-    </HStack>
+    <PeriodeVelger
+      maksSluttdato={type.maksSluttdato}
+      onChange={onChange}
+      sessionPeriodeStart={sessionPeriodeStart}
+      sessionPeriodeSlutt={sessionPeriodeSlutt}
+      errors={errors}
+    />
   );
 }
 
@@ -374,21 +303,7 @@ function validateDatoVelger(
   formState: Partial<OpprettKravFormState>,
   datoVelger: DatoVelger,
 ): FieldError[] {
-  const newErrors: FieldError[] = [];
-
-  switch (datoVelger.type) {
-    case "DatoVelgerRange": {
-      newErrors.push(...validatePeriodeVelger(formState, datoVelger.maksSluttdato));
-      break;
-    }
-    case "DatoVelgerSelect": {
-      if (!formState.periodeStart) {
-        newErrors.push({ pointer: "/periodeStart", detail: "Du må velge en periode" });
-      }
-      break;
-    }
-  }
-  return newErrors;
+  return validatePeriodeVelger(formState, datoVelger.maksSluttdato);
 }
 
 function validatePeriodeVelger(

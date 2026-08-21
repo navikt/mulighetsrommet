@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.ArrangorflateTestUtils
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterType
+import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflatePris
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
@@ -110,7 +111,7 @@ class ArrangorflateServiceTest : FunSpec({
         result.id shouldBe friUtbetaling.id
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
         result.beregning.shouldBeInstanceOf<ArrangorflateBeregning> {
-            it.pris shouldBe 5000.NOK
+            it.pris shouldBe ArrangorflatePris.Beregnet(5000.NOK)
             it.displayName shouldBe "Annen avtalt pris"
         }
     }
@@ -169,10 +170,10 @@ class ArrangorflateServiceTest : FunSpec({
         items shouldHaveSize 2
 
         val forhandsgodkjent = items.first { it.id == utbetaling.id }
-        forhandsgodkjent.beregnetBelop shouldBe 10000.NOK
+        forhandsgodkjent.pris shouldBe ArrangorflatePris.Beregnet(10000.NOK)
 
         val fri = items.first { it.id == friUtbetaling.id }
-        fri.beregnetBelop shouldBe 5000.NOK
+        fri.pris shouldBe ArrangorflatePris.Beregnet(5000.NOK)
     }
 
     test("getAllUtbetalingKompakt returnerer tom liste for historiske når alle utbetalinger er aktive") {
@@ -219,16 +220,16 @@ class ArrangorflateServiceTest : FunSpec({
         val filter = ArrangorflateUtbetalingFilter(
             arrangorer = setOf(ArrangorflateTestUtils.underenhet.organisasjonsnummer),
             type = ArrangorflateFilterType.AKTIVE,
-            orderBy = ArrangorflateUtbetalingFilter.OrderBy.BEREGNET_BELOP,
+            orderBy = ArrangorflateUtbetalingFilter.OrderBy.PRIS,
             direction = ArrangorflateFilterDirection.ASC,
         )
         val (_, items) = arrangorflateService.getAllUtbetalingKompakt(filter)
 
         items shouldHaveSize 2
         items[0].id shouldBe friUtbetaling.id
-        items[0].beregnetBelop shouldBe 5000.NOK
+        items[0].pris shouldBe ArrangorflatePris.Beregnet(5000.NOK)
         items[1].id shouldBe utbetaling.id
-        items[1].beregnetBelop shouldBe 10000.NOK
+        items[1].pris shouldBe ArrangorflatePris.Beregnet(10000.NOK)
     }
 
     test("getAllUtbetalingKompakt paginerer resultater riktig") {

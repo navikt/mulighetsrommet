@@ -97,7 +97,7 @@ class GenererUtbetalingService(
     fun oppdaterUtbetalingerForGjennomforing(gjennomforingId: UUID): List<Utbetaling> {
         val gjennomforing = getGjennomforing(gjennomforingId)
         return hentGenererteUtbetalinger(gjennomforingId).mapNotNull { utbetaling ->
-            val oppdatertBeregning = beregnUtbetaling(gjennomforing, utbetaling.periode)
+            val oppdatertBeregning = beregnUtbetaling(gjennomforing, utbetaling.periode, utbetaling.beregning)
 
             if (oppdatertBeregning == null) {
                 // TODO: sletting burde kanskje også gjøres via UtbetalingService
@@ -140,7 +140,7 @@ class GenererUtbetalingService(
         return regenererUtbetaling(utbetaling)
     }
 
-    suspend fun regenererUtbetaling(utbetaling: Utbetaling): Utbetaling {
+    private suspend fun regenererUtbetaling(utbetaling: Utbetaling): Utbetaling {
         val utbetalingerSammePeriode = getUtbetalinger(utbetaling.gjennomforing.id)
             .filter { it.periode == utbetaling.periode }
 
@@ -153,7 +153,7 @@ class GenererUtbetalingService(
         }
 
         val gjennomforing = getGjennomforing(utbetaling.gjennomforing.id)
-        val beregning = requireNotNull(beregnUtbetaling(gjennomforing, utbetaling.periode)) {
+        val beregning = requireNotNull(beregnUtbetaling(gjennomforing, utbetaling.periode, utbetaling.beregning)) {
             "Generert utbetaling med id=${utbetaling.id} kunne ikke beregnes på nytt fordi den ikke lengre er relevant for arrangør"
         }
 
@@ -161,35 +161,24 @@ class GenererUtbetalingService(
     }
 
     private fun hentGenererteUtbetalinger(gjennomforingId: UUID): List<Utbetaling> {
-        return getUtbetalinger(gjennomforingId).filter {
-            when (it.status) {
-                UtbetalingStatusType.TIL_BEHANDLING,
-                UtbetalingStatusType.TIL_ATTESTERING,
-                UtbetalingStatusType.RETURNERT,
-                UtbetalingStatusType.FERDIG_BEHANDLET,
-                UtbetalingStatusType.DELVIS_UTBETALT,
-                UtbetalingStatusType.UTBETALT,
-                UtbetalingStatusType.TIL_AVBRYTELSE,
-                UtbetalingStatusType.AVBRUTT,
-                -> false
-
-                UtbetalingStatusType.GENERERT -> true
-            }
-        }
+        return getUtbetalinger(gjennomforingId).filter { it.kanRegenereres() }
     }
 
     private fun getUtbetalinger(gjennomforingId: UUID): List<Utbetaling> = db.session {
         queries.utbetaling.getByGjennomforing(gjennomforingId)
     }
 
-    private fun beregnUtbetaling(gjennomforing: GjennomforingAvtale, periode: Periode): UtbetalingBeregning? {
+    private fun beregnUtbetaling(
+        gjennomforing: GjennomforingAvtale,
+        periode: Periode,
+        forrigeBeregning: UtbetalingBeregning? = null,
+    ): UtbetalingBeregning? {
         if (!isValidUtbetalingPeriode(gjennomforing.tiltakstype.tiltakskode, periode)) {
             log.info("Genererer ikke utbetaling for gjennomforing=${gjennomforing.id} fordi utbetalingsperioden ikke er tillatt tiltakskode=${gjennomforing.tiltakstype.tiltakskode}, periode=$periode")
             return null
         }
 
-        val type = gjennomforing.prismodell.type
-        val beregning = when (val prismodell = prismodeller.singleOrNull { it.type == type }) {
+        return when (val prismodell = prismodeller.singleOrNull { it.type == gjennomforing.prismodell.type }) {
             is SystemgenerertPrismodell.FraTilsagn -> {
                 val tilsagn = db.session {
                     queries.tilsagn.getAll(
@@ -198,21 +187,21 @@ class GenererUtbetalingService(
                         periodeIntersectsWith = periode,
                     )
                 }
-                prismodell.beregn(gjennomforing, periode, tilsagn)
+                val beregning = prismodell.beregn(gjennomforing, periode, tilsagn)
+                beregning.takeIf { it.output.pris.belop > 0 }
             }
 
             is SystemgenerertPrismodell.FraDeltakelser -> {
                 val deltakere = db.session { repository.deltaker.getByGjennomforing(gjennomforing.id) }
-                prismodell.beregn(gjennomforing, periode, deltakere)
+                val beregning = prismodell.beregn(gjennomforing, periode, deltakere, forrigeBeregning)
+                beregning.takeIf { it.deltakelsePerioder().isNotEmpty() }
             }
 
             null -> {
-                log.info("Genererer ikke utbetaling for gjennomføring=${gjennomforing.id} fordi prismodellen ikke er støttet type=$type")
-                return null
+                log.info("Genererer ikke utbetaling for gjennomføring=${gjennomforing.id} fordi prismodellen ikke er støttet type=${gjennomforing.prismodell.type}")
+                null
             }
         }
-
-        return beregning.takeIf { it.output.pris.belop > 0 }
     }
 
     private suspend fun createUtbetaling(

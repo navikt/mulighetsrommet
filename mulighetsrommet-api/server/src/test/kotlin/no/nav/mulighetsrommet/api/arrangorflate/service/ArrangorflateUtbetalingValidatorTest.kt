@@ -67,29 +67,13 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
             ArrangorflateUtbetalingValidator.validateOpprettKravArrangorflate(ctx, request).shouldBeRight()
         }
 
-        test("gyldig timespris") {
-            val ctx = createContext(
-                Tiltakskode.OPPFOLGING,
-                PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            )
-
-            val request = OpprettKravUtbetalingRequest(
-                periodeStart = "2025-06-01",
-                periodeSlutt = "2025-07-01",
-                periodeType = PeriodeType.Eksklusiv,
-                kidNummer = null,
-                belop = 1234,
-                vedlegg = vedlegg,
-            )
-            ArrangorflateUtbetalingValidator.validateOpprettKravArrangorflate(ctx, request).shouldBeRight()
-        }
-
         context("maks sluttdato for opprett krav utbetalings periode") {
             test("skal tryne for prismodeller som ikke er støttet") {
                 forAll(
                     row(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED),
                     row(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE),
                     row(PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE),
+                    row(PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER),
                 ) { prismodell ->
                     shouldThrow<IllegalArgumentException> {
                         ArrangorflateUtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
@@ -134,28 +118,6 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
                         dato,
                     )
                     result shouldBe LocalDate.of(2026, 1, 1)
-                }
-            }
-
-            context("timespris") {
-                val prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
-
-                test("skal være 1. dag i samme måned som dagens dato") {
-                    val dato = LocalDate.of(2025, 11, 7)
-                    ArrangorflateUtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
-                        prismodell,
-                        Periode.forYear(2025),
-                        dato,
-                    ) shouldBe dato.withDayOfMonth(1)
-                }
-
-                test("skal være siste dag i opprett krav perioden, hvis dagens dato har forbigått datoen") {
-                    val dato = LocalDate.of(2026, 2, 1)
-                    ArrangorflateUtbetalingValidator.maksUtbetalingsPeriodeSluttDato(
-                        prismodell,
-                        Periode.forYear(2025),
-                        dato,
-                    ) shouldBe LocalDate.of(2026, 1, 1)
                 }
             }
         }
