@@ -110,6 +110,12 @@ class MigrerSanityTiltaksgjennomforinger(
                         ?: eksisterende?.kontaktpersoner
                         ?: emptyList()
 
+                    val faneinnhold = tiltak.faneinnhold?.copy(
+                        delMedBruker = tiltak.delingMedBruker ?: tiltak.faneinnhold.delMedBruker,
+                    ) ?: tiltak.delingMedBruker?.let {
+                        Faneinnhold(delMedBruker = it)
+                    }
+
                     repository.tiltakDokument.save(
                         TiltakDokument(
                             id = id,
@@ -117,7 +123,7 @@ class MigrerSanityTiltaksgjennomforinger(
                             tiltakstypeId = tiltakstypeId,
                             stedForGjennomforing = tiltak.stedForGjennomforing,
                             arrangorId = arrangorId,
-                            faneinnhold = tiltak.faneinnhold,
+                            faneinnhold = faneinnhold,
                             beskrivelse = tiltak.beskrivelse,
                             tiltaksnummer = tiltak.tiltaksnummer,
                             sanityId = sanityId,
@@ -173,6 +179,7 @@ class MigrerSanityTiltaksgjennomforinger(
                     lenker,
                     oppskrift
                 },
+                delingMedBruker,
                 "redaktor": redaktor[]->navIdent.current,
                 "kontaktpersoner": kontaktpersoner[].navKontaktperson->navIdent.current
             }
@@ -217,6 +224,7 @@ class MigrerSanityTiltaksgjennomforinger(
         val enheterRefs: List<String?>? = null,
         val arrangor: SanityArrangor? = null,
         val faneinnhold: Faneinnhold? = null,
+        val delingMedBruker: String? = null,
         val redaktor: List<String?>? = null,
         val kontaktpersoner: List<String?>? = null,
     )
