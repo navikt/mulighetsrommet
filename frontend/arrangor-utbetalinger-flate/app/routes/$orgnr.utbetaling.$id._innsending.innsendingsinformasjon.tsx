@@ -44,7 +44,7 @@ export default function TilsagnDetaljerPage() {
             { key: "Utbetalingsperiode", value: formaterPeriode(utbetaling.periode) },
           ]}
         />
-        <TilgjengeligeTilsagn tilsagn={tilsagn} />
+        {tilsagn.length > 0 && <TilgjengeligeTilsagn tilsagn={tilsagn} />}
         <BlokkeringerVarsler
           blokkeringer={utbetaling.blokkeringer}
           advarsler={utbetaling.advarsler}
