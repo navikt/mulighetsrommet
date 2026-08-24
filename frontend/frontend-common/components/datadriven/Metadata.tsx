@@ -10,9 +10,9 @@ export interface MetadataProps {
 
 export function MetadataVStack({ label, value, fallback }: MetadataProps) {
   return (
-    <VStack as="dl" gap="space-8">
+    <VStack as="dl" gap="space-8" className="min-w-0">
       <dt className="font-bold">{label}</dt>
-      <dd className="mr-6 whitespace-pre-line">{value ?? fallback ?? "-"}</dd>
+      <dd className="mr-6 whitespace-pre-line break-words">{value ?? fallback ?? "-"}</dd>
     </VStack>
   );
 }
