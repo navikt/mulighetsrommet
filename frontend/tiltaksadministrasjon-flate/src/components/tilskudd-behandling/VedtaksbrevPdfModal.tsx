@@ -27,7 +27,7 @@ export function VedtaksbrevPdfModal({ blob, isLoading, isError, open, onClose }:
       open={open}
       onClose={onClose}
       header={{ heading: "Forhåndsvisning av vedtaksbrev" }}
-      width="800px"
+      width="1200px"
     >
       <Modal.Body>
         <div className="flex flex-col items-center min-h-96">
