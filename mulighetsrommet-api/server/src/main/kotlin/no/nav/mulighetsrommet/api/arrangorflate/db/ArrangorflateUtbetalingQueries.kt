@@ -48,10 +48,15 @@ class ArrangorflateUtbetalingQueries(private val session: Session) {
 
         val order = when (filter.orderBy) {
             ArrangorflateUtbetalingFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn $direction"
+
             ArrangorflateUtbetalingFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
+
             ArrangorflateUtbetalingFilter.OrderBy.PERIODE -> "periode $direction"
+
             ArrangorflateUtbetalingFilter.OrderBy.BEREGNET_BELOP -> "belop_beregnet $direction"
+
             ArrangorflateUtbetalingFilter.OrderBy.GODKJENT_BELOP -> "sum_utbetaling_linje $direction nulls last"
+
             ArrangorflateUtbetalingFilter.OrderBy.STATUS ->
                 "status $direction, case when status = 'GENERERT' then (case when cardinality(blokkeringer) > 0 then 0 else 1 end) else 0 end $direction"
         }
