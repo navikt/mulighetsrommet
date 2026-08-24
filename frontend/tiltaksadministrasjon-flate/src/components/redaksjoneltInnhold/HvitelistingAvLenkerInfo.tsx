@@ -1,8 +1,6 @@
 import { BodyShort, InfoCard, Link, List } from "@navikt/ds-react";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
-
-const PORTEN_HVITELSITING_SKJEMA_URL =
-  "https://jira.adeo.no/plugins/servlet/desk/portal/541/create/6554";
+import { PORTEN_HVITELISTING_SKJEMA_URL } from "@/constants";
 
 export function HvitelistingAvLenkerInfo() {
   return (
@@ -16,12 +14,12 @@ export function HvitelistingAvLenkerInfo() {
           i sikkerhetsfilteret hos Nav.
         </BodyShort>
         <List as="ul">
-          <List.Item title="Test først om du får åpnet lenken i Modia">
+          <List.Item title="Test først om du får åpnet lenken fra Modia">
             Du kan velge forhåndsvisning fra Handlinger-knappen etter du har lagret.
           </List.Item>
           <List.Item title="Hvis du ikke når nettsiden fra Modia">
             Søk om hvitelisting av lenken via skjemaet{" "}
-            <Link target="_blank" href={PORTEN_HVITELSITING_SKJEMA_URL}>
+            <Link target="_blank" href={PORTEN_HVITELISTING_SKJEMA_URL}>
               Bestille åpning av lenke for Fagsystemer/Modia
             </Link>
           </List.Item>
