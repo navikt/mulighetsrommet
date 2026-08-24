@@ -377,10 +377,12 @@ class TiltakstypeQueries(private val session: Session) : TiltakstypeRepository, 
             ?.map { Innsatsgruppe.valueOf(it) }
             ?.toSet()
             ?: emptySet()
+        val tiltakskode = Tiltakskode.valueOf(string("tiltakskode"))
         return TiltakstypeV3Dto(
             id = uuid("id"),
             navn = string("navn"),
-            tiltakskode = Tiltakskode.valueOf(string("tiltakskode")),
+            tiltakskode = tiltakskode,
+            system = tiltakskode.system,
             innsatsgrupper = innsatsgrupper,
             arenaKode = stringOrNull("arena_kode"),
             opprettetTidspunkt = localDateTime("created_at"),

@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.DeltakerRegistreringInnholdDto
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.TiltakstypeSystem
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDateTime
@@ -15,6 +16,7 @@ data class TiltakstypeV3Dto(
     val id: UUID,
     val navn: String,
     val tiltakskode: Tiltakskode,
+    val system: TiltakstypeSystem,
     val innsatsgrupper: Set<Innsatsgruppe>,
     val arenaKode: String?,
     val deltakerRegistreringInnhold: DeltakerRegistreringInnholdDto?,
