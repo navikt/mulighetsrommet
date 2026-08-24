@@ -4,7 +4,7 @@
 #import "templates/partials/helpers.typ": iso-til-nor-dato
 #import "templates/partials/styles.typ": apply-letter-layout
 
-#let data = json("/data/block-content/journalpost.json")
+#let data = json("/data/block-content/document.json")
 
 #set document(
   title: data.at("title", default: "Dokument"),
