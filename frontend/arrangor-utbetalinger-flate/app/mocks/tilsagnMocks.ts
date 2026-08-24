@@ -353,17 +353,40 @@ export const arrangorflateTilsagn: ArrangorflateTilsagnDto[] = [
 ];
 
 function tilsagnRadDto(tilsagn: ArrangorflateTilsagnDto): ArrangorflateTilsagnRadDto {
+  const tilsagnstype = ((type: TilsagnType) => {
+    switch (type) {
+      case TilsagnType.EKSTRATILSAGN:
+        return "Ekstratilsagn";
+      case TilsagnType.TILSAGN:
+        return "Tilsagn";
+      case TilsagnType.INVESTERING:
+        return "Tilsagn for investeringer";
+      default:
+        return "ukjent";
+    }
+  })(tilsagn.type);
+
+  const arrangorNavn = `${tilsagn.arrangor.navn} (${tilsagn.arrangor.organisasjonsnummer})`;
   return {
     id: tilsagn.id,
     organisasjonsnummer: tilsagn.arrangor.organisasjonsnummer,
     tiltakTypeNavn: tilsagn.tiltakstype.navn,
-    tiltakNavn: `${tilsagn.gjennomforing.navn} (${tilsagn.gjennomforing.lopenummer})`,
-    arrangorNavn: `${tilsagn.arrangor} (${tilsagn.arrangor.organisasjonsnummer})`,
+    tiltakNavn: tilsagn.gjennomforing.navn,
+    arrangorNavn: arrangorNavn,
     periode: tilsagn.periode,
-    tilsagnType: tilsagn.type,
+    tilsagnType: tilsagnstype,
     bestillingsnummer: tilsagn.bestillingsnummer,
     status: tilsagn.status,
   };
 }
 
 export const tilsagnRader = arrangorflateTilsagn.map(tilsagnRadDto);
+
+export const tilsagnTabellOversikt = {
+  pagination: {
+    totalCount: tilsagnRader.length,
+    pageSize: 25,
+    totalPages: Math.ceil(tilsagnRader.length / 25),
+  },
+  data: tilsagnRader,
+};
