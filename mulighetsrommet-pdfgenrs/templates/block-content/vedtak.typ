@@ -9,7 +9,7 @@
 #import "templates/partials/top-section.typ": top-section
 #import "templates/partials/helpers.typ": iso-til-lang-dato
 
-#let data = json("/data/block-content/vedtaksbrev.json")
+#let data = json("/data/block-content/vedtak.json")
 
 #let deltaker  = data.at("deltaker", default: none)
 #let navn     = deltaker.at("navn", default: "")
