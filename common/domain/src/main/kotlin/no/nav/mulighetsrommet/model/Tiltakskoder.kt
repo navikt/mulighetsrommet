@@ -1,4 +1,9 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package no.nav.mulighetsrommet.model
+
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.JsonNames
 
 enum class Tiltakskode(
     val system: TiltakstypeSystem,
@@ -212,11 +217,15 @@ enum class Tiltakskode(
         arenakode = "ARBTREN",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
+
+    @JsonNames("MIDLERTIDIG_LONNSTILSKUDD")
     MIDLERTIDIG_LONNSTLSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "MIDLONTIL",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
+
+    @JsonNames("VARIG_LONNSTILSKUDD")
     VARIG_LONNSTILSKUD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "VARLONTIL",
@@ -227,6 +236,8 @@ enum class Tiltakskode(
         arenakode = "MENTOR",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
+
+    @JsonNames("INKLUDERINGSTILSKUDD")
     INKLUDERINGSTILSKUD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "INKLUTILS",
@@ -242,6 +253,8 @@ enum class Tiltakskode(
         arenakode = "VATIAROR",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
+
+    @JsonNames("FIREARIG_LONNSTILSKUDD")
     FIREARIG_LONNSTILSUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = null,
