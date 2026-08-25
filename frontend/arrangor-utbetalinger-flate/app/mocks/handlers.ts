@@ -1,6 +1,5 @@
 import { DefaultBodyType, http, HttpResponse, PathParams } from "msw";
 import {
-  ArrangorflateTilsagnRadDto,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingRadDto,
   ArrangorflateUtbetalingStatus,
@@ -10,7 +9,7 @@ import {
   utbetalingTabellOversiktHistoriske,
 } from "./utbetalingOversiktMocks";
 import { arrFlateUtbetaling, klarForGodkjenningIds } from "./utbetalingDetaljerMocks";
-import { arrangorflateTilsagn, tilsagnRader } from "./tilsagnMocks";
+import { arrangorflateTilsagn, tilsagnTabellOversikt } from "./tilsagnMocks";
 import { handlers as opprettKravHandlers } from "./opprettKrav/handlers";
 import { arrangorMock } from "./opprettKrav/gjennomforingMocks";
 
@@ -89,12 +88,7 @@ export const handlers = [
       return HttpResponse.json(toggleEnabled);
     },
   ),
-  http.get<PathParams, ArrangorflateTilsagnRadDto[]>(
-    "*/api-proxy/api/arrangorflate/tilsagn",
-    () => {
-      return HttpResponse.json(tilsagnRader);
-    },
-  ),
+  http.get("*/api-proxy/api/arrangorflate/tilsagn", () => HttpResponse.json(tilsagnTabellOversikt)),
   http.get<PathParams, ArrangorflateUtbetalingDto[]>(
     "*/api-proxy/api/arrangorflate/tilsagn/:id",
     ({ params }) => {
