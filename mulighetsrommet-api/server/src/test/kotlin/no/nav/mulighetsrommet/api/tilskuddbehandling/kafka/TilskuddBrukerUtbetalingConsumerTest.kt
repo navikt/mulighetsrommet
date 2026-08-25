@@ -165,4 +165,22 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
         verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
     }
+
+    test("bruker besluttet tidspunkt som periode for utbetaling") {
+        val service = TilskuddBehandlingService(
+            database.api,
+            journalforVedtaksbrev,
+            mockk(relaxed = true),
+        )
+        service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+
+        val besluttetTidspunkt = Instant.parse("2025-03-15T10:00:00Z")
+        val hendelse = godkjentHendelse.copy(besluttetTidspunkt = besluttetTidspunkt)
+        createConsumer().consume(behandlingId, Json.encodeToJsonElement(hendelse))
+
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskuddId) }
+        result.shouldNotBeNull()
+        result.periode.start shouldBe LocalDate.of(2025, 3, 15)
+        result.periode.getLastInclusiveDate() shouldBe LocalDate.of(2025, 3, 15)
+    }
 })
