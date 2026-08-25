@@ -82,7 +82,7 @@ data class KafkaConsumers(
     ),
     val replikerTiltakAvtale: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
         id = "repliker-tiltak-avtale",
-        topic = "team-tiltak.tiltak-avtale-hendelse-compact",
+        topic = "arbeidsgiver.tiltak-avtale-hendelse-compact",
         consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltakshistorikk.tiltak-avtale.v1"),
     ),
 )
