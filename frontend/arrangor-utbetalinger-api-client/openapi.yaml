@@ -825,13 +825,13 @@ components:
       - INDIVIDUELL_JOBBSTOTTE_UNG
       - ARBEID_MED_STOTTE
       - ARBEIDSTRENING
-      - MIDLERTIDIG_LONNSTLSKUDD
-      - VARIG_LONNSTILSKUD
+      - MIDLERTIDIG_LONNSTILSKUDD
+      - VARIG_LONNSTILSKUDD
       - MENTOR
-      - INKLUDERINGSTILSKUD
+      - INKLUDERINGSTILSKUDD
       - SOMMERJOBB
       - VTAO
-      - FIREARIG_LONNSTILSUDD
+      - FIREARIG_LONNSTILSKUDD
     PaginatedResponse_ArrangorflateTiltakRadDto:
       type: object
       properties:

@@ -61,10 +61,10 @@ val ApplicationConfigDev = AppConfig(
                 Tiltakskode.HOYERE_UTDANNING to admin + modia,
 
                 Tiltakskode.ARBEIDSTRENING to admin + modia,
-                Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD to admin + modia,
-                Tiltakskode.VARIG_LONNSTILSKUD to admin + modia,
+                Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD to admin + modia,
+                Tiltakskode.VARIG_LONNSTILSKUDD to admin + modia,
                 Tiltakskode.MENTOR to admin + modia,
-                Tiltakskode.INKLUDERINGSTILSKUD to admin + modia,
+                Tiltakskode.INKLUDERINGSTILSKUDD to admin + modia,
                 Tiltakskode.SOMMERJOBB to admin + modia,
                 Tiltakskode.VTAO to admin + modia,
                 Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG to admin + modia,
@@ -74,7 +74,7 @@ val ApplicationConfigDev = AppConfig(
                 /*
                  * Nye tiltakstyper under utvikling
                  */
-                Tiltakskode.FIREARIG_LONNSTILSUDD to setOf(),
+                Tiltakskode.FIREARIG_LONNSTILSKUDD to setOf(),
             )
         },
     ),
