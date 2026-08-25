@@ -20,7 +20,7 @@ object TestFixtures {
     object Tiltakstype {
         val gruppeAmo = Tiltakstype(
             navn = "Arbeidsmarkedsopplæring (gruppe)",
-            tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING.name,
+            tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
             arenaTiltakskode = "GRUPPEAMO",
             tiltakstypeId = UUID.fromString(
                 "9b52265c-914c-413d-bca4-e9d7b3f1bd8d",
@@ -29,7 +29,7 @@ object TestFixtures {
 
         val enkelAmo = Tiltakstype(
             navn = "Arbeidsmarkedsopplæring (enkeltplass)",
-            tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING.name,
+            tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
             arenaTiltakskode = "ENKELAMO",
             tiltakstypeId = UUID.fromString(
                 "156f003f-e391-4b0d-9dba-ce398bf5fdde",
@@ -47,7 +47,7 @@ object TestFixtures {
 
         val mentor = Tiltakstype(
             navn = "Mentor",
-            tiltakskode = "MENTOR",
+            tiltakskode = Tiltakskode.MENTOR,
             arenaTiltakskode = "MENTOR",
             tiltakstypeId = UUID.fromString(
                 "5d48aa11-b394-40ba-ae22-2b62f68f4191",
@@ -56,7 +56,7 @@ object TestFixtures {
 
         val arbeidstrening = Tiltakstype(
             navn = "Arbeidstrening",
-            tiltakskode = "ARBEIDSTRENING",
+            tiltakskode = Tiltakskode.ARBEIDSTRENING,
             arenaTiltakskode = "ARBTREN",
             tiltakstypeId = UUID.fromString(
                 "c1cdf1ea-6d47-40f6-9787-d64670b5ae08",

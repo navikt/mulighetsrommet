@@ -24,6 +24,7 @@ import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtDeltakerV1KafkaConsume
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtVirksomheterV1KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerSisteTiltaksgjennomforingerV2KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerSisteTiltakstyperV3KafkaConsumer
+import no.nav.tiltak.historikk.kafka.consumers.ReplikerTiltakAvtaleKafkaConsumer
 import no.nav.tiltak.historikk.plugins.configureAuthentication
 import no.nav.tiltak.historikk.plugins.configureHTTP
 import no.nav.tiltak.historikk.plugins.configureSerialization
@@ -80,9 +81,12 @@ fun Application.configure(config: AppConfig) {
     val kafka = configureKafka(config.kafka, db, virksomheter)
 
     val tiltakshistorikk = TiltakshistorikkService(
+        config = TiltakshistorikkService.Config(
+            useKafkaForTeamTiltak = config.useKafkaForTeamTiltak,
+            cutOffDatoMapping = config.arbeidsgiverTiltakCutOffDatoMapping,
+        ),
         db = db,
         tiltakDatadelingClient = tiltakDatadelingClient,
-        cutOffDatoMapping = config.arbeidsgiverTiltakCutOffDatoMapping,
         virksomheter = virksomheter,
     )
 
@@ -117,6 +121,7 @@ fun Application.configureKafka(
         ),
         config.consumers.replikerAmtDeltaker to ReplikerAmtDeltakerV1KafkaConsumer(db),
         config.consumers.replikerAmtVirksomhet to ReplikerAmtVirksomheterV1KafkaConsumer(virksomheter),
+        config.consumers.replikerTiltakAvtale to ReplikerTiltakAvtaleKafkaConsumer(db),
     )
 
     val kafka = KafkaConsumerOrchestrator(

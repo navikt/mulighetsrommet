@@ -4,13 +4,11 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
-import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -185,6 +183,27 @@ sealed class TiltakshistorikkV1Dto {
             val navn: String,
         )
 
+        enum class Tiltakskode {
+            ARBEIDSRETTET_REHABILITERING,
+            AVKLARING,
+            DIGITALT_OPPFOLGINGSTILTAK,
+            JOBBKLUBB,
+            OPPFOLGING,
+            ARBEIDSFORBEREDENDE_TRENING,
+            VARIG_TILRETTELAGT_ARBEID_SKJERMET,
+            TILRETTELAGT_ARBEID_ORDINAER,
+            ARBEIDSMARKEDSOPPLAERING,
+            ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+            ENKELTPLASS_FAG_OG_YRKESOPPLAERING,
+            FAG_OG_YRKESOPPLAERING,
+            GRUPPE_ARBEIDSMARKEDSOPPLAERING,
+            GRUPPE_FAG_OG_YRKESOPPLAERING,
+            HOYERE_UTDANNING,
+            HOYERE_YRKESFAGLIG_UTDANNING,
+            NORSKOPPLAERING_GRUNNLEGGENDE_FERDIGHETER_FOV,
+            STUDIESPESIALISERING,
+        }
+
         @OptIn(ExperimentalSerializationApi::class)
         @Serializable
         data class Status(
@@ -212,7 +231,7 @@ sealed class TiltakshistorikkV1Dto {
         override val id: UUID,
         override val tittel: String,
         val tiltakstype: Tiltakstype,
-        val status: ArbeidsgiverAvtaleStatus,
+        val status: Status,
         val stillingsprosent: Float?,
         val dagerPerUke: Float?,
         val arbeidsgiver: Virksomhet,
@@ -234,6 +253,44 @@ sealed class TiltakshistorikkV1Dto {
             SOMMERJOBB,
             VTAO,
             FIREARIG_LONNSTILSKUDD,
+        }
+
+        enum class Status {
+            /**
+             * Avtalen er påbegynt, men kan fortsatt mangle noe data som er påkrevd for at den skal kunne gjennomføres.
+             * Kan anses som en "kladd".
+             */
+            PAABEGYNT,
+
+            /**
+             * Bl.a. når man mangler godkjenning av "controller", men kan muligens også være andre godkjenninger som kreves.
+             */
+            MANGLER_GODKJENNING,
+
+            /**
+             * Avtalen kan anses som klar, men startdato er i fremtiden.
+             */
+            KLAR_FOR_OPPSTART,
+
+            /**
+             * Avtalen gjennomføres. Bruker deltar på tiltaket.
+             */
+            GJENNOMFORES,
+
+            /**
+             * Avtalen har blitt avsluttet. Bruker har deltatt på tiltaket.
+             */
+            AVSLUTTET,
+
+            /**
+             * Avtalen ble avbrutt.
+             */
+            AVBRUTT,
+
+            /**
+             * Avtalen ble aldri noe av.
+             */
+            ANNULLERT,
         }
     }
 }
