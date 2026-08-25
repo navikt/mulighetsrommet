@@ -70,7 +70,6 @@ class BrukerUtbetalingQueriesTest : FunSpec({
         result.id shouldBe utbetaling.id
         result.sakId shouldBe utbetaling.sakId
         result.behandlingId shouldBe utbetaling.behandlingId
-        result.periode shouldBe Periode.fromInclusiveDates(utbetaling.periode.fom, utbetaling.periode.tom)
         result.belop shouldBe utbetaling.belop
         result.tilskuddstype shouldBe utbetaling.tilskuddstype
         result.tiltakskode shouldBe utbetaling.tiltakskode

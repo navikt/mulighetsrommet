@@ -180,7 +180,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
         val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskuddId) }
         result.shouldNotBeNull()
-        result.periode.start shouldBe LocalDate.of(2025, 3, 15)
-        result.periode.getLastInclusiveDate() shouldBe LocalDate.of(2025, 3, 15)
+        verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
     }
 })

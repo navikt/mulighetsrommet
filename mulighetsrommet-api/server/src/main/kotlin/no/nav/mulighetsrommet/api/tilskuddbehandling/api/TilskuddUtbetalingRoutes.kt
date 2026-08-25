@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -71,11 +72,12 @@ fun Route.tilskuddUtbetalingRoutes() {
                             )
                         } else {
                             queries.brukerUtbetaling.getByTilskudd(tilskudd.id)?.let { utbetaling ->
+                                val besluttetDato = utbetaling.besluttetTidspunkt.tilNorskDato()
                                 TilskuddUtbetalingKompaktDto(
                                     id = utbetaling.id,
                                     tilskuddBehandlingId = behandling.id,
                                     status = TilskuddUtbetalingStatusDto.from(utbetaling.helVedStatus),
-                                    periode = utbetaling.periode,
+                                    periode = Periode.fromInclusiveDates(besluttetDato, besluttetDato),
                                     type = tilskudd.tilskuddOpplaeringType,
                                     kostnadssted = utbetaling.kostnadssted.let {
                                         KostnadsstedDto(it.navn, it.enhetsnummer)
