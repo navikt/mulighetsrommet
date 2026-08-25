@@ -218,15 +218,15 @@ enum class Tiltakskode(
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
 
-    @JsonNames("MIDLERTIDIG_LONNSTILSKUDD")
-    MIDLERTIDIG_LONNSTLSKUDD(
+    @JsonNames("MIDLERTIDIG_LONNSTLSKUDD")
+    MIDLERTIDIG_LONNSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "MIDLONTIL",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
 
-    @JsonNames("VARIG_LONNSTILSKUDD")
-    VARIG_LONNSTILSKUD(
+    @JsonNames("VARIG_LONNSTILSKUD")
+    VARIG_LONNSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "VARLONTIL",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
@@ -237,8 +237,8 @@ enum class Tiltakskode(
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
 
-    @JsonNames("INKLUDERINGSTILSKUDD")
-    INKLUDERINGSTILSKUD(
+    @JsonNames("INKLUDERINGSTILSKUD")
+    INKLUDERINGSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = "INKLUTILS",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
@@ -254,8 +254,8 @@ enum class Tiltakskode(
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
 
-    @JsonNames("FIREARIG_LONNSTILSKUDD")
-    FIREARIG_LONNSTILSUDD(
+    @JsonNames("FIREARIG_LONNSTILSUDD")
+    FIREARIG_LONNSTILSKUDD(
         system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
         arenakode = null,
         egenskaper = setOf(),
