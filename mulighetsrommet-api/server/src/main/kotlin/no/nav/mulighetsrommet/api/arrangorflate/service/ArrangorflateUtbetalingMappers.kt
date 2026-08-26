@@ -97,7 +97,7 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
         linjer = linjer,
         innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),
         advarsler = advarsler.map { advarsel ->
-            DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn())
+            DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn(), personaliaById[advarsel.deltakerId]?.norskIdent())
         },
         kanAvbrytes = kanAvbrytes,
         avbrytelse = Avbrytelse.fromStatus(status, utbetaling.arrangorAvbrutt, utbetaling.avbrytelse),

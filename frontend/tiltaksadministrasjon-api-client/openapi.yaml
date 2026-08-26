@@ -8320,6 +8320,10 @@ components:
           type:
           - "null"
           - string
+        norskIdent:
+          type:
+          - "null"
+          - string
         beskrivelse:
           type: string
         type:
@@ -8328,6 +8332,7 @@ components:
       - beskrivelse
       - deltakerId
       - navn
+      - norskIdent
       - type
     DeltakerAdvarselType:
       type: string

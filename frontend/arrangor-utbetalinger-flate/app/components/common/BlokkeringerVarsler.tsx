@@ -20,36 +20,52 @@ export function BlokkeringerVarsler({
         <InlineMessage status="info">
           Vennligst ta kontakt med Nav dersom problemene vedvarer.
         </InlineMessage>
-        {blokkeringer.includes(UtbetalingBlokkering.MANGLER_TILSAGN) && (
-          <InfoCard data-color="warning">
-            <InfoCard.Header>
-              <InfoCard.Title>Tilsagn mangler</InfoCard.Title>
-            </InfoCard.Header>
-            <InfoCard.Content>
-              Det finnes ingen godkjente tilsagn for dette kravet. Dere kan ikke sende inn kravet
-              før Nav har godkjent et tilsagn for utbetalingsperioden.
-            </InfoCard.Content>
-          </InfoCard>
-        )}
-        {blokkeringer.includes(UtbetalingBlokkering.UBEHANDLET_FORSLAG) && (
-          <InfoCard data-color="warning">
-            <InfoCard.Header>
-              <InfoCard.Title>Viktig informasjon om deltakere</InfoCard.Title>
-            </InfoCard.Header>
-            <InfoCard.Content>
-              Det finnes advarsler i Deltakeroversikten for følgende personer. Nav-veileder må
-              behandle disse før kravet kan sendes inn.
-              <List>
-                {advarsler.map((advarsel) => (
-                  <List.Item key={advarsel.deltakerId}>
-                    <b>{advarsel.navn}</b> {advarsel.beskrivelse}
-                  </List.Item>
-                ))}
-              </List>
-            </InfoCard.Content>
-          </InfoCard>
-        )}
+        {blokkeringer.map((blokkering) => {
+          const { title, content } = getBlokkeringTekst(blokkering, advarsler);
+          return (
+            <InfoCard data-color="warning" key={blokkering.toString()}>
+              <InfoCard.Header>
+                <InfoCard.Title>{title}</InfoCard.Title>
+              </InfoCard.Header>
+              <InfoCard.Content>{content}</InfoCard.Content>
+            </InfoCard>
+          );
+        })}
       </VStack>
     </Box>
   );
+}
+
+function getBlokkeringTekst(
+  blokkering: UtbetalingBlokkering,
+  advarsler: DeltakerAdvarselDto[],
+): { title: string; content: React.ReactNode } {
+  switch (blokkering) {
+    case UtbetalingBlokkering.MANGLER_TILSAGN:
+      return {
+        title: "Tilsagn mangler",
+        content:
+          "Det finnes ingen godkjente tilsagn for dette kravet. Dere kan ikke sende inn kravet før Nav har godkjent et tilsagn for utbetalingsperioden.",
+      };
+    case UtbetalingBlokkering.UBEHANDLET_FORSLAG:
+      return {
+        title: "Viktig informasjon om deltakere",
+        content: (
+          <>
+            Det finnes advarsler i Deltakeroversikten for følgende personer. Nav-veileder må
+            behandle disse før kravet kan sendes inn.
+            <List>
+              {advarsler.map((advarsel) => (
+                <List.Item key={advarsel.deltakerId}>
+                  <b>
+                    {advarsel.navn}, {advarsel.norskIdent}
+                  </b>{" "}
+                  {advarsel.beskrivelse}
+                </List.Item>
+              ))}
+            </List>
+          </>
+        ),
+      };
+  }
 }
