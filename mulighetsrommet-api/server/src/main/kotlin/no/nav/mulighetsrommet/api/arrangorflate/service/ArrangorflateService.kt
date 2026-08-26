@@ -107,7 +107,7 @@ class ArrangorflateService(
             personaliaById = personalia,
             advarsler = advarsler,
             linjer = getLinjer(utbetaling.id),
-            kanViseBeregning = !erTolvUkerEtterInnsending,
+            skalViseBeregningMedDeltakelser = !erTolvUkerEtterInnsending,
             kanAvbrytes = arrangorAvbrytStatus(utbetaling),
             regenerering = regenerering,
         )

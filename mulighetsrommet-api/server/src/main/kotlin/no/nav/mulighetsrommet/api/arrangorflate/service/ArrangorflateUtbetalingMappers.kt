@@ -49,19 +49,21 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
     personaliaById: Map<UUID, Personalia>,
     advarsler: List<DeltakerAdvarsel>,
     linjer: List<ArrangforflateUtbetalingLinje>,
-    kanViseBeregning: Boolean,
+    skalViseBeregningMedDeltakelser: Boolean,
     kanAvbrytes: ArrangorAvbrytStatus,
     regenerering: RegenererStatus,
 ): ArrangorflateUtbetalingDto {
     val beregning = ArrangorflateBeregning(
         pris = utbetaling.beregning.output.pris,
-        deltakelser = beregningDeltakerTable(utbetaling, deltakereById, personaliaById),
+        deltakelser = if (skalViseBeregningMedDeltakelser) {
+            beregningDeltakerTable(utbetaling, deltakereById, personaliaById)
+        } else {
+            null
+        },
         stengt = beregningStengt(utbetaling.beregning),
         displayName = beregningDisplayName(utbetaling.beregning),
         satsDetaljer = beregningSatsDetaljer(utbetaling.beregning),
     )
-
-    val kanViseBeregningMedDeltakelse = beregning.deltakelser?.let { kanViseBeregning } ?: false
 
     val innsendtAvArrangorDato = utbetaling.innsending?.tidspunkt?.toLocalDate()
     val status =
@@ -71,7 +73,6 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
         status = status,
         innsendtAvArrangorDato = innsendtAvArrangorDato,
         utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
-        kanViseBeregning = kanViseBeregningMedDeltakelse,
         createdAt = utbetaling.createdAt,
         updatedAt = utbetaling.updatedAt,
         tiltakstype = ArrangorflateTiltakstypeDto(

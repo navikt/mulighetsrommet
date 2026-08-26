@@ -1793,8 +1793,6 @@ components:
           - "null"
           - string
           format: date
-        kanViseBeregning:
-          type: boolean
         createdAt:
           type: string
           format: date-time
@@ -1857,7 +1855,6 @@ components:
       - innsendingsDetaljer
       - innsendtAvArrangorDato
       - kanAvbrytes
-      - kanViseBeregning
       - linjer
       - periode
       - regenerering

@@ -38,7 +38,6 @@ data class ArrangorflateUtbetalingDto(
     val innsendtAvArrangorDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val utbetalesTidligstDato: LocalDate?,
-    val kanViseBeregning: Boolean,
     @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
     @Serializable(with = LocalDateTimeSerializer::class)

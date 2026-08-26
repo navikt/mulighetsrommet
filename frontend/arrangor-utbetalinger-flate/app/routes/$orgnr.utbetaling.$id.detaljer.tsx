@@ -124,7 +124,7 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
           pris={utbetaling.beregning.pris}
           satsDetaljer={utbetaling.beregning.satsDetaljer}
         />
-        {utbetaling.kanViseBeregning && (
+        {utbetaling.beregning.deltakelser && (
           <HStack gap="space-8">
             <Button variant="secondary" size="small" onClick={() => setDeltakerModalOpen(true)}>
               Se deltakelser
