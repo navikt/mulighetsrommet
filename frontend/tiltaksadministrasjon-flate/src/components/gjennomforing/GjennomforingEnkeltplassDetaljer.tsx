@@ -1,7 +1,7 @@
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
-import { GodkjennOkonomiModal } from "@/components/gjennomforing/GodkjennOkonomiModal";
-import { GodkjennPrisendringModal } from "@/components/gjennomforing/GodkjennPrisendringModal";
-import { SettPaVentOkonomiModal } from "@/components/gjennomforing/SettPaVentOkonomiModal";
+import { EnkeltplassGodkjennOkonomiModal } from "@/components/gjennomforing/EnkeltplassGodkjennOkonomiModal";
+import { EnkeltplassGodkjennPrisendringModal } from "@/components/gjennomforing/EnkeltplassGodkjennPrisendringModal";
+import { EnkeltplassSettOkonomiPaVentModal } from "@/components/gjennomforing/EnkeltplassSettOkonomiPaVentModal";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { BodyShort, Button, Heading, HelpText, HStack, InfoCard, VStack } from "@navikt/ds-react";
@@ -36,7 +36,7 @@ import { AmoKategoriseringDetaljer } from "../amoKategorisering/AmoKategoriserin
 import { BetalingsbetingelserEnkeltplass } from "./BetalingsbetingelserEnkeltplass";
 import { GjennomforingEnkeltplassVarighet } from "@/pages/gjennomforing/GjennomforingEnkeltplassVarighet";
 import { formaterNavEnhet } from "@/utils/nav-enhet";
-import { SettPaVentPrisendringModal } from "@/components/gjennomforing/SettPaVentPrisendringModal";
+import { EnkeltplassSettPrisendringPaVentModal } from "@/components/gjennomforing/EnkeltplassSettPrisendringPaVentModal";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -178,7 +178,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
         )}
       </HStack>
       {okonomi && (
-        <GodkjennOkonomiModal
+        <EnkeltplassGodkjennOkonomiModal
           open={godkjennOpen}
           setOpen={setGodkjennOpen}
           gjennomforingId={gjennomforing.id}
@@ -187,7 +187,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
         />
       )}
       {okonomi && (
-        <SettPaVentOkonomiModal
+        <EnkeltplassSettOkonomiPaVentModal
           open={settPaVentOpen}
           setOpen={setSettPaVentOpen}
           gjennomforingId={gjennomforing.id}
@@ -195,7 +195,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
         />
       )}
       {prisendring && (
-        <GodkjennPrisendringModal
+        <EnkeltplassGodkjennPrisendringModal
           open={godkjennPrisendringOpen}
           setOpen={setGodkjennPrisendringOpen}
           gjennomforingId={gjennomforing.id}
@@ -204,7 +204,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
         />
       )}
       {prisendring && (
-        <SettPaVentPrisendringModal
+        <EnkeltplassSettPrisendringPaVentModal
           open={settPrisendringPaVentOpen}
           setOpen={setSettPrisendringPaVentOpen}
           gjennomforingId={gjennomforing.id}

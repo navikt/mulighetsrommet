@@ -1,4 +1,4 @@
-import { useSettPaVentGjennomforingOkonomi } from "@/api/gjennomforing/useSettPaVentGjennomforingOkonomi";
+import { useSettOkonomiPaVent } from "@/api/gjennomforing/useSettOkonomiPaVent";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
 import { Button, InfoCard, Modal, Textarea, VStack } from "@navikt/ds-react";
 import { useState } from "react";
@@ -10,13 +10,13 @@ interface Props {
   totrinnskontrollId: string;
 }
 
-export function SettPaVentOkonomiModal({
+export function EnkeltplassSettPrisendringPaVentModal({
   open,
   setOpen,
   gjennomforingId,
   totrinnskontrollId,
 }: Props) {
-  const settPaVentMutation = useSettPaVentGjennomforingOkonomi();
+  const settPaVentMutation = useSettOkonomiPaVent();
   const [forklaring, setForklaring] = useState("");
 
   function close() {
@@ -35,7 +35,7 @@ export function SettPaVentOkonomiModal({
     <Modal
       open={open}
       onClose={close}
-      header={{ heading: "Sett enkeltplass på vent" }}
+      header={{ heading: "Sett prisendring på vent" }}
       width="medium"
     >
       <Modal.Body>
@@ -43,12 +43,12 @@ export function SettPaVentOkonomiModal({
           <InfoCard data-color="info">
             <InfoCard.Header icon={<InformationSquareIcon aria-hidden />}>
               <InfoCard.Title>
-                Du er i ferd med å sette godkjenning av enkeltplassen på vent
+                Du er i ferd med å sette godkjenning av prisendringen på vent
               </InfoCard.Title>
             </InfoCard.Header>
             <InfoCard.Content>
               For at veileder skal få beskjed, må du sende en oppgave i Gosys med beskrivelse av hva
-              som er mangelfullt i påmeldingen.
+              som er mangelfullt.
             </InfoCard.Content>
           </InfoCard>
           <Textarea

@@ -1,9 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { GjennomforingService, ProblemDetail } from "@tiltaksadministrasjon/api-client";
+import { EnkeltplassService, ProblemDetail } from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
-export function useSettPaVentGjennomforingOkonomi() {
+export function useSettOkonomiPaVent() {
   const queryClient = useQueryClient();
 
   return useApiMutation<
@@ -12,7 +12,7 @@ export function useSettPaVentGjennomforingOkonomi() {
     { id: string; forklaring: string | null; totrinnskontrollId: string }
   >({
     mutationFn: ({ id, forklaring, totrinnskontrollId }) => {
-      return GjennomforingService.settPaVentGjennomforingOkonomi({
+      return EnkeltplassService.settOkonomiPaVent({
         path: { id },
         body: { forklaring, totrinnskontrollId },
       });

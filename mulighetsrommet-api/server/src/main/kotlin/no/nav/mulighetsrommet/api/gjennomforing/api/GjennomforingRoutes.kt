@@ -39,7 +39,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompaktDto
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
-import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getAccessType
@@ -74,7 +73,6 @@ fun Route.gjennomforingRoutes() {
     val db: ApiDatabase by inject()
     val avtaleGjennomforinger: GjennomforingAvtaleService by inject()
     val gjennomforinger: GjennomforingDetaljerService by inject()
-    val enkeltplasser: GjennomforingEnkeltplassService by inject()
 
     route("gjennomforinger") {
         authorize(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) {
@@ -462,65 +460,6 @@ fun Route.gjennomforingRoutes() {
             }
         }
 
-        authorize(Rolle.BESLUTTER_TILSAGN) {
-            post("{id}/godkjenn-okonomi", {
-                tags = setOf("Gjennomforing")
-                operationId = "godkjennGjennomforingOkonomi"
-                request {
-                    pathParameterUuid("id")
-                    body<GodkjennOkonomiRequest>()
-                }
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Økonomi ble godkjent"
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val id = call.parameters.getOrFail<UUID>("id")
-                val request = call.receive<GodkjennOkonomiRequest>()
-                val navIdent = getNavIdent()
-
-                val result = enkeltplasser.settOkonomiGodkjent(id, request.totrinnskontrollId, navIdent)
-                    .mapLeft { ValidationError(errors = it) }
-                    .map { HttpStatusCode.OK }
-
-                call.respondWithStatusResponse(result)
-            }
-
-            post("{id}/sett-pa-vent-okonomi", {
-                tags = setOf("Gjennomforing")
-                operationId = "settPaVentGjennomforingOkonomi"
-                request {
-                    pathParameterUuid("id")
-                    body<SettPaVentOkonomiRequest>()
-                }
-                response {
-                    code(HttpStatusCode.OK) {
-                        description = "Økonomi ble satt på vent"
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val id = call.parameters.getOrFail<UUID>("id")
-                val navIdent = getNavIdent()
-                val request = call.receive<SettPaVentOkonomiRequest>()
-
-                val result = enkeltplasser
-                    .settOkonomiPaVent(id, request.totrinnskontrollId, navIdent, request.forklaring)
-                    .mapLeft { ValidationError(errors = it) }
-                    .map { HttpStatusCode.OK }
-
-                call.respondWithStatusResponse(result)
-            }
-        }
-
         post({
             tags = setOf("Gjennomforing")
             operationId = "getGjennomforinger"
@@ -801,19 +740,6 @@ data class GjennomforingVeilederinfoRequest(
 @Serializable
 data class PublisertRequest(
     val publisert: Boolean,
-)
-
-@Serializable
-data class SettPaVentOkonomiRequest(
-    val forklaring: String? = null,
-    @Serializable(with = UUIDSerializer::class)
-    val totrinnskontrollId: UUID,
-)
-
-@Serializable
-data class GodkjennOkonomiRequest(
-    @Serializable(with = UUIDSerializer::class)
-    val totrinnskontrollId: UUID,
 )
 
 @Serializable
