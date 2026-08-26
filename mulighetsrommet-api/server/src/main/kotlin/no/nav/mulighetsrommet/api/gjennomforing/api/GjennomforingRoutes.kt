@@ -50,6 +50,7 @@ import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
+import no.nav.mulighetsrommet.ktor.exception.ManglerTilgangTilPerson
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.FieldError
@@ -539,10 +540,15 @@ fun Route.gjennomforingRoutes() {
         }) {
             val pagination = getPaginationParams()
             val filter = getAdminTiltaksgjennomforingFilter()
+            val accessType = call.getAccessType().requireAzureAd()
 
-            val result = gjennomforinger.getAllKompaktDto(pagination, filter)
-
-            call.respond(result)
+            gjennomforinger.getAllKompaktDto(pagination, filter, accessType)
+                .onLeft {
+                    call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it.name))
+                }
+                .onRight {
+                    call.respond(it)
+                }
         }
 
         post("/excel", {
@@ -565,19 +571,24 @@ fun Route.gjennomforingRoutes() {
             }
         }) {
             val filter = getAdminTiltaksgjennomforingFilter()
+            val accessType = call.getAccessType().requireAzureAd()
 
-            val file = gjennomforinger.exportToExcel(filter)
+            gjennomforinger.exportToExcel(filter, accessType)
+                .onLeft {
+                    call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it.name))
+                }
+                .onRight {
+                    call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
+                    call.response.header(
+                        HttpHeaders.ContentDisposition,
+                        ContentDisposition.Attachment
+                            .withParameter(ContentDisposition.Parameters.FileName, "gjennomføringer.xlsx")
+                            .toString(),
+                    )
+                    call.response.header(HttpHeaders.ContentType, ContentType.Application.Xlsx.toString())
 
-            call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
-            call.response.header(
-                HttpHeaders.ContentDisposition,
-                ContentDisposition.Attachment
-                    .withParameter(ContentDisposition.Parameters.FileName, "gjennomføringer.xlsx")
-                    .toString(),
-            )
-            call.response.header(HttpHeaders.ContentType, ContentType.Application.Xlsx.toString())
-
-            call.respondFile(file)
+                    call.respondFile(it)
+                }
         }
 
         get("{id}", {

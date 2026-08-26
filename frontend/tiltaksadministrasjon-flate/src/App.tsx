@@ -22,6 +22,7 @@ import { AvtalerPage } from "./pages/avtaler/AvtalerPage";
 import { RedigerGjennomforingDetaljerPage } from "./pages/gjennomforing/RedigerGjennomforingDetaljerPage";
 import { RedigerGjennomforingVeilederinformasjonPage } from "./pages/gjennomforing/RedigerGjennomforingVeilederinformasjonPage";
 import { GjennomforingPage } from "./pages/gjennomforing/GjennomforingPage";
+import { GjennomforingTilgangLayout } from "./pages/gjennomforing/GjennomforingTilgangLayout";
 import { GjennomforingerPage } from "./pages/gjennomforing/GjennomforingerPage";
 import { OpprettTilsagnFormPage } from "./pages/gjennomforing/tilsagn/opprett/OpprettTilsagnFormPage";
 import { RedigerTilsagnFormPage } from "./pages/gjennomforing/tilsagn/rediger/RedigerTilsagnFormPage";
@@ -247,42 +248,47 @@ const routes: RouteObject[] = [
       route({ path: "gjennomforinger/", element: <GjennomforingerPage /> }),
       route({
         path: "gjennomforinger/:gjennomforingId",
-        element: <GjennomforingPage />,
-        children: GJENNOMFORING_ROUTES,
-      }),
-      route({
-        path: "gjennomforinger/:gjennomforingId/tilsagn",
-        element: <TilsagnPage />,
-        children: TILSAGN_ROUTES,
-      }),
-      {
-        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling",
-        element: <TilskuddBehandlingerPage />,
-      },
-      route({
-        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling/opprett",
-        element: <TilskuddBehandlingFormPage />,
-      }),
-      route({
-        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling/:behandlingId",
-        element: <TilskuddBehandlingDetaljerPage />,
-      }),
-      route({
-        path: "gjennomforinger/:gjennomforingId/tilskudd-behandling/:behandlingId/rediger",
-        element: <TilskuddBehandlingFormPage />,
-      }),
-      route({
-        path: "gjennomforinger/:gjennomforingId/rediger",
-        element: <RedigerGjennomforingDetaljerPage />,
-      }),
-      route({
-        path: "gjennomforinger/:gjennomforingId/redaksjonelt-innhold/rediger",
-        element: <RedigerGjennomforingVeilederinformasjonPage />,
-      }),
-      route({
-        path: "gjennomforinger/:gjennomforingId/utbetalinger",
-        element: <UtbetalingPage />,
-        children: UTBETALING_ROUTES,
+        element: <GjennomforingTilgangLayout />,
+        children: [
+          {
+            element: <GjennomforingPage />,
+            children: GJENNOMFORING_ROUTES,
+          },
+          route({
+            path: "tilsagn",
+            element: <TilsagnPage />,
+            children: TILSAGN_ROUTES,
+          }),
+          {
+            path: "tilskudd-behandling",
+            element: <TilskuddBehandlingerPage />,
+          },
+          route({
+            path: "tilskudd-behandling/opprett",
+            element: <TilskuddBehandlingFormPage />,
+          }),
+          route({
+            path: "tilskudd-behandling/:behandlingId",
+            element: <TilskuddBehandlingDetaljerPage />,
+          }),
+          route({
+            path: "tilskudd-behandling/:behandlingId/rediger",
+            element: <TilskuddBehandlingFormPage />,
+          }),
+          route({
+            path: "rediger",
+            element: <RedigerGjennomforingDetaljerPage />,
+          }),
+          route({
+            path: "redaksjonelt-innhold/rediger",
+            element: <RedigerGjennomforingVeilederinformasjonPage />,
+          }),
+          route({
+            path: "utbetalinger",
+            element: <UtbetalingPage />,
+            children: UTBETALING_ROUTES,
+          }),
+        ],
       }),
       route({ path: "arrangorer", element: <ArrangorerPage /> }),
       route({ path: "arrangorer/:arrangorId", element: <ArrangorPage /> }),

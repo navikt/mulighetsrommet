@@ -1,5 +1,8 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import no.nav.common.audit_log.cef.CefMessage
 import no.nav.common.audit_log.cef.CefMessageEvent
 import no.nav.common.audit_log.cef.CefMessageSeverity
@@ -32,6 +35,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadmini
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.shared.Pagination
+import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
@@ -133,10 +137,17 @@ class GjennomforingDetaljerService(
         }
     }
 
-    fun getAllKompaktDto(
+    suspend fun getAllKompaktDto(
         pagination: Pagination,
         filter: AdminTiltaksgjennomforingFilter,
-    ): PaginatedResponse<GjennomforingKompaktDto> = db.session {
+        accessType: AccessType.OBO.AzureAd,
+    ): Either<AvvistGrunn, PaginatedResponse<GjennomforingKompaktDto>> = db.session {
+        val avvistGrunn = filter.search?.let { NorskIdent.parse(it) }?.let {
+            personaliaService.navAnsattTilgangTilPerson(it, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
+        }
+        if (avvistGrunn != null) {
+            return avvistGrunn.left()
+        }
         val tiltakstyper = tiltakstypeService.getIdsByTiltakskoder(filter.tiltakskoder).ifEmpty {
             tiltakstypeService.getIdsByFeatures(setOf(TiltakstypeFeature.VISES_I_TILTAKSADMINISTRASJON))
         }
@@ -158,7 +169,7 @@ class GjennomforingDetaljerService(
         ).let { (totalCount, items) ->
             val data = items.map { it.toKompaktDto() }
             PaginatedResponse.of(pagination, totalCount, data)
-        }
+        }.right()
     }
 
     private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker? {
@@ -169,20 +180,22 @@ class GjennomforingDetaljerService(
         return deltakelser.firstOrNull()
     }
 
-    fun exportToExcel(
+    suspend fun exportToExcel(
         filter: AdminTiltaksgjennomforingFilter,
-    ): File {
-        val result = getAllKompaktDto(Pagination.all(), filter)
+        accessType: AccessType.OBO.AzureAd,
+    ): Either<AvvistGrunn, File> {
+        return getAllKompaktDto(Pagination.all(), filter, accessType)
+            .map {
+                val workbook = buildExcelWorkbook {
+                    createGjennomforingerSheet(it.data)
+                }
 
-        val workbook = buildExcelWorkbook {
-            createGjennomforingerSheet(result.data)
-        }
-
-        return workbook.use {
-            val file = createTempFile("gjennomforinger-", ".xlsx")
-            file.outputStream().use(it::write)
-            file.toFile()
-        }
+                workbook.use {
+                    val file = createTempFile("gjennomforinger-", ".xlsx")
+                    file.outputStream().use(it::write)
+                    file.toFile()
+                }
+            }
     }
 
     fun getHandlinger(id: UUID, navIdent: NavIdent): Set<GjennomforingHandling> {

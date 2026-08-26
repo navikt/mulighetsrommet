@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
@@ -166,7 +168,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val result = service.getAllKompaktDto(
                 pagination = Pagination.all(),
                 filter = AdminTiltaksgjennomforingFilter(search = "Oppfølging"),
-            )
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeRight()
 
             result.data shouldHaveSize 1
             result.data.first().id shouldBe GjennomforingFixtures.Oppfolging1.id
@@ -174,14 +177,32 @@ class GjennomforingDetaljerServiceTest : FunSpec({
 
         test("kan søke på norskIdent for enkeltplass-gjennomføring") {
             val service = createService()
+            val accessType = AccessType.OBO.AzureAd("X123456")
+
+            coEvery { personaliaService.navAnsattTilgangTilPerson(norskIdent, PersonaliaService.OnBehalfOf.NavAnsatt(accessType)) } returns null
 
             val result = service.getAllKompaktDto(
                 pagination = Pagination.all(),
                 filter = AdminTiltaksgjennomforingFilter(search = norskIdent.value),
-            )
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeRight()
 
             result.data shouldHaveSize 1
             result.data.first().id shouldBe GjennomforingFixtures.EnkelAmo.id
+        }
+
+        test("kan ikke søke på norskIdent hvis ikke tilgang") {
+            val service = createService()
+            val accessType = AccessType.OBO.AzureAd("X123456")
+
+            coEvery { personaliaService.navAnsattTilgangTilPerson(norskIdent, PersonaliaService.OnBehalfOf.NavAnsatt(accessType)) } returns AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
+
+            val result = service.getAllKompaktDto(
+                pagination = Pagination.all(),
+                filter = AdminTiltaksgjennomforingFilter(search = norskIdent.value),
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeLeft()
+            result shouldBe AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
         }
 
         test("returnerer tomt resultat ved søk som ikke matcher noe") {
@@ -190,7 +211,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val result = service.getAllKompaktDto(
                 pagination = Pagination.all(),
                 filter = AdminTiltaksgjennomforingFilter(search = "finnesikke"),
-            )
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeRight()
 
             result.data shouldHaveSize 0
         }
@@ -201,7 +223,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val result = service.getAllKompaktDto(
                 pagination = Pagination.all(),
                 filter = AdminTiltaksgjennomforingFilter(),
-            )
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeRight()
 
             result.data shouldHaveSize 2
         }
@@ -211,7 +234,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
 
             val file = service.exportToExcel(
                 filter = AdminTiltaksgjennomforingFilter(search = "Oppfølging"),
-            )
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeRight()
 
             println(file.name)
 

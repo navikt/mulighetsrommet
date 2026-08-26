@@ -82,6 +82,16 @@ class PersonaliaService(
         }
     }
 
+    suspend fun navAnsattTilgangTilPerson(norskIdent: NorskIdent, onBehalfOf: OnBehalfOf.NavAnsatt): AvvistGrunn? {
+        val tilgangsmaskinResult = tilgangsmaskinClient.bulk(listOf(norskIdent), onBehalfOf.token)
+
+        val resultat = requireNotNull(tilgangsmaskinResult.resultater.find { it.brukerId == norskIdent.value }) {
+            "Fant ikke deltaker i respons fra tilgangsmaskin"
+        }
+
+        return AvvistGrunn.fromTilgangsmaskinResultat(resultat)
+    }
+
     private suspend fun tilgangTilPerson(amtPersonalia: Set<AmtDeltakerPersonalia>, onBehalfOf: OnBehalfOf): Map<UUID, AvvistGrunn?> {
         return when (onBehalfOf) {
             is OnBehalfOf.NavAnsatt -> {
