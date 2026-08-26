@@ -6,6 +6,7 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
@@ -28,35 +29,37 @@ class ReplikerTiltakAvtaleKafkaConsumer(
         logger.info("Konsumerer tiltak-avtale-hendelse med avtaleId=$key")
 
         val hendelse = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltakAvtaleHendelseDto?>(message)
+        if (hendelse == null) {
+            logger.info("Mottok tombstone for avtale med id=$key, sletter avtalen")
+            queries.arbeidsgiverAvtale.delete(key)
+            return@session
+        }
 
-        when {
-            hendelse == null -> {
-                logger.info("Mottok tombstone for avtale med id=$key, sletter avtalen")
-                queries.arbeidsgiverAvtale.delete(key)
-            }
+        val organisasjonsnummer = Organisasjonsnummer.parse(hendelse.bedriftNr)
+        if (organisasjonsnummer == null) {
+            logger.warn("Mottok hendelse med ugyldig organisasjonsnummer: ${hendelse.bedriftNr}")
+            return@session
+        }
 
-            else -> {
-                val incoming = hendelse.toArbeidsgiverAvtale()
-                val stored = queries.arbeidsgiverAvtale.get(key)
+        val incoming = hendelse.toArbeidsgiverAvtale(organisasjonsnummer)
+        val stored = queries.arbeidsgiverAvtale.get(key)
 
-                if (stored != null && incoming.oppdatertTidspunkt < stored.oppdatertTidspunkt) {
-                    logger.info("Hopper over avtale med id=$key fordi innkommende oppdatertTidspunkt er eldre enn lagret")
-                    return@session
-                }
+        if (stored != null && incoming.oppdatertTidspunkt < stored.oppdatertTidspunkt) {
+            logger.info("Hopper over avtale med id=$key fordi innkommende oppdatertTidspunkt er eldre enn lagret")
+            return@session
+        }
 
-                query { queries.arbeidsgiverAvtale.upsert(incoming) }.onLeft {
-                    logger.warn("Feil under konsumering av avtale med id=$key", it.error)
-                    throw it.error
-                }
-            }
+        query { queries.arbeidsgiverAvtale.upsert(incoming) }.onLeft {
+            logger.warn("Feil under konsumering av avtale med id=$key", it.error)
+            throw it.error
         }
     }
 }
 
-fun TiltakAvtaleHendelseDto.toArbeidsgiverAvtale() = ArbeidsgiverAvtale(
+fun TiltakAvtaleHendelseDto.toArbeidsgiverAvtale(organisasjonsnummer: Organisasjonsnummer) = ArbeidsgiverAvtale(
     avtaleId = avtaleId,
     norskIdent = deltakerFnr,
-    organisasjonsnummer = bedriftNr,
+    organisasjonsnummer = organisasjonsnummer,
     tiltakstype = tiltakstype.toArbeidsgiverAvtaleTiltakstype(),
     startDato = startDato,
     sluttDato = sluttDato,

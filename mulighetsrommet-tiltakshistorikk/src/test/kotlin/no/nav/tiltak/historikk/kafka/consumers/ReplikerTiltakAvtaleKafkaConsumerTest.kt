@@ -31,7 +31,7 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
         val hendelse = TiltakAvtaleHendelseDto(
             avtaleId = avtaleId,
             deltakerFnr = NorskIdent("24518549827"),
-            bedriftNr = Organisasjonsnummer("910825518"),
+            bedriftNr = "910825518",
             tiltakstype = TiltakAvtaleHendelseDto.Tiltakstype.ARBEIDSTRENING,
             startDato = LocalDate.of(2024, 10, 3),
             sluttDato = LocalDate.of(2025, 1, 2),
@@ -41,6 +41,7 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
             opprettetTidspunkt = LocalDateTime.of(2024, 10, 3, 10, 10, 1, 271029000),
             sistEndret = sistEndret,
         )
+        val organisasjonsnummer = Organisasjonsnummer(hendelse.bedriftNr)
 
         afterEach {
             database.truncateAll()
@@ -58,7 +59,7 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
 
         test("sletter avtale ved tombstone-melding") {
             db.session {
-                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale())
+                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale(organisasjonsnummer))
             }
 
             consumer.consume(avtaleId, JsonNull)
@@ -68,9 +69,18 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
             }
         }
 
+        test("hopper over avtale hvis innkommende hendelse har et ugyldig bedriftNr") {
+            val hendelse = hendelse.copy(bedriftNr = "")
+            consumer.consume(avtaleId, Json.encodeToJsonElement(hendelse))
+
+            db.session {
+                queries.arbeidsgiverAvtale.get(avtaleId).shouldBeNull()
+            }
+        }
+
         test("hopper over avtale hvis innkommende sistEndret er eldre enn lagret") {
             db.session {
-                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale())
+                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale(organisasjonsnummer))
             }
 
             val utdatertHendelse = hendelse.copy(
@@ -86,7 +96,7 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
 
         test("oppdaterer avtale hvis innkommende sistEndret er nyere enn lagret") {
             db.session {
-                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale())
+                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale(organisasjonsnummer))
             }
 
             val oppdatertHendelse = hendelse.copy(
