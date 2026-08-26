@@ -10,6 +10,7 @@ jobs:
   digest-update:
     runs-on: ubuntu-latest
     permissions:
+      actions: write
       contents: write
       pull-requests: write
       id-token: write
@@ -23,6 +24,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           team: team-mulighetsrommet
           branch-for-pr: VALP-BAU/update-digests
+      # github-actions[bot] trigger visst ikke nye workflow, gjør det eksplisitt:
+      - name: Trigger Dockerfile digest CI check
+        if: ${{ steps.digestabot.outputs.pull_request_number != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run ci-dockerfile-version-hash-check.yml --ref VALP-BAU/update-digests
       - name: Enable auto-merge for digestabot PR
         if: ${{ steps.digestabot.outputs.pull_request_number != '' }}
         env:
