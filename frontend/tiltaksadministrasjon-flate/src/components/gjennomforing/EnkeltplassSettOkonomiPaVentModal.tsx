@@ -1,4 +1,4 @@
-import { useSettPaVentGjennomforingOkonomi } from "@/api/gjennomforing/useSettPaVentGjennomforingOkonomi";
+import { useSettOkonomiPaVent } from "@/api/gjennomforing/useSettOkonomiPaVent";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
 import { Button, InfoCard, Modal, Textarea, VStack } from "@navikt/ds-react";
 import { useState } from "react";
@@ -7,10 +7,16 @@ interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
   gjennomforingId: string;
+  totrinnskontrollId: string;
 }
 
-export function SettPaVentOkonomiModal({ open, setOpen, gjennomforingId }: Props) {
-  const settPaVentMutation = useSettPaVentGjennomforingOkonomi();
+export function EnkeltplassSettOkonomiPaVentModal({
+  open,
+  setOpen,
+  gjennomforingId,
+  totrinnskontrollId,
+}: Props) {
+  const settPaVentMutation = useSettOkonomiPaVent();
   const [forklaring, setForklaring] = useState("");
 
   function close() {
@@ -20,7 +26,7 @@ export function SettPaVentOkonomiModal({ open, setOpen, gjennomforingId }: Props
 
   function settPaVent() {
     settPaVentMutation.mutate(
-      { id: gjennomforingId, forklaring: forklaring || null },
+      { id: gjennomforingId, forklaring: forklaring || null, totrinnskontrollId },
       { onSuccess: close },
     );
   }

@@ -1,7 +1,7 @@
 import { useGjennomforingHandlinger } from "@/api/gjennomforing/useGjennomforing";
-import { GodkjennOkonomiModal } from "@/components/gjennomforing/GodkjennOkonomiModal";
-import { GodkjennPrisendringModal } from "@/components/gjennomforing/GodkjennPrisendringModal";
-import { SettPaVentOkonomiModal } from "@/components/gjennomforing/SettPaVentOkonomiModal";
+import { EnkeltplassGodkjennOkonomiModal } from "@/components/gjennomforing/EnkeltplassGodkjennOkonomiModal";
+import { EnkeltplassGodkjennPrisendringModal } from "@/components/gjennomforing/EnkeltplassGodkjennPrisendringModal";
+import { EnkeltplassSettOkonomiPaVentModal } from "@/components/gjennomforing/EnkeltplassSettOkonomiPaVentModal";
 import { gjennomforingTekster } from "@/components/ledetekster/gjennomforingLedetekster";
 import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { BodyShort, Button, Heading, HelpText, HStack, InfoCard, VStack } from "@navikt/ds-react";
@@ -36,7 +36,7 @@ import { AmoKategoriseringDetaljer } from "../amoKategorisering/AmoKategoriserin
 import { BetalingsbetingelserEnkeltplass } from "./BetalingsbetingelserEnkeltplass";
 import { GjennomforingEnkeltplassVarighet } from "@/pages/gjennomforing/GjennomforingEnkeltplassVarighet";
 import { formaterNavEnhet } from "@/utils/nav-enhet";
-import { SettPaVentPrisendringModal } from "@/components/gjennomforing/SettPaVentPrisendringModal";
+import { EnkeltplassSettPrisendringPaVentModal } from "@/components/gjennomforing/EnkeltplassSettPrisendringPaVentModal";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -177,30 +177,40 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
           </Button>
         )}
       </HStack>
-      <GodkjennOkonomiModal
-        open={godkjennOpen}
-        setOpen={setGodkjennOpen}
-        gjennomforingId={gjennomforing.id}
-        prismodell={prismodell}
-      />
-      <SettPaVentOkonomiModal
-        open={settPaVentOpen}
-        setOpen={setSettPaVentOpen}
-        gjennomforingId={gjennomforing.id}
-      />
+      {okonomi && (
+        <EnkeltplassGodkjennOkonomiModal
+          open={godkjennOpen}
+          setOpen={setGodkjennOpen}
+          gjennomforingId={gjennomforing.id}
+          totrinnskontrollId={okonomi.id}
+          prismodell={prismodell}
+        />
+      )}
+      {okonomi && (
+        <EnkeltplassSettOkonomiPaVentModal
+          open={settPaVentOpen}
+          setOpen={setSettPaVentOpen}
+          gjennomforingId={gjennomforing.id}
+          totrinnskontrollId={okonomi.id}
+        />
+      )}
       {prisendring && (
-        <GodkjennPrisendringModal
+        <EnkeltplassGodkjennPrisendringModal
           open={godkjennPrisendringOpen}
           setOpen={setGodkjennPrisendringOpen}
           gjennomforingId={gjennomforing.id}
+          totrinnskontrollId={prisendring.totrinnskontroll.id}
           prismodell={prisendring.prismodell}
         />
       )}
-      <SettPaVentPrisendringModal
-        open={settPrisendringPaVentOpen}
-        setOpen={setSettPrisendringPaVentOpen}
-        gjennomforingId={gjennomforing.id}
-      />
+      {prisendring && (
+        <EnkeltplassSettPrisendringPaVentModal
+          open={settPrisendringPaVentOpen}
+          setOpen={setSettPrisendringPaVentOpen}
+          gjennomforingId={gjennomforing.id}
+          totrinnskontrollId={prisendring.totrinnskontroll.id}
+        />
+      )}
     </VStack>
   );
 }

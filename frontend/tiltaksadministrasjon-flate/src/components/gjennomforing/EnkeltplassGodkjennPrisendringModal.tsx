@@ -1,4 +1,4 @@
-import { useGodkjennGjennomforingOkonomi } from "@/api/gjennomforing/useGodkjennGjennomforingOkonomi";
+import { useGodkjennOkonomi } from "@/api/gjennomforing/useGodkjennOkonomi";
 import { Button, InfoCard, Modal, VStack } from "@navikt/ds-react";
 import { PrismodellDto } from "@tiltaksadministrasjon/api-client";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
@@ -8,18 +8,25 @@ interface Props {
   open: boolean;
   setOpen: (open: boolean) => void;
   gjennomforingId: string;
+  totrinnskontrollId: string;
   prismodell: PrismodellDto;
 }
 
-export function GodkjennPrisendringModal({ open, setOpen, gjennomforingId, prismodell }: Props) {
-  const godkjennMutation = useGodkjennGjennomforingOkonomi();
+export function EnkeltplassGodkjennPrisendringModal({
+  open,
+  setOpen,
+  gjennomforingId,
+  totrinnskontrollId,
+  prismodell,
+}: Props) {
+  const godkjennMutation = useGodkjennOkonomi();
 
   function close() {
     setOpen(false);
   }
 
   function godkjenn() {
-    godkjennMutation.mutate({ id: gjennomforingId }, { onSuccess: close });
+    godkjennMutation.mutate({ id: gjennomforingId, totrinnskontrollId }, { onSuccess: close });
   }
 
   return (
