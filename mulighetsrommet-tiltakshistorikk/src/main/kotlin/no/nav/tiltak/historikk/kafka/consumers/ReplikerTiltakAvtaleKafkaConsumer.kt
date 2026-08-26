@@ -6,6 +6,7 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.database.utils.query
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
@@ -35,6 +36,11 @@ class ReplikerTiltakAvtaleKafkaConsumer(
                 queries.arbeidsgiverAvtale.delete(key)
             }
 
+            !Organisasjonsnummer.isValid(hendelse.bedriftNr) -> {
+                logger.warn("Mottok hendelse med ugydlig organisasjonsnummer: ${hendelse.bedriftNr}")
+                return
+            }
+
             else -> {
                 val incoming = hendelse.toArbeidsgiverAvtale()
                 val stored = queries.arbeidsgiverAvtale.get(key)
@@ -56,7 +62,7 @@ class ReplikerTiltakAvtaleKafkaConsumer(
 fun TiltakAvtaleHendelseDto.toArbeidsgiverAvtale() = ArbeidsgiverAvtale(
     avtaleId = avtaleId,
     norskIdent = deltakerFnr,
-    organisasjonsnummer = bedriftNr,
+    organisasjonsnummer = Organisasjonsnummer(bedriftNr),
     tiltakstype = tiltakstype.toArbeidsgiverAvtaleTiltakstype(),
     startDato = startDato,
     sluttDato = sluttDato,

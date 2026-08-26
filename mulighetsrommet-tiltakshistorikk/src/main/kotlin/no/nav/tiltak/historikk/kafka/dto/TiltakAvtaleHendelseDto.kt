@@ -3,7 +3,6 @@ package no.nav.tiltak.historikk.kafka.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
@@ -18,7 +17,7 @@ data class TiltakAvtaleHendelseDto(
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
     val deltakerFnr: NorskIdent,
-    val bedriftNr: Organisasjonsnummer,
+    val bedriftNr: String,
     val tiltakstype: Tiltakstype,
     @Serializable(with = LocalDateSerializer::class)
     val startDato: LocalDate?,

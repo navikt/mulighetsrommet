@@ -8,7 +8,6 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.dto.TiltakAvtaleHendelseDto
@@ -31,7 +30,7 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
         val hendelse = TiltakAvtaleHendelseDto(
             avtaleId = avtaleId,
             deltakerFnr = NorskIdent("24518549827"),
-            bedriftNr = Organisasjonsnummer("910825518"),
+            bedriftNr = "910825518",
             tiltakstype = TiltakAvtaleHendelseDto.Tiltakstype.ARBEIDSTRENING,
             startDato = LocalDate.of(2024, 10, 3),
             sluttDato = LocalDate.of(2025, 1, 2),
@@ -62,6 +61,15 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
             }
 
             consumer.consume(avtaleId, JsonNull)
+
+            db.session {
+                queries.arbeidsgiverAvtale.get(avtaleId).shouldBeNull()
+            }
+        }
+
+        test("hopper over avtale hvis innkommende hendelse har et ugyldig bedriftNr") {
+            val hendelse = hendelse.copy(bedriftNr = "")
+            consumer.consume(avtaleId, Json.encodeToJsonElement(hendelse))
 
             db.session {
                 queries.arbeidsgiverAvtale.get(avtaleId).shouldBeNull()
