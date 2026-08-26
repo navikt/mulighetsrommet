@@ -1,6 +1,10 @@
 package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import arrow.core.Either
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
@@ -16,19 +20,13 @@ import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarsel
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningAvtaltPrisPerTimeOppfolging
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPerBenyttetPlassPerManed
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
 
@@ -101,7 +99,7 @@ class ArrangorflateService(
         val personalia = personaliaService.getPersonalia(deltakere.map { it.id }, PersonaliaService.OnBehalfOf.Arrangor)
             .associateBy { it.deltakerId }
         val advarsler = getAdvarsler(utbetaling)
-        val (kanRegenereres, regenrertId) = kanRegenereres(utbetaling)
+        val regenerering = hentRegenererStatus(utbetaling)
 
         return mapUtbetalingToArrangorflateUtbetalingDto(
             utbetaling = utbetaling,
@@ -111,8 +109,7 @@ class ArrangorflateService(
             linjer = getLinjer(utbetaling.id),
             kanViseBeregning = !erTolvUkerEtterInnsending,
             kanAvbrytes = arrangorAvbrytStatus(utbetaling),
-            kanRegenereres = kanRegenereres,
-            regenerertId = regenrertId,
+            regenerering = regenerering,
         )
     }
 
@@ -136,24 +133,9 @@ class ArrangorflateService(
             }
     }
 
-    fun QueryContext.kanRegenereres(utbetaling: ArrangorflateUtbetaling): Pair<Boolean, UUID?> {
-        if (utbetaling.innsending == null) {
-            return false to null
-        }
-        if (utbetaling.status != UtbetalingStatusType.AVBRUTT) {
-            return false to null
-        }
-        when (utbetaling.beregning) {
-            is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
-            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
-            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
-            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
-            -> Unit
-
-            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
-            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
-            is UtbetalingBeregningFri,
-            -> return false to null
+    fun QueryContext.hentRegenererStatus(utbetaling: ArrangorflateUtbetaling): RegenererStatus {
+        if (!utbetaling.erRegenererbarType()) {
+            return RegenererStatus.IkkeTilgjengelig
         }
 
         val utbetalingerSammePeriode = queries.utbetaling.getByGjennomforing(utbetaling.gjennomforing.id)
@@ -164,9 +146,9 @@ class ArrangorflateService(
             .firstOrNull { it.status != UtbetalingStatusType.AVBRUTT }
 
         return if (regenerertKrav != null) {
-            false to regenerertKrav.id
+            RegenererStatus.AlleredeRegenerert(regenerertKrav.id)
         } else {
-            true to null
+            RegenererStatus.KanRegenereres
         }
     }
 
@@ -227,4 +209,24 @@ enum class ArrangorAvbrytStatus {
     ACTIVATED,
     DEACTIVATED,
     HIDDEN,
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonClassDiscriminator("type")
+sealed class RegenererStatus {
+    @Serializable
+    @SerialName("KAN_REGENERERES")
+    data object KanRegenereres : RegenererStatus()
+
+    @Serializable
+    @SerialName("ALLEREDE_REGENERERT")
+    data class AlleredeRegenerert(
+        @Serializable(with = UUIDSerializer::class)
+        val utbetalingId: UUID,
+    ) : RegenererStatus()
+
+    @Serializable
+    @SerialName("IKKE_TILGJENGELIG")
+    data object IkkeTilgjengelig : RegenererStatus()
 }

@@ -67,6 +67,24 @@ data class ArrangorflateUtbetaling(
         }
     }
 
+    /**
+     * Om utbetalingen er av en type og status som i utgangspunktet tillater regenerering.
+     */
+    fun erRegenererbarType(): Boolean {
+        return innsending != null && status === UtbetalingStatusType.AVBRUTT && when (beregning) {
+            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
+            is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
+            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
+            -> true
+
+            is UtbetalingBeregningFri,
+            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
+            -> false
+        }
+    }
+
     @Serializable
     data class Gjennomforing(
         @Serializable(with = UUIDSerializer::class)
