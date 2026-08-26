@@ -29,40 +29,37 @@ class ReplikerTiltakAvtaleKafkaConsumer(
         logger.info("Konsumerer tiltak-avtale-hendelse med avtaleId=$key")
 
         val hendelse = JsonIgnoreUnknownKeys.decodeFromJsonElement<TiltakAvtaleHendelseDto?>(message)
+        if (hendelse == null) {
+            logger.info("Mottok tombstone for avtale med id=$key, sletter avtalen")
+            queries.arbeidsgiverAvtale.delete(key)
+            return@session
+        }
 
-        when {
-            hendelse == null -> {
-                logger.info("Mottok tombstone for avtale med id=$key, sletter avtalen")
-                queries.arbeidsgiverAvtale.delete(key)
-            }
+        val organisasjonsnummer = Organisasjonsnummer.parse(hendelse.bedriftNr)
+        if (organisasjonsnummer == null) {
+            logger.warn("Mottok hendelse med ugyldig organisasjonsnummer: ${hendelse.bedriftNr}")
+            return@session
+        }
 
-            !Organisasjonsnummer.isValid(hendelse.bedriftNr) -> {
-                logger.warn("Mottok hendelse med ugydlig organisasjonsnummer: ${hendelse.bedriftNr}")
-                return
-            }
+        val incoming = hendelse.toArbeidsgiverAvtale(organisasjonsnummer)
+        val stored = queries.arbeidsgiverAvtale.get(key)
 
-            else -> {
-                val incoming = hendelse.toArbeidsgiverAvtale()
-                val stored = queries.arbeidsgiverAvtale.get(key)
+        if (stored != null && incoming.oppdatertTidspunkt < stored.oppdatertTidspunkt) {
+            logger.info("Hopper over avtale med id=$key fordi innkommende oppdatertTidspunkt er eldre enn lagret")
+            return@session
+        }
 
-                if (stored != null && incoming.oppdatertTidspunkt < stored.oppdatertTidspunkt) {
-                    logger.info("Hopper over avtale med id=$key fordi innkommende oppdatertTidspunkt er eldre enn lagret")
-                    return@session
-                }
-
-                query { queries.arbeidsgiverAvtale.upsert(incoming) }.onLeft {
-                    logger.warn("Feil under konsumering av avtale med id=$key", it.error)
-                    throw it.error
-                }
-            }
+        query { queries.arbeidsgiverAvtale.upsert(incoming) }.onLeft {
+            logger.warn("Feil under konsumering av avtale med id=$key", it.error)
+            throw it.error
         }
     }
 }
 
-fun TiltakAvtaleHendelseDto.toArbeidsgiverAvtale() = ArbeidsgiverAvtale(
+fun TiltakAvtaleHendelseDto.toArbeidsgiverAvtale(organisasjonsnummer: Organisasjonsnummer) = ArbeidsgiverAvtale(
     avtaleId = avtaleId,
     norskIdent = deltakerFnr,
-    organisasjonsnummer = Organisasjonsnummer(bedriftNr),
+    organisasjonsnummer = organisasjonsnummer,
     tiltakstype = tiltakstype.toArbeidsgiverAvtaleTiltakstype(),
     startDato = startDato,
     sluttDato = sluttDato,

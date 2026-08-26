@@ -8,6 +8,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.historikk.databaseConfig
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.dto.TiltakAvtaleHendelseDto
@@ -40,6 +41,7 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
             opprettetTidspunkt = LocalDateTime.of(2024, 10, 3, 10, 10, 1, 271029000),
             sistEndret = sistEndret,
         )
+        val organisasjonsnummer = Organisasjonsnummer(hendelse.bedriftNr)
 
         afterEach {
             database.truncateAll()
@@ -57,7 +59,7 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
 
         test("sletter avtale ved tombstone-melding") {
             db.session {
-                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale())
+                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale(organisasjonsnummer))
             }
 
             consumer.consume(avtaleId, JsonNull)
@@ -78,7 +80,7 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
 
         test("hopper over avtale hvis innkommende sistEndret er eldre enn lagret") {
             db.session {
-                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale())
+                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale(organisasjonsnummer))
             }
 
             val utdatertHendelse = hendelse.copy(
@@ -94,7 +96,7 @@ class ReplikerTiltakAvtaleKafkaConsumerTest : FunSpec({
 
         test("oppdaterer avtale hvis innkommende sistEndret er nyere enn lagret") {
             db.session {
-                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale())
+                queries.arbeidsgiverAvtale.upsert(hendelse.toArbeidsgiverAvtale(organisasjonsnummer))
             }
 
             val oppdatertHendelse = hendelse.copy(
