@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
-import no.nav.mulighetsrommet.api.arrangorflate.dto.Avbrytelse
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
@@ -50,7 +49,6 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
     advarsler: List<DeltakerAdvarsel>,
     linjer: List<ArrangforflateUtbetalingLinje>,
     skalViseBeregningMedDeltakelser: Boolean,
-    kanAvbrytes: ArrangorAvbrytStatus,
     regenerering: RegenererStatus,
 ): ArrangorflateUtbetalingDto {
     val beregning = ArrangorflateBeregning(
@@ -99,9 +97,8 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
         advarsler = advarsler.map { advarsel ->
             DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn())
         },
-        kanAvbrytes = kanAvbrytes,
-        avbrytelse = Avbrytelse.fromStatus(status, utbetaling.arrangorAvbrutt, utbetaling.avbrytelse),
         regenerering = regenerering,
+        avbrytelse = avbrytStatus(utbetaling, status),
         blokkeringer = utbetaling.blokkeringer,
     )
 }

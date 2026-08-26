@@ -16,7 +16,6 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import {
-  ArrangorAvbrytStatus,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
   FieldError,
@@ -155,11 +154,12 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
         >
           <UtbetalingStatusList utbetaling={utbetaling} />
         </Box>
-        {utbetaling.kanAvbrytes !== ArrangorAvbrytStatus.HIDDEN && (
+        {(utbetaling.avbrytelse.type === "KAN_AVBRYTES" ||
+          utbetaling.avbrytelse.type === "KAN_IKKE_AVBRYTES") && (
           <HStack gap="space-8" justify="start" align="center">
             <Button
               data-color="danger"
-              disabled={utbetaling.kanAvbrytes === ArrangorAvbrytStatus.DEACTIVATED}
+              disabled={utbetaling.avbrytelse.type === "KAN_IKKE_AVBRYTES"}
               size="small"
               variant="primary"
               onClick={() => setAvbrytModalOpen(true)}

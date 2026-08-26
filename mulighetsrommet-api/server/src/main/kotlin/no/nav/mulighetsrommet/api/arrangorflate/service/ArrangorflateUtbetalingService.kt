@@ -127,13 +127,13 @@ class ArrangorflateUtbetalingService(
     fun avbrytUtbetaling(
         utbetalingId: UUID,
         begrunnelse: String,
-    ): Either<List<FieldError>, Unit> = db.transaction {
+    ): Either<List<FieldError>, ArrangorflateUtbetaling> = db.transaction {
         val utbetaling = getOrError(utbetalingId)
-        if (arrangorAvbrytStatus(utbetaling) != ArrangorAvbrytStatus.ACTIVATED) {
+        if (!utbetaling.erAvbrytbar()) {
             return FieldError.of("Utbetalingen kan ikke avbrytes").nel().left()
         }
 
-        utbetalingService.avbrytUtbetaling(utbetaling.id, begrunnelse, Arrangor).map { Unit }
+        utbetalingService.avbrytUtbetaling(utbetaling.id, begrunnelse, Arrangor).map { getOrError(utbetalingId) }
     }
 
     suspend fun regenererUtbetaling(

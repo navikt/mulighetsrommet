@@ -7,7 +7,7 @@ import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
-import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
+import no.nav.mulighetsrommet.api.arrangorflate.service.AvbrytStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.RegenererStatus
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
@@ -53,9 +53,8 @@ data class ArrangorflateUtbetalingDto(
     val innsendingsDetaljer: List<LabeledDataElement>,
     val linjer: List<ArrangforflateUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarselDto>,
-    val kanAvbrytes: ArrangorAvbrytStatus,
     val regenerering: RegenererStatus,
-    val avbrytelse: Avbrytelse?,
+    val avbrytelse: AvbrytStatus,
     val blokkeringer: Set<Utbetaling.Blokkering>,
 )
 

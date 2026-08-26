@@ -827,12 +827,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.avbrytUtbetaling(
+            val utbetaling = service.avbrytUtbetaling(
                 utbetalingId = utbetaling1.id,
                 begrunnelse = "Feil opplysninger",
             ).shouldBeRight()
 
-            val utbetaling = database.api.session { queries.arrangorflate.utbetaling.getOrError(utbetaling1.id) }
             utbetaling.should {
                 it.status shouldBe UtbetalingStatusType.AVBRUTT
             }
@@ -847,11 +846,11 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val service = createUtbetalingService()
 
-            service.avbrytUtbetaling(
+            val utbetaling = service.avbrytUtbetaling(
                 utbetalingId = utbetaling1.id,
                 begrunnelse = "Trukket tilbake",
             ).shouldBeRight()
-            val utbetaling = database.api.session { queries.arrangorflate.utbetaling.getOrError(utbetaling1.id) }
+
             utbetaling.should {
                 it.status shouldBe UtbetalingStatusType.AVBRUTT
             }
