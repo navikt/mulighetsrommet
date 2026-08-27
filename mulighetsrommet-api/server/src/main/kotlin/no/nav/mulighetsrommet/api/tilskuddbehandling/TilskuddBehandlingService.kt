@@ -32,7 +32,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
-import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -224,7 +223,6 @@ class TilskuddBehandlingService(
         val utbetaling = queries.brukerUtbetaling.getByTilskudd(tilskuddId)
             ?: throw IllegalStateException("Fant ikke tilskudd utbetaling med id=$tilskuddId")
         val tilOppgjor = utbetaling.tilOpphor()
-        val besluttetDato = tilOppgjor.besluttetTidspunkt.tilNorskDato()
 
         queries.brukerUtbetaling.save(tilOppgjor)
 
@@ -236,7 +234,7 @@ class TilskuddBehandlingService(
                 personIdent = requireNotNull(personalia.norskIdent()) {
                     "Norsk ident var null"
                 },
-                periode = HelVedUtbetaling.Periode(besluttetDato, besluttetDato),
+                periode = HelVedUtbetaling.Periode(tilOppgjor.transaksjonsDato, tilOppgjor.transaksjonsDato),
                 belop = tilOppgjor.belop,
                 kostnadssted = tilOppgjor.kostnadssted.enhetsnummer,
                 tilskuddstype = tilOppgjor.tilskuddstype,

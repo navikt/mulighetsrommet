@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -82,7 +83,10 @@ fun Route.tilskuddUtbetalingRoutes() {
                                     id = utbetaling.id,
                                     tilskuddBehandlingId = behandling.id,
                                     status = TilskuddUtbetalingStatusDto.from(utbetaling.helVedStatus),
-                                    periode = Periode.fromInclusiveDates(utbetaling.transaksjonsDato, utbetaling.transaksjonsDato),
+                                    periode = Periode.fromInclusiveDates(
+                                        utbetaling.transaksjonsDato,
+                                        utbetaling.transaksjonsDato,
+                                    ),
                                     type = tilskudd.tilskuddOpplaeringType,
                                     kostnadssted = utbetaling.kostnadssted.let {
                                         KostnadsstedDto(it.navn, it.enhetsnummer)
@@ -119,8 +123,15 @@ fun Route.tilskuddUtbetalingRoutes() {
             }
         }) {
             val id: UUID by call.parameters
-            tilskuddBehandlingService.sendTilOpphor(id)
-            call.respond(HttpStatusCode.OK)
+            if (NaisEnv.current().isProdGCP()) {
+                call.respond(
+                    HttpStatusCode.Forbidden,
+                    "Opphør av tilskuddsutbetaling er kun tillatt i dev-gcp miljøet",
+                )
+            } else {
+                tilskuddBehandlingService.sendTilOpphor(id)
+                call.respond(HttpStatusCode.OK)
+            }
         }
     }
 }

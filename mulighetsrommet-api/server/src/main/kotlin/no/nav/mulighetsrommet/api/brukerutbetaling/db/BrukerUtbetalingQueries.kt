@@ -94,6 +94,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 sak_id,
                 behandling_id,
                 belop,
+                transaksjon_dato,
                 tilskuddstype,
                 tiltakskode,
                 saksbehandler,
@@ -106,6 +107,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 :sak_id,
                 :behandling_id,
                 :belop,
+                :transaksjon_dato,
                 :tilskuddstype,
                 :tiltakskode,
                 :saksbehandler,
@@ -121,6 +123,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
             "sak_id" to brukerUtbetaling.sakId,
             "behandling_id" to brukerUtbetaling.behandlingId,
             "belop" to brukerUtbetaling.belop,
+            "transaksjon_dato" to brukerUtbetaling.transaksjonsDato,
             "tilskuddstype" to brukerUtbetaling.tilskuddstype.name,
             "tiltakskode" to brukerUtbetaling.tiltakskode.name,
             "saksbehandler" to brukerUtbetaling.saksbehandler.value,
@@ -179,13 +182,15 @@ class BrukerUtbetalingQueries(private val session: Session) {
         return session.single(queryOf(query, mapOf("id" to id, "behandling_id" to behandlingId))) { it.toBrukerUtbetalingDbo() }
     }
 
-    fun setHelVedStatus(id: UUID, status: HelVedStatus) {
+    fun setHelVedStatus(id: UUID, behandlingIds: Set<Int>?, status: HelVedStatus) {
         @Language("PostgreSQL")
         val query = """
             update bruker_utbetaling set
                 hel_ved_status = :status,
                 hel_ved_status_error = :status_error::jsonb
-            where id = :id::uuid
+            where
+                id = :id::uuid
+                and (:behandling_ids::int[] is null or behandling_id = any(:behandling_ids))
         """.trimIndent()
 
         session.execute(
@@ -193,6 +198,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 query,
                 mapOf(
                     "id" to id,
+                    "behandling_ids" to behandlingIds?.toIntArray(),
                     "status" to status.status.name,
                     "status_error" to Json.encodeToString(status.error),
                 ),
