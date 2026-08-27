@@ -8,13 +8,15 @@ import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { DataDrivenTable } from "@mr/frontend-common";
 import { StengtePerioder } from "~/components/common/StengtePerioder";
+import { useUtbetalingWizard } from "~/hooks/useUtbetalingWizard";
+import { StepFooter } from "~/components/utbetaling/StepFooter";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Steg 2 av 3: Beregning - Godkjenn innsending" },
+    { title: "Steg 2 av 4: Deltakere - Godkjenn innsending" },
     {
       name: "description",
-      content: "Informasjon om beregning og deltakere",
+      content: "Informasjon om deltakere",
     },
   ];
 };
@@ -24,11 +26,12 @@ export default function UtbetalingBeregning() {
   const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
+  const wizard = useUtbetalingWizard(utbetaling);
 
   return (
     <VStack gap="space-16">
-      <Heading level="2" spacing size="large">
-        Beregning
+      <Heading level="2" size="large">
+        Deltakere
       </Heading>
       <GuidePanel>
         <BodyShort>
@@ -40,9 +43,6 @@ export default function UtbetalingBeregning() {
         </BodyShort>
         <BodyShort>{tekster.bokmal.utbetaling.beregning.infotekstDeltakerliste.utro}</BodyShort>
       </GuidePanel>
-      <Heading level="3" size="medium">
-        Deltakere
-      </Heading>
       <VStack gap="space-16">
         {utbetaling.beregning.stengt.length > 0 && (
           <StengtePerioder perioder={utbetaling.beregning.stengt} />
@@ -55,6 +55,7 @@ export default function UtbetalingBeregning() {
           pris={utbetaling.beregning.pris}
         />
       </VStack>
+      <StepFooter wizard={wizard} />
     </VStack>
   );
 }
