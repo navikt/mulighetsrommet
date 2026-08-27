@@ -1,14 +1,15 @@
+@file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class, LocalDateTimeSerializer::class)
+
 package no.nav.mulighetsrommet.api.arrangorflate.dto
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
-import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
-import no.nav.mulighetsrommet.api.arrangorflate.service.RegenererStatus
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
@@ -31,17 +32,11 @@ import java.util.UUID
 
 @Serializable
 data class ArrangorflateUtbetalingDto(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: ArrangorflateUtbetalingStatus,
-    @Serializable(with = LocalDateSerializer::class)
     val innsendtAvArrangorDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
     val utbetalesTidligstDato: LocalDate?,
-    val kanViseBeregning: Boolean,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val createdAt: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val updatedAt: LocalDateTime,
     val tiltakstype: ArrangorflateTiltakstypeDto,
     val gjennomforing: ArrangorflateGjennomforingDto,
@@ -54,9 +49,8 @@ data class ArrangorflateUtbetalingDto(
     val innsendingsDetaljer: List<LabeledDataElement>,
     val linjer: List<ArrangforflateUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarselDto>,
-    val kanAvbrytes: ArrangorAvbrytStatus,
     val regenerering: RegenererStatus,
-    val avbrytelse: Avbrytelse?,
+    val avbrytelse: AvbrytStatus,
     val blokkeringer: Set<Utbetaling.Blokkering>,
 )
 
@@ -71,14 +65,52 @@ class ArrangorflateBeregning(
 
 @Serializable
 data class ArrangforflateUtbetalingLinje(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val tilsagn: ArrangorflateTilsagnSummary,
     val status: UtbetalingLinjeStatus,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val statusSistOppdatert: LocalDateTime?,
     val pris: ValutaBelop,
 )
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonClassDiscriminator("type")
+sealed class AvbrytStatus {
+    @Serializable
+    @SerialName("IKKE_TILGJENGELIG")
+    data object IkkeTilgjengelig : AvbrytStatus()
+
+    @Serializable
+    @SerialName("KAN_IKKE_AVBRYTES")
+    data object KanIkkeAvbrytes : AvbrytStatus()
+
+    @Serializable
+    @SerialName("KAN_AVBRYTES")
+    data object KanAvbrytes : AvbrytStatus()
+
+    @Serializable
+    @SerialName("AVBRUTT")
+    data class Avbrutt(val detaljer: Avbrytelse) : AvbrytStatus()
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonClassDiscriminator("type")
+sealed class RegenererStatus {
+    @Serializable
+    @SerialName("IKKE_TILGJENGELIG")
+    data object IkkeTilgjengelig : RegenererStatus()
+
+    @Serializable
+    @SerialName("KAN_REGENERERES")
+    data object KanRegenereres : RegenererStatus()
+
+    @Serializable
+    @SerialName("ALLEREDE_REGENERERT")
+    data class AlleredeRegenerert(
+        val utbetalingId: UUID,
+    ) : RegenererStatus()
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
@@ -88,7 +120,6 @@ sealed class Avbrytelse {
     @Serializable
     @SerialName("AVBRUTT_AV_ARRANGOR")
     data class Arrangor(
-        @Serializable(with = LocalDateSerializer::class)
         val avbruttDato: LocalDate,
         val begrunnelse: String?,
     ) : Avbrytelse()
@@ -96,7 +127,6 @@ sealed class Avbrytelse {
     @Serializable
     @SerialName("AVBRUTT_AV_NAV")
     data class Nav(
-        @Serializable(with = LocalDateSerializer::class)
         val avbruttDato: LocalDate,
         val aarsaker: List<String>,
         val forklaring: String?,

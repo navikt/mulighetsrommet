@@ -45,7 +45,7 @@ export function useUtbetalingWizard(utbetaling: ArrangorflateUtbetalingDto): Utb
 }
 
 function resolveSteps(utbetaling: ArrangorflateUtbetalingDto): Step[] {
-  return utbetaling.kanViseBeregning
+  return utbetaling.beregning.deltakelser
     ? [
         { name: "Innsendingsinformasjon", path: "innsendingsinformasjon" },
         { name: "Beregning", path: "beregning" },

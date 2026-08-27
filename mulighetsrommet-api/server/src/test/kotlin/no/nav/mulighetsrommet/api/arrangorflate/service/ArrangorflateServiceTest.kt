@@ -115,7 +115,7 @@ class ArrangorflateServiceTest : FunSpec({
         }
     }
 
-    test("toArrangorflateUtbetaling should map successfully with kanViseBeregning = true for recently approved utbetaling") {
+    test("toArrangorflateUtbetaling skal inkludere beregning med deltakelser for nylig innsendt utbetaling") {
         val arrangorflateService = createService()
 
         val date = LocalDate.now()
@@ -132,10 +132,9 @@ class ArrangorflateServiceTest : FunSpec({
         result.beregning.shouldBeInstanceOf<ArrangorflateBeregning> {
             it.deltakelser!!.rows shouldHaveSize 1
         }
-        result.kanViseBeregning shouldBe true
     }
 
-    test("toArrangorflateUtbetaling should map successfully with kanViseBeregning = false for 12 weeks old approved utbetaling") {
+    test("toArrangorflateUtbetaling skal ikke inkludere beregning med deltakelser 12 uker etter innsending") {
         val arrangorflateService = createService()
 
         val date = LocalDate.now()
@@ -150,10 +149,8 @@ class ArrangorflateServiceTest : FunSpec({
         result.shouldNotBeNull()
         result.status shouldBe ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING
         result.beregning.shouldBeInstanceOf<ArrangorflateBeregning> {
-            it.deltakelser!!.rows shouldHaveSize 1
-            it.deltakelser.rows[0].cells["fnr"].shouldBeNull()
+            it.deltakelser.shouldBeNull()
         }
-        result.kanViseBeregning shouldBe false
     }
 
     test("getAllUtbetalingKompakt returnerer aktive utbetalinger for gitt arrangør") {

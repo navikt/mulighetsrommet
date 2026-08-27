@@ -16,7 +16,6 @@ import {
   VStack,
 } from "@navikt/ds-react";
 import {
-  ArrangorAvbrytStatus,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
   FieldError,
@@ -124,7 +123,7 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
           pris={utbetaling.beregning.pris}
           satsDetaljer={utbetaling.beregning.satsDetaljer}
         />
-        {utbetaling.kanViseBeregning && (
+        {utbetaling.beregning.deltakelser && (
           <HStack gap="space-8">
             <Button variant="secondary" size="small" onClick={() => setDeltakerModalOpen(true)}>
               Se deltakelser
@@ -155,11 +154,12 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
         >
           <UtbetalingStatusList utbetaling={utbetaling} />
         </Box>
-        {utbetaling.kanAvbrytes !== ArrangorAvbrytStatus.HIDDEN && (
+        {(utbetaling.avbrytelse.type === "KAN_AVBRYTES" ||
+          utbetaling.avbrytelse.type === "KAN_IKKE_AVBRYTES") && (
           <HStack gap="space-8" justify="start" align="center">
             <Button
               data-color="danger"
-              disabled={utbetaling.kanAvbrytes === ArrangorAvbrytStatus.DEACTIVATED}
+              disabled={utbetaling.avbrytelse.type === "KAN_IKKE_AVBRYTES"}
               size="small"
               variant="primary"
               onClick={() => setAvbrytModalOpen(true)}

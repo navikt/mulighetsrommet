@@ -1,5 +1,4 @@
 import {
-  ArrangorAvbrytStatus,
   ArrangorflateUtbetalingDto,
   ArrangorflateUtbetalingStatus,
   DataDetails,
@@ -91,8 +90,7 @@ const satsDetaljerUkespris: DataDetails[] = [
 
 export const aftUtbetalt: ArrangorflateUtbetalingDto = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
-  kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
-  avbrytelse: null,
+  avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "e48f9b35-855f-43aa-8b4d-a669013df34b",
   status: ArrangorflateUtbetalingStatus.UTBETALT,
   innsendtAvArrangorDato: "2025-05-15",
@@ -109,7 +107,6 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
     lopenummer: "2025/10000",
   },
   arrangor: arrangorMock,
-  kanViseBeregning: true,
   valuta: Valuta.NOK,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
@@ -174,12 +171,10 @@ export const aftUtbetalt: ArrangorflateUtbetalingDto = {
 
 export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
-  kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
-  avbrytelse: null,
+  avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "a134c0bf-40eb-4124-8f2e-df7b7c51fd44",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   innsendtAvArrangorDato: null,
-  kanViseBeregning: true,
   utbetalesTidligstDato: "2025-12-01",
   createdAt: "2025-11-07T10:02:43.989186",
   updatedAt: "2025-11-07T10:02:43.989186",
@@ -229,8 +224,7 @@ export const avklaringManedKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
 
 export const aftKreverEndring: ArrangorflateUtbetalingDto = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
-  kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
-  avbrytelse: null,
+  avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "a5499e34-9fb4-49d1-a37d-11810f6df19b",
   status: ArrangorflateUtbetalingStatus.BLOKKERT_FOR_INNSENDING,
   innsendtAvArrangorDato: null,
@@ -248,7 +242,6 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
   },
   arrangor: arrangorMock,
   advarsler: [],
-  kanViseBeregning: true,
   valuta: Valuta.NOK,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
@@ -287,8 +280,7 @@ export const aftKreverEndring: ArrangorflateUtbetalingDto = {
 
 export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
-  kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
-  avbrytelse: null,
+  avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "585a2834-338a-4ac7-82e0-e1b08bfe1408",
   status: ArrangorflateUtbetalingStatus.BEHANDLES_AV_NAV,
   innsendtAvArrangorDato: "2025-06-05",
@@ -307,7 +299,6 @@ export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
     lopenummer: "2025/10003",
   },
   arrangor: arrangorMock,
-  kanViseBeregning: false,
   valuta: Valuta.NOK,
   beregning: {
     deltakelser: null,
@@ -354,8 +345,7 @@ export const aftBehandlesAvNav: ArrangorflateUtbetalingDto = {
 
 export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
-  kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
-  avbrytelse: null,
+  avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "153bc6f0-0c5f-4555-9447-b88ea0cc60f2",
   status: ArrangorflateUtbetalingStatus.OVERFORT_TIL_UTBETALING,
   innsendtAvArrangorDato: null,
@@ -372,7 +362,6 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
     lopenummer: "2025/10004",
   },
   arrangor: arrangorMock,
-  kanViseBeregning: false,
   valuta: Valuta.NOK,
   beregning: {
     stengt: [],
@@ -432,8 +421,7 @@ export const avklaringOverfortTilUtbetaling: ArrangorflateUtbetalingDto = {
 
 export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
   regenerering: { type: "IKKE_TILGJENGELIG" },
-  kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
-  avbrytelse: null,
+  avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "fdbb7433-b42e-4cd6-b995-74a8e487329f",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   innsendtAvArrangorDato: null,
@@ -450,7 +438,6 @@ export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
     lopenummer: "2025/10005",
   },
   arrangor: arrangorMock,
-  kanViseBeregning: true,
   valuta: Valuta.NOK,
   beregning: {
     displayName: "Sats per tiltaksplass per måned",
@@ -493,14 +480,12 @@ export const vtaKlarForGodkjenning: ArrangorflateUtbetalingDto = {
 };
 
 export const arrUkesprisKlarTilGodkjenning: ArrangorflateUtbetalingDto = {
-  kanAvbrytes: ArrangorAvbrytStatus.DEACTIVATED,
-  avbrytelse: null,
   regenerering: { type: "IKKE_TILGJENGELIG" },
+  avbrytelse: { type: "KAN_IKKE_AVBRYTES" },
   id: "ba046f93-cb0c-4acf-a724-99a36481f183",
   status: ArrangorflateUtbetalingStatus.KLAR_FOR_GODKJENNING,
   innsendtAvArrangorDato: null,
   utbetalesTidligstDato: "2025-12-01",
-  kanViseBeregning: true,
   createdAt: "2025-10-31T14:41:03.835624",
   updatedAt: "2025-10-31T14:41:03.835624",
   tiltakstype: {

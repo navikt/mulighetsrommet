@@ -68,6 +68,16 @@ data class ArrangorflateUtbetaling(
     }
 
     /**
+     * Om utbetalingen for øyeblikket kan avbrytes.
+     */
+    fun erAvbrytbar(): Boolean {
+        return innsending != null && status in setOf(
+            UtbetalingStatusType.TIL_BEHANDLING,
+            UtbetalingStatusType.RETURNERT,
+        )
+    }
+
+    /**
      * Om utbetalingen er av en type og status som i utgangspunktet tillater regenerering.
      */
     fun erRegenererbarType(): Boolean {

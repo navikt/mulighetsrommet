@@ -1,10 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import arrow.core.Either
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
@@ -12,8 +8,12 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
+import no.nav.mulighetsrommet.api.arrangorflate.dto.AvbrytStatus
+import no.nav.mulighetsrommet.api.arrangorflate.dto.Avbrytelse
+import no.nav.mulighetsrommet.api.arrangorflate.dto.RegenererStatus
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
+import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerRegisterOrganisasjonError
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.shared.PaginatedResult
@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
 
@@ -107,8 +106,7 @@ class ArrangorflateService(
             personaliaById = personalia,
             advarsler = advarsler,
             linjer = getLinjer(utbetaling.id),
-            kanViseBeregning = !erTolvUkerEtterInnsending,
-            kanAvbrytes = arrangorAvbrytStatus(utbetaling),
+            skalViseBeregningMedDeltakelser = !erTolvUkerEtterInnsending,
             regenerering = regenerering,
         )
     }
@@ -182,9 +180,9 @@ class ArrangorflateService(
     }
 }
 
-fun arrangorAvbrytStatus(utbetaling: ArrangorflateUtbetaling): ArrangorAvbrytStatus {
+fun avbrytStatus(utbetaling: ArrangorflateUtbetaling, status: ArrangorflateUtbetalingStatus): AvbrytStatus {
     if (utbetaling.innsending == null) {
-        return ArrangorAvbrytStatus.HIDDEN
+        return AvbrytStatus.IkkeTilgjengelig
     }
 
     return when (utbetaling.status) {
@@ -192,41 +190,20 @@ fun arrangorAvbrytStatus(utbetaling: ArrangorflateUtbetaling): ArrangorAvbrytSta
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.TIL_ATTESTERING,
         UtbetalingStatusType.TIL_AVBRYTELSE,
-        -> ArrangorAvbrytStatus.DEACTIVATED
+        -> AvbrytStatus.KanIkkeAvbrytes
 
         UtbetalingStatusType.FERDIG_BEHANDLET,
         UtbetalingStatusType.UTBETALT,
-        UtbetalingStatusType.AVBRUTT,
-        -> ArrangorAvbrytStatus.HIDDEN
+        -> AvbrytStatus.IkkeTilgjengelig
+
+        UtbetalingStatusType.AVBRUTT -> {
+            val avbrytelse = Avbrytelse.fromStatus(status, utbetaling.arrangorAvbrutt, utbetaling.avbrytelse)
+                ?: error("Forventet avbrytelsesdetaljer for utbetaling med status AVBRUTT")
+            AvbrytStatus.Avbrutt(avbrytelse)
+        }
 
         UtbetalingStatusType.TIL_BEHANDLING,
         UtbetalingStatusType.RETURNERT,
-        -> ArrangorAvbrytStatus.ACTIVATED
+        -> AvbrytStatus.KanAvbrytes
     }
-}
-
-enum class ArrangorAvbrytStatus {
-    ACTIVATED,
-    DEACTIVATED,
-    HIDDEN,
-}
-
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-@JsonClassDiscriminator("type")
-sealed class RegenererStatus {
-    @Serializable
-    @SerialName("KAN_REGENERERES")
-    data object KanRegenereres : RegenererStatus()
-
-    @Serializable
-    @SerialName("ALLEREDE_REGENERERT")
-    data class AlleredeRegenerert(
-        @Serializable(with = UUIDSerializer::class)
-        val utbetalingId: UUID,
-    ) : RegenererStatus()
-
-    @Serializable
-    @SerialName("IKKE_TILGJENGELIG")
-    data object IkkeTilgjengelig : RegenererStatus()
 }

@@ -1699,12 +1699,6 @@ components:
       enum:
       - RelevanteForslag
       - FeilSluttDato
-    ArrangorAvbrytStatus:
-      type: string
-      enum:
-      - ACTIVATED
-      - DEACTIVATED
-      - HIDDEN
     RegenererStatus:
       anyOf:
       - $ref: "#/components/schemas/ALLEREDE_REGENERERT"
@@ -1730,6 +1724,26 @@ components:
     KAN_REGENERERES:
       type: object
       properties: {}
+    AvbrytStatus:
+      anyOf:
+      - $ref: "#/components/schemas/AVBRUTT"
+      - $ref: "#/components/schemas/IKKE_TILGJENGELIG"
+      - $ref: "#/components/schemas/KAN_AVBRYTES"
+      - $ref: "#/components/schemas/KAN_IKKE_AVBRYTES"
+      discriminator:
+        propertyName: type
+        mapping:
+          AVBRUTT: "#/components/schemas/AVBRUTT"
+          IKKE_TILGJENGELIG: "#/components/schemas/IKKE_TILGJENGELIG"
+          KAN_AVBRYTES: "#/components/schemas/KAN_AVBRYTES"
+          KAN_IKKE_AVBRYTES: "#/components/schemas/KAN_IKKE_AVBRYTES"
+    AVBRUTT:
+      type: object
+      properties:
+        detaljer:
+          $ref: "#/components/schemas/Avbrytelse"
+      required:
+      - detaljer
     Avbrytelse:
       anyOf:
       - $ref: "#/components/schemas/AVBRUTT_AV_ARRANGOR"
@@ -1770,6 +1784,12 @@ components:
       - aarsaker
       - avbruttDato
       - forklaring
+    KAN_AVBRYTES:
+      type: object
+      properties: {}
+    KAN_IKKE_AVBRYTES:
+      type: object
+      properties: {}
     Utbetaling.Blokkering:
       type: string
       enum:
@@ -1793,8 +1813,6 @@ components:
           - "null"
           - string
           format: date
-        kanViseBeregning:
-          type: boolean
         createdAt:
           type: string
           format: date-time
@@ -1831,14 +1849,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DeltakerAdvarselDto"
-        kanAvbrytes:
-          $ref: "#/components/schemas/ArrangorAvbrytStatus"
         regenerering:
           $ref: "#/components/schemas/RegenererStatus"
         avbrytelse:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Avbrytelse"
+          $ref: "#/components/schemas/AvbrytStatus"
         blokkeringer:
           type: array
           items:
@@ -1856,8 +1870,6 @@ components:
       - id
       - innsendingsDetaljer
       - innsendtAvArrangorDato
-      - kanAvbrytes
-      - kanViseBeregning
       - linjer
       - periode
       - regenerering

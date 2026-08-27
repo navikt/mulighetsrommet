@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateBeregning
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateGjennomforingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTiltakstypeDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
-import no.nav.mulighetsrommet.api.arrangorflate.dto.Avbrytelse
+import no.nav.mulighetsrommet.api.arrangorflate.dto.RegenererStatus
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
@@ -49,19 +49,20 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
     personaliaById: Map<UUID, Personalia>,
     advarsler: List<DeltakerAdvarsel>,
     linjer: List<ArrangforflateUtbetalingLinje>,
-    kanViseBeregning: Boolean,
-    kanAvbrytes: ArrangorAvbrytStatus,
+    skalViseBeregningMedDeltakelser: Boolean,
     regenerering: RegenererStatus,
 ): ArrangorflateUtbetalingDto {
     val beregning = ArrangorflateBeregning(
         pris = utbetaling.beregning.output.pris,
-        deltakelser = beregningDeltakerTable(utbetaling, deltakereById, personaliaById),
+        deltakelser = if (skalViseBeregningMedDeltakelser) {
+            beregningDeltakerTable(utbetaling, deltakereById, personaliaById)
+        } else {
+            null
+        },
         stengt = beregningStengt(utbetaling.beregning),
         displayName = beregningDisplayName(utbetaling.beregning),
         satsDetaljer = beregningSatsDetaljer(utbetaling.beregning),
     )
-
-    val kanViseBeregningMedDeltakelse = beregning.deltakelser?.let { kanViseBeregning } ?: false
 
     val innsendtAvArrangorDato = utbetaling.innsending?.tidspunkt?.toLocalDate()
     val status =
@@ -71,7 +72,6 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
         status = status,
         innsendtAvArrangorDato = innsendtAvArrangorDato,
         utbetalesTidligstDato = utbetaling.utbetalesTidligstTidspunkt?.tilNorskDato(),
-        kanViseBeregning = kanViseBeregningMedDeltakelse,
         createdAt = utbetaling.createdAt,
         updatedAt = utbetaling.updatedAt,
         tiltakstype = ArrangorflateTiltakstypeDto(
@@ -98,9 +98,8 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
         advarsler = advarsler.map { advarsel ->
             DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn())
         },
-        kanAvbrytes = kanAvbrytes,
-        avbrytelse = Avbrytelse.fromStatus(status, utbetaling.arrangorAvbrutt, utbetaling.avbrytelse),
         regenerering = regenerering,
+        avbrytelse = avbrytStatus(utbetaling, status),
         blokkeringer = utbetaling.blokkeringer,
     )
 }
