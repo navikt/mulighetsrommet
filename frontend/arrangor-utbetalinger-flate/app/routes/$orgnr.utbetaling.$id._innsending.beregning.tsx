@@ -8,10 +8,12 @@ import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { DataDrivenTable } from "@mr/frontend-common";
 import { StengtePerioder } from "~/components/common/StengtePerioder";
+import { useUtbetalingWizard } from "~/hooks/useUtbetalingWizard";
+import { StepFooter } from "~/components/utbetaling/StepFooter";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Steg 2 av 3: Beregning - Godkjenn innsending" },
+    { title: "Steg 2 av 4: Beregning - Godkjenn innsending" },
     {
       name: "description",
       content: "Informasjon om beregning og deltakere",
@@ -24,6 +26,7 @@ export default function UtbetalingBeregning() {
   const deltakerlisteUrl = deltakerOversiktLenke(getEnvironment());
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
+  const wizard = useUtbetalingWizard(utbetaling);
 
   return (
     <VStack gap="space-16">
@@ -55,6 +58,7 @@ export default function UtbetalingBeregning() {
           pris={utbetaling.beregning.pris}
         />
       </VStack>
+      <StepFooter wizard={wizard} />
     </VStack>
   );
 }

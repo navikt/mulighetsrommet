@@ -10,10 +10,11 @@ export interface Step {
 export interface UtbetalingWizard {
   steps: Step[];
   activeStep: number;
-  goToNext: () => void;
+  goToNext: (extraState?: Record<string, unknown>) => void;
   goToPrevious: () => void;
   isFirstStep: boolean;
   isLastStep: boolean;
+  cancelHref: string;
 }
 
 export function useUtbetalingWizard(utbetaling: ArrangorflateUtbetalingDto): UtbetalingWizard {
@@ -25,11 +26,13 @@ export function useUtbetalingWizard(utbetaling: ArrangorflateUtbetalingDto): Utb
   const currentPath = location.pathname.split("/").pop();
   const currentIndex = steps.findIndex((s) => s.path === currentPath);
 
-  const goToStep = (index: number) => {
+  const goToStep = (index: number, extraState?: Record<string, unknown>) => {
     const step = steps[index];
     navigate(pathTo.utbetaling(orgnr, utbetaling.id, step.path), {
       state: {
         updatedAt: utbetaling.updatedAt,
+        ...location.state,
+        ...extraState,
       },
     });
   };
@@ -37,22 +40,25 @@ export function useUtbetalingWizard(utbetaling: ArrangorflateUtbetalingDto): Utb
   return {
     steps,
     activeStep: currentIndex < 0 ? 1 : currentIndex + 1,
-    goToNext: () => goToStep(currentIndex + 1),
+    goToNext: (extraState) => goToStep(currentIndex + 1, extraState),
     goToPrevious: () => goToStep(currentIndex - 1),
     isFirstStep: currentIndex === 0,
     isLastStep: currentIndex === steps.length - 1,
+    cancelHref: pathTo.utbetalinger,
   };
 }
 
 function resolveSteps(utbetaling: ArrangorflateUtbetalingDto): Step[] {
-  return utbetaling.beregning.deltakelser
-    ? [
-        { name: "Innsendingsinformasjon", path: "innsendingsinformasjon" },
-        { name: "Beregning", path: "beregning" },
-        { name: "Oppsummering", path: "oppsummering" },
-      ]
-    : [
-        { name: "Innsendingsinformasjon", path: "innsendingsinformasjon" },
-        { name: "Oppsummering", path: "oppsummering" },
-      ];
+  const steps: Step[] = [{ name: "Innsendingsinformasjon", path: "innsendingsinformasjon" }];
+
+  if (utbetaling.beregning.deltakelser) {
+    steps.push({ name: "Beregning", path: "beregning" });
+  }
+
+  steps.push(
+    { name: "Betalingsinformasjon", path: "betalingsinformasjon" },
+    { name: "Oppsummering", path: "oppsummering" },
+  );
+
+  return steps;
 }

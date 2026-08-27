@@ -1,7 +1,7 @@
 import { Heading, TextField, VStack } from "@navikt/ds-react";
 import { useEffect } from "react";
 import { errorAt } from "~/utils/validering";
-import { KontonummerInput } from "../utbetaling/KontonummerInput";
+import { BetalingsinformasjonInput } from "../utbetaling/BetalingsinformasjonInput";
 import { OpprettKravFormState } from "~/routes/$orgnr.opprett-krav.$gjennomforingid";
 import { FieldError, OpprettKravUtbetalingSteg } from "@arrangor-utbetalinger/api-client";
 
@@ -43,23 +43,13 @@ export default function UtbetalingSteg({
         name="belop"
         id="belop"
       />
-      <VStack gap="space-16">
-        <KontonummerInput
-          error={errorAt("/kontonummer", errors)}
-          kontonummer={data.kontonummer}
-          onClick={onRevalidate}
-        />
-        <TextField
-          label="KID-nummer for utbetaling (valgfritt)"
-          value={formState.kid || ""}
-          onChange={(e) => updateFormState({ kid: e.target.value })}
-          size="small"
-          name="kid"
-          htmlSize={35}
-          maxLength={25}
-          id="kid"
-        />
-      </VStack>
+      <BetalingsinformasjonInput
+        kontonummer={data.kontonummer}
+        kontonummerError={errorAt("/kontonummer", errors)}
+        onSyncKontonummer={onRevalidate}
+        kid={formState.kid || ""}
+        onKidChange={(kid) => updateFormState({ kid })}
+      />
     </VStack>
   );
 }

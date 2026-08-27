@@ -1,6 +1,6 @@
 import { Link as ReactRouterLink, Outlet } from "react-router";
 import { Suspense } from "react";
-import { Box, Button, Hide, HStack, Link, Stepper, VStack } from "@navikt/ds-react";
+import { Box, Hide, Link, Stepper, VStack } from "@navikt/ds-react";
 import { Laster } from "~/components/common/Laster";
 import { useUtbetalingWizard } from "~/hooks/useUtbetalingWizard";
 import { pathTo, useIdFromUrl } from "~/utils/navigation";
@@ -39,26 +39,6 @@ export default function InnsendingLayout() {
         <Suspense fallback={<Laster tekst="Laster data..." size="xlarge" />}>
           <Outlet />
         </Suspense>
-
-        {!wizard.isLastStep && (
-          <HStack gap="space-16" marginBlock="space-16 space-0">
-            {wizard.isFirstStep ? (
-              <Button
-                as={ReactRouterLink}
-                type="button"
-                variant="tertiary"
-                to={pathTo.utbetalinger}
-              >
-                Avbryt
-              </Button>
-            ) : (
-              <Button type="button" variant="tertiary" onClick={wizard.goToPrevious}>
-                Tilbake
-              </Button>
-            )}
-            <Button onClick={wizard.goToNext}>Neste</Button>
-          </HStack>
-        )}
       </Box>
     </VStack>
   );

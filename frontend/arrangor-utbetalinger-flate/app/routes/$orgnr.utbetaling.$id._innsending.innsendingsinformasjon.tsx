@@ -7,10 +7,12 @@ import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useArrangorflateTilsagnTilUtbetaling } from "~/hooks/useArrangorflateTilsagnTilUtbetaling";
 import { TilgjengeligeTilsagn } from "~/components/common/TilgjengeligeTilsagn";
 import { BlokkeringerVarsler } from "~/components/common/BlokkeringerVarsler";
+import { useUtbetalingWizard } from "~/hooks/useUtbetalingWizard";
+import { StepFooter } from "~/components/utbetaling/StepFooter";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Steg 1 av 3: Innsendingsinformasjon - Godkjenn innsending" },
+    { title: "Steg 1 av 4: Innsendingsinformasjon - Godkjenn innsending" },
     {
       name: "description",
       content: "Grunnleggende informasjon om innsendingen",
@@ -23,6 +25,7 @@ export default function TilsagnDetaljerPage() {
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
   const { data: tilsagn } = useArrangorflateTilsagnTilUtbetaling(id);
+  const wizard = useUtbetalingWizard(utbetaling);
 
   return (
     <>
@@ -50,6 +53,7 @@ export default function TilsagnDetaljerPage() {
           advarsler={utbetaling.advarsler}
         />
       </VStack>
+      <StepFooter wizard={wizard} />
     </>
   );
 }
