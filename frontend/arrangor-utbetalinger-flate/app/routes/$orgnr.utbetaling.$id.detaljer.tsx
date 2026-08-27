@@ -172,7 +172,7 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
             </HelpText>
           </HStack>
         )}
-        {utbetaling.kanRegenereres && (
+        {utbetaling.regenerering.type === "KAN_REGENERERES" && (
           <HStack gap="space-8" justify="start" align="center">
             <Button
               type="button"
@@ -185,7 +185,7 @@ function UtbetalingDetaljerContent({ id }: { id: string }) {
             </Button>
           </HStack>
         )}
-        {utbetaling.regenerertId && (
+        {utbetaling.regenerering.type === "ALLEREDE_REGENERERT" && (
           <HStack gap="space-8" justify="start" align="center">
             <InlineMessage status="info">
               Krav om utbetaling for denne perioden er opprettet på nytt. Du finner kravet på

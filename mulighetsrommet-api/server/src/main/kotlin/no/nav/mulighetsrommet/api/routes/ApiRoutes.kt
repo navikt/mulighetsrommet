@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.avtale.api.rammedetaljerRoutes
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.endringshistorikk.api.endringshistorikkRoutes
 import no.nav.mulighetsrommet.api.enhetsregister.enhetsregisterRoutes
+import no.nav.mulighetsrommet.api.gjennomforing.api.enkeltplassRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingPublicRoutes
 import no.nav.mulighetsrommet.api.gjennomforing.api.gjennomforingRoutes
 import no.nav.mulighetsrommet.api.janzz.api.janzzRoutes
@@ -127,6 +128,7 @@ fun Route.tiltaksadministrasjonRoutes() {
     tiltakstypeRoutes()
     avtaleRoutes()
     gjennomforingRoutes()
+    enkeltplassRoutes()
     tiltakDokumentRoutes()
     kodeverkRoutes()
     rammedetaljerRoutes()

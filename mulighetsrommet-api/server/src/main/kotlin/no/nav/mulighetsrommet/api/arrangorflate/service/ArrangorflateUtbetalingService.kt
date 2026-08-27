@@ -26,7 +26,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPe
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
-import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
@@ -140,23 +139,8 @@ class ArrangorflateUtbetalingService(
     suspend fun regenererUtbetaling(
         utbetaling: ArrangorflateUtbetaling,
     ): Either<List<FieldError>, Unit> = validation {
-        validate(utbetaling.status == UtbetalingStatusType.AVBRUTT) {
-            FieldError.of("Utbetalingen kan bare regenereres når den er avbrutt")
-        }
-        validateNotNull(utbetaling.innsending) {
-            FieldError.of("Utbetalingen kan bare regenereres når den er innsendt")
-        }
-        when (utbetaling.beregning) {
-            is UtbetalingBeregningFri,
-            is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
-            is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
-            -> error { FieldError.of("Utbetalingen kan ikke regenereres") }
-
-            is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
-            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
-            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerManed,
-            is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerUke,
-            -> Unit
+        validate(utbetaling.erRegenererbarType()) {
+            FieldError.of("Utbetalingen kan ikke regenereres")
         }
     }.map {
         genererUtbetalingService.regenererUtbetaling(utbetaling.id)

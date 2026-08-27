@@ -11,8 +11,14 @@ import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
 import { client } from "@arrangor-utbetalinger/api-client";
 import logger from "../server/logger.js";
+import { initializeMockServer } from "./mocks/node.js";
 
 export const streamTimeout = 5000;
+
+if (process.env.VITE_MULIGHETSROMMET_API_MOCK === "true") {
+  initializeMockServer();
+  logger.info("Initialiserer mock server");
+}
 
 client.setConfig({
   baseUrl: process.env.VITE_MULIGHETSROMMET_API_BASE ?? "http://localhost:3000",

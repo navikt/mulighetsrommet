@@ -825,13 +825,13 @@ components:
       - INDIVIDUELL_JOBBSTOTTE_UNG
       - ARBEID_MED_STOTTE
       - ARBEIDSTRENING
-      - MIDLERTIDIG_LONNSTLSKUDD
-      - VARIG_LONNSTILSKUD
+      - MIDLERTIDIG_LONNSTILSKUDD
+      - VARIG_LONNSTILSKUDD
       - MENTOR
-      - INKLUDERINGSTILSKUD
+      - INKLUDERINGSTILSKUDD
       - SOMMERJOBB
       - VTAO
-      - FIREARIG_LONNSTILSUDD
+      - FIREARIG_LONNSTILSKUDD
     PaginatedResponse_ArrangorflateTiltakRadDto:
       type: object
       properties:
@@ -1705,6 +1705,31 @@ components:
       - ACTIVATED
       - DEACTIVATED
       - HIDDEN
+    RegenererStatus:
+      anyOf:
+      - $ref: "#/components/schemas/ALLEREDE_REGENERERT"
+      - $ref: "#/components/schemas/IKKE_TILGJENGELIG"
+      - $ref: "#/components/schemas/KAN_REGENERERES"
+      discriminator:
+        propertyName: type
+        mapping:
+          ALLEREDE_REGENERERT: "#/components/schemas/ALLEREDE_REGENERERT"
+          IKKE_TILGJENGELIG: "#/components/schemas/IKKE_TILGJENGELIG"
+          KAN_REGENERERES: "#/components/schemas/KAN_REGENERERES"
+    ALLEREDE_REGENERERT:
+      type: object
+      properties:
+        utbetalingId:
+          type: string
+          format: uuid
+      required:
+      - utbetalingId
+    IKKE_TILGJENGELIG:
+      type: object
+      properties: {}
+    KAN_REGENERERES:
+      type: object
+      properties: {}
     Avbrytelse:
       anyOf:
       - $ref: "#/components/schemas/AVBRUTT_AV_ARRANGOR"
@@ -1808,8 +1833,8 @@ components:
             $ref: "#/components/schemas/DeltakerAdvarselDto"
         kanAvbrytes:
           $ref: "#/components/schemas/ArrangorAvbrytStatus"
-        kanRegenereres:
-          type: boolean
+        regenerering:
+          $ref: "#/components/schemas/RegenererStatus"
         avbrytelse:
           oneOf:
           - type: "null"
@@ -1819,11 +1844,6 @@ components:
           items:
             $ref: "#/components/schemas/Utbetaling.Blokkering"
           uniqueItems: true
-        regenerertId:
-          type:
-          - "null"
-          - string
-          format: uuid
       required:
       - advarsler
       - arrangor
@@ -1837,11 +1857,10 @@ components:
       - innsendingsDetaljer
       - innsendtAvArrangorDato
       - kanAvbrytes
-      - kanRegenereres
       - kanViseBeregning
       - linjer
       - periode
-      - regenerertId
+      - regenerering
       - status
       - tiltakstype
       - type

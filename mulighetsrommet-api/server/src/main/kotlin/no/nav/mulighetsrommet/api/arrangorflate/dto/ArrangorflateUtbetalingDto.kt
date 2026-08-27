@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorAvbrytStatus
+import no.nav.mulighetsrommet.api.arrangorflate.service.RegenererStatus
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.utbetaling.api.UtbetalingTypeDto
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
@@ -54,11 +55,9 @@ data class ArrangorflateUtbetalingDto(
     val linjer: List<ArrangforflateUtbetalingLinje>,
     val advarsler: List<DeltakerAdvarselDto>,
     val kanAvbrytes: ArrangorAvbrytStatus,
-    val kanRegenereres: Boolean,
+    val regenerering: RegenererStatus,
     val avbrytelse: Avbrytelse?,
     val blokkeringer: Set<Utbetaling.Blokkering>,
-    @Serializable(with = UUIDSerializer::class)
-    val regenerertId: UUID?,
 )
 
 @Serializable

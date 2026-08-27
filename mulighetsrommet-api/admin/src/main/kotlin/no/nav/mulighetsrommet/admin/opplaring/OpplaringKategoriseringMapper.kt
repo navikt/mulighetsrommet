@@ -23,13 +23,13 @@ object OpplaringKategoriseringMapper {
         Tiltakskode.INDIVIDUELL_JOBBSTOTTE,
         Tiltakskode.INDIVIDUELL_JOBBSTOTTE_UNG,
         Tiltakskode.ARBEID_MED_STOTTE,
-        Tiltakskode.MIDLERTIDIG_LONNSTLSKUDD,
-        Tiltakskode.VARIG_LONNSTILSKUD,
+        Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD,
+        Tiltakskode.VARIG_LONNSTILSKUDD,
         Tiltakskode.MENTOR,
-        Tiltakskode.INKLUDERINGSTILSKUD,
+        Tiltakskode.INKLUDERINGSTILSKUDD,
         Tiltakskode.SOMMERJOBB,
         Tiltakskode.VTAO,
-        Tiltakskode.FIREARIG_LONNSTILSUDD,
+        Tiltakskode.FIREARIG_LONNSTILSKUDD,
         -> ingenValg(tiltakskode)
 
         Tiltakskode.STUDIESPESIALISERING, // Vil bli mappet med kurstype Studiespesialisering

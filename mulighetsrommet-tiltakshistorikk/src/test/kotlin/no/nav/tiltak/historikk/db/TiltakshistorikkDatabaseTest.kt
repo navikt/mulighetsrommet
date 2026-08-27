@@ -334,7 +334,7 @@ class TiltakshistorikkDatabaseTest : FunSpec({
                             opprettetTidspunkt = LocalDateTime.of(2022, 1, 1, 0, 0),
                         ),
                         tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
-                            tiltakskode = gruppeAmo.tiltakskode,
+                            tiltakskode = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
                             navn = "Arbeidsmarkedsopplæring (gruppe)",
                         ),
                         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(

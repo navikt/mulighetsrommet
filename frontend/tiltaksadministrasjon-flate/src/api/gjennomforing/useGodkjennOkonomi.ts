@@ -1,16 +1,16 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { GjennomforingService, ProblemDetail } from "@tiltaksadministrasjon/api-client";
+import { EnkeltplassService, ProblemDetail } from "@tiltaksadministrasjon/api-client";
 import { QueryKeys } from "@/api/QueryKeys";
 import { useApiMutation } from "@/hooks/useApiMutation";
 
-export function useSettPaVentGjennomforingOkonomi() {
+export function useGodkjennOkonomi() {
   const queryClient = useQueryClient();
 
-  return useApiMutation<unknown, ProblemDetail, { id: string; forklaring: string | null }>({
-    mutationFn: ({ id, forklaring }) => {
-      return GjennomforingService.settPaVentGjennomforingOkonomi({
+  return useApiMutation<unknown, ProblemDetail, { id: string; totrinnskontrollId: string }>({
+    mutationFn: ({ id, totrinnskontrollId }) => {
+      return EnkeltplassService.godkjennOkonomi({
         path: { id },
-        body: { forklaring },
+        body: { totrinnskontrollId },
       });
     },
     async onSuccess(_, { id }) {

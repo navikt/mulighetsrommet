@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTilstand
 import no.nav.mulighetsrommet.api.veilederflate.models.DeltakelseTiltakstype
 import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.ArbeidsgiverAvtaleStatus
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -50,7 +49,7 @@ class TiltakshistorikkServiceTest : FunSpec({
     val tiltakshistorikkOppfolging = TiltakshistorikkV1Dto.TeamKometDeltakelse(
         id = UUID.randomUUID(),
         tiltakstype = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakstype(
-            tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
+            tiltakskode = TiltakshistorikkV1Dto.TeamKometDeltakelse.Tiltakskode.OPPFOLGING,
             navn = TiltakstypeFixtures.Oppfolging.navn,
         ),
         gjennomforing = TiltakshistorikkV1Dto.Gjennomforing(
@@ -113,7 +112,7 @@ class TiltakshistorikkServiceTest : FunSpec({
             tiltakskode = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.ARBEIDSTRENING,
             navn = "Arbeidstrening",
         ),
-        status = ArbeidsgiverAvtaleStatus.GJENNOMFORES,
+        status = TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.GJENNOMFORES,
         tittel = "Arbeidstrening hos Underenhet 2 AS",
         stillingsprosent = 100f,
         dagerPerUke = 5f,

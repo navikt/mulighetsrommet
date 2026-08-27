@@ -1,9 +1,15 @@
 name: CI (version/hash change check)
 
 on:
-  push:
+  pull_request:
+    branches:
+      - main
     paths:
       - "**/Dockerfile"
+    types:
+      - opened
+      - synchronize
+      - reopened
   workflow_dispatch:
 
 jobs:
@@ -16,17 +22,14 @@ jobs:
           fetch-depth: 0
 
       - name: Verify only digest/version updated in Dockerfiles
-        env:
-          BASE_REF: ${{ github.base_ref }}
         run: |
           python3 - <<'EOF'
           import subprocess, sys, re
           from collections import defaultdict
           import os
 
-          base_ref = os.environ["BASE_REF"]
           result = subprocess.run(
-              ["git", "diff", f"origin/{base_ref}...HEAD", "--", "**/Dockerfile"],
+              ["git", "diff", f"origin/main...HEAD", "--", "**/Dockerfile"],
               capture_output=True, text=True,
           )
 

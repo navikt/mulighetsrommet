@@ -49,7 +49,7 @@ class TotrinnskontrollTest : FunSpec({
         }
 
         test("feiler når behandletAv og besluttetAv er samme NavIdent") {
-            opprett().godkjenn(behandletAv) shouldBeLeft TotrinnskontrollError.KanIkkeBesluttesAvBehandler
+            opprett().godkjenn(besluttetAv = behandletAv) shouldBeLeft TotrinnskontrollError.KanIkkeBesluttesAvBehandler
         }
 
         test("feiler når allerede godkjent") {
@@ -104,7 +104,7 @@ class TotrinnskontrollTest : FunSpec({
 
         test("systemet er tillatt å endre fra godkjent til returnert") {
             val godkjent = opprett().godkjenn(besluttetAv).shouldBeRight()
-            godkjent.returner(Tiltaksadministrasjon, listOf("PROPAGERT_RETUR")).shouldBeRight()
+            godkjent.returner(Tiltaksadministrasjon, aarsaker = listOf("PROPAGERT_RETUR")).shouldBeRight()
         }
     }
 

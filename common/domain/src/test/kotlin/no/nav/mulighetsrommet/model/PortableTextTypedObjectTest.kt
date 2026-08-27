@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.model
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -44,7 +43,6 @@ class PortableTextTypedObjectTest : FunSpec({
         ),
     )
 
-    @OptIn(ExperimentalSerializationApi::class)
     val jsonPrettyPrint = Json {
         prettyPrint = true
         prettyPrintIndent = "  "

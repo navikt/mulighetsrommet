@@ -79,6 +79,7 @@ export const tilsagnHandlers = [
 
 const tilBeslutning: TotrinnskontrollDto = {
   type: "TotrinnskontrollDto.TilBeslutning",
+  id: "00000000-0000-0000-0000-000000000001",
   behandletAv: {
     agent: "P123456",
     navn: "Per Haraldsen",

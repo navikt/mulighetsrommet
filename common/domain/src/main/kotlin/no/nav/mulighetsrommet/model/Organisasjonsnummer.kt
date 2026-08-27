@@ -17,8 +17,9 @@ value class Organisasjonsnummer(val value: String) {
         fun isValid(value: String): Boolean = ORGANISASJONSNUMMER_REGEX.matches(value)
 
         fun parse(value: String): Organisasjonsnummer? {
-            return if (isValid(value)) {
-                Organisasjonsnummer(value)
+            val normalizedValue = value.filterNot { it.isWhitespace() }
+            return if (isValid(normalizedValue)) {
+                Organisasjonsnummer(normalizedValue)
             } else {
                 null
             }
