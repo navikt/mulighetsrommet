@@ -31,12 +31,16 @@ test("Kan navigere gjennom hele innsendingen", async ({ page }) => {
   await sjekkUU(page);
 
   await page.getByRole("button", { name: "Neste" }).click();
-  await expect(page.getByRole("heading", { name: "Beregning" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Deltakere" })).toBeVisible();
   await expect(
     page.getByText(
       "Hvis noen av opplysningene om deltakerne ikke stemmer må dere sende forslag til Nav om endring via Deltakeroversikten. Opplysninger om deltakerne må være riktig oppdatert før dere sender inn kravet.",
     ),
   ).toBeVisible();
+  await sjekkUU(page);
+
+  await page.getByRole("button", { name: "Neste" }).click();
+  await expect(page.getByRole("heading", { name: "Betalingsinformasjon" })).toBeVisible();
   await sjekkUU(page);
 
   await page.getByRole("button", { name: "Neste" }).click();

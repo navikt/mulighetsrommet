@@ -38,7 +38,7 @@ export function useGjennomforingIdFromUrl(): string {
 }
 
 export type UtbetalingInnsendingStep =
-  "innsendingsinformasjon" | "beregning" | "betalingsinformasjon" | "oppsummering";
+  "innsendingsinformasjon" | "deltakere" | "betalingsinformasjon" | "oppsummering";
 
 export const pathTo = {
   utbetalinger: "/?forside-tab=aktive",
@@ -50,7 +50,7 @@ export const pathTo = {
     `/${orgnr}/utbetaling/${id}/${step}`,
   innsendingsinformasjon: (orgnr: string, id: string) =>
     `/${orgnr}/utbetaling/${id}/innsendingsinformasjon`,
-  beregning: (orgnr: string, id: string) => `/${orgnr}/utbetaling/${id}/beregning`,
+  deltakere: (orgnr: string, id: string) => `/${orgnr}/utbetaling/${id}/deltakere`,
   betalingsinformasjon: (orgnr: string, id: string) =>
     `/${orgnr}/utbetaling/${id}/betalingsinformasjon`,
   oppsummering: (orgnr: string, id: string) => `/${orgnr}/utbetaling/${id}/oppsummering`,

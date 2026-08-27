@@ -52,7 +52,7 @@ function resolveSteps(utbetaling: ArrangorflateUtbetalingDto): Step[] {
   const steps: Step[] = [{ name: "Innsendingsinformasjon", path: "innsendingsinformasjon" }];
 
   if (utbetaling.beregning.deltakelser) {
-    steps.push({ name: "Beregning", path: "beregning" });
+    steps.push({ name: "Deltakere", path: "deltakere" });
   }
 
   steps.push(
