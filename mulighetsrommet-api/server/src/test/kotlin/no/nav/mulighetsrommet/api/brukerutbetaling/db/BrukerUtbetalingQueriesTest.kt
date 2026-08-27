@@ -103,7 +103,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
             detaljer = null,
             error = error,
         )
-        database.api.session { queries.brukerUtbetaling.setHelVedStatus(utbetaling.id, status) }
+        database.api.session { queries.brukerUtbetaling.setHelVedStatus(utbetaling.id, emptySet(), status) }
 
         val behandling = TilskuddFixtures.Behandling
         val tilskudd = TilskuddFixtures.Tilskudd
