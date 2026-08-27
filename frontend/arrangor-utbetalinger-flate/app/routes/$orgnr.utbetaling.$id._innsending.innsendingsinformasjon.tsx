@@ -12,7 +12,7 @@ import { StepFooter } from "~/components/utbetaling/StepFooter";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Steg 1 av 4: Innsendingsinformasjon - Godkjenn innsending" },
+    { title: "Innsendingsinformasjon - Godkjenn innsending" },
     {
       name: "description",
       content: "Grunnleggende informasjon om innsendingen",
