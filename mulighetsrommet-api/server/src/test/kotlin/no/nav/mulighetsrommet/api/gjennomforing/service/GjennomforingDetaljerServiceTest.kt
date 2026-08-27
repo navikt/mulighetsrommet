@@ -1,5 +1,7 @@
 package no.nav.mulighetsrommet.api.gjennomforing.service
 
+import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
@@ -94,7 +96,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 GjennomforingFixtures.Oppfolging1.id,
                 AccessType.OBO.AzureAd("X123456"),
                 NavIdent("Z123456"),
-            ).shouldNotBeNull().shouldBeTypeOf<GjennomforingAvtaleDetaljerDto>()
+            ).shouldBeRight().shouldNotBeNull().shouldBeTypeOf<GjennomforingAvtaleDetaljerDto>()
 
             dto.gjennomforing.id shouldBe GjennomforingFixtures.Oppfolging1.id
             dto.gjennomforing.navn shouldBe GjennomforingFixtures.Oppfolging1.navn
@@ -113,7 +115,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 GjennomforingFixtures.EnkelAmo.id,
                 AccessType.OBO.AzureAd("X123456"),
                 NavIdent("Z123456"),
-            ).shouldNotBeNull().shouldBeTypeOf<GjennomforingEnkeltplassDetaljerDto>()
+            ).shouldBeRight().shouldNotBeNull().shouldBeTypeOf<GjennomforingEnkeltplassDetaljerDto>()
 
             dto.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
 
@@ -124,7 +126,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             }
         }
 
-        test("returnerer detaljer med sladdet persondata når deltaker er adressebeskyttet") {
+        test("returnerer avvist grunn når deltaker er adressebeskyttet") {
             coEvery { personaliaService.getPersonalia(any<UUID>(), any()) } returns getPersonalia(
                 deltaker,
                 gradering = Gradering.STRENGT_FORTROLIG_ADRESSE,
@@ -133,19 +135,11 @@ class GjennomforingDetaljerServiceTest : FunSpec({
 
             val service = createService()
 
-            val dto = service.getGjennomforingDetaljerDto(
+            service.getGjennomforingDetaljerDto(
                 GjennomforingFixtures.EnkelAmo.id,
                 AccessType.OBO.AzureAd("X123456"),
                 NavIdent("Z123456"),
-            ).shouldNotBeNull().shouldBeTypeOf<GjennomforingEnkeltplassDetaljerDto>()
-
-            dto.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
-
-            dto.deltaker.shouldNotBeNull().should {
-                it.navn shouldBe "Adressebeskyttet"
-                it.norskIdent.shouldBeNull()
-                it.avvistGrunn shouldBe AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
-            }
+            ).shouldBeLeft() shouldBe AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
         }
 
         test("returnerer null når gjennomføring ikke finnes") {
@@ -155,7 +149,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 UUID.randomUUID(),
                 AccessType.OBO.AzureAd("X123456"),
                 NavIdent("Z123456"),
-            ).shouldBeNull()
+            ).shouldBeRight().shouldBeNull()
         }
     }
 
@@ -166,7 +160,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val result = service.getAllKompaktDto(
                 pagination = Pagination.all(),
                 filter = AdminTiltaksgjennomforingFilter(search = "Oppfølging"),
-            )
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeRight()
 
             result.data shouldHaveSize 1
             result.data.first().id shouldBe GjennomforingFixtures.Oppfolging1.id
@@ -174,14 +169,32 @@ class GjennomforingDetaljerServiceTest : FunSpec({
 
         test("kan søke på norskIdent for enkeltplass-gjennomføring") {
             val service = createService()
+            val accessType = AccessType.OBO.AzureAd("X123456")
+
+            coEvery { personaliaService.navAnsattTilgangTilPerson(norskIdent, PersonaliaService.OnBehalfOf.NavAnsatt(accessType)) } returns null
 
             val result = service.getAllKompaktDto(
                 pagination = Pagination.all(),
                 filter = AdminTiltaksgjennomforingFilter(search = norskIdent.value),
-            )
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeRight()
 
             result.data shouldHaveSize 1
             result.data.first().id shouldBe GjennomforingFixtures.EnkelAmo.id
+        }
+
+        test("kan ikke søke på norskIdent hvis ikke tilgang") {
+            val service = createService()
+            val accessType = AccessType.OBO.AzureAd("X123456")
+
+            coEvery { personaliaService.navAnsattTilgangTilPerson(norskIdent, PersonaliaService.OnBehalfOf.NavAnsatt(accessType)) } returns AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
+
+            val result = service.getAllKompaktDto(
+                pagination = Pagination.all(),
+                filter = AdminTiltaksgjennomforingFilter(search = norskIdent.value),
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeLeft()
+            result shouldBe AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
         }
 
         test("returnerer tomt resultat ved søk som ikke matcher noe") {
@@ -190,7 +203,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val result = service.getAllKompaktDto(
                 pagination = Pagination.all(),
                 filter = AdminTiltaksgjennomforingFilter(search = "finnesikke"),
-            )
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeRight()
 
             result.data shouldHaveSize 0
         }
@@ -201,7 +215,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             val result = service.getAllKompaktDto(
                 pagination = Pagination.all(),
                 filter = AdminTiltaksgjennomforingFilter(),
-            )
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeRight()
 
             result.data shouldHaveSize 2
         }
@@ -211,7 +226,8 @@ class GjennomforingDetaljerServiceTest : FunSpec({
 
             val file = service.exportToExcel(
                 filter = AdminTiltaksgjennomforingFilter(search = "Oppfølging"),
-            )
+                accessType = AccessType.OBO.AzureAd("X123456"),
+            ).shouldBeRight()
 
             println(file.name)
 

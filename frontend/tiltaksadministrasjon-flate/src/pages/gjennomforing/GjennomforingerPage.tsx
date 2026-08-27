@@ -3,6 +3,7 @@ import { GjennomforingFilterTags } from "@/components/filter/GjennomforingFilter
 import { GjennomforingTable } from "@/components/gjennomforing/GjennomforingTable";
 import { GjennomforingAvtaleIkon } from "@/components/ikoner/GjennomforingAvtaleIkon";
 import { ReloadAppErrorBoundary } from "@/ErrorBoundary";
+import { ManglerTilgangTilPersonErrorBoundary } from "@/components/gjennomforing/ManglerTilgangTilPersonAlert";
 import { ContentBox } from "@/layouts/ContentBox";
 import { HeaderBanner } from "@/layouts/HeaderBanner";
 import {
@@ -68,14 +69,16 @@ export function GjennomforingerPage() {
           buttons={null}
           table={
             <ReloadAppErrorBoundary>
-              <Suspense fallback={<ListSkeleton />}>
-                <GjennomforingTable
-                  filter={filter.values}
-                  updateFilter={updateFilter}
-                  tagsHeight={tagsHeight}
-                  filterOpen={filterOpen}
-                />
-              </Suspense>
+              <ManglerTilgangTilPersonErrorBoundary resetKeys={[filter.values.search]}>
+                <Suspense fallback={<ListSkeleton />}>
+                  <GjennomforingTable
+                    filter={filter.values}
+                    updateFilter={updateFilter}
+                    tagsHeight={tagsHeight}
+                    filterOpen={filterOpen}
+                  />
+                </Suspense>
+              </ManglerTilgangTilPersonErrorBoundary>
             </ReloadAppErrorBoundary>
           }
           filterOpen={filterOpen}
