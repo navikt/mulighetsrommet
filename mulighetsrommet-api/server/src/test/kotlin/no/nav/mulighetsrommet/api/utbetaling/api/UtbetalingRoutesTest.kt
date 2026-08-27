@@ -352,7 +352,7 @@ class UtbetalingRoutesTest : FunSpec({
             },
         )
 
-        test("personalia er maskert i GET /beregning når NavAnsatt mangler tilgang til skjermet deltaker") {
+        test("personalia er maskert i beregningen når NavAnsatt mangler tilgang til skjermet deltaker") {
             MulighetsrommetTestDomain(
                 utbetalinger = listOf(utbetalingMedAdvarsel),
                 deltakere = listOf(deltakerMedAdvarsel),
@@ -384,7 +384,7 @@ class UtbetalingRoutesTest : FunSpec({
             }
         }
 
-        test("personalia er maskert i utbetaling GET /beregning for STRENGT FORTROLIG deltaker") {
+        test("personalia er maskert i beregningen når NavAnsatt mangler tilgang til adressebeskyttet deltaker") {
             val config = appConfig().copy(
                 engine = createMockEngine {
                     mockKontoregisterOrganisasjon()
