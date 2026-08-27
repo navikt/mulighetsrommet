@@ -45,6 +45,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.withTestApplication
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.ktor.createMockEngine
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
@@ -303,19 +304,23 @@ class UtbetalingRoutesTest : FunSpec({
     }
 
     context("personvern i beregning") {
-        val deltaker = DeltakerFixtures.createDeltaker(gjennomforingId = AFT1.id)
+        val deltakerMedAdvarsel = DeltakerFixtures.createDeltaker(
+            gjennomforingId = AFT1.id,
+            status = DeltakerStatusType.HAR_SLUTTET,
+            sluttDato = LocalDate.now().plusYears(1),
+        )
 
         val beregningPeriode = Periode.forMonthOf(LocalDate.of(2024, 8, 1))
-        val utbetaling = UtbetalingFixtures.utbetaling1.copy(
+
+        val utbetalingMedAdvarsel = UtbetalingFixtures.utbetaling1.copy(
             id = UUID.randomUUID(),
-            periode = beregningPeriode,
             beregning = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed(
                 input = UtbetalingBeregningFastSatsPerBenyttetPlassPerManed.Input(
                     satser = setOf(SatsPeriode(periode = beregningPeriode, sats = 20205.NOK)),
                     stengt = setOf(),
                     deltakelser = setOf(
                         DeltakelseDeltakelsesprosentPerioder(
-                            deltakelseId = deltaker.id,
+                            deltakelseId = deltakerMedAdvarsel.id,
                             perioder = listOf(DeltakelsesprosentPeriode(beregningPeriode, 100.0)),
                         ),
                     ),
@@ -324,9 +329,13 @@ class UtbetalingRoutesTest : FunSpec({
                     pris = 20205.NOK,
                     deltakelser = setOf(
                         UtbetalingBeregningOutputDeltakelse(
-                            deltaker.id,
+                            deltakerMedAdvarsel.id,
                             setOf(
-                                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(beregningPeriode, 1.0, 20205.NOK),
+                                UtbetalingBeregningOutputDeltakelse.BeregnetPeriode(
+                                    beregningPeriode,
+                                    1.0,
+                                    20205.NOK,
+                                ),
                             ),
                         ),
                     ),
@@ -343,16 +352,16 @@ class UtbetalingRoutesTest : FunSpec({
             },
         )
 
-        test("personalia er maskert i GET /beregning når NavAnsatt mangler tilgang") {
+        test("personalia er maskert i GET /beregning når NavAnsatt mangler tilgang til skjermet deltaker") {
             MulighetsrommetTestDomain(
-                utbetalinger = listOf(utbetaling),
-                deltakere = listOf(deltaker),
+                utbetalinger = listOf(utbetalingMedAdvarsel),
+                deltakere = listOf(deltakerMedAdvarsel),
             ).initialize(database.api)
 
             withTestApplication(appConfigMedTilgangsmaskinAvvist()) {
                 val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
 
-                val response = client.get("/api/tiltaksadministrasjon/utbetaling/${utbetaling.id}/beregning") {
+                val response = client.get("/api/tiltaksadministrasjon/utbetaling/${utbetalingMedAdvarsel.id}/beregning") {
                     bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
                 }
 
@@ -360,12 +369,60 @@ class UtbetalingRoutesTest : FunSpec({
 
                 val body = response.body<UtbetalingBeregningDto>()
                 body.deltakere.shouldHaveSize(1)
+                body.advarsler.shouldHaveSize(1)
 
                 val deltaker = body.deltakere.first()
                 deltaker.navn shouldBe "Skjermet"
                 deltaker.norskIdent.shouldBeNull()
                 deltaker.geografiskEnhet.shouldBeNull()
                 deltaker.gradering shouldBe Gradering.SKJERMING
+
+                val advarsel = body.advarsler.first()
+                advarsel.deltakerId shouldBe deltakerMedAdvarsel.id
+                advarsel.navn shouldBe "Skjermet"
+                advarsel.norskIdent.shouldBeNull()
+            }
+        }
+
+        test("personalia er maskert i utbetaling GET /beregning for STRENGT FORTROLIG deltaker") {
+            val config = appConfig().copy(
+                engine = createMockEngine {
+                    mockKontoregisterOrganisasjon()
+                    mockPdlEmptyResult()
+                    mockAmtDeltakerPersonalia(gradering = PdlGradering.STRENGT_FORTROLIG)
+                    mockTilgangsmaskinenForbidden(avvistGrunn = "AVVIST_STRENGT_FORTROLIG_ADRESSE")
+                },
+            )
+
+            MulighetsrommetTestDomain(
+                utbetalinger = listOf(utbetalingMedAdvarsel),
+                deltakere = listOf(deltakerMedAdvarsel),
+            ).initialize(database.api)
+
+            withTestApplication(config) {
+                val navAnsattClaims = getAnsattClaims(ansatt, setOf(generellRolle, saksbehandlerOkonomiRolle))
+
+                val response =
+                    client.get("/api/tiltaksadministrasjon/utbetaling/${utbetalingMedAdvarsel.id}/beregning") {
+                        bearerAuth(oauth.issueToken(claims = navAnsattClaims).serialize())
+                    }
+
+                response.status shouldBe HttpStatusCode.OK
+
+                val body = response.body<UtbetalingBeregningDto>()
+                body.deltakere.shouldHaveSize(1)
+                body.advarsler.shouldHaveSize(1)
+
+                val deltaker = body.deltakere.first()
+                deltaker.navn shouldBe "Adressebeskyttet"
+                deltaker.norskIdent.shouldBeNull()
+                deltaker.geografiskEnhet.shouldBeNull()
+                deltaker.gradering shouldBe Gradering.STRENGT_FORTROLIG_ADRESSE
+
+                val advarsel = body.advarsler.first()
+                advarsel.deltakerId shouldBe deltakerMedAdvarsel.id
+                advarsel.navn shouldBe "Adressebeskyttet"
+                advarsel.norskIdent.shouldBeNull()
             }
         }
     }
