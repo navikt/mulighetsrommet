@@ -72,12 +72,11 @@ fun Route.tilskuddUtbetalingRoutes() {
                             )
                         } else {
                             queries.brukerUtbetaling.getByTilskudd(tilskudd.id)?.let { utbetaling ->
-                                val besluttetDato = utbetaling.besluttetTidspunkt.tilNorskDato()
                                 TilskuddUtbetalingKompaktDto(
                                     id = utbetaling.id,
                                     tilskuddBehandlingId = behandling.id,
                                     status = TilskuddUtbetalingStatusDto.from(utbetaling.helVedStatus),
-                                    periode = Periode.fromInclusiveDates(besluttetDato, besluttetDato),
+                                    periode = Periode.fromInclusiveDates(utbetaling.transaksjonsDato, utbetaling.transaksjonsDato),
                                     type = tilskudd.tilskuddOpplaeringType,
                                     kostnadssted = utbetaling.kostnadssted.let {
                                         KostnadsstedDto(it.navn, it.enhetsnummer)

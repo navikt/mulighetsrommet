@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
 import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 
 data class BrukerUtbetalingDbo(
@@ -17,6 +18,7 @@ data class BrukerUtbetalingDbo(
     val sakId: String,
     val behandlingId: String,
     val belop: Int,
+    val transaksjonsDato: LocalDate,
     val tilskuddstype: HelVedUtbetaling.Tilskuddstype,
     val tiltakskode: HelVedUtbetaling.Tiltakskode,
     val saksbehandler: NavIdent,
@@ -45,7 +47,8 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 tiltakskode,
                 saksbehandler,
                 beslutter,
-                besluttet_tidspunkt
+                besluttet_tidspunkt,
+                transaksjon_dato
             ) values (
                 :id::uuid,
                 :sak_id,
@@ -55,7 +58,8 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 :tiltakskode,
                 :saksbehandler,
                 :beslutter,
-                :besluttet_tidspunkt
+                :besluttet_tidspunkt,
+                :transaksjon_dato
             )
         """.trimIndent()
 
@@ -69,6 +73,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
             "saksbehandler" to utbetaling.saksbehandler.value,
             "beslutter" to utbetaling.beslutter.value,
             "besluttet_tidspunkt" to utbetaling.besluttetTidspunkt,
+            "transaksjon_dato" to utbetaling.periode.fom,
         )
 
         session.execute(queryOf(query, params))
@@ -118,6 +123,7 @@ private fun Row.toBrukerUtbetalingDbo() = BrukerUtbetalingDbo(
     sakId = string("sak_id"),
     behandlingId = string("behandling_id"),
     belop = int("belop"),
+    transaksjonsDato = localDate("transaksjon_dato"),
     tilskuddstype = HelVedUtbetaling.Tilskuddstype.valueOf(string("tilskuddstype")),
     tiltakskode = HelVedUtbetaling.Tiltakskode.valueOf(string("tiltakskode")),
     saksbehandler = NavIdent(string("saksbehandler")),
