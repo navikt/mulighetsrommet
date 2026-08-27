@@ -215,24 +215,31 @@ class TilskuddBehandlingQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to tilskuddId, "utbetaling_id" to utbetalingId)))
     }
 
-    fun setBrukerUtbetaling(tilskuddVedtakId: UUID, brukerUtbetalingId: UUID) {
+    fun setBrukerUtbetaling(tilskuddVedtakId: UUID, brukerUtbetalingId: UUID, brukerUtbetalingBehandlingId: Int) {
         @Language("PostgreSQL")
         val query = """
             insert into tilskudd_vedtak_bruker_utbetaling (
                 tilskudd_vedtak_id,
                 bruker_utbetaling_id,
                 bruker_utbetaling_behandling_id
+            ) values (
+                :tilskudd_vedtak_id::uuid
+                :bruker_utbetaling_id::uuid,
+                :bruker_utbetaling_behandling_id::integer
             )
-            select
-                :tilskudd_vedtak_id::uuid,
-                bruker_utbetaling.id,
-                bruker_utbetaling.behandling_id
-            from bruker_utbetaling
-            where bruker_utbetaling.id = :bruker_utbetaling_id::uuid
             on conflict do nothing
         """.trimIndent()
 
-        session.execute(queryOf(query, mapOf("tilskudd_vedtak_id" to tilskuddVedtakId, "bruker_utbetaling_id" to brukerUtbetalingId)))
+        session.execute(
+            queryOf(
+                query,
+                mapOf(
+                    "tilskudd_vedtak_id" to tilskuddVedtakId,
+                    "bruker_utbetaling_id" to brukerUtbetalingId,
+                    "bruker_utbetaling_behandling_id" to brukerUtbetalingBehandlingId,
+                ),
+            ),
+        )
     }
 
     fun get(id: UUID): TilskuddBehandlingDto? {
