@@ -10,7 +10,7 @@ import { useIdFromUrl } from "~/utils/navigation";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Steg 3 av 4: Betalingsinformasjon - Godkjenn innsending" },
+    { title: "Betalingsinformasjon - Godkjenn innsending" },
     {
       name: "description",
       content: "Kontonummer og KID-nummer for utbetalingen",
