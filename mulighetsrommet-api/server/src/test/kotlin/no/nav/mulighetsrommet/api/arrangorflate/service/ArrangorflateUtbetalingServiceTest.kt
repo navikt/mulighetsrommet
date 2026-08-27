@@ -932,7 +932,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                 row(UtbetalingStatusType.DELVIS_UTBETALT),
             ) { status ->
                 service.regenererUtbetaling(avbruttArrangorflateUtbetaling.copy(status = status)) shouldBeLeft listOf(
-                    FieldError.of("Utbetalingen kan bare regenereres når den er avbrutt"),
+                    FieldError.of("Utbetalingen kan ikke regenereres"),
                 )
             }
         }
@@ -941,7 +941,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             val service = createUtbetalingService()
 
             service.regenererUtbetaling(avbruttArrangorflateUtbetaling.copy(innsending = null)) shouldBeLeft listOf(
-                FieldError.of("Utbetalingen kan bare regenereres når den er innsendt"),
+                FieldError.of("Utbetalingen kan ikke regenereres"),
             )
         }
 
