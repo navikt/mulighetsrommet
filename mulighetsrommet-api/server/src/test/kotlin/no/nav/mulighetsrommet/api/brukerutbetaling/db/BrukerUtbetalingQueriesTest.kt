@@ -37,7 +37,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
     val utbetaling = HelVedUtbetaling(
         id = UUID.randomUUID(),
         sakId = "SAK-2025-001",
-        behandlingId = "BEHANDLING-001",
+        behandlingId = "1",
         personIdent = NorskIdent("12345678901"),
         periode = HelVedUtbetaling.Periode(
             fom = LocalDate.of(2025, 1, 1),
@@ -60,7 +60,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
         database.api.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
             queries.brukerUtbetaling.insert(utbetaling)
-            queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id)
+            queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id, utbetaling.behandlingId.toInt())
         }
 
         val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskudd.id) }
@@ -68,7 +68,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
         result.shouldNotBeNull()
         result.id shouldBe utbetaling.id
         result.sakId shouldBe utbetaling.sakId
-        result.behandlingId shouldBe utbetaling.behandlingId
+        result.behandlingId shouldBe utbetaling.behandlingId.toInt()
         result.belop shouldBe utbetaling.belop
         result.tilskuddstype shouldBe utbetaling.tilskuddstype
         result.tiltakskode shouldBe utbetaling.tiltakskode
@@ -109,7 +109,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
         val tilskudd = TilskuddFixtures.Tilskudd
         database.api.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
-            queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id)
+            queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id, utbetaling.behandlingId.toInt())
         }
 
         val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskudd.id) }

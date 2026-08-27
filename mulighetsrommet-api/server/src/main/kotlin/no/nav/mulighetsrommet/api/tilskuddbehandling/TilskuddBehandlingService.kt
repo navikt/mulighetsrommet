@@ -10,6 +10,10 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
+import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -27,6 +31,8 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -39,6 +45,8 @@ class TilskuddBehandlingService(
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
+    private val personaliaService: PersonaliaService,
+    private val brukerUtbetalingService: BrukerUtbetalingService,
 ) {
     fun upsert(
         request: TilskuddBehandlingRequest,
@@ -168,6 +176,7 @@ class TilskuddBehandlingService(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },
             TilskuddBehandlingHandling.ATTESTER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
             TilskuddBehandlingHandling.RETURNER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
+            TilskuddBehandlingHandling.OPPHOR.takeIf { behandling.status.type == TilskuddBehandlingStatus.FERDIG_BEHANDLET },
         )
             .filter {
                 tilgangTilHandling(
@@ -201,7 +210,51 @@ class TilskuddBehandlingService(
             TilskuddBehandlingHandling.ATTESTER -> {
                 attestant && opprettelse.behandletAv != ansatt.navIdent
             }
+
+            TilskuddBehandlingHandling.OPPHOR -> {
+                ansatt.roller.contains(NavAnsattRolle.generell(Rolle.TEAM_MULIGHETSROMMET)) && opprettelse.behandletAv != ansatt.navIdent
+            }
         }
+    }
+
+    suspend fun sendTilOpphor(tilskuddId: UUID) = db.transaction {
+        val tilskudd = queries.tilskuddBehandling.getOrError(tilskuddId)
+        val deltaker = getDeltaker(tilskudd.gjennomforingId)
+        val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
+        val utbetaling = queries.brukerUtbetaling.getByTilskudd(tilskuddId)
+            ?: throw IllegalStateException("Fant ikke tilskudd utbetaling med id=$tilskuddId")
+        val tilOppgjor = utbetaling.tilOpphor()
+        val besluttetDato = tilOppgjor.besluttetTidspunkt.tilNorskDato()
+
+        queries.brukerUtbetaling.save(tilOppgjor)
+
+        brukerUtbetalingService.produceTilskuddUtbetaling(
+            HelVedUtbetaling(
+                id = tilOppgjor.id,
+                sakId = tilOppgjor.sakId,
+                behandlingId = tilOppgjor.behandlingId.toString(),
+                personIdent = requireNotNull(personalia.norskIdent()) {
+                    "Norsk ident var null"
+                },
+                periode = HelVedUtbetaling.Periode(besluttetDato, besluttetDato),
+                belop = tilOppgjor.belop,
+                kostnadssted = tilOppgjor.kostnadssted.enhetsnummer,
+                tilskuddstype = tilOppgjor.tilskuddstype,
+                saksbehandler = tilOppgjor.saksbehandler,
+                beslutter = tilOppgjor.beslutter,
+                besluttetTidspunkt = tilOppgjor.besluttetTidspunkt,
+                tiltakskode = tilOppgjor.tiltakskode,
+                dryrun = false,
+            ),
+        )
+    }
+
+    private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker {
+        val deltakelser = repository.deltaker.getByGjennomforing(gjennomforingId)
+        if (deltakelser.size != 1) {
+            error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet akkurat én)")
+        }
+        return deltakelser.first()
     }
 
     private fun QueryContext.logEndring(

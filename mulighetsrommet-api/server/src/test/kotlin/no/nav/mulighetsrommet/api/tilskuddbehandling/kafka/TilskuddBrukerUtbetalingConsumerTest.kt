@@ -136,6 +136,8 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -158,6 +160,8 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -174,6 +178,8 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -186,7 +192,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         val utbetaling = HelVedUtbetaling(
             id = result.id,
             sakId = result.sakId,
-            behandlingId = "1",
+            behandlingId = result.behandlingId.toString(),
             personIdent = deltakerNorskIdent,
             periode = Periode(besluttetTidspunkt.tilNorskDato(), besluttetTidspunkt.tilNorskDato()),
             belop = result.belop,
