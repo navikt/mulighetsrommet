@@ -13,6 +13,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
+import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Periode
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
@@ -30,6 +31,7 @@ import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -48,6 +50,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     val behandlingId = UUID.randomUUID()
     val tilskuddId = UUID.randomUUID()
     val deltakerId = UUID.randomUUID()
+    val deltakerNorskIdent = NorskIdent("12345678901")
 
     beforeEach {
         clearMocks(brukerUtbetalingService)
@@ -72,7 +75,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
         coEvery { personaliaService.getPersonalia(deltakerId, any()) } returns Personalia(
             deltakerId = deltakerId,
-            norskIdent = NorskIdent("12345678901"),
+            norskIdent = deltakerNorskIdent,
             navn = "Test Testesen",
             oppfolgingEnhet = null,
             geografiskEnhet = null,
@@ -164,5 +167,37 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         consumer.consume(behandlingId, hendelse)
 
         verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
+    }
+
+    test("bruker besluttet tidspunkt som periode for utbetaling") {
+        val service = TilskuddBehandlingService(
+            database.api,
+            journalforVedtaksbrev,
+            mockk(relaxed = true),
+        )
+        service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+
+        val besluttetTidspunkt = Instant.parse("2025-03-15T10:00:00Z")
+        val hendelse = godkjentHendelse.copy(besluttetTidspunkt = besluttetTidspunkt)
+        createConsumer().consume(behandlingId, Json.encodeToJsonElement(hendelse))
+
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskuddId) }
+        result.shouldNotBeNull()
+        val utbetaling = HelVedUtbetaling(
+            id = result.id,
+            sakId = result.sakId,
+            behandlingId = "1",
+            personIdent = deltakerNorskIdent,
+            periode = Periode(besluttetTidspunkt.tilNorskDato(), besluttetTidspunkt.tilNorskDato()),
+            belop = result.belop,
+            kostnadssted = result.kostnadssted.enhetsnummer,
+            tilskuddstype = result.tilskuddstype,
+            saksbehandler = result.saksbehandler,
+            beslutter = result.beslutter,
+            besluttetTidspunkt = result.besluttetTidspunkt,
+            tiltakskode = result.tiltakskode,
+            dryrun = false,
+        )
+        verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(utbetaling) }
     }
 })

@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.Tiltakskode
@@ -81,6 +82,7 @@ class TilskuddBrukerUtbetalingConsumer(
             .filter { db.session { queries.brukerUtbetaling.getByTilskudd(it.id) } == null }
             .forEach { t ->
                 db.transaction {
+                    val besluttetDato = requireNotNull(totrinnskontroll.besluttetTidspunkt)
                     val utbetaling = HelVedUtbetaling(
                         id = UUID.randomUUID(),
                         sakId = gjennomforing.lopenummer.value,
@@ -88,7 +90,7 @@ class TilskuddBrukerUtbetalingConsumer(
                         personIdent = requireNotNull(personalia.norskIdent()) {
                             "Norsk ident var null"
                         },
-                        periode = Periode(behandling.periode.start, behandling.periode.getLastInclusiveDate()),
+                        periode = besluttetDato.tilNorskDato().let { Periode(it, it) },
                         belop = requireNotNull(t.utbetalingBelop?.belop) {
                             "utbetalingBelop var null"
                         },
@@ -96,7 +98,7 @@ class TilskuddBrukerUtbetalingConsumer(
                         tilskuddstype = t.tilskuddOpplaeringType.toHelVedTilskuddstype(),
                         saksbehandler = saksbehandler,
                         beslutter = beslutter,
-                        besluttetTidspunkt = requireNotNull(totrinnskontroll.besluttetTidspunkt),
+                        besluttetTidspunkt = besluttetDato,
                         tiltakskode = gjennomforing.tiltakstype.tiltakskode.toHelVedTiltakskode(),
                         dryrun = false,
                     )

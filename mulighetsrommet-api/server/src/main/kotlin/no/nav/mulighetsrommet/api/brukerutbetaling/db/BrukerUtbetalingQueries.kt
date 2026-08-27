@@ -6,21 +6,19 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
-import no.nav.mulighetsrommet.database.datatypes.periode
-import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.Periode
 import org.intellij.lang.annotations.Language
 import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 
 data class BrukerUtbetalingDbo(
     val id: UUID,
     val sakId: String,
     val behandlingId: String,
-    val periode: Periode,
     val belop: Int,
+    val transaksjonsDato: LocalDate,
     val tilskuddstype: HelVedUtbetaling.Tilskuddstype,
     val tiltakskode: HelVedUtbetaling.Tiltakskode,
     val saksbehandler: NavIdent,
@@ -44,24 +42,24 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 id,
                 sak_id,
                 behandling_id,
-                periode,
                 belop,
                 tilskuddstype,
                 tiltakskode,
                 saksbehandler,
                 beslutter,
-                besluttet_tidspunkt
+                besluttet_tidspunkt,
+                transaksjon_dato
             ) values (
                 :id::uuid,
                 :sak_id,
                 :behandling_id,
-                :periode::daterange,
                 :belop,
                 :tilskuddstype,
                 :tiltakskode,
                 :saksbehandler,
                 :beslutter,
-                :besluttet_tidspunkt
+                :besluttet_tidspunkt,
+                :transaksjon_dato
             )
         """.trimIndent()
 
@@ -69,13 +67,13 @@ class BrukerUtbetalingQueries(private val session: Session) {
             "id" to utbetaling.id,
             "sak_id" to utbetaling.sakId,
             "behandling_id" to utbetaling.behandlingId,
-            "periode" to Periode.fromInclusiveDates(utbetaling.periode.fom, utbetaling.periode.tom).toDaterange(),
             "belop" to utbetaling.belop,
             "tilskuddstype" to utbetaling.tilskuddstype.name,
             "tiltakskode" to utbetaling.tiltakskode.name,
             "saksbehandler" to utbetaling.saksbehandler.value,
             "beslutter" to utbetaling.beslutter.value,
             "besluttet_tidspunkt" to utbetaling.besluttetTidspunkt,
+            "transaksjon_dato" to utbetaling.periode.fom,
         )
 
         session.execute(queryOf(query, params))
@@ -124,8 +122,8 @@ private fun Row.toBrukerUtbetalingDbo() = BrukerUtbetalingDbo(
     id = uuid("id"),
     sakId = string("sak_id"),
     behandlingId = string("behandling_id"),
-    periode = periode("periode"),
     belop = int("belop"),
+    transaksjonsDato = localDate("transaksjon_dato"),
     tilskuddstype = HelVedUtbetaling.Tilskuddstype.valueOf(string("tilskuddstype")),
     tiltakskode = HelVedUtbetaling.Tiltakskode.valueOf(string("tiltakskode")),
     saksbehandler = NavIdent(string("saksbehandler")),
