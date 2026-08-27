@@ -96,7 +96,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 GjennomforingFixtures.Oppfolging1.id,
                 AccessType.OBO.AzureAd("X123456"),
                 NavIdent("Z123456"),
-            ).shouldNotBeNull().shouldBeTypeOf<GjennomforingAvtaleDetaljerDto>()
+            ).shouldBeRight().shouldNotBeNull().shouldBeTypeOf<GjennomforingAvtaleDetaljerDto>()
 
             dto.gjennomforing.id shouldBe GjennomforingFixtures.Oppfolging1.id
             dto.gjennomforing.navn shouldBe GjennomforingFixtures.Oppfolging1.navn
@@ -115,7 +115,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 GjennomforingFixtures.EnkelAmo.id,
                 AccessType.OBO.AzureAd("X123456"),
                 NavIdent("Z123456"),
-            ).shouldNotBeNull().shouldBeTypeOf<GjennomforingEnkeltplassDetaljerDto>()
+            ).shouldBeRight().shouldNotBeNull().shouldBeTypeOf<GjennomforingEnkeltplassDetaljerDto>()
 
             dto.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
 
@@ -126,7 +126,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
             }
         }
 
-        test("returnerer detaljer med sladdet persondata når deltaker er adressebeskyttet") {
+        test("returnerer avvist grunn når deltaker er adressebeskyttet") {
             coEvery { personaliaService.getPersonalia(any<UUID>(), any()) } returns getPersonalia(
                 deltaker,
                 gradering = Gradering.STRENGT_FORTROLIG_ADRESSE,
@@ -135,19 +135,11 @@ class GjennomforingDetaljerServiceTest : FunSpec({
 
             val service = createService()
 
-            val dto = service.getGjennomforingDetaljerDto(
+            service.getGjennomforingDetaljerDto(
                 GjennomforingFixtures.EnkelAmo.id,
                 AccessType.OBO.AzureAd("X123456"),
                 NavIdent("Z123456"),
-            ).shouldNotBeNull().shouldBeTypeOf<GjennomforingEnkeltplassDetaljerDto>()
-
-            dto.gjennomforing.id shouldBe GjennomforingFixtures.EnkelAmo.id
-
-            dto.deltaker.shouldNotBeNull().should {
-                it.navn shouldBe "Adressebeskyttet"
-                it.norskIdent.shouldBeNull()
-                it.avvistGrunn shouldBe AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
-            }
+            ).shouldBeLeft() shouldBe AvvistGrunn.AVVIST_FORTROLIG_ADRESSE
         }
 
         test("returnerer null når gjennomføring ikke finnes") {
@@ -157,7 +149,7 @@ class GjennomforingDetaljerServiceTest : FunSpec({
                 UUID.randomUUID(),
                 AccessType.OBO.AzureAd("X123456"),
                 NavIdent("Z123456"),
-            ).shouldBeNull()
+            ).shouldBeRight().shouldBeNull()
         }
     }
 

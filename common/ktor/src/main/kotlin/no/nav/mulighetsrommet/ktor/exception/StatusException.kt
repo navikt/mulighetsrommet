@@ -96,24 +96,6 @@ data class Forbidden(
     override val instance = null
 }
 
-data class ManglerTilgangTilPerson(
-    override val detail: String,
-    val avvistGrunn: String,
-) : ProblemDetail() {
-    override val type = "mangler-tilgang-til-person"
-    override val title = HttpStatusCode.Forbidden.description
-    override val status: Int = HttpStatusCode.Forbidden.value
-    override val instance = null
-    override val extensions = mapOf("avvistGrunn" to avvistGrunn)
-
-    companion object {
-        fun fromAvvistGrunn(avvistGrunn: String) = ManglerTilgangTilPerson(
-            "Du har ikke tilgang til å se informasjon om denne personen",
-            avvistGrunn = avvistGrunn,
-        )
-    }
-}
-
 data class Unathorized(
     override val detail: String,
     override val extensions: Map<String, Any?>? = null,

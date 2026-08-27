@@ -48,9 +48,9 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.PaginatedResponse
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse
+import no.nav.mulighetsrommet.api.utbetaling.service.ManglerTilgangTilPerson
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
-import no.nav.mulighetsrommet.ktor.exception.ManglerTilgangTilPerson
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.FieldError
@@ -544,7 +544,7 @@ fun Route.gjennomforingRoutes() {
 
             gjennomforinger.getAllKompaktDto(pagination, filter, accessType)
                 .onLeft {
-                    call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it.name))
+                    call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it))
                 }
                 .onRight {
                     call.respond(it)
@@ -575,7 +575,7 @@ fun Route.gjennomforingRoutes() {
 
             gjennomforinger.exportToExcel(filter, accessType)
                 .onLeft {
-                    call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it.name))
+                    call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it))
                 }
                 .onRight {
                     call.response.header(HttpHeaders.AccessControlExposeHeaders, HttpHeaders.ContentDisposition)
@@ -613,8 +613,13 @@ fun Route.gjennomforingRoutes() {
             val navIdent = getNavIdent()
 
             gjennomforinger.getGjennomforingDetaljerDto(id, accessType, navIdent)
-                ?.let { call.respond(it) }
-                ?: call.respondUkjentGjennomforing(id)
+                .onLeft {
+                    call.respondWithProblemDetail(ManglerTilgangTilPerson.fromAvvistGrunn(it))
+                }
+                .onRight {
+                    it?.let { call.respond(it) }
+                        ?: call.respondUkjentGjennomforing(id)
+                }
         }
 
         get("{id}/tiltaksnummer", {

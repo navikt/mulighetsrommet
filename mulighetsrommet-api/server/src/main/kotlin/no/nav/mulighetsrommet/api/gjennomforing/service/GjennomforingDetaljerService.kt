@@ -79,12 +79,12 @@ class GjennomforingDetaljerService(
         id: UUID,
         accessType: AccessType.OBO.AzureAd,
         navIdent: NavIdent,
-    ): GjennomforingDetaljerDto? {
-        val gjennomforing = getGjennomforingTiltaksadministrasjon(id) ?: return null
+    ): Either<AvvistGrunn, GjennomforingDetaljerDto?> {
+        val gjennomforing = getGjennomforingTiltaksadministrasjon(id) ?: return null.right()
         return when (gjennomforing) {
             is GjennomforingAvtale -> db.session {
                 val detaljer = queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing.id)
-                GjennomforingDtoMapper.fromGjennomforingAvtale(gjennomforing, detaljer)
+                GjennomforingDtoMapper.fromGjennomforingAvtale(gjennomforing, detaljer).right()
             }
 
             is GjennomforingEnkeltplass -> {
@@ -106,7 +106,9 @@ class GjennomforingDetaljerService(
                         val personalia = personaliaService
                             .getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.NavAnsatt(accessType))
                         val norskIdent = personalia.norskIdent()
-                        if (personalia.harTilgang() && norskIdent != null) {
+                        if (personalia.avvistGrunn != null) {
+                            return personalia.avvistGrunn.left()
+                        } else if (norskIdent != null) {
                             auditLogVisEnkeltplass(navIdent, norskIdent)
                         }
                         val veilederNavn = deltaker.navVeileder?.navIdent?.let {
@@ -123,7 +125,7 @@ class GjennomforingDetaljerService(
                         prisendring,
                         deltaker,
                         opplaringKategorisering,
-                    )
+                    ).right()
                 }
             }
         }

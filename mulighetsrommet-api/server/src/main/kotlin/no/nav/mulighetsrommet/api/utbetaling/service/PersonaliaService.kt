@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.utbetaling.pdl.PdlPerson
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
+import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.UUID
 
@@ -292,6 +293,49 @@ enum class AvvistGrunn {
                 is TilgangsmaskinResult.Resultat.Innvilget -> null
                 is TilgangsmaskinResult.Resultat.Avvist -> AvvistGrunn.valueOf(resultat.grunn.name)
             }
+        }
+    }
+}
+
+data class ManglerTilgangTilPerson(
+    override val detail: String,
+    val avvistGrunn: AvvistGrunn,
+) : ProblemDetail() {
+    override val type = "mangler-tilgang-til-person"
+    override val title = HttpStatusCode.Forbidden.description
+    override val status: Int = HttpStatusCode.Forbidden.value
+    override val instance = null
+    override val extensions = mapOf("avvistGrunn" to avvistGrunn.name)
+
+    companion object {
+        fun fromAvvistGrunn(avvistGrunn: AvvistGrunn) = ManglerTilgangTilPerson(
+            detail = avvistGrunnTilTekst(avvistGrunn),
+            avvistGrunn = avvistGrunn,
+        )
+
+        private fun avvistGrunnTilTekst(avvistGrunn: AvvistGrunn): String = when (avvistGrunn) {
+            AvvistGrunn.AVVIST_STRENGT_FORTROLIG_ADRESSE,
+            AvvistGrunn.AVVIST_STRENGT_FORTROLIG_UTLAND,
+            AvvistGrunn.AVVIST_FORTROLIG_ADRESSE,
+            -> "Du har ikke tilgang til å se informasjon om denne personen fordi personen har adressebeskyttelse."
+
+            AvvistGrunn.AVVIST_SKJERMING,
+            -> "Du har ikke tilgang til å se informasjon om denne personen fordi personen er skjermet (egen ansatt)."
+
+            AvvistGrunn.AVVIST_HABILITET,
+            -> "Du har ikke tilgang til å se informasjon om denne personen på grunn av habilitet."
+
+            AvvistGrunn.AVVIST_VERGE,
+            AvvistGrunn.AVVIST_VERGEMAAL,
+            -> "Du har ikke tilgang til å se informasjon om denne personen på grunn av vergemål."
+
+            AvvistGrunn.AVVIST_AVDOED,
+            -> "Du har ikke tilgang til å se informasjon fordi personen er død."
+
+            AvvistGrunn.AVVIST_GEOGRAFISK,
+            AvvistGrunn.AVVIST_PERSON_UTLAND,
+            AvvistGrunn.AVVIST_UKJENT_BOSTED,
+            -> "Du har ikke tilgang til å se informasjon om denne personen på grunn av geografisk tilknytning."
         }
     }
 }
