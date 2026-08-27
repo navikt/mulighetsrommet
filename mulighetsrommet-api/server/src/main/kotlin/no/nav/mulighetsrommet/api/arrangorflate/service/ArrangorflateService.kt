@@ -1,10 +1,6 @@
 package no.nav.mulighetsrommet.api.arrangorflate.service
 
 import arrow.core.Either
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangforflateUtbetalingLinje
@@ -12,7 +8,9 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnSummary
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingDto
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateUtbetalingFilter
+import no.nav.mulighetsrommet.api.arrangorflate.dto.AvbrytStatus
 import no.nav.mulighetsrommet.api.arrangorflate.dto.Avbrytelse
+import no.nav.mulighetsrommet.api.arrangorflate.dto.RegenererStatus
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetaling
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingKompakt
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateUtbetalingStatus
@@ -28,7 +26,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
 
@@ -209,45 +206,4 @@ fun avbrytStatus(utbetaling: ArrangorflateUtbetaling, status: ArrangorflateUtbet
         UtbetalingStatusType.RETURNERT,
         -> AvbrytStatus.KanAvbrytes
     }
-}
-
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-@JsonClassDiscriminator("type")
-sealed class AvbrytStatus {
-    @Serializable
-    @SerialName("IKKE_TILGJENGELIG")
-    data object IkkeTilgjengelig : AvbrytStatus()
-
-    @Serializable
-    @SerialName("KAN_IKKE_AVBRYTES")
-    data object KanIkkeAvbrytes : AvbrytStatus()
-
-    @Serializable
-    @SerialName("KAN_AVBRYTES")
-    data object KanAvbrytes : AvbrytStatus()
-
-    @Serializable
-    @SerialName("AVBRUTT")
-    data class Avbrutt(val detaljer: Avbrytelse) : AvbrytStatus()
-}
-
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-@JsonClassDiscriminator("type")
-sealed class RegenererStatus {
-    @Serializable
-    @SerialName("IKKE_TILGJENGELIG")
-    data object IkkeTilgjengelig : RegenererStatus()
-
-    @Serializable
-    @SerialName("KAN_REGENERERES")
-    data object KanRegenereres : RegenererStatus()
-
-    @Serializable
-    @SerialName("ALLEREDE_REGENERERT")
-    data class AlleredeRegenerert(
-        @Serializable(with = UUIDSerializer::class)
-        val utbetalingId: UUID,
-    ) : RegenererStatus()
 }
