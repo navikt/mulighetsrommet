@@ -63,6 +63,12 @@ module "mr_api_avtale_view" {
       },
       {
         mode        = "NULLABLE"
+        name        = "sakarkiv_nummer"
+        type        = "STRING"
+        description = "Saksnummer til avtalens sak i sakarkivet (Public 360)."
+      },
+      {
+        mode        = "NULLABLE"
         name        = "start_dato"
         type        = "DATE"
         description = "Start-datoen til avtalen."
@@ -116,6 +122,7 @@ EOF
 SELECT
   id,
   tiltakstype_id,
+  sakarkiv_nummer,
   start_dato,
   slutt_dato,
   status,

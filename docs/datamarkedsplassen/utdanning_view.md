@@ -2,7 +2,7 @@
 
 [Link til datasettet på Datamarkedsplassen](https://data.ansatt.nav.no/dataproduct/48c6dab9-d236-4088-bb48-0a59007148c9/Arbeidsmarkedstiltak%20%28Valp%29/8a4a3a4d-2a39-4b3c-a621-7e22178147c2)
 
-View: `utdanningsprogram_view`
+View: `utdanning_view`
 
 ## Om datasettet
 

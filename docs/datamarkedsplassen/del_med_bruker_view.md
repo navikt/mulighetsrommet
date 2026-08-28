@@ -12,7 +12,8 @@ det registrert fylke som delte og lokalkontoret (enheten) som delte tiltaket.
 | Feltnavn           | Type      | Beskrivelse                                                              |
 |--------------------|-----------|--------------------------------------------------------------------------|
 | `id`               | INTEGER   | ID til Del med bruker-raden                                              |
+| `tiltakskode`      | STRING    | Tiltakskode til tiltaket som er delt med bruker                         |
 | `tiltakstype_navn` | STRING    | Lesbart navn for tiltakstypen koblet til tiltaket som er delt med bruker |
 | `delt_fra_fylke`   | STRING    | Enhetsnummer for fylket til veileder som har delt med bruker             |
 | `delt_fra_enhet`   | STRING    | Enhetsnummet for nav-kontoret til veileder som har delt med bruker       |
-| `created_at`       | TIMESTAMP | Når tiltaket ble delt med bruker                                         |
+| `delt_tidspunkt`   | TIMESTAMP | Når tiltaket ble delt med bruker                                         |
