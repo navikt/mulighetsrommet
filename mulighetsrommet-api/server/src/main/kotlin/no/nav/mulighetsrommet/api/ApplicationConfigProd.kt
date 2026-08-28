@@ -53,6 +53,8 @@ val ApplicationConfigProd = AppConfig(
                 Tiltakskode.STUDIESPESIALISERING to admin + modia + migrert,
                 Tiltakskode.VARIG_TILRETTELAGT_ARBEID_SKJERMET to admin + modia + migrert,
 
+                Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER to admin,
+
                 Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING to admin + modia,
                 Tiltakskode.ENKELTPLASS_FAG_OG_YRKESOPPLAERING to admin + modia,
                 Tiltakskode.HOYERE_UTDANNING to admin + modia,
@@ -72,7 +74,6 @@ val ApplicationConfigProd = AppConfig(
                 /*
                  * Nye tiltakstyper under utvikling
                  */
-                Tiltakskode.TILRETTELAGT_ARBEID_ORDINAER to setOf(),
                 Tiltakskode.FIREARIG_LONNSTILSKUDD to setOf(),
             )
         },
