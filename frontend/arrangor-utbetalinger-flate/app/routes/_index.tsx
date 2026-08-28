@@ -86,8 +86,8 @@ function UtbetalingTabellContent({ type }: { type: ArrangorflateFilterType }) {
     tiltakNavn: ArrangorflateUtbetalingFilterOrderBy.TILTAK,
     arrangorNavn: ArrangorflateUtbetalingFilterOrderBy.ARRANGOR,
     startDato: ArrangorflateUtbetalingFilterOrderBy.PERIODE,
-    beregnetBelop: ArrangorflateUtbetalingFilterOrderBy.BEREGNET_BELOP,
-    godkjentBelop: ArrangorflateUtbetalingFilterOrderBy.GODKJENT_BELOP,
+    pris: ArrangorflateUtbetalingFilterOrderBy.PRIS,
+    godkjentPris: ArrangorflateUtbetalingFilterOrderBy.GODKJENT_PRIS,
     status: ArrangorflateUtbetalingFilterOrderBy.STATUS,
   };
 

@@ -11,16 +11,17 @@ import { Kolonne } from "./Tabellvisning";
 import { TiltakHeaderCell } from "~/components/common/TiltakHeaderCell";
 import { ArrangorDataCell } from "~/components/common/ArrangorDataCell";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
+import { formaterArrangorflatePris } from "~/utils/utbetaling";
 
 export function utbetalingKolonner(type: ArrangorflateFilterType): Array<Kolonne> {
   const kolonner: Array<Kolonne> = [
     { key: "tiltakNavn", label: "Tiltak", sortable: true },
     { key: "arrangorNavn", label: "Arrangør", sortable: true },
     { key: "startDato", label: "Periode", sortable: true },
-    { key: "beregnetBelop", label: "Beløp", sortable: true },
+    { key: "pris", label: "Beløp", sortable: true },
   ];
   if (type === ArrangorflateFilterType.HISTORISKE) {
-    kolonner.push({ key: "godkjentBelop", label: "Godkjent beløp", sortable: true });
+    kolonner.push({ key: "godkjentPris", label: "Godkjent beløp", sortable: true });
   }
   kolonner.push({ key: "type", label: "Type" }, { key: "status", label: "Status", sortable: true });
   return kolonner;
@@ -41,12 +42,12 @@ export function UtbetalingRow({ row, type }: UtbetalingRowProps) {
       <Table.DataCell>{formaterPeriode(row.periode)}</Table.DataCell>
 
       <Table.DataCell align="right" className="whitespace-nowrap">
-        {formaterValutaBelop(row.beregnetBelop)}
+        {formaterArrangorflatePris(row.pris)}
       </Table.DataCell>
 
       {type === ArrangorflateFilterType.HISTORISKE && (
         <Table.DataCell align="right" className="whitespace-nowrap">
-          {row.godkjentBelop ? formaterValutaBelop(row.godkjentBelop) : null}
+          {row.godkjentPris ? formaterValutaBelop(row.godkjentPris) : null}
         </Table.DataCell>
       )}
 
