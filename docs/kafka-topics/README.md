@@ -15,8 +15,10 @@ versjon av hver nøkkel beholdes.
 - Gir en mapping mellom `tiltakskode` som benyttet i Tiltaksadministrasjon og `arenaKode` (som er tiltakskoden fra
   Arena).
 - Oppdateres ved:
+    - Endringer på tiltakstypen gjort av Nav-ansatte (f.eks. redigering av informasjon for veiledere eller deltakere).
     - Manuell relast av tiltakstyper fra databasen.
 - **Log compaction:** Aktivert
+- **Modell:** [`TiltakstypeV3Dto`](../../mulighetsrommet-api/contracts/src/main/kotlin/no/nav/mulighetsrommet/api/contracts/tiltakstype/TiltakstypeV3Dto.kt)
 
 ---
 
@@ -31,6 +33,7 @@ versjon av hver nøkkel beholdes.
     - Automatisk statusoppdatering (f.eks. settes til avsluttet når sluttdato passeres).
     - Manuell relast av gjennomføringer fra databasen.
 - **Log compaction:** Aktivert
+- **Modell:** [`TiltaksgjennomforingV2Dto`](../../common/domain/src/main/kotlin/no/nav/mulighetsrommet/model/TiltaksgjennomforingV2Dto.kt)
 
 ---
 
@@ -41,6 +44,7 @@ versjon av hver nøkkel beholdes.
 - Hver hendelse på `siste-tiltaksgjennomforinger-v2` publiseres også her, så fremt tiltakskoden har blitt markert for
   migrering.
 - **Log compaction:** Aktivert
+- **Modell:** [`ArenaMigreringTiltaksgjennomforingDto`](../../mulighetsrommet-api/server/src/main/kotlin/no/nav/mulighetsrommet/api/gjennomforing/model/ArenaMigreringTiltaksgjennomforingDto.kt)
 
 ---
 
@@ -50,3 +54,28 @@ versjon av hver nøkkel beholdes.
 - Inneholder sentral informasjon om tiltakstype, avtale og gjennomføring.
 - Hver hendelse på `siste-tiltaksgjennomforinger-v2` publiseres også her.
 - **Log compaction:** Aktivert
+- **Modell:** [`DatavarehusTiltakV1`](../../mulighetsrommet-api/server/src/main/kotlin/no/nav/mulighetsrommet/api/datavarehus/model/DatavarehusTiltakV1.kt)
+
+---
+
+## totrinnskontroll-v1
+
+- Inneholder hendelser om behandling og besluttelse (totrinnskontroll) av entiteter i Tiltaksadministrasjon, bl.a.
+  tilsagn og utbetalinger.
+- Nøkkelen er ID-en til entiteten (f.eks. tilsagnet eller utbetalingen) som hendelsen gjelder for.
+- Oppdateres ved:
+    - Entiteten sendes til behandling, settes på vent, godkjennes eller returneres.
+- **Log compaction:** Deaktivert (90 dagers retention)
+- **Modell:** [`TotrinnskontrollHendelse`](../../mulighetsrommet-api/contracts/src/main/kotlin/no/nav/mulighetsrommet/api/contracts/totrinnskontroll/TotrinnskontrollHendelse.kt)
+
+---
+
+## tilskudd.utbetaling-v1
+
+- Egen topic tilrettelagt for Hel Ved.
+- Inneholder engangsutbetalinger (periodetype `EN_GANG`) med månedlig motregning som skal utbetales til bruker, f.eks.
+  for skolepenger, studiereise eller eksamensgebyr.
+- Oppdateres ved:
+    - En utbetaling til bruker blir besluttet/attestert i Tiltaksadministrasjon.
+- **Log compaction:** Aktivert (kombinert med 90 dagers retention)
+- **Modell:** [`HelVedUtbetaling`](../../mulighetsrommet-api/server/src/main/kotlin/no/nav/mulighetsrommet/api/clients/helved/HelVedUtbetaling.kt)
