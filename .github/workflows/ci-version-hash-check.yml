@@ -1,0 +1,154 @@
+name: CI (version/hash change check)
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**/Dockerfile"
+      - ".github/workflows/**/*.yml"
+      - ".github/workflows/**/*.yaml"
+    types:
+      - opened
+      - synchronize
+      - reopened
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'github-actions[bot]'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Verify only allowed hash/version updates in workflow YAML and Dockerfiles
+        run: |
+          python3 - <<'EOF'
+          import re
+          import subprocess
+          import sys
+          from pathlib import PurePosixPath
+          from collections import defaultdict
+
+          result = subprocess.run(
+              ["git", "diff", "origin/main...HEAD"],
+              capture_output=True, text=True,
+          )
+
+          diff = result.stdout
+          if not diff.strip():
+              print("No version/hash content changed.")
+              sys.exit(0)
+
+          current_file = None
+          removed = defaultdict(list)
+          added = defaultdict(list)
+
+          def is_target_file(path):
+              p = PurePosixPath(path)
+              is_workflow_yaml = path.startswith(".github/workflows/") and p.suffix in (".yml", ".yaml")
+              is_dockerfile = p.name == "Dockerfile"
+              return is_workflow_yaml or is_dockerfile
+
+          for line in diff.splitlines():
+              if line.startswith("diff --git"):
+                  candidate = line.split(" b/")[-1]
+                  if is_target_file(candidate):
+                      current_file = candidate
+                  else:
+                      current_file = None
+              elif line.startswith(("---", "+++", "@@", "index", "\\")):
+                  continue
+              elif line.startswith("-") and current_file:
+                  content = line[1:].strip()
+                  if content:
+                      removed[current_file].append(content)
+              elif line.startswith("+") and current_file:
+                  content = line[1:].strip()
+                  if content:
+                      added[current_file].append(content)
+
+          # Allowed updates:
+          # 1) action pin updates: uses: owner/repo@<40-hex-sha>
+          # 2) digest pin updates: @sha256:<64-hex>
+          digest_pattern = re.compile(r"@sha256:[0-9a-fA-F]{64}")
+          uses_sha_pattern = re.compile(
+              r"^(\s*-?\s*uses:\s*[^@\s]+@)([0-9a-fA-F]{40})(\s*(#.*)?)$"
+          )
+
+          def normalize_allowed_hashes(line):
+              replaced = False
+
+              def digest_replacer(_):
+                  nonlocal replaced
+                  replaced = True
+                  return "@sha256:<HASH>"
+
+              normalized = digest_pattern.sub(digest_replacer, line)
+              match = uses_sha_pattern.match(normalized)
+              if match:
+                  replaced = True
+                  normalized = f"{match.group(1)}<HASH>{match.group(3)}"
+
+              return normalized, replaced
+
+          def image_name(from_line):
+              parts = from_line.split()
+              img = next((p for p in parts[1:] if not p.startswith("--")), None)
+              if img is None:
+                  return None
+              img = img.split()[0]
+              return re.split(r"[:@]", img)[0]
+
+          errors = []
+
+          all_files = set(removed) | set(added)
+          if not all_files:
+              print("No matching workflow YAML or Dockerfile content changed.")
+              sys.exit(0)
+
+          for file in sorted(all_files):
+              rem = removed[file]
+              add = added[file]
+              is_dockerfile = PurePosixPath(file).name == "Dockerfile"
+
+              if len(rem) != len(add):
+                  errors.append(
+                      f"  {file}: changed line count mismatch "
+                      f"({len(rem)} removed, {len(add)} added)"
+                  )
+                  continue
+
+              if is_dockerfile:
+                  for line in rem + add:
+                      if not line.upper().startswith("FROM "):
+                          errors.append(f"  {file}: non-FROM line changed: {line!r}")
+
+                  for old, new in zip(rem, add):
+                      old_name = image_name(old)
+                      new_name = image_name(new)
+                      if old_name != new_name:
+                          errors.append(
+                              f"  {file}: image name changed: {old_name!r} -> {new_name!r}"
+                          )
+              else:
+                  for old, new in zip(rem, add):
+                      old_norm, old_replaced = normalize_allowed_hashes(old)
+                      new_norm, new_replaced = normalize_allowed_hashes(new)
+
+                      if old_norm != new_norm or not (old_replaced or new_replaced):
+                          errors.append(
+                              f"  {file}: disallowed line change: {old!r} -> {new!r}"
+                          )
+
+          if errors:
+              print("❌ Changes contain more than allowed hash/version updates:")
+              for e in errors:
+                  print(e)
+              sys.exit(1)
+
+          print("✅ All workflow YAML and Dockerfile changes are allowed hash/version updates.")
+          EOF
