@@ -3,6 +3,7 @@ import {
   ProblemDetail,
   TilskuddBehandlingRequest,
   TilskuddBehandlingService,
+  UtbetalingService,
 } from "@tiltaksadministrasjon/api-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useApiMutation } from "@/hooks/useApiMutation";
@@ -47,6 +48,20 @@ export function useReturnerTilskuddBehandling(gjennomforingId: string) {
     async onSuccess() {
       await queryClient.invalidateQueries({
         queryKey: QueryKeys.tilskuddBehandlinger(gjennomforingId),
+      });
+    },
+  });
+}
+
+export function useOpphorBrukerUtbetaling(behandlingId: string) {
+  const queryClient = useQueryClient();
+
+  return useApiMutation<unknown, ProblemDetail, { tilskuddId: string }>({
+    mutationFn: ({ tilskuddId }) =>
+      UtbetalingService.postTilskuddUtbetalingOpphor({ path: { id: tilskuddId } }),
+    async onSuccess() {
+      await queryClient.invalidateQueries({
+        queryKey: QueryKeys.tilskuddBehandling(behandlingId),
       });
     },
   });
