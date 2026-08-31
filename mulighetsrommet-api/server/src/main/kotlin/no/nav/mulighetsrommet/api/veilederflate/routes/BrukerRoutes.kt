@@ -109,7 +109,7 @@ fun Route.brukerRoutes() {
             )
 
             if (response.deltakelser.isNotEmpty()) {
-                auditLogVisTiltakshistorikk(navIdent, norskIdent, type.name)
+                auditLogVisTiltakshistorikk(navIdent, norskIdent, type)
             }
 
             call.respond(response)
@@ -196,7 +196,15 @@ data class GetAktivDeltakelseForBrukerRequest(
     val tiltakId: UUID,
 )
 
-private fun auditLogVisTiltakshistorikk(navIdent: NavIdent, norskIdent: NorskIdent, type: String) {
+private fun auditLogVisTiltakshistorikk(
+    navIdent: NavIdent,
+    norskIdent: NorskIdent,
+    tiltakshistorikkType: BrukerDeltakelseType,
+) {
+    val type = when (tiltakshistorikkType) {
+        BrukerDeltakelseType.AKTIVE -> "aktive"
+        BrukerDeltakelseType.HISTORISKE -> "historiske"
+    }
     val msg = CefMessage.builder()
         .applicationName("modia")
         .loggerName("mulighetsrommet-api")
@@ -206,7 +214,7 @@ private fun auditLogVisTiltakshistorikk(navIdent: NavIdent, norskIdent: NorskIde
         .sourceUserId(navIdent.value)
         .destinationUserId(norskIdent.value)
         .timeEnded(System.currentTimeMillis())
-        .extension("msg", "Nav-ansatt med ident: '$navIdent' har sett på $type tiltaksdeltakelser for bruker med ident: '$norskIdent'.")
+        .extension("msg", "Nav-ansatt har hentet $type tiltaksdeltakelser for bruker.")
         .build()
     auditLogger.log(msg)
 }

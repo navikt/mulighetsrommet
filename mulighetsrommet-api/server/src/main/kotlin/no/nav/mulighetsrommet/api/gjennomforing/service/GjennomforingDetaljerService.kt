@@ -109,7 +109,7 @@ class GjennomforingDetaljerService(
                         if (personalia.avvistGrunn != null) {
                             return personalia.avvistGrunn.left()
                         } else if (norskIdent != null) {
-                            auditLogVisEnkeltplass(navIdent, norskIdent)
+                            auditLogVisEnkeltplass(gjennomforing.id, navIdent, norskIdent)
                         }
                         val veilederNavn = deltaker.navVeileder?.navIdent?.let {
                             navAnsattService.getNavAnsattNavnFromAzure(it, AccessType.M2M)
@@ -377,7 +377,7 @@ private fun ExcelWorkbookBuilder.createGjennomforingerSheet(
     }
 }
 
-private fun auditLogVisEnkeltplass(navIdent: NavIdent, norskIdent: NorskIdent) {
+private fun auditLogVisEnkeltplass(gjennomforingId: UUID, navIdent: NavIdent, norskIdent: NorskIdent) {
     val message = CefMessage.builder()
         .applicationName("Tiltaksadministrasjon")
         .loggerName("mulighetsrommet-api")
@@ -387,7 +387,7 @@ private fun auditLogVisEnkeltplass(navIdent: NavIdent, norskIdent: NorskIdent) {
         .sourceUserId(navIdent.value)
         .destinationUserId(norskIdent.value)
         .timeEnded(System.currentTimeMillis())
-        .extension("msg", "Nav-ansatt med ident: '$navIdent' har sett på enkeltplassdeltaker med ident: '$norskIdent'.")
+        .extension("msg", "Nav-ansatt har hentet informasjon om tiltaksdeltaker på tiltaksgjennomføring med id=$gjennomforingId'.")
         .build()
     auditLogger.log(message)
 }
