@@ -212,42 +212,42 @@ enum class Tiltakskode(
      * Tiltak hos arbeidsgiver
      */
     ARBEIDSTRENING(
-        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        system = TiltakstypeSystem.ARBEIDSGIVERTILTAK,
         arenakode = "ARBTREN",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     MIDLERTIDIG_LONNSTILSKUDD(
-        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        system = TiltakstypeSystem.ARBEIDSGIVERTILTAK,
         arenakode = "MIDLONTIL",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     VARIG_LONNSTILSKUDD(
-        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        system = TiltakstypeSystem.ARBEIDSGIVERTILTAK,
         arenakode = "VARLONTIL",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     MENTOR(
-        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        system = TiltakstypeSystem.ARBEIDSGIVERTILTAK,
         arenakode = "MENTOR",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     INKLUDERINGSTILSKUDD(
-        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        system = TiltakstypeSystem.ARBEIDSGIVERTILTAK,
         arenakode = "INKLUTILS",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     SOMMERJOBB(
-        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        system = TiltakstypeSystem.ARBEIDSGIVERTILTAK,
         arenakode = "TILSJOBB",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     VTAO(
-        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        system = TiltakstypeSystem.ARBEIDSGIVERTILTAK,
         arenakode = "VATIAROR",
         egenskaper = setOf(TiltakstypeEgenskap.STOTTER_TILTAK_DOKUMENT),
     ),
     FIREARIG_LONNSTILSKUDD(
-        system = TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+        system = TiltakstypeSystem.ARBEIDSGIVERTILTAK,
         arenakode = null,
         egenskaper = setOf(),
     ),
@@ -310,7 +310,7 @@ enum class Tiltaksgruppe(val tittel: String) {
 enum class TiltakstypeSystem {
     TILTAKSADMINISTRASJON,
     ARENA,
-    TILTAK_ARBEIDSGIVER,
+    ARBEIDSGIVERTILTAK,
 }
 
 object Tiltakskoder {

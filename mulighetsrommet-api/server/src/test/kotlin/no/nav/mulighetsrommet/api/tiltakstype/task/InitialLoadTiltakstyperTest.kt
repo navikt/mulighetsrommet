@@ -48,7 +48,7 @@ class InitialLoadTiltakstyperTest : FunSpec({
         sanityService,
     )
 
-    test("publiseres til Kafka og når system er TILTAKSADMINISTRASJON") {
+    test("publiseres til Kafka") {
         val producerClient = mockk<KafkaProducerClient<ByteArray, ByteArray?>>(relaxed = true)
         val sanityService = mockk<SanityService>(relaxed = true)
 
@@ -63,14 +63,14 @@ class InitialLoadTiltakstyperTest : FunSpec({
                 },
             )
         }
-        verify(exactly = 0) {
+        verify(exactly = 1) {
             producerClient.sendSync(
                 match { record ->
                     record.shouldBeTiltakstypeV3(kafkaTopic, TiltakstypeFixtures.IPS.id)
                 },
             )
         }
-        verify(exactly = 0) {
+        verify(exactly = 1) {
             producerClient.sendSync(
                 match { record ->
                     record.shouldBeTiltakstypeV3(kafkaTopic, TiltakstypeFixtures.Arbeidstrening.id)

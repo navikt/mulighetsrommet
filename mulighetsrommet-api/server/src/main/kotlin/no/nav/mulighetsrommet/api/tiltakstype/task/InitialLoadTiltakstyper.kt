@@ -8,7 +8,6 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.contracts.tiltakstype.TiltakstypeV3Dto
 import no.nav.mulighetsrommet.api.sanity.SanityService
-import no.nav.mulighetsrommet.model.TiltakstypeSystem
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.slf4j.LoggerFactory
@@ -46,14 +45,12 @@ class InitialLoadTiltakstyper(
 
     suspend fun initialLoadTiltakstyper() = db.transaction {
         repository.tiltakstype.getAll().forEach { tiltakstype ->
-            if (tiltakstype.tiltakskode.system == TiltakstypeSystem.TILTAKSADMINISTRASJON) {
-                val eksternDto = requireNotNull(queries.tiltakstype.getEksternTiltakstype(tiltakstype.id)) {
-                    "Klarte ikke hente ekstern tiltakstype for tiltakskode ${tiltakstype.tiltakskode}"
-                }
-
-                logger.info("Publiserer tiltakstype til kafka id=${tiltakstype.id}")
-                publishToKafka(eksternDto)
+            val eksternDto = requireNotNull(queries.tiltakstype.getEksternTiltakstype(tiltakstype.id)) {
+                "Klarte ikke hente ekstern tiltakstype for tiltakskode ${tiltakstype.tiltakskode}"
             }
+
+            logger.info("Publiserer tiltakstype til kafka id=${tiltakstype.id}")
+            publishToKafka(eksternDto)
 
             tiltakstype.sanityId?.let { sanityId ->
                 logger.info("Oppdaterer tiltakstype i Sanity id=${tiltakstype.id}")
