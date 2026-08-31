@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
+import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
@@ -11,6 +12,7 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
+import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingDbo
 import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
@@ -216,15 +218,64 @@ class TilskuddBehandlingService(
         }
     }
 
-    suspend fun sendTilOpphor(tilskuddId: UUID) = db.transaction {
-        val tilskudd = queries.tilskuddBehandling.getOrError(tilskuddId)
-        val deltaker = getDeltaker(tilskudd.gjennomforingId)
-        val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
-        val utbetaling = queries.brukerUtbetaling.getByTilskudd(tilskuddId)
-            ?: throw IllegalStateException("Fant ikke tilskudd utbetaling med id=$tilskuddId")
-        val tilOppgjor = utbetaling.tilOpphor()
+    suspend fun sendTilOpphor(tilskuddId: UUID, gjennomforingId: UUID, saksbehandler: NavIdent, beslutter: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
+        val opphorTotrinnskontroll = sendTilOpphor(
+            tilskuddId,
+            listOf(TilskuddBehandlingStatusAarsak.ANNET),
+            "Tester opphør av tilskudd",
+            behandletAv = saksbehandler,
+        )
 
+        val utbetaling = queries.brukerUtbetaling.getByTilskudd(tilskuddId)
+            ?: throw IllegalStateException("Fant ikke tilskudd utbetaling fra tilskuddId=$tilskuddId")
+
+        val godkjentOpphor = godkjennOpphor(opphorTotrinnskontroll.id, beslutter)
+            .getOrElse { errors ->
+                throw IllegalStateException("Kunne ikke godkjenne opphør av tilskudd utbetaling med id=$tilskuddId. Feil: ${errors.joinToString(", ") { it.detail }}")
+            }
+
+        settTilOpphor(utbetaling, gjennomforingId, godkjentOpphor)
+
+        Unit.right()
+    }
+
+    context(tx: TransactionalQueryContext)
+    private fun sendTilOpphor(tilskuddId: UUID, aarsaker: List<TilskuddBehandlingStatusAarsak>, forklaring: String?, behandletAv: Agent): Totrinnskontroll = with(tx) {
+        val opphorTotrinnskontroll = Totrinnskontroll.opprett(
+            UUID.randomUUID(),
+            tilskuddId,
+            TotrinnskontrollType.TILSKUDD_OPPHOR,
+            behandletAv,
+            emptyList(),
+            "Test opphør av tilskuddsutbetaling",
+        )
+        queries.totrinnskontroll.upsert(opphorTotrinnskontroll)
+        outbox.publish(opphorTotrinnskontroll)
+        // TODO: Midlertidig status for opphør?
+        return opphorTotrinnskontroll
+    }
+
+    context(tx: TransactionalQueryContext)
+    private fun godkjennOpphor(totrinnskontrollId: UUID, beslutter: Agent): Either<List<FieldError>, Totrinnskontroll> = with(tx) {
+        val opphorTotrinnskontroll = queries.totrinnskontroll.getById(totrinnskontrollId)
+        return opphorTotrinnskontroll.godkjenn(beslutter)
+            .mapLeft { it.toFieldErrors() }
+            .map { godkjent ->
+                queries.totrinnskontroll.upsert(godkjent)
+                outbox.publish(godkjent)
+                logEndring("Tilskudd opphørt", godkjent.entityId, beslutter)
+                return godkjent.right()
+            }
+    }
+
+    context(tx: TransactionalQueryContext)
+    private suspend fun settTilOpphor(brukerUtbetaling: BrukerUtbetalingDbo, gjennomforingId: UUID, kontroll: Totrinnskontroll) = with(tx) {
+        // TODO: fjern casts
+        val tilOppgjor = brukerUtbetaling.settTilOpphor(saksbehandler = kontroll.behandletAv as NavIdent, beslutter = kontroll.besluttetAv as NavIdent, besluttetTidspunkt = kontroll.besluttetTidspunkt!!)
         queries.brukerUtbetaling.save(tilOppgjor)
+
+        val deltaker = getDeltaker(gjennomforingId)
+        val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
 
         brukerUtbetalingService.produceTilskuddUtbetaling(
             HelVedUtbetaling(

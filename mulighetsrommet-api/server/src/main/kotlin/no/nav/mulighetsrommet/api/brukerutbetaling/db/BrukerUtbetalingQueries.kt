@@ -33,9 +33,14 @@ data class BrukerUtbetalingDbo(
         val enhetsnummer: NavEnhetNummer,
     )
 
-    fun tilOpphor(): BrukerUtbetalingDbo = copy(
-        behandlingId = behandlingId.plus(1),
+    private fun nyBehandlingId() = behandlingId.plus(1)
+
+    fun settTilOpphor(saksbehandler: NavIdent, beslutter: NavIdent, besluttetTidspunkt: Instant): BrukerUtbetalingDbo = copy(
+        behandlingId = nyBehandlingId(),
         belop = 0,
+        saksbehandler = saksbehandler,
+        beslutter = beslutter,
+        besluttetTidspunkt = besluttetTidspunkt,
         helVedStatus = null,
         helVedStatusError = null,
     )
@@ -145,10 +150,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 nav_enhet.navn as kostnadssted_navn
             from bruker_utbetaling
                 inner join tilskudd on tilskudd.bruker_utbetaling_id = bruker_utbetaling.id
-                    and (
-                        tilskudd.bruker_utbetaling_behandling_id is null
-                        or tilskudd.bruker_utbetaling_behandling_id = bruker_utbetaling.behandling_id
-                    )
+                    and tilskudd.bruker_utbetaling_behandling_id = bruker_utbetaling.behandling_id
                 inner join tilskudd_behandling on tilskudd.tilskudd_behandling_id = tilskudd_behandling.id
                 inner join nav_enhet on nav_enhet.enhetsnummer = tilskudd_behandling.kostnadssted
             where tilskudd.id = :id::uuid
@@ -179,7 +181,12 @@ class BrukerUtbetalingQueries(private val session: Session) {
               and behandling_id = :behandling_id
         """.trimIndent()
 
-        return session.single(queryOf(query, mapOf("id" to id, "behandling_id" to behandlingId))) { it.toBrukerUtbetalingDbo() }
+        return session.single(
+            queryOf(
+                query,
+                mapOf("id" to id, "behandling_id" to behandlingId),
+            ),
+        ) { it.toBrukerUtbetalingDbo() }
     }
 
     fun setHelVedStatus(id: UUID, behandlingIds: Set<Int>, status: HelVedStatus) {

@@ -1,4 +1,7 @@
 -- Gjør behandling til int for fremtidig endring til kompositt nøkkel i bruker_utbetaling
+
+drop view if exists view_tilskudd_behandling;
+
 alter table bruker_utbetaling
     alter column behandling_id type integer using behandling_id::integer;
 

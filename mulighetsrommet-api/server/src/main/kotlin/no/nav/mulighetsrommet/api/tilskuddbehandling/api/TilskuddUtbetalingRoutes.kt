@@ -3,9 +3,9 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.api
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.post
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
-import io.ktor.server.routing.post
 import io.ktor.server.util.getValue
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
+import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
@@ -22,6 +23,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.model.Valuta
@@ -105,12 +107,15 @@ fun Route.tilskuddUtbetalingRoutes() {
     }
 
     authorize(Rolle.TEAM_MULIGHETSROMMET) {
-        post("/tilskudd-utbetaling/{id}/opphor", {
+        post("/tilskudd-utbetaling/{tilskuddId}/opphor", {
             description = "Send tilskuddsutbetaling til opphør for gitt tilskudds ID"
             tags = setOf("Utbetaling", "Tilskudd")
             operationId = "postTilskuddUtbetalingOpphor"
             request {
-                pathParameterUuid("id")
+                pathParameterUuid("tilskuddId") {
+                    required = true
+                }
+                body<TilskuddUtbetalingOpphorRequest>()
             }
             response {
                 code(HttpStatusCode.OK) {
@@ -122,19 +127,28 @@ fun Route.tilskuddUtbetalingRoutes() {
                 }
             }
         }) {
-            val id: UUID by call.parameters
+            val tilskuddId: UUID by call.parameters
+            val request = call.receive<TilskuddUtbetalingOpphorRequest>()
+            val beslutter = getNavIdent()
             if (NaisEnv.current().isProdGCP()) {
                 call.respond(
                     HttpStatusCode.Forbidden,
                     "Opphør av tilskuddsutbetaling er kun tillatt i dev-gcp miljøet",
                 )
             } else {
-                tilskuddBehandlingService.sendTilOpphor(id)
+                val saksbehandler = NavIdent("Z993637") // Midlertidig saksbehandler
+                tilskuddBehandlingService.sendTilOpphor(tilskuddId, request.gjennomforingId, saksbehandler, beslutter)
                 call.respond(HttpStatusCode.OK)
             }
         }
     }
 }
+
+@Serializable
+data class TilskuddUtbetalingOpphorRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID,
+)
 
 @Serializable
 data class TilskuddUtbetalingKompaktDto(
