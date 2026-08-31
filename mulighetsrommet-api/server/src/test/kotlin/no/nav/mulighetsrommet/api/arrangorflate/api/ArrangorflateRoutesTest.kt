@@ -257,9 +257,19 @@ class ArrangorflateRoutesTest : FunSpec({
 
             response.status shouldBe HttpStatusCode.OK
             val dto = response.body<ArrangorflateUtbetalingDto>()
-            val row = dto.beregning.deltakelser.shouldNotBeNull().rows.first()
-            row.cells["navn"] shouldBe DataElement.Text("Adressebeskyttet", null)
-            row.cells["identitetsnummer"] shouldBe DataElement.Text(null, null)
+            val table = dto.beregning.deltakelser.shouldNotBeNull()
+            val navnColumnKey = table.columns.single { it.label == "Navn" }.key
+            val fnrColumnKey = table.columns.single { it.label == "Fødselsnr." }.key
+
+            table.rows.forEach { row ->
+                row.cells[navnColumnKey] shouldBe DataElement.Text("Adressebeskyttet", null)
+                row.cells[fnrColumnKey] shouldBe DataElement.Text(null, null)
+            }
+
+            dto.advarsler.forEach { advarsel ->
+                advarsel.navn shouldBe "Adressebeskyttet"
+                advarsel.norskIdent shouldBe null
+            }
         }
     }
 })

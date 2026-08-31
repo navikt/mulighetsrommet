@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.deltaker.DeltakerForslag
 import no.nav.mulighetsrommet.model.DeltakerStatusType
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
@@ -173,13 +174,15 @@ data class DeltakerAdvarselDto(
     @Serializable(with = UUIDSerializer::class)
     val deltakerId: UUID,
     val navn: String?,
+    val norskIdent: NorskIdent?,
     val beskrivelse: String,
     val type: DeltakerAdvarselType,
 ) {
     companion object {
-        fun from(advarsel: DeltakerAdvarsel, navn: String? = "Ukjent deltaker") = DeltakerAdvarselDto(
+        fun from(advarsel: DeltakerAdvarsel, navn: String? = "Ukjent deltaker", norskIdent: NorskIdent? = null) = DeltakerAdvarselDto(
             deltakerId = advarsel.deltakerId,
             navn = navn,
+            norskIdent = norskIdent,
             beskrivelse = when (advarsel.type) {
                 DeltakerAdvarselType.RelevanteForslag -> "har ubehandlede forslag"
                 DeltakerAdvarselType.FeilSluttDato -> "har avsluttende status og sluttdato frem i tid"
