@@ -1425,7 +1425,7 @@ export const mockTiltakstyper: { [name: string]: VeilederflateTiltakstype } = {
       { id: "a1000000-0000-0000-0000-000000000008", navn: "IPS (ung)" },
     ],
     tiltakskode: Tiltakskode.MENTOR,
-    system: TiltakstypeSystem.TILTAK_ARBEIDSGIVER,
+    system: TiltakstypeSystem.ARBEIDSGIVERTILTAK,
   },
   enkeltplass_amo: {
     tiltaksgruppe: "Opplæring",
