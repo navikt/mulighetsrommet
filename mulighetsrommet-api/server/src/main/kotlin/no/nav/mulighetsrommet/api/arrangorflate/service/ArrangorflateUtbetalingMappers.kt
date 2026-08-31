@@ -129,11 +129,12 @@ private fun getInnsendingsDetaljer(
             "${utbetaling.gjennomforing.navn} (${utbetaling.gjennomforing.lopenummer})",
         ),
         LabeledDataElement.text("Tiltakstype", utbetaling.tiltakstype.navn),
-        if (utbetaling.arrangorInnsendtAnnenAvtaltPris()) {
-            LabeledDataElement.text(
-                "Tiltaksperiode",
-                Periode.formatPeriode(utbetaling.gjennomforing.startDato, utbetaling.gjennomforing.sluttDato),
-            )
+        LabeledDataElement.text(
+            "Utbetalingsperiode",
+            Periode.formatPeriode(utbetaling.periode.start, utbetaling.periode.slutt),
+        ),
+        if (utbetaling.utbetalesTidligstTidspunkt != null) {
+            LabeledDataElement.date("Utbetales tidligst", utbetaling.utbetalesTidligstTidspunkt.tilNorskDato())
         } else {
             null
         },
