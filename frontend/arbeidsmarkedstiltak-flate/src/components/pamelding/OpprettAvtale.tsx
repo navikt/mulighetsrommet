@@ -30,5 +30,5 @@ export function OpprettAvtale({ tiltakstype, harRettPaaTiltak }: Props): ReactNo
 }
 
 function kanOppretteAvtaleOmTiltaksplass(tiltakstype: VeilederflateTiltakstype): boolean {
-  return tiltakstype.system === TiltakstypeSystem.TILTAK_ARBEIDSGIVER;
+  return tiltakstype.system === TiltakstypeSystem.ARBEIDSGIVERTILTAK;
 }
