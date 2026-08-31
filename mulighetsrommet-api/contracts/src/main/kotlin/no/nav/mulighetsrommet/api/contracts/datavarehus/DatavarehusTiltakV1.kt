@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.datavarehus.model
+package no.nav.mulighetsrommet.api.contracts.datavarehus
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype

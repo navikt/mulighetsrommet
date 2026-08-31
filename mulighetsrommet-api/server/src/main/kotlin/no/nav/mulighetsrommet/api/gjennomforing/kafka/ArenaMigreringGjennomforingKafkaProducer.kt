@@ -8,10 +8,11 @@ import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
-import no.nav.mulighetsrommet.api.gjennomforing.model.ArenaMigreringTiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.contracts.arenamigrering.ArenaMigreringTiltaksgjennomforingDto
+import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
+import no.nav.mulighetsrommet.api.gjennomforing.mapper.ArenaMigreringTiltaksgjennomforingMapper
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import org.apache.kafka.clients.producer.ProducerRecord
 import java.util.UUID
 
@@ -43,7 +44,7 @@ class ArenaMigreringGjennomforingKafkaProducer(
 
         val gjennomforing = queries.gjennomforing.getGjennomforingOrError(id)
 
-        val migrertGjennomforing = ArenaMigreringTiltaksgjennomforingDto.from(
+        val migrertGjennomforing = ArenaMigreringTiltaksgjennomforingMapper.from(
             gjennomforing,
             arenaGjennomforing?.arenaId,
         )

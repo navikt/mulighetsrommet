@@ -5,7 +5,7 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.helved.HelVedStatus
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
+import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import org.intellij.lang.annotations.Language
