@@ -81,22 +81,31 @@ class TiltakshistorikkService(
 
     private suspend fun getHistorikkTeamTiltak(
         identer: List<NorskIdent>,
-    ): Either<NonEmptySet<TiltakshistorikkMelding>, List<TiltakshistorikkV1Dto.TeamTiltakAvtale>> {
-        return if (config.useKafkaForTeamTiltak) {
-            getHistorikkTeamTiltakFraDb(identer)
+    ): Either<NonEmptySet<TiltakshistorikkMelding>, List<TiltakshistorikkV1Dto.TeamTiltakAvtale>> = coroutineScope {
+        if (config.useKafkaForTeamTiltak) {
+            Either.Right(hentTeamTiltakAvtalerFraDb(identer))
         } else {
-            getHistorikkTeamTiltakFraKlient(identer)
+            val avtalerFraDbDeferred = async { hentTeamTiltakAvtalerFraDb(identer) }
+
+            val resultatFraKlient = getHistorikkTeamTiltakFraKlient(identer)
+
+            val avtalerFraDb = avtalerFraDbDeferred.await()
+            resultatFraKlient.onRight { avtalerFraKlient ->
+                loggDiffMellomKilderForTeamTiltak(avtalerFraDb, avtalerFraKlient)
+            }
+
+            resultatFraKlient
         }
     }
 
-    private suspend fun getHistorikkTeamTiltakFraDb(
+    private suspend fun hentTeamTiltakAvtalerFraDb(
         identer: List<NorskIdent>,
-    ): Either<NonEmptySet<TiltakshistorikkMelding>, List<TiltakshistorikkV1Dto.TeamTiltakAvtale>> {
+    ): List<TiltakshistorikkV1Dto.TeamTiltakAvtale> {
         val avtaler = db.session {
             queries.arbeidsgiverAvtale.getByNorskIdent(identer)
         }
 
-        val result = avtaler
+        return avtaler
             .filter { avtale ->
                 val tiltakstype = Avtale.Tiltakstype.valueOf(avtale.tiltakstype.name)
                 belongsToTeamTiltak(tiltakstype, config.cutOffDatoMapping, avtale.sluttDato)
@@ -106,8 +115,25 @@ class TiltakshistorikkService(
                 val arbeidsgiver = getArbeidsgiver(avtale.organisasjonsnummer)
                 toTiltakshistorikk(avtale, tiltakstype, arbeidsgiver)
             }
+    }
 
-        return Either.Right(result)
+    private fun loggDiffMellomKilderForTeamTiltak(
+        fraDb: List<TiltakshistorikkV1Dto.TeamTiltakAvtale>,
+        fraKlient: List<TiltakshistorikkV1Dto.TeamTiltakAvtale>,
+    ) {
+        val dbIder = fraDb.map { it.id }.toSet()
+        val klientIder = fraKlient.map { it.id }.toSet()
+
+        val kunIDb = dbIder - klientIder
+        val kunIKlient = klientIder - dbIder
+
+        if (kunIDb.isNotEmpty() || kunIKlient.isNotEmpty()) {
+            log.warn(
+                "Fant differanse mellom tiltak fra Team Tiltak hentet fra db og fra TiltakDatadelingClient. " +
+                    "Antall kun i db=${kunIDb.size}, antall kun i klient=${kunIKlient.size}. " +
+                    "Id-er kun i db=$kunIDb, id-er kun i klient=$kunIKlient",
+            )
+        }
     }
 
     private suspend fun getHistorikkTeamTiltakFraKlient(

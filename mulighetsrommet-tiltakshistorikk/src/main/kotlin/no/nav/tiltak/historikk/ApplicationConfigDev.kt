@@ -8,6 +8,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 val ApplicationConfigDev = AppConfig(
+    useKafkaForTeamTiltak = true,
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
