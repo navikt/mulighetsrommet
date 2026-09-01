@@ -108,6 +108,7 @@ class JournalforVedtaksbrev(
             gjennomforing = gjennomforing,
             saksbehandler = totrinnskontroll.behandletAv.navn,
             beslutter = totrinnskontroll.besluttetAv.navn,
+            besluttetTidspunkt = totrinnskontroll.besluttetTidspunkt,
         )
         return pdf
             .getPdfVedtaksbrev(content)

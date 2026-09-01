@@ -249,6 +249,7 @@ class TilskuddBehandlingService(
             gjennomforing = gjennomforing,
             saksbehandler = "<saksbehandler-navn>",
             beslutter = "<beslutter-navn>",
+            besluttetTidspunkt = LocalDateTime.now(),
         )
 
         return pdf.getPdfVedtaksbrev(content)

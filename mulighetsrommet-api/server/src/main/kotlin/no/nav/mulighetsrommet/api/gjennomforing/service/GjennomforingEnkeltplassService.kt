@@ -219,7 +219,7 @@ class GjennomforingEnkeltplassService(
                 }
             }
 
-            logEndring("Prisinformasjon tilbakekalt", gjennomforingId, behandling.behandletAv)
+            logEndring("Prisendring tilbakekalt", gjennomforingId, behandling.behandletAv)
         }
     }
 

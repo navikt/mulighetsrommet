@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.pdfgen.VedtaksbrevContent
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.model.NorskIdent
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 object TilskuddVedtakToVedtaksbrevContent {
     fun toVedtakPdfContent(
@@ -15,6 +15,7 @@ object TilskuddVedtakToVedtaksbrevContent {
         gjennomforing: GjennomforingEnkeltplass,
         saksbehandler: String,
         beslutter: String,
+        besluttetTidspunkt: LocalDateTime,
     ): VedtaksbrevContent {
         val navn = navn
         val norskIdent = norskIdent
@@ -38,7 +39,7 @@ object TilskuddVedtakToVedtaksbrevContent {
                 norskIdent = norskIdent,
             ),
             saksnummer = gjennomforing.lopenummer,
-            opprettetDato = LocalDate.now(),
+            opprettetDato = besluttetTidspunkt.toLocalDate(),
             saksbehandler = saksbehandler,
             beslutter = beslutter,
             enhet = gjennomforing.ansvarligEnhet.navn,
