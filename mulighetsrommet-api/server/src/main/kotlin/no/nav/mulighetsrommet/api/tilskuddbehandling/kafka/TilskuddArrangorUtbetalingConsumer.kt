@@ -123,7 +123,7 @@ class TilskuddArrangorUtbetalingConsumer(
                     linjer = listOf(
                         TilsagnInputLinjeRequest(
                             id = UUID.randomUUID(),
-                            beskrivelse = "Automatisk tilsagn for opplæringstilskudd",
+                            beskrivelse = "Tilsagn for tilskudd til opplæring",
                             pris = belop,
                             antall = 1,
                         ),
