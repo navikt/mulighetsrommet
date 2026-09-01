@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.TiltakstypeSystem
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -48,15 +47,13 @@ class UpdateTiltakstypeUseCase(
         val updated = tiltakstype.copy(deltakerinfo = command.deltakerinfo)
         repository.tiltakstype.save(updated)
 
-        logEndring("Redigerte informasjon for deltakere", tiltakstype, command.endretAv)
+        logEndring("Redigerte informasjon for deltakere", updated, command.endretAv)
         publishToKafka(updated)
         updated.right()
     }
 
     internal fun QueryContext.publishToKafka(tiltakstype: Tiltakstype) {
-        if (tiltakstype.tiltakskode.system == TiltakstypeSystem.TILTAKSADMINISTRASJON) {
-            outbox.publish(tiltakstype)
-        }
+        outbox.publish(tiltakstype)
     }
 
     internal fun QueryContext.logEndring(tekst: String, tiltakstype: Tiltakstype, endretAv: NavIdent) {
