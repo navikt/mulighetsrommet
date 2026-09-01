@@ -81,6 +81,14 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             }
         }
 
+        test("returnerer null når gjennomføringen ikke finnes") {
+            val tiltak = database.runAndRollback {
+                queries.dvh.getDatavarehusTiltak(UUID.randomUUID())
+            }
+
+            tiltak.shouldBeNull()
+        }
+
         test("henter tiltaksnummer når det finnes i Arena") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
@@ -98,7 +106,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 queries.dvh.getDatavarehusTiltak(AFT1.id)
             }
 
-            tiltak.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(aar = 2020, lopenummer = 1234)
+            tiltak.shouldNotBeNull().gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(aar = 2020, lopenummer = 1234)
         }
 
         context("henter Gruppe AMO med amo-kategorisering") {
