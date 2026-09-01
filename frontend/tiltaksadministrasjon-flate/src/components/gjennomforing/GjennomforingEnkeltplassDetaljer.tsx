@@ -275,7 +275,7 @@ function PrisendringPaVent({ totrinnskontroll, prismodell }: PrisendringPaVentPr
       <InfoCard.Content>
         <VStack gap="space-8">
           <BodyShort>
-            {totrinnskontroll.besluttetAv.navn} satte prisendringen på vent den{" "}
+            {totrinnskontroll.besluttetAv.navn} satte godkjenning av prisendring på vent den{" "}
             {formaterDato(totrinnskontroll.besluttetTidspunkt)}.
           </BodyShort>
           {totrinnskontroll.forklaring && (
