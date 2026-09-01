@@ -16,34 +16,44 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.LocalDate
 import java.util.UUID
 
 object TilsagnFixtures {
-    val Tilsagn1 = TilsagnDbo(
+    fun createTilsagn(
+        gjennomforingId: UUID = GjennomforingFixtures.AFT1.id,
+        lopenummer: Int,
+        type: TilsagnType = TilsagnType.TILSAGN,
+        periode: Periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+        pris: ValutaBelop = 1000.NOK,
+        antall: Int = 1,
+        bestillingStatus: BestillingStatusType? = null,
+    ): TilsagnDbo = TilsagnDbo(
         id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
-        type = TilsagnType.TILSAGN,
-        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+        gjennomforingId = gjennomforingId,
+        type = type,
+        periode = periode,
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
-        lopenummer = 1,
-        bestillingsnummer = "A-2025/1-1",
-        bestillingStatus = null,
+        lopenummer = lopenummer,
+        bestillingsnummer = "A-2025/1-$lopenummer",
+        bestillingStatus = bestillingStatus,
         belopBrukt = 0.NOK,
         beregning = TilsagnBeregningAnnenAvtaltPris(
             input = TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(
                     TilsagnBeregningAnnenAvtaltPris.InputLinje(
                         id = UUID.randomUUID(),
-                        beskrivelse = "1000",
-                        pris = 1000.NOK,
-                        antall = 1,
+                        beskrivelse = pris.belop.toString(),
+                        pris = pris,
+                        antall = antall,
                     ),
                 ),
                 prisbetingelser = null,
             ),
             output = TilsagnBeregningAnnenAvtaltPris.Output(
-                pris = 1000.NOK,
+                pris = (pris.belop * antall).NOK,
             ),
         ),
         kommentar = null,
@@ -51,97 +61,13 @@ object TilsagnFixtures {
         deltakere = emptyList(),
     )
 
-    val Tilsagn2 = TilsagnDbo(
-        id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
-        type = TilsagnType.TILSAGN,
-        periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
-        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+    val Tilsagn1 = createTilsagn(lopenummer = 1)
+
+    val Tilsagn2 = createTilsagn(
         lopenummer = 2,
-        bestillingsnummer = "A-2025/1-2",
-        bestillingStatus = null,
-        belopBrukt = 0.NOK,
-        beregning = TilsagnBeregningAnnenAvtaltPris(
-            input = TilsagnBeregningAnnenAvtaltPris.Input(
-                listOf(
-                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
-                        id = UUID.randomUUID(),
-                        beskrivelse = "1500",
-                        pris = 1500.NOK,
-                        antall = 1,
-                    ),
-                ),
-                prisbetingelser = null,
-            ),
-            output = TilsagnBeregningAnnenAvtaltPris.Output(
-                pris = 1500.NOK,
-            ),
-        ),
-        kommentar = null,
-        beskrivelse = null,
-        deltakere = emptyList(),
-    )
-
-    val Tilsagn3 = TilsagnDbo(
-        id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
-        type = TilsagnType.TILSAGN,
-        periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
-        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
-        lopenummer = 3,
-        bestillingsnummer = "A-2025/1-3",
-        bestillingStatus = null,
-        belopBrukt = 0.NOK,
-        beregning = TilsagnBeregningAnnenAvtaltPris(
-            input = TilsagnBeregningAnnenAvtaltPris.Input(
-                listOf(
-                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
-                        id = UUID.randomUUID(),
-                        beskrivelse = "1250",
-                        pris = 1250.NOK,
-                        antall = 2,
-                    ),
-                ),
-                prisbetingelser = null,
-            ),
-            output = TilsagnBeregningAnnenAvtaltPris.Output(
-                pris = 2500.NOK,
-            ),
-        ),
-        kommentar = null,
-        beskrivelse = null,
-        deltakere = emptyList(),
-    )
-
-    val Tilsagn4 = TilsagnDbo(
-        id = UUID.randomUUID(),
-        gjennomforingId = GjennomforingFixtures.AFT1.id,
-        type = TilsagnType.TILSAGN,
-        periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
-        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
-        lopenummer = 4,
-        bestillingsnummer = "A-2025/1-4",
-        bestillingStatus = null,
-        belopBrukt = 0.NOK,
-        beregning = TilsagnBeregningAnnenAvtaltPris(
-            input = TilsagnBeregningAnnenAvtaltPris.Input(
-                listOf(
-                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
-                        id = UUID.randomUUID(),
-                        beskrivelse = "Beskrivelse",
-                        pris = 1250.NOK,
-                        antall = 2,
-                    ),
-                ),
-                prisbetingelser = null,
-            ),
-            output = TilsagnBeregningAnnenAvtaltPris.Output(
-                pris = 2500.NOK,
-            ),
-        ),
-        kommentar = null,
-        beskrivelse = null,
-        deltakere = emptyList(),
+        periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
+        pris = 1500.NOK,
+        antall = 1,
     )
 
     val TilsagnRequest1 = TilsagnRequest(
