@@ -542,7 +542,7 @@ class GjennomforingEnkeltplassService(
             id = id,
             valuta = Valuta.NOK,
             prisbetingelser = null,
-            tilsagnPerDeltaker = true,
+            tilsagnPerDeltaker = false,
             totalbelop = prismodell.totalbelop,
         )
 
