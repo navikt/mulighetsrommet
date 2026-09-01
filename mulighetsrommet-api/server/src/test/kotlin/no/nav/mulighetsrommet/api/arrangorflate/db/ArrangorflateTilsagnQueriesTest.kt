@@ -94,16 +94,9 @@ class ArrangorflateTilsagnQueriesTest : FunSpec({
 
     test("henter tilsagn sortert på tilsagnstype uten å feile") {
         database.run {
-            val filter = ArrangorflateTilsagnFilter(
-                search = null,
-                pagination = Pagination.all(),
-                orderBy = ArrangorflateTilsagnFilter.OrderBy.TILSAGN,
-                direction = ArrangorflateFilterDirection.ASC,
-            )
-
             val result = queries.arrangorflate.tilsagn.getFiltered(
                 arrangorer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                filter = filter,
+                orderBy = ArrangorflateTilsagnFilter.OrderBy.TILSAGN,
             )
 
             result.items.map { it.type } shouldContainExactly listOf(
@@ -117,16 +110,10 @@ class ArrangorflateTilsagnQueriesTest : FunSpec({
 
     test("sortering på tilsagnstype er synkende når direction er DESC") {
         database.run {
-            val filter = ArrangorflateTilsagnFilter(
-                search = null,
-                pagination = Pagination.all(),
-                orderBy = ArrangorflateTilsagnFilter.OrderBy.TILSAGN,
-                direction = ArrangorflateFilterDirection.DESC,
-            )
-
             val result = queries.arrangorflate.tilsagn.getFiltered(
                 arrangorer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                filter = filter,
+                orderBy = ArrangorflateTilsagnFilter.OrderBy.TILSAGN,
+                direction = ArrangorflateFilterDirection.DESC,
             )
 
             result.items.map { it.type } shouldContainExactly listOf(
@@ -140,16 +127,8 @@ class ArrangorflateTilsagnQueriesTest : FunSpec({
 
     test("henter kun tilsagn for arrangører man har tilgang til") {
         database.run {
-            val filter = ArrangorflateTilsagnFilter(
-                search = null,
-                pagination = Pagination.all(),
-                orderBy = ArrangorflateTilsagnFilter.OrderBy.SLUTT_DATO,
-                direction = ArrangorflateFilterDirection.ASC,
-            )
-
             val result = queries.arrangorflate.tilsagn.getFiltered(
                 arrangorer = setOf(ArrangorFixtures.underenhet2.organisasjonsnummer),
-                filter = filter,
             )
 
             result.items.map { it.id } shouldContainExactlyInAnyOrder listOf(tilsagnAnnenArrangor.id)
@@ -158,16 +137,8 @@ class ArrangorflateTilsagnQueriesTest : FunSpec({
 
     test("henter ingen tilsagn når man ikke har tilgang til noen arrangører") {
         database.run {
-            val filter = ArrangorflateTilsagnFilter(
-                search = null,
-                pagination = Pagination.all(),
-                orderBy = ArrangorflateTilsagnFilter.OrderBy.SLUTT_DATO,
-                direction = ArrangorflateFilterDirection.ASC,
-            )
-
             val result = queries.arrangorflate.tilsagn.getFiltered(
                 arrangorer = setOf(),
-                filter = filter,
             )
 
             result.items.shouldBeEmpty()
@@ -176,16 +147,8 @@ class ArrangorflateTilsagnQueriesTest : FunSpec({
 
     test("ekskluderer tilsagn med status som ikke er relevant for arrangørflate") {
         database.run {
-            val filter = ArrangorflateTilsagnFilter(
-                search = null,
-                pagination = Pagination.all(),
-                orderBy = ArrangorflateTilsagnFilter.OrderBy.SLUTT_DATO,
-                direction = ArrangorflateFilterDirection.ASC,
-            )
-
             val result = queries.arrangorflate.tilsagn.getFiltered(
                 arrangorer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                filter = filter,
             )
 
             result.items.map { it.id } shouldNotContainId tilsagnIkkeGodkjent.id
@@ -194,16 +157,9 @@ class ArrangorflateTilsagnQueriesTest : FunSpec({
 
     test("søk filtrerer på gjennomføringens navn") {
         database.run {
-            val filter = ArrangorflateTilsagnFilter(
-                search = "AFT",
-                pagination = Pagination.all(),
-                orderBy = ArrangorflateTilsagnFilter.OrderBy.SLUTT_DATO,
-                direction = ArrangorflateFilterDirection.ASC,
-            )
-
             val result = queries.arrangorflate.tilsagn.getFiltered(
                 arrangorer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                filter = filter,
+                search = "AFT",
             )
 
             result.items.map { it.id } shouldContainExactlyInAnyOrder listOf(
@@ -216,16 +172,10 @@ class ArrangorflateTilsagnQueriesTest : FunSpec({
 
     test("paginering begrenser antall treff, men totalCount reflekterer alle treff") {
         database.run {
-            val filter = ArrangorflateTilsagnFilter(
-                search = null,
-                pagination = Pagination.of(page = 1, size = 2),
-                orderBy = ArrangorflateTilsagnFilter.OrderBy.TILSAGN,
-                direction = ArrangorflateFilterDirection.ASC,
-            )
-
             val result = queries.arrangorflate.tilsagn.getFiltered(
                 arrangorer = setOf(ArrangorFixtures.underenhet1.organisasjonsnummer),
-                filter = filter,
+                pagination = Pagination.of(page = 1, size = 2),
+                orderBy = ArrangorflateTilsagnFilter.OrderBy.TILSAGN,
             )
 
             result.items.size shouldBe 2

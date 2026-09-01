@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateFilterDirection
 import no.nav.mulighetsrommet.api.arrangorflate.dto.ArrangorflateTilsagnFilter
 import no.nav.mulighetsrommet.api.arrangorflate.model.ArrangorflateTilsagnKompakt
 import no.nav.mulighetsrommet.api.shared.PaginatedResult
+import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.createArrayOfValue
@@ -32,20 +33,23 @@ class ArrangorflateTilsagnQueries(val session: Session) {
 
     fun getFiltered(
         arrangorer: Set<Organisasjonsnummer>,
-        filter: ArrangorflateTilsagnFilter,
+        search: String? = null,
+        pagination: Pagination = Pagination.all(),
+        orderBy: ArrangorflateTilsagnFilter.OrderBy = ArrangorflateTilsagnFilter.OrderBy.SLUTT_DATO,
+        direction: ArrangorflateFilterDirection = ArrangorflateFilterDirection.ASC,
     ): PaginatedResult<ArrangorflateTilsagnKompakt> {
-        val direction = when (filter.direction) {
+        val dir = when (direction) {
             ArrangorflateFilterDirection.ASC -> "asc"
             ArrangorflateFilterDirection.DESC -> "desc"
         }
 
-        val order = when (filter.orderBy) {
-            ArrangorflateTilsagnFilter.OrderBy.TILTAK -> "tiltakstype_navn $direction, gjennomforing_navn $direction"
-            ArrangorflateTilsagnFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
-            ArrangorflateTilsagnFilter.OrderBy.START_DATO -> "lower(periode) $direction"
-            ArrangorflateTilsagnFilter.OrderBy.SLUTT_DATO -> "upper(periode) $direction"
-            ArrangorflateTilsagnFilter.OrderBy.TILSAGN -> "tilsagn_type $direction"
-            ArrangorflateTilsagnFilter.OrderBy.STATUS -> "status $direction"
+        val order = when (orderBy) {
+            ArrangorflateTilsagnFilter.OrderBy.TILTAK -> "tiltakstype_navn $dir, gjennomforing_navn $dir"
+            ArrangorflateTilsagnFilter.OrderBy.ARRANGOR -> "arrangor_navn $dir, arrangor_organisasjonsnummer $dir"
+            ArrangorflateTilsagnFilter.OrderBy.START_DATO -> "lower(periode) $dir"
+            ArrangorflateTilsagnFilter.OrderBy.SLUTT_DATO -> "upper(periode) $dir"
+            ArrangorflateTilsagnFilter.OrderBy.TILSAGN -> "tilsagn_type $dir"
+            ArrangorflateTilsagnFilter.OrderBy.STATUS -> "status $dir"
         }
 
         @Language("PostgreSQL")
@@ -66,11 +70,11 @@ class ArrangorflateTilsagnQueries(val session: Session) {
             offset :offset
         """.trimIndent()
         val params = mapOf(
-            "search" to filter.search?.toFTSPrefixQuery(),
+            "search" to search?.toFTSPrefixQuery(),
             "orgnr_list" to session.createArrayOfValue(arrangorer) { it.value },
             "status_list" to session.createTextArray(TILSAGN_STATUS_RELEVANT_FOR_ARRANGOR),
         )
-        return queryOf(query, params + filter.pagination.parameters)
+        return queryOf(query, params + pagination.parameters)
             .mapPaginated { it.toArrangorflateTilsagnKompakt() }
             .runWithSession(session)
     }
