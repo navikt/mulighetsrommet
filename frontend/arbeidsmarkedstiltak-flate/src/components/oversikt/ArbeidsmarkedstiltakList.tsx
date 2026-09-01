@@ -14,7 +14,6 @@ import { ArbeidsmarkedstiltakListItem } from "./ArbeidsmarkedstiltakListItem";
 import { sorteringAtom } from "../sorteringmeny/sorteringAtom";
 import { ToolbarContainer } from "@mr/frontend-common/components/toolbar/toolbarContainer/ToolbarContainer";
 import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/ToolbarMeny";
-import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {
   tiltak: VeilederflateTiltak[];
@@ -101,7 +100,7 @@ export function ArbeidsmarkedstiltakList({
         data-testid="oversikt_gjennomforinger"
       >
         {gjennomforingerForSide.map((gjennomforing, index) => {
-          const id = isTiltakGruppe(gjennomforing) ? gjennomforing.id : gjennomforing.sanityId;
+          const id = gjennomforing.id;
           const deltMedBruker = delingerMedBruker?.find((deltMedBruker) => {
             return deltMedBruker.tiltakId === id;
           });

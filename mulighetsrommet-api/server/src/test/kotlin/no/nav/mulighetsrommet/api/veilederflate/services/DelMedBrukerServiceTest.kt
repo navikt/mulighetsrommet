@@ -33,13 +33,34 @@ class DelMedBrukerServiceTest : FunSpec({
             database.truncateAll()
         }
 
-        test("opprett deling med bruker for sanity-tiltak") {
-            val sanityId = UUID.randomUUID()
+        test("opprett deling med bruker for tiltak-dokument") {
+            val tiltakDokumentId = UUID.randomUUID()
+
+            MulighetsrommetTestDomain {
+                repository.tiltakDokument.save(
+                    TiltakDokument(
+                        id = tiltakDokumentId,
+                        sanityId = null,
+                        navn = "Test-tiltak",
+                        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+                        navEnheter = listOf(NavEnhetNummer("0300")),
+                        arrangorId = null,
+                        stedForGjennomforing = null,
+                        faneinnhold = null,
+                        beskrivelse = null,
+                        publisert = true,
+                        administratorer = emptyList(),
+                        kontaktpersoner = emptyList(),
+                        arrangorKontaktpersoner = emptyList(),
+                        tiltaksnummer = null,
+                    ),
+                )
+            }.initialize(database.api)
 
             val deling = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
                 navIdent = NavIdent("B123456"),
-                sanityId = sanityId,
+                tiltakDokumentId = tiltakDokumentId,
                 gjennomforingId = null,
                 dialogId = "1",
                 tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
@@ -50,9 +71,9 @@ class DelMedBrukerServiceTest : FunSpec({
 
             service.getLastDelingMedBruker(
                 fnr = NorskIdent("12345678910"),
-                sanityOrGjennomforingId = sanityId,
+                tiltakDokumentOrGjennomforingId = tiltakDokumentId,
             ).shouldNotBeNull().should {
-                it.tiltakId shouldBe sanityId
+                it.tiltakId shouldBe tiltakDokumentId
                 it.deling.dialogId shouldBe "1"
             }
 
@@ -60,9 +81,9 @@ class DelMedBrukerServiceTest : FunSpec({
 
             service.getLastDelingMedBruker(
                 fnr = NorskIdent("12345678910"),
-                sanityOrGjennomforingId = sanityId,
+                tiltakDokumentOrGjennomforingId = tiltakDokumentId,
             ).shouldNotBeNull().should {
-                it.tiltakId shouldBe sanityId
+                it.tiltakId shouldBe tiltakDokumentId
                 it.deling.dialogId shouldBe "2"
             }
         }
@@ -76,7 +97,7 @@ class DelMedBrukerServiceTest : FunSpec({
             val request = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
                 navIdent = NavIdent("B123456"),
-                sanityId = null,
+                tiltakDokumentId = null,
                 gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 dialogId = "1",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -87,7 +108,7 @@ class DelMedBrukerServiceTest : FunSpec({
 
             val delMedBruker = service.getLastDelingMedBruker(
                 fnr = NorskIdent("12345678910"),
-                sanityOrGjennomforingId = GjennomforingFixtures.Oppfolging1.id,
+                tiltakDokumentOrGjennomforingId = GjennomforingFixtures.Oppfolging1.id,
             )
 
             delMedBruker.shouldNotBeNull().should {
@@ -97,15 +118,36 @@ class DelMedBrukerServiceTest : FunSpec({
         }
 
         test("hent siste delinger med bruker per tiltak") {
+            val tiltakDokumentId = UUID.randomUUID()
+
             MulighetsrommetTestDomain(
                 avtaler = listOf(AvtaleFixtures.oppfolging),
                 gjennomforinger = listOf(GjennomforingFixtures.Oppfolging1),
-            ).initialize(database.api)
+            ) {
+                repository.tiltakDokument.save(
+                    TiltakDokument(
+                        id = tiltakDokumentId,
+                        sanityId = null,
+                        navn = "Test-tiltak",
+                        tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
+                        navEnheter = listOf(NavEnhetNummer("0300")),
+                        arrangorId = null,
+                        stedForGjennomforing = null,
+                        faneinnhold = null,
+                        beskrivelse = null,
+                        publisert = true,
+                        administratorer = emptyList(),
+                        kontaktpersoner = emptyList(),
+                        arrangorKontaktpersoner = emptyList(),
+                        tiltaksnummer = null,
+                    ),
+                )
+            }.initialize(database.api)
 
             val deling1 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
                 navIdent = NavIdent("B123456"),
-                sanityId = null,
+                tiltakDokumentId = null,
                 gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 dialogId = "1",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -115,18 +157,17 @@ class DelMedBrukerServiceTest : FunSpec({
             val deling2 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
                 navIdent = NavIdent("B123456"),
-                sanityId = null,
+                tiltakDokumentId = null,
                 gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 dialogId = "2",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
                 deltFraEnhet = NavEnhetFixtures.Gjovik.enhetsnummer,
             )
 
-            val sanityId = UUID.randomUUID()
             val deling3 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
                 navIdent = NavIdent("B123456"),
-                sanityId = sanityId,
+                tiltakDokumentId = tiltakDokumentId,
                 gjennomforingId = null,
                 dialogId = "3",
                 tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
@@ -143,7 +184,7 @@ class DelMedBrukerServiceTest : FunSpec({
                 it[0].tiltakId shouldBe GjennomforingFixtures.Oppfolging1.id
                 it[0].deling.dialogId shouldBe "2"
 
-                it[1].tiltakId shouldBe sanityId
+                it[1].tiltakId shouldBe tiltakDokumentId
                 it[1].deling.dialogId shouldBe "3"
             }
         }
@@ -163,9 +204,9 @@ class DelMedBrukerServiceTest : FunSpec({
             ) {
                 repository.tiltakDokument.save(
                     TiltakDokument(
-                        id = UUID.randomUUID(),
-                        sanityId = tiltakDokumentIdForArbeidstrening,
-                        navn = "Delt med bruker - Sanity",
+                        id = tiltakDokumentIdForArbeidstrening,
+                        sanityId = null,
+                        navn = "Delt med bruker - tiltak dokument",
                         tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
                         navEnheter = listOf(NavEnhetNummer("0300")),
                         arrangorId = null,
@@ -181,9 +222,9 @@ class DelMedBrukerServiceTest : FunSpec({
                 )
                 repository.tiltakDokument.save(
                     TiltakDokument(
-                        id = UUID.randomUUID(),
-                        sanityId = tiltakDokumentIdForEnkeltplass,
-                        navn = "Delt med bruker - Lokalt navn fra Sanity",
+                        id = tiltakDokumentIdForEnkeltplass,
+                        sanityId = null,
+                        navn = "Delt med bruker - Lokalt navn",
                         tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
                         navEnheter = listOf(NavEnhetNummer("0300")),
                         arrangorId = null,
@@ -202,7 +243,7 @@ class DelMedBrukerServiceTest : FunSpec({
             val deling1 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
                 navIdent = NavIdent("B123456"),
-                sanityId = null,
+                tiltakDokumentId = null,
                 gjennomforingId = GjennomforingFixtures.Oppfolging1.id,
                 dialogId = "1",
                 tiltakstypeId = TiltakstypeFixtures.Oppfolging.id,
@@ -212,7 +253,7 @@ class DelMedBrukerServiceTest : FunSpec({
             val deling2 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
                 navIdent = NavIdent("B123456"),
-                sanityId = tiltakDokumentIdForEnkeltplass,
+                tiltakDokumentId = tiltakDokumentIdForEnkeltplass,
                 gjennomforingId = null,
                 dialogId = "2",
                 tiltakstypeId = TiltakstypeFixtures.EnkelAmo.id,
@@ -222,7 +263,7 @@ class DelMedBrukerServiceTest : FunSpec({
             val deling3 = DelMedBrukerDbo(
                 norskIdent = NorskIdent("12345678910"),
                 navIdent = NavIdent("B123456"),
-                sanityId = tiltakDokumentIdForArbeidstrening,
+                tiltakDokumentId = tiltakDokumentIdForArbeidstrening,
                 gjennomforingId = null,
                 dialogId = "3",
                 tiltakstypeId = TiltakstypeFixtures.Arbeidstrening.id,
@@ -239,10 +280,10 @@ class DelMedBrukerServiceTest : FunSpec({
                 it.size shouldBe 3
 
                 it[0].tiltakstype.navn shouldBe "Arbeidstrening"
-                it[0].tiltak.navn shouldBe "Delt med bruker - Sanity"
+                it[0].tiltak.navn shouldBe "Delt med bruker - tiltak dokument"
 
                 it[1].tiltakstype.navn shouldBe "Enkel AMO"
-                it[1].tiltak.navn shouldBe "Delt med bruker - Lokalt navn fra Sanity"
+                it[1].tiltak.navn shouldBe "Delt med bruker - Lokalt navn"
 
                 it[2].tiltakstype.navn shouldBe "Oppfølging"
                 it[2].tiltak.navn shouldBe "Delt med bruker - tabell"

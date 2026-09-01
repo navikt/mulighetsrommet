@@ -69,5 +69,3 @@ class SanityService(
         return sanityClient.mutate(mutations)
     }
 }
-
-enum class CacheUsage { UseCache, NoCache }

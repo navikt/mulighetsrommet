@@ -130,7 +130,7 @@ export const tiltakAvklaring: VeilederflateTiltak & VeilederflateTiltakGruppe = 
 
 export const tiltakMentor: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
   type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
-  sanityId: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
+  id: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
   navn: "Sindres mentorordning med Yoda",
   oppstart: GjennomforingOppstartstype.LOPENDE,
   oppmoteSted: "Oslo",
@@ -545,7 +545,7 @@ export const tiltakOppfolging: VeilederflateTiltak & VeilederflateTiltakGruppe =
 
 export const tiltakEnkelplassFagOgYrke: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
   type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
-  sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
+  id: "f1887090-1ba8-47a4-a82f-6aaad488994e",
   navn: "Opplæring Fag og Yrke",
   oppmoteSted: null,
   tiltakstype: mockTiltakstyper.OpplaringEnkeltplassFagOgYrke,
@@ -570,7 +570,7 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltak & VeilederflateTilta
 
 export const tiltakFagOgYrke: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
   type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
-  sanityId: "f1887090-1ba8-47a4-a82f-6aaad488994e",
+  id: "f1887090-1ba8-47a4-a82f-6aaad488994e",
   navn: "Opplæring Fag og Yrke",
   oppmoteSted: null,
   tiltakstype: mockTiltakstyper.OpplarinFagOgYrke,
@@ -626,7 +626,7 @@ export const enkeltplassNorskGrunnFov: VeilederflateTiltak & VeilederflateTiltak
   oppmoteSted: null,
   fylker: ["0300"],
   enheter: [],
-  sanityId: "95536a45-05d0-44cd-8b91-6da11af36dc1",
+  id: "95536a45-05d0-44cd-8b91-6da11af36dc1",
   tiltaksnummer: null,
 };
 

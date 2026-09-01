@@ -73,7 +73,7 @@ export function Delemodal({
       tekst,
       venterPaaSvarFraBruker,
       gjennomforingId: isTiltakGruppe(tiltak) ? tiltak.id : null,
-      sanityId: !isTiltakGruppe(tiltak) ? tiltak.sanityId : null,
+      tiltakDokumentId: !isTiltakGruppe(tiltak) ? tiltak.id : null,
       tiltakstypeId: tiltak.tiltakstype.id,
       deltFraEnhet: veilederEnhet,
     });

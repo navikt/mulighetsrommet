@@ -1137,7 +1137,7 @@ components:
           - "null"
           - string
           format: uuid
-        sanityId:
+        tiltakDokumentId:
           type:
           - "null"
           - string
@@ -1149,8 +1149,8 @@ components:
       - fnr
       - gjennomforingId
       - overskrift
-      - sanityId
       - tekst
+      - tiltakDokumentId
       - tiltakstypeId
       - venterPaaSvarFraBruker
     DelTiltakMedBrukerResponse:
@@ -1543,8 +1543,9 @@ components:
           type: array
           items:
             type: string
-        sanityId:
+        id:
           type: string
+          format: uuid
         tiltaksnummer:
           type:
           - "null"
@@ -1554,11 +1555,11 @@ components:
       - enheter
       - faneinnhold
       - fylker
+      - id
       - kontaktinfo
       - navn
       - oppmoteSted
       - oppstart
-      - sanityId
       - tiltaksnummer
       - tiltakstype
     VeilederflateKontaktinfo:
@@ -1640,8 +1641,9 @@ components:
           type: array
           items:
             type: string
-        sanityId:
+        id:
           type: string
+          format: uuid
         tiltaksnummer:
           type:
           - "null"
@@ -1654,11 +1656,11 @@ components:
       - enheter
       - faneinnhold
       - fylker
+      - id
       - kontaktinfo
       - navn
       - oppmoteSted
       - oppstart
-      - sanityId
       - tiltaksnummer
       - tiltakstype
     VeilederflateArrangor:

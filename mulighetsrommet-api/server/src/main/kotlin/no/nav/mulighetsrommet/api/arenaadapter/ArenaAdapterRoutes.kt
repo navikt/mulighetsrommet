@@ -20,9 +20,9 @@ fun Route.arenaAdapterRoutes() {
         put("tiltaksgjennomforing") {
             val gjennomforing = call.receive<ArenaGjennomforingDbo>()
 
-            val sanityId = arenaAdapterService.upsertTiltaksgjennomforing(gjennomforing)
+            val tiltakDokumentId = arenaAdapterService.upsertTiltaksgjennomforing(gjennomforing)
 
-            call.respond(UpsertTiltaksgjennomforingResponse(sanityId))
+            call.respond(UpsertTiltaksgjennomforingResponse(tiltakDokumentId))
         }
 
         delete("tiltaksgjennomforing/{id}") {
@@ -36,7 +36,7 @@ fun Route.arenaAdapterRoutes() {
         delete("sanity/tiltaksgjennomforing/{sanityId}") {
             val sanityId = call.parameters.getOrFail<UUID>("sanityId")
 
-            arenaAdapterService.removeSanityTiltaksgjennomforing(sanityId)
+            arenaAdapterService.deleteTiltakDokument(sanityId)
             call.response.status(HttpStatusCode.OK)
         }
     }
