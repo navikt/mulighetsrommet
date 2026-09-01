@@ -226,7 +226,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             }
         }
 
-        test("henter Gruppe Fag/Yrke med informasjon om utdanningsprogram") {
+        test("henter Gruppe Fag- og Yrke med informasjon om utdanningsprogram") {
             val utdanningsprogram = UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg
 
             val domain = MulighetsrommetTestDomain(
@@ -257,7 +257,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             }
         }
 
-        test("henter Gruppe Fag/Yrke uten informasjon om utdanningsprogram") {
+        test("henter Gruppe Fag- og Yrke uten informasjon om utdanningsprogram") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeFagOgYrkesopplaering),
                 avtaler = listOf(AvtaleFixtures.gruppeFagYrke),

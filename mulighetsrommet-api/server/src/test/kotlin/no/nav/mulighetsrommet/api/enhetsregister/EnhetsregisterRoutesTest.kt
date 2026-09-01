@@ -31,7 +31,7 @@ class EnhetsregisterRoutesTest : FunSpec({
         auth = createAuthConfig(oauth, roles = setOf()),
     )
 
-    context("/v1/virksomhet") {
+    context("virksomhet") {
         context("sok underenhet") {
             val sokUrl = { term: String -> "/api/v1/virksomhet/underenhet?sok=$term" }
 

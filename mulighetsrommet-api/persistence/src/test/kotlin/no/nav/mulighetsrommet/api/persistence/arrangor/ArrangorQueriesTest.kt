@@ -134,7 +134,7 @@ class ArrangorQueriesTest : FunSpec({
     }
 
     context("utenlandsk arrangør") {
-        test("betalingsinformasjon og adresse blir persistert og hentet via repository.save/get") {
+        test("betalingsinformasjon og adresse blir persistert og hentet") {
             database.runAndRollback {
                 val arrangor = ArrangorFixtures.Utenlandsk.hovedenhet.registrerBetalingsinformasjon(
                     betalingsinformasjon = Betalingsinformasjon.IBan(

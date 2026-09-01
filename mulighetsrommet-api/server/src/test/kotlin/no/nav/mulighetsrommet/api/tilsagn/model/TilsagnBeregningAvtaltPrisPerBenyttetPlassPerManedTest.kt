@@ -70,7 +70,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 0.NOK
     }
 
-    test("skuddår/ikke skuddår") {
+    test("beregningen tar høyde for variabelt antall dager ifm. skuddår") {
         val ikkeSkuddar = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(
             periode = Periode.fromInclusiveDates(LocalDate.of(2023, 2, 1), LocalDate.of(2023, 2, 28)),
             sats = 20205.NOK,

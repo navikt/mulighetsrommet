@@ -153,6 +153,8 @@ prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
 shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:7.7.0"
 
+selfie-kotest = "com.diffplug.selfie:selfie-runner-kotest:3.1.1"
+
 slack-client = "com.slack.api:slack-api-client:1.49.0"
 
 slf4j = "org.slf4j:slf4j-api:2.0.18"
