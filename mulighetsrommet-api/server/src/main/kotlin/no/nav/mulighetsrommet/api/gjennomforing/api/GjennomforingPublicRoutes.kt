@@ -8,11 +8,11 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
+import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingDetaljerService
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.model.ExchangeArenaIdForIdResponse
 import no.nav.mulighetsrommet.model.TiltaksgjennomforingArenaDataDto
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import org.koin.ktor.ext.inject
 import java.util.UUID
 

@@ -6,11 +6,11 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
-import no.nav.mulighetsrommet.api.datavarehus.model.DvhAmoKategorisering
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1AmoDto
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1Dto
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1YrkesfagDto
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DvhAmoKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
 import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement

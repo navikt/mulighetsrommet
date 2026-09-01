@@ -6,8 +6,8 @@ import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserial
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Periode
+import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
+import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling.Periode
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker

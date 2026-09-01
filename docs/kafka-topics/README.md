@@ -33,7 +33,7 @@ versjon av hver nøkkel beholdes.
     - Automatisk statusoppdatering (f.eks. settes til avsluttet når sluttdato passeres).
     - Manuell relast av gjennomføringer fra databasen.
 - **Log compaction:** Aktivert
-- **Modell:** [`TiltaksgjennomforingV2Dto`](../../common/domain/src/main/kotlin/no/nav/mulighetsrommet/model/TiltaksgjennomforingV2Dto.kt)
+- **Modell:** [`TiltaksgjennomforingV2Dto`](../../mulighetsrommet-api/contracts/src/main/kotlin/no/nav/mulighetsrommet/api/contracts/gjennomforing/TiltaksgjennomforingV2Dto.kt)
 
 ---
 
@@ -44,7 +44,7 @@ versjon av hver nøkkel beholdes.
 - Hver hendelse på `siste-tiltaksgjennomforinger-v2` publiseres også her, så fremt tiltakskoden har blitt markert for
   migrering.
 - **Log compaction:** Aktivert
-- **Modell:** [`ArenaMigreringTiltaksgjennomforingDto`](../../mulighetsrommet-api/server/src/main/kotlin/no/nav/mulighetsrommet/api/gjennomforing/model/ArenaMigreringTiltaksgjennomforingDto.kt)
+- **Modell:** [`ArenaMigreringTiltaksgjennomforingDto`](../../mulighetsrommet-api/contracts/src/main/kotlin/no/nav/mulighetsrommet/api/contracts/arenamigrering/ArenaMigreringTiltaksgjennomforingDto.kt)
 
 ---
 
@@ -54,7 +54,7 @@ versjon av hver nøkkel beholdes.
 - Inneholder sentral informasjon om tiltakstype, avtale og gjennomføring.
 - Hver hendelse på `siste-tiltaksgjennomforinger-v2` publiseres også her.
 - **Log compaction:** Aktivert
-- **Modell:** [`DatavarehusTiltakV1`](../../mulighetsrommet-api/server/src/main/kotlin/no/nav/mulighetsrommet/api/datavarehus/model/DatavarehusTiltakV1.kt)
+- **Modell:** [`DatavarehusTiltakV1`](../../mulighetsrommet-api/contracts/src/main/kotlin/no/nav/mulighetsrommet/api/contracts/datavarehus/DatavarehusTiltakV1.kt)
 
 ---
 
@@ -78,4 +78,4 @@ versjon av hver nøkkel beholdes.
 - Oppdateres ved:
     - En utbetaling til bruker blir besluttet/attestert i Tiltaksadministrasjon.
 - **Log compaction:** Aktivert (kombinert med 90 dagers retention)
-- **Modell:** [`HelVedUtbetaling`](../../mulighetsrommet-api/server/src/main/kotlin/no/nav/mulighetsrommet/api/clients/helved/HelVedUtbetaling.kt)
+- **Modell:** [`HelVedUtbetaling`](../../mulighetsrommet-api/contracts/src/main/kotlin/no/nav/mulighetsrommet/api/contracts/helved/HelVedUtbetaling.kt)

@@ -1,23 +1,9 @@
-package no.nav.mulighetsrommet.api.datavarehus.model
+package no.nav.mulighetsrommet.api.datavarehus.mapper
 
-import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
-import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
-import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
-import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DvhAmoKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
-import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.model.Tiltakskode
-
-@Serializable
-data class DvhAmoKategorisering(
-    val kurstype: Kurstype.Kode? = null,
-    val bransje: Bransje.Kode? = null,
-    val forerkort: List<ForerkortKlasse.Kode>? = null,
-    val innholdElementer: List<InnholdElement.Kode>? = null,
-    val norskprove: Boolean? = null,
-    val sertifiseringer: List<Sertifisering>? = null,
-)
 
 fun OpplaringKategoriseringDetaljer.toDvhAmoKategorisering(tiltakskode: Tiltakskode): DvhAmoKategorisering? {
     val kurstype = this.kurstype
