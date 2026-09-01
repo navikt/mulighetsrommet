@@ -44,7 +44,7 @@ class ArrangorflateTilsagnQueries(val session: Session) {
             ArrangorflateTilsagnFilter.OrderBy.ARRANGOR -> "arrangor_navn $direction, arrangor_organisasjonsnummer $direction"
             ArrangorflateTilsagnFilter.OrderBy.START_DATO -> "lower(periode) $direction"
             ArrangorflateTilsagnFilter.OrderBy.SLUTT_DATO -> "upper(periode) $direction"
-            ArrangorflateTilsagnFilter.OrderBy.TILSAGN -> "type $direction"
+            ArrangorflateTilsagnFilter.OrderBy.TILSAGN -> "tilsagn_type $direction"
             ArrangorflateTilsagnFilter.OrderBy.STATUS -> "status $direction"
         }
 

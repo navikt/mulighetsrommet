@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.LocalDate
 import java.util.UUID
 
@@ -165,6 +166,41 @@ object TilsagnFixtures {
             prisbetingelser = null,
         ),
         kommentar = null,
+    )
+
+    fun createTilsagn(
+        gjennomforingId: UUID,
+        lopenummer: Int,
+        type: TilsagnType = TilsagnType.TILSAGN,
+    ): TilsagnDbo = TilsagnDbo(
+        id = UUID.randomUUID(),
+        gjennomforingId = gjennomforingId,
+        type = type,
+        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        lopenummer = lopenummer,
+        bestillingsnummer = "A-2025/1-$lopenummer",
+        bestillingStatus = BestillingStatusType.AKTIV,
+        belopBrukt = 0.NOK,
+        beregning = TilsagnBeregningAnnenAvtaltPris(
+            input = TilsagnBeregningAnnenAvtaltPris.Input(
+                listOf(
+                    TilsagnBeregningAnnenAvtaltPris.InputLinje(
+                        id = UUID.randomUUID(),
+                        beskrivelse = "1000",
+                        pris = 1000.NOK,
+                        antall = 1,
+                    ),
+                ),
+                prisbetingelser = null,
+            ),
+            output = TilsagnBeregningAnnenAvtaltPris.Output(
+                pris = 1000.NOK,
+            ),
+        ),
+        kommentar = null,
+        beskrivelse = null,
+        deltakere = emptyList(),
     )
 }
 
