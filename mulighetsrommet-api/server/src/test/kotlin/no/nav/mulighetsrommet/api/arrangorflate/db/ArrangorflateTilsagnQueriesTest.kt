@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.tiltak.okonomi.BestillingStatusType
 import java.util.UUID
 
 class ArrangorflateTilsagnQueriesTest : FunSpec({
@@ -31,12 +32,42 @@ class ArrangorflateTilsagnQueriesTest : FunSpec({
         arrangorId = ArrangorFixtures.underenhet2.id,
     )
 
-    val tilsagnAft = TilsagnFixtures.createTilsagn(aft1.id, lopenummer = 1, type = TilsagnType.TILSAGN)
-    val ekstratilsagnAft = TilsagnFixtures.createTilsagn(aft1.id, lopenummer = 2, type = TilsagnType.EKSTRATILSAGN)
-    val investeringtilsagnAft = TilsagnFixtures.createTilsagn(aft1.id, lopenummer = 3, type = TilsagnType.INVESTERING)
-    val tilsagnIkkeGodkjent = TilsagnFixtures.createTilsagn(aft1.id, lopenummer = 6, type = TilsagnType.TILSAGN)
-    val tilsagnVta = TilsagnFixtures.createTilsagn(vta1.id, lopenummer = 4, type = TilsagnType.TILSAGN)
-    val tilsagnAnnenArrangor = TilsagnFixtures.createTilsagn(aftHosAnnenArrangor.id, lopenummer = 5, type = TilsagnType.TILSAGN)
+    val tilsagnAft = TilsagnFixtures.createTilsagn(
+        aft1.id,
+        lopenummer = 1,
+        type = TilsagnType.TILSAGN,
+        bestillingStatus = BestillingStatusType.AKTIV,
+    )
+    val ekstratilsagnAft = TilsagnFixtures.createTilsagn(
+        aft1.id,
+        lopenummer = 2,
+        type = TilsagnType.EKSTRATILSAGN,
+        bestillingStatus = BestillingStatusType.AKTIV,
+    )
+    val investeringtilsagnAft = TilsagnFixtures.createTilsagn(
+        aft1.id,
+        lopenummer = 3,
+        type = TilsagnType.INVESTERING,
+        bestillingStatus = BestillingStatusType.AKTIV,
+    )
+    val tilsagnIkkeGodkjent = TilsagnFixtures.createTilsagn(
+        aft1.id,
+        lopenummer = 6,
+        type = TilsagnType.TILSAGN,
+        bestillingStatus = BestillingStatusType.AKTIV,
+    )
+    val tilsagnVta = TilsagnFixtures.createTilsagn(
+        vta1.id,
+        lopenummer = 4,
+        type = TilsagnType.TILSAGN,
+        bestillingStatus = BestillingStatusType.AKTIV,
+    )
+    val tilsagnAnnenArrangor = TilsagnFixtures.createTilsagn(
+        aftHosAnnenArrangor.id,
+        lopenummer = 5,
+        type = TilsagnType.TILSAGN,
+        bestillingStatus = BestillingStatusType.AKTIV,
+    )
 
     val domain = MulighetsrommetTestDomain(
         avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.VTA),
