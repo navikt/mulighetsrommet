@@ -130,8 +130,8 @@ object TestFixtures {
         val arenaArbeidstrening = TiltakshistorikkArenaGjennomforing(
             id = UUID.randomUUID(),
             arenaTiltakskode = "ARBTREN",
-            arenaRegDato = LocalDate.of(2025, 1, 1).atStartOfDay(),
-            arenaModDato = LocalDate.of(2025, 1, 2).atStartOfDay(),
+            arenaRegDato = Instant.parse("2025-01-01T00:00:00Z"),
+            arenaModDato = Instant.parse("2025-01-02T00:00:00Z"),
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             navn = "Arbeidstrening hos Fretex",
             deltidsprosent = 80.0,
@@ -141,8 +141,8 @@ object TestFixtures {
         val arenaMentor = TiltakshistorikkArenaGjennomforing(
             id = UUID.randomUUID(),
             arenaTiltakskode = "MENTOR",
-            arenaRegDato = LocalDate.of(2025, 1, 1).atStartOfDay(),
-            arenaModDato = LocalDate.of(2025, 1, 2).atStartOfDay(),
+            arenaRegDato = Instant.parse("2025-01-01T00:00:00Z"),
+            arenaModDato = Instant.parse("2025-01-02T00:00:00Z"),
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             navn = "Mentortiltak hos Joblearn",
             deltidsprosent = 100.0,
@@ -152,8 +152,8 @@ object TestFixtures {
         val arenaAmo = TiltakshistorikkArenaGjennomforing(
             id = UUID.randomUUID(),
             arenaTiltakskode = "AMO",
-            arenaRegDato = LocalDate.of(2024, 1, 1).atStartOfDay(),
-            arenaModDato = LocalDate.of(2024, 1, 1).atStartOfDay(),
+            arenaRegDato = Instant.parse("2024-01-01T00:00:00Z"),
+            arenaModDato = Instant.parse("2024-01-01T00:00:00Z"),
             arrangorOrganisasjonsnummer = Organisasjonsnummer("987654321"),
             navn = "Enkelt-AMO hos Joblearn",
             deltidsprosent = 100.0,
