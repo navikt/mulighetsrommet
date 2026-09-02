@@ -21,8 +21,6 @@ data class AppConfig(
     ),
     val auth: AuthConfig,
     val kafka: KafkaConfig,
-    val clients: ClientConfig,
-    val useKafkaForTeamTiltak: Boolean = false,
     val arbeidsgiverTiltakCutOffDatoMapping: Map<Tiltakskode, LocalDate> = mapOf(
         Tiltakskode.SOMMERJOBB to LocalDate.of(2021, 1, 1),
         Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
@@ -31,10 +29,6 @@ data class AppConfig(
         Tiltakskode.VTAO to LocalDate.of(2025, 5, 13),
         Tiltakskode.MENTOR to LocalDate.of(2025, 1, 28),
     ),
-)
-
-data class ClientConfig(
-    val tiltakDatadeling: ServiceClientConfig,
 )
 
 data class AuthConfig(
@@ -49,11 +43,6 @@ data class AuthProvider(
     val audience: String,
     val tokenEndpointUrl: String,
     val privateJwk: String,
-)
-
-data class ServiceClientConfig(
-    val url: String,
-    val scope: String,
 )
 
 data class KafkaConfig(

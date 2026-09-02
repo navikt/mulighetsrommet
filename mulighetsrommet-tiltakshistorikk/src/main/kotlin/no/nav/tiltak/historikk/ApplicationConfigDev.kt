@@ -4,12 +4,10 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
-import no.nav.tiltak.historikk.clients.Avtale
 import java.time.LocalDate
 import java.util.UUID
 
 val ApplicationConfigDev = AppConfig(
-    useKafkaForTeamTiltak = true,
     database = DatabaseConfig(
         jdbcUrl = System.getenv("DB_JDBC_URL"),
         maximumPoolSize = 10,
@@ -32,12 +30,6 @@ val ApplicationConfigDev = AppConfig(
     ),
     kafka = KafkaConfig(
         consumers = KafkaConsumers(),
-    ),
-    clients = ClientConfig(
-        tiltakDatadeling = ServiceClientConfig(
-            url = "http://tiltak-datadeling.team-tiltak",
-            scope = "api://dev-gcp.team-tiltak.tiltak-datadeling/.default",
-        ),
     ),
     arbeidsgiverTiltakCutOffDatoMapping = mapOf(
         Tiltakskode.SOMMERJOBB to LocalDate.of(2021, 1, 1),

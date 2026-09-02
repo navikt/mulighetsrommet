@@ -85,7 +85,4 @@ val ApplicationConfigLocal = AppConfig(
             ),
         ),
     ),
-    clients = ClientConfig(
-        tiltakDatadeling = ServiceClientConfig(url = "http://localhost:8090/tiltak-datadeling", scope = "default"),
-    ),
 )
