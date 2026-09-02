@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskoder
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import no.nav.tiltak.historikk.TiltakshistorikkClient
-import no.nav.tiltak.historikk.TiltakshistorikkMelding
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -57,20 +56,12 @@ class TiltakshistorikkService(
                 )
             },
             { response ->
-                val meldinger = response.meldinger
-                    .map {
-                        when (it) {
-                            TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK -> DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK
-                        }
-                    }
-                    .toSet()
-
                 val (aktive, historiske) = response.historikk
                     .mapNotNull { toDeltakelse(it) }
                     .partition { erAktiv(it.tilstand) }
 
                 Deltakelser(
-                    meldinger = meldinger,
+                    meldinger = setOf(),
                     aktive = aktive,
                     historiske = historiske,
                 )
@@ -323,7 +314,6 @@ private fun getStatusDataElement(status: TiltakshistorikkV1Dto.TeamTiltakAvtale.
 
 enum class DeltakelserMelding {
     MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET,
-    MANGLER_DELTAKELSER_FRA_TEAM_TILTAK,
     MANGLER_DELTAKELSER_FRA_TILTAKSHISTORIKKEN,
 }
 

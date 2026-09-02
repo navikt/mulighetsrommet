@@ -294,9 +294,7 @@ data class TiltakshistorikkV1Response(
     val meldinger: Set<TiltakshistorikkMelding>,
 )
 
-enum class TiltakshistorikkMelding {
-    MANGLER_HISTORIKK_FRA_TEAM_TILTAK,
-}
+enum class TiltakshistorikkMelding
 
 @Serializable
 data class TiltakshistorikkArenaGjennomforing(
