@@ -1,12 +1,10 @@
 import { useTiltakshistorikkForBruker } from "@/api/queries/useTiltakshistorikkForBruker";
-import { TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL } from "@/constants";
 import {
   BrukerDeltakelseType,
   Deltakelse,
   DeltakelserMelding,
   GetDeltakelserForBrukerResponse,
 } from "@arbeidsmarkedstiltak/api-client";
-import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import {
   ArrowForwardIcon,
   FileSearchIcon,
@@ -31,8 +29,8 @@ import {
 import { ReactNode, Suspense, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Link, useLocation } from "react-router";
-import { DelMedBrukerHistorikk } from "../delMedBruker/DelMedBrukerHistorikk";
-import { DeltakelseKort } from "../historikk/DeltakelseKort";
+import { DelMedBrukerHistorikk } from "@/apps/modia/delMedBruker/DelMedBrukerHistorikk";
+import { DeltakelseKort } from "@/apps/modia/historikk/DeltakelseKort";
 import { Melding } from "@/components/melding/Melding";
 
 function Feilmelding({ message }: { message: string }) {
@@ -273,9 +271,6 @@ function TiltakshistorikkMeldinger({ meldinger }: GetDeltakelserForBrukerRespons
       {meldinger.includes(DeltakelserMelding.MANGLER_SISTE_DELTAKELSER_FRA_TEAM_KOMET) && (
         <ManglerSisteDeltakelserFraTeamKometMelding />
       )}
-      {meldinger.includes(DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK) && (
-        <ManglerDeltakelserFraTeamTiltakMelding />
-      )}
     </>
   );
 }
@@ -309,43 +304,6 @@ function ManglerSisteDeltakelserFraTeamKometMelding() {
         </List>
       </HelpText>
     </Melding>
-  );
-}
-
-function ManglerDeltakelserFraTeamTiltakMelding() {
-  return (
-    <Melding header="Får ikke kontakt med baksystemene" variant="warning">
-      <HStack gap="space-2">
-        Vi får ikke kontakt med baksystemene og informasjon om tiltak hos arbeidsgiver{" "}
-        <TeamTiltakTiltaksgjennomforingAvtalerLink />
-        mangler derfor i visningen.
-        <HelpText>
-          <BodyShort spacing>Gjelder følgende tiltakstyper:</BodyShort>
-          <List as="ul">
-            <List.Item>Arbeidstrening</List.Item>
-            <List.Item>Inkluderingstilskudd</List.Item>
-            <List.Item>Mentor</List.Item>
-            <List.Item>Midlertidig lønnstilskudd</List.Item>
-            <List.Item>Tilskudd til sommerjobb</List.Item>
-            <List.Item>Varig lønnstilskudd</List.Item>
-            <List.Item>Varig tilrettelagt arbeid i ordinær virksomhet</List.Item>
-          </List>
-        </HelpText>
-      </HStack>
-    </Melding>
-  );
-}
-
-function TeamTiltakTiltaksgjennomforingAvtalerLink() {
-  return (
-    <Lenke
-      target="_blank"
-      rel="noreferrer noopener"
-      to={`${TEAM_TILTAK_TILTAKSGJENNOMFORING_APP_URL}?part=VEILEDER`}
-      isExternal
-    >
-      Tiltaksgjennomføring - avtaler
-    </Lenke>
   );
 }
 

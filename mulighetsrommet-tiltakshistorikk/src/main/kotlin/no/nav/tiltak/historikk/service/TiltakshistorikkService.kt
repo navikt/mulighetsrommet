@@ -37,7 +37,7 @@ class TiltakshistorikkService(
         val historikk = (arenaDeltakelser.await() + teamKometDeltakelser.await() + teamTiltakAvtaler.await())
             .sortedWith(compareBy(nullsLast()) { it.startDato })
 
-        TiltakshistorikkV1Response(historikk = historikk, meldinger = setOf())
+        TiltakshistorikkV1Response(historikk)
     }
 
     private fun getHistorikkTeamKomet(
