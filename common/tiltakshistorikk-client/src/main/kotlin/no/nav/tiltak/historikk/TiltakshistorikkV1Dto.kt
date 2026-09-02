@@ -1,8 +1,16 @@
+@file:UseSerializers(
+    UUIDSerializer::class,
+    InstantSerializer::class,
+    LocalDateSerializer::class,
+    LocalDateTimeSerializer::class,
+)
+
 package no.nav.tiltak.historikk
 
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import kotlinx.serialization.json.JsonNames
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
@@ -103,7 +111,6 @@ sealed class TiltakshistorikkV1Dto {
 
     @Serializable
     data class Gjennomforing(
-        @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         /**
          * Navn på tiltaksgjennomføringen, enten fra Tiltaksadministrasjon eller fra Arena.
@@ -125,15 +132,10 @@ sealed class TiltakshistorikkV1Dto {
     @SerialName("ArenaDeltakelse")
     data class ArenaDeltakelse(
         override val norskIdent: NorskIdent,
-        @Serializable(with = LocalDateSerializer::class)
         override val startDato: LocalDate?,
-        @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
-        @Serializable(with = InstantSerializer::class)
         override val opprettetTidspunkt: Instant,
-        @Serializable(with = InstantSerializer::class)
         override val oppdatertTidspunkt: Instant,
-        @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val tittel: String,
         val arenaId: Int,
@@ -157,15 +159,10 @@ sealed class TiltakshistorikkV1Dto {
     @SerialName("TeamKometDeltakelse")
     data class TeamKometDeltakelse(
         override val norskIdent: NorskIdent,
-        @Serializable(with = LocalDateSerializer::class)
         override val startDato: LocalDate?,
-        @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
-        @Serializable(with = InstantSerializer::class)
         override val opprettetTidspunkt: Instant,
-        @Serializable(with = InstantSerializer::class)
         override val oppdatertTidspunkt: Instant,
-        @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val tittel: String,
         val status: Status,
@@ -210,7 +207,6 @@ sealed class TiltakshistorikkV1Dto {
             val type: DeltakerStatusType,
             val aarsak: DeltakerStatusAarsakType?,
             @JsonNames("opprettetDato")
-            @Serializable(with = LocalDateTimeSerializer::class)
             val opprettetTidspunkt: LocalDateTime,
         )
     }
@@ -219,15 +215,10 @@ sealed class TiltakshistorikkV1Dto {
     @SerialName("TeamTiltakAvtale")
     data class TeamTiltakAvtale(
         override val norskIdent: NorskIdent,
-        @Serializable(with = LocalDateSerializer::class)
         override val startDato: LocalDate?,
-        @Serializable(with = LocalDateSerializer::class)
         override val sluttDato: LocalDate?,
-        @Serializable(with = InstantSerializer::class)
         override val opprettetTidspunkt: Instant,
-        @Serializable(with = InstantSerializer::class)
         override val oppdatertTidspunkt: Instant,
-        @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val tittel: String,
         val tiltakstype: Tiltakstype,
@@ -313,14 +304,10 @@ enum class TiltakshistorikkMelding {
 
 @Serializable
 data class TiltakshistorikkArenaGjennomforing(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val arenaTiltakskode: String,
-    @Serializable(with = UUIDSerializer::class)
     val tiltakstypeId: UUID,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val arenaRegDato: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val arenaModDato: LocalDateTime,
     val navn: String,
     val arrangorOrganisasjonsnummer: Organisasjonsnummer,
@@ -329,20 +316,14 @@ data class TiltakshistorikkArenaGjennomforing(
 
 @Serializable
 data class TiltakshistorikkArenaDeltaker(
-    @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val arenaRegDato: LocalDateTime,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val arenaModDato: LocalDateTime,
-    @Serializable(with = UUIDSerializer::class)
     val arenaGjennomforingId: UUID,
     val arenaDeltakerId: Int,
     val norskIdent: NorskIdent,
     val status: ArenaDeltakerStatus,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val startDato: LocalDateTime?,
-    @Serializable(with = LocalDateTimeSerializer::class)
     val sluttDato: LocalDateTime?,
     val dagerPerUke: Double?,
     val deltidsprosent: Double?,
