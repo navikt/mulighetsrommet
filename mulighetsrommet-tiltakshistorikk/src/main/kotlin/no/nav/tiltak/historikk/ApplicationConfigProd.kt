@@ -29,10 +29,4 @@ val ApplicationConfigProd = AppConfig(
     kafka = KafkaConfig(
         consumers = KafkaConsumers(),
     ),
-    clients = ClientConfig(
-        tiltakDatadeling = ServiceClientConfig(
-            url = "http://tiltak-datadeling.team-tiltak",
-            scope = "api://prod-gcp.team-tiltak.tiltak-datadeling/.default",
-        ),
-    ),
 )

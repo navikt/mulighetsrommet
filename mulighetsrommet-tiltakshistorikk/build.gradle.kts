@@ -25,14 +25,10 @@ dependencies {
     implementation(projects.common.amtDeltaker)
     implementation(projects.mulighetsrommetApi.contracts)
 
-    // Cache
-    implementation(libs.caffeine)
-
     // Kotlin
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.arrow.core)
-    implementation(libs.arrow.core.serialization)
 
     // Logging
     implementation(libs.bundles.logging)

@@ -4,7 +4,6 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.tiltak.historikk.clients.Avtale
 import no.nav.tiltak.historikk.model.Tiltakstype
 import org.intellij.lang.annotations.Language
 
@@ -32,7 +31,7 @@ class TiltakstypeQueries(private val session: Session) {
         )
     }
 
-    fun getByTiltakskode(tiltakstype: Avtale.Tiltakstype): Tiltakstype {
+    fun getByTiltakskode(tiltakstype: Tiltakskode): Tiltakstype {
         @Language("PostgreSQL")
         val query = """
             select navn, tiltakskode, arena_tiltakskode, tiltakstype_id

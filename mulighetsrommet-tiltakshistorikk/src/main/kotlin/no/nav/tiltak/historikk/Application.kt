@@ -16,9 +16,6 @@ import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.ktor.plugins.configureMetrics
 import no.nav.mulighetsrommet.ktor.plugins.configureMonitoring
-import no.nav.mulighetsrommet.tokenprovider.AzureAdTokenProvider
-import no.nav.mulighetsrommet.tokenprovider.TexasClient
-import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtDeltakerV1KafkaConsumer
 import no.nav.tiltak.historikk.kafka.consumers.ReplikerAmtVirksomheterV1KafkaConsumer
@@ -63,14 +60,6 @@ fun Application.configure(config: AppConfig) {
     configureMonitoring({ database.isHealthy() })
     configureHTTP()
 
-    val texasClient = TexasClient(config.auth.texas, config.auth.texas.engine ?: config.httpClientEngine)
-    val azureAdTokenProvider = AzureAdTokenProvider(texasClient)
-    val tiltakDatadelingClient = TiltakDatadelingClient(
-        engine = config.httpClientEngine,
-        baseUrl = config.clients.tiltakDatadeling.url,
-        tokenProvider = azureAdTokenProvider.withScope(config.clients.tiltakDatadeling.scope),
-    )
-
     val db = TiltakshistorikkDatabase(database)
 
     val virksomheter = VirksomhetService(
@@ -82,11 +71,9 @@ fun Application.configure(config: AppConfig) {
 
     val tiltakshistorikk = TiltakshistorikkService(
         config = TiltakshistorikkService.Config(
-            useKafkaForTeamTiltak = config.useKafkaForTeamTiltak,
             cutOffDatoMapping = config.arbeidsgiverTiltakCutOffDatoMapping,
         ),
         db = db,
-        tiltakDatadelingClient = tiltakDatadelingClient,
         virksomheter = virksomheter,
     )
 

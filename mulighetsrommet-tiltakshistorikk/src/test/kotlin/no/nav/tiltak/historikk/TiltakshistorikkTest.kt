@@ -5,8 +5,6 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.ktor.client.call.body
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.request.HttpRequestData
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -15,27 +13,21 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import no.nav.amt.model.AmtDeltakerV1Dto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
-import no.nav.mulighetsrommet.ktor.createMockEngine
-import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.security.mock.oauth2.MockOAuth2Server
-import no.nav.tiltak.historikk.clients.Avtale
-import no.nav.tiltak.historikk.clients.GetAvtalerForPersonResponse
-import no.nav.tiltak.historikk.clients.GraphqlResponse
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.kafka.consumers.toGjennomforing
 import no.nav.tiltak.historikk.kafka.consumers.toKometDeltaker
+import no.nav.tiltak.historikk.model.ArbeidsgiverAvtale
 import no.nav.tiltak.historikk.plugins.ACCESS_AS_APPLICATION
 import no.nav.tiltak.historikk.plugins.TiltakshistorikkReadRoles
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.UUID
 
 private val TEAM_TILTAK_ARBEIDSTRENING_ID: UUID = UUID.fromString("9dea48c1-d494-4664-9427-bdb20a6f265f")
@@ -65,9 +57,7 @@ class TiltakshistorikkTest : FunSpec({
         }
 
         test("unauthorized når token mangler") {
-            val mockEngine = mockTiltakDatadeling()
-
-            withTestApplication(oauth, mockEngine) {
+            withTestApplication(oauth) {
                 val response = client.post("/api/v1/historikk") {
                     contentType(ContentType.Application.Json)
                     setBody(TiltakshistorikkV1Request(identer = listOf(NorskIdent("12345678910"))))
@@ -78,9 +68,7 @@ class TiltakshistorikkTest : FunSpec({
         }
 
         test("unauthorized når riktige roles mangler") {
-            val mockEngine = mockTiltakDatadeling()
-
-            withTestApplication(oauth, mockEngine) {
+            withTestApplication(oauth) {
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken(claims = mapOf("roles" to listOf(ACCESS_AS_APPLICATION))).serialize())
                     contentType(ContentType.Application.Json)
@@ -92,9 +80,7 @@ class TiltakshistorikkTest : FunSpec({
         }
 
         test("tom historikk når det ikke finnes noen deltakelser for gitt ident") {
-            val mockEngine = mockTiltakDatadeling()
-
-            withTestApplication(oauth, mockEngine) {
+            withTestApplication(oauth) {
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
@@ -107,42 +93,13 @@ class TiltakshistorikkTest : FunSpec({
             }
         }
 
-        test("Henter enkeltplassdeltakelser fra Arena når de er avsluttet før cutoff-dato") {
-            val mockEngine = mockTiltakDatadeling(
-                response = GraphqlResponse(
-                    data = GetAvtalerForPersonResponse(
-                        avtalerForPerson = listOf(
-                            Avtale(
-                                avtaleId = TEAM_TILTAK_ARBEIDSTRENING_ID,
-                                avtaleNr = 1,
-                                deltakerFnr = NorskIdent("12345678910"),
-                                bedriftNr = "876543210",
-                                tiltakstype = Avtale.Tiltakstype.ARBEIDSTRENING,
-                                startDato = LocalDate.of(2024, 1, 1),
-                                sluttDato = LocalDate.of(2024, 12, 31),
-                                avtaleStatus = Avtale.Status.GJENNOMFORES,
-                                stillingprosent = 77f,
-                                antallDagerPerUke = 2.5f,
-                                opprettetTidspunkt = ZonedDateTime.of(
-                                    LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                                    ZoneId.of("Europe/Oslo"),
-                                ),
-                                endretTidspunkt = ZonedDateTime.of(
-                                    LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                                    ZoneId.of("Europe/Oslo"),
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
-            )
-
-            val config = createTestApplicationConfig(oauth, mockEngine).copy(
+        test("Henter arbeidsgiveravtaler fra Arena når de er avsluttet før cutoff-dato") {
+            val config = createTestApplicationConfig(oauth).copy(
                 arbeidsgiverTiltakCutOffDatoMapping = mapOf(
-                    Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2024, 1, 1),
+                    Tiltakskode.ARBEIDSTRENING to LocalDate.of(2024, 1, 1),
                 ),
             )
-            withTestApplication(oauth, mockEngine, config) {
+            withTestApplication(oauth, config = config) {
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
@@ -283,43 +240,14 @@ class TiltakshistorikkTest : FunSpec({
             }
         }
 
-        test("Filtrerer vekk enkeltplassdeltakelser fra Arena når deltakelsene har sluttdato etter cutoff-dato") {
-            val mockEngine = mockTiltakDatadeling(
-                response = GraphqlResponse(
-                    data = GetAvtalerForPersonResponse(
-                        avtalerForPerson = listOf(
-                            Avtale(
-                                avtaleId = TEAM_TILTAK_ARBEIDSTRENING_ID,
-                                avtaleNr = 1,
-                                deltakerFnr = NorskIdent("12345678910"),
-                                bedriftNr = "876543210",
-                                tiltakstype = Avtale.Tiltakstype.ARBEIDSTRENING,
-                                startDato = LocalDate.of(2024, 1, 1),
-                                sluttDato = LocalDate.of(2024, 12, 31),
-                                avtaleStatus = Avtale.Status.GJENNOMFORES,
-                                stillingprosent = 77f,
-                                antallDagerPerUke = 2.5f,
-                                opprettetTidspunkt = ZonedDateTime.of(
-                                    LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                                    ZoneId.of("Europe/Oslo"),
-                                ),
-                                endretTidspunkt = ZonedDateTime.of(
-                                    LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-                                    ZoneId.of("Europe/Oslo"),
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
-            )
-
-            val config = createTestApplicationConfig(oauth, mockEngine).copy(
+        test("Filtrerer vekk arbeidsgiveravtaler fra Arena når deltakelsene har sluttdato etter cutoff-dato") {
+            val config = createTestApplicationConfig(oauth).copy(
                 arbeidsgiverTiltakCutOffDatoMapping = mapOf(
-                    Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2023, 1, 31),
-                    Avtale.Tiltakstype.MENTOR to LocalDate.of(2024, 1, 31),
+                    Tiltakskode.ARBEIDSTRENING to LocalDate.of(2023, 1, 31),
+                    Tiltakskode.MENTOR to LocalDate.of(2024, 1, 31),
                 ),
             )
-            withTestApplication(oauth, mockEngine, config) {
+            withTestApplication(oauth, config = config) {
                 val response = client.post("/api/v1/historikk") {
                     bearerAuth(oauth.issueToken(claims = tiltakshistorikkReadClaims()).serialize())
                     contentType(ContentType.Application.Json)
@@ -344,19 +272,6 @@ private fun tiltakshistorikkReadClaims(): Map<String, List<String>> {
     return mapOf("roles" to TiltakshistorikkReadRoles)
 }
 
-private fun mockTiltakDatadeling(
-    response: GraphqlResponse<GetAvtalerForPersonResponse> = GraphqlResponse(
-        data = GetAvtalerForPersonResponse(avtalerForPerson = listOf()),
-    ),
-): MockEngine {
-    return createMockEngine {
-        post("/tiltak-datadeling/graphql") { _: HttpRequestData ->
-            val serializer = GraphqlResponse.serializer(GetAvtalerForPersonResponse.serializer())
-            respondJson(response, serializer)
-        }
-    }
-}
-
 private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
     val arrangor = TestFixtures.Virksomhet.arrangor
     queries.virksomhet.upsert(arrangor)
@@ -376,10 +291,10 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         arenaDeltakerId = 1,
         norskIdent = NorskIdent("12345678910"),
         status = ArenaDeltakerStatus.GJENNOMFORES,
-        startDato = LocalDateTime.of(2023, 1, 1, 0, 0, 0),
-        sluttDato = LocalDateTime.of(2023, 1, 31, 0, 0, 0),
-        arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        startDato = LocalDate.of(2023, 1, 1),
+        sluttDato = LocalDate.of(2023, 1, 31),
+        arenaRegDato = Instant.parse("2023-12-31T23:00:00Z"),
+        arenaModDato = Instant.parse("2023-12-31T23:00:00Z"),
         dagerPerUke = 5.0,
         deltidsprosent = 100.0,
     )
@@ -396,10 +311,10 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         arenaDeltakerId = 2,
         norskIdent = NorskIdent("12345678910"),
         status = ArenaDeltakerStatus.GJENNOMFORES,
-        startDato = LocalDateTime.of(2024, 2, 1, 0, 0, 0),
-        sluttDato = LocalDateTime.of(2024, 2, 29, 0, 0, 0),
-        arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        startDato = LocalDate.of(2024, 2, 1),
+        sluttDato = LocalDate.of(2024, 2, 29),
+        arenaRegDato = Instant.parse("2023-12-31T23:00:00Z"),
+        arenaModDato = Instant.parse("2023-12-31T23:00:00Z"),
         dagerPerUke = 5.0,
         deltidsprosent = 100.0,
     )
@@ -417,14 +332,29 @@ private fun inititalizeData(db: TiltakshistorikkDatabase) = db.session {
         arenaDeltakerId = 3,
         norskIdent = NorskIdent("12345678910"),
         status = ArenaDeltakerStatus.GJENNOMFORES,
-        startDato = LocalDateTime.of(2024, 2, 1, 0, 0, 0),
-        sluttDato = LocalDateTime.of(2024, 2, 29, 0, 0, 0),
-        arenaRegDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
-        arenaModDato = LocalDateTime.of(2024, 1, 1, 0, 0, 0),
+        startDato = LocalDate.of(2024, 2, 1),
+        sluttDato = LocalDate.of(2024, 2, 29),
+        arenaRegDato = Instant.parse("2023-12-31T23:00:00Z"),
+        arenaModDato = Instant.parse("2023-12-31T23:00:00Z"),
         dagerPerUke = 5.0,
         deltidsprosent = 100.0,
     )
     queries.arenaDeltaker.upsertArenaDeltaker(enkeltAMO)
+
+    val teamTiltakArbeidstrening = ArbeidsgiverAvtale(
+        avtaleId = TEAM_TILTAK_ARBEIDSTRENING_ID,
+        norskIdent = NorskIdent("12345678910"),
+        organisasjonsnummer = Organisasjonsnummer("876543210"),
+        tiltakstype = Tiltakskode.ARBEIDSTRENING,
+        startDato = LocalDate.of(2024, 1, 1),
+        sluttDato = LocalDate.of(2024, 12, 31),
+        status = ArbeidsgiverAvtale.Status.GJENNOMFORES,
+        stillingsprosent = 77f,
+        dagerPerUke = 2.5f,
+        opprettetTidspunkt = Instant.parse("2022-12-31T23:00:00Z"),
+        oppdatertTidspunkt = Instant.parse("2022-12-31T23:00:00Z"),
+    )
+    queries.arbeidsgiverAvtale.upsert(teamTiltakArbeidstrening)
 
     val gruppeAmoTiltakstype = TestFixtures.Tiltakstype.gruppeAmo
     queries.tiltakstype.upsert(gruppeAmoTiltakstype)
