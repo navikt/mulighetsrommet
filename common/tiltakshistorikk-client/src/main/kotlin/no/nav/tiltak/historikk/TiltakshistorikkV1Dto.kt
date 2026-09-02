@@ -7,11 +7,9 @@
 
 package no.nav.tiltak.historikk
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.json.JsonNames
 import no.nav.mulighetsrommet.model.ArenaDeltakerStatus
 import no.nav.mulighetsrommet.model.DeltakerStatusAarsakType
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -201,12 +199,10 @@ sealed class TiltakshistorikkV1Dto {
             STUDIESPESIALISERING,
         }
 
-        @OptIn(ExperimentalSerializationApi::class)
         @Serializable
         data class Status(
             val type: DeltakerStatusType,
             val aarsak: DeltakerStatusAarsakType?,
-            @JsonNames("opprettetDato")
             val opprettetTidspunkt: LocalDateTime,
         )
     }
