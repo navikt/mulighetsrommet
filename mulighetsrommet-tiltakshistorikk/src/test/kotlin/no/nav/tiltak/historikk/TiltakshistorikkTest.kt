@@ -139,7 +139,7 @@ class TiltakshistorikkTest : FunSpec({
 
             val config = createTestApplicationConfig(oauth, mockEngine).copy(
                 arbeidsgiverTiltakCutOffDatoMapping = mapOf(
-                    Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2024, 1, 1),
+                    Tiltakskode.ARBEIDSTRENING to LocalDate.of(2024, 1, 1),
                 ),
             )
             withTestApplication(oauth, mockEngine, config) {
@@ -315,8 +315,8 @@ class TiltakshistorikkTest : FunSpec({
 
             val config = createTestApplicationConfig(oauth, mockEngine).copy(
                 arbeidsgiverTiltakCutOffDatoMapping = mapOf(
-                    Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2023, 1, 31),
-                    Avtale.Tiltakstype.MENTOR to LocalDate.of(2024, 1, 31),
+                    Tiltakskode.ARBEIDSTRENING to LocalDate.of(2023, 1, 31),
+                    Tiltakskode.MENTOR to LocalDate.of(2024, 1, 31),
                 ),
             )
             withTestApplication(oauth, mockEngine, config) {

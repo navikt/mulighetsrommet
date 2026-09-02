@@ -2,6 +2,7 @@ package no.nav.tiltak.historikk
 
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.metrics.Metrics
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.historikk.clients.Avtale
 import java.time.LocalDate
@@ -39,10 +40,11 @@ val ApplicationConfigDev = AppConfig(
         ),
     ),
     arbeidsgiverTiltakCutOffDatoMapping = mapOf(
-        Avtale.Tiltakstype.SOMMERJOBB to LocalDate.of(2021, 1, 1),
-        Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
-        Avtale.Tiltakstype.VARIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
-        Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2025, 1, 24),
-        Avtale.Tiltakstype.VTAO to LocalDate.of(2025, 1, 1),
+        Tiltakskode.SOMMERJOBB to LocalDate.of(2021, 1, 1),
+        Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
+        Tiltakskode.VARIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
+        Tiltakskode.ARBEIDSTRENING to LocalDate.of(2025, 1, 24),
+        Tiltakskode.VTAO to LocalDate.of(2025, 1, 1),
+        Tiltakskode.MENTOR to LocalDate.of(2025, 1, 1),
     ),
 )

@@ -34,7 +34,7 @@ class TiltakshistorikkService(
 ) {
     data class Config(
         val useKafkaForTeamTiltak: Boolean = false,
-        val cutOffDatoMapping: Map<Avtale.Tiltakstype, LocalDate>,
+        val cutOffDatoMapping: Map<Tiltakskode, LocalDate>,
     )
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -107,8 +107,7 @@ class TiltakshistorikkService(
 
         return avtaler
             .filter { avtale ->
-                val tiltakstype = Avtale.Tiltakstype.valueOf(avtale.tiltakstype.name)
-                belongsToTeamTiltak(tiltakstype, config.cutOffDatoMapping, avtale.sluttDato)
+                belongsToTeamTiltak(avtale.tiltakstype, config.cutOffDatoMapping, avtale.sluttDato)
             }
             .map { avtale ->
                 val tiltakstype = getTiltakstypeForKafkaAvtale(avtale)
@@ -150,7 +149,7 @@ class TiltakshistorikkService(
                 avtalerPerNorskIdent
                     .flatten()
                     .filter { avtale ->
-                        belongsToTeamTiltak(avtale.tiltakstype, config.cutOffDatoMapping, avtale.sluttDato)
+                        belongsToTeamTiltak(Tiltakskode.valueOf(avtale.tiltakstype.name), config.cutOffDatoMapping, avtale.sluttDato)
                     }
                     .map { avtale ->
                         val tiltakstype = getTiltakstype(avtale.tiltakstype)
@@ -181,22 +180,22 @@ class TiltakshistorikkService(
 }
 
 private fun belongsToTeamTiltak(
-    tiltakstype: Avtale.Tiltakstype,
-    cutOffDateMap: Map<Avtale.Tiltakstype, LocalDate>,
+    tiltakstype: Tiltakskode,
+    cutOffDateMap: Map<Tiltakskode, LocalDate>,
     sluttDato: LocalDate?,
 ): Boolean {
     val cutOffDate = cutOffDateMap[tiltakstype] ?: return false
     return sluttDato == null || sluttDato.isAfter(cutOffDate) || sluttDato == cutOffDate
 }
 
-private fun arenaKodeToTeamTiltakKode(arenaKode: String): Avtale.Tiltakstype? {
+private fun arenaKodeToTeamTiltakKode(arenaKode: String): Tiltakskode? {
     return when (arenaKode) {
-        "ARBTREN" -> Avtale.Tiltakstype.ARBEIDSTRENING
-        "MIDLONTIL" -> Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD
-        "VARLONTIL" -> Avtale.Tiltakstype.VARIG_LONNSTILSKUDD
-        "MENTOR" -> Avtale.Tiltakstype.MENTOR
-        "INKLUTILS" -> Avtale.Tiltakstype.INKLUDERINGSTILSKUDD
-        "VATIAROR" -> Avtale.Tiltakstype.VTAO
+        "ARBTREN" -> Tiltakskode.ARBEIDSTRENING
+        "MIDLONTIL" -> Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD
+        "VARLONTIL" -> Tiltakskode.VARIG_LONNSTILSKUDD
+        "MENTOR" -> Tiltakskode.MENTOR
+        "INKLUTILS" -> Tiltakskode.INKLUDERINGSTILSKUDD
+        "VATIAROR" -> Tiltakskode.VTAO
         else -> null
     }
 }

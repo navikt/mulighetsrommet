@@ -7,8 +7,8 @@ import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
-import no.nav.tiltak.historikk.clients.Avtale
 import java.time.LocalDate
 import java.util.UUID
 
@@ -23,13 +23,13 @@ data class AppConfig(
     val kafka: KafkaConfig,
     val clients: ClientConfig,
     val useKafkaForTeamTiltak: Boolean = false,
-    val arbeidsgiverTiltakCutOffDatoMapping: Map<Avtale.Tiltakstype, LocalDate> = mapOf(
-        Avtale.Tiltakstype.SOMMERJOBB to LocalDate.of(2021, 1, 1),
-        Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
-        Avtale.Tiltakstype.VARIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
-        Avtale.Tiltakstype.ARBEIDSTRENING to LocalDate.of(2025, 1, 24),
-        Avtale.Tiltakstype.VTAO to LocalDate.of(2025, 5, 13),
-        Avtale.Tiltakstype.MENTOR to LocalDate.of(2025, 1, 28),
+    val arbeidsgiverTiltakCutOffDatoMapping: Map<Tiltakskode, LocalDate> = mapOf(
+        Tiltakskode.SOMMERJOBB to LocalDate.of(2021, 1, 1),
+        Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
+        Tiltakskode.VARIG_LONNSTILSKUDD to LocalDate.of(2023, 2, 1),
+        Tiltakskode.ARBEIDSTRENING to LocalDate.of(2025, 1, 24),
+        Tiltakskode.VTAO to LocalDate.of(2025, 5, 13),
+        Tiltakskode.MENTOR to LocalDate.of(2025, 1, 28),
     ),
 )
 
