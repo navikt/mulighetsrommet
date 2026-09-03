@@ -47,6 +47,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
             "status" to dbo.status.name,
+            "kommentar_intern" to dbo.kommentarIntern,
         )
 
         execute(queryOf(query, params))
