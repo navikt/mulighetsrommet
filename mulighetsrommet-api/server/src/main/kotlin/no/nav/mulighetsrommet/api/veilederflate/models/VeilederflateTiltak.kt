@@ -89,7 +89,8 @@ data class VeilederflateTiltakEnkeltplassAnskaffet(
     override val oppmoteSted: String?,
     override val fylker: List<NavEnhetNummer>,
     override val enheter: List<NavEnhetNummer>,
-    val sanityId: String,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     val tiltaksnummer: String?,
     val arrangor: VeilederflateArrangor,
 ) : VeilederflateTiltak()
@@ -105,7 +106,8 @@ data class VeilederflateTiltakEnkeltplass(
     override val oppmoteSted: String?,
     override val fylker: List<NavEnhetNummer>,
     override val enheter: List<NavEnhetNummer>,
-    val sanityId: String,
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     val tiltaksnummer: String?,
 ) : VeilederflateTiltak()
 

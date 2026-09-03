@@ -2,7 +2,6 @@ import { http, HttpResponse } from "msw";
 import { Innsatsgruppe, VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 import { mockInnsatsgrupper } from "@/mock/fixtures/mockInnsatsgrupper";
 import { mockTiltakstyper } from "@/mock/fixtures/mockTiltakstyper";
-import { isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { mockGjennomforinger } from "@/mock/fixtures/mockGjennomforinger";
 
 export const tiltakHandlers = [
@@ -68,7 +67,7 @@ function getFilteredArbeidsmarkedstiltak(url: URL) {
 }
 
 function findArbeidsmarkedstiltak(id: string) {
-  return mockGjennomforinger.find((gj) => (isTiltakGruppe(gj) ? gj.id === id : gj.sanityId === id));
+  return mockGjennomforinger.find((gj) => gj.id === id);
 }
 
 function filtrerFritekst(gjennomforing: VeilederflateTiltak, sok: string): boolean {

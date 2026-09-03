@@ -210,7 +210,7 @@ class VeilederflateServiceTest : FunSpec({
         )
 
         tiltak.shouldHaveSize(1).first().shouldBeInstanceOf<VeilederflateTiltakEnkeltplassAnskaffet>().should {
-            it.sanityId shouldBe tiltakEnkelAmo.sanityId.toString()
+            it.id shouldBe tiltakEnkelAmo.id
             it.arrangor.selskapsnavn shouldBe "Hovedenhet AS"
         }
     }
@@ -274,8 +274,8 @@ class VeilederflateServiceTest : FunSpec({
             innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldHaveSize(2).should { (first, second) ->
-            first.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening1.sanityId.toString()
-            second.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening2.sanityId.toString()
+            first.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().id shouldBe tiltakArbeidstrening1.id
+            second.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().id shouldBe tiltakArbeidstrening2.id
         }
 
         veilederFlateService.hentTiltaksgjennomforinger(
@@ -284,8 +284,8 @@ class VeilederflateServiceTest : FunSpec({
             innsatsgruppe = Innsatsgruppe.LITEN_MULIGHET_TIL_A_JOBBE,
             erSykmeldtMedArbeidsgiver = false,
         ).shouldHaveSize(2).should { (first, second) ->
-            first.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening1.sanityId.toString()
-            second.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().sanityId shouldBe tiltakArbeidstrening2.sanityId.toString()
+            first.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().id shouldBe tiltakArbeidstrening1.id
+            second.shouldBeTypeOf<VeilederflateTiltakEnkeltplass>().id shouldBe tiltakArbeidstrening2.id
         }
 
         veilederFlateService.hentTiltaksgjennomforinger(

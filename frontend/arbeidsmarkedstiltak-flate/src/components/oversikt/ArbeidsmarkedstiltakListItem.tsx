@@ -21,7 +21,7 @@ export function ArbeidsmarkedstiltakListItem({ tiltak, index, deltMedBruker }: P
 
   const paginationUrl = `#pagination=${encodeURIComponent(JSON.stringify({ ...pageData }))}`;
 
-  const id = isTiltakGruppe(tiltak) ? tiltak.id : tiltak.sanityId;
+  const id = tiltak.id;
   const oppstart = utledOppstart(tiltak);
 
   return (

@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
-import no.nav.mulighetsrommet.api.sanity.SanityService
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
@@ -40,7 +39,6 @@ class ArenaAdapterServiceTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
     fun createArenaAdapterService(
-        sanityService: SanityService = mockk(),
         personaliaService: PersonaliaService = mockk(),
         features: Map<Tiltakskode, Set<TiltakstypeFeature>> = mapOf(),
     ): ArenaAdapterService {
@@ -50,7 +48,6 @@ class ArenaAdapterServiceTest : FunSpec({
         )
         return ArenaAdapterService(
             db = database.api,
-            sanityService = sanityService,
             arrangor = SyncArrangorUseCase(database.admin, mockk()),
             tiltakstypeService = tiltakstypeService,
             gjennomforingEnkeltplassService = GjennomforingEnkeltplassService(
@@ -98,8 +95,7 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should not upsert egen regi-tiltak") {
-            val sanityService = mockk<SanityService>(relaxed = true)
-            val service = createArenaAdapterService(sanityService)
+            val service = createArenaAdapterService()
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 
@@ -124,26 +120,23 @@ class ArenaAdapterServiceTest : FunSpec({
         }
 
         test("should delete egen regi-tiltak from sanity") {
-            val sanityService = mockk<SanityService>(relaxed = true)
-            val service = createArenaAdapterService(
-                sanityService = sanityService,
-            )
+            val service = createArenaAdapterService()
 
-            val sanityId = UUID.randomUUID()
+            service.upsertTiltaksgjennomforing(gjennomforing)
 
-            service.removeSanityTiltaksgjennomforing(sanityId)
-
-            /*
-            TODO: fix assert
-            coVerify(exactly = 1) {
-                sanityService.deleteSanityTiltaksgjennomforing(sanityId)
+            database.run {
+                queries.tiltakDokument.get(gjennomforing.id).shouldNotBeNull()
             }
-             */
+
+            service.deleteTiltakDokument(gjennomforing.id)
+
+            database.run {
+                queries.tiltakDokument.get(gjennomforing.id).shouldBeNull()
+            }
         }
 
         test("should not publish egen regi-tiltak to kafka") {
-            val sanityService = mockk<SanityService>(relaxed = true)
-            val service = createArenaAdapterService(sanityService)
+            val service = createArenaAdapterService()
 
             service.upsertTiltaksgjennomforing(gjennomforing)
 

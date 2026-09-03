@@ -214,9 +214,6 @@ class VeilederflateService(
         val fylker = tiltakDokument.navEnheter.filter { it.type == NavEnhetType.FYLKE }.map { it.enhetsnummer }
         val enheter = tiltakDokument.navEnheter.filter { it.type != NavEnhetType.FYLKE }.map { it.enhetsnummer }
 
-        // Bruk sanityId som ekstern ID dersom det finnes, ellers bruk vår interne UUID
-        val eksternId = (tiltakDokument.sanityId ?: tiltakDokument.id).toString()
-
         return if (tiltakDokument.arrangor != null) {
             val arrangorKontaktpersoner = tiltakDokument.arrangorKontaktpersoner.map {
                 VeilederflateArrangorKontaktperson(
@@ -237,7 +234,7 @@ class VeilederflateService(
                 oppmoteSted = tiltakDokument.stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
-                sanityId = eksternId,
+                id = tiltakDokument.id,
                 tiltaksnummer = tiltakDokument.tiltaksnummer,
                 arrangor = VeilederflateArrangor(
                     selskapsnavn = tiltakDokument.arrangor.navn,
@@ -256,7 +253,7 @@ class VeilederflateService(
                 oppmoteSted = tiltakDokument.stedForGjennomforing,
                 fylker = fylker,
                 enheter = enheter,
-                sanityId = eksternId,
+                id = tiltakDokument.id,
                 tiltaksnummer = tiltakDokument.tiltaksnummer,
             )
         }

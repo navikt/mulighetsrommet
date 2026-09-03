@@ -83,7 +83,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBrukerDto[] = [
   },
   {
     tiltak: {
-      id: tiltakMentor.sanityId,
+      id: tiltakMentor.id,
       navn: "Mentor",
     },
     deling: {

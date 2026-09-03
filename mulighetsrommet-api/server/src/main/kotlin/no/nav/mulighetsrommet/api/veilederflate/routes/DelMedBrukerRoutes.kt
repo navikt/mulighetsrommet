@@ -61,8 +61,8 @@ fun Route.delMedBrukerRoutes() {
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.fnr)
 
-            if (request.sanityId == null && request.gjennomforingId == null) {
-                throw BadRequestException("sanityId eller gjennomforingId må inkluderes")
+            if (request.tiltakDokumentId == null && request.gjennomforingId == null) {
+                throw BadRequestException("tiltakDokumentId eller gjennomforingId må inkluderes")
             }
 
             val obo = call.getAccessType()
@@ -82,7 +82,7 @@ fun Route.delMedBrukerRoutes() {
                         norskIdent = request.fnr,
                         navIdent = navIdent,
                         dialogId = dialogResponse.id,
-                        sanityId = request.sanityId,
+                        tiltakDokumentId = request.tiltakDokumentId,
                         gjennomforingId = request.gjennomforingId,
                         tiltakstypeId = request.tiltakstypeId,
                         deltFraEnhet = request.deltFraEnhet,
@@ -225,7 +225,7 @@ data class DelTiltakMedBrukerRequest(
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID?,
     @Serializable(with = UUIDSerializer::class)
-    val sanityId: UUID?,
+    val tiltakDokumentId: UUID?,
     val deltFraEnhet: NavEnhetNummer,
 )
 

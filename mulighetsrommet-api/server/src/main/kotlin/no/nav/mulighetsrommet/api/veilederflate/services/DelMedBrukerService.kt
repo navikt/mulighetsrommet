@@ -25,7 +25,7 @@ class DelMedBrukerService(
 
     fun insertDelMedBruker(dbo: DelMedBrukerDbo): Unit = db.session {
         logger.teamLogsInfo(
-            "Veileder (${dbo.navIdent}) deler tiltak med id: '${dbo.sanityId ?: dbo.gjennomforingId}' med bruker (${dbo.norskIdent.value})",
+            "Veileder (${dbo.navIdent}) deler tiltak med id: '${dbo.tiltakDokumentId ?: dbo.gjennomforingId}' med bruker (${dbo.norskIdent.value})",
         )
 
         val fylke = navEnhetService.hentOverordnetFylkesenhet(dbo.deltFraEnhet)
@@ -35,7 +35,7 @@ class DelMedBrukerService(
             insert into del_med_bruker(
                 norsk_ident,
                 nav_ident,
-                sanity_id,
+                tiltak_dokument_id,
                 dialog_id,
                 gjennomforing_id,
                 tiltakstype_id,
@@ -45,7 +45,7 @@ class DelMedBrukerService(
             values (
                 :norsk_ident,
                 :nav_ident,
-                :sanity_id::uuid,
+                :tiltak_dokument_id::uuid,
                 :dialog_id,
                 :gjennomforing_id::uuid,
                 :tiltakstype_id,
@@ -57,7 +57,7 @@ class DelMedBrukerService(
         val params = mapOf(
             "norsk_ident" to dbo.norskIdent.value,
             "nav_ident" to dbo.navIdent.value,
-            "sanity_id" to dbo.sanityId,
+            "tiltak_dokument_id" to dbo.tiltakDokumentId,
             "gjennomforing_id" to dbo.gjennomforingId,
             "dialog_id" to dbo.dialogId,
             "tiltakstype_id" to dbo.tiltakstypeId,
@@ -68,18 +68,18 @@ class DelMedBrukerService(
         session.execute(queryOf(query, params))
     }
 
-    fun getLastDelingMedBruker(fnr: NorskIdent, sanityOrGjennomforingId: UUID): DeltMedBrukerDto? = db.session {
+    fun getLastDelingMedBruker(fnr: NorskIdent, tiltakDokumentOrGjennomforingId: UUID): DeltMedBrukerDto? = db.session {
         @Language("PostgreSQL")
         val query = """
-            select coalesce(gjennomforing_id, sanity_id) as tiltak_id, dialog_id, created_at
+            select coalesce(gjennomforing_id, tiltak_dokument_id) as tiltak_id, dialog_id, created_at
             from del_med_bruker
             where norsk_ident = :norsk_ident
-              and coalesce(gjennomforing_id, sanity_id) = :id::uuid
+              and coalesce(gjennomforing_id, tiltak_dokument_id) = :id::uuid
             order by created_at desc
             limit 1
         """.trimIndent()
 
-        val params = mapOf("norsk_ident" to fnr.value, "id" to sanityOrGjennomforingId)
+        val params = mapOf("norsk_ident" to fnr.value, "id" to tiltakDokumentOrGjennomforingId)
 
         session.single(queryOf(query, params)) { it.toDelMedBrukerDto() }
     }
@@ -87,10 +87,10 @@ class DelMedBrukerService(
     fun getAllDistinctDelingMedBruker(fnr: NorskIdent): List<DeltMedBrukerDto> = db.session {
         @Language("PostgreSQL")
         val query = """
-            select distinct on (gjennomforing_id, sanity_id) coalesce(gjennomforing_id, sanity_id) as tiltak_id, dialog_id, created_at
+            select distinct on (gjennomforing_id, tiltak_dokument_id) coalesce(gjennomforing_id, tiltak_dokument_id) as tiltak_id, dialog_id, created_at
             from del_med_bruker
             where norsk_ident = ?
-            order by gjennomforing_id, sanity_id, created_at desc
+            order by gjennomforing_id, tiltak_dokument_id, created_at desc
         """.trimIndent()
 
         session.list(queryOf(query, fnr.value)) { it.toDelMedBrukerDto() }
@@ -102,7 +102,7 @@ class DelMedBrukerService(
             select del_med_bruker.id,
                    del_med_bruker.dialog_id,
                    del_med_bruker.created_at,
-                   del_med_bruker.sanity_id,
+                   del_med_bruker.tiltak_dokument_id,
                    del_med_bruker.gjennomforing_id,
                    tiltakstype.navn as tiltakstype_navn,
                    tiltakstype.tiltakskode as tiltakstype_tiltakskode,
@@ -132,7 +132,7 @@ class DelMedBrukerService(
                     )
                 }
                 ?: run {
-                    val id = row.uuid("sanity_id")
+                    val id = row.uuid("tiltak_dokument_id")
                     val navn = db.session { queries.tiltakDokument.get(id) }?.navn ?: ""
                     TiltakDeltMedBruker(id, navn)
                 }
@@ -156,7 +156,7 @@ data class DelMedBrukerDbo(
     val navIdent: NavIdent,
     val dialogId: String,
     val tiltakstypeId: UUID,
-    val sanityId: UUID?,
+    val tiltakDokumentId: UUID?,
     val gjennomforingId: UUID?,
     val deltFraEnhet: NavEnhetNummer,
 )
