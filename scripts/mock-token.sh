@@ -13,20 +13,12 @@ USERNAME="${USERNAME:-local-dev-user}"
 TOKEN_FILE="${TOKEN_FILE:-.local/mock-oauth-token-${ISSUER_ID}.json}"
 
 urldecode() {
-  local input="${1//+/ }"
-  printf '%b' "${input//%/\\x}"
-}
-
-extract_json_string() {
-  local key="$1"
-  local file="$2"
-  tr -d '\n' < "$file" | sed -n "s/.*\"${key}\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p"
-}
-
-extract_json_number() {
-  local key="$1"
-  local file="$2"
-  tr -d '\n' < "$file" | sed -n "s/.*\"${key}\"[[:space:]]*:[[:space:]]*\\([0-9][0-9]*\\).*/\\1/p"
+  printf '%s' "$1" | jq -Rr '
+    gsub("\\+"; " ")
+    | gsub("%(?<h>[0-9A-Fa-f]{2})"; "\\u00\(.h)")
+    | "\"\(.)\""
+    | fromjson
+  '
 }
 
 default_claims_for_issuer() {
@@ -52,6 +44,11 @@ EOF
 CLAIMS_JSON="${CLAIMS_JSON:-$(default_claims_for_issuer)}"
 AUTH_URL="${MOCK_BASE_URL}/${ISSUER_ID}/authorize"
 TOKEN_URL="${MOCK_BASE_URL}/${ISSUER_ID}/token"
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "Mangler avhengighet: jq" >&2
+  exit 1
+fi
 
 mkdir -p "$(dirname "$TOKEN_FILE")"
 
@@ -103,18 +100,14 @@ curl -sS -X POST "$TOKEN_URL" \
   --data-urlencode "redirect_uri=${REDIRECT_URI}" \
   > "$TOKEN_FILE"
 
-ACCESS_TOKEN="$(extract_json_string "access_token" "$TOKEN_FILE")"
-if [ -z "$ACCESS_TOKEN" ]; then
-  echo "Mangler access_token i ${TOKEN_FILE}" >&2
-  exit 1
-fi
+ACCESS_TOKEN="$(jq -er '.access_token' "$TOKEN_FILE")"
 
-ISSUER_CLAIM="$(extract_json_string "iss" "$TOKEN_FILE")"
+ISSUER_CLAIM="$(jq -r '.iss // "unknown"' "$TOKEN_FILE")"
 if [ -z "$ISSUER_CLAIM" ]; then
   ISSUER_CLAIM="unknown"
 fi
 
-EXPIRES_IN="$(extract_json_number "expires_in" "$TOKEN_FILE")"
+EXPIRES_IN="$(jq -r '.expires_in // "unknown"' "$TOKEN_FILE")"
 if [ -z "$EXPIRES_IN" ]; then
   EXPIRES_IN="unknown"
 fi

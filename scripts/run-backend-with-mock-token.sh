@@ -19,19 +19,11 @@ export TOKEN_FILE="${TOKEN_FILE:-${REPO_ROOT}/.local/mock-oauth-token-${ISSUER_I
 
 "${SCRIPT_DIR}/mock-token.sh"
 
-ACCESS_TOKEN="$(
-  python3 - <<'PY' "$TOKEN_FILE"
-import json
-import sys
-from pathlib import Path
+if ! command -v jq >/dev/null 2>&1; then
+  echo "Mangler avhengighet: jq" >&2
+  exit 1
+fi
 
-token_file = Path(sys.argv[1])
-payload = json.loads(token_file.read_text())
-token = payload.get("access_token")
-if not token:
-    raise SystemExit("Mangler access_token i tokenfil")
-print(token)
-PY
-)"
+ACCESS_TOKEN="$(jq -er '.access_token' "$TOKEN_FILE")"
 
 exec env VITE_MULIGHETSROMMET_API_AUTH_TOKEN="${ACCESS_TOKEN}" "$@"
