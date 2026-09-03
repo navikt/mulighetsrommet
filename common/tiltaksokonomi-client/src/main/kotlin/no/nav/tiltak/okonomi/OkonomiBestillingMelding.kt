@@ -1,7 +1,10 @@
+@file:UseSerializers(InstantSerializer::class)
+
 package no.nav.tiltak.okonomi
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Arrangor
@@ -93,10 +96,8 @@ enum class Tilskuddstype {
 data class AnnullerBestilling(
     val bestillingsnummer: String,
     val behandletAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant,
 )
 
@@ -104,10 +105,8 @@ data class AnnullerBestilling(
 data class GjorOppBestilling(
     val bestillingsnummer: String,
     val behandletAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant,
 )
 
@@ -119,10 +118,8 @@ data class OpprettFaktura(
     val belop: Int,
     val periode: Periode,
     val behandletAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant,
     val gjorOppBestilling: Boolean,
     val beskrivelse: String?,
