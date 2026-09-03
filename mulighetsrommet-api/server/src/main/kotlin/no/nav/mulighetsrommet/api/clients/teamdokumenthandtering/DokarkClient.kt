@@ -5,6 +5,7 @@ import arrow.core.left
 import arrow.core.right
 import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.cache.HttpCache
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
@@ -29,6 +30,9 @@ class DokarkClient(
     private val log = LoggerFactory.getLogger(javaClass)
     private val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30_000
+        }
     }
 
     /**
