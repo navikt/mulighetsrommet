@@ -1,6 +1,12 @@
 -- Migrate del_med_bruker.sanity_id from pointing at tiltak_dokument.sanity_id
 -- to pointing at tiltak_dokument.id, then rename the column and add a foreign key.
 
+-- Step 0: Remove obsolete set_timestamp trigger. The updated_at column it maintains
+-- was dropped in V337, but the trigger was left in place. It has been dormant because
+-- del_med_bruker is only written with INSERT; the updates below are the first UPDATE
+-- since V337 and would otherwise fail with: record "new" has no field "updated_at".
+drop trigger if exists set_timestamp on del_med_bruker;
+
 -- Step 1: Null out sanity_id for rows where it is not found in tiltak_dokument
 -- they were pointing to sanity documents that has been deleted
 update del_med_bruker
