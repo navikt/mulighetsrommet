@@ -30,27 +30,30 @@ turbo run dev
 
 ## Lokal utvikling mot lokal backend
 
-For dette trenger man et access token definert i miljøvariabelen `VITE_MULIGHETSROMMET_API_AUTH_TOKEN`.
-Denne kan du definere etter eget ønske, enten som en vanlig miljøvariabel, evt.
-via [vite](https://vite.dev/guide/env-and-mode.html#env-files)
-eller [mise](https://mise.jdx.dev/environments/#using-environment-variables).
-For å generere dette gjør du følgende:
+`backend`-scriptet henter nå access token automatisk via headless `authorization_code`-flyt mot mock-oauth2-server (`tokenx`).
+Du trenger ikke lenger å bruke `/tokenx/debugger` manuelt.
 
-1. Naviger til lokal [Mock Oauth2 Server (tokenx)](http://localhost:8081/tokenx/debugger)
-2. Trykk på knappen `Get a token`
-3. Skriv inn hva som helst i toppen
-4. Legg inn dette i optional claims:
-   ```json
-   {
-     "pid": "11830348931",
-     "aud": ["mulighetsrommet-api"]
-   }
-   ```
-5. Trykk `Sign in`
-6. Kopier verdien til `access_token` og benytt denne i nevnte miljøvariabel
+Valgfritt kan du overstyre lokal konfig i en lokal (ikke commitet) `.mise.local.toml` i repo-root:
+
+```toml
+[env]
+MOCK_BASE_URL = "http://localhost:8081"
+CLIENT_ID = "debugger"
+CLIENT_SECRET = "someSecret"
+SCOPE = "openid somescope"
+TOKEN_FILE = ".local/mock-oauth-token-tokenx.json"
+```
+
+For å overstyre claims kan du sette `CLAIMS_JSON` som miljøvariabel med syntetiske testdata.
 
 ```
 turbo run backend
+```
+
+Fallback til gammel flyt finnes fortsatt med:
+
+```sh
+pnpm run backend:manual
 ```
 
 ## Tilgang i dev og prod

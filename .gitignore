@@ -45,3 +45,6 @@ docker-compose.override.yml
 # Mise-en-place files in subdirectories
 **/mise.toml
 **/mise.local.toml
+
+# Local mock oauth token artifacts
+.local/mock-oauth-token*.json

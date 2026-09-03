@@ -19,29 +19,31 @@ turbo run dev
 
 ### Lokal utvikling mot lokal backend
 
-For dette trenger man et access token definert i miljøvariabelen `VITE_MULIGHETSROMMET_API_AUTH_TOKEN`.
-Denne kan du definere etter eget ønske, enten som en vanlig miljøvariabel, evt.
-via [vite](https://vite.dev/guide/env-and-mode.html#env-files)
-eller [mise](https://mise.jdx.dev/environments/#using-environment-variables).
-For å generere dette gjør du følgende:
+`backend`-scriptet henter nå access token automatisk via headless `authorization_code`-flyt mot mock-oauth2-server (`azure`).
+Du trenger ikke lenger å bruke `/azure/debugger` manuelt.
 
-1. Naviger til lokal [Mock Oauth2 Server (azure)](http://localhost:8081/azure/debugger)
-2. Trykk på knappen `Get a token`
-3. Skriv inn hva som helst som `user/subject`
-4. Legg inn dette i optional claims:
-   ```json
-   {
-     "NAVident": "B123456",
-     "aud": ["mulighetsrommet-api"],
-     "oid": "0bab029e-e84e-4842-8a27-d153b29782cf",
-     "uti": "0bab029e-e84e-4842-8a27-d153b29782cf",
-     "groups": [
-       "52bb9196-b071-4cc7-9472-be4942d33c4b"
-     ]
-   }
-   ```
-5. Trykk `Sign in`
-6. Kopier verdien til `access_token` og benytt denne i nevnte miljøvariabel
+Valgfritt kan du overstyre lokal konfig i en lokal (ikke commitet) `.mise.local.toml` i repo-root:
+
+```toml
+[env]
+MOCK_BASE_URL = "http://localhost:8081"
+CLIENT_ID = "debugger"
+CLIENT_SECRET = "someSecret"
+SCOPE = "openid somescope"
+TOKEN_FILE = ".local/mock-oauth-token-azure.json"
+```
+
+For å overstyre claims kan du sette `CLAIMS_JSON` som miljøvariabel med syntetiske testdata.
+
+```sh
+turbo run backend
+```
+
+Fallback til gammel flyt finnes fortsatt med:
+
+```sh
+pnpm run backend:manual
+```
 
 ## Testing og linting
 
