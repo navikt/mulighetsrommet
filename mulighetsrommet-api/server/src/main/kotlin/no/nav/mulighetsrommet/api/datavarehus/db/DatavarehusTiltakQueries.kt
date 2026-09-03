@@ -4,14 +4,13 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.opplaring.UtdanningslopDetaljer
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
-import no.nav.mulighetsrommet.api.datavarehus.model.DvhUtdanningslop
-import no.nav.mulighetsrommet.api.datavarehus.model.toDvhAmoKategorisering
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1AmoDto
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1Dto
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1YrkesfagDto
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DvhUtdanningslop
+import no.nav.mulighetsrommet.api.datavarehus.mapper.toDvhAmoKategorisering
 import no.nav.mulighetsrommet.api.persistence.opplaring.OpplaringKategoriseringQueries
-import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -22,7 +21,7 @@ import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class DatavarehusTiltakQueries(private val session: Session) {
-    fun getDatavarehusTiltak(id: UUID): DatavarehusTiltakV1 {
+    fun getDatavarehusTiltak(id: UUID): DatavarehusTiltakV1? {
         @Language("PostgreSQL")
         val query = """
             select *
@@ -30,7 +29,7 @@ class DatavarehusTiltakQueries(private val session: Session) {
             where id = ?
         """.trimIndent()
 
-        val dto = session.requireSingle(queryOf(query, id)) { it.toDatavarehusTiltakDto() }
+        val dto = session.single(queryOf(query, id)) { it.toDatavarehusTiltakDto() } ?: return null
 
         // TODO: inkluder utdanningsløp/amo-kategorisering når vi har dette for enkeltplasser
         return when (dto.tiltakskode) {

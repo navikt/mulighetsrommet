@@ -58,7 +58,7 @@ class UpdateTiltakstypeTest : FunSpec({
             verify { db.queries.endringshistorikk.logEndring(any(), any(), any(), any(), any(), any()) }
         }
 
-        test("publiserer til kafka for tiltakstyper med system TILTAKSADMINISTRASJON") {
+        test("publiserer til kafka") {
             val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
 
@@ -72,22 +72,6 @@ class UpdateTiltakstypeTest : FunSpec({
                 .shouldBeRight()
 
             verify { db.outbox.publish(updated) }
-        }
-
-        test("publiserer ikke til kafka for tiltakstyper med system ARENA") {
-            val db = TestAdminDatabase()
-            db.repository.tiltakstype.save(TiltakstypeFixtures.IPS)
-
-            val command = UpsertVeilederinfoCommand(
-                id = TiltakstypeFixtures.IPS.id,
-                veilederinfo = Tiltakstype.Veilederinfo(),
-                endretAv = navIdent,
-            )
-            UpdateTiltakstypeUseCase(db)
-                .execute(command)
-                .shouldBeRight()
-
-            verify(exactly = 0) { db.outbox.publish(any<Tiltakstype>()) }
         }
     }
 
@@ -139,7 +123,7 @@ class UpdateTiltakstypeTest : FunSpec({
             verify { db.queries.endringshistorikk.logEndring(any(), any(), any(), any(), any(), any()) }
         }
 
-        test("publiserer til kafka for tiltakstyper med system TILTAKSADMINISTRASJON") {
+        test("publiserer til kafka") {
             val db = TestAdminDatabase()
             db.repository.tiltakstype.save(TiltakstypeFixtures.AFT)
 
@@ -153,22 +137,6 @@ class UpdateTiltakstypeTest : FunSpec({
                 .shouldBeRight()
 
             verify { db.outbox.publish(updated) }
-        }
-
-        test("publiserer ikke til kafka for tiltakstyper med system ARENA") {
-            val db = TestAdminDatabase()
-            db.repository.tiltakstype.save(TiltakstypeFixtures.IPS)
-
-            val command = UpsertDeltakerinfoCommand(
-                id = TiltakstypeFixtures.IPS.id,
-                deltakerinfo = Tiltakstype.Deltakerinfo(null, emptyList()),
-                endretAv = navIdent,
-            )
-            UpdateTiltakstypeUseCase(db)
-                .execute(command)
-                .shouldBeRight()
-
-            verify(exactly = 0) { db.outbox.publish(any<Tiltakstype>()) }
         }
     }
 })

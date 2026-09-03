@@ -6,11 +6,11 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1AmoDto
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1Dto
-import no.nav.mulighetsrommet.api.datavarehus.model.DatavarehusTiltakV1YrkesfagDto
-import no.nav.mulighetsrommet.api.datavarehus.model.DvhAmoKategorisering
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1AmoDto
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1Dto
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DatavarehusTiltakV1YrkesfagDto
+import no.nav.mulighetsrommet.api.contracts.datavarehus.DvhAmoKategorisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
 import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
@@ -81,6 +81,14 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             }
         }
 
+        test("returnerer null når gjennomføringen ikke finnes") {
+            val tiltak = database.runAndRollback {
+                queries.dvh.getDatavarehusTiltak(UUID.randomUUID())
+            }
+
+            tiltak.shouldBeNull()
+        }
+
         test("henter tiltaksnummer når det finnes i Arena") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
@@ -98,7 +106,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
                 queries.dvh.getDatavarehusTiltak(AFT1.id)
             }
 
-            tiltak.gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(aar = 2020, lopenummer = 1234)
+            tiltak.shouldNotBeNull().gjennomforing.arena shouldBe DatavarehusTiltakV1.ArenaData(aar = 2020, lopenummer = 1234)
         }
 
         context("henter Gruppe AMO med amo-kategorisering") {
@@ -226,7 +234,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             }
         }
 
-        test("henter Gruppe Fag/Yrke med informasjon om utdanningsprogram") {
+        test("henter Gruppe Fag- og Yrke med informasjon om utdanningsprogram") {
             val utdanningsprogram = UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg
 
             val domain = MulighetsrommetTestDomain(
@@ -257,7 +265,7 @@ class DatavarehusTiltakQueriesTest : FunSpec({
             }
         }
 
-        test("henter Gruppe Fag/Yrke uten informasjon om utdanningsprogram") {
+        test("henter Gruppe Fag- og Yrke uten informasjon om utdanningsprogram") {
             val domain = MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.GruppeFagOgYrkesopplaering),
                 avtaler = listOf(AvtaleFixtures.gruppeFagYrke),

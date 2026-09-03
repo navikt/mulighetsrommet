@@ -194,7 +194,10 @@ fun Route.arrangorflateRoutes(config: AppConfig) {
                 queries.arrangorflate.tilsagn
                     .getFiltered(
                         arrangorer = tilganger,
-                        filter = filter,
+                        search = filter.search,
+                        pagination = filter.pagination,
+                        orderBy = filter.orderBy,
+                        direction = filter.direction,
                     )
                     .map { it.toRadDto() }
             }

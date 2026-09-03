@@ -17,7 +17,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.VTA1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn1
 import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn2
-import no.nav.mulighetsrommet.api.fixtures.TilsagnFixtures.Tilsagn3
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures.utbetaling1
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
@@ -566,10 +565,6 @@ class UtbetalingQueriesTest : FunSpec({
                         Tilsagn2.copy(
                             periode = periode,
                             kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer,
-                        ),
-                        Tilsagn3.copy(
-                            periode = periode,
-                            kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
                         ),
                     ),
                 ).initialize()

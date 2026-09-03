@@ -12,8 +12,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling.Periode
+import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
+import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling.Periode
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd

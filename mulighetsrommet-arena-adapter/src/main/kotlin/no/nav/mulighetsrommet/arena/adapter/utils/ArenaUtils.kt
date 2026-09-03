@@ -2,9 +2,13 @@ package no.nav.mulighetsrommet.arena.adapter.utils
 
 import no.nav.mulighetsrommet.arena.ArenaMigrering.ArenaTimestampFormatter
 import no.nav.mulighetsrommet.arena.JaNeiStatus
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 object ArenaUtils {
+    private val ARENA_ZONE = ZoneId.of("Europe/Oslo")
+
     fun parseTimestamp(value: String): LocalDateTime {
         return LocalDateTime.parse(value, ArenaTimestampFormatter)
     }
@@ -15,6 +19,10 @@ object ArenaUtils {
         } else {
             null
         }
+    }
+
+    fun parseTimestampAsInstant(value: String): Instant {
+        return parseTimestamp(value).atZone(ARENA_ZONE).toInstant()
     }
 
     fun parseJaNei(jaNeiStreng: JaNeiStatus): Boolean {

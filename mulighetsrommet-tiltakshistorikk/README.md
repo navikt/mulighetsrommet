@@ -51,10 +51,6 @@ Content-Type: application/json
 | `historikk` | `TiltakshistorikkV1Dto[]`   | Liste med tiltaksdeltakelser. Hvert element er en av typene `ArenaDeltakelse`, `TeamKometDeltakelse` eller `TeamTiltakAvtale`, diskriminert på feltet `type`. |
 | `meldinger` | `TiltakshistorikkMelding[]` | Varsler om eventuelle feil ved henting av data.                                                                                                               |
 
-Mulige verdier i `meldinger`:
-
-- `MANGLER_HISTORIKK_FRA_TEAM_TILTAK` — historikk fra Team Tiltak er ikke inkludert fordi tjenesten ikke svarte.
-
 ### Historiske identer
 
 Tiltakshistorikken er lagret per fødselsnummer, og historikk kan hentes for ett eller flere fødselsnummer i samme
@@ -98,8 +94,7 @@ Flere parter i Nav har behov for å se samlet tiltakshistorikk for en gitt bruke
 
 ## Hvordan
 
-Tiltakshistorikken holdes oppdatert ved å lytte på Kafka-events fra Arena og Team Komet. Tiltak fra Team Tiltak hentes
-on-demand via GraphQL når konsumenter spør etter historikk.
+Tiltakshistorikken holdes oppdatert ved å lytte på Kafka-events fra Arena, Team Komet og Team Tiltak.
 
 ```mermaid
 flowchart RL
@@ -110,20 +105,20 @@ flowchart RL
     DB[(Database)]
     Duplikatkontroll[[Duplikatkontroll]]
     API[API]
-    Konsumenter["**Konsumenter**
+    Konsumenter["<b>Konsumenter</b>
     (Modia, Saksbehandling)"]
-    Konsumenter -->|POST fnr| API
+Konsumenter -->|POST fnr| API
 
-    API --> |Tiltakshistorikk| Konsumenter
-    Arena -->|Events| Kafka
-    Komet -->|Events| Kafka
-    Kafka --> DB
-    DB --> Duplikatkontroll
-    TeamTiltak -->|GraphQL| Duplikatkontroll
-    Duplikatkontroll --> API
+API --> |Tiltakshistorikk| Konsumenter
+Arena -->|Events| Kafka
+Komet -->|Events| Kafka
+TeamTiltak -->|Events| Kafka
+Kafka --> DB
+DB --> Duplikatkontroll
+Duplikatkontroll --> API
 
-    style DB fill:#2d3e50,stroke:#fff,color:#fff
-    style API fill:#3498db,stroke:#fff,color:#fff
+style DB fill:#2d3e50,stroke:#fff,color:#fff
+style API fill:#3498db,stroke:#fff,color:#fff
 ```
 
 ### Duplikatkontroll

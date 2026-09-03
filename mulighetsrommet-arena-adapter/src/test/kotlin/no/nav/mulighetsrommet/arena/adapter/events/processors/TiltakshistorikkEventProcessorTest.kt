@@ -38,6 +38,7 @@ import no.nav.mulighetsrommet.ktor.respondJson
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.tiltak.historikk.TiltakshistorikkArenaDeltaker
 import no.nav.tiltak.historikk.TiltakshistorikkClient
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -194,8 +195,8 @@ class TiltakshistorikkEventProcessorTest : FunSpec({
 
                     decodeRequestBody<TiltakshistorikkArenaDeltaker>().apply {
                         id shouldBe histDeltakerMapping.entityId
-                        arenaRegDato shouldBe LocalDateTime.of(2023, 1, 1, 0, 0, 0)
-                        arenaModDato shouldBe LocalDateTime.of(2023, 1, 2, 0, 0, 0)
+                        arenaRegDato shouldBe Instant.parse("2022-12-31T23:00:00Z")
+                        arenaModDato shouldBe Instant.parse("2023-01-01T23:00:00Z")
                         norskIdent shouldBe NorskIdent("12345678910")
                     }
                 }

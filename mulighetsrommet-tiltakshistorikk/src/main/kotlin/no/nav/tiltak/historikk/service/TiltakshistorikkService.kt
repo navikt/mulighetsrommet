@@ -1,23 +1,13 @@
 package no.nav.tiltak.historikk.service
 
-import arrow.core.Either
-import arrow.core.NonEmptySet
-import arrow.core.flatten
-import arrow.core.mapOrAccumulate
-import arrow.core.nonEmptySetOf
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.tokenprovider.AccessType
-import no.nav.tiltak.historikk.TiltakshistorikkMelding
 import no.nav.tiltak.historikk.TiltakshistorikkV1Dto
 import no.nav.tiltak.historikk.TiltakshistorikkV1Request
 import no.nav.tiltak.historikk.TiltakshistorikkV1Response
-import no.nav.tiltak.historikk.clients.Avtale
-import no.nav.tiltak.historikk.clients.GraphqlRequest
-import no.nav.tiltak.historikk.clients.TiltakDatadelingClient
 import no.nav.tiltak.historikk.db.TiltakshistorikkDatabase
 import no.nav.tiltak.historikk.model.ArbeidsgiverAvtale
 import no.nav.tiltak.historikk.model.Tiltakstype
@@ -29,12 +19,10 @@ import java.time.LocalDate
 class TiltakshistorikkService(
     private val config: Config,
     private val db: TiltakshistorikkDatabase,
-    private val tiltakDatadelingClient: TiltakDatadelingClient,
     private val virksomheter: VirksomhetService,
 ) {
     data class Config(
-        val useKafkaForTeamTiltak: Boolean = false,
-        val cutOffDatoMapping: Map<Avtale.Tiltakstype, LocalDate>,
+        val cutOffDatoMapping: Map<Tiltakskode, LocalDate>,
     )
 
     private val log = LoggerFactory.getLogger(javaClass)
@@ -46,20 +34,10 @@ class TiltakshistorikkService(
         val teamKometDeltakelser = async { getHistorikkTeamKomet(identer) }
         val teamTiltakAvtaler = async { getHistorikkTeamTiltak(identer) }
 
-        val deltakelser = arenaDeltakelser.await() + teamKometDeltakelser.await()
+        val historikk = (arenaDeltakelser.await() + teamKometDeltakelser.await() + teamTiltakAvtaler.await())
+            .sortedWith(compareBy(nullsLast()) { it.startDato })
 
-        teamTiltakAvtaler
-            .await()
-            .fold(
-                { meldinger ->
-                    val historikk = deltakelser.sortedWith(compareBy(nullsLast()) { it.startDato })
-                    TiltakshistorikkV1Response(historikk = historikk, meldinger = meldinger)
-                },
-                { avtaler ->
-                    val historikk = (deltakelser + avtaler).sortedWith(compareBy(nullsLast()) { it.startDato })
-                    TiltakshistorikkV1Response(historikk = historikk, meldinger = setOf())
-                },
-            )
+        TiltakshistorikkV1Response(historikk = historikk, meldinger = setOf())
     }
 
     private fun getHistorikkTeamKomet(
@@ -81,60 +59,19 @@ class TiltakshistorikkService(
 
     private suspend fun getHistorikkTeamTiltak(
         identer: List<NorskIdent>,
-    ): Either<NonEmptySet<TiltakshistorikkMelding>, List<TiltakshistorikkV1Dto.TeamTiltakAvtale>> {
-        return if (config.useKafkaForTeamTiltak) {
-            getHistorikkTeamTiltakFraDb(identer)
-        } else {
-            getHistorikkTeamTiltakFraKlient(identer)
-        }
-    }
-
-    private suspend fun getHistorikkTeamTiltakFraDb(
-        identer: List<NorskIdent>,
-    ): Either<NonEmptySet<TiltakshistorikkMelding>, List<TiltakshistorikkV1Dto.TeamTiltakAvtale>> {
+    ): List<TiltakshistorikkV1Dto.TeamTiltakAvtale> {
         val avtaler = db.session {
             queries.arbeidsgiverAvtale.getByNorskIdent(identer)
         }
 
-        val result = avtaler
+        return avtaler
             .filter { avtale ->
-                val tiltakstype = Avtale.Tiltakstype.valueOf(avtale.tiltakstype.name)
-                belongsToTeamTiltak(tiltakstype, config.cutOffDatoMapping, avtale.sluttDato)
+                belongsToTeamTiltak(avtale.tiltakstype, config.cutOffDatoMapping, avtale.sluttDato)
             }
             .map { avtale ->
-                val tiltakstype = getTiltakstypeForKafkaAvtale(avtale)
+                val tiltakstype = getTiltakstype(avtale.tiltakstype)
                 val arbeidsgiver = getArbeidsgiver(avtale.organisasjonsnummer)
                 toTiltakshistorikk(avtale, tiltakstype, arbeidsgiver)
-            }
-
-        return Either.Right(result)
-    }
-
-    private suspend fun getHistorikkTeamTiltakFraKlient(
-        identer: List<NorskIdent>,
-    ): Either<NonEmptySet<TiltakshistorikkMelding>, List<TiltakshistorikkV1Dto.TeamTiltakAvtale>> {
-        return identer
-            .mapOrAccumulate {
-                tiltakDatadelingClient.getAvtalerForPerson(
-                    GraphqlRequest.GetAvtalerForPerson(norskIdent = it.value),
-                    AccessType.M2M,
-                ).bind()
-            }
-            .map { avtalerPerNorskIdent ->
-                avtalerPerNorskIdent
-                    .flatten()
-                    .filter { avtale ->
-                        belongsToTeamTiltak(avtale.tiltakstype, config.cutOffDatoMapping, avtale.sluttDato)
-                    }
-                    .map { avtale ->
-                        val tiltakstype = getTiltakstype(avtale.tiltakstype)
-                        val arbeidsgiver = getArbeidsgiver(Organisasjonsnummer(avtale.bedriftNr))
-                        toTiltakshistorikk(avtale, tiltakstype, arbeidsgiver)
-                    }
-            }
-            .mapLeft { errors ->
-                log.error("Klarte ikke hente tiltakshistorikk fra Team Tiltak. Errors=$errors")
-                nonEmptySetOf(TiltakshistorikkMelding.MANGLER_HISTORIKK_FRA_TEAM_TILTAK)
             }
     }
 
@@ -144,33 +81,28 @@ class TiltakshistorikkService(
             .getOrNull()
     }
 
-    private fun getTiltakstype(tiltakskode: Avtale.Tiltakstype): Tiltakstype = db.session {
-        queries.tiltakstype.getByTiltakskode(tiltakskode)
-    }
-
-    private fun getTiltakstypeForKafkaAvtale(avtale: ArbeidsgiverAvtale): Tiltakstype = db.session {
-        val tiltakskode = Avtale.Tiltakstype.valueOf(avtale.tiltakstype.name)
+    private fun getTiltakstype(tiltakskode: Tiltakskode): Tiltakstype = db.session {
         queries.tiltakstype.getByTiltakskode(tiltakskode)
     }
 }
 
 private fun belongsToTeamTiltak(
-    tiltakstype: Avtale.Tiltakstype,
-    cutOffDateMap: Map<Avtale.Tiltakstype, LocalDate>,
+    tiltakstype: Tiltakskode,
+    cutOffDateMap: Map<Tiltakskode, LocalDate>,
     sluttDato: LocalDate?,
 ): Boolean {
     val cutOffDate = cutOffDateMap[tiltakstype] ?: return false
     return sluttDato == null || sluttDato.isAfter(cutOffDate) || sluttDato == cutOffDate
 }
 
-private fun arenaKodeToTeamTiltakKode(arenaKode: String): Avtale.Tiltakstype? {
+private fun arenaKodeToTeamTiltakKode(arenaKode: String): Tiltakskode? {
     return when (arenaKode) {
-        "ARBTREN" -> Avtale.Tiltakstype.ARBEIDSTRENING
-        "MIDLONTIL" -> Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD
-        "VARLONTIL" -> Avtale.Tiltakstype.VARIG_LONNSTILSKUDD
-        "MENTOR" -> Avtale.Tiltakstype.MENTOR
-        "INKLUTILS" -> Avtale.Tiltakstype.INKLUDERINGSTILSKUDD
-        "VATIAROR" -> Avtale.Tiltakstype.VTAO
+        "ARBTREN" -> Tiltakskode.ARBEIDSTRENING
+        "MIDLONTIL" -> Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD
+        "VARLONTIL" -> Tiltakskode.VARIG_LONNSTILSKUDD
+        "MENTOR" -> Tiltakskode.MENTOR
+        "INKLUTILS" -> Tiltakskode.INKLUDERINGSTILSKUDD
+        "VATIAROR" -> Tiltakskode.VTAO
         else -> null
     }
 }
@@ -209,39 +141,4 @@ private fun toTiltakshistorikk(avtale: ArbeidsgiverAvtale, tiltakstype: Tiltakst
     stillingsprosent = avtale.stillingsprosent,
     dagerPerUke = avtale.dagerPerUke,
     arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(avtale.organisasjonsnummer, arbeidsgiver?.navn),
-)
-
-private fun toTiltakshistorikk(avtale: Avtale, tiltakstype: Tiltakstype, arbeidsgiver: Virksomhet?) = TiltakshistorikkV1Dto.TeamTiltakAvtale(
-    norskIdent = avtale.deltakerFnr,
-    startDato = avtale.startDato,
-    sluttDato = avtale.sluttDato,
-    opprettetTidspunkt = avtale.opprettetTidspunkt.toInstant(),
-    oppdatertTidspunkt = avtale.endretTidspunkt.toInstant(),
-    id = avtale.avtaleId,
-    tittel = Tiltaksnavn.hosTitleCaseVirksomhet(tiltakstype.navn, arbeidsgiver?.navn),
-    tiltakstype = TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakstype(
-        tiltakskode = when (avtale.tiltakstype) {
-            Avtale.Tiltakstype.ARBEIDSTRENING -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.ARBEIDSTRENING
-            Avtale.Tiltakstype.MIDLERTIDIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.MIDLERTIDIG_LONNSTILSKUDD
-            Avtale.Tiltakstype.VARIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.VARIG_LONNSTILSKUDD
-            Avtale.Tiltakstype.MENTOR -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.MENTOR
-            Avtale.Tiltakstype.INKLUDERINGSTILSKUDD -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.INKLUDERINGSTILSKUDD
-            Avtale.Tiltakstype.SOMMERJOBB -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.SOMMERJOBB
-            Avtale.Tiltakstype.VTAO -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.VTAO
-            Avtale.Tiltakstype.FIREARIG_LONNSTILSKUDD -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Tiltakskode.FIREARIG_LONNSTILSKUDD
-        },
-        navn = tiltakstype.navn,
-    ),
-    status = when (avtale.avtaleStatus) {
-        Avtale.Status.ANNULLERT -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.ANNULLERT
-        Avtale.Status.AVBRUTT -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.AVBRUTT
-        Avtale.Status.PAABEGYNT -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.PAABEGYNT
-        Avtale.Status.MANGLER_GODKJENNING -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.MANGLER_GODKJENNING
-        Avtale.Status.KLAR_FOR_OPPSTART -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.KLAR_FOR_OPPSTART
-        Avtale.Status.GJENNOMFORES -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.GJENNOMFORES
-        Avtale.Status.AVSLUTTET -> TiltakshistorikkV1Dto.TeamTiltakAvtale.Status.AVSLUTTET
-    },
-    stillingsprosent = avtale.stillingprosent,
-    dagerPerUke = avtale.antallDagerPerUke,
-    arbeidsgiver = TiltakshistorikkV1Dto.Virksomhet(Organisasjonsnummer(avtale.bedriftNr), arbeidsgiver?.navn),
 )

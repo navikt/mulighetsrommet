@@ -239,8 +239,8 @@ class TiltakgjennomforingEventProcessor(
         navn = requireNotNull(LOKALTNAVN),
         arenaTiltakskode = TILTAKSKODE,
         tiltakstypeId = tiltaktypeId,
-        arenaRegDato = ArenaUtils.parseTimestamp(REG_DATO),
-        arenaModDato = ArenaUtils.parseTimestamp(MOD_DATO),
+        arenaRegDato = ArenaUtils.parseTimestampAsInstant(REG_DATO),
+        arenaModDato = ArenaUtils.parseTimestampAsInstant(MOD_DATO),
         arrangorOrganisasjonsnummer = Organisasjonsnummer(virksomhetsnummer),
         deltidsprosent = PROSENT_DELTID,
     )

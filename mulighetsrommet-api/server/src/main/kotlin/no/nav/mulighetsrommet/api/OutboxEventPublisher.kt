@@ -4,13 +4,13 @@ import kotlinx.serialization.json.Json
 import kotliquery.Session
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.common.kafka.util.KafkaUtils
+import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.toTotrinnskontrollHendelse
 import no.nav.mulighetsrommet.kafka.KAFKA_CONSUMER_RECORD_PROCESSOR_SCHEDULED_AT
 import no.nav.mulighetsrommet.kafka.KafkaProducerRecordQueries
-import no.nav.mulighetsrommet.model.TiltaksgjennomforingV2Dto
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import org.apache.kafka.common.header.internals.RecordHeaders
 import java.time.Instant

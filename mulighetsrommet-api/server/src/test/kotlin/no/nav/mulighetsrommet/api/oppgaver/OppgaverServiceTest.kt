@@ -125,6 +125,9 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal bare se oppgaver for tilsagn til godkjenning, annullering og til oppgjør når ansatt har beslutter-rolle") {
+            val tilsagn3 = TilsagnFixtures.createTilsagn(gjennomforingId = AFT1.id, lopenummer = 3)
+            val tilsagn4 = TilsagnFixtures.createTilsagn(gjennomforingId = AFT1.id, lopenummer = 4)
+
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -132,14 +135,14 @@ class OppgaverServiceTest : FunSpec({
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
                     TilsagnFixtures.Tilsagn2,
-                    TilsagnFixtures.Tilsagn3,
-                    TilsagnFixtures.Tilsagn4,
+                    tilsagn3,
+                    tilsagn4,
                 ),
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_ANNULLERING)
-                setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.ANNULLERT)
-                setTilsagnStatus(TilsagnFixtures.Tilsagn4, TilsagnStatus.TIL_OPPGJOR)
+                setTilsagnStatus(tilsagn3, TilsagnStatus.ANNULLERT)
+                setTilsagnStatus(tilsagn4, TilsagnStatus.TIL_OPPGJOR)
             }.initialize(database.api)
 
             val service = OppgaverService(database.api, features())
@@ -155,6 +158,8 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal bare se oppgaver som er returnert når ansatt har saksbehandler-rolle") {
+            val tilsagn3 = TilsagnFixtures.createTilsagn(gjennomforingId = AFT1.id, lopenummer = 3)
+
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -162,12 +167,12 @@ class OppgaverServiceTest : FunSpec({
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1,
                     TilsagnFixtures.Tilsagn2,
-                    TilsagnFixtures.Tilsagn3,
+                    tilsagn3,
                 ),
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
-                setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.RETURNERT)
+                setTilsagnStatus(tilsagn3, TilsagnStatus.RETURNERT)
             }.initialize(database.api)
 
             val service = OppgaverService(database.api, features())
@@ -180,11 +185,13 @@ class OppgaverServiceTest : FunSpec({
                     roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
                 ),
             ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(TilsagnFixtures.Tilsagn3.id, OppgaveType.TILSAGN_RETURNERT),
+                PartialOppgave(tilsagn3.id, OppgaveType.TILSAGN_RETURNERT),
             )
         }
 
         test("Skal bare se oppgaver for valgt navEnhet") {
+            val tilsagn3 = TilsagnFixtures.createTilsagn(gjennomforingId = AFT1.id, lopenummer = 3)
+
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -193,12 +200,12 @@ class OppgaverServiceTest : FunSpec({
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1.copy(kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer),
                     TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
-                    TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
+                    tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
                 ),
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
-                setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(tilsagn3, TilsagnStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = OppgaverService(database.api, features())
@@ -248,6 +255,8 @@ class OppgaverServiceTest : FunSpec({
         }
 
         test("Skal bare se oppgaver for kostnadssteder som overlapper med ansattes roller") {
+            val tilsagn3 = TilsagnFixtures.createTilsagn(gjennomforingId = AFT1.id, lopenummer = 3)
+
             MulighetsrommetTestDomain(
                 tiltakstyper = listOf(TiltakstypeFixtures.AFT),
                 avtaler = listOf(AvtaleFixtures.AFT),
@@ -256,12 +265,12 @@ class OppgaverServiceTest : FunSpec({
                 tilsagn = listOf(
                     TilsagnFixtures.Tilsagn1.copy(kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer),
                     TilsagnFixtures.Tilsagn2.copy(kostnadssted = NavEnhetFixtures.Gjovik.enhetsnummer),
-                    TilsagnFixtures.Tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
+                    tilsagn3.copy(kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer),
                 ),
             ) {
                 setTilsagnStatus(TilsagnFixtures.Tilsagn1, TilsagnStatus.TIL_GODKJENNING)
                 setTilsagnStatus(TilsagnFixtures.Tilsagn2, TilsagnStatus.TIL_GODKJENNING)
-                setTilsagnStatus(TilsagnFixtures.Tilsagn3, TilsagnStatus.TIL_GODKJENNING)
+                setTilsagnStatus(tilsagn3, TilsagnStatus.TIL_GODKJENNING)
             }.initialize(database.api)
 
             val service = OppgaverService(database.api, features())

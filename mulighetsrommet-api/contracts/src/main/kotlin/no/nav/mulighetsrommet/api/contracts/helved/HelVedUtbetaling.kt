@@ -1,4 +1,4 @@
-package no.nav.mulighetsrommet.api.clients.helved
+package no.nav.mulighetsrommet.api.contracts.helved
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.model.NavEnhetNummer
