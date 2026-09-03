@@ -13,7 +13,7 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingDbo
-import no.nav.mulighetsrommet.api.clients.helved.HelVedUtbetaling
+import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKom
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
@@ -61,12 +62,21 @@ class TilskuddBehandlingService(
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
-                    val opprettelse = Totrinnskontroll.opprett(
-                        UUID.randomUUID(),
-                        dbo.id,
-                        TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
-                        navIdent,
-                    )
+                    val opprettelse = when (dbo.type) {
+                        TilskuddBehandlingType.REGISTRERING -> Totrinnskontroll.opprett(
+                            UUID.randomUUID(),
+                            dbo.id,
+                            TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                            navIdent,
+                        )
+
+                        TilskuddBehandlingType.REVURDERING -> Totrinnskontroll.opprett(
+                            UUID.randomUUID(),
+                            dbo.id,
+                            TotrinnskontrollType.TILSKUDD_OPPHOR,
+                            navIdent,
+                        )
+                    }
                     queries.totrinnskontroll.upsert(opprettelse)
                     outbox.publish(opprettelse)
                     logEndring("Sendt til attestering", dbo.id, navIdent)
@@ -87,6 +97,7 @@ class TilskuddBehandlingService(
                             .toSet(),
                         kostnadssted = it.kostnadssted,
                         status = it.status,
+                        type = it.type,
                         samletVedtakResultat = it.samletVedtakResultat,
                     )
                 }
@@ -218,46 +229,47 @@ class TilskuddBehandlingService(
         }
     }
 
-    suspend fun sendTilOpphor(tilskuddId: UUID, gjennomforingId: UUID, saksbehandler: NavIdent, beslutter: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
-        val opphorTotrinnskontroll = sendTilOpphor(
-            tilskuddId,
-            listOf(TilskuddBehandlingStatusAarsak.ANNET),
-            "Tester opphør av tilskudd",
-            behandletAv = saksbehandler,
+    fun revurderingOpphor(tilskuddId: UUID, behandlingId: UUID, saksbehandler: NavIdent, beslutter: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
+        val tidligereBehandling = queries.tilskuddBehandling.get(behandlingId)?.toDbo()
+            ?: throw IllegalStateException("Fant ikke tilskuddsbehandling for behandlingId=$behandlingId")
+        val opphorRevurdering = tidligereBehandling.copy(
+            id = UUID.randomUUID(),
+            type = TilskuddBehandlingType.REVURDERING,
+            status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+            tilskudd = tidligereBehandling.tilskudd
+                .filter { it.id == tilskuddId }
+                .map {
+                    it.copy(
+                        id = UUID.randomUUID(),
+                        soknadBelop = it.soknadBelop.copy(belop = 0),
+                        utbetalingBelop = it.utbetalingBelop?.copy(belop = 0),
+                    )
+                },
         )
-
-        val utbetaling = queries.brukerUtbetaling.getByTilskudd(tilskuddId)
-            ?: throw IllegalStateException("Fant ikke tilskudd utbetaling fra tilskuddId=$tilskuddId")
-
-        val godkjentOpphor = godkjennOpphor(opphorTotrinnskontroll.id, beslutter)
-            .getOrElse { errors ->
-                throw IllegalStateException("Kunne ikke godkjenne opphør av tilskudd utbetaling med id=$tilskuddId. Feil: ${errors.joinToString(", ") { it.detail }}")
-            }
-
-        settTilOpphor(utbetaling, gjennomforingId, godkjentOpphor)
+        queries.tilskuddBehandling.upsert(opphorRevurdering)
+        val totrinnskontroll = revurderingOpphor(opphorRevurdering.id, listOf(TilskuddBehandlingStatusAarsak.ANNET), "Test av opphør", saksbehandler)
 
         Unit.right()
     }
 
     context(tx: TransactionalQueryContext)
-    private fun sendTilOpphor(tilskuddId: UUID, aarsaker: List<TilskuddBehandlingStatusAarsak>, forklaring: String?, behandletAv: Agent): Totrinnskontroll = with(tx) {
+    private fun revurderingOpphor(tilskuddId: UUID, aarsaker: List<TilskuddBehandlingStatusAarsak>, forklaring: String?, behandletAv: Agent): Totrinnskontroll = with(tx) {
         val opphorTotrinnskontroll = Totrinnskontroll.opprett(
             UUID.randomUUID(),
             tilskuddId,
             TotrinnskontrollType.TILSKUDD_OPPHOR,
             behandletAv,
-            emptyList(),
+            aarsaker.map { it.name },
             "Test opphør av tilskuddsutbetaling",
         )
         queries.totrinnskontroll.upsert(opphorTotrinnskontroll)
         outbox.publish(opphorTotrinnskontroll)
-        // TODO: Midlertidig status for opphør?
         return opphorTotrinnskontroll
     }
 
     context(tx: TransactionalQueryContext)
-    private fun godkjennOpphor(totrinnskontrollId: UUID, beslutter: Agent): Either<List<FieldError>, Totrinnskontroll> = with(tx) {
-        val opphorTotrinnskontroll = queries.totrinnskontroll.getById(totrinnskontrollId)
+    private fun godkjennOpphor(behandlingId: UUID, beslutter: Agent): Either<List<FieldError>, Totrinnskontroll> = with(tx) {
+        val opphorTotrinnskontroll = queries.totrinnskontroll.getOrError(behandlingId, TotrinnskontrollType.TILSKUDD_OPPHOR)
         return opphorTotrinnskontroll.godkjenn(beslutter)
             .mapLeft { it.toFieldErrors() }
             .map { godkjent ->

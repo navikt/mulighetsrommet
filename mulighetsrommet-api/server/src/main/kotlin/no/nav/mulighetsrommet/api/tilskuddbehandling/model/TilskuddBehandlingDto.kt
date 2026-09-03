@@ -27,6 +27,7 @@ data class TilskuddBehandlingDto(
     val kostnadssted: KostnadsstedDto,
     val tilskudd: List<TilskuddOpplaeringDto>,
     val status: TilskuddBehandlingStatusDto,
+    val type: TilskuddBehandlingType,
     val kommentarIntern: String?,
     val samletVedtakResultat: SamletVedtakResultat,
     val vedtakJournalpostId: String?,
@@ -51,6 +52,7 @@ data class TilskuddBehandlingDto(
         },
         kostnadssted = this.kostnadssted.enhetsnummer,
         status = this.status.type,
+        type = this.type,
         kommentarIntern = this.kommentarIntern,
     )
 }
@@ -73,6 +75,7 @@ data class TilskuddBehandlingKompakt(
     val periode: Periode,
     val kostnadssted: KostnadsstedDto,
     val status: TilskuddBehandlingStatusDto,
+    val type: TilskuddBehandlingType,
     val samletVedtakResultat: SamletVedtakResultat,
 )
 
