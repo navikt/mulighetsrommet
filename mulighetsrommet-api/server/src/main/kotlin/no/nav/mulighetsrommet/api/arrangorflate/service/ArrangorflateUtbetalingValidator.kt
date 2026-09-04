@@ -32,12 +32,10 @@ object ArrangorflateUtbetalingValidator {
             PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
             -> minOf(today, opprettKravPeriodeSluttDato)
 
-            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
-            -> minOf(today.withDayOfMonth(1), opprettKravPeriodeSluttDato)
-
             PrismodellType.ANNEN_AVTALT_PRIS,
             -> opprettKravPeriodeSluttDato
 
+            PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED,
             PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
             PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,

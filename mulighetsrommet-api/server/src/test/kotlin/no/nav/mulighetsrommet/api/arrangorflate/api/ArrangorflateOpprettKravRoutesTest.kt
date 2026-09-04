@@ -1,8 +1,8 @@
 package no.nav.mulighetsrommet.api.arrangorflate.api
 
-import io.kotest.assertions.shouldFail
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -108,22 +108,15 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
         }
     }
 
-    test("Avtalt pris per time oppfølging får liste av tilgjengelige perioder") {
+    test("Avtalt pris per time oppfølging skal ikke vises i tiltaksoversikten") {
         withTestApplication(ArrangorflateTestUtils.appConfig(oauth)) {
-            val response =
-                client.get("/api/arrangorflate/arrangor/$orgnr/gjennomforing/${oppfolgingGjennomforing.id}/opprett-krav") {
-                    bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
-                }
+            val response = client.get(tiltaksoversiktUrl) {
+                bearerAuth(oauth.issueToken(claims = mapOf("pid" to identMedTilgang.value)).serialize())
+            }
 
             response.status shouldBe HttpStatusCode.OK
-            val data = response.body<OpprettKravData>()
-            when (data.innsendingSteg.datoVelger) {
-                is DatoVelger.DatoSelect ->
-                    data.innsendingSteg.datoVelger.periodeForslag.isNotEmpty()
-
-                is DatoVelger.DatoRange ->
-                    shouldFail { "Skal vise en liste av perioder for timespris innsending" }
-            }
+            val body = response.body<PaginatedResponse<ArrangorflateTiltakRadDto>>()
+            body.data.map { it.gjennomforing.id } shouldNotContain oppfolgingGjennomforing.id
         }
     }
 
@@ -137,14 +130,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
             response.status shouldBe HttpStatusCode.OK
             val data = response.body<OpprettKravData>()
-            when (data.innsendingSteg.datoVelger) {
-                is DatoVelger.DatoSelect ->
-                    shouldFail { "Annen avtalt pris skal ha start- og sluttdato datepicker" }
-
-                is DatoVelger.DatoRange ->
-                    // skal være slutt dato for konfigurert tilsagnsperiode
-                    data.innsendingSteg.datoVelger.maksSluttdato shouldBe config.okonomi.gyldigTilsagnPeriode[Tiltakskode.ARBEIDSRETTET_REHABILITERING]!!.slutt
-            }
+            data.innsendingSteg.datoVelger.maksSluttdato shouldBe config.okonomi.gyldigTilsagnPeriode[Tiltakskode.ARBEIDSRETTET_REHABILITERING]!!.slutt
         }
     }
 
@@ -157,13 +143,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
 
             response.status shouldBe HttpStatusCode.OK
             val data = response.body<OpprettKravData>()
-            when (data.innsendingSteg.datoVelger) {
-                is DatoVelger.DatoSelect ->
-                    shouldFail { "Investeringer skal ha start- og sluttdato datepicker" }
-
-                is DatoVelger.DatoRange ->
-                    data.innsendingSteg.datoVelger.maksSluttdato shouldBe LocalDate.now() // Eksklusiv maks dato
-            }
+            data.innsendingSteg.datoVelger.maksSluttdato shouldBe LocalDate.now() // Eksklusiv maks dato
         }
     }
 
