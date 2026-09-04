@@ -79,7 +79,7 @@ class TilsagnQueries(private val session: Session) {
                 :valuta::currency,
                 :belop_brukt,
                 :belop_beregnet,
-                :beregning_type::tilsagn_beregning_type,
+                :beregning_type,
                 :beregning_sats,
                 :beregning_antall_plasser,
                 :beregning_antall_timer_oppfolging_per_deltaker,
@@ -135,7 +135,7 @@ class TilsagnQueries(private val session: Session) {
             "belop_beregnet" to dbo.beregning.output.pris.belop,
             "valuta" to dbo.belopBrukt.valuta.name,
             "beregning_type" to when (dbo.beregning) {
-                is TilsagnBeregningAnnenAvtaltPris -> TilsagnBeregningType.FRI
+                is TilsagnBeregningAnnenAvtaltPris -> TilsagnBeregningType.ANNEN_AVTALT_PRIS
                 is TilsagnBeregningFastSatsPerBenyttetPlassPerManed -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
                 is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed -> TilsagnBeregningType.PRIS_PER_MANEDSVERK
                 is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke -> TilsagnBeregningType.PRIS_PER_UKESVERK
@@ -188,7 +188,7 @@ class TilsagnQueries(private val session: Session) {
         upsertTilsagnDeltakere(dbo.id, dbo.deltakere)
 
         if (dbo.beregning is TilsagnBeregningAnnenAvtaltPris) {
-            upsertTilsagnBeregningFriLinjer(dbo.id, dbo.beregning.input.linjer)
+            upsertTilsagnBeregningAnnenAvtaltPrisLinjer(dbo.id, dbo.beregning.input.linjer)
         }
     }
 
@@ -227,20 +227,20 @@ class TilsagnQueries(private val session: Session) {
         }
     }
 
-    private fun TransactionalSession.upsertTilsagnBeregningFriLinjer(
+    private fun TransactionalSession.upsertTilsagnBeregningAnnenAvtaltPrisLinjer(
         tilsagnId: UUID,
         linjer: List<TilsagnBeregningAnnenAvtaltPris.InputLinje>,
     ) {
         @Language("PostgreSQL")
         val deleteExistingQuery = """
-            delete from tilsagn_fri_beregning
+            delete from tilsagn_annen_avtalt_pris_linje
             where tilsagn_id = ?
         """.trimIndent()
         execute(queryOf(deleteExistingQuery, tilsagnId))
 
         @Language("PostgreSQL")
         val query = """
-            insert into tilsagn_fri_beregning (
+            insert into tilsagn_annen_avtalt_pris_linje (
                     id,
                     tilsagn_id,
                     beskrivelse,
@@ -524,10 +524,10 @@ class TilsagnQueries(private val session: Session) {
 
     private fun Row.getBeregning(id: UUID, valuta: Valuta, beregning: TilsagnBeregningType): TilsagnBeregning {
         return when (beregning) {
-            TilsagnBeregningType.FRI -> {
+            TilsagnBeregningType.ANNEN_AVTALT_PRIS -> {
                 TilsagnBeregningAnnenAvtaltPris(
                     input = Input(
-                        linjer = getTilsagnBeregningFriLinjer(id),
+                        linjer = getTilsagnBeregningAnnenAvtaltPrisLinjer(id),
                         prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                     ),
                     output = Output(
@@ -602,11 +602,11 @@ class TilsagnQueries(private val session: Session) {
         }
     }
 
-    private fun getTilsagnBeregningFriLinjer(tilsagnId: UUID): List<TilsagnBeregningAnnenAvtaltPris.InputLinje> {
+    private fun getTilsagnBeregningAnnenAvtaltPrisLinjer(tilsagnId: UUID): List<TilsagnBeregningAnnenAvtaltPris.InputLinje> {
         @Language("PostgreSQL")
         val query = """
             select *
-            from tilsagn_fri_beregning
+            from tilsagn_annen_avtalt_pris_linje
             where tilsagn_id = ?::uuid
         """.trimIndent()
         return session.list(queryOf(query, tilsagnId)) {

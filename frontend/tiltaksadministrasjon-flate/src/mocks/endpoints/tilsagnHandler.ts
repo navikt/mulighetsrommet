@@ -29,7 +29,7 @@ export const tilsagnHandlers = [
         periodeStart: null,
         periodeSlutt: null,
         beregning: {
-          type: TilsagnBeregningType.FRI,
+          type: TilsagnBeregningType.ANNEN_AVTALT_PRIS,
           valuta: Valuta.NOK,
           antallPlasser: null,
           prisbetingelser: null,

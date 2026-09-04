@@ -65,7 +65,7 @@ class TilsagnQueriesTest : FunSpec({
         deltakere = listOf(deltaker),
     )
 
-    val beregningFri = {
+    val beregningAnnenAvtaltPris = {
         TilsagnBeregningAnnenAvtaltPris(
             TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(
@@ -94,7 +94,7 @@ class TilsagnQueriesTest : FunSpec({
         bestillingsnummer = "1",
         bestillingStatus = null,
         belopBrukt = 0.NOK,
-        beregning = beregningFri(),
+        beregning = beregningAnnenAvtaltPris(),
         kommentar = "Kommentar",
         beskrivelse = "Beskrivelse til arrangør",
         deltakere = emptyList(),
@@ -325,7 +325,7 @@ class TilsagnQueriesTest : FunSpec({
                         lopenummer = 1,
                         bestillingsnummer = "1",
                         gjennomforingId = GjennomforingFixtures.AFT1.id,
-                        beregning = beregningFri(),
+                        beregning = beregningAnnenAvtaltPris(),
                     ),
                 )
 
@@ -335,7 +335,7 @@ class TilsagnQueriesTest : FunSpec({
                         lopenummer = 1,
                         bestillingsnummer = "2",
                         gjennomforingId = aft2.id,
-                        beregning = beregningFri(),
+                        beregning = beregningAnnenAvtaltPris(),
                     ),
                 )
 
@@ -346,7 +346,7 @@ class TilsagnQueriesTest : FunSpec({
                             lopenummer = 1,
                             bestillingsnummer = "3",
                             gjennomforingId = GjennomforingFixtures.AFT1.id,
-                            beregning = beregningFri(),
+                            beregning = beregningAnnenAvtaltPris(),
                         ),
                     )
                 }.shouldBeLeft().shouldBeTypeOf<IntegrityConstraintViolation.UniqueViolation>()

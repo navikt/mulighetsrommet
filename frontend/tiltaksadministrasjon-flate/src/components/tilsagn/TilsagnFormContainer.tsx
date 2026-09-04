@@ -1,5 +1,5 @@
 import { TilsagnFormPrisPerManedsverk } from "@/components/tilsagn/form/TilsagnFormPrisPerManedsverk";
-import { TilsagnFormFri } from "@/components/tilsagn/form/TilsagnFormFri";
+import { TilsagnFormAnnenAvtaltPris } from "@/components/tilsagn/form/TilsagnFormAnnenAvtaltPris";
 import {
   PrismodellDto,
   TilsagnBeregningType,
@@ -49,7 +49,7 @@ export function TilsagnFormContainer({
       return <TilsagnFormFastSatsPerTiltaksplassPerManed defaultValues={defaults} {...props} />;
     case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
       return <TilsagnFormPrisPerTimeOppfolging defaultValues={defaults} {...props} />;
-    case TilsagnBeregningType.FRI:
-      return <TilsagnFormFri defaultValues={defaults} {...props} />;
+    case TilsagnBeregningType.ANNEN_AVTALT_PRIS:
+      return <TilsagnFormAnnenAvtaltPris defaultValues={defaults} {...props} />;
   }
 }

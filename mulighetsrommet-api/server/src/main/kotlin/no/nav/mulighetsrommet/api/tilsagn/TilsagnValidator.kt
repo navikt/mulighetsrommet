@@ -130,7 +130,7 @@ object TilsagnValidator {
         periode: Periode,
         prismodell: Prismodell,
     ): ValutaBelop = when (beregningType) {
-        TilsagnBeregningType.FRI -> ValutaBelop(0, prismodell.valuta)
+        TilsagnBeregningType.ANNEN_AVTALT_PRIS -> ValutaBelop(0, prismodell.valuta)
 
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,
@@ -174,8 +174,8 @@ object TilsagnValidator {
         val antallPlasser = validateAntallPlasser(request.type, request.antallPlasser)
 
         return when (request.type) {
-            TilsagnBeregningType.FRI ->
-                validateBeregningFriInput(prismodell.valuta, request).bind()
+            TilsagnBeregningType.ANNEN_AVTALT_PRIS ->
+                validateBeregningAnnenAvtaltPrisInput(prismodell.valuta, request).bind()
 
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
                 TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(
@@ -240,7 +240,7 @@ object TilsagnValidator {
         type: TilsagnBeregningType,
         antallTimerOppfolgingPerDeltaker: Int?,
     ): Int = when (type) {
-        TilsagnBeregningType.FRI,
+        TilsagnBeregningType.ANNEN_AVTALT_PRIS,
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,
         TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
@@ -260,7 +260,7 @@ object TilsagnValidator {
     }
 
     private fun FieldValidator.validateAntallPlasser(beregningType: TilsagnBeregningType, antallPlasser: Int?): Int = when (beregningType) {
-        TilsagnBeregningType.FRI -> 0
+        TilsagnBeregningType.ANNEN_AVTALT_PRIS -> 0
 
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,
@@ -295,7 +295,7 @@ object TilsagnValidator {
         else -> Unit
     }
 
-    fun validateBeregningFriInput(
+    fun validateBeregningAnnenAvtaltPrisInput(
         prismodellValuta: Valuta,
         request: TilsagnBeregningRequest,
     ): Either<List<FieldError>, TilsagnBeregning> = validation {

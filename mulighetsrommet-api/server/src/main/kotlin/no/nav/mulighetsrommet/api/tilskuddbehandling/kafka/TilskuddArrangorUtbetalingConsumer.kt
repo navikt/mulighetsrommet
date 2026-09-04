@@ -117,7 +117,7 @@ class TilskuddArrangorUtbetalingConsumer(
                 gjennomforingId = gjennomforingId,
                 kostnadssted = kostnadssted,
                 beregning = TilsagnBeregningRequest(
-                    type = TilsagnBeregningType.FRI,
+                    type = TilsagnBeregningType.ANNEN_AVTALT_PRIS,
                     valuta = belop.valuta,
                     prisbetingelser = prisbetingelser,
                     linjer = listOf(

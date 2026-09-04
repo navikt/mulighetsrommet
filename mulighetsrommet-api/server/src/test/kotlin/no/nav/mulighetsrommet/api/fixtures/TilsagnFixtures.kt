@@ -78,7 +78,7 @@ object TilsagnFixtures {
         periodeSlutt = "2025-01-31",
         kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         beregning = TilsagnBeregningRequest(
-            type = TilsagnBeregningType.FRI,
+            type = TilsagnBeregningType.ANNEN_AVTALT_PRIS,
             linjer = listOf(
                 TilsagnInputLinjeRequest(
                     id = UUID.randomUUID(),
