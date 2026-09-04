@@ -71,8 +71,10 @@ object TilskuddVedtakToPdfDocumentContentMapper {
         tilskudd: TilskuddDbo,
         tilskuddBehandling: TilskuddBehandling,
     ) {
-        val belop = tilskudd.utbetalingBelop?.belop ?: 0
-        val valuta = tilskudd.utbetalingBelop?.valuta?.name ?: tilskudd.soknadBelop.valuta.name
+        val belop = requireNotNull(tilskudd.utbetalingBelop?.belop) {
+            "Innvilget tilskudd beløp var null"
+        }
+        val valuta = tilskudd.utbetalingBelop.valuta.name
 
         section(
             "Ditt krav om ${tilskudd.tilskuddOpplaeringType.toDisplayName()} er innvilget for perioden ${tilskuddBehandling.periode.formatPeriode()}.",
