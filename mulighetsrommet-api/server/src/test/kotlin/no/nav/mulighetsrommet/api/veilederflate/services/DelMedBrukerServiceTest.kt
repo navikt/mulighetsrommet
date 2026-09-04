@@ -69,22 +69,22 @@ class DelMedBrukerServiceTest : FunSpec({
 
             service.insertDelMedBruker(deling)
 
-            service.getLastDelingMedBruker(
+            service.getLast(
                 fnr = NorskIdent("12345678910"),
                 tiltakDokumentOrGjennomforingId = tiltakDokumentId,
             ).shouldNotBeNull().should {
-                it.tiltakId shouldBe tiltakDokumentId
-                it.deling.dialogId shouldBe "1"
+                it.tiltak.id shouldBe tiltakDokumentId
+                it.dialogId shouldBe "1"
             }
 
             service.insertDelMedBruker(deling.copy(navIdent = NavIdent("B123456"), dialogId = "2"))
 
-            service.getLastDelingMedBruker(
+            service.getLast(
                 fnr = NorskIdent("12345678910"),
                 tiltakDokumentOrGjennomforingId = tiltakDokumentId,
             ).shouldNotBeNull().should {
-                it.tiltakId shouldBe tiltakDokumentId
-                it.deling.dialogId shouldBe "2"
+                it.tiltak.id shouldBe tiltakDokumentId
+                it.dialogId shouldBe "2"
             }
         }
 
@@ -106,14 +106,14 @@ class DelMedBrukerServiceTest : FunSpec({
 
             service.insertDelMedBruker(request)
 
-            val delMedBruker = service.getLastDelingMedBruker(
+            val delMedBruker = service.getLast(
                 fnr = NorskIdent("12345678910"),
                 tiltakDokumentOrGjennomforingId = GjennomforingFixtures.Oppfolging1.id,
             )
 
             delMedBruker.shouldNotBeNull().should {
-                it.tiltakId shouldBe GjennomforingFixtures.Oppfolging1.id
-                it.deling.dialogId shouldBe "1"
+                it.tiltak.id shouldBe GjennomforingFixtures.Oppfolging1.id
+                it.dialogId shouldBe "1"
             }
         }
 
@@ -178,14 +178,14 @@ class DelMedBrukerServiceTest : FunSpec({
             service.insertDelMedBruker(deling2)
             service.insertDelMedBruker(deling3)
 
-            service.getAllDistinctDelingMedBruker(fnr = NorskIdent("12345678910")).should {
-                it.size shouldBe 2
+            service.getAll(fnr = NorskIdent("12345678910")).should {
+                it.size shouldBe 3
 
-                it[0].tiltakId shouldBe GjennomforingFixtures.Oppfolging1.id
-                it[0].deling.dialogId shouldBe "2"
+                it[0].tiltak.id shouldBe tiltakDokumentId
+                it[0].dialogId shouldBe "3"
 
-                it[1].tiltakId shouldBe tiltakDokumentId
-                it[1].deling.dialogId shouldBe "3"
+                it[1].tiltak.id shouldBe GjennomforingFixtures.Oppfolging1.id
+                it[1].dialogId shouldBe "2"
             }
         }
 
@@ -274,7 +274,7 @@ class DelMedBrukerServiceTest : FunSpec({
             service.insertDelMedBruker(deling2)
             service.insertDelMedBruker(deling3)
 
-            val delMedBruker = service.getAllTiltakDeltMedBruker(NorskIdent("12345678910"))
+            val delMedBruker = service.getAll(NorskIdent("12345678910"))
 
             delMedBruker.shouldNotBeNull().should {
                 it.size shouldBe 3

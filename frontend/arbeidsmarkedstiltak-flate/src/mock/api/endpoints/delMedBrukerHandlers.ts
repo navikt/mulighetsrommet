@@ -1,9 +1,8 @@
 import {
-  DeltMedBrukerDto,
+  DelMedBrukerDto,
   DelTiltakMedBrukerResponse,
-  GetAlleDeltMedBrukerRequest,
+  GetAlleDelMedBrukerRequest,
   GetDelMedBrukerRequest,
-  TiltakDeltMedBrukerDto,
 } from "@arbeidsmarkedstiltak/api-client";
 import { http, HttpResponse, PathParams } from "msw";
 import { mockDeltMedBruker } from "@/mock/fixtures/mockDeltMedBruker";
@@ -23,7 +22,7 @@ export const delMedBrukerHandlers = [
       const data = (await request.json()) as GetDelMedBrukerRequest;
 
       const deltMedBruker = mockDeltMedBruker.find(
-        (deltMedBruker) => deltMedBruker.tiltakId === data.tiltakId,
+        (deltMedBruker) => deltMedBruker.tiltak.id === data.tiltakId,
       );
 
       if (deltMedBruker) {
@@ -34,14 +33,7 @@ export const delMedBrukerHandlers = [
     },
   ),
 
-  http.post<PathParams, GetAlleDeltMedBrukerRequest, DeltMedBrukerDto[]>(
-    "*/api/veilederflate/del-med-bruker/alle",
-    () => {
-      return HttpResponse.json(mockDeltMedBruker);
-    },
-  ),
-
-  http.post<PathParams, GetAlleDeltMedBrukerRequest, TiltakDeltMedBrukerDto[]>(
+  http.post<PathParams, GetAlleDelMedBrukerRequest, DelMedBrukerDto[]>(
     "*/api/veilederflate/del-med-bruker/historikk",
     () => {
       return HttpResponse.json(mockHistorikkDeltMedBruker);
