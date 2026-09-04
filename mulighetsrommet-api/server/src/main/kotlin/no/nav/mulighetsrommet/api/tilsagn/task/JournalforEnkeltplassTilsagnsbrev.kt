@@ -8,12 +8,15 @@ import com.github.kagkarlsson.scheduler.task.FailureHandler
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.JournalpostId
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
@@ -98,7 +101,14 @@ class JournalforEnkeltplassTilsagnsbrev(
 
         val fagsakId = enkeltplass.arena?.tiltaksnummer?.value ?: enkeltplass.lopenummer.value
 
-        val journalpostResult = generatePdf(tilsagn, personalia, kontonummer)
+        val opprettelse = queries.totrinnskontroll.getDtoOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
+        val saksbehandler = opprettelse.behandletAv
+        val beslutter = when (opprettelse) {
+            is TotrinnskontrollDto.Besluttet -> opprettelse.besluttetAv
+            is TotrinnskontrollDto.TilBeslutning -> null
+        }
+
+        val journalpostResult = generatePdf(tilsagn, personalia, kontonummer, saksbehandler, beslutter)
             .flatMap { pdf ->
                 val journalpost = tilsagnJournalpost(
                     pdf = pdf,
@@ -125,11 +135,15 @@ class JournalforEnkeltplassTilsagnsbrev(
         tilsagn: Tilsagn,
         personalia: Personalia,
         kontonummer: Kontonummer,
+        saksbehandler: AgentDto,
+        beslutter: AgentDto?,
     ): Either<String, ByteArray> {
         val content = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
             tilsagn,
             kontonummer,
             personalia,
+            saksbehandler = saksbehandler,
+            beslutter = beslutter,
         )
         return pdf
             .getPdfDocument(content)

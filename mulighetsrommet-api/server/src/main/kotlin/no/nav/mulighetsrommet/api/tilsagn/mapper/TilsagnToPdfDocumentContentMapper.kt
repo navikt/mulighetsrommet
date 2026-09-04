@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.tilsagn.mapper
 
+import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
 import no.nav.mulighetsrommet.api.pdfgen.Deltaker
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.SectionBuilder
@@ -9,6 +10,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.text.NumberFormat
 import java.time.LocalDate
@@ -19,6 +21,8 @@ object TilsagnToPdfDocumentContentMapper {
         tilsagn: Tilsagn,
         kontonummer: Kontonummer,
         personalia: Personalia,
+        saksbehandler: AgentDto? = null,
+        beslutter: AgentDto? = null,
         referanseDato: LocalDate = LocalDate.now(),
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Tilsagnsbrev",
@@ -93,8 +97,17 @@ object TilsagnToPdfDocumentContentMapper {
         }
 
         signature(
-            Signature(enhet = tilsagn.kostnadssted.navn),
+            Signature(
+                saksbehandler = saksbehandler?.personNavn(),
+                beslutter = beslutter?.personNavn(),
+                enhet = tilsagn.kostnadssted.navn,
+            ),
         )
+    }
+
+    private fun AgentDto.personNavn(): String? = when (agent) {
+        is NavIdent -> navn
+        else -> null
     }
 
     private fun SectionBuilder.addInvoiceInfo() {
