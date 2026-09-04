@@ -1,7 +1,6 @@
 import { KostnadsstedOption, VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
 import {
   PrismodellDto,
-  PrismodellType,
   TilsagnRequest,
   TilsagnType,
   ValidationError,
@@ -34,7 +33,7 @@ import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
 import { GjennomforingDto } from "@/api/gjennomforing/utils";
-import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
+import { Betalingsbetingelser } from "@/components/gjennomforing/Betalingsbetingelser";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
@@ -130,7 +129,7 @@ export function TilsagnForm(props: Props) {
                 />
               </VStack>
               <VStack>
-                <PrismodellDetaljer prismodeller={[props.prismodell]} />
+                <Betalingsbetingelser prismodell={props.prismodell} />
                 <Separator />
                 <TilsagnBeregningPreview />
               </VStack>

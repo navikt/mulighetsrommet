@@ -40,7 +40,7 @@ import {
   tilskuddMottakerToString,
 } from "@/utils/Utils";
 import { FilePdfIcon, PencilFillIcon } from "@navikt/aksel-icons";
-import { BetalingsbetingelserEnkeltplass } from "@/components/gjennomforing/BetalingsbetingelserEnkeltplass";
+import { Betalingsbetingelser } from "@/components/gjennomforing/Betalingsbetingelser";
 import { InformasjonFraSoknad } from "@/components/tilskudd-behandling/InformasjonFraSoknad";
 import { VedtaksbrevPdfModal } from "@/components/tilskudd-behandling/VedtaksbrevPdfModal";
 import { useVedtaksbrevPdfBlob } from "@/api/tilskudd-behandling/useVedtaksbrevPdfBlob";
@@ -214,7 +214,7 @@ export function TilskuddBehandlingDetaljerPage() {
               />
             </VStack>
           </>
-          <BetalingsbetingelserEnkeltplass prismodell={prismodell} />
+          <Betalingsbetingelser prismodell={prismodell} />
         </TwoColumnGrid>
       </Box>
       <Separator />

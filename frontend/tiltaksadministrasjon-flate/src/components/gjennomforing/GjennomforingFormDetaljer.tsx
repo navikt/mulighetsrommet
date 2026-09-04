@@ -23,7 +23,7 @@ import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { addDuration, formaterDato } from "@mr/frontend-common/utils/date";
 import { LabelWithHelpText } from "@mr/frontend-common/components/label/LabelWithHelpText";
 import { OPPMOTE_STED_MAX_LENGTH } from "@/constants";
-import { PrismodellDetaljer } from "../avtaler/PrismodellDetaljer";
+import { PrismodellDetaljer } from "@/components/prismodell/PrismodellDetaljer";
 import { kreverDeltidsprosent, kreverDirekteVedtak } from "@/utils/tiltakstype";
 import { useNavAnsatte } from "@/api/ansatt/useNavAnsatte";
 import { GjennomforingFormValues } from "@/pages/gjennomforing/form/validation";
@@ -237,7 +237,7 @@ export function GjennomforingFormDetaljer(props: Props) {
                 </option>
               ))}
             </FormSelect>
-            {valgtPrismodell && <PrismodellDetaljer prismodeller={[valgtPrismodell]} />}
+            {valgtPrismodell && <PrismodellDetaljer prismodell={valgtPrismodell} />}
           </FormGroup>
         </SkjemaKolonne>
       </TwoColumnGrid>
