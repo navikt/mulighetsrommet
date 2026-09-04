@@ -1,5 +1,11 @@
 import { KostnadsstedOption, VelgKostnadssted } from "@/components/tilsagn/form/VelgKostnadssted";
-import { TilsagnRequest, TilsagnType, ValidationError } from "@tiltaksadministrasjon/api-client";
+import {
+  PrismodellDto,
+  PrismodellType,
+  TilsagnRequest,
+  TilsagnType,
+  ValidationError,
+} from "@tiltaksadministrasjon/api-client";
 import {
   Box,
   Button,
@@ -28,6 +34,8 @@ import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
 import { GjennomforingDto } from "@/api/gjennomforing/utils";
+import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
+import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 
 interface Props {
   onSuccess: () => void;
@@ -36,6 +44,7 @@ interface Props {
   kostnadssteder: KostnadsstedOption[];
   beregningInput: ReactElement;
   gjennomforing: GjennomforingDto;
+  prismodell: PrismodellDto;
 }
 
 export function TilsagnForm(props: Props) {
@@ -120,7 +129,11 @@ export function TilsagnForm(props: Props) {
                   maxLength={250}
                 />
               </VStack>
-              <TilsagnBeregningPreview />
+              <VStack>
+                <PrismodellDetaljer prismodeller={[props.prismodell]} />
+                <Separator />
+                <TilsagnBeregningPreview />
+              </VStack>
             </TwoColumnGrid>
           </Box>
           <VStack gap="space-8">

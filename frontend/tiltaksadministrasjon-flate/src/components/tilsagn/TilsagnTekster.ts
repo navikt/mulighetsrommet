@@ -45,24 +45,6 @@ export const tilsagnTekster = {
   },
   prismodell: {
     label: "Prismodell",
-    sats: {
-      label: (type: TilsagnBeregningType) => {
-        switch (type) {
-          case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
-            return "Fast sats per benyttet tiltaksplass per måned";
-          case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
-            return "Avtalt månedspris per tiltaksplass";
-          case TilsagnBeregningType.PRIS_PER_UKESVERK:
-            return "Avtalt ukespris per tiltaksplass";
-          case TilsagnBeregningType.PRIS_PER_HELE_UKESVERK:
-            return "Avtalt pris per uke med påbegynt oppfølging per deltaker";
-          case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
-            return "Avtalt pris per time oppfølging per deltaker";
-          case TilsagnBeregningType.ANNEN_AVTALT_PRIS:
-            return "Annen avtalt pris";
-        }
-      },
-    },
   },
   sats: {
     label: (type: TilsagnBeregningType) => {
