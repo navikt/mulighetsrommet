@@ -37,7 +37,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
     val utbetaling = HelVedUtbetaling(
         id = UUID.randomUUID(),
         sakId = "SAK-2025-001",
-        behandlingId = "BEHANDLING-001",
+        behandlingId = "1",
         personIdent = NorskIdent("12345678901"),
         periode = HelVedUtbetaling.Periode(
             fom = LocalDate.of(2025, 1, 1),

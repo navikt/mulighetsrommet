@@ -583,8 +583,8 @@ class UtbetalingQueries(private val session: Session) {
         val query = """
             select *
             from view_utbetaling
-            inner join tilskudd on tilskudd.utbetaling_id = view_utbetaling.id
-            where tilskudd.id = :id::uuid
+            inner join tilskudd_vedtak on tilskudd_vedtak.utbetaling_id = view_utbetaling.id
+            where tilskudd_vedtak.tilskudd_id = :id::uuid
         """.trimIndent()
 
         val params = mapOf(

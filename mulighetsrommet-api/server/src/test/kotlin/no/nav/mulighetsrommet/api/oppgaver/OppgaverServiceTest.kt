@@ -1234,6 +1234,7 @@ class OppgaverServiceTest : FunSpec({
             val behandlingOslo = TilskuddFixtures.Behandling.copy(
                 id = UUID.randomUUID(),
                 kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer,
+                tilskudd = listOf(TilskuddFixtures.Tilskudd.copy(id = UUID.randomUUID())),
             )
 
             MulighetsrommetTestDomain(
@@ -1273,6 +1274,7 @@ class OppgaverServiceTest : FunSpec({
             val behandlingOslo = TilskuddFixtures.Behandling.copy(
                 gjennomforingId = GjennomforingFixtures.EnkelFagOgYrke.id,
                 id = UUID.randomUUID(),
+                tilskudd = listOf(TilskuddFixtures.Tilskudd.copy(id = UUID.randomUUID())),
             )
 
             MulighetsrommetTestDomain(
