@@ -29,7 +29,7 @@ avhengig av bruksområde.
 
 ## Lokal utvikling
 
-Som standard vil `LOKAL`-appen startes lokalt. Om ønskelig kan dette overstyres via miljøvariabelen `APP` i `.env`:
+Som standard vil `LOKAL`-appen startes lokalt. Om ønskelig kan dette overstyres via miljøvariabelen `APP` i `.env` eller i `frontend/arbeidsmarkedstiltak-flate/mise.local.toml`:
 
 ```.env
 APP=LOKAL # Eller MODIA, NAV
@@ -68,6 +68,25 @@ For å generere dette gjør du følgende:
    ```
 5. Trykk `Sign in`
 6. Kopier verdien til `access_token` og benytt denne i nevnte miljøvariabel
+
+
+##### Alternativt automatisk oppsett
+
+Opprett følgende fil `frontend/arbeidsmarkedstiltak-flate/mise.local.toml`, eller set miljøvariablene på din egen måte.
+
+```toml
+[env]
+APP = "LOKAL"
+MOCK_ISSUER_ID = "azure"
+MOCK_CLAIMS_JSON = '{"NAVident": "B123456","aud": ["mulighetsrommet-api"],"oid": "37ba79a1-c36d-4f45-8608-d582df321ecc"}'
+MOCK_BASE_URL = "http://localhost:8081"
+MOCK_CLIENT_ID = "debugger"
+MOCK_CLIENT_SECRET = "someSecret"
+MOCK_SCOPE = "openid somescope"
+MOCK_TOKEN_FILE = ".local/arbeidsmarkedstiltak-flate.json"
+
+```
+#### Kjør applikasjonen
 
 ```sh
 turbo run backend

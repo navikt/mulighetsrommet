@@ -43,6 +43,33 @@ For å generere dette gjør du følgende:
 5. Trykk `Sign in`
 6. Kopier verdien til `access_token` og benytt denne i nevnte miljøvariabel
 
+##### Alternativt automatisk oppsett
+
+Opprett følgende fil `frontend/tiltaksadministrasjon-flate/mise.local.toml`, eller set miljøvariablene på din egen måte.
+
+```toml
+[env]
+MOCK_ISSUER_ID = "azure"
+MOCK_CLAIMS_JSON = '{"NAVident":"B123456","aud":["mulighetsrommet-api"],"oid":"0bab029e-e84e-4842-8a27-d153b29782cf","uti":"0bab029e-e84e-4842-8a27-d153b29782cf","groups":["52bb9196-b071-4cc7-9472-be4942d33c4b"]}'
+MOCK_BASE_URL = "http://localhost:8081"
+MOCK_CLIENT_ID = "debugger"
+MOCK_CLIENT_SECRET = "someSecret"
+MOCK_SCOPE = "openid somescope"
+MOCK_TOKEN_FILE = ".local/tiltaksadministrasjon-flate.json"
+```
+
+#### Kjør applikasjonen
+
+```sh
+turbo run backend
+```
+
+Fallback til gammel flyt finnes fortsatt med:
+
+```sh
+pnpm run backend:manual
+```
+
 ## Testing og linting
 
 Koden lintes og formatteres med `eslint` og `prettier`.
