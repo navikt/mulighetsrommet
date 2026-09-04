@@ -149,7 +149,7 @@ class TilsagnValidatorTest : FunSpec({
             TilsagnValidator.validate(
                 TilsagnFixtures.TilsagnRequest1
                     .copy(
-                        beregning = TilsagnBeregningRequest(type = TilsagnBeregningType.FRI, valuta = Valuta.NOK),
+                        beregning = TilsagnBeregningRequest(type = TilsagnBeregningType.ANNEN_AVTALT_PRIS, valuta = Valuta.NOK),
                     ),
                 previous = null,
                 gyldigTilsagnPeriode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2026, 1, 1)),
@@ -275,11 +275,11 @@ class TilsagnValidatorTest : FunSpec({
         context("TilsagnBeregningAnnenAvtaltPris.Input") {
             test("should return field error if linjer is empty") {
                 val input = TilsagnBeregningRequest(
-                    type = TilsagnBeregningType.FRI,
+                    type = TilsagnBeregningType.ANNEN_AVTALT_PRIS,
                     linjer = emptyList(),
                     prisbetingelser = null,
                 )
-                TilsagnValidator.validateBeregningFriInput(
+                TilsagnValidator.validateBeregningAnnenAvtaltPrisInput(
                     prismodellValuta = Valuta.NOK,
                     request = input,
                 ).shouldBeLeft()
@@ -287,7 +287,7 @@ class TilsagnValidatorTest : FunSpec({
 
             test("should return list of field error for invalid input") {
                 val input = TilsagnBeregningRequest(
-                    type = TilsagnBeregningType.FRI,
+                    type = TilsagnBeregningType.ANNEN_AVTALT_PRIS,
                     linjer = listOf(
                         TilsagnInputLinjeRequest(
                             pris = 0.NOK,
@@ -304,7 +304,7 @@ class TilsagnValidatorTest : FunSpec({
                     FieldError(pointer = "/beregning/linjer/0/antall", detail = "Antall må være positivt"),
                 )
 
-                TilsagnValidator.validateBeregningFriInput(
+                TilsagnValidator.validateBeregningAnnenAvtaltPrisInput(
                     prismodellValuta = Valuta.NOK,
                     request = input,
                 ) shouldBeLeft leftFieldErrors

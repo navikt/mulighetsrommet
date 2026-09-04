@@ -65,9 +65,9 @@ class TilsagnServiceTest : FunSpec({
     val ansatt1 = NavAnsattFixture.DonaldDuck.navIdent
     val ansatt2 = NavAnsattFixture.MikkeMus.navIdent
 
-    val beregningFri = {
+    val beregningAnnenAvtaltPris = {
         TilsagnBeregningRequest(
-            type = TilsagnBeregningType.FRI,
+            type = TilsagnBeregningType.ANNEN_AVTALT_PRIS,
             valuta = Valuta.NOK,
             linjer = listOf(
                 TilsagnInputLinjeRequest(
@@ -89,7 +89,7 @@ class TilsagnServiceTest : FunSpec({
         periodeStart = "2025-01-01",
         periodeSlutt = "2025-01-31",
         kostnadssted = Gjovik.enhetsnummer,
-        beregning = beregningFri(),
+        beregning = beregningAnnenAvtaltPris(),
         kommentar = null,
     )
 
@@ -158,7 +158,7 @@ class TilsagnServiceTest : FunSpec({
         test("lagrer prisbetingelser på beregnet tilsagn") {
             val nyePrisbetingelser = "Helt ferske prisbetingelser"
             val beregningInput = TilsagnBeregningRequest(
-                type = TilsagnBeregningType.FRI,
+                type = TilsagnBeregningType.ANNEN_AVTALT_PRIS,
                 valuta = Valuta.NOK,
                 linjer = listOf(
                     TilsagnInputLinjeRequest(
@@ -201,14 +201,14 @@ class TilsagnServiceTest : FunSpec({
                 ansatt1,
             ).shouldBeRight()
             service.upsert(
-                request.copy(id = tilsagn2, beregning = beregningFri()),
+                request.copy(id = tilsagn2, beregning = beregningAnnenAvtaltPris()),
                 ansatt1,
             ).shouldBeRight()
             service.upsert(
                 request.copy(
                     id = tilsagn3,
                     gjennomforingId = domain2.gjennomforinger[1].id,
-                    beregning = beregningFri(),
+                    beregning = beregningAnnenAvtaltPris(),
                 ),
                 ansatt1,
             ).shouldBeRight()

@@ -36,7 +36,7 @@ function useHentData(gjennomforingId: string) {
     periodeSlutt: periodeSlutt,
     // Denne blir bestemt av backend men er påkrevd
     beregning: {
-      type: TilsagnBeregningType.FRI,
+      type: TilsagnBeregningType.ANNEN_AVTALT_PRIS,
       valuta: detaljer.prismodell.valuta,
       antallPlasser: null,
       prisbetingelser: null,

@@ -185,7 +185,7 @@ class TilsagnService(
     fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
         return try {
             when (request.beregning.type) {
-                TilsagnBeregningType.FRI ->
+                TilsagnBeregningType.ANNEN_AVTALT_PRIS ->
                     TilsagnBeregningAnnenAvtaltPris.beregn(
                         TilsagnBeregningAnnenAvtaltPris.Input(
                             linjer = request.beregning.linjer.orEmpty().map {

@@ -25,7 +25,7 @@ interface Props {
   kostnadssteder: KostnadsstedOption[];
 }
 
-export function TilsagnFormFri(props: Props) {
+export function TilsagnFormAnnenAvtaltPris(props: Props) {
   return (
     <TilsagnForm
       {...props}
@@ -52,7 +52,7 @@ function BeregningInputSkjema({ valuta }: BeregningInputSkjemaProps) {
     <VStack gap="space-16">
       <MetadataVStack
         label={tilsagnTekster.prismodell.label}
-        value={tilsagnTekster.prismodell.sats.label(TilsagnBeregningType.FRI)}
+        value={tilsagnTekster.prismodell.sats.label(TilsagnBeregningType.ANNEN_AVTALT_PRIS)}
       />
       <Textarea
         size="small"

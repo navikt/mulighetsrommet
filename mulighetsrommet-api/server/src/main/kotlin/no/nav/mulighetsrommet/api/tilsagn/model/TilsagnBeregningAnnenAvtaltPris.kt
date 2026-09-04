@@ -9,14 +9,14 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
 @Serializable
-@SerialName("FRI")
+@SerialName("ANNEN_AVTALT_PRIS")
 data class TilsagnBeregningAnnenAvtaltPris(
     override val input: Input,
     override val output: Output,
 ) : TilsagnBeregning() {
 
     @Serializable
-    @SerialName("FRI")
+    @SerialName("ANNEN_AVTALT_PRIS")
     data class Input(
         val linjer: List<InputLinje>,
         val prisbetingelser: String?,
@@ -32,7 +32,7 @@ data class TilsagnBeregningAnnenAvtaltPris(
     )
 
     @Serializable
-    @SerialName("FRI")
+    @SerialName("ANNEN_AVTALT_PRIS")
     data class Output(
         override val pris: ValutaBelop,
     ) : TilsagnBeregningOutput()

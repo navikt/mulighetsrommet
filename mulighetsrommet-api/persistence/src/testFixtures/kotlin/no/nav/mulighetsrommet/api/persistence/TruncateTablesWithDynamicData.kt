@@ -28,6 +28,7 @@ fun truncateTablesWithDynamicData(session: Session) {
         "prismodell_type",
         "tilsagn_type",
         "tilsagn_status_type",
+        "tilsagn_beregning_type",
         "vedtak_resultat",
         "tilskudd_opplaering",
         "tilskudd_behandling_status",

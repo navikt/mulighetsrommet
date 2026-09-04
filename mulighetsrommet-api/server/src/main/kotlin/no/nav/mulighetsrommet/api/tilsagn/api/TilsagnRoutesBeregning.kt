@@ -404,7 +404,7 @@ private fun resolveBeregningTypeAndPrisbetingelser(
     prismodell: Prismodell,
 ): Pair<TilsagnBeregningType, String?> {
     val type = when (prismodell) {
-        is Prismodell.AnnenAvtaltPris -> TilsagnBeregningType.FRI
+        is Prismodell.AnnenAvtaltPris -> TilsagnBeregningType.ANNEN_AVTALT_PRIS
         is Prismodell.AvtaltPrisPerBenyttetPlassPerManed -> TilsagnBeregningType.PRIS_PER_MANEDSVERK
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING
         is Prismodell.AvtaltPrisPerBenyttetPlassPerUke -> TilsagnBeregningType.PRIS_PER_UKESVERK
