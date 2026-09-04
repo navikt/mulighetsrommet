@@ -53,7 +53,7 @@ enum class PrismodellType(val navn: String, val beskrivelse: List<String>) {
         listOf(),
     ),
     INGEN_KOSTNADER(
-        "Tilskudd til opplæring",
+        "Ingen kostnader",
         listOf(),
     ),
 }
