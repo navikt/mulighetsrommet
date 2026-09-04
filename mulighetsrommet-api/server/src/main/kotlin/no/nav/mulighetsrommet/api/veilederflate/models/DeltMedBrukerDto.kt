@@ -10,7 +10,7 @@ import java.util.UUID
 @Serializable
 data class DeltMedBrukerDto(
     @Serializable(with = UUIDSerializer::class)
-    val tiltakId: UUID,
+    val tiltakId: UUID?,
     val deling: DelingMedBruker,
 )
 
@@ -25,7 +25,8 @@ data class TiltakDeltMedBrukerDto(
 data class TiltakDeltMedBruker(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
-    val navn: String,
+    val navn: String?,
+    val slettet: Boolean,
 )
 
 @Serializable

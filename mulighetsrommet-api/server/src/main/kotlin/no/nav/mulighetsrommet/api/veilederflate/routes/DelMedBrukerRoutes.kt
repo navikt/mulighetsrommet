@@ -25,6 +25,7 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.UUID
+import kotlin.String
 
 fun Route.delMedBrukerRoutes() {
     val dialogClient: VeilarbdialogClient by inject()

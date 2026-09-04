@@ -102,15 +102,15 @@ class DelMedBrukerService(
             select del_med_bruker.id,
                    del_med_bruker.dialog_id,
                    del_med_bruker.created_at,
-                   del_med_bruker.tiltak_dokument_id,
-                   del_med_bruker.gjennomforing_id,
+                   coalesce(del_med_bruker.gjennomforing_id, del_med_bruker.tiltak_dokument_id) as tiltak_id,
                    tiltakstype.navn as tiltakstype_navn,
                    tiltakstype.tiltakskode as tiltakstype_tiltakskode,
                    tiltakstype.arena_kode as tiltakstype_arena_kode,
-                   gjennomforing.navn as gjennomforing_navn
+                   coalesce(gjennomforing.navn, tiltak_dokument.navn) as tiltak_navn
             from del_med_bruker
                 join tiltakstype on del_med_bruker.tiltakstype_id = tiltakstype.id
                 left join gjennomforing on del_med_bruker.gjennomforing_id = gjennomforing.id
+                left join tiltak_dokument on del_med_bruker.tiltak_dokument_id = tiltak_dokument.id
             where norsk_ident = ?
         """.trimIndent()
 
@@ -124,18 +124,12 @@ class DelMedBrukerService(
                 dialogId = row.string("dialog_id"),
                 tidspunkt = row.localDateTime("created_at"),
             )
-            val tiltak = row.uuidOrNull("gjennomforing_id")
-                ?.let { id ->
-                    TiltakDeltMedBruker(
-                        id = id,
-                        navn = row.string("gjennomforing_navn"),
-                    )
-                }
-                ?: run {
-                    val id = row.uuid("tiltak_dokument_id")
-                    val navn = db.session { queries.tiltakDokument.get(id) }?.navn ?: ""
-                    TiltakDeltMedBruker(id, navn)
-                }
+            val navn = row.stringOrNull("tiltak_navn")
+            val tiltak = TiltakDeltMedBruker(
+                id = row.uuid("tiltak_id"),
+                navn = navn,
+                slettet = navn == null,
+            )
             TiltakDeltMedBrukerDto(tiltak, deling, tiltakstype)
         }
 
@@ -144,7 +138,7 @@ class DelMedBrukerService(
 }
 
 private fun Row.toDelMedBrukerDto() = DeltMedBrukerDto(
-    tiltakId = uuid("tiltak_id"),
+    tiltakId = uuidOrNull("tiltak_id"),
     deling = DelingMedBruker(
         dialogId = string("dialog_id"),
         tidspunkt = localDateTime("created_at"),

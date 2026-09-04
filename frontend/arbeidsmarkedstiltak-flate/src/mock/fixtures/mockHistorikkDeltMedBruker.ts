@@ -10,6 +10,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBrukerDto[] = [
     tiltak: {
       id: tiltakJobbklubb.id,
       navn: "Jobbklubb",
+      slettet: false,
     },
     deling: {
       dialogId: "1",
@@ -25,6 +26,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBrukerDto[] = [
     tiltak: {
       id: tiltakJobbklubb.id,
       navn: "Jobbklubb",
+      slettet: false,
     },
     deling: {
       dialogId: "2",
@@ -40,6 +42,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBrukerDto[] = [
     tiltak: {
       id: tiltakJobbklubb.id,
       navn: "Jobbklubb",
+      slettet: false,
     },
     deling: {
       dialogId: "3",
@@ -55,6 +58,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBrukerDto[] = [
     tiltak: {
       id: tiltakAvklaring.id,
       navn: "Avklaring",
+      slettet: false,
     },
     deling: {
       dialogId: "4",
@@ -70,6 +74,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBrukerDto[] = [
     tiltak: {
       id: tiltakAvklaring.id,
       navn: "Avklaring",
+      slettet: false,
     },
     deling: {
       dialogId: "5",
@@ -85,6 +90,7 @@ export const mockHistorikkDeltMedBruker: TiltakDeltMedBrukerDto[] = [
     tiltak: {
       id: tiltakMentor.id,
       navn: "Mentor",
+      slettet: true,
     },
     deling: {
       dialogId: "6",

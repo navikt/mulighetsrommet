@@ -1186,7 +1186,9 @@ components:
       type: object
       properties:
         tiltakId:
-          type: string
+          type:
+          - "null"
+          - string
           format: uuid
         deling:
           $ref: "#/components/schemas/DelingMedBruker"
@@ -1220,10 +1222,15 @@ components:
           type: string
           format: uuid
         navn:
-          type: string
+          type:
+          - "null"
+          - string
+        slettet:
+          type: boolean
       required:
       - id
       - navn
+      - slettet
     TiltakstypeDeltMedBruker:
       type: object
       properties:

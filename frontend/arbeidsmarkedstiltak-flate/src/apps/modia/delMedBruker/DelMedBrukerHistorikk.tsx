@@ -98,7 +98,7 @@ function contentForRow(delinger: TiltakDeltMedBrukerDto[]): ReactNode {
                   <VisningsnavnForTiltak
                     noLink
                     tiltakstypeNavn={tiltakstype.navn}
-                    navn={tiltak.navn}
+                    navn={tiltak.slettet ? "Tiltaket er slettet" : (tiltak.navn ?? "")}
                   />
                   <BodyShort size="small">Delt {formaterDato(deling.tidspunkt)}</BodyShort>
                 </HStack>
@@ -119,7 +119,9 @@ function createCells(antallTiltakDelt: number, deltMedBruker: TiltakDeltMedBruke
         <VisningsnavnForTiltak
           noLink
           tiltakstypeNavn={deltMedBruker.tiltakstype.navn}
-          navn={deltMedBruker.tiltak.navn}
+          navn={
+            deltMedBruker.tiltak.slettet ? "Tiltaket er slettet" : (deltMedBruker.tiltak.navn ?? "")
+          }
         />
       </Table.DataCell>
       <Table.DataCell>{formaterDato(deltMedBruker.deling.tidspunkt)}</Table.DataCell>
@@ -138,9 +140,14 @@ function createCells(antallTiltakDelt: number, deltMedBruker: TiltakDeltMedBruke
           >
             Gå til dialogen
           </Button>
-          <Link as={ReactRouterLink} to={`/arbeidsmarkedstiltak/tiltak/${deltMedBruker.tiltak.id}`}>
-            <BodyShort size="small">Gå til tiltak</BodyShort>
-          </Link>
+          {!deltMedBruker.tiltak.slettet && (
+            <Link
+              as={ReactRouterLink}
+              to={`/arbeidsmarkedstiltak/tiltak/${deltMedBruker.tiltak.id}`}
+            >
+              <BodyShort size="small">Gå til tiltak</BodyShort>
+            </Link>
+          )}
         </VStack>
       </Table.DataCell>
     </>
