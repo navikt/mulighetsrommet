@@ -21,7 +21,15 @@ urldecode() {
   '
 }
 
-CLAIMS_JSON="${MOCK_CLAIMS_JSON}:{\"aud\":[\"mulighetsrommet-api\"]}"
+if [ -n "${MOCK_CLAIMS_JSON:-}" ]; then
+  CLAIMS_JSON="$(
+    jq -cn \
+      --argjson claims "${MOCK_CLAIMS_JSON}" \
+      '$claims + (if has("aud") then {} else {"aud":["mulighetsrommet-api"]} end)'
+  )"
+else
+  CLAIMS_JSON='{"aud":["mulighetsrommet-api"]}'
+fi
 AUTH_URL="${MOCK_BASE_URL}/${ISSUER_ID}/authorize"
 TOKEN_URL="${MOCK_BASE_URL}/${ISSUER_ID}/token"
 
