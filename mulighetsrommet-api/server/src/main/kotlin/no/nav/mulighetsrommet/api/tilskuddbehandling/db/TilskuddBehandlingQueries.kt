@@ -1,20 +1,29 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.db
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.samletVedtakResultatStatusTag
-import no.nav.mulighetsrommet.database.datatypes.periode
 import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.withTransaction
+import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.Periode
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
+import java.time.LocalDate
 import java.util.UUID
 
 class TilskuddBehandlingQueries(private val session: Session) {
@@ -230,23 +239,107 @@ class TilskuddBehandlingQueries(private val session: Session) {
     }
 }
 
-private fun Row.toTilskuddBehandlingDto(): TilskuddBehandlingDto {
-    val tilskudd = Json.decodeFromString<List<TilskuddOpplaeringDto>>(string("vedtak_json"))
+private val viewJson = Json {
+    ignoreUnknownKeys = true
+}
 
-    return TilskuddBehandlingDto(
+private data class TilskuddBehandlingViewRow(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val status: String,
+    @SerialName("gjennomforing_id")
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID,
+    @SerialName("soknad_journalpost_id")
+    val soknadJournalpostId: String,
+    @SerialName("vedtak_json")
+    val vedtakJson: String,
+)
+
+@Serializable
+private data class TilskuddVedtakViewRow(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @SerialName("soknad_dato")
+    @Serializable(with = LocalDateSerializer::class)
+    val soknadDato: LocalDate,
+    val periode: String,
+    @SerialName("kostnadssted_enhetsnummer")
+    val kostnadsstedEnhetsnummer: String,
+    @SerialName("kostnadssted_navn")
+    val kostnadsstedNavn: String,
+    val tilskuddOpplaeringType: Opplaeringtilskudd.Kode,
+    val soknadBelop: ValutaBelop,
+    val utbetalingBelop: ValutaBelop?,
+    val vedtakResultat: VedtakResultatViewRow,
+    val kommentarVedtaksbrev: String?,
+    val utbetalingMottaker: TilskuddMottaker,
+    val kid: Kid?,
+    val kommentarIntern: String?,
+    val vedtakJournalpostId: String?,
+)
+
+@Serializable
+private data class VedtakResultatViewRow(
+    val type: no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat,
+)
+
+private fun Row.toTilskuddBehandlingViewRow(): TilskuddBehandlingViewRow {
+    return TilskuddBehandlingViewRow(
         id = uuid("id"),
+        status = string("status"),
         gjennomforingId = uuid("gjennomforing_id"),
         soknadJournalpostId = string("soknad_journalpost_id"),
-        soknadDato = localDate("soknad_dato"),
-        periode = periode("periode"),
+        vedtakJson = string("vedtak_json"),
+    )
+}
+
+private fun Row.toTilskuddBehandlingDto(): TilskuddBehandlingDto {
+    return toTilskuddBehandlingViewRow().toDto()
+}
+
+private fun TilskuddBehandlingViewRow.toDto(): TilskuddBehandlingDto {
+    val vedtak = viewJson.decodeFromString<List<TilskuddVedtakViewRow>>(vedtakJson)
+    require(vedtak.isNotEmpty()) { "Tilskuddsbehandling med id $id mangler vedtak" }
+
+    val tilskudd = vedtak.map { it.toDto() }
+    val firstVedtak = vedtak.first()
+
+    return TilskuddBehandlingDto(
+        id = id,
+        gjennomforingId = gjennomforingId,
+        soknadJournalpostId = soknadJournalpostId,
+        soknadDato = firstVedtak.soknadDato,
+        periode = firstVedtak.periode.toPeriode(),
         kostnadssted = KostnadsstedDto(
-            navn = string("kostnadssted_navn"),
-            enhetsnummer = NavEnhetNummer(string("kostnadssted_enhetsnummer")),
+            navn = firstVedtak.kostnadsstedNavn,
+            enhetsnummer = NavEnhetNummer(firstVedtak.kostnadsstedEnhetsnummer),
         ),
         tilskudd = tilskudd,
-        status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(string("status"))),
-        kommentarIntern = stringOrNull("kommentar_intern"),
-        vedtakJournalpostId = stringOrNull("vedtak_journalpost_id"),
+        status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(status)),
+        kommentarIntern = firstVedtak.kommentarIntern,
+        vedtakJournalpostId = firstVedtak.vedtakJournalpostId,
         samletVedtakResultat = samletVedtakResultatStatusTag(tilskudd.map { it.vedtakResultat.type }),
+    )
+}
+
+private fun TilskuddVedtakViewRow.toDto(): TilskuddOpplaeringDto {
+    return TilskuddOpplaeringDto(
+        id = id,
+        tilskuddOpplaeringType = tilskuddOpplaeringType,
+        soknadBelop = soknadBelop,
+        vedtakResultat = VedtakResultatDto(vedtakResultat.type),
+        kommentarVedtaksbrev = kommentarVedtaksbrev,
+        utbetalingMottaker = utbetalingMottaker,
+        kid = kid,
+        utbetalingBelop = utbetalingBelop,
+    )
+}
+
+private fun String.toPeriode(): Periode {
+    val (start, end) = removeSurrounding("[", ")").split(",")
+    return Periode(
+        start = LocalDate.parse(start.trim()),
+        slutt = LocalDate.parse(end.trim()),
     )
 }
