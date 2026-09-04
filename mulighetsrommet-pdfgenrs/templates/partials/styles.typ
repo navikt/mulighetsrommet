@@ -7,6 +7,7 @@
 #let signatureStyle = (
   spacingBefore: 24pt,
   spacingAfter: 30pt,
+  enhetSpacing: 12pt,
   namesGutter: 12pt,
   namesColumns: (0.5fr, 0.5fr),
 )

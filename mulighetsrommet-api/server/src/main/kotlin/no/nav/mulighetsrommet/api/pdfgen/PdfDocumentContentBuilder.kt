@@ -8,11 +8,10 @@ class PdfDocumentContentBuilder(
     private val subject: String,
     private val description: String,
     private val author: String,
-    private var enhet: String? = null,
 ) {
     private var topSection: TopSection? = null
     private val sections = mutableListOf<Section>()
-    private var regards: Regards? = null
+    private var signature: Signature? = null
 
     fun topSection(section: TopSection) {
         topSection = section
@@ -28,8 +27,8 @@ class PdfDocumentContentBuilder(
         sections.add(builder.build())
     }
 
-    fun regards(greet: Regards) {
-        regards = greet
+    fun signature(signature: Signature) {
+        this.signature = signature
     }
 
     fun build() = PdfDocumentContent(
@@ -39,8 +38,7 @@ class PdfDocumentContentBuilder(
         author = author,
         topSection = topSection,
         sections = sections,
-        regards = regards,
-        enhet = enhet,
+        signature = signature,
     )
 }
 

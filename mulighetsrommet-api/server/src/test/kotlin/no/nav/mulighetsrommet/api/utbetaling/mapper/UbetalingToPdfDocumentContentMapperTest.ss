@@ -4,7 +4,6 @@
   "subject": "Krav om utbetaling fra Nav",
   "description": "Krav om utbetaling fra Nav",
   "author": "Tiltaksadministrasjon",
-  "enhet": null,
   "sections": [
     {
       "title": {
@@ -255,7 +254,6 @@
   "subject": "Utbetaling til Nav",
   "description": "Detaljer om utbetaling for gjennomføring av Oppfolging",
   "author": "Nav",
-  "enhet": null,
   "sections": [
     {
       "title": {
@@ -468,7 +466,6 @@
   "subject": "Krav om utbetaling fra Nav",
   "description": "Krav om utbetaling fra Nav",
   "author": "Tiltaksadministrasjon",
-  "enhet": null,
   "sections": [
     {
       "title": {
@@ -901,7 +898,6 @@
   "subject": "Utbetaling til Nav",
   "description": "Detaljer om utbetaling for gjennomføring av Oppfølging",
   "author": "Nav",
-  "enhet": null,
   "sections": [
     {
       "title": {

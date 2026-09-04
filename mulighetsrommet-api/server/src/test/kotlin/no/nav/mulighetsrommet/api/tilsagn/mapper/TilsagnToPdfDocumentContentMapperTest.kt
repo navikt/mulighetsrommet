@@ -1,10 +1,10 @@
 package no.nav.mulighetsrommet.api.tilsagn.mapper
 
+import com.diffplug.selfie.coroutines.expectSelfie
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldBe
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.navenhet.toDto
+import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
@@ -19,18 +19,17 @@ import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.tiltak.okonomi.BestillingStatusType
-import org.intellij.lang.annotations.Language
 import java.time.LocalDate
 import java.util.UUID
 
 class TilsagnToPdfDocumentContentMapperTest : FunSpec({
-    @OptIn(ExperimentalSerializationApi::class)
     val jsonPrettyPrint = Json {
         prettyPrint = true
         prettyPrintIndent = "  "
@@ -70,6 +69,9 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
     )
 
     val kontonummer = Kontonummer("12345678910")
+
+    val saksbehandler = AgentDto.fromAgent(NavIdent("Z111111"), "Saksbehandler Navn")
+    val beslutter = AgentDto.fromAgent(NavIdent("Z222222"), "Beslutter Navn")
 
     val tilsagn = Tilsagn(
         id = UUID.fromString("72c45b92-4452-4b44-b1cd-9cfe7be86222"),
@@ -132,22 +134,26 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
                 tilsagn,
                 kontonummer,
                 deltaker,
-                behandlere = listOf("Beslutters navn", "Saksbehandlers navn"),
-                LocalDate.of(2026, 3, 1),
+                saksbehandler = saksbehandler,
+                beslutter = beslutter,
+                referanseDato = LocalDate.of(2026, 3, 1),
             )
 
-            jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedUtbetalingsdetaljerFastSatsContent
+            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
+                .toMatchDisk("tilsagnsbrev")
         }
         test("annen avtalt pris - skjermet deltaker") {
             val pdfContent = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
                 tilsagn,
                 kontonummer,
                 skjermetDeltaker,
-                behandlere = listOf("Beslutters navn", "Saksbehandlers navn"),
-                LocalDate.of(2026, 3, 1),
+                saksbehandler = saksbehandler,
+                beslutter = beslutter,
+                referanseDato = LocalDate.of(2026, 3, 1),
             )
 
-            jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedUtbetalingsdetaljerFastSatsContentSkjermet
+            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
+                .toMatchDisk("tilsagnsbrevSkjermet")
         }
 
         test("annen avtalt pris - gradert deltaker") {
@@ -155,537 +161,13 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
                 tilsagn,
                 kontonummer,
                 adressebekyttetDeltaker,
-                behandlere = listOf("Beslutters navn", "Saksbehandlers navn"),
-                LocalDate.of(2026, 3, 1),
+                saksbehandler = saksbehandler,
+                beslutter = beslutter,
+                referanseDato = LocalDate.of(2026, 3, 1),
             )
 
-            jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent) shouldBe expectedUtbetalingsdetaljerFastSatsContentAdressebeskyttet
+            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
+                .toMatchDisk("tilsagnsbrevAdressebeskyttet")
         }
     }
 })
-
-@Language("JSON")
-private val expectedUtbetalingsdetaljerFastSatsContent = """
-{
-  "title": "Tilsagnsbrev",
-  "subject": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
-  "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
-  "author": "Nav",
-  "enhet": "Nav tiltak Oslo",
-  "topSection": {
-    "publicExemption": true,
-    "addressedTo": "Brev til AKSEPTABEL EMPIRISK TIGER AS",
-    "date": "2026-03-01",
-    "reference": "Ref. A-2026/9999-1",
-    "deltaker": {
-      "navn": "Normann, Ola",
-      "norskIdent": "01010199999"
-    }
-  },
-  "sections": [
-    {
-      "title": {
-        "text": "Bekreftelse på bestilling",
-        "level": 1
-      },
-      "blocks": [
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Nav og dere har blitt enige om dette:"
-            }
-          ]
-        },
-        {
-          "type": "description-list",
-          "entries": [
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Tiltaket",
-              "value": "Truckførerkurs"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Deltakeren",
-              "value": "Normann, Ola (01010199999)"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Utbetalingsperioden",
-              "value": "01.01.2026 - 31.01.2026"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Støtten fra Nav",
-              "value": "Opptil 1 234 NOK"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": {
-        "text": "Hvordan kan dere få utbetalt pengene?",
-        "level": 2
-      },
-      "blocks": [
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Gå inn på Navs hjemmesider, velg "
-            },
-            {
-              "text": "Samarbeidspartner",
-              "format": "BOLD"
-            },
-            {
-              "text": ", "
-            },
-            {
-              "text": "Tiltaksarrangør",
-              "format": "BOLD"
-            },
-            {
-              "text": " og "
-            },
-            {
-              "text": "Skjema og søknad",
-              "format": "BOLD"
-            },
-            {
-              "text": ". Velg så "
-            },
-            {
-              "text": "Opplæring",
-              "format": "BOLD"
-            },
-            {
-              "text": " og "
-            },
-            {
-              "text": "Faktura",
-              "format": "BOLD"
-            },
-            {
-              "text": ". Send inn faktura til Nav med førsteside."
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Vi kan kontrollere om pengene som blir utbetalt blir brukt riktig."
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Følgende informasjon er registrert hos NAV:"
-            }
-          ]
-        },
-        {
-          "type": "description-list",
-          "entries": [
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Bedriftsnummer",
-              "value": "310438707"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Kontonummer",
-              "value": "12345678910"
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Hvis kontonummeret er feil, må dere oppdatere det via Navs hjemmeside under "
-            },
-            {
-              "text": "Arbeidsgiver",
-              "format": "BOLD"
-            },
-            {
-              "text": " og "
-            },
-            {
-              "text": "Endre kontonummer",
-              "format": "BOLD"
-            },
-            {
-              "text": "."
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "regards": {
-    "intro": "Hilsen",
-    "subject": "Nav Arbeidsmarkedstiltak",
-    "others": [
-      "Beslutters navn",
-      "Saksbehandlers navn"
-    ]
-  }
-}
-""".trimIndent()
-
-@Language("JSON")
-private val expectedUtbetalingsdetaljerFastSatsContentSkjermet = """
-{
-  "title": "Tilsagnsbrev",
-  "subject": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
-  "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
-  "author": "Nav",
-  "enhet": "Nav tiltak Oslo",
-  "topSection": {
-    "publicExemption": true,
-    "addressedTo": "Brev til AKSEPTABEL EMPIRISK TIGER AS",
-    "date": "2026-03-01",
-    "reference": "Ref. A-2026/9999-1",
-    "deltaker": {
-      "navn": "Skjermet"
-    }
-  },
-  "sections": [
-    {
-      "title": {
-        "text": "Bekreftelse på bestilling",
-        "level": 1
-      },
-      "blocks": [
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Nav og dere har blitt enige om dette:"
-            }
-          ]
-        },
-        {
-          "type": "description-list",
-          "entries": [
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Tiltaket",
-              "value": "Truckførerkurs"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Deltakeren",
-              "value": "Skjermet"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Utbetalingsperioden",
-              "value": "01.01.2026 - 31.01.2026"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Støtten fra Nav",
-              "value": "Opptil 1 234 NOK"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": {
-        "text": "Hvordan kan dere få utbetalt pengene?",
-        "level": 2
-      },
-      "blocks": [
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Gå inn på Navs hjemmesider, velg "
-            },
-            {
-              "text": "Samarbeidspartner",
-              "format": "BOLD"
-            },
-            {
-              "text": ", "
-            },
-            {
-              "text": "Tiltaksarrangør",
-              "format": "BOLD"
-            },
-            {
-              "text": " og "
-            },
-            {
-              "text": "Skjema og søknad",
-              "format": "BOLD"
-            },
-            {
-              "text": ". Velg så "
-            },
-            {
-              "text": "Opplæring",
-              "format": "BOLD"
-            },
-            {
-              "text": " og "
-            },
-            {
-              "text": "Faktura",
-              "format": "BOLD"
-            },
-            {
-              "text": ". Send inn faktura til Nav med førsteside."
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Vi kan kontrollere om pengene som blir utbetalt blir brukt riktig."
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Følgende informasjon er registrert hos NAV:"
-            }
-          ]
-        },
-        {
-          "type": "description-list",
-          "entries": [
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Bedriftsnummer",
-              "value": "310438707"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Kontonummer",
-              "value": "12345678910"
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Hvis kontonummeret er feil, må dere oppdatere det via Navs hjemmeside under "
-            },
-            {
-              "text": "Arbeidsgiver",
-              "format": "BOLD"
-            },
-            {
-              "text": " og "
-            },
-            {
-              "text": "Endre kontonummer",
-              "format": "BOLD"
-            },
-            {
-              "text": "."
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "regards": {
-    "intro": "Hilsen",
-    "subject": "Nav Arbeidsmarkedstiltak",
-    "others": [
-      "Beslutters navn",
-      "Saksbehandlers navn"
-    ]
-  }
-}
-""".trimIndent()
-
-@Language("JSON")
-private val expectedUtbetalingsdetaljerFastSatsContentAdressebeskyttet = """
-{
-  "title": "Tilsagnsbrev",
-  "subject": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
-  "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
-  "author": "Nav",
-  "enhet": "Nav tiltak Oslo",
-  "topSection": {
-    "publicExemption": true,
-    "addressedTo": "Brev til AKSEPTABEL EMPIRISK TIGER AS",
-    "date": "2026-03-01",
-    "reference": "Ref. A-2026/9999-1",
-    "deltaker": {
-      "navn": "Adressebeskyttet"
-    }
-  },
-  "sections": [
-    {
-      "title": {
-        "text": "Bekreftelse på bestilling",
-        "level": 1
-      },
-      "blocks": [
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Nav og dere har blitt enige om dette:"
-            }
-          ]
-        },
-        {
-          "type": "description-list",
-          "entries": [
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Tiltaket",
-              "value": "Truckførerkurs"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Deltakeren",
-              "value": "Adressebeskyttet"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Utbetalingsperioden",
-              "value": "01.01.2026 - 31.01.2026"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Støtten fra Nav",
-              "value": "Opptil 1 234 NOK"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "title": {
-        "text": "Hvordan kan dere få utbetalt pengene?",
-        "level": 2
-      },
-      "blocks": [
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Gå inn på Navs hjemmesider, velg "
-            },
-            {
-              "text": "Samarbeidspartner",
-              "format": "BOLD"
-            },
-            {
-              "text": ", "
-            },
-            {
-              "text": "Tiltaksarrangør",
-              "format": "BOLD"
-            },
-            {
-              "text": " og "
-            },
-            {
-              "text": "Skjema og søknad",
-              "format": "BOLD"
-            },
-            {
-              "text": ". Velg så "
-            },
-            {
-              "text": "Opplæring",
-              "format": "BOLD"
-            },
-            {
-              "text": " og "
-            },
-            {
-              "text": "Faktura",
-              "format": "BOLD"
-            },
-            {
-              "text": ". Send inn faktura til Nav med førsteside."
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Vi kan kontrollere om pengene som blir utbetalt blir brukt riktig."
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Følgende informasjon er registrert hos NAV:"
-            }
-          ]
-        },
-        {
-          "type": "description-list",
-          "entries": [
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Bedriftsnummer",
-              "value": "310438707"
-            },
-            {
-              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
-              "label": "Kontonummer",
-              "value": "12345678910"
-            }
-          ]
-        },
-        {
-          "type": "paragraph",
-          "words": [
-            {
-              "text": "Hvis kontonummeret er feil, må dere oppdatere det via Navs hjemmeside under "
-            },
-            {
-              "text": "Arbeidsgiver",
-              "format": "BOLD"
-            },
-            {
-              "text": " og "
-            },
-            {
-              "text": "Endre kontonummer",
-              "format": "BOLD"
-            },
-            {
-              "text": "."
-            }
-          ]
-        }
-      ]
-    }
-  ],
-  "regards": {
-    "intro": "Hilsen",
-    "subject": "Nav Arbeidsmarkedstiltak",
-    "others": [
-      "Beslutters navn",
-      "Saksbehandlers navn"
-    ]
-  }
-}
-""".trimIndent()

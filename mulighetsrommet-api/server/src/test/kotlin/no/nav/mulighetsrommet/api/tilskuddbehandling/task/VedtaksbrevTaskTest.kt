@@ -80,7 +80,7 @@ class VedtaksbrevTaskTest : FunSpec({
         val distribuerVedtaksbrev = mockk<DistribuerVedtaksbrev>(relaxed = true)
         val pdfPayload = byteArrayOf(1)
 
-        coEvery { pdfGenClient.getPdfVedtaksbrev(any()) } returns pdfPayload.right()
+        coEvery { pdfGenClient.getPdfDocument(any()) } returns pdfPayload.right()
         coEvery { dokarkClient.opprettJournalpost(any(), any()) } returns DokarkResponse(
             journalpostId = "121212",
             journalstatus = "ok",
@@ -108,7 +108,7 @@ class VedtaksbrevTaskTest : FunSpec({
         val pdfGenClient = mockk<PdfGenClient>()
         val dokarkClient = mockk<DokarkClient>()
 
-        coEvery { pdfGenClient.getPdfVedtaksbrev(any()) } returns PdfGenError(500, "").left()
+        coEvery { pdfGenClient.getPdfDocument(any()) } returns PdfGenError(500, "").left()
 
         val task = JournalforVedtaksbrev(
             db = database.api,

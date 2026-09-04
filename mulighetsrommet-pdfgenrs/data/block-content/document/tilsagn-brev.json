@@ -3,7 +3,6 @@
   "subject": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
-  "enhet": "Nav Øst-Viken",
   "topSection": {
     "publicExemption": true,
     "addressedTo": "AKSEPTABEL EMPIRISK TIGER AS",
@@ -161,9 +160,7 @@
       ]
     }
   ],
-  "regards": {
-    "intro": "Hilsen",
-    "subject": "Beslutters navn",
-    "others": ["Saksbehandlers navn"]
+  "signature": {
+    "enhet": "Nav Øst-Viken"
   }
 }

@@ -7,6 +7,7 @@ import arrow.core.nel
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
@@ -16,7 +17,7 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToVedtaksbrevContent
+import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDetaljerDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingHandling
@@ -242,16 +243,16 @@ class TilskuddBehandlingService(
     private suspend fun vedtaksbrevForhandsvisPdf(tilskuddBehandling: TilskuddBehandling): Either<PdfGenError, ByteArray> = db.transaction {
         val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
 
-        val content = TilskuddVedtakToVedtaksbrevContent.toVedtakPdfContent(
+        val content = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(
             tilskuddBehandling = tilskuddBehandling,
             navn = "<navn>",
             norskIdent = null,
             gjennomforing = gjennomforing,
-            saksbehandler = "<saksbehandler-navn>",
-            beslutter = "<beslutter-navn>",
+            saksbehandler = AgentDto.fromAgent(NavIdent("Z123456"), "<saksbehandler-navn>"),
+            beslutter = AgentDto.fromAgent(NavIdent("Z123456"), "<beslutter-navn>"),
             besluttetTidspunkt = LocalDateTime.now(),
         )
 
-        return pdf.getPdfVedtaksbrev(content)
+        return pdf.getPdfDocument(content)
     }
 }

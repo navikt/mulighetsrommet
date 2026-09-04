@@ -1,0 +1,327 @@
+╔═ automatisk brev uten saksbehandler og beslutter/vedtakAutomatisk ═╗
+{
+  "title": "Vedtak om tilskudd til opplæring – Ola Nordmann (2026/9999)",
+  "subject": "Vedtak om tilskudd til opplæring",
+  "description": "Vedtak om tilskudd til opplæring til Ola Nordmann",
+  "author": "Nav",
+  "topSection": {
+    "date": "2026-05-26",
+    "reference": "2026/9999",
+    "deltaker": {
+      "navn": "Ola Nordmann",
+      "norskIdent": "01010112345"
+    }
+  },
+  "sections": [
+    {
+      "title": {
+        "text": "Vedtak om tilskudd til opplæring",
+        "level": 1
+      }
+    },
+    {
+      "title": {
+        "text": "Ditt krav om Skolepenger er innvilget for perioden 01.08.2026 - 30.06.2027.",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Beløp til utbetaling: 50000 NOK"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Vi utbetaler til kontonummeret du har registrert hos Nav. Du kan bare registrere ett kontonummer hos oss. Du kan se, endre og registrere kontonummeret ditt på nav.no. Hvis du ikke har et kontonummer må du ta kontakt med oss."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Vedtaket er fattet med hjemmel i forskrift om arbeidsmarkedstiltak (tiltaksforskriften) § 7-5, jf. lov om arbeidsmarkedstjenester (arbeidsmarkedsloven) § 13."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Du har rett til innsyn i saken din",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du har rett til å se dokumentene i saken din. Dette følger av forvaltningsloven § 18. Kontakt oss om du vil se dokumentene i saken din. Ta kontakt på nav.no/kontakt eller på telefon 55 55 33 33. Du kan lese mer om innsynsretten på nav.no/personvernerklaering."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Du har rettigheter knyttet til personopplysningene dine",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du finner informasjon om hvordan Nav behandler personopplysningene dine, og hvilke rettigheter du har, på nav.no/personvernerklaering. Nav kan veilede deg på telefon 55 55 33 33 om hvordan Nav behandler personopplysninger."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Du kan klage på vedtaket",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Hvis du mener vedtaket er feil, kan du klage innen [antall uker fylles ut av breveieren] uker fra den datoen vedtaket har kommet fram til deg. Dette følger av [sett inn lovhenvisning]. Du finner skjema og informasjon på nav.no/klage."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Nav kan veilede deg på telefon om hvordan du sender en klage. Nav-kontoret ditt kan også hjelpe deg med å skrive en klage. Kontakt oss på telefon 55 55 33 33."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Hvis du får medhold i klagen, kan du få dekket vesentlige utgifter som har vært nødvendige for å få endret vedtaket, for eksempel hjelp fra advokat. Du kan ha krav på fri rettshjelp etter rettshjelploven. Du kan få mer informasjon om denne ordningen hos advokater, statsforvalteren eller Nav."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du kan lese om saksomkostninger i forvaltningsloven § 36."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Hvis du sender klage i posten, må du signere klagen."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Mer informasjon om klagerettigheter finner du på nav.no/klagerettigheter."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "signature": {
+    "enhet": "Nav Øst-Viken"
+  }
+}
+╔═ innvilgelse og avslag med to underskrifter/vedtakInnvilgelseOgAvslag ═╗
+{
+  "title": "Vedtak om tilskudd til opplæring – Ola Nordmann (2026/9999)",
+  "subject": "Vedtak om tilskudd til opplæring",
+  "description": "Vedtak om tilskudd til opplæring til Ola Nordmann",
+  "author": "Nav",
+  "topSection": {
+    "date": "2026-05-26",
+    "reference": "2026/9999",
+    "deltaker": {
+      "navn": "Ola Nordmann",
+      "norskIdent": "01010112345"
+    }
+  },
+  "sections": [
+    {
+      "title": {
+        "text": "Vedtak om tilskudd til opplæring",
+        "level": 1
+      }
+    },
+    {
+      "title": {
+        "text": "Ditt krav om Skolepenger er innvilget for perioden 01.08.2026 - 30.06.2027.",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Beløp til utbetaling: 50000 NOK"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Vi utbetaler til kontonummeret du har registrert hos Nav. Du kan bare registrere ett kontonummer hos oss. Du kan se, endre og registrere kontonummeret ditt på nav.no. Hvis du ikke har et kontonummer må du ta kontakt med oss."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Vedtaket er fattet med hjemmel i forskrift om arbeidsmarkedstiltak (tiltaksforskriften) § 7-5, jf. lov om arbeidsmarkedstjenester (arbeidsmarkedsloven) § 13."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Ditt krav om Eksamensgebyr er avslått for perioden 01.08.2026 - 30.06.2027.",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Begrunnelse:"
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Søknaden er avslått fordi det ikke er dokumentert at vilkårene for tilskuddet er oppfylt."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Vedtaket er fattet med hjemmel i forskrift om arbeidsmarkedstiltak (tiltaksforskriften) § 7-5, jf. lov om arbeidsmarkedstjenester (arbeidsmarkedsloven) § 13."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Du har rett til innsyn i saken din",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du har rett til å se dokumentene i saken din. Dette følger av forvaltningsloven § 18. Kontakt oss om du vil se dokumentene i saken din. Ta kontakt på nav.no/kontakt eller på telefon 55 55 33 33. Du kan lese mer om innsynsretten på nav.no/personvernerklaering."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Du har rettigheter knyttet til personopplysningene dine",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du finner informasjon om hvordan Nav behandler personopplysningene dine, og hvilke rettigheter du har, på nav.no/personvernerklaering. Nav kan veilede deg på telefon 55 55 33 33 om hvordan Nav behandler personopplysninger."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Du kan klage på vedtaket",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Hvis du mener vedtaket er feil, kan du klage innen [antall uker fylles ut av breveieren] uker fra den datoen vedtaket har kommet fram til deg. Dette følger av [sett inn lovhenvisning]. Du finner skjema og informasjon på nav.no/klage."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Nav kan veilede deg på telefon om hvordan du sender en klage. Nav-kontoret ditt kan også hjelpe deg med å skrive en klage. Kontakt oss på telefon 55 55 33 33."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Hvis du får medhold i klagen, kan du få dekket vesentlige utgifter som har vært nødvendige for å få endret vedtaket, for eksempel hjelp fra advokat. Du kan ha krav på fri rettshjelp etter rettshjelploven. Du kan få mer informasjon om denne ordningen hos advokater, statsforvalteren eller Nav."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du kan lese om saksomkostninger i forvaltningsloven § 36."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Hvis du sender klage i posten, må du signere klagen."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Mer informasjon om klagerettigheter finner du på nav.no/klagerettigheter."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "signature": {
+    "saksbehandler": "Sara Saksbehandler",
+    "beslutter": "Bertil Beslutter",
+    "enhet": "Nav Øst-Viken"
+  }
+}
+╔═ [end of file] ═╗

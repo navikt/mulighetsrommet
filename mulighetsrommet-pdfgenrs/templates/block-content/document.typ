@@ -42,8 +42,12 @@
       [Fødselsnummer:], grid.cell(colspan: 2)[#par(if fnr != none { str(fnr) } else { "" })])
     } 
 
+    let mottakerInfo = if mottaker != none {
+      ([Mottaker:], grid.cell(colspan: 2)[#par[#mottaker]])
+    }
+
     top-section((
-      [Mottaker:], grid.cell(colspan: 2)[#par[#mottaker]],
+      ..mottakerInfo,
       ..deltakerInfo,
       [Saksnummer:], [#par[#str(saksnummer)]], align(right)[#par[#iso-til-nor-dato(dato)]],
     ))
@@ -53,7 +57,7 @@
     section(seksjon)
   }
 
-  #let navenhet = data.at("enhet", default: none)
-  #if navenhet != none {signatur(data)}
+  #let signature = data.at("signature", default: none)
+  #if signature != none { signatur(signature) }
 ]
 

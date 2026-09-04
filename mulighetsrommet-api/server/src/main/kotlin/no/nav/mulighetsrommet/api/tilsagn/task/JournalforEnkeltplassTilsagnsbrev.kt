@@ -8,6 +8,7 @@ import com.github.kagkarlsson.scheduler.task.FailureHandler
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
@@ -81,11 +82,6 @@ class JournalforEnkeltplassTilsagnsbrev(
             logger.info("Tilsagn med id $tilsagnId er allrede journalført med id ${tilsagn.journalpost.id}")
             return@transaction Either.Right(tilsagn.journalpost.id)
         }
-        val opprettelse = queries.totrinnskontroll.getDtoOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        val behandlere = when (opprettelse) {
-            is TotrinnskontrollDto.TilBeslutning -> listOf(opprettelse.behandletAv.navn)
-            is TotrinnskontrollDto.Besluttet -> listOf(opprettelse.besluttetAv.navn, opprettelse.behandletAv.navn)
-        }
 
         val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
         val deltakere = repository.deltaker.getByGjennomforing(enkeltplass.id)
@@ -105,7 +101,14 @@ class JournalforEnkeltplassTilsagnsbrev(
 
         val fagsakId = enkeltplass.arena?.tiltaksnummer?.value ?: enkeltplass.lopenummer.value
 
-        val journalpostResult = generatePdf(tilsagn, personalia, kontonummer, behandlere)
+        val opprettelse = queries.totrinnskontroll.getDtoOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
+        val saksbehandler = opprettelse.behandletAv
+        val beslutter = when (opprettelse) {
+            is TotrinnskontrollDto.Besluttet -> opprettelse.besluttetAv
+            is TotrinnskontrollDto.TilBeslutning -> null
+        }
+
+        val journalpostResult = generatePdf(tilsagn, personalia, kontonummer, saksbehandler, beslutter)
             .flatMap { pdf ->
                 val journalpost = tilsagnJournalpost(
                     pdf = pdf,
@@ -132,13 +135,15 @@ class JournalforEnkeltplassTilsagnsbrev(
         tilsagn: Tilsagn,
         personalia: Personalia,
         kontonummer: Kontonummer,
-        behandlere: List<String>,
+        saksbehandler: AgentDto,
+        beslutter: AgentDto?,
     ): Either<String, ByteArray> {
         val content = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
             tilsagn,
             kontonummer,
             personalia,
-            behandlere,
+            saksbehandler = saksbehandler,
+            beslutter = beslutter,
         )
         return pdf
             .getPdfDocument(content)

@@ -12,10 +12,9 @@ data class PdfDocumentContent(
     val subject: String,
     val description: String,
     val author: String,
-    val enhet: String?,
     val topSection: TopSection? = null,
     val sections: List<Section>,
-    val regards: Regards? = null,
+    val signature: Signature? = null,
 ) {
     companion object {
         fun create(
@@ -23,10 +22,9 @@ data class PdfDocumentContent(
             subject: String,
             description: String,
             author: String,
-            enhet: String? = null,
             init: PdfDocumentContentBuilder.() -> Unit,
         ): PdfDocumentContent {
-            val builder = PdfDocumentContentBuilder(title, subject, description, author, enhet)
+            val builder = PdfDocumentContentBuilder(title, subject, description, author)
             builder.init()
             return builder.build()
         }
@@ -156,8 +154,8 @@ enum class WordFormat {
 }
 
 @Serializable
-data class Regards(
-    val intro: String,
-    val subject: String,
-    val others: List<String> = emptyList(),
+data class Signature(
+    val saksbehandler: String? = null,
+    val beslutter: String? = null,
+    val enhet: String? = null,
 )

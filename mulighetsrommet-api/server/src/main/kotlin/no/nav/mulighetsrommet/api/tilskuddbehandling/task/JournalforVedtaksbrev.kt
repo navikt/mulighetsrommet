@@ -16,7 +16,7 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToVedtaksbrevContent
+import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -101,17 +101,17 @@ class JournalforVedtaksbrev(
         gjennomforing: GjennomforingEnkeltplass,
         personalia: Personalia,
     ): Either<String, ByteArray> {
-        val content = TilskuddVedtakToVedtaksbrevContent.toVedtakPdfContent(
+        val content = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(
             tilskuddBehandling = tilskudd.toDbo(),
             navn = personalia.navn(),
             norskIdent = personalia.norskIdent(),
             gjennomforing = gjennomforing,
-            saksbehandler = totrinnskontroll.behandletAv.navn,
-            beslutter = totrinnskontroll.besluttetAv.navn,
+            saksbehandler = totrinnskontroll.behandletAv,
+            beslutter = totrinnskontroll.besluttetAv,
             besluttetTidspunkt = totrinnskontroll.besluttetTidspunkt,
         )
         return pdf
-            .getPdfVedtaksbrev(content)
+            .getPdfDocument(content)
             .mapLeft { error -> "Feil fra pdfgen: $error" }
     }
 }
