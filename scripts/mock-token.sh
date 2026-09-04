@@ -3,14 +3,14 @@ set -euo pipefail
 
 MOCK_BASE_URL="${MOCK_BASE_URL:-http://localhost:8081}"
 ISSUER_ID="${ISSUER_ID:-azure}"
-CLIENT_ID="${CLIENT_ID:-debugger}"
-CLIENT_SECRET="${CLIENT_SECRET:-someSecret}"
-SCOPE="${SCOPE:-openid somescope}"
+CLIENT_ID="${CLIENT_ID:-${MOCK_CLIENT_ID:-debugger}}"
+CLIENT_SECRET="${CLIENT_SECRET:-${MOCK_CLIENT_SECRET:-someSecret}}"
+SCOPE="${SCOPE:-${MOCK_SCOPE:-openid somescope}}"
 STATE="${STATE:-local-dev-state}"
 NONCE="${NONCE:-local-dev-nonce}"
 REDIRECT_URI="${REDIRECT_URI:-${MOCK_BASE_URL}/${ISSUER_ID}/debugger/callback}"
 USERNAME="${USERNAME:-local-dev-user}"
-TOKEN_FILE="${TOKEN_FILE:-.local/mock-oauth-token-${ISSUER_ID}.json}"
+TOKEN_FILE="${TOKEN_FILE:-${MOCK_TOKEN_FILE:-.local/mock-oauth-token-${ISSUER_ID}.json}}"
 
 urldecode() {
   printf '%s' "$1" | jq -Rr '
@@ -21,27 +21,7 @@ urldecode() {
   '
 }
 
-default_claims_for_issuer() {
-  case "$ISSUER_ID" in
-    azure)
-      cat <<'EOF'
-{"NAVident":"B123456","aud":["mulighetsrommet-api"],"oid":"0bab029e-e84e-4842-8a27-d153b29782cf","uti":"0bab029e-e84e-4842-8a27-d153b29782cf","groups":["52bb9196-b071-4cc7-9472-be4942d33c4b"]}
-EOF
-      ;;
-    tokenx)
-      cat <<'EOF'
-{"pid":"11830348931","aud":["mulighetsrommet-api"]}
-EOF
-      ;;
-    *)
-      cat <<'EOF'
-{"aud":["mulighetsrommet-api"]}
-EOF
-      ;;
-  esac
-}
-
-CLAIMS_JSON="${CLAIMS_JSON:-$(default_claims_for_issuer)}"
+CLAIMS_JSON="${MOCK_CLAIMS_JSON}:{\"aud\":[\"mulighetsrommet-api\"]}"
 AUTH_URL="${MOCK_BASE_URL}/${ISSUER_ID}/authorize"
 TOKEN_URL="${MOCK_BASE_URL}/${ISSUER_ID}/token"
 

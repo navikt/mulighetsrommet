@@ -8,6 +8,15 @@
     },
     "backend": {
       "dependsOn": ["^build"],
+      "passThroughEnv": [
+        "MOCK_ISSUER_ID",
+        "MOCK_CLAIMS_JSON",
+        "MOCK_BASE_URL",
+        "MOCK_CLIENT_ID",
+        "MOCK_CLIENT_SECRET",
+        "MOCK_SCOPE",
+        "MOCK_TOKEN_FILE"
+      ],
       "cache": false,
       "persistent": true
     },

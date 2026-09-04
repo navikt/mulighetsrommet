@@ -80,10 +80,10 @@ APP = "LOKAL"
 MOCK_ISSUER_ID = "azure"
 MOCK_CLAIMS_JSON = '{"NAVident": "B123456","aud": ["mulighetsrommet-api"],"oid": "37ba79a1-c36d-4f45-8608-d582df321ecc"}'
 MOCK_BASE_URL = "http://localhost:8081"
-CLIENT_ID = "debugger"
-CLIENT_SECRET = "someSecret"
-SCOPE = "openid somescope"
-TOKEN_FILE = ".local/arbeidsmarkedstiltak-flate.json"
+MOCK_CLIENT_ID = "debugger"
+MOCK_CLIENT_SECRET = "someSecret"
+MOCK_SCOPE = "openid somescope"
+MOCK_TOKEN_FILE = ".local/arbeidsmarkedstiltak-flate.json"
 
 ```
 #### Kjør applikasjonen

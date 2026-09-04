@@ -59,10 +59,10 @@ Opprett følgende fil `frontend/arrangor-utbetalinger-flate/mise.local.toml`, el
 MOCK_ISSUER_ID = "tokenx"
 MOCK_CLAIMS_JSON = '{"pid": "11830348931","aud": ["mulighetsrommet-api"]}'
 MOCK_BASE_URL = "http://localhost:8081"
-CLIENT_ID = "debugger"
-CLIENT_SECRET = "someSecret"
-SCOPE = "openid somescope"
-TOKEN_FILE = ".local/arrangor-utbetalinger-flate.json"
+MOCK_CLIENT_ID = "debugger"
+MOCK_CLIENT_SECRET = "someSecret"
+MOCK_SCOPE = "openid somescope"
+MOCK_TOKEN_FILE = ".local/arrangor-utbetalinger-flate.json"
 ```
 
 For å overstyre claims kan du sette `MOCK_CLAIMS_JSON` som miljøvariabel med syntetiske testdata.

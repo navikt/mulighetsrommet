@@ -12,10 +12,14 @@ fi
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." && pwd)"
-MOCK_ISSUER_ID="${MOCK_ISSUER_ID:-azure}"
+
+if [ -z "${MOCK_ISSUER_ID:-}" ] || [ -z "${MOCK_CLAIMS_JSON:-}" ]; then
+  echo "Ingen MOCK_ISSUER_ID eller MOCK_CLAIMS_JSON satt"
+  exec "$@"
+fi
 
 export ISSUER_ID="${ISSUER_ID:-$MOCK_ISSUER_ID}"
-export TOKEN_FILE="${TOKEN_FILE:-${REPO_ROOT}/.local/mock-oauth-token-${ISSUER_ID}.json}"
+export TOKEN_FILE="${TOKEN_FILE:-${MOCK_TOKEN_FILE:-${REPO_ROOT}/.local/mock-oauth-token-${ISSUER_ID}.json}}"
 
 "${SCRIPT_DIR}/mock-token.sh"
 
