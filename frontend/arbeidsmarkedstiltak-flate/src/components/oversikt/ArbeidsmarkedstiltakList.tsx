@@ -4,7 +4,7 @@ import { BodyShort, Pagination, Select } from "@navikt/ds-react";
 import classnames from "classnames";
 import { useAtom } from "jotai";
 import {
-  DeltMedBrukerDto,
+  DelMedBrukerDto,
   GjennomforingOppstartstype,
   VeilederflateTiltak,
 } from "@arbeidsmarkedstiltak/api-client";
@@ -17,7 +17,7 @@ import { ToolbarMeny } from "@mr/frontend-common/components/toolbar/toolbarMeny/
 
 interface Props {
   tiltak: VeilederflateTiltak[];
-  delingerMedBruker?: DeltMedBrukerDto[];
+  alleDelMedBruker?: DelMedBrukerDto[];
   varsler?: ReactNode;
   filterOpen: boolean;
   feilmelding: ReactNode;
@@ -26,7 +26,7 @@ interface Props {
 
 export function ArbeidsmarkedstiltakList({
   tiltak,
-  delingerMedBruker,
+  alleDelMedBruker,
   varsler,
   filterOpen,
   feilmelding,
@@ -101,15 +101,16 @@ export function ArbeidsmarkedstiltakList({
       >
         {gjennomforingerForSide.map((gjennomforing, index) => {
           const id = gjennomforing.id;
-          const deltMedBruker = delingerMedBruker?.find((deltMedBruker) => {
-            return deltMedBruker.tiltakId === id;
-          });
+          const delMedBruker = alleDelMedBruker
+            ?.filter((delMedBruker) => delMedBruker.tiltak.id === id)
+            .sort((a, b) => b.tidspunkt.localeCompare(a.tidspunkt))
+            .at(0);
           return (
             <ArbeidsmarkedstiltakListItem
               key={id}
               index={index}
               tiltak={gjennomforing}
-              deltMedBruker={deltMedBruker}
+              delMedBruker={delMedBruker}
             />
           );
         })}

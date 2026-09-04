@@ -224,7 +224,7 @@ paths:
       summary: Hent status for deling av tiltak med bruker
       description: Henter informasjon om et tiltak er delt med en bruker basert på
         norskIdent og tiltakId. Krever tilgang til brukeren.
-      operationId: getDeltMedBruker
+      operationId: getLastDelMedBruker
       parameters: []
       requestBody:
         content:
@@ -239,48 +239,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DeltMedBrukerDto"
+                $ref: "#/components/schemas/DelMedBrukerDto"
         "204":
           description: Ingen informasjon funnet for tiltaket
           headers: {}
         default:
           description: Feil ved henting av status
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
-  /api/veilederflate/del-med-bruker/alle:
-    post:
-      tags:
-      - Del med bruker
-      summary: Hent alle tiltak delt med bruker
-      description: Henter siste informasjon om alle tiltak delt med en bruker basert
-        på norskIdent. Krever tilgang til brukeren.
-      operationId: getAlleDeltMedBruker
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/GetAlleDeltMedBrukerRequest"
-        required: true
-      responses:
-        "200":
-          description: Siste informasjon om alle tiltak delt med bruker
-          headers: {}
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DeltMedBrukerDto"
-        "204":
-          description: Ingen informasjon funnet
-          headers: {}
-        default:
-          description: Feil ved henting av delte tiltak
           headers: {}
           content:
             application/json:
@@ -294,13 +258,13 @@ paths:
       summary: Hent historikk for tiltak delt med bruker
       description: Henter historikk om alle tiltak delt med en bruker basert på norskIdent.
         Krever tilgang til brukeren.
-      operationId: getDeltMedBrukerHistorikk
+      operationId: getDelMedBrukerHistorikk
       parameters: []
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/GetAlleDeltMedBrukerRequest"
+              $ref: "#/components/schemas/GetAlleDelMedBrukerRequest"
         required: true
       responses:
         "200":
@@ -311,7 +275,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TiltakDeltMedBrukerDto"
+                  $ref: "#/components/schemas/DelMedBrukerDto"
         "204":
           description: Ingen informasjon funnet
           headers: {}
@@ -1171,76 +1135,56 @@ components:
       required:
       - norskIdent
       - tiltakId
-    DelingMedBruker:
-      type: object
-      properties:
-        dialogId:
-          type: string
-        tidspunkt:
-          type: string
-          format: date-time
-      required:
-      - dialogId
-      - tidspunkt
-    DeltMedBrukerDto:
-      type: object
-      properties:
-        tiltakId:
-          type: string
-          format: uuid
-        deling:
-          $ref: "#/components/schemas/DelingMedBruker"
-      required:
-      - deling
-      - tiltakId
-    GetAlleDeltMedBrukerRequest:
-      type: object
-      properties:
-        norskIdent:
-          type: string
-      required:
-      - norskIdent
-    TiltakDeltMedBrukerDto:
-      type: object
-      properties:
-        tiltak:
-          $ref: "#/components/schemas/TiltakDeltMedBruker"
-        deling:
-          $ref: "#/components/schemas/DelingMedBruker"
-        tiltakstype:
-          $ref: "#/components/schemas/TiltakstypeDeltMedBruker"
-      required:
-      - deling
-      - tiltak
-      - tiltakstype
-    TiltakDeltMedBruker:
+    DelMedBrukerDto.Tiltak:
       type: object
       properties:
         id:
           type: string
           format: uuid
         navn:
-          type: string
-      required:
-      - id
-      - navn
-    TiltakstypeDeltMedBruker:
-      type: object
-      properties:
-        tiltakskode:
-          oneOf:
-          - type: "null"
-          - $ref: "#/components/schemas/Tiltakskode"
-        arenakode:
           type:
           - "null"
           - string
+        slettet:
+          type: boolean
+      required:
+      - id
+      - navn
+      - slettet
+    DelMedBrukerDto.Tiltakstype:
+      type: object
+      properties:
+        tiltakskode:
+          $ref: "#/components/schemas/Tiltakskode"
         navn:
           type: string
       required:
-      - arenakode
       - navn
       - tiltakskode
+    DelMedBrukerDto:
+      type: object
+      properties:
+        tiltak:
+          $ref: "#/components/schemas/DelMedBrukerDto.Tiltak"
+        dialogId:
+          type: string
+        tidspunkt:
+          type: string
+          format: date-time
+        tiltakstype:
+          $ref: "#/components/schemas/DelMedBrukerDto.Tiltakstype"
+      required:
+      - dialogId
+      - tidspunkt
+      - tiltak
+      - tiltakstype
+    GetAlleDelMedBrukerRequest:
+      type: object
+      properties:
+        norskIdent:
+          type: string
+      required:
+      - norskIdent
     NavVeilederHovedenhet:
       type: object
       properties:

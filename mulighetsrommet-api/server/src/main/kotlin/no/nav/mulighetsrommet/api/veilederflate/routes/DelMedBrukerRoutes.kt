@@ -15,8 +15,7 @@ import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.veilederflate.models.DeltMedBrukerDto
-import no.nav.mulighetsrommet.api.veilederflate.models.TiltakDeltMedBrukerDto
+import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDto
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerDbo
 import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -25,6 +24,7 @@ import no.nav.mulighetsrommet.model.ProblemDetail
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.UUID
+import kotlin.String
 
 fun Route.delMedBrukerRoutes() {
     val dialogClient: VeilarbdialogClient by inject()
@@ -118,7 +118,7 @@ fun Route.delMedBrukerRoutes() {
             description =
                 "Henter informasjon om et tiltak er delt med en bruker basert på norskIdent og tiltakId. Krever tilgang til brukeren."
             tags = setOf("Del med bruker")
-            operationId = "getDeltMedBruker"
+            operationId = "getLastDelMedBruker"
             request {
                 body<GetDelMedBrukerRequest> {
                     required = true
@@ -127,7 +127,7 @@ fun Route.delMedBrukerRoutes() {
             response {
                 code(HttpStatusCode.OK) {
                     description = "Tiltak er delt med bruker"
-                    body<DeltMedBrukerDto>()
+                    body<DelMedBrukerDto>()
                 }
                 code(HttpStatusCode.NoContent) {
                     description = "Ingen informasjon funnet for tiltaket"
@@ -142,42 +142,10 @@ fun Route.delMedBrukerRoutes() {
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
 
-            val deltMedBruker = delMedBrukerService.getLastDelingMedBruker(request.norskIdent, request.tiltakId)
+            val deltMedBruker = delMedBrukerService.getLast(request.norskIdent, request.tiltakId)
                 ?: return@post call.respond(HttpStatusCode.NoContent)
 
             call.respond(deltMedBruker)
-        }
-
-        post("alle", {
-            summary = "Hent alle tiltak delt med bruker"
-            description =
-                "Henter siste informasjon om alle tiltak delt med en bruker basert på norskIdent. Krever tilgang til brukeren."
-            tags = setOf("Del med bruker")
-            operationId = "getAlleDeltMedBruker"
-            request {
-                body<GetAlleDeltMedBrukerRequest> {
-                    required = true
-                }
-            }
-            response {
-                code(HttpStatusCode.OK) {
-                    description = "Siste informasjon om alle tiltak delt med bruker"
-                    body<List<DeltMedBrukerDto>>()
-                }
-                code(HttpStatusCode.NoContent) {
-                    description = "Ingen informasjon funnet"
-                }
-                default {
-                    description = "Feil ved henting av delte tiltak"
-                    body<ProblemDetail>()
-                }
-            }
-        }) {
-            val request = call.receive<GetAlleDeltMedBrukerRequest>()
-
-            poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
-
-            call.respond(delMedBrukerService.getAllDistinctDelingMedBruker(request.norskIdent))
         }
 
         post("historikk", {
@@ -185,16 +153,16 @@ fun Route.delMedBrukerRoutes() {
             description =
                 "Henter historikk om alle tiltak delt med en bruker basert på norskIdent. Krever tilgang til brukeren."
             tags = setOf("Del med bruker")
-            operationId = "getDeltMedBrukerHistorikk"
+            operationId = "getDelMedBrukerHistorikk"
             request {
-                body<GetAlleDeltMedBrukerRequest> {
+                body<GetAlleDelMedBrukerRequest> {
                     required = true
                 }
             }
             response {
                 code(HttpStatusCode.OK) {
                     description = "Historikk for tiltak delt med bruker"
-                    body<List<TiltakDeltMedBrukerDto>>()
+                    body<List<DelMedBrukerDto>>()
                 }
                 code(HttpStatusCode.NoContent) {
                     description = "Ingen informasjon funnet"
@@ -205,11 +173,11 @@ fun Route.delMedBrukerRoutes() {
                 }
             }
         }) {
-            val request = call.receive<GetAlleDeltMedBrukerRequest>()
+            val request = call.receive<GetAlleDelMedBrukerRequest>()
 
             poaoTilgang.verifyAccessToUserFromVeileder(getNavAnsattEntraObjectId(), request.norskIdent)
 
-            call.respond(delMedBrukerService.getAllTiltakDeltMedBruker(request.norskIdent))
+            call.respond(delMedBrukerService.getAll(request.norskIdent))
         }
     }
 }
@@ -242,6 +210,6 @@ data class GetDelMedBrukerRequest(
 )
 
 @Serializable
-data class GetAlleDeltMedBrukerRequest(
+data class GetAlleDelMedBrukerRequest(
     val norskIdent: NorskIdent,
 )
