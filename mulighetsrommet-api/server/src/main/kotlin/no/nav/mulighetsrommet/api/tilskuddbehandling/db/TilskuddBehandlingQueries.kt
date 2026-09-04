@@ -34,132 +34,174 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 id,
                 gjennomforing_id,
                 soknad_journalpost_id,
-                soknad_dato,
-                periode,
-                kostnadssted,
-                status,
-                kommentar_intern
+                status
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
                 :soknad_journalpost_id,
-                :soknad_dato,
-                :periode::daterange,
-                :kostnadssted,
-                :status,
-                :kommentar_intern
+                :status
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 soknad_journalpost_id = excluded.soknad_journalpost_id,
-                soknad_dato = excluded.soknad_dato,
-                periode = excluded.periode,
-                kostnadssted = excluded.kostnadssted,
-                status = excluded.status,
-                kommentar_intern = excluded.kommentar_intern
+                status = excluded.status
         """.trimIndent()
 
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
             "soknad_journalpost_id" to dbo.soknadJournalpostId,
-            "soknad_dato" to dbo.soknadDato,
-            "periode" to dbo.periode.toDaterange(),
-            "kostnadssted" to dbo.kostnadssted.value,
             "status" to dbo.status.name,
-            "kommentar_intern" to dbo.kommentarIntern,
         )
 
         execute(queryOf(query, params))
 
-        dbo.tilskudd.forEach { upsertTilskudd(dbo.id, it) }
+        dbo.tilskudd.forEachIndexed { index, tilskudd ->
+            upsertTilskudd(behandling = dbo, tilskudd = tilskudd, lopenummer = index + 1)
+        }
     }
 
-    private fun upsertTilskudd(tilskuddsbehandlingId: UUID, tilskudd: TilskuddDbo): Unit = withTransaction(session) {
+    private fun upsertTilskudd(
+        behandling: TilskuddBehandling,
+        tilskudd: TilskuddDbo,
+        lopenummer: Int,
+    ): Unit = withTransaction(session) {
         @Language("PostgreSQL")
-        val query = """
+        val tilskuddQuery = """
             insert into tilskudd (
                 id,
                 tilskudd_behandling_id,
-                tilskudd_opplaering_id,
-                soknad_belop,
-                soknad_valuta,
-                valuta,
-                vedtak_resultat,
-                kommentar_vedtaksbrev,
-                utbetaling_mottaker,
-                kid,
-                belop
+                tilskudd_opplaering_id
             ) values (
                 :id::uuid,
                 :tilskudd_behandling_id::uuid,
-                (select id from tilskudd_opplaering where kode = :tilskudd_opplaering_kode),
-                :soknad_belop,
-                :soknad_valuta::currency,
-                :valuta::currency,
-                :vedtak_resultat,
-                :kommentar_vedtaksbrev,
-                :utbetaling_mottaker,
-                :kid,
-                :belop
+                (select id from tilskudd_opplaering where kode = :tilskudd_opplaering_kode)
             ) on conflict (id) do update set
                 tilskudd_behandling_id = excluded.tilskudd_behandling_id,
-                tilskudd_opplaering_id = excluded.tilskudd_opplaering_id,
-                soknad_belop = excluded.soknad_belop,
-                soknad_valuta = excluded.soknad_valuta,
-                valuta = excluded.valuta,
-                vedtak_resultat = excluded.vedtak_resultat,
-                kommentar_vedtaksbrev = excluded.kommentar_vedtaksbrev,
-                utbetaling_mottaker = excluded.utbetaling_mottaker,
-                kid = excluded.kid,
-                belop = excluded.belop
+                tilskudd_opplaering_id = excluded.tilskudd_opplaering_id
         """.trimIndent()
 
-        val params = mapOf(
+        val tilskuddParams = mapOf(
             "id" to tilskudd.id,
-            "tilskudd_behandling_id" to tilskuddsbehandlingId,
+            "tilskudd_behandling_id" to behandling.id,
             "tilskudd_opplaering_kode" to tilskudd.tilskuddOpplaeringType.name,
+        )
+
+        execute(queryOf(tilskuddQuery, tilskuddParams))
+
+        @Language("PostgreSQL")
+        val vedtakQuery = """
+            insert into tilskudd_vedtak (
+                id,
+                tilskudd_id,
+                tilskudd_behandling_id,
+                lopenummer,
+                periode,
+                kostnadssted,
+                soknad_dato,
+                soknad_belop,
+                soknad_valuta,
+                vedtak_resultat,
+                kommentar_vedtaksbrev,
+                kommentar_intern,
+                utbetaling_mottaker,
+                kid,
+                belop,
+                valuta
+            ) values (
+                coalesce(
+                    (
+                        select tv.id
+                        from tilskudd_vedtak tv
+                        where tv.tilskudd_id = :tilskudd_id::uuid
+                        order by tv.lopenummer asc
+                        limit 1
+                    ),
+                    :id::uuid
+                ),
+                :tilskudd_id::uuid,
+                :tilskudd_behandling_id::uuid,
+                :lopenummer,
+                :periode::daterange,
+                :kostnadssted,
+                :soknad_dato,
+                :soknad_belop,
+                :soknad_valuta::currency,
+                :vedtak_resultat,
+                :kommentar_vedtaksbrev,
+                :kommentar_intern,
+                :utbetaling_mottaker,
+                :kid,
+                :belop,
+                :valuta::currency
+            ) on conflict (id) do update set
+                tilskudd_id = excluded.tilskudd_id,
+                tilskudd_behandling_id = excluded.tilskudd_behandling_id,
+                lopenummer = excluded.lopenummer,
+                periode = excluded.periode,
+                kostnadssted = excluded.kostnadssted,
+                soknad_dato = excluded.soknad_dato,
+                soknad_belop = excluded.soknad_belop,
+                soknad_valuta = excluded.soknad_valuta,
+                vedtak_resultat = excluded.vedtak_resultat,
+                kommentar_vedtaksbrev = excluded.kommentar_vedtaksbrev,
+                kommentar_intern = excluded.kommentar_intern,
+                utbetaling_mottaker = excluded.utbetaling_mottaker,
+                kid = excluded.kid,
+                belop = excluded.belop,
+                valuta = excluded.valuta
+        """.trimIndent()
+
+        val vedtakParams = mapOf(
+            "id" to tilskudd.id,
+            "tilskudd_id" to tilskudd.id,
+            "tilskudd_behandling_id" to behandling.id,
+            "lopenummer" to lopenummer,
+            "periode" to behandling.periode.toDaterange(),
+            "kostnadssted" to behandling.kostnadssted.value,
+            "soknad_dato" to behandling.soknadDato,
             "soknad_belop" to tilskudd.soknadBelop.belop,
             "soknad_valuta" to tilskudd.soknadBelop.valuta.name,
-            "valuta" to tilskudd.utbetalingBelop?.valuta?.name,
             "vedtak_resultat" to tilskudd.vedtakResultat.name,
             "kommentar_vedtaksbrev" to tilskudd.kommentarVedtaksbrev,
+            "kommentar_intern" to behandling.kommentarIntern,
             "utbetaling_mottaker" to tilskudd.utbetalingMottaker.name,
             "kid" to tilskudd.kid?.value,
             "belop" to tilskudd.utbetalingBelop?.belop,
+            "valuta" to tilskudd.utbetalingBelop?.valuta?.name,
         )
 
-        execute(queryOf(query, params))
+        execute(queryOf(vedtakQuery, vedtakParams))
     }
 
     fun setJournalpostId(tilskuddBehandlingId: UUID, journalpostId: String) {
         @Language("PostgreSQL")
         val query = """
-            update tilskudd_behandling
+            update tilskudd_vedtak
               set vedtak_journalpost_id = :journalpost_id,
               vedtak_journalfort_tidspunkt = now()
             where
-              id = :id::uuid
+              tilskudd_behandling_id = :behandling_id::uuid
         """.trimIndent()
 
         val params = mapOf(
-            "id" to tilskuddBehandlingId,
+            "behandling_id" to tilskuddBehandlingId,
             "journalpost_id" to journalpostId,
         )
         session.execute(queryOf(query, params))
     }
 
-    fun setJournalpostDistribueringId(id: UUID, journalpostDistribueringId: String) {
+    fun setJournalpostDistribueringId(tilskuddBehandlingId: UUID, journalpostDistribueringId: String) {
         @Language("PostgreSQL")
         val query = """
-            update tilskudd_behandling
+            update tilskudd_vedtak
               set vedtak_journalpost_distribuering_id = :journalpost_distribuering_id,
               vedtak_distribuert_tidspunkt = now()
             where
-              id = :id::uuid
+              tilskudd_behandling_id = :behandling_id::uuid
         """.trimIndent()
 
         val params = mapOf(
-            "id" to id,
+            "behandling_id" to tilskuddBehandlingId,
             "journalpost_distribuering_id" to journalpostDistribueringId,
         )
         session.execute(queryOf(query, params))
@@ -179,7 +221,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
     fun setUtbetaling(tilskuddId: UUID, utbetalingId: UUID) {
         @Language("PostgreSQL")
         val query = """
-            update tilskudd
+            update tilskudd_vedtak
             set utbetaling_id = :utbetaling_id::uuid
             where id = :id::uuid
         """.trimIndent()
@@ -190,9 +232,11 @@ class TilskuddBehandlingQueries(private val session: Session) {
     fun setBrukerUtbetaling(tilskuddId: UUID, brukerUtbetalingId: UUID) {
         @Language("PostgreSQL")
         val query = """
-            update tilskudd
-            set bruker_utbetaling_id = :bruker_utbetaling_id::uuid
-            where id = :id::uuid
+            update tilskudd_vedtak
+            set bruker_utbetaling_id = bruker_utbetaling.id ,
+                bruker_utbetaling_behandling_id = bruker_utbetaling.behandling_id
+            from bruker_utbetaling
+            where tilskudd_vedtak.id = :id::uuid and bruker_utbetaling.id = :bruker_utbetaling_id::uuid
         """.trimIndent()
 
         session.execute(queryOf(query, mapOf("id" to tilskuddId, "bruker_utbetaling_id" to brukerUtbetalingId)))
@@ -208,15 +252,15 @@ class TilskuddBehandlingQueries(private val session: Session) {
         return session.single(queryOf(query, mapOf("id" to id))) { it.toTilskuddBehandlingDto() }
     }
 
-    fun getVedtakJournalpostDistribueringId(id: UUID): String? {
+    fun getVedtakJournalpostDistribueringId(behandlingId: UUID): String? {
         @Language("PostgreSQL")
         val query = """
             select vedtak_journalpost_distribuering_id
-            from tilskudd_behandling
-            where id = :id::uuid
+            from tilskudd_vedtak
+            where tilskudd_behandling_id = :behandling_id::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, mapOf("id" to id))) { it.stringOrNull("vedtak_journalpost_distribuering_id") }
+        return session.single(queryOf(query, mapOf("behandling_id" to behandlingId))) { it.stringOrNull("vedtak_journalpost_distribuering_id") }
     }
 
     fun getOrError(id: UUID): TilskuddBehandlingDto {

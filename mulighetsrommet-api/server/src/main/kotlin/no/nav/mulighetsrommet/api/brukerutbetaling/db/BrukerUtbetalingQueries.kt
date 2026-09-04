@@ -52,7 +52,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
             ) values (
                 :id::uuid,
                 :sak_id,
-                :behandling_id,
+                :behandling_id::integer,
                 :belop,
                 :tilskuddstype,
                 :tiltakskode,
@@ -87,10 +87,9 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 nav_enhet.enhetsnummer as kostnadssted_enhetsnummer,
                 nav_enhet.navn as kostnadssted_navn
             from bruker_utbetaling
-                inner join tilskudd on tilskudd.bruker_utbetaling_id = bruker_utbetaling.id
-                inner join tilskudd_behandling on tilskudd.tilskudd_behandling_id = tilskudd_behandling.id
-                inner join nav_enhet on nav_enhet.enhetsnummer = tilskudd_behandling.kostnadssted
-            where tilskudd.id = :id::uuid
+                inner join tilskudd_vedtak on tilskudd_vedtak.bruker_utbetaling_id = bruker_utbetaling.id
+                inner join nav_enhet on nav_enhet.enhetsnummer = tilskudd_vedtak.kostnadssted
+            where tilskudd_vedtak.id = :id::uuid
         """.trimIndent()
 
         return session.single(queryOf(query, mapOf("id" to tilskuddId))) { it.toBrukerUtbetalingDbo() }
