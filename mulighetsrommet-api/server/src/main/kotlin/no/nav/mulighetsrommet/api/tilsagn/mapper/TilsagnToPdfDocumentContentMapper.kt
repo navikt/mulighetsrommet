@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.tilsagn.mapper
 
 import no.nav.mulighetsrommet.api.pdfgen.Deltaker
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
-import no.nav.mulighetsrommet.api.pdfgen.Regards
 import no.nav.mulighetsrommet.api.pdfgen.SectionBuilder
+import no.nav.mulighetsrommet.api.pdfgen.Signature
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
@@ -19,14 +19,12 @@ object TilsagnToPdfDocumentContentMapper {
         tilsagn: Tilsagn,
         kontonummer: Kontonummer,
         personalia: Personalia,
-        behandlere: List<String> = emptyList(),
         referanseDato: LocalDate = LocalDate.now(),
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Tilsagnsbrev",
         subject = "Tilsagnsbrev til ${tilsagn.arrangor.navn}",
         description = "Detaljer om tilsagn for gjennomføring av ${tilsagn.tiltakstype.navn}",
         author = "Nav",
-        enhet = tilsagn.kostnadssted.navn,
     ) {
         topSection(
             TopSection(
@@ -94,12 +92,8 @@ object TilsagnToPdfDocumentContentMapper {
             }
         }
 
-        regards(
-            Regards(
-                "Hilsen",
-                "Nav Arbeidsmarkedstiltak",
-                behandlere,
-            ),
+        signature(
+            Signature(enhet = tilsagn.kostnadssted.navn),
         )
     }
 

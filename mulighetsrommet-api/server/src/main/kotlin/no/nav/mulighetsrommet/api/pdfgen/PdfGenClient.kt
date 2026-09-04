@@ -40,14 +40,6 @@ class PdfGenClient(
         )
     }
 
-    suspend fun getPdfVedtaksbrev(vedtaksbrev: VedtaksbrevContent): Either<PdfGenError, ByteArray> {
-        return downloadPdf(
-            app = "block-content",
-            template = "vedtak",
-            body = vedtaksbrev,
-        )
-    }
-
     private suspend inline fun <reified T> downloadPdf(
         app: String,
         template: String,

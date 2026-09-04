@@ -132,7 +132,6 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
                 tilsagn,
                 kontonummer,
                 deltaker,
-                behandlere = listOf("Beslutters navn", "Saksbehandlers navn"),
                 LocalDate.of(2026, 3, 1),
             )
 
@@ -143,7 +142,6 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
                 tilsagn,
                 kontonummer,
                 skjermetDeltaker,
-                behandlere = listOf("Beslutters navn", "Saksbehandlers navn"),
                 LocalDate.of(2026, 3, 1),
             )
 
@@ -155,7 +153,6 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
                 tilsagn,
                 kontonummer,
                 adressebekyttetDeltaker,
-                behandlere = listOf("Beslutters navn", "Saksbehandlers navn"),
                 LocalDate.of(2026, 3, 1),
             )
 
@@ -171,7 +168,6 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
   "subject": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
-  "enhet": "Nav tiltak Oslo",
   "topSection": {
     "publicExemption": true,
     "addressedTo": "Brev til AKSEPTABEL EMPIRISK TIGER AS",
@@ -329,13 +325,8 @@ private val expectedUtbetalingsdetaljerFastSatsContent = """
       ]
     }
   ],
-  "regards": {
-    "intro": "Hilsen",
-    "subject": "Nav Arbeidsmarkedstiltak",
-    "others": [
-      "Beslutters navn",
-      "Saksbehandlers navn"
-    ]
+  "signature": {
+    "enhet": "Nav tiltak Oslo"
   }
 }
 """.trimIndent()
@@ -347,7 +338,6 @@ private val expectedUtbetalingsdetaljerFastSatsContentSkjermet = """
   "subject": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
-  "enhet": "Nav tiltak Oslo",
   "topSection": {
     "publicExemption": true,
     "addressedTo": "Brev til AKSEPTABEL EMPIRISK TIGER AS",
@@ -504,13 +494,8 @@ private val expectedUtbetalingsdetaljerFastSatsContentSkjermet = """
       ]
     }
   ],
-  "regards": {
-    "intro": "Hilsen",
-    "subject": "Nav Arbeidsmarkedstiltak",
-    "others": [
-      "Beslutters navn",
-      "Saksbehandlers navn"
-    ]
+  "signature": {
+    "enhet": "Nav tiltak Oslo"
   }
 }
 """.trimIndent()
@@ -522,7 +507,6 @@ private val expectedUtbetalingsdetaljerFastSatsContentAdressebeskyttet = """
   "subject": "Tilsagnsbrev til AKSEPTABEL EMPIRISK TIGER AS",
   "description": "Detaljer om tilsagn for gjennomføring av Enkeltplass Arbeidsmarkedsopplæring",
   "author": "Nav",
-  "enhet": "Nav tiltak Oslo",
   "topSection": {
     "publicExemption": true,
     "addressedTo": "Brev til AKSEPTABEL EMPIRISK TIGER AS",
@@ -679,13 +663,8 @@ private val expectedUtbetalingsdetaljerFastSatsContentAdressebeskyttet = """
       ]
     }
   ],
-  "regards": {
-    "intro": "Hilsen",
-    "subject": "Nav Arbeidsmarkedstiltak",
-    "others": [
-      "Beslutters navn",
-      "Saksbehandlers navn"
-    ]
+  "signature": {
+    "enhet": "Nav tiltak Oslo"
   }
 }
 """.trimIndent()

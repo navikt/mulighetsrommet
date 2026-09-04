@@ -1,7 +1,10 @@
 #!/bin/bash
 #
-# List ut mock objekter og kall pdfgen med rett endepunkt avhengig av valgt template og data.
+# Kall pdfgen med rett endepunkt avhengig av valgt template.
+# Hver template har et definert sett med gyldige testdata slik at kun
+# testdata som er ment for en gitt type kan velges.
 
+# Velg template
 template_files=()
 shopt -s nullglob
 for f in templates/block-content/*.typ; do
@@ -28,13 +31,25 @@ else
   done
 fi
 
+app=$(basename "$(dirname "$template_file")")
+template=$(basename "$template_file" .typ)
 
 echo "Valgt template: $template_file"
 
+# Gyldige testdata bestemmes av mappestrukturen: data/<app>/<template>/*.json
+data_dir="data/$app/$template"
+
 data_files=()
-for f in data/*/*.json; do
+shopt -s nullglob
+for f in "$data_dir"/*.json; do
   data_files+=("$f")
 done
+shopt -u nullglob
+
+if [ ${#data_files[@]} -eq 0 ]; then
+  echo "Fant ingen testdata for template '$template' i $data_dir/."
+  exit 1
+fi
 
 if [ ${#data_files[@]} -eq 1 ]; then
   data_file="${data_files[0]}"
@@ -52,8 +67,7 @@ fi
 
 echo "Valgt data: $data_file"
 
-app=$(basename $(dirname "$template_file"))
-template=$(basename "$template_file" .typ)
+output_file="$(basename "$data_file" .json).pdf"
 
 echo ""
 echo "Genererer PDF: app=$app, template=$template"
@@ -64,11 +78,11 @@ curl -s -S --fail \
   --request POST \
   --data @"$data_file" \
   "http://localhost:8888/api/v1/genpdf/$app/$template" \
-  --output "$template.pdf"
+  --output "$output_file"
 
 # Check curl exit status
 if [ $? -eq 0 ]; then
-  echo -e "\nGenerert PDF: $template.pdf"
+  echo -e "\nGenerert PDF: $output_file"
 else
   echo -e "\nFeilet å generere PDF. Se feilmelding ovenfor."
 fi
