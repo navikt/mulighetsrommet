@@ -104,7 +104,7 @@ class TilskuddBrukerUtbetalingConsumer(
                     )
                     queries.brukerUtbetaling.insert(utbetaling)
 
-                    queries.tilskuddBehandling.setBrukerUtbetaling(t.id, utbetaling.id)
+                    queries.tilskuddBehandling.setBrukerUtbetaling(t.id, utbetaling.id, utbetaling.behandlingId.toInt())
 
                     brukerUtbetalingService.produceTilskuddUtbetaling(utbetaling)
                 }

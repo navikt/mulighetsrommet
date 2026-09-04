@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.samletVedtakResultatStatusTag
 import no.nav.mulighetsrommet.database.datatypes.periode
@@ -29,6 +30,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 periode,
                 kostnadssted,
                 status,
+                type,
                 kommentar_intern
             ) values (
                 :id::uuid,
@@ -38,6 +40,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 :periode::daterange,
                 :kostnadssted,
                 :status,
+                :type,
                 :kommentar_intern
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
@@ -46,6 +49,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 periode = excluded.periode,
                 kostnadssted = excluded.kostnadssted,
                 status = excluded.status,
+                type = excluded.type,
                 kommentar_intern = excluded.kommentar_intern
         """.trimIndent()
 
@@ -57,6 +61,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "periode" to dbo.periode.toDaterange(),
             "kostnadssted" to dbo.kostnadssted.value,
             "status" to dbo.status.name,
+            "type" to dbo.type.name,
             "kommentar_intern" to dbo.kommentarIntern,
         )
 
@@ -178,15 +183,25 @@ class TilskuddBehandlingQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to tilskuddId, "utbetaling_id" to utbetalingId)))
     }
 
-    fun setBrukerUtbetaling(tilskuddId: UUID, brukerUtbetalingId: UUID) {
+    fun setBrukerUtbetaling(tilskuddId: UUID, brukerUtbetalingId: UUID, brukerUtbetalingBehandlingId: Int) {
         @Language("PostgreSQL")
         val query = """
             update tilskudd
-            set bruker_utbetaling_id = :bruker_utbetaling_id::uuid
+            set bruker_utbetaling_id = :bruker_utbetaling_id::uuid,
+                bruker_utbetaling_behandling_id = :bruker_utbetaling_behandling_id
             where id = :id::uuid
         """.trimIndent()
 
-        session.execute(queryOf(query, mapOf("id" to tilskuddId, "bruker_utbetaling_id" to brukerUtbetalingId)))
+        session.execute(
+            queryOf(
+                query,
+                mapOf(
+                    "id" to tilskuddId,
+                    "bruker_utbetaling_id" to brukerUtbetalingId,
+                    "bruker_utbetaling_behandling_id" to brukerUtbetalingBehandlingId,
+                ),
+            ),
+        )
     }
 
     fun get(id: UUID): TilskuddBehandlingDto? {
@@ -245,6 +260,7 @@ private fun Row.toTilskuddBehandlingDto(): TilskuddBehandlingDto {
         ),
         tilskudd = tilskudd,
         status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(string("status"))),
+        type = TilskuddBehandlingType.valueOf(string("type")),
         kommentarIntern = stringOrNull("kommentar_intern"),
         vedtakJournalpostId = stringOrNull("vedtak_journalpost_id"),
         samletVedtakResultat = samletVedtakResultatStatusTag(tilskudd.map { it.vedtakResultat.type }),

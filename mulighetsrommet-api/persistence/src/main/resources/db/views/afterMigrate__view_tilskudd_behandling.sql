@@ -8,6 +8,7 @@ select tb.id,
        k.navn          as kostnadssted_navn,
        vedtak_json,
        tb.status,
+       tb.type,
        tb.kommentar_intern,
        tb.vedtak_journalpost_id,
        tb.vedtak_journalpost_distribuering_id,
@@ -34,7 +35,9 @@ from tilskudd_behandling tb
                                     'vedtakResultat', jsonb_build_object('type', v.vedtak_resultat),
                                     'kommentarVedtaksbrev', v.kommentar_vedtaksbrev,
                                     'utbetalingMottaker', v.utbetaling_mottaker,
-                                    'kid', v.kid
+                                    'kid', v.kid,
+                                    'bruker_utbetaling_id', v.bruker_utbetaling_id,
+                                    'bruker_utbetaling_behandling_id', v.bruker_utbetaling_behandling_id
                             )
                     ), '[]') as vedtak_json
     from tilskudd v

@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.model.FieldError
@@ -60,6 +61,7 @@ object TilskuddBehandlingValidator {
             kostnadssted = request.kostnadssted,
             tilskudd = tilskudd,
             status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+            type = TilskuddBehandlingType.REGISTRERING,
             kommentarIntern = request.kommentarIntern,
         )
     }

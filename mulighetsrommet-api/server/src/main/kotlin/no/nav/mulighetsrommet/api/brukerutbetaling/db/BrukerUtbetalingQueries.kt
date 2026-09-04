@@ -16,7 +16,7 @@ import java.util.UUID
 data class BrukerUtbetalingDbo(
     val id: UUID,
     val sakId: String,
-    val behandlingId: String,
+    val behandlingId: Int,
     val belop: Int,
     val transaksjonsDato: LocalDate,
     val tilskuddstype: HelVedUtbetaling.Tilskuddstype,
@@ -31,6 +31,18 @@ data class BrukerUtbetalingDbo(
     data class Kostnadssted(
         val navn: String,
         val enhetsnummer: NavEnhetNummer,
+    )
+
+    private fun nyBehandlingId() = behandlingId.plus(1)
+
+    fun settTilOpphor(saksbehandler: NavIdent, beslutter: NavIdent, besluttetTidspunkt: Instant): BrukerUtbetalingDbo = copy(
+        behandlingId = nyBehandlingId(),
+        belop = 0,
+        saksbehandler = saksbehandler,
+        beslutter = beslutter,
+        besluttetTidspunkt = besluttetTidspunkt,
+        helVedStatus = null,
+        helVedStatusError = null,
     )
 }
 
@@ -66,7 +78,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
         val params = mapOf(
             "id" to utbetaling.id,
             "sak_id" to utbetaling.sakId,
-            "behandling_id" to utbetaling.behandlingId,
+            "behandling_id" to parseBehandlingId(utbetaling.behandlingId),
             "belop" to utbetaling.belop,
             "tilskuddstype" to utbetaling.tilskuddstype.name,
             "tiltakskode" to utbetaling.tiltakskode.name,
@@ -74,6 +86,56 @@ class BrukerUtbetalingQueries(private val session: Session) {
             "beslutter" to utbetaling.beslutter.value,
             "besluttet_tidspunkt" to utbetaling.besluttetTidspunkt,
             "transaksjon_dato" to utbetaling.periode.fom,
+        )
+
+        session.execute(queryOf(query, params))
+    }
+
+    fun save(brukerUtbetaling: BrukerUtbetalingDbo) {
+        @Language("PostgreSQL")
+        val query = """
+            insert into bruker_utbetaling (
+                id,
+                sak_id,
+                behandling_id,
+                belop,
+                transaksjon_dato,
+                tilskuddstype,
+                tiltakskode,
+                saksbehandler,
+                beslutter,
+                besluttet_tidspunkt,
+                hel_ved_status,
+                hel_ved_status_error
+            ) values (
+                :id::uuid,
+                :sak_id,
+                :behandling_id,
+                :belop,
+                :transaksjon_dato,
+                :tilskuddstype,
+                :tiltakskode,
+                :saksbehandler,
+                :beslutter,
+                :besluttet_tidspunkt,
+                :hel_ved_status,
+                :hel_ved_status_error
+            )
+        """.trimIndent()
+
+        val params = mapOf(
+            "id" to brukerUtbetaling.id,
+            "sak_id" to brukerUtbetaling.sakId,
+            "behandling_id" to brukerUtbetaling.behandlingId,
+            "belop" to brukerUtbetaling.belop,
+            "transaksjon_dato" to brukerUtbetaling.transaksjonsDato,
+            "tilskuddstype" to brukerUtbetaling.tilskuddstype.name,
+            "tiltakskode" to brukerUtbetaling.tiltakskode.name,
+            "saksbehandler" to brukerUtbetaling.saksbehandler.value,
+            "beslutter" to brukerUtbetaling.beslutter.value,
+            "besluttet_tidspunkt" to brukerUtbetaling.besluttetTidspunkt,
+            "hel_ved_status" to brukerUtbetaling.helVedStatus?.name,
+            "hel_ved_status_error" to brukerUtbetaling.helVedStatusError?.let { Json.encodeToString(it) },
         )
 
         session.execute(queryOf(query, params))
@@ -88,6 +150,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 nav_enhet.navn as kostnadssted_navn
             from bruker_utbetaling
                 inner join tilskudd on tilskudd.bruker_utbetaling_id = bruker_utbetaling.id
+                    and tilskudd.bruker_utbetaling_behandling_id = bruker_utbetaling.behandling_id
                 inner join tilskudd_behandling on tilskudd.tilskudd_behandling_id = tilskudd_behandling.id
                 inner join nav_enhet on nav_enhet.enhetsnummer = tilskudd_behandling.kostnadssted
             where tilskudd.id = :id::uuid
@@ -96,13 +159,51 @@ class BrukerUtbetalingQueries(private val session: Session) {
         return session.single(queryOf(query, mapOf("id" to tilskuddId))) { it.toBrukerUtbetalingDbo() }
     }
 
-    fun setHelVedStatus(id: UUID, status: HelVedStatus) {
+    fun getLatestById(id: UUID): BrukerUtbetalingDbo? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from bruker_utbetaling
+            where id = :id::uuid
+            order by behandling_id desc
+            limit 1
+        """.trimIndent()
+
+        return session.single(queryOf(query, mapOf("id" to id))) { it.toBrukerUtbetalingDbo() }
+    }
+
+    fun getByIdAndBehandlingId(id: UUID, behandlingId: Int): BrukerUtbetalingDbo? {
+        @Language("PostgreSQL")
+        val query = """
+            select *
+            from bruker_utbetaling
+            where id = :id::uuid
+              and behandling_id = :behandling_id
+        """.trimIndent()
+
+        return session.single(
+            queryOf(
+                query,
+                mapOf("id" to id, "behandling_id" to behandlingId),
+            ),
+        ) { it.toBrukerUtbetalingDbo() }
+    }
+
+    fun setHelVedStatus(id: UUID, behandlingIds: Set<Int>, status: HelVedStatus) {
         @Language("PostgreSQL")
         val query = """
             update bruker_utbetaling set
                 hel_ved_status = :status,
                 hel_ved_status_error = :status_error::jsonb
-            where id = :id::uuid
+            where
+                id = :id::uuid
+                and behandling_id = any(
+                    case
+                        when cardinality(:behandling_ids::int[]) > 0
+                        then :behandling_ids::int[]
+                        else array(select max(behandling_id) from bruker_utbetaling where id = :id::uuid)
+                    end
+                )
         """.trimIndent()
 
         session.execute(
@@ -110,6 +211,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 query,
                 mapOf(
                     "id" to id,
+                    "behandling_ids" to behandlingIds.toIntArray(),
                     "status" to status.status.name,
                     "status_error" to Json.encodeToString(status.error),
                 ),
@@ -121,7 +223,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
 private fun Row.toBrukerUtbetalingDbo() = BrukerUtbetalingDbo(
     id = uuid("id"),
     sakId = string("sak_id"),
-    behandlingId = string("behandling_id"),
+    behandlingId = int("behandling_id"),
     belop = int("belop"),
     transaksjonsDato = localDate("transaksjon_dato"),
     tilskuddstype = HelVedUtbetaling.Tilskuddstype.valueOf(string("tilskuddstype")),
@@ -136,3 +238,9 @@ private fun Row.toBrukerUtbetalingDbo() = BrukerUtbetalingDbo(
         enhetsnummer = NavEnhetNummer(string("kostnadssted_enhetsnummer")),
     ),
 )
+
+private fun parseBehandlingId(behandlingId: String): Int {
+    return requireNotNull(behandlingId.toIntOrNull()) {
+        "behandlingId må være et heltall, men var '$behandlingId'"
+    }
+}

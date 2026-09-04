@@ -4,12 +4,18 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
+import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
+import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
+import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingDbo
+import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
+import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
+import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -24,9 +30,11 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKom
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -39,6 +47,8 @@ class TilskuddBehandlingService(
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
+    private val personaliaService: PersonaliaService,
+    private val brukerUtbetalingService: BrukerUtbetalingService,
 ) {
     fun upsert(
         request: TilskuddBehandlingRequest,
@@ -52,12 +62,21 @@ class TilskuddBehandlingService(
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
-                    val opprettelse = Totrinnskontroll.opprett(
-                        UUID.randomUUID(),
-                        dbo.id,
-                        TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
-                        navIdent,
-                    )
+                    val opprettelse = when (dbo.type) {
+                        TilskuddBehandlingType.REGISTRERING -> Totrinnskontroll.opprett(
+                            UUID.randomUUID(),
+                            dbo.id,
+                            TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                            navIdent,
+                        )
+
+                        TilskuddBehandlingType.REVURDERING -> Totrinnskontroll.opprett(
+                            UUID.randomUUID(),
+                            dbo.id,
+                            TotrinnskontrollType.TILSKUDD_OPPHOR,
+                            navIdent,
+                        )
+                    }
                     queries.totrinnskontroll.upsert(opprettelse)
                     outbox.publish(opprettelse)
                     logEndring("Sendt til attestering", dbo.id, navIdent)
@@ -78,6 +97,7 @@ class TilskuddBehandlingService(
                             .toSet(),
                         kostnadssted = it.kostnadssted,
                         status = it.status,
+                        type = it.type,
                         samletVedtakResultat = it.samletVedtakResultat,
                     )
                 }
@@ -168,6 +188,7 @@ class TilskuddBehandlingService(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },
             TilskuddBehandlingHandling.ATTESTER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
             TilskuddBehandlingHandling.RETURNER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
+            TilskuddBehandlingHandling.OPPHOR.takeIf { behandling.status.type == TilskuddBehandlingStatus.FERDIG_BEHANDLET },
         )
             .filter {
                 tilgangTilHandling(
@@ -201,7 +222,100 @@ class TilskuddBehandlingService(
             TilskuddBehandlingHandling.ATTESTER -> {
                 attestant && opprettelse.behandletAv != ansatt.navIdent
             }
+
+            TilskuddBehandlingHandling.OPPHOR -> {
+                ansatt.roller.contains(NavAnsattRolle.generell(Rolle.TEAM_MULIGHETSROMMET)) && opprettelse.behandletAv != ansatt.navIdent
+            }
         }
+    }
+
+    fun revurderingOpphor(tilskuddId: UUID, behandlingId: UUID, saksbehandler: NavIdent, beslutter: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
+        val tidligereBehandling = queries.tilskuddBehandling.get(behandlingId)?.toDbo()
+            ?: throw IllegalStateException("Fant ikke tilskuddsbehandling for behandlingId=$behandlingId")
+        val opphorRevurdering = tidligereBehandling.copy(
+            id = UUID.randomUUID(),
+            type = TilskuddBehandlingType.REVURDERING,
+            status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+            tilskudd = tidligereBehandling.tilskudd
+                .filter { it.id == tilskuddId }
+                .map {
+                    it.copy(
+                        id = UUID.randomUUID(),
+                        soknadBelop = it.soknadBelop.copy(belop = 0),
+                        utbetalingBelop = it.utbetalingBelop?.copy(belop = 0),
+                    )
+                },
+        )
+        queries.tilskuddBehandling.upsert(opphorRevurdering)
+        val totrinnskontroll = revurderingOpphor(opphorRevurdering.id, listOf(TilskuddBehandlingStatusAarsak.ANNET), "Test av opphør", saksbehandler)
+
+        Unit.right()
+    }
+
+    context(tx: TransactionalQueryContext)
+    private fun revurderingOpphor(tilskuddId: UUID, aarsaker: List<TilskuddBehandlingStatusAarsak>, forklaring: String?, behandletAv: Agent): Totrinnskontroll = with(tx) {
+        val opphorTotrinnskontroll = Totrinnskontroll.opprett(
+            UUID.randomUUID(),
+            tilskuddId,
+            TotrinnskontrollType.TILSKUDD_OPPHOR,
+            behandletAv,
+            aarsaker.map { it.name },
+            "Test opphør av tilskuddsutbetaling",
+        )
+        queries.totrinnskontroll.upsert(opphorTotrinnskontroll)
+        outbox.publish(opphorTotrinnskontroll)
+        return opphorTotrinnskontroll
+    }
+
+    context(tx: TransactionalQueryContext)
+    private fun godkjennOpphor(behandlingId: UUID, beslutter: Agent): Either<List<FieldError>, Totrinnskontroll> = with(tx) {
+        val opphorTotrinnskontroll = queries.totrinnskontroll.getOrError(behandlingId, TotrinnskontrollType.TILSKUDD_OPPHOR)
+        return opphorTotrinnskontroll.godkjenn(beslutter)
+            .mapLeft { it.toFieldErrors() }
+            .map { godkjent ->
+                queries.totrinnskontroll.upsert(godkjent)
+                outbox.publish(godkjent)
+                logEndring("Tilskudd opphørt", godkjent.entityId, beslutter)
+                return godkjent.right()
+            }
+    }
+
+    context(tx: TransactionalQueryContext)
+    private suspend fun settTilOpphor(brukerUtbetaling: BrukerUtbetalingDbo, gjennomforingId: UUID, kontroll: Totrinnskontroll) = with(tx) {
+        // TODO: fjern casts
+        val tilOppgjor = brukerUtbetaling.settTilOpphor(saksbehandler = kontroll.behandletAv as NavIdent, beslutter = kontroll.besluttetAv as NavIdent, besluttetTidspunkt = kontroll.besluttetTidspunkt!!)
+        queries.brukerUtbetaling.save(tilOppgjor)
+
+        val deltaker = getDeltaker(gjennomforingId)
+        val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
+
+        brukerUtbetalingService.produceTilskuddUtbetaling(
+            HelVedUtbetaling(
+                id = tilOppgjor.id,
+                sakId = tilOppgjor.sakId,
+                behandlingId = tilOppgjor.behandlingId.toString(),
+                personIdent = requireNotNull(personalia.norskIdent()) {
+                    "Norsk ident var null"
+                },
+                periode = HelVedUtbetaling.Periode(tilOppgjor.transaksjonsDato, tilOppgjor.transaksjonsDato),
+                belop = tilOppgjor.belop,
+                kostnadssted = tilOppgjor.kostnadssted.enhetsnummer,
+                tilskuddstype = tilOppgjor.tilskuddstype,
+                saksbehandler = tilOppgjor.saksbehandler,
+                beslutter = tilOppgjor.beslutter,
+                besluttetTidspunkt = tilOppgjor.besluttetTidspunkt,
+                tiltakskode = tilOppgjor.tiltakskode,
+                dryrun = false,
+            ),
+        )
+    }
+
+    private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker {
+        val deltakelser = repository.deltaker.getByGjennomforing(gjennomforingId)
+        if (deltakelser.size != 1) {
+            error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet akkurat én)")
+        }
+        return deltakelser.first()
     }
 
     private fun QueryContext.logEndring(

@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kid
@@ -85,6 +86,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             ),
         ),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+        type = TilskuddBehandlingType.REGISTRERING,
         kommentarIntern = "kommentar intern",
     )
 

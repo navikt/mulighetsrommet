@@ -1,5 +1,6 @@
 import {
   useGodkjennTilskuddBehandling,
+  useOpphorBrukerUtbetaling,
   useReturnerTilskuddBehandling,
 } from "@/api/tilskudd-behandling/mutations";
 import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
@@ -65,6 +66,7 @@ export function TilskuddBehandlingDetaljerPage() {
 
   const godkjennMutation = useGodkjennTilskuddBehandling(gjennomforingId);
   const returnerMutation = useReturnerTilskuddBehandling(gjennomforingId);
+  const opphorMutation = useOpphorBrukerUtbetaling(behandlingId);
 
   const listUrl = `/gjennomforinger/${gjennomforingId}/tilskudd-behandling`;
 
@@ -89,6 +91,10 @@ export function TilskuddBehandlingDetaljerPage() {
         onValidationError: (error: ValidationError) => setErrors(error.errors),
       },
     );
+  }
+
+  function opphorUtbetaling(tilskuddId: string) {
+    opphorMutation.mutate({ tilskuddId });
   }
 
   const kanReturneres = handlinger.includes(TilskuddBehandlingHandling.RETURNER);
@@ -188,6 +194,17 @@ export function TilskuddBehandlingDetaljerPage() {
                         ]}
                       />
                     </VStack>
+                    {handlinger.includes(TilskuddBehandlingHandling.OPPHOR) &&
+                      t.vedtakResultat.type === VedtakResultat.INNVILGELSE && (
+                        <Button
+                          type="button"
+                          variant="tertiary"
+                          data-color="danger"
+                          onClick={() => opphorUtbetaling(t.id)}
+                        >
+                          Opphør
+                        </Button>
+                      )}
                   </Box>
                 ))}
               </VStack>
