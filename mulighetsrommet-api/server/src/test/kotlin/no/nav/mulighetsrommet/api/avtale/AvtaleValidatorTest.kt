@@ -88,7 +88,6 @@ class AvtaleValidatorTest : FunSpec({
         valuta = Valuta.NOK,
         prisbetingelser = "",
         tilsagnPerDeltaker = false,
-        totalbelop = null,
     )
     val kategoriseringCtx = Ctx.Kategorisering(
         kurstyper = KurstypeFixtures.all(),

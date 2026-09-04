@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBen
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.DataDetails
@@ -22,8 +23,8 @@ import no.nav.mulighetsrommet.model.ValutaBelop
 data class TilsagnBeregningDto(
     val pris: ValutaBelop,
     val prismodell: DataDetails,
-    val regnestykke: CalculationDto,
-    val stengt: List<StengtPeriode>,
+    val regnestykke: CalculationDto? = null,
+    val stengt: List<StengtPeriode> = listOf(),
 ) {
     companion object {
         fun from(beregning: TilsagnBeregning): TilsagnBeregningDto {
@@ -83,7 +84,15 @@ data class TilsagnBeregningDto(
                             },
                         ),
                     ),
-                    stengt = listOf(),
+                )
+
+                is TilsagnBeregningFri -> TilsagnBeregningDto(
+                    pris = beregning.output.pris,
+                    prismodell = DataDetails(
+                        entries = listOf(
+                            DataElement.text(PrismodellType.ANSKAFFET_ENKELTPLASS.navn).label("Prismodell"),
+                        ),
+                    ),
                 )
 
                 is TilsagnBeregningFastSatsPerBenyttetPlassPerManed -> TilsagnBeregningDto(
@@ -235,8 +244,6 @@ data class TilsagnBeregningDto(
                             DataElement.money(beregning.output.pris),
                         ),
                     ),
-
-                    stengt = listOf(),
                 )
             }
         }

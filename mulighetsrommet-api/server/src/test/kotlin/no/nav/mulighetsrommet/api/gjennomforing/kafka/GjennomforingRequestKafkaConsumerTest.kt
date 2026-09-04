@@ -259,7 +259,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
 
             service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, _) ->
-                gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 20000
+                gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 20000
             }
         }
 

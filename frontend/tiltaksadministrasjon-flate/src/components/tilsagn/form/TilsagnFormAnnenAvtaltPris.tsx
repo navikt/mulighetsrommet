@@ -1,16 +1,8 @@
-import {
-  PrismodellDto,
-  TilsagnBeregningType,
-  TilsagnRequest,
-  Valuta,
-} from "@tiltaksadministrasjon/api-client";
+import { PrismodellDto, TilsagnRequest, Valuta } from "@tiltaksadministrasjon/api-client";
 import { TilsagnForm } from "@/components/tilsagn/form/TilsagnForm";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { Alert, Button, HStack, Label, Spacer, Textarea, VStack } from "@navikt/ds-react";
+import { Alert, Button, HStack, Label, Spacer, VStack } from "@navikt/ds-react";
 import { PlusIcon, TrashIcon } from "@navikt/aksel-icons";
-import { tilsagnTekster } from "../TilsagnTekster";
-import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
-import { MetadataVStack } from "@mr/frontend-common/components/datadriven/Metadata";
 import { KostnadsstedOption } from "@/components/tilsagn/form/VelgKostnadssted";
 import { FormTextarea } from "@/components/skjema/FormTextarea";
 import { NumberInput } from "@/components/skjema/NumberInput";
@@ -40,26 +32,13 @@ interface BeregningInputSkjemaProps {
 
 function BeregningInputSkjema({ valuta }: BeregningInputSkjemaProps) {
   const {
-    watch,
     control,
     formState: { errors },
   } = useFormContext<TilsagnRequest>();
   const { fields, append, remove } = useFieldArray({ control, name: "beregning.linjer" });
 
-  const prisbetingelser = watch("beregning.prisbetingelser");
-
   return (
     <VStack gap="space-16">
-      <MetadataVStack
-        label={tilsagnTekster.prismodell.label}
-        value={tilsagnTekster.prismodell.sats.label(TilsagnBeregningType.ANNEN_AVTALT_PRIS)}
-      />
-      <Textarea
-        size="small"
-        label={avtaletekster.prisOgBetalingLabel}
-        value={prisbetingelser ?? ""}
-        readOnly
-      />
       <Label size="small">Avtalte priser</Label>
       {fields.map((item, index) => (
         <HStack

@@ -64,7 +64,7 @@ data class UpsertEnkeltplass(
 ) {
     sealed interface Prismodell {
         data class Anskaffelse(
-            val totalbelop: Int?,
+            val totalbelop: Int,
         ) : UpsertEnkeltplass.Prismodell
 
         data class TilskuddTilOpplaering(
@@ -538,11 +538,9 @@ class GjennomforingEnkeltplassService(
     }
 
     private fun toPrismodell(id: UUID, prismodell: UpsertEnkeltplass.Prismodell): Prismodell = when (prismodell) {
-        is UpsertEnkeltplass.Prismodell.Anskaffelse -> Prismodell.AnnenAvtaltPris(
+        is UpsertEnkeltplass.Prismodell.Anskaffelse -> Prismodell.AnskaffetEnkeltplass(
             id = id,
             valuta = Valuta.NOK,
-            prisbetingelser = null,
-            tilsagnPerDeltaker = false,
             totalbelop = prismodell.totalbelop,
         )
 
@@ -713,7 +711,7 @@ private fun Deltaker.toUpsert(
 )
 
 private fun toUpsertPrismodell(prismodell: Prismodell): UpsertEnkeltplass.Prismodell = when (prismodell) {
-    is Prismodell.AnnenAvtaltPris -> UpsertEnkeltplass.Prismodell.Anskaffelse(prismodell.totalbelop)
+    is Prismodell.AnskaffetEnkeltplass -> UpsertEnkeltplass.Prismodell.Anskaffelse(prismodell.totalbelop)
 
     is Prismodell.IngenKostnader -> UpsertEnkeltplass.Prismodell.IngenKostnader(
         prismodell.aarsak,
@@ -725,6 +723,7 @@ private fun toUpsertPrismodell(prismodell: Prismodell): UpsertEnkeltplass.Prismo
         prismodell.tilleggsopplysninger,
     )
 
+    is Prismodell.AnnenAvtaltPris,
     is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
     is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
     is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,

@@ -275,6 +275,7 @@ object AvtaleValidator {
                 PrismodellType.ANNEN_AVTALT_PRIS,
                 PrismodellType.TILSKUDD_TIL_OPPLAERING,
                 PrismodellType.INGEN_KOSTNADER,
+                PrismodellType.ANSKAFFET_ENKELTPLASS,
                 -> null
 
                 PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,

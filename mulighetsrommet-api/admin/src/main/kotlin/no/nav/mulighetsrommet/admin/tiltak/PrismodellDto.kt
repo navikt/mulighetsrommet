@@ -35,6 +35,7 @@ fun Prismodell.toPrismodellDto(): PrismodellDto {
     val tilsagnPerDeltaker = when (this) {
         is Prismodell.AnnenAvtaltPris -> tilsagnPerDeltaker
 
+        is Prismodell.AnskaffetEnkeltplass,
         is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
         is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
@@ -52,6 +53,7 @@ fun Prismodell.toPrismodellDto(): PrismodellDto {
         }.toList()
 
         is Prismodell.AnnenAvtaltPris,
+        is Prismodell.AnskaffetEnkeltplass,
         is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
         is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
@@ -63,8 +65,9 @@ fun Prismodell.toPrismodellDto(): PrismodellDto {
     }
 
     val totalbelop = when (this) {
-        is Prismodell.AnnenAvtaltPris -> totalbelop
+        is Prismodell.AnskaffetEnkeltplass -> totalbelop
 
+        is Prismodell.AnnenAvtaltPris,
         is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
         is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,
@@ -80,6 +83,7 @@ fun Prismodell.toPrismodellDto(): PrismodellDto {
         is Prismodell.IngenKostnader -> aarsak
 
         is Prismodell.AnnenAvtaltPris,
+        is Prismodell.AnskaffetEnkeltplass,
         is Prismodell.AvtaltPrisPerBenyttetPlassPerHeleUke,
         is Prismodell.AvtaltPrisPerBenyttetPlassPerManed,
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker,

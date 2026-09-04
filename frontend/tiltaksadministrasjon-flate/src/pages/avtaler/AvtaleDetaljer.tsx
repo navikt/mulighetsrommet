@@ -16,13 +16,13 @@ import { NOM_ANSATT_SIDE } from "@mr/frontend-common/constants";
 import { Alert, Link } from "@navikt/ds-react";
 import { formaterDato } from "@mr/frontend-common/utils/date";
 import { Link as ReactRouterLink } from "react-router";
-import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { useAvtale } from "@/api/avtaler/useAvtale";
 import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { useAvtaleRammedetaljer } from "@/api/avtaler/useAvtaleRammedetaljer";
 import { AvtaleRammedetaljer } from "@/components/avtaler/AvtaleRammedetaljer";
 import { DetaljerLayout } from "@/components/detaljside/DetaljerLayout";
 import { AvtalePageLayout } from "@/pages/avtaler/AvtalePageLayout";
+import { AvtalePrismodellDetaljer } from "@/components/avtaler/AvtalePrismodellDetaljer";
 
 export function AvtaleDetaljer() {
   const avtaleId = useGetAvtaleIdFromUrlOrThrow();
@@ -163,7 +163,7 @@ export function AvtaleDetaljer() {
           ) : (
             <Alert variant="warning">{avtaletekster.arrangorManglerVarsel}</Alert>
           )}
-          <PrismodellDetaljer prismodeller={avtale.prismodeller} />
+          <AvtalePrismodellDetaljer prismodeller={avtale.prismodeller} />
         </DetaljerLayout>
       </TwoColumnGrid>
     </AvtalePageLayout>

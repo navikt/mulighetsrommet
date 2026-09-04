@@ -61,7 +61,7 @@ class PrismodellQueries(private val session: Session) {
             "satser" to Json.encodeToString(prismodell.satser()),
             "valuta" to prismodell.valuta.name,
             "tilsagn_per_deltaker" to (prismodell as? Prismodell.AnnenAvtaltPris)?.tilsagnPerDeltaker,
-            "totalbelop" to (prismodell as? Prismodell.AnnenAvtaltPris)?.totalbelop,
+            "totalbelop" to (prismodell as? Prismodell.AnskaffetEnkeltplass)?.totalbelop,
             "tilskudd" to (prismodell as? Prismodell.TilskuddTilOpplaering)?.tilskudd?.let { Json.encodeToString(it) },
             "aarsak" to (prismodell as? Prismodell.IngenKostnader)?.aarsak?.name,
         )

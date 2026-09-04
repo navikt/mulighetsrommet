@@ -75,7 +75,6 @@ class GjennomforingValidatorTest : FunSpec({
                     valuta = Valuta.NOK,
                     prisbetingelser = null,
                     tilsagnPerDeltaker = false,
-                    totalbelop = null,
                 ),
             ),
         ),

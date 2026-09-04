@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBen
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
@@ -119,7 +120,7 @@ class TilsagnQueries(private val session: Session) {
             is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke -> dbo.beregning.input.stengt
             is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> dbo.beregning.input.stengt
             is TilsagnBeregningFastSatsPerBenyttetPlassPerManed -> dbo.beregning.input.stengt
-            is TilsagnBeregningAnnenAvtaltPris, is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> setOf()
+            is TilsagnBeregningAnnenAvtaltPris, is TilsagnBeregningFri, is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> setOf()
         }
         val params = mapOf(
             "id" to dbo.id,
@@ -134,14 +135,7 @@ class TilsagnQueries(private val session: Session) {
             "belop_brukt" to dbo.belopBrukt.belop,
             "belop_beregnet" to dbo.beregning.output.pris.belop,
             "valuta" to dbo.belopBrukt.valuta.name,
-            "beregning_type" to when (dbo.beregning) {
-                is TilsagnBeregningAnnenAvtaltPris -> TilsagnBeregningType.ANNEN_AVTALT_PRIS
-                is TilsagnBeregningFastSatsPerBenyttetPlassPerManed -> TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED
-                is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed -> TilsagnBeregningType.PRIS_PER_MANEDSVERK
-                is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke -> TilsagnBeregningType.PRIS_PER_UKESVERK
-                is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> TilsagnBeregningType.PRIS_PER_HELE_UKESVERK
-                is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING
-            }.name,
+            "beregning_type" to TilsagnBeregningType.from(dbo.beregning).name,
             "beregning_stengte_perioder" to Json.encodeToString(stengt),
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
@@ -149,6 +143,8 @@ class TilsagnQueries(private val session: Session) {
             "beskrivelse" to dbo.beskrivelse,
         )
         val beregningParams = when (dbo.beregning) {
+            is TilsagnBeregningFri -> mapOf()
+
             is TilsagnBeregningAnnenAvtaltPris -> mapOf(
                 "beregning_prisbetingelser" to dbo.beregning.input.prisbetingelser,
             )
@@ -531,6 +527,17 @@ class TilsagnQueries(private val session: Session) {
                         prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                     ),
                     output = Output(
+                        pris = int("belop_beregnet").withValuta(valuta),
+                    ),
+                )
+            }
+
+            TilsagnBeregningType.FRI -> {
+                TilsagnBeregningFri(
+                    input = TilsagnBeregningFri.Input(
+                        pris = int("belop_beregnet").withValuta(valuta),
+                    ),
+                    output = TilsagnBeregningFri.Output(
                         pris = int("belop_beregnet").withValuta(valuta),
                     ),
                 )

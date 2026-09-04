@@ -116,7 +116,7 @@ export function VedtakForm() {
             </VStack>
             <Box width="100%">
               <FormTextarea
-                label="Kommentarer til deltaker (vil vises i vedtaksbrev)"
+                label="Kommentar til deltaker (vil vises i vedtaksbrev)"
                 name={`tilskudd.${index}.kommentarVedtaksbrev`}
               />
             </Box>

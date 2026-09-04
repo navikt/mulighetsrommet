@@ -15,28 +15,26 @@ import java.util.UUID
 class PrismodellQueriesTest : FunSpec({
     val database = extension(SqlAdminDatabaseTestListener())
 
-    context("AnnenAvtaltPris med totalbelop") {
+    context("AnskaffetEnkeltplass med totalbelop") {
         test("lagrer og henter totalbelop") {
             database.runAndRollback {
-                val annenAvtaltPris = Prismodell.AnnenAvtaltPris(
+                val anskaffetEnkeltplass = Prismodell.AnskaffetEnkeltplass(
                     id = UUID.randomUUID(),
                     valuta = Valuta.NOK,
-                    prisbetingelser = null,
-                    tilsagnPerDeltaker = false,
                     totalbelop = 100_000,
                 )
 
-                prismodell.upsert(annenAvtaltPris)
+                prismodell.upsert(anskaffetEnkeltplass)
 
-                prismodell.getOrError(annenAvtaltPris.id).shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
-                    it.totalbelop shouldBe 100_000
-                }
+                prismodell.getOrError(anskaffetEnkeltplass.id)
+                    .shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>()
+                    .totalbelop shouldBe 100_000
 
-                prismodell.upsert(annenAvtaltPris.copy(totalbelop = null))
+                prismodell.upsert(anskaffetEnkeltplass.copy(totalbelop = 999))
 
-                prismodell.getOrError(annenAvtaltPris.id).shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
-                    it.totalbelop.shouldBeNull()
-                }
+                prismodell.getOrError(anskaffetEnkeltplass.id)
+                    .shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>()
+                    .totalbelop shouldBe 999
             }
         }
     }
