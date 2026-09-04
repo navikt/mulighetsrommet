@@ -18,8 +18,8 @@ if [ -z "${MOCK_ISSUER_ID:-}" ] || [ -z "${MOCK_CLAIMS_JSON:-}" ]; then
   exec "$@"
 fi
 
-export ISSUER_ID="${ISSUER_ID:-$MOCK_ISSUER_ID}"
-export TOKEN_FILE="${TOKEN_FILE:-${MOCK_TOKEN_FILE:-${REPO_ROOT}/.local/mock-oauth-token-${ISSUER_ID}.json}}"
+export ISSUER_ID="${MOCK_ISSUER_ID}"
+export TOKEN_FILE="${MOCK_TOKEN_FILE:-${REPO_ROOT}/.local/mock-oauth-token-${ISSUER_ID}.json}"
 
 "${SCRIPT_DIR}/mock-token.sh"
 

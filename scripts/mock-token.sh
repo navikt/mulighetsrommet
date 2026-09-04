@@ -3,14 +3,14 @@ set -euo pipefail
 
 MOCK_BASE_URL="${MOCK_BASE_URL:-http://localhost:8081}"
 ISSUER_ID="${ISSUER_ID:-azure}"
-CLIENT_ID="${CLIENT_ID:-${MOCK_CLIENT_ID:-debugger}}"
-CLIENT_SECRET="${CLIENT_SECRET:-${MOCK_CLIENT_SECRET:-someSecret}}"
-SCOPE="${SCOPE:-${MOCK_SCOPE:-openid somescope}}"
-STATE="${STATE:-local-dev-state}"
-NONCE="${NONCE:-local-dev-nonce}"
-REDIRECT_URI="${REDIRECT_URI:-${MOCK_BASE_URL}/${ISSUER_ID}/debugger/callback}"
+CLIENT_ID="${MOCK_CLIENT_ID:-debugger}"
+CLIENT_SECRET="${MOCK_CLIENT_SECRET:-someSecret}"
+SCOPE="${MOCK_SCOPE:-openid somescope}"
+STATE="${MOCK_STATE:-local-dev-state}"
+NONCE="${MOCK_NONCE:-local-dev-nonce}"
+REDIRECT_URI="${MOCK_BASE_URL}/${ISSUER_ID}/debugger/callback"
 USERNAME="${USERNAME:-local-dev-user}"
-TOKEN_FILE="${TOKEN_FILE:-${MOCK_TOKEN_FILE:-.local/mock-oauth-token-${ISSUER_ID}.json}}"
+TOKEN_FILE="${MOCK_TOKEN_FILE:-.local/mock-oauth-token-${ISSUER_ID}.json}"
 
 urldecode() {
   printf '%s' "$1" | jq -Rr '
@@ -21,7 +21,15 @@ urldecode() {
   '
 }
 
-CLAIMS_JSON="${MOCK_CLAIMS_JSON}:{\"aud\":[\"mulighetsrommet-api\"]}"
+if [ -n "${MOCK_CLAIMS_JSON:-}" ]; then
+  CLAIMS_JSON="$(
+    jq -cn \
+      --argjson claims "${MOCK_CLAIMS_JSON}" \
+      '$claims + (if has("aud") then {} else {"aud":["mulighetsrommet-api"]} end)'
+  )"
+else
+  CLAIMS_JSON='{"aud":["mulighetsrommet-api"]}'
+fi
 AUTH_URL="${MOCK_BASE_URL}/${ISSUER_ID}/authorize"
 TOKEN_URL="${MOCK_BASE_URL}/${ISSUER_ID}/token"
 
