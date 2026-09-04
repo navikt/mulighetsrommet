@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "cross-env VITE_MULIGHETSROMMET_API_MOCK='true' DISABLE_DEKORATOR='true' node ./server/main.js",
     "dev:vite": "react-router dev",
-    "backend": "MOCK_ISSUER_ID=tokenx ../../scripts/run-backend-with-mock-token.sh -- cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' node ./server/main.js",
+    "backend": "../../scripts/run-backend-with-mock-token.sh -- cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' node ./server/main.js",
     "backend:manual": "cross-env VITE_MULIGHETSROMMET_API_BASE='http://localhost:8080' node ./server/main.js",
     "start": "cross-env NODE_ENV=production VITE_MULIGHETSROMMET_API_BASE='http://mulighetsrommet-api' node ./server/main.js",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint app/ server/",
