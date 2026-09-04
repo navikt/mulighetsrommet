@@ -1,4 +1,4 @@
-import { TiltakDeltMedBrukerDto } from "@arbeidsmarkedstiltak/api-client";
+import { DelMedBrukerDto } from "@arbeidsmarkedstiltak/api-client";
 import {
   BodyShort,
   Box,
@@ -15,15 +15,15 @@ import { Link as ReactRouterLink } from "react-router";
 import { VisningsnavnForTiltak } from "@/components/oversikt/VisningsnavnForTiltak";
 import { formaterDato } from "@/utils/Utils";
 import { ModiaRoute, navigateToModiaApp } from "../ModiaRoute";
-import { useDeltMedBrukerHistorikk } from "../hooks/useDeltMedBrukerHistorikk";
+import { useDelMedBrukerHistorikk } from "../hooks/useDelMedBrukerHistorikk";
 import { IngenFunnetBox } from "../views/Landingsside";
 
-function sortOnCreatedAt(a: TiltakDeltMedBrukerDto, b: TiltakDeltMedBrukerDto) {
-  return new Date(b.deling.tidspunkt).getTime() - new Date(a.deling.tidspunkt).getTime();
+function sortOnCreatedAt(a: DelMedBrukerDto, b: DelMedBrukerDto) {
+  return new Date(b.tidspunkt).getTime() - new Date(a.tidspunkt).getTime();
 }
 
 export function DelMedBrukerHistorikk() {
-  const { data = [] } = useDeltMedBrukerHistorikk();
+  const { data = [] } = useDelMedBrukerHistorikk();
 
   if (data.length === 0) {
     return <IngenFunnetBox title="Det er ikke delt informasjon om noen tiltak med brukeren" />;
@@ -31,7 +31,7 @@ export function DelMedBrukerHistorikk() {
 
   const gruppertHistorikk = data
     .sort(sortOnCreatedAt)
-    .reduce<Record<string, TiltakDeltMedBrukerDto[]>>((acc, obj) => {
+    .reduce<Record<string, DelMedBrukerDto[]>>((acc, obj) => {
       (acc[obj.tiltak.id] ??= []).push(obj);
       return acc;
     }, {});
@@ -81,7 +81,7 @@ export function DelMedBrukerHistorikk() {
   );
 }
 
-function contentForRow(delinger: TiltakDeltMedBrukerDto[]): ReactNode {
+function contentForRow(delinger: DelMedBrukerDto[]): ReactNode {
   const tidligereDelinger = delinger.slice(1);
 
   return (
@@ -91,16 +91,16 @@ function contentForRow(delinger: TiltakDeltMedBrukerDto[]): ReactNode {
       </Heading>
       <Box marginBlock="space-16" asChild>
         <List data-aksel-migrated-v8>
-          {tidligereDelinger.map(({ deling, tiltak, tiltakstype }) => {
+          {tidligereDelinger.map(({ dialogId, tidspunkt, tiltak, tiltakstype }) => {
             return (
-              <List.Item key={deling.dialogId}>
+              <List.Item key={dialogId}>
                 <HStack gap="space-20" align="start">
                   <VisningsnavnForTiltak
                     noLink
                     tiltakstypeNavn={tiltakstype.navn}
                     navn={tiltak.slettet ? "Tiltaket er slettet" : (tiltak.navn ?? "")}
                   />
-                  <BodyShort size="small">Delt {formaterDato(deling.tidspunkt)}</BodyShort>
+                  <BodyShort size="small">Delt {formaterDato(tidspunkt)}</BodyShort>
                 </HStack>
               </List.Item>
             );
@@ -111,7 +111,7 @@ function contentForRow(delinger: TiltakDeltMedBrukerDto[]): ReactNode {
   );
 }
 
-function createCells(antallTiltakDelt: number, deltMedBruker: TiltakDeltMedBrukerDto): ReactNode {
+function createCells(antallTiltakDelt: number, deltMedBruker: DelMedBrukerDto): ReactNode {
   return (
     <>
       {antallTiltakDelt === 1 ? <Table.DataCell></Table.DataCell> : null}
@@ -124,7 +124,7 @@ function createCells(antallTiltakDelt: number, deltMedBruker: TiltakDeltMedBruke
           }
         />
       </Table.DataCell>
-      <Table.DataCell>{formaterDato(deltMedBruker.deling.tidspunkt)}</Table.DataCell>
+      <Table.DataCell>{formaterDato(deltMedBruker.tidspunkt)}</Table.DataCell>
       <Table.DataCell>
         <VStack align="center" gap="space-12">
           <Button
@@ -134,7 +134,7 @@ function createCells(antallTiltakDelt: number, deltMedBruker: TiltakDeltMedBruke
               e.preventDefault();
               navigateToModiaApp({
                 route: ModiaRoute.DIALOG,
-                dialogId: deltMedBruker.deling.dialogId,
+                dialogId: deltMedBruker.dialogId,
               });
             }}
           >

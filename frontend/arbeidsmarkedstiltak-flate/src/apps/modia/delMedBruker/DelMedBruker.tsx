@@ -2,11 +2,7 @@ import { Alert, Button } from "@navikt/ds-react";
 import { CheckmarkIcon } from "@navikt/aksel-icons";
 import { Delemodal } from "./Delemodal";
 import { useDelMedBruker } from "./DelemodalReducer";
-import {
-  Brukerdata,
-  DeltMedBrukerDto,
-  VeilederflateTiltak,
-} from "@arbeidsmarkedstiltak/api-client";
+import { Brukerdata, DelMedBrukerDto, VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 import { formaterDato } from "@/utils/Utils";
 import {
   erBrukerReservertMotDigitalKommunikasjon,
@@ -17,17 +13,11 @@ interface Props {
   veiledernavn: string;
   bruker: Brukerdata;
   tiltak: VeilederflateTiltak;
-  deltMedBruker?: DeltMedBrukerDto;
+  delMedBruker?: DelMedBrukerDto;
   veilederEnhet: string;
 }
 
-export function DelMedBruker({
-  veiledernavn,
-  bruker,
-  tiltak,
-  deltMedBruker,
-  veilederEnhet,
-}: Props) {
+export function DelMedBruker({ veiledernavn, bruker, tiltak, delMedBruker, veilederEnhet }: Props) {
   const { reservert, melding } = erBrukerReservertMotDigitalKommunikasjon(bruker);
 
   const deletekst = utledDelMedBrukerTekst(tiltak, veiledernavn);
@@ -37,8 +27,8 @@ export function DelMedBruker({
     dispatch({ type: "Toggle modal", payload: true });
   };
 
-  const knappetekst = deltMedBruker
-    ? `Delt i dialogen ${formaterDato(new Date(deltMedBruker.deling.tidspunkt))}`
+  const knappetekst = delMedBruker
+    ? `Delt i dialogen ${formaterDato(new Date(delMedBruker.tidspunkt))}`
     : "Del med bruker";
 
   return (
@@ -52,7 +42,7 @@ export function DelMedBruker({
             variant="secondary"
             aria-label="Del med bruker"
             data-testid="deleknapp"
-            icon={deltMedBruker && <CheckmarkIcon title="Suksess" />}
+            icon={delMedBruker && <CheckmarkIcon title="Suksess" />}
             iconPosition="left"
           >
             {knappetekst}
@@ -60,7 +50,7 @@ export function DelMedBruker({
           <Delemodal
             veiledernavn={veiledernavn}
             tiltak={tiltak}
-            deltMedBruker={deltMedBruker}
+            delMedBruker={delMedBruker}
             dispatch={dispatch}
             state={state}
             bruker={bruker}

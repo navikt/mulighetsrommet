@@ -1,6 +1,5 @@
 import { useModiaArbeidsmarkedstiltak } from "@/api/queries/useArbeidsmarkedstiltak";
 import { ModiaFilterTags } from "@/apps/modia/filtrering/ModiaFilterTags";
-import { useAlleTiltakDeltMedBruker } from "@/apps/modia/hooks/useAlleTiltakDeltMedBruker";
 import { FiltrertFeilInnsatsgruppeVarsel } from "@/apps/modia/varsler/FiltrertFeilInnsatsgruppeVarsel";
 import { Melding } from "@/components/melding/Melding";
 import { FilterMenu } from "@/components/filtrering/FilterMenu";
@@ -17,12 +16,13 @@ import { TilToppenKnapp } from "@mr/frontend-common/components/tilToppenKnapp/Ti
 import { useState } from "react";
 import { ModiaOversiktBrukerVarsler } from "../varsler/ModiaOversiktBrukerVarsler";
 import { Box } from "@navikt/ds-react";
+import { useDelMedBrukerHistorikk } from "../hooks/useDelMedBrukerHistorikk";
 
 export function ModiaArbeidsmarkedstiltakOversikt() {
   const [filterOpen, setFilterOpen] = useOpenFilterWhenThreshold(1450);
   const [tagsHeight, setTagsHeight] = useState(0);
 
-  const { data: alleTiltakDeltMedBruker } = useAlleTiltakDeltMedBruker();
+  const { data: alleDelMedBruker } = useDelMedBrukerHistorikk();
 
   const { filter, filterHasChanged, resetFilterToDefaults } =
     useArbeidsmarkedstiltakFilterMedBrukerIKontekst();
@@ -48,7 +48,7 @@ export function ModiaArbeidsmarkedstiltakOversikt() {
         table={
           <ArbeidsmarkedstiltakList
             tiltak={tiltak}
-            delingerMedBruker={alleTiltakDeltMedBruker ?? undefined}
+            alleDelMedBruker={alleDelMedBruker ?? undefined}
             filterOpen={filterOpen}
             varsler={
               <>
