@@ -55,7 +55,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
     val domain = MulighetsrommetTestDomain(
         ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-        prismodeller = listOf(PrismodellFixtures.AnnenAvtaltPris.copy(totalbelop = 1000)),
+        prismodeller = listOf(PrismodellFixtures.AnskaffetEnkeltplass.copy(totalbelop = 1000)),
         gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
         utdanningsprogram = listOf(UtdanningFixtures.Utdanningsprogrammer.byggOgAnlegg),
     )
@@ -124,7 +124,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             val (gjennomforing) = service.opprettUtkast(utkast.copy(prismodell = oppdatertPris), opprettetAv)
                 .shouldBeRight()
 
-            gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
+            gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().should {
                 it.totalbelop shouldBe 1000
             }
         }
@@ -250,7 +250,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             val enkeltplass1 = service.soktInn(soktInn, behandling(opprettetAv)).shouldBeRight()
 
-            enkeltplass1.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>()
+            enkeltplass1.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>()
 
             val prismodell = UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
                 tilskudd = mapOf(Opplaeringtilskudd.Kode.SKOLEPENGER to 100),
@@ -308,7 +308,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 .soktInn(soktInn.copy(prismodell = prismodell), behandling(opprettetAv))
                 .shouldBeRight()
 
-            gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().should {
+            gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().should {
                 it.totalbelop shouldBe 1000
             }
 
@@ -795,7 +795,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 val soktInn = createRequest()
                 val forsteBehandling = behandling(opprettetAv)
                 service.soktInn(soktInn, forsteBehandling).shouldBeRight().should { enkeltplass ->
-                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 1000
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 1000
                     enkeltplass.okonomi.shouldNotBeNull().should {
                         it.id shouldBe forsteBehandling.id
                         it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
@@ -813,7 +813,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
                     andreBehandling,
                 ).shouldBeRight().should { enkeltplass ->
-                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 5000
                     enkeltplass.okonomi.shouldNotBeNull().should {
                         it.id shouldBe andreBehandling.id
                         it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
@@ -852,7 +852,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
                     andreBehandling,
                 ).shouldBeRight().should { enkeltplass ->
-                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 5000
                     enkeltplass.okonomi.shouldNotBeNull().should {
                         it.id shouldBe andreBehandling.id
                         it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
@@ -883,7 +883,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     UpsertEnkeltplass.Prismodell.Anskaffelse(6000),
                     tredjeBehandling,
                 ).shouldBeRight().should { enkeltplass ->
-                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 6000
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 6000
                     enkeltplass.okonomi.shouldNotBeNull().should {
                         it.id shouldBe tredjeBehandling.id
                         it.status shouldBe TotrinnskontrollStatus.TIL_BEHANDLING
@@ -905,7 +905,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     UpsertEnkeltplass.Prismodell.Anskaffelse(5000),
                     behandling,
                 ).shouldBeRight().should { enkeltplass ->
-                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 5000
                 }
 
                 service.endrePrisinformasjon(
@@ -913,7 +913,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     UpsertEnkeltplass.Prismodell.Anskaffelse(9999),
                     behandling,
                 ).shouldBeRight().should { enkeltplass ->
-                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                    enkeltplass.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 5000
                 }
             }
 
@@ -931,7 +931,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 ).shouldBeRight()
 
                 service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
-                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 1000
+                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 1000
                 }
 
                 database.run {
@@ -1123,7 +1123,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 ).shouldBeRight()
 
                 service.tilbakekallPrisinformasjon(soktInn.id, prisendringBehandling).shouldBeRight().should {
-                    it.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 1000
+                    it.gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 1000
                 }
 
                 database.run {
@@ -1187,7 +1187,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 service.settOkonomiGodkjent(soktInn.id, prisendring.id, besluttetAv).shouldBeRight()
 
                 service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
-                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 5000
                 }
 
                 database.run {
@@ -1240,7 +1240,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                 service.settOkonomiGodkjent(soktInn.id, prisendring.id, besluttetAv).shouldBeRight()
 
                 service.get(soktInn.id).shouldNotBeNull().should { (gjennomforing, _) ->
-                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnnenAvtaltPris>().totalbelop shouldBe 5000
+                    gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 5000
                 }
 
                 database.run {

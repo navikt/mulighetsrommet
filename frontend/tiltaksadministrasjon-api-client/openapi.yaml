@@ -4578,6 +4578,7 @@ components:
       - AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE
       - AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE
       - AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER
+      - ANSKAFFET_ENKELTPLASS
       - TILSKUDD_TIL_OPPLAERING
       - INGEN_KOSTNADER
     Valuta:
@@ -7568,7 +7569,9 @@ components:
         prismodell:
           $ref: "#/components/schemas/DataDetails"
         regnestykke:
-          $ref: "#/components/schemas/CalculationDto"
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/CalculationDto"
         stengt:
           type: array
           items:
@@ -7772,10 +7775,15 @@ components:
           - "null"
           - integer
           format: int32
+        pris:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
       required:
       - antallPlasser
       - antallTimerOppfolgingPerDeltaker
       - linjer
+      - pris
       - prisbetingelser
       - type
       - valuta
@@ -7783,6 +7791,7 @@ components:
       type: string
       enum:
       - ANNEN_AVTALT_PRIS
+      - FRI
       - PRIS_PER_MANEDSVERK
       - PRIS_PER_UKESVERK
       - PRIS_PER_HELE_UKESVERK

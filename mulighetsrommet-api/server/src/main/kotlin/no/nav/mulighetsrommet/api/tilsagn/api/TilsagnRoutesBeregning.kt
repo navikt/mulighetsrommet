@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBen
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
@@ -45,6 +46,7 @@ import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
 import org.koin.ktor.ext.inject
 import java.time.LocalDate.now
 import java.time.temporal.TemporalAdjusters.lastDayOfMonth
+import java.time.temporal.TemporalAdjusters.lastDayOfYear
 import java.util.UUID
 
 fun Route.tilsagnRoutesBeregning() {
@@ -227,6 +229,7 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
             is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke -> tilsagn.beregning.input.antallPlasser
             is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke -> tilsagn.beregning.input.antallPlasser
             is TilsagnBeregningAnnenAvtaltPris -> null
+            is TilsagnBeregningFri -> null
         },
         prisbetingelser = prisbetingelser,
         linjer = when (tilsagn.beregning) {
@@ -244,6 +247,10 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
         },
         antallTimerOppfolgingPerDeltaker = when (tilsagn.beregning) {
             is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
+            else -> null
+        },
+        pris = when (prismodell) {
+            is Prismodell.AnskaffetEnkeltplass -> prismodell.totalbelop.withValuta(prismodell.valuta)
             else -> null
         },
     )
@@ -272,8 +279,13 @@ fun resolveTilsagnDefaults(
     gjennomforing: GjennomforingTiltaksadministrasjon,
     tilsagn: Tilsagn?,
 ): TilsagnRequest {
-    val periode = when (gjennomforing.prismodell) {
+    val prismodell = gjennomforing.prismodell
+
+    val periode = when (prismodell) {
         is Prismodell.AnnenAvtaltPris -> null
+
+        is Prismodell.AnskaffetEnkeltplass,
+        -> getAnskaffetEnkeltplassPeriode(config, gjennomforing, tilsagn)
 
         is Prismodell.FastSatsPerBenyttetPlassPerManed,
         is Prismodell.FastSatsPerAvtaltPlassPerManed,
@@ -287,11 +299,11 @@ fun resolveTilsagnDefaults(
 
         is Prismodell.TilskuddTilOpplaering,
         is Prismodell.IngenKostnader,
-        -> stotterIkkeTilsagnError(gjennomforing.prismodell)
+        -> stotterIkkeTilsagnError(prismodell)
     }
 
-    val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(gjennomforing.prismodell)
-    val valuta = gjennomforing.prismodell.valuta
+    val (beregningType, prisbetingelser) = resolveBeregningTypeAndPrisbetingelser(prismodell)
+    val valuta = prismodell.valuta
 
     val beregning = TilsagnBeregningRequest(
         type = beregningType,
@@ -308,6 +320,10 @@ fun resolveTilsagnDefaults(
         ),
         antallTimerOppfolgingPerDeltaker = when (tilsagn?.beregning) {
             is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
+            else -> null
+        },
+        pris = when (prismodell) {
+            is Prismodell.AnskaffetEnkeltplass -> prismodell.totalbelop.withValuta(valuta)
             else -> null
         },
     )
@@ -370,6 +386,27 @@ private fun getAnskaffetTiltakPeriode(
     return Periode.fromInclusiveDates(periodeStart, periodeSlutt)
 }
 
+private fun getAnskaffetEnkeltplassPeriode(
+    config: OkonomiConfig,
+    gjennomforing: Gjennomforing,
+    tilsagn: Tilsagn?,
+): Periode {
+    val firstDayOfCurrentMonth = now().withDayOfMonth(1)
+    val periodeStart = listOfNotNull(
+        config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.start,
+        gjennomforing.startDato,
+        tilsagn?.periode?.slutt,
+        firstDayOfCurrentMonth,
+    ).max()
+
+    val lastDayOfYear = periodeStart.with(lastDayOfYear())
+    val periodeSlutt = listOfNotNull(gjennomforing.sluttDato, lastDayOfYear)
+        .filter { it > periodeStart }
+        .min()
+
+    return Periode.fromInclusiveDates(periodeStart, periodeSlutt)
+}
+
 private fun resolveEkstraTilsagnInvesteringDefaults(
     request: TilsagnRequest,
     gjennomforing: GjennomforingTiltaksadministrasjon,
@@ -405,6 +442,7 @@ private fun resolveBeregningTypeAndPrisbetingelser(
 ): Pair<TilsagnBeregningType, String?> {
     val type = when (prismodell) {
         is Prismodell.AnnenAvtaltPris -> TilsagnBeregningType.ANNEN_AVTALT_PRIS
+        is Prismodell.AnskaffetEnkeltplass -> TilsagnBeregningType.FRI
         is Prismodell.AvtaltPrisPerBenyttetPlassPerManed -> TilsagnBeregningType.PRIS_PER_MANEDSVERK
         is Prismodell.AvtaltPrisPerTimeOppfolgingPerDeltaker -> TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING
         is Prismodell.AvtaltPrisPerBenyttetPlassPerUke -> TilsagnBeregningType.PRIS_PER_UKESVERK

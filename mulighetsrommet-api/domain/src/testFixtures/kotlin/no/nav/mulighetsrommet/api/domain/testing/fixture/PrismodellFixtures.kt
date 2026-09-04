@@ -85,6 +85,11 @@ object PrismodellFixtures {
         valuta = Valuta.NOK,
         tilsagnPerDeltaker = false,
         prisbetingelser = null,
-        totalbelop = null,
+    )
+
+    val AnskaffetEnkeltplass = Prismodell.AnskaffetEnkeltplass(
+        id = UUID.randomUUID(),
+        valuta = Valuta.NOK,
+        totalbelop = 10_000,
     )
 }

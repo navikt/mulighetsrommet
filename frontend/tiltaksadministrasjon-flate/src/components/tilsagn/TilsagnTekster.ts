@@ -56,10 +56,11 @@ export const tilsagnTekster = {
         case TilsagnBeregningType.PRIS_PER_HELE_UKESVERK:
         case TilsagnBeregningType.PRIS_PER_UKESVERK:
           return "Avtalt ukespris";
-        case TilsagnBeregningType.ANNEN_AVTALT_PRIS:
-          return "Avtalt pris";
         case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
           return "Avtalt månedspris";
+        case TilsagnBeregningType.ANNEN_AVTALT_PRIS:
+        case TilsagnBeregningType.FRI:
+          return null;
       }
     },
   },

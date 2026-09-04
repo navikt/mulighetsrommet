@@ -42,6 +42,7 @@ function useHentData(gjennomforingId: string) {
       prisbetingelser: null,
       antallTimerOppfolgingPerDeltaker: null,
       linjer: [],
+      pris: null,
     },
     kostnadssted: kostnadssted || null,
     kommentar: null,

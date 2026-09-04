@@ -35,6 +35,7 @@ import { InformationSquareIcon } from "@navikt/aksel-icons";
 import { GjennomforingDto } from "@/api/gjennomforing/utils";
 import { Betalingsbetingelser } from "@/components/gjennomforing/Betalingsbetingelser";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
+import { stotterBeskrivelseTilArrangor } from "@/utils/prismodell";
 
 interface Props {
   onSuccess: () => void;
@@ -122,11 +123,13 @@ export function TilsagnForm(props: Props) {
                   label={tilsagnTekster.kommentar.label}
                   maxLength={500}
                 />
-                <FormTextarea<TilsagnRequest>
-                  name="beskrivelse"
-                  label={tilsagnTekster.beskrivelse.label}
-                  maxLength={250}
-                />
+                {stotterBeskrivelseTilArrangor(props.prismodell.type) && (
+                  <FormTextarea<TilsagnRequest>
+                    name="beskrivelse"
+                    label={tilsagnTekster.beskrivelse.label}
+                    maxLength={250}
+                  />
+                )}
               </VStack>
               <VStack>
                 <Betalingsbetingelser prismodell={props.prismodell} />

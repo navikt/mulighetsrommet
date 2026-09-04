@@ -26,6 +26,8 @@ export function PrismodellDetaljer({ prismodell }: PrismodellDetaljerProps) {
       return <AvtaltPris prismodell={prismodell} />;
     case PrismodellType.ANNEN_AVTALT_PRIS:
       return <AnnenAvtaltPris prismodell={prismodell} />;
+    case PrismodellType.ANSKAFFET_ENKELTPLASS:
+      return <BetalingsbetingelserAnskaffelse prismodell={prismodell} />;
     case PrismodellType.TILSKUDD_TIL_OPPLAERING:
       return <BetalingsbetingelserTilskudd prismodell={prismodell} />;
     case PrismodellType.INGEN_KOSTNADER:
@@ -63,6 +65,19 @@ function AnnenAvtaltPris({ prismodell }: PrismodellDetaljerProps) {
         value={prismodell.tilsagnPerDeltaker ? "Ja" : "Nei"}
       />
       <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
+    </VStack>
+  );
+}
+
+function BetalingsbetingelserAnskaffelse({ prismodell }: PrismodellDetaljerProps) {
+  return (
+    <VStack gap="space-8">
+      <Heading size="xsmall">Anskaffelse</Heading>
+      <BodyShort textColor="subtle">Nav har avtalt å betale leverandøren direkte</BodyShort>
+      <Heading size="xsmall">Totalbeløp for anskaffelsen</Heading>
+      <BodyShort textColor="subtle">
+        {prismodell.totalBelop ? formaterValuta(prismodell.totalBelop, prismodell.valuta) : "-"}
+      </BodyShort>
     </VStack>
   );
 }

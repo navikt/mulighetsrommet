@@ -33,7 +33,9 @@ export function TilsagnBeregningPreview() {
             {formaterValuta(data.beregning.pris.belop, data.beregning.pris.valuta)}
           </Label>
         </HStack>
-        <TilsagnRegnestykke regnestykke={data.beregning.regnestykke} />
+        {data.beregning.regnestykke && (
+          <TilsagnRegnestykke regnestykke={data.beregning.regnestykke} />
+        )}
         <TilsagnStengtePerioder stengt={data.beregning.stengt} />
       </VStack>
     </>

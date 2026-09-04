@@ -31,6 +31,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBen
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -197,6 +198,13 @@ class TilsagnService(
                                 )
                             },
                             prisbetingelser = request.beregning.prisbetingelser,
+                        ),
+                    )
+
+                TilsagnBeregningType.FRI ->
+                    TilsagnBeregningFri.beregn(
+                        TilsagnBeregningFri.Input(
+                            pris = request.beregning.pris ?: 0.NOK,
                         ),
                     )
 

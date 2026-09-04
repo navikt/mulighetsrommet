@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBen
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.model.DataDetails
@@ -69,6 +70,12 @@ data class ArrangorflateTilsagnDto(
 private fun toArrangorflateTilsagnBeregningDetails(tilsagn: Tilsagn): DataDetails {
     val entries = when (tilsagn.beregning) {
         is TilsagnBeregningAnnenAvtaltPris -> listOf(
+            LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
+            LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.pris),
+            LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
+        )
+
+        is TilsagnBeregningFri -> listOf(
             LabeledDataElement.periode("Tilsagnsperiode", tilsagn.periode),
             LabeledDataElement.money("Totalbeløp", tilsagn.beregning.output.pris),
             LabeledDataElement.money("Gjenstående beløp", tilsagn.gjenstaendeBelop()),
