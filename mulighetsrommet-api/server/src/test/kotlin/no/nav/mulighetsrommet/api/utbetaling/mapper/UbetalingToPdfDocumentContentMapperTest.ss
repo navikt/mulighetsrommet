@@ -76,6 +76,11 @@
               "value": "07.01.2025 - 13.01.2025"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Antall deltakere",
+              "value": "5"
+            },
+            {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Avtalt pris per time oppfølging",
               "value": "34",
@@ -324,6 +329,11 @@
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Stengt periode",
               "value": "07.01.2025 - 13.01.2025"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Antall deltakere",
+              "value": "5"
             },
             {
               "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",

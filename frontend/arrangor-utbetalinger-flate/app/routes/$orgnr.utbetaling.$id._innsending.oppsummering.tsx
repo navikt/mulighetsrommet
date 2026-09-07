@@ -15,6 +15,7 @@ import { useGodkjennUtbetaling } from "~/hooks/useGodkjennUtbetaling";
 import { useUtbetalingWizard } from "~/hooks/useUtbetalingWizard";
 import { BlokkeringerVarsler } from "~/components/common/BlokkeringerVarsler";
 import { StepFooter } from "~/components/utbetaling/StepFooter";
+import { VedleggSummary } from "~/components/utbetaling/VedleggSummary";
 
 export const meta: MetaFunction = () => {
   return [
@@ -30,11 +31,10 @@ export default function BekreftUtbetaling() {
   const id = useIdFromUrl();
   const orgnr = useOrgnrFromUrl();
   const navigate = useNavigate();
-  const { updatedAt, kid } = useLocation().state || {};
+  const { updatedAt, belop, vedlegg, kid } = useLocation().state || {};
 
   const { data: utbetaling } = useArrangorflateUtbetaling(id);
   const godkjennUtbetaling = useGodkjennUtbetaling();
-
   const wizard = useUtbetalingWizard(utbetaling);
 
   const [bekreftelse, setBekreftelse] = useState(false);
@@ -42,6 +42,12 @@ export default function BekreftUtbetaling() {
 
   const errorSummaryRef = useRef<HTMLDivElement>(null);
   const hasError = errors.length > 0;
+
+  useEffect(() => {
+    if (hasError) {
+      errorSummaryRef.current?.focus();
+    }
+  }, [hasError]);
 
   const submit = async () => {
     const newErrors: FieldError[] = [];
@@ -62,6 +68,8 @@ export default function BekreftUtbetaling() {
       id: id,
       updatedAt: updatedAt,
       kid: kid || null,
+      belop: belop ?? null,
+      vedlegg: vedlegg ?? null,
     });
 
     if (result.errors) {
@@ -75,12 +83,6 @@ export default function BekreftUtbetaling() {
     e.preventDefault();
     await submit();
   };
-
-  useEffect(() => {
-    if (hasError) {
-      errorSummaryRef.current?.focus();
-    }
-  }, [hasError]);
 
   return (
     <>
@@ -105,11 +107,17 @@ export default function BekreftUtbetaling() {
           },
         ]}
       />
+
       <Separator />
       <SatsPerioderOgBelop
-        pris={utbetaling.beregning.pris}
         satsDetaljer={utbetaling.beregning.satsDetaljer}
+        pris={
+          utbetaling.beregning.pris.type === "KREVER_REGISTRERING"
+            ? { type: "BEREGNET", pris: { belop, valuta: utbetaling.valuta } }
+            : utbetaling.beregning.pris
+        }
       />
+
       <Separator />
       <Definisjonsliste
         title="Betalingsinformasjon"
@@ -121,6 +129,14 @@ export default function BekreftUtbetaling() {
           { key: "KID-nummer", value: kid || "-" },
         ]}
       />
+
+      {utbetaling.beregning.pris.type === "KREVER_REGISTRERING" && (
+        <>
+          <Separator />
+          <VedleggSummary vedlegg={vedlegg ?? []} />
+        </>
+      )}
+
       <Separator />
       <form onSubmit={handleSubmit}>
         <Box marginBlock="space-0 space-16">

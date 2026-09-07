@@ -106,7 +106,11 @@ fun mapUtbetalingToArrangorflateUtbetalingDto(
         linjer = linjer,
         innsendingsDetaljer = getInnsendingsDetaljer(utbetaling, innsendtAvArrangorDato),
         advarsler = advarsler.map { advarsel ->
-            DeltakerAdvarselDto.from(advarsel, personaliaById[advarsel.deltakerId]?.navn(), personaliaById[advarsel.deltakerId]?.norskIdent())
+            DeltakerAdvarselDto.from(
+                advarsel,
+                personaliaById[advarsel.deltakerId]?.navn(),
+                personaliaById[advarsel.deltakerId]?.norskIdent(),
+            )
         },
         regenerering = regenerering,
         avbrytelse = avbrytStatus(utbetaling, status),
@@ -363,14 +367,7 @@ fun beregningSatsDetaljer(beregning: UtbetalingBeregning): List<DataDetails> {
             )
         }
 
-        is UtbetalingBeregningAvtaltPrisPerTimeOppfolging -> {
-            val satser = beregning.input.satser.sortedBy { it.periode.start }
-            beregningSatsPeriodeDetaljerUtenFaktor(
-                satser = satser,
-                satsLabel = "Avtalt pris per time oppfølging",
-                stengtPerioder = beregning.input.stengt,
-            )
-        }
+        is UtbetalingBeregningAvtaltPrisPerTimeOppfolging -> beregningPrisPerTimeOppfolging(beregning)
 
         is UtbetalingBeregningFastSatsPerAvtaltTiltaksplassPerManed,
         is UtbetalingBeregningFri,
@@ -399,8 +396,7 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
                 val slutt = satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
                 DataDetails(
                     header = "Periode $start - $slutt",
-                    entries =
-                    getStengtPerioderPerSats(satsPeriode.periode, stengtPerioder) +
+                    entries = getStengtPerioderPerSats(satsPeriode.periode, stengtPerioder) +
                         listOf(
                             LabeledDataElement.money(satsLabel, satsPeriode.sats),
                             LabeledDataElement.number(faktorLabel, faktor),
@@ -410,18 +406,21 @@ fun beregningSatsPeriodeDetaljerMedFaktor(
     }
 }
 
-fun beregningSatsPeriodeDetaljerUtenFaktor(
-    satser: List<SatsPeriode>,
-    satsLabel: String,
-    stengtPerioder: Set<StengtPeriode>,
+fun beregningPrisPerTimeOppfolging(
+    beregning: UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
 ): List<DataDetails> {
-    return satser.map { satsPeriode ->
+    return beregning.input.satser.sortedBy { it.periode.start }.map { satsPeriode ->
+        val start = satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()
+        val slutt = satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
+        val antallDeltakere = beregning.input.deltakelser.count { it.periode in satsPeriode.periode }
         DataDetails(
-            header = "Periode ${satsPeriode.periode.start.formaterDatoTilEuropeiskDatoformat()} - ${
-                satsPeriode.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
-            }",
-            entries = getStengtPerioderPerSats(satsPeriode.periode, stengtPerioder) + listOf(
-                LabeledDataElement.money(satsLabel, satsPeriode.sats),
+            header = "Periode $start - $slutt",
+            entries = getStengtPerioderPerSats(
+                satsPeriode = satsPeriode.periode,
+                stengtPeriode = beregning.input.stengt,
+            ) + listOf(
+                LabeledDataElement.number("Antall deltakere", antallDeltakere),
+                LabeledDataElement.money("Avtalt pris per time oppfølging", satsPeriode.sats),
             ),
         )
     }
