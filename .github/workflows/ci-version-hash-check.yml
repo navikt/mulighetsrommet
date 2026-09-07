@@ -72,11 +72,11 @@ jobs:
                       added[current_file].append(content)
 
           # Allowed updates:
-          # 1) action pin updates: uses: owner/repo@<40-hex-sha>
+          # 1) action pin updates: uses: owner/repo@<40-hex-sha> [optional # comment]
           # 2) digest pin updates: @sha256:<64-hex>
           digest_pattern = re.compile(r"@sha256:[0-9a-fA-F]{64}")
           uses_sha_pattern = re.compile(
-              r"^(\s*-?\s*uses:\s*[^@\s]+@)([0-9a-fA-F]{40})(\s*(#.*)?)$"
+              r"^(\s*-?\s*uses:\s*[^@\s]+@)([0-9a-fA-F]{40})(?:\s*(?:#.*)?)$"
           )
 
           def normalize_allowed_hashes(line):
@@ -91,7 +91,7 @@ jobs:
               match = uses_sha_pattern.match(normalized)
               if match:
                   replaced = True
-                  normalized = f"{match.group(1)}<HASH>{match.group(3)}"
+                  normalized = f"{match.group(1)}<HASH>"
 
               return normalized, replaced
 
