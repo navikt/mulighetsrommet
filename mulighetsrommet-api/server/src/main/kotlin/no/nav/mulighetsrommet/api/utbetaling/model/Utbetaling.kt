@@ -171,8 +171,7 @@ data class Utbetaling(
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.TIL_BEHANDLING,
         UtbetalingStatusType.RETURNERT,
-        ->
-            true
+        -> true
 
         UtbetalingStatusType.TIL_AVBRYTELSE,
         UtbetalingStatusType.AVBRUTT,
@@ -180,8 +179,7 @@ data class Utbetaling(
         UtbetalingStatusType.UTBETALT,
         UtbetalingStatusType.DELVIS_UTBETALT,
         UtbetalingStatusType.TIL_ATTESTERING,
-        ->
-            false
+        -> false
     }
 
     fun getTiltaksnavn(): String {
