@@ -26,6 +26,7 @@ export function StepFooter({ wizard, primaryAction }: StepFooterProps) {
         </Button>
       )}
       <Button
+        type="button"
         onClick={primaryAction?.onClick ?? (() => wizard.goToNext())}
         loading={primaryAction?.loading}
       >
