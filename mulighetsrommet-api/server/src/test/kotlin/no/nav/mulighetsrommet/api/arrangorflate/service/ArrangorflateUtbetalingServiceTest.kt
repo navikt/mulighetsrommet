@@ -397,7 +397,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             listOf(job1.await(), job2.await()) shouldContainExactlyInAnyOrder listOf(
                 AutomatisertUtbetalingResult.GODKJENT.right(),
-                FieldError.of("Utbetaling er allerede godkjent").nel().left(),
+                FieldError.of("Utbetalingen er allerede godkjent").nel().left(),
             )
         }
 
@@ -496,7 +496,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             )
 
             service.godkjentAvArrangor(utbetaling1Id, kid = null).shouldBeLeft(
-                listOf(FieldError.of("Utbetaling er allerede godkjent")),
+                listOf(FieldError.of("Utbetalingen er allerede godkjent")),
             )
         }
 

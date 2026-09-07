@@ -74,7 +74,7 @@ class UtbetalingService(
     ): Either<List<FieldError>, Unit> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
         if (utbetaling.status != UtbetalingStatusType.GENERERT) {
-            return FieldError.of("Utbetaling er allerede godkjent").nel().left()
+            return FieldError.of("Utbetalingen er allerede godkjent").nel().left()
         }
 
         queries.utbetaling.setInnsendtAvArrangor(utbetalingId, LocalDateTime.now())
