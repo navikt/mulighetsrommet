@@ -1,4 +1,5 @@
 import { KafkaConsumerRecord } from "src/domain";
+import { JsonOrTextValue } from "../components/JsonOrTextValue";
 import { Section } from "../components/Section";
 import { ApiBase, putRetryFailedKafkaRecord } from "../core/api";
 import { useFailedKafkaConsumerRecords } from "../core/hooks";
@@ -123,11 +124,11 @@ function ExpandedRow({ record }: ExpandedRowProps) {
       </HStack>
       <Box background="sunken" padding="space-4">
         <Label size="small">Key</Label>
-        <pre>{record.key}</pre>
+        <JsonOrTextValue value={record.key} />
       </Box>
       <Box background="sunken" padding="space-4">
         <Label className="font-bold">Value</Label>
-        <pre>{record.value}</pre>
+        <JsonOrTextValue value={record.value} />
       </Box>
     </VStack>
   );

@@ -1,4 +1,5 @@
 import { ScheduledTask } from "src/domain";
+import { JsonOrTextValue } from "../components/JsonOrTextValue";
 import { Section } from "../components/Section";
 import { ApiBase, putRetryScheduledTask } from "../core/api";
 import { useFailedScheduledTasks } from "../core/hooks";
@@ -118,7 +119,7 @@ function ExpandedRow({ task }: ExpandedRowProps) {
       </HStack>
       <Box background="sunken" padding="space-4">
         <Label size="small">Data</Label>
-        <pre>{task.taskData}</pre>
+        <JsonOrTextValue value={task.taskData} />
       </Box>
     </VStack>
   );
