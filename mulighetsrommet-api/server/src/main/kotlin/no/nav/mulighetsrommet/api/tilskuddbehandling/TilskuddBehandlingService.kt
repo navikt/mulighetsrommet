@@ -230,7 +230,7 @@ class TilskuddBehandlingService(
         }
     }
 
-    fun revurderingOpphor(tilskuddId: UUID, behandlingId: UUID, saksbehandler: NavIdent, beslutter: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
+    fun revurderingOpphor(tilskuddId: UUID, behandlingId: UUID, saksbehandler: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
         val tidligereBehandling = queries.tilskuddBehandling.get(behandlingId)?.toDbo()
             ?: throw IllegalStateException("Fant ikke tilskuddsbehandling for behandlingId=$behandlingId")
         val opphorRevurdering = tidligereBehandling.copy(
@@ -242,13 +242,12 @@ class TilskuddBehandlingService(
                 .map {
                     it.copy(
                         id = UUID.randomUUID(),
-                        soknadBelop = it.soknadBelop.copy(belop = 0),
                         utbetalingBelop = it.utbetalingBelop?.copy(belop = 0),
                     )
                 },
         )
         queries.tilskuddBehandling.upsert(opphorRevurdering)
-        val totrinnskontroll = revurderingOpphor(opphorRevurdering.id, listOf(TilskuddBehandlingStatusAarsak.ANNET), "Test av opphør", saksbehandler)
+        revurderingOpphor(opphorRevurdering.id, listOf(TilskuddBehandlingStatusAarsak.ANNET), "Test av opphør", saksbehandler)
 
         Unit.right()
     }

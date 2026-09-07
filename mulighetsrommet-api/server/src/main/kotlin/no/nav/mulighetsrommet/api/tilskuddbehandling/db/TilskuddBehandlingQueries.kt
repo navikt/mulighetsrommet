@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.samletVedtakResultatStatusTag
@@ -47,7 +48,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
             "status" to dbo.status.name,
-            "kommentar_intern" to dbo.kommentarIntern,
+            "type" to dbo.type.name,
         )
 
         execute(queryOf(query, params))
@@ -292,6 +293,7 @@ private data class TilskuddBehandlingViewRow(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: String,
+    val type: String,
     @SerialName("gjennomforing_id")
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
@@ -336,6 +338,7 @@ private fun Row.toTilskuddBehandlingViewRow(): TilskuddBehandlingViewRow {
     return TilskuddBehandlingViewRow(
         id = uuid("id"),
         status = string("status"),
+        type = string("type"),
         gjennomforingId = uuid("gjennomforing_id"),
         vedtakJson = string("vedtak_json"),
     )
@@ -364,6 +367,7 @@ private fun TilskuddBehandlingViewRow.toDto(): TilskuddBehandlingDto {
         ),
         tilskudd = tilskudd,
         status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(status)),
+        type = TilskuddBehandlingType.valueOf(type),
         kommentarIntern = firstVedtak.kommentarIntern,
         vedtakJournalpostId = firstVedtak.vedtakJournalpostId,
         samletVedtakResultat = samletVedtakResultatStatusTag(tilskudd.map { it.vedtakResultat.type }),
