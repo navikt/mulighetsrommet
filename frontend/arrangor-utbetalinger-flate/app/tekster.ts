@@ -40,11 +40,6 @@ export const tekster = {
       },
       tilbakeTilBeregning: "Tilbake til beregning",
       beregning: {
-        infotekstDeltakerliste: {
-          intro:
-            "Hvis noen av opplysningene om deltakerne ikke stemmer må dere sende forslag til Nav om endring via",
-          utro: " Opplysninger om deltakerne må være riktig oppdatert før dere sender inn kravet.",
-        },
         stengtHosArrangor: "Det er registrert stengt hos arrangør i følgende perioder:",
       },
       oppsummering: {
