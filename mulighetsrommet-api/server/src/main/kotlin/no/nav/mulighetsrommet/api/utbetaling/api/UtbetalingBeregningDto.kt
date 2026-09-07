@@ -2,8 +2,8 @@ package no.nav.mulighetsrommet.api.utbetaling.api
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
+import no.nav.mulighetsrommet.api.arrangorflate.service.beregningPrisPerTimeOppfolging
 import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerMedFaktor
-import no.nav.mulighetsrommet.api.arrangorflate.service.beregningSatsPeriodeDetaljerUtenFaktor
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakelseDeltakelsesprosentPerioder
 import no.nav.mulighetsrommet.api.utbetaling.model.DeltakerAdvarselDto
@@ -193,19 +193,13 @@ data class UtbetalingBeregningDto(
                 }
 
                 is UtbetalingBeregningAvtaltPrisPerTimeOppfolging -> {
-                    val pris = beregning.input.pris
-                    val satser = beregning.input.satser.sortedBy { it.periode.start }
                     UtbetalingBeregningDto(
                         type = UtbetalingBeregningType.PRIS_PER_TIME_OPPFOLGING,
                         heading = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER.navn,
                         deltakerRegioner = regioner,
                         deltakere = deltakelsePrisPerTimeOppfolgingTable(personaliaById),
-                        pris = pris,
-                        satsDetaljer = beregningSatsPeriodeDetaljerUtenFaktor(
-                            satser,
-                            "Avtalt pris per time oppfølging",
-                            stengtPerioder = beregning.input.stengt,
-                        ),
+                        pris = beregning.input.pris,
+                        satsDetaljer = beregningPrisPerTimeOppfolging(beregning),
                         advarsler = advarsler,
                     )
                 }
