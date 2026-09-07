@@ -64,9 +64,6 @@ export default function OppsummeringStep({
         <Separator />
         <form onSubmit={handleSubmit}>
           <Box marginBlock="space-0 space-32">
-            <Heading level="3" size="medium" spacing>
-              Vedlegg
-            </Heading>
             <VedleggSummary vedlegg={acceptedFiles} />
             <Separator />
             <CheckboxGroup error={errorAt("/bekreftelse", errors)} legend="Bekreftelse">

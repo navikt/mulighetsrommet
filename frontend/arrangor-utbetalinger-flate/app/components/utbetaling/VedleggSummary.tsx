@@ -7,7 +7,7 @@ interface VedleggSummaryProps {
 export function VedleggSummary({ vedlegg }: VedleggSummaryProps) {
   return (
     <>
-      <Heading level="4" size="xsmall">
+      <Heading level="3" size="medium" spacing>
         {`Vedlegg (${vedlegg.length})`}
       </Heading>
       {vedlegg.length > 0 && (

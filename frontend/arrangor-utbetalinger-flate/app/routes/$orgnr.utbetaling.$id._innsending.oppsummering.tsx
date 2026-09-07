@@ -9,13 +9,13 @@ import { pathTo, useIdFromUrl, useOrgnrFromUrl } from "~/utils/navigation";
 import { errorAt } from "~/utils/validering";
 import { formaterPeriode } from "@mr/frontend-common/utils/date";
 import { SatsPerioderOgBelop } from "~/components/utbetaling/SatsPerioderOgBelop";
-import { RegistrertBelopOgVedlegg } from "~/components/utbetaling/RegistrertBelopOgVedlegg";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
 import { useArrangorflateUtbetaling } from "~/hooks/useArrangorflateUtbetaling";
 import { useGodkjennUtbetaling } from "~/hooks/useGodkjennUtbetaling";
 import { useUtbetalingWizard } from "~/hooks/useUtbetalingWizard";
 import { BlokkeringerVarsler } from "~/components/common/BlokkeringerVarsler";
 import { StepFooter } from "~/components/utbetaling/StepFooter";
+import { VedleggSummary } from "~/components/utbetaling/VedleggSummary";
 
 export const meta: MetaFunction = () => {
   return [
@@ -107,18 +107,17 @@ export default function BekreftUtbetaling() {
           },
         ]}
       />
+
       <Separator />
-      {utbetaling.beregning.pris.type === "KREVER_REGISTRERING" ? (
-        <RegistrertBelopOgVedlegg
-          belop={{ belop, valuta: utbetaling.valuta }}
-          vedlegg={vedlegg ?? []}
-        />
-      ) : (
-        <SatsPerioderOgBelop
-          pris={utbetaling.beregning.pris}
-          satsDetaljer={utbetaling.beregning.satsDetaljer}
-        />
-      )}
+      <SatsPerioderOgBelop
+        satsDetaljer={utbetaling.beregning.satsDetaljer}
+        pris={
+          utbetaling.beregning.pris.type === "KREVER_REGISTRERING"
+            ? { type: "BEREGNET", pris: { belop, valuta: utbetaling.valuta } }
+            : utbetaling.beregning.pris
+        }
+      />
+
       <Separator />
       <Definisjonsliste
         title="Betalingsinformasjon"
@@ -130,6 +129,15 @@ export default function BekreftUtbetaling() {
           { key: "KID-nummer", value: kid || "-" },
         ]}
       />
+
+      {utbetaling.beregning.pris.type === "KREVER_REGISTRERING" && (
+        <>
+          <Separator />
+          <VedleggSummary vedlegg={vedlegg ?? []} />
+        </>
+      )}
+
+      <Separator />
       <form onSubmit={handleSubmit}>
         <Box marginBlock="space-0 space-16">
           <Heading size="medium" level="3">
