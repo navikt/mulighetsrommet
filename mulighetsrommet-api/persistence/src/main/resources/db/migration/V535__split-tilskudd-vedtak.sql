@@ -23,10 +23,8 @@ create table tilskudd_vedtak
     kid                             text,
     belop                           integer,
     valuta                          currency,
-    utbetaling_id                   uuid
-        references utbetaling (id),
-    bruker_utbetaling_id            uuid
-        references bruker_utbetaling (id),
+    utbetaling_id                   uuid,
+    bruker_utbetaling_id            uuid,
     bruker_utbetaling_behandling_id int,
     vedtak_journalpost_id               text,
     vedtak_journalpost_distribuering_id text,
@@ -107,3 +105,16 @@ alter table tilskudd_behandling
     drop column vedtak_journalpost_distribuering_id,
     drop column vedtak_journalfort_tidspunkt,
     drop column vedtak_distribuert_tidspunkt;
+
+-- Bytt primærnøkkel i bruker_utbetaling til kompositt (id, behandling_id) for versjonering av utbetalinger
+
+alter table bruker_utbetaling
+    drop constraint bruker_utbetaling_pkey;
+
+alter table bruker_utbetaling
+    add primary key (id, behandling_id);
+
+alter table tilskudd_vedtak
+    add constraint tilskudd_vedtak_bruker_utbetaling_fkey
+        foreign key (bruker_utbetaling_id, bruker_utbetaling_behandling_id)
+            references bruker_utbetaling (id, behandling_id);
