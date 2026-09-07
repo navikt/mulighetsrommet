@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFastSatsPe
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingInputHelper
+import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.api.utbetaling.model.hentDeltakerAdvarslerForUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.service.GenererUtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
@@ -90,6 +91,10 @@ class ArrangorflateUtbetalingService(
     ): Validated<AutomatisertUtbetalingResult> {
         val result = db.transaction {
             val utbetaling = getOrError(utbetalingId)
+            if (utbetaling.status != UtbetalingStatusType.GENERERT) {
+                return FieldError.of("Utbetalingen er allerede godkjent").nel().left()
+            }
+
             if (utbetaling.periode.slutt > today) {
                 return FieldError.of("Utbetalingen kan ikke godkjennes før perioden er passert").nel().left()
             }
