@@ -280,13 +280,18 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun sendTilAvbrytelse(id: UUID, agent: Agent, operation: String, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Utbetaling> = with(tx) {
+    fun sendTilAvbrytelse(
+        id: UUID,
+        agent: Agent,
+        aarsaker: List<String>,
+        forklaring: String?,
+    ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
         return utbetaling.settTilAbrytelse(agent, aarsaker, forklaring).map { utbetalingTilAvbrytelse ->
             queries.utbetaling.save(utbetalingTilAvbrytelse)
 
             outbox.publish(utbetalingTilAvbrytelse.avbrytelse!!.totrinnskontroll)
-            logEndring(operation, utbetaling.id, agent)
+            logEndring("Utbetaling sendt til avbrytelse", utbetaling.id, agent)
         }
     }
 
