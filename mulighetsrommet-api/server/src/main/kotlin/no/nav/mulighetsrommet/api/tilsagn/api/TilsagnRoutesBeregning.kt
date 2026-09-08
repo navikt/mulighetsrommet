@@ -391,12 +391,10 @@ private fun getAnskaffetEnkeltplassPeriode(
     gjennomforing: Gjennomforing,
     tilsagn: Tilsagn?,
 ): Periode {
-    val firstDayOfCurrentMonth = now().withDayOfMonth(1)
     val periodeStart = listOfNotNull(
         config.gyldigTilsagnPeriode[gjennomforing.tiltakstype.tiltakskode]?.start,
         gjennomforing.startDato,
         tilsagn?.periode?.slutt,
-        firstDayOfCurrentMonth,
     ).max()
 
     val lastDayOfYear = periodeStart.with(lastDayOfYear())
