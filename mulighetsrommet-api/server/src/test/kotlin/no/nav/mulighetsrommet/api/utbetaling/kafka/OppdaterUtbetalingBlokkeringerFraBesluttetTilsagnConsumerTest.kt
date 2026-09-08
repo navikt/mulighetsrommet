@@ -6,8 +6,6 @@ import io.kotest.data.row
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
@@ -76,7 +74,7 @@ class OppdaterUtbetalingBlokkeringerFraBesluttetTilsagnConsumerTest :
                 val consumer = createConsumer(genererUtbetalingService)
 
                 val hendelse = opprettGodkjentHendelse(type)
-                consumer.consume(hendelse.entityId.toString(), Json.encodeToJsonElement(hendelse))
+                consumer.consume(hendelse.entityId.toString(), hendelse)
 
                 verify(exactly = if (shouldBeCalled) 1 else 0) {
                     genererUtbetalingService.oppdaterUtbetalingBlokkeringerForGjennomforing(gjennomforing.id)
@@ -97,7 +95,7 @@ class OppdaterUtbetalingBlokkeringerFraBesluttetTilsagnConsumerTest :
                 val consumer = createConsumer(genererUtbetalingService)
 
                 val hendelse = opprettHendelseMedStatus(TotrinnskontrollType.TILSAGN_OPPRETTELSE, status)
-                consumer.consume(hendelse.entityId.toString(), Json.encodeToJsonElement(hendelse))
+                consumer.consume(hendelse.entityId.toString(), hendelse)
 
                 verify(exactly = if (shouldBeCalled) 1 else 0) {
                     genererUtbetalingService.oppdaterUtbetalingBlokkeringerForGjennomforing(gjennomforing.id)
