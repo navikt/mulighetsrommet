@@ -41,15 +41,13 @@ Content-Type: application/json
 
 ```json
 {
-  "historikk": [ ... ],
-  "meldinger": []
+  "historikk": []
 }
 ```
 
 | Felt        | Type                        | Beskrivelse                                                                                                                                                   |
 |-------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `historikk` | `TiltakshistorikkV1Dto[]`   | Liste med tiltaksdeltakelser. Hvert element er en av typene `ArenaDeltakelse`, `TeamKometDeltakelse` eller `TeamTiltakAvtale`, diskriminert på feltet `type`. |
-| `meldinger` | `TiltakshistorikkMelding[]` | Varsler om eventuelle feil ved henting av data.                                                                                                               |
 
 ### Historiske identer
 

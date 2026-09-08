@@ -291,12 +291,8 @@ data class TiltakshistorikkV1Request(
 @Serializable
 data class TiltakshistorikkV1Response(
     val historikk: List<TiltakshistorikkV1Dto>,
-    val meldinger: Set<TiltakshistorikkMelding>,
+    val meldinger: Set<String> = setOf(),
 )
-
-enum class TiltakshistorikkMelding {
-    MANGLER_HISTORIKK_FRA_TEAM_TILTAK,
-}
 
 @Serializable
 data class TiltakshistorikkArenaGjennomforing(

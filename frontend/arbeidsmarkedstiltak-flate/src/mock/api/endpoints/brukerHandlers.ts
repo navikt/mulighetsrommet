@@ -3,7 +3,6 @@ import {
   Brukerdata,
   BrukerdataVarsel,
   Deltakelse,
-  DeltakelserMelding,
   GetAktivDeltakelseForBrukerRequest,
   GetBrukerRequest,
   GetDeltakelserForBrukerRequest,
@@ -57,7 +56,7 @@ export const brukerHandlers = [
     async ({ request }) => {
       const { type } = await request.json();
       const response: GetDeltakelserForBrukerResponse = {
-        meldinger: [DeltakelserMelding.MANGLER_DELTAKELSER_FRA_TEAM_TILTAK],
+        meldinger: [],
         deltakelser: type === "AKTIVE" ? deltakelserAktive : deltakelserHistoriske,
       };
       return HttpResponse.json(response);
