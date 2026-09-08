@@ -1,19 +1,17 @@
 import { useOppskrifter } from "@/api/queries/useOppskrifter";
-import { BodyLong, Box, Button, Heading, HGrid, Link, List, VStack } from "@navikt/ds-react";
+import { Box, Heading, HGrid, Link, List } from "@navikt/ds-react";
 import { useEffect, useRef } from "react";
 import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
 import { Melding } from "../melding/Melding";
 import { PortableText } from "@mr/frontend-common";
 import { Tiltakskode } from "@arbeidsmarkedstiltak/api-client";
-import { XMarkIcon } from "@navikt/aksel-icons";
 
 interface Props {
   oppskriftId: string;
   tiltakskode: Tiltakskode;
-  setOppskriftId: (id: string | undefined) => void;
 }
 
-export function Oppskrift({ oppskriftId, tiltakskode, setOppskriftId }: Props) {
+export function Oppskrift({ oppskriftId, tiltakskode }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const { data: oppskrifter } = useOppskrifter(tiltakskode);
 
@@ -50,22 +48,7 @@ export function Oppskrift({ oppskriftId, tiltakskode, setOppskriftId }: Props) {
   }
 
   return (
-    <Box
-      padding="space-16"
-      background="info-soft"
-      borderWidth="1"
-      borderColor="info"
-      marginBlock="space-16"
-    >
-      <VStack gap="space-16" align="start">
-        <Button icon={<XMarkIcon />} variant="tertiary" onClick={() => setOppskriftId(undefined)}>
-          Lukk oppskriften
-        </Button>
-        <Heading level="3" size="medium" spacing>
-          {oppskrift.navn}
-        </Heading>
-        <BodyLong spacing>{oppskrift.beskrivelse}</BodyLong>
-      </VStack>
+    <Box padding="space-16" background="info-soft" marginBlock="space-16">
       <HGrid gap="space-16" columns="1fr 0.25fr">
         <section ref={ref} className="overflow-y-scroll max-h-200">
           {oppskrift.steg.map((st, index) => {

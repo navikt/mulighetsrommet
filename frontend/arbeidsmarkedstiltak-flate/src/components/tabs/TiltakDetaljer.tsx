@@ -10,10 +10,9 @@ import { PortableText } from "@mr/frontend-common";
 
 interface Props {
   tiltak: VeilederflateTiltak;
-  setOppskriftId: (id: string | undefined) => void;
 }
 
-export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
+export function TiltakDetaljer({ tiltak }: Props) {
   const oppskrifterEnabled = isOppskrifterEnabled(tiltak);
 
   const faneoverskrifter = [
@@ -30,16 +29,7 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
   const { tiltakstype, faneinnhold } = tiltak;
 
   return (
-    <Tabs
-      defaultValue="tab1"
-      size="small"
-      selectionFollowsFocus
-      onChange={(value) => {
-        if (value !== "tab5") {
-          setOppskriftId(undefined);
-        }
-      }}
-    >
+    <Tabs defaultValue="tab1" size="small" selectionFollowsFocus>
       <Tabs.List id="fane_liste">
         {faneoverskrifter.map((fane, index) => (
           <Tabs.Tab key={index} value={`tab${index + 1}`} label={fane} className="w-fit" />
@@ -78,12 +68,7 @@ export function TiltakDetaljer({ tiltak, setOppskriftId }: Props) {
             {tiltak.faneinnhold?.oppskrift ? (
               <PortableText value={tiltak.faneinnhold.oppskrift} />
             ) : null}
-            {oppskrifterEnabled && (
-              <OppskriftOversikt
-                tiltakskode={tiltakstype.tiltakskode}
-                setOppskriftId={setOppskriftId}
-              />
-            )}
+            {oppskrifterEnabled && <OppskriftOversikt tiltakskode={tiltakstype.tiltakskode} />}
           </Tabs.Panel>
         </ErrorBoundary>
       </Box>
