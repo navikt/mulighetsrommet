@@ -67,6 +67,7 @@ export function TilskuddBehandlingFormPage() {
         kommentarIntern: behandling.kommentarIntern,
         tilskudd: behandling.tilskudd.map((t) => ({
           id: t.id,
+          tilskuddId: t.tilskuddId,
           tilskuddOpplaeringType: t.tilskuddOpplaeringType,
           soknadBelop: t.soknadBelop,
           vedtakResultat: t.vedtakResultat.type,
