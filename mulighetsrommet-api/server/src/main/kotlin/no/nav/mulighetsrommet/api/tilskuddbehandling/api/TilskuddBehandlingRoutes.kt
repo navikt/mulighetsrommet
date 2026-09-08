@@ -256,15 +256,15 @@ fun Route.tilskuddBehandlingRoutes() {
         }
 
         authorize(Rolle.TEAM_MULIGHETSROMMET) {
-            post("/{id}/opphor/{tilskuddId}", {
+            post("/{tilskuddBehandlingId}/opphor/{tilskuddVedtakId}", {
                 description = "Test opphørsvedtak for tilskuddsutbetaling"
                 tags = setOf("Utbetaling", "Tilskudd")
                 operationId = "postTilskuddVedtakOpphor"
                 request {
-                    pathParameterUuid("id") {
+                    pathParameterUuid("tilskuddBehandlingId") {
                         required = true
                     }
-                    pathParameterUuid("tilskuddId") {
+                    pathParameterUuid("tilskuddVedtakId") {
                         required = true
                     }
                 }
@@ -278,9 +278,8 @@ fun Route.tilskuddBehandlingRoutes() {
                     }
                 }
             }) {
-                val tilskuddId: UUID by call.parameters
-                val id: UUID by call.parameters
-                val beslutter = getNavIdent()
+                val tilskuddVedtakId: UUID by call.parameters
+                val tilskuddBehandlingId: UUID by call.parameters
                 if (NaisEnv.current().isProdGCP()) {
                     call.respond(
                         HttpStatusCode.Forbidden,
@@ -288,7 +287,7 @@ fun Route.tilskuddBehandlingRoutes() {
                     )
                 } else {
                     val saksbehandler = NavIdent("Z993637") // Midlertidig saksbehandler, slik at vi kan beslutte med 079 brukeren
-                    service.revurderingOpphor(tilskuddId, id, saksbehandler)
+                    service.revurderingOpphor(tilskuddVedtakId, tilskuddBehandlingId, saksbehandler)
                     call.respond(HttpStatusCode.OK)
                 }
             }

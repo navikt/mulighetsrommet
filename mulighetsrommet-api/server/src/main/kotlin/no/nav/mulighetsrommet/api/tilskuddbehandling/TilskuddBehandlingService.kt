@@ -9,6 +9,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
@@ -16,7 +17,6 @@ import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingDbo
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
-import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -109,10 +109,14 @@ class TilskuddBehandlingService(
         return db.session {
             val behandling = queries.tilskuddBehandling.get(id)
             behandling?.let {
+                val totrinnskontroll = when (behandling.type) {
+                    TilskuddBehandlingType.REGISTRERING -> queries.totrinnskontroll.getDtoOrError(behandling.id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
+                    TilskuddBehandlingType.REVURDERING -> queries.totrinnskontroll.getDtoOrError(behandling.id, TotrinnskontrollType.TILSKUDD_OPPHOR)
+                }
                 TilskuddBehandlingDetaljerDto(
                     it,
-                    queries.totrinnskontroll.getDtoOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE),
-                    handlinger(it, navIdent),
+                    totrinnskontroll,
+                    handlinger(it, navIdent, totrinnskontroll),
                 )
             }
         }
@@ -181,10 +185,7 @@ class TilskuddBehandlingService(
         }
     }
 
-    fun handlinger(behandling: TilskuddBehandlingDto, navIdent: NavIdent): Set<TilskuddBehandlingHandling> = db.session {
-        val opprettelse =
-            queries.totrinnskontroll.getOrError(behandling.id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-
+    fun handlinger(behandling: TilskuddBehandlingDto, navIdent: NavIdent, totrinnskontroll: TotrinnskontrollDto): Set<TilskuddBehandlingHandling> = db.session {
         return setOfNotNull(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },
             TilskuddBehandlingHandling.ATTESTER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
@@ -196,7 +197,7 @@ class TilskuddBehandlingService(
                     handling = it,
                     navIdent = navIdent,
                     kostnadssted = behandling.kostnadssted.enhetsnummer,
-                    opprettelse = opprettelse,
+                    totrinnskontroll = totrinnskontroll,
                 )
             }
             .toSet()
@@ -206,12 +207,13 @@ class TilskuddBehandlingService(
         handling: TilskuddBehandlingHandling,
         navIdent: NavIdent,
         kostnadssted: NavEnhetNummer,
-        opprettelse: Totrinnskontroll,
+        totrinnskontroll: TotrinnskontrollDto,
     ): Boolean {
         val ansatt = db.session { queries.ansatt.getOrError(navIdent) }
 
         val attestant = ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted))
         val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+        val teamMulighetsrommet = ansatt.hasGenerellRolle(Rolle.TEAM_MULIGHETSROMMET)
 
         return when (handling) {
             TilskuddBehandlingHandling.REDIGER,
@@ -221,16 +223,16 @@ class TilskuddBehandlingService(
             -> saksbehandler || attestant
 
             TilskuddBehandlingHandling.ATTESTER -> {
-                attestant && opprettelse.behandletAv != ansatt.navIdent
+                attestant && totrinnskontroll.behandletAv.agent == ansatt.navIdent
             }
 
             TilskuddBehandlingHandling.OPPHOR -> {
-                ansatt.roller.contains(NavAnsattRolle.generell(Rolle.TEAM_MULIGHETSROMMET)) && opprettelse.behandletAv != ansatt.navIdent
+                teamMulighetsrommet && totrinnskontroll.behandletAv.agent != ansatt.navIdent
             }
         }
     }
 
-    fun revurderingOpphor(tilskuddId: UUID, behandlingId: UUID, saksbehandler: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
+    fun revurderingOpphor(tilskuddVedtakId: UUID, behandlingId: UUID, saksbehandler: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
         val tidligereBehandling = queries.tilskuddBehandling.get(behandlingId)?.toDbo()
             ?: throw IllegalStateException("Fant ikke tilskuddsbehandling for behandlingId=$behandlingId")
         val opphorRevurdering = tidligereBehandling.copy(
@@ -238,7 +240,7 @@ class TilskuddBehandlingService(
             type = TilskuddBehandlingType.REVURDERING,
             status = TilskuddBehandlingStatus.TIL_ATTESTERING,
             tilskudd = tidligereBehandling.tilskudd
-                .filter { it.id == tilskuddId }
+                .filter { it.id == tilskuddVedtakId }
                 .map {
                     it.copy(
                         id = UUID.randomUUID(),
@@ -253,10 +255,10 @@ class TilskuddBehandlingService(
     }
 
     context(tx: TransactionalQueryContext)
-    private fun revurderingOpphor(tilskuddId: UUID, aarsaker: List<TilskuddBehandlingStatusAarsak>, forklaring: String?, behandletAv: Agent): Totrinnskontroll = with(tx) {
+    private fun revurderingOpphor(behandlingId: UUID, aarsaker: List<TilskuddBehandlingStatusAarsak>, forklaring: String?, behandletAv: Agent): Totrinnskontroll = with(tx) {
         val opphorTotrinnskontroll = Totrinnskontroll.opprett(
             UUID.randomUUID(),
-            tilskuddId,
+            behandlingId,
             TotrinnskontrollType.TILSKUDD_OPPHOR,
             behandletAv,
             aarsaker.map { it.name },

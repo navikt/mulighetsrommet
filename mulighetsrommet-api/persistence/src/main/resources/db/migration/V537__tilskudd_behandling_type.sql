@@ -17,3 +17,5 @@ alter table tilskudd_behandling
     add constraint tilskudd_behandling_type_fkey
         foreign key (type) references tilskudd_behandling_type (value),
     alter column type set not null;
+
+insert into totrinnskontroll_type (value) values ('TILSKUDD_OPPHOR');

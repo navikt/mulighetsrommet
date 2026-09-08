@@ -94,7 +94,7 @@ export function TilskuddBehandlingDetaljerPage() {
   }
 
   function opphorUtbetaling(tilskuddId: string) {
-    opphorMutation.mutate({ tilskuddId });
+    opphorMutation.mutate({ tilskuddVedtakId: tilskuddId });
   }
 
   const kanReturneres = handlinger.includes(TilskuddBehandlingHandling.RETURNER);

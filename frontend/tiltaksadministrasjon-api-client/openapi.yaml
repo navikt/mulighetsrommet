@@ -2843,34 +2843,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
-  /api/tiltaksadministrasjon/tilskudd-utbetaling/{id}/opphor:
-    post:
-      tags:
-      - Utbetaling
-      - Tilskudd
-      description: Send tilskuddsutbetaling til opphør for gitt tilskudds ID
-      operationId: postTilskuddUtbetalingOpphor
-      parameters:
-      - name: id
-        in: path
-        required: true
-        deprecated: false
-        explode: false
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: Tilskuddsutbetaling er sendt til opphør
-          headers: {}
-        default:
-          description: Problem details
-          headers: {}
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ProblemDetail"
-      deprecated: false
   /api/tiltaksadministrasjon/oppgaver:
     post:
       tags:
@@ -3904,6 +3876,42 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ValidationError"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling/{tilskuddBehandlingId}/opphor/{tilskuddVedtakId}:
+    post:
+      tags:
+      - Utbetaling
+      - Tilskudd
+      description: Test opphørsvedtak for tilskuddsutbetaling
+      operationId: postTilskuddVedtakOpphor
+      parameters:
+      - name: tilskuddBehandlingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: tilskuddVedtakId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Opphørsvedtak er sendt til godkjenning
+          headers: {}
         default:
           description: Problem details
           headers: {}
@@ -9275,6 +9283,8 @@ components:
             $ref: "#/components/schemas/TilskuddOpplaeringDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+        type:
+          $ref: "#/components/schemas/TilskuddBehandlingType"
         kommentarIntern:
           type:
           - "null"
@@ -9296,6 +9306,7 @@ components:
       - soknadJournalpostId
       - status
       - tilskudd
+      - type
       - vedtakJournalpostId
     TilskuddOpplaeringDto:
       type: object
@@ -9352,6 +9363,11 @@ components:
       - TIL_ATTESTERING
       - FERDIG_BEHANDLET
       - RETURNERT
+    TilskuddBehandlingType:
+      type: string
+      enum:
+      - REGISTRERING
+      - REVURDERING
     SamletVedtakResultat:
       type: string
       enum:
@@ -9403,6 +9419,8 @@ components:
           $ref: "#/components/schemas/KostnadsstedDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+        type:
+          $ref: "#/components/schemas/TilskuddBehandlingType"
         samletVedtakResultat:
           $ref: "#/components/schemas/SamletVedtakResultat"
       required:
@@ -9414,6 +9432,7 @@ components:
       - soknadDato
       - status
       - tilskuddtyper
+      - type
     TilskuddBehandlingRequest.TilskuddRequest:
       type: object
       properties:
