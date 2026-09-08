@@ -51,6 +51,12 @@ export const tekster = {
         bekreftelse:
           "Det erklæres herved at alle opplysninger er gitt i henhold til de faktiske forhold",
       },
+      feilmeldinger: {
+        vedleggForStort:
+          "Vedleggene er for store til å lastes opp. Reduser størrelsen på filene, og prøv å sende inn på nytt.",
+        tidsavbrudd:
+          "Det tok for lang tid å sende inn kravet. Vent litt, og prøv å sende inn på nytt.",
+      },
       kvittering: {
         headingTitle: "Innsendingen er mottatt",
         successMelding:
