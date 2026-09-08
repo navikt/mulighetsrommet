@@ -46,17 +46,21 @@ class TilskuddBrukerUtbetalingConsumer(
             return
         }
 
-        if (totrinnskontrollHendelse.type != TotrinnskontrollType.TILSKUDD_OPPRETTELSE) {
+        if (totrinnskontrollHendelse.status != TotrinnskontrollHendelse.Status.GODKJENT) {
             return
         }
-        if (totrinnskontrollHendelse.status != TotrinnskontrollHendelse.Status.GODKJENT) {
+        if (!listOf(TotrinnskontrollType.TILSKUDD_OPPRETTELSE, TotrinnskontrollType.TILSKUDD_OPPHOR).contains(totrinnskontrollHendelse.type)) {
             return
         }
 
         val behandling = db.session { queries.tilskuddBehandling.get(key) }
             ?: throw IllegalStateException("Fant ikke attestert tilskudd_behandling id=$key")
 
-        utbetalTilskuddTilBruker(behandling, totrinnskontrollHendelse)
+        when (totrinnskontrollHendelse.type) {
+            TotrinnskontrollType.TILSKUDD_OPPRETTELSE -> utbetalTilskuddTilBruker(behandling, totrinnskontrollHendelse)
+            TotrinnskontrollType.TILSKUDD_OPPHOR -> throw NotImplementedError()
+            else -> throw IllegalStateException("Ukjent totrinnskontroll type=${totrinnskontrollHendelse.type}")
+        }
     }
 
     private suspend fun utbetalTilskuddTilBruker(

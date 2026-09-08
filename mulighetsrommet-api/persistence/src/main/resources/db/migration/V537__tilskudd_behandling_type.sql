@@ -1,4 +1,3 @@
--- Link mellom vedtak og en revurderingen av det
 drop view if exists view_tilskudd_behandling;
 
 create table tilskudd_behandling_type (
@@ -16,8 +15,5 @@ where type is null;
 
 alter table tilskudd_behandling
     add constraint tilskudd_behandling_type_fkey
-        foreign key (type) references tilskudd_behandling_type (value);
-
-alter table tilskudd_behandling
+        foreign key (type) references tilskudd_behandling_type (value),
     alter column type set not null;
-

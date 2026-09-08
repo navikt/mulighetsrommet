@@ -34,14 +34,17 @@ class TilskuddBehandlingQueries(private val session: Session) {
             insert into tilskudd_behandling (
                 id,
                 gjennomforing_id,
-                status
+                status,
+                type
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
-                :status
+                :status,
+                :type
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
-                status = excluded.status
+                status = excluded.status,
+                type = excluded.type
         """.trimIndent()
 
         val params = mapOf(
@@ -225,7 +228,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 bruker_utbetaling_id,
                 bruker_utbetaling_behandling_id
             ) values (
-                :tilskudd_vedtak_id::uuid
+                :tilskudd_vedtak_id::uuid,
                 :bruker_utbetaling_id::uuid,
                 :bruker_utbetaling_behandling_id::integer
             )
