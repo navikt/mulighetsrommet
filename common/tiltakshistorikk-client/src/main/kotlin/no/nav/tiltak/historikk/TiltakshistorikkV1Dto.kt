@@ -285,13 +285,11 @@ sealed class TiltakshistorikkV1Dto {
 @Serializable
 data class TiltakshistorikkV1Request(
     val identer: List<NorskIdent>,
-    val maxAgeYears: Int? = null,
 )
 
 @Serializable
 data class TiltakshistorikkV1Response(
     val historikk: List<TiltakshistorikkV1Dto>,
-    val meldinger: Set<String> = setOf(),
 )
 
 @Serializable
