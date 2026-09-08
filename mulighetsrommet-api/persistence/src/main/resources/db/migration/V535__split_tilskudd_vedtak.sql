@@ -93,7 +93,7 @@ insert into tilskudd_vedtak_bruker_utbetaling ( tilskudd_vedtak_id, bruker_utbet
 select tilskudd_vedtak.id, bruker_utbetaling.id, bruker_utbetaling.behandling_id
 from tilskudd_vedtak
     inner join tilskudd on tilskudd_vedtak.tilskudd_id = tilskudd.id
-    inner join bruker_utbetaling on tilskudd.utbetaling_id = bruker_utbetaling.id
+    inner join bruker_utbetaling on tilskudd.bruker_utbetaling_id = bruker_utbetaling.id
 where tilskudd.bruker_utbetaling_id is not null;
 
 create trigger set_timestamp
