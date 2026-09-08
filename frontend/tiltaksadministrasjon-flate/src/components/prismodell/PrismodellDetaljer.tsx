@@ -38,7 +38,7 @@ export function PrismodellDetaljer({ prismodell }: PrismodellDetaljerProps) {
 function FastSats({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack key={prismodell.navn} gap="space-16">
-      <PrismodellTypenavn type={prismodell.navn} />
+      <PrismodellNavn type={prismodell.navn} />
       <PrismodellSatser satser={prismodell.satser} />
     </VStack>
   );
@@ -47,7 +47,7 @@ function FastSats({ prismodell }: PrismodellDetaljerProps) {
 function AvtaltPris({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack key={prismodell.navn} gap="space-16">
-      <PrismodellTypenavn type={prismodell.navn} />
+      <PrismodellNavn type={prismodell.navn} />
       <PrismodellSatser satser={prismodell.satser} />
       {prismodell.prisbetingelser && (
         <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
@@ -59,7 +59,7 @@ function AvtaltPris({ prismodell }: PrismodellDetaljerProps) {
 function AnnenAvtaltPris({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack key={prismodell.navn} gap="space-16">
-      <PrismodellTypenavn type={prismodell.navn} />
+      <PrismodellNavn type={prismodell.navn} />
       <MetadataVStack
         label={avtaletekster.prismodell.tilsagnPerDeltaker.label}
         value={prismodell.tilsagnPerDeltaker ? "Ja" : "Nei"}
@@ -146,7 +146,7 @@ function BetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerPr
   );
 }
 
-function PrismodellTypenavn({ type }: { type: string }) {
+function PrismodellNavn({ type }: { type: string }) {
   return <MetadataVStack label={avtaletekster.prismodell.label} value={type} />;
 }
 
