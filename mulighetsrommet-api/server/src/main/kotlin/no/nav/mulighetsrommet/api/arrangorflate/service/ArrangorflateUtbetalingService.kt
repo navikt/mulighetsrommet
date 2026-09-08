@@ -178,6 +178,7 @@ class ArrangorflateUtbetalingService(
             is Prismodell.FastSatsPerAvtaltPlassPerManed,
             is Prismodell.TilskuddTilOpplaering,
             is Prismodell.IngenKostnader,
+            is Prismodell.AnskaffetEnkeltplass,
             -> FieldError.of("Kan ikke opprette utbetaling for denne tiltaksgjennomføringen").nel().left()
         }
     }

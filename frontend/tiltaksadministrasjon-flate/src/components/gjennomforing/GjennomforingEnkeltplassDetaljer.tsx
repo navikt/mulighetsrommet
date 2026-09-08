@@ -33,7 +33,7 @@ import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPage
 import { UtdanningslopDetaljer } from "../utdanning/UtdanningslopDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 import { AmoKategoriseringDetaljer } from "../amoKategorisering/AmoKategoriseringDetaljer";
-import { BetalingsbetingelserEnkeltplass } from "./BetalingsbetingelserEnkeltplass";
+import { Betalingsbetingelser } from "./Betalingsbetingelser";
 import { GjennomforingEnkeltplassVarighet } from "@/pages/gjennomforing/GjennomforingEnkeltplassVarighet";
 import { formaterNavEnhet } from "@/utils/nav-enhet";
 import { EnkeltplassSettPrisendringPaVentModal } from "@/components/gjennomforing/EnkeltplassSettPrisendringPaVentModal";
@@ -130,7 +130,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
           </DetaljerLayout>
           <DetaljerLayout>
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />
-            {deltaker && <BetalingsbetingelserEnkeltplass prismodell={prismodell} />}
+            {deltaker && <Betalingsbetingelser prismodell={prismodell} />}
             {erSattPaVent(okonomi) && <OkonomiStatusSattPaVent okonomi={okonomi} />}
             {prisendring && erTilBeslutning(prisendring.totrinnskontroll) && (
               <PrisendringTilGodkjenning {...prisendring} />
@@ -254,7 +254,7 @@ function PrisendringTilGodkjenning({
             {totrinnskontroll.behandletAv.navn} sendte en prisendring til godkjenning den{" "}
             {formaterDato(totrinnskontroll.behandletTidspunkt)}.
           </BodyShort>
-          <BetalingsbetingelserEnkeltplass prismodell={prismodell} />
+          <Betalingsbetingelser prismodell={prismodell} />
         </VStack>
       </InfoCard.Content>
     </InfoCard>
@@ -281,7 +281,7 @@ function PrisendringPaVent({ totrinnskontroll, prismodell }: PrisendringPaVentPr
           {totrinnskontroll.forklaring && (
             <MetadataFritekstfelt label="Forklaring" value={totrinnskontroll.forklaring} />
           )}
-          <BetalingsbetingelserEnkeltplass prismodell={prismodell} />
+          <Betalingsbetingelser prismodell={prismodell} />
         </VStack>
       </InfoCard.Content>
     </InfoCard>

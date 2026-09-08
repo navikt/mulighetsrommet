@@ -189,7 +189,6 @@ export function TilsagnDetaljer() {
             <Separator />
             <VStack gap="space-16" className="flex-1">
               <MetadataFritekstfelt label={tilsagnTekster.kommentar.label} value={kommentar} />
-
               <MetadataFritekstfelt label={tilsagnTekster.beskrivelse.label} value={beskrivelse} />
             </VStack>
             <Show below="lg">
@@ -222,16 +221,20 @@ export function TilsagnDetaljer() {
                 )}
               />
             </VStack>
-            <Separator />
-            <Box>
-              <Heading size="small" level="4" spacing>
-                Beregning
-              </Heading>
-              <VStack gap="space-16">
-                <TilsagnRegnestykke regnestykke={beregning.regnestykke} />
-                <TilsagnStengtePerioder stengt={beregning.stengt} />
-              </VStack>
-            </Box>
+            {beregning.regnestykke && (
+              <>
+                <Separator />
+                <Box>
+                  <Heading size="small" level="4" spacing>
+                    Beregning
+                  </Heading>
+                  <VStack gap="space-16">
+                    <TilsagnRegnestykke regnestykke={beregning.regnestykke} />
+                    <TilsagnStengtePerioder stengt={beregning.stengt} />
+                  </VStack>
+                </Box>
+              </>
+            )}
             {status.type === TilsagnStatus.ANNULLERT && (
               <>
                 <Separator />

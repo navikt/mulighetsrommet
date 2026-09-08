@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBen
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.model.DataDrivenTableDto
 import no.nav.mulighetsrommet.model.DataElement
@@ -85,6 +86,7 @@ private fun toTilsagnDataTable(tilsagn: List<Tilsagn>): DataDrivenTableDto {
                     "kostnadssted" to DataElement.text(tilsagn.kostnadssted.navn),
                     "antallPlasser" to when (tilsagn.beregning) {
                         is TilsagnBeregningAnnenAvtaltPris -> null
+                        is TilsagnBeregningFri -> null
                         is TilsagnBeregningFastSatsPerBenyttetPlassPerManed -> DataElement.number(tilsagn.beregning.input.antallPlasser)
                         is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed -> DataElement.number(tilsagn.beregning.input.antallPlasser)
                         is TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke -> DataElement.number(tilsagn.beregning.input.antallPlasser)

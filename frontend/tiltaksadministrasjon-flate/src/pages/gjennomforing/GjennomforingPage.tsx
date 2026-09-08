@@ -161,8 +161,9 @@ function enkeltplassTabs(
       return ENKELTPLASS_TILSKUDD_TABS;
     case PrismodellType.INGEN_KOSTNADER:
       return ENKELTPLASS_INGEN_KOSTNADER_TABS;
-    case PrismodellType.ANNEN_AVTALT_PRIS:
+    case PrismodellType.ANSKAFFET_ENKELTPLASS:
       return ENKELTPLASS_ANSKAFFET_TABS;
+    case PrismodellType.ANNEN_AVTALT_PRIS:
     case PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED:
     case PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED:
     case PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED:

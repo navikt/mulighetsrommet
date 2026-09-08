@@ -50,6 +50,7 @@ data class TilsagnBeregningRequest(
     val prisbetingelser: String? = null,
     val linjer: List<TilsagnInputLinjeRequest>? = null,
     val antallTimerOppfolgingPerDeltaker: Int? = null,
+    val pris: ValutaBelop? = null,
 )
 
 @Serializable

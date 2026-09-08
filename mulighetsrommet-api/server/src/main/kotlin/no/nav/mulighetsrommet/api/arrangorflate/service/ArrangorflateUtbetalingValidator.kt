@@ -44,6 +44,7 @@ object ArrangorflateUtbetalingValidator {
             PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_HELE_UKE,
             PrismodellType.TILSKUDD_TIL_OPPLAERING,
             PrismodellType.INGEN_KOSTNADER,
+            PrismodellType.ANSKAFFET_ENKELTPLASS,
             -> invalidGjennomforingOpprettKrav(prismodell)
         }
     }

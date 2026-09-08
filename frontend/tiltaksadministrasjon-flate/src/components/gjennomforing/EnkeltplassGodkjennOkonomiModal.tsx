@@ -2,7 +2,7 @@ import { useGodkjennOkonomi } from "@/api/gjennomforing/useGodkjennOkonomi";
 import { Button, InfoCard, Modal, VStack } from "@navikt/ds-react";
 import { PrismodellDto } from "@tiltaksadministrasjon/api-client";
 import { InformationSquareIcon } from "@navikt/aksel-icons";
-import { BetalingsbetingelserEnkeltplass } from "./BetalingsbetingelserEnkeltplass";
+import { Betalingsbetingelser } from "./Betalingsbetingelser";
 
 interface Props {
   open: boolean;
@@ -44,7 +44,7 @@ export function EnkeltplassGodkjennOkonomiModal({
               inneholder informasjon om innhold, pris og betalingsbetingelser.
             </InfoCard.Content>
           </InfoCard>
-          <BetalingsbetingelserEnkeltplass prismodell={prismodell} />
+          <Betalingsbetingelser prismodell={prismodell} />
         </VStack>
       </Modal.Body>
       <Modal.Footer>

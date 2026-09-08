@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBen
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFastSatsPerBenyttetPlassPerManed
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningFri
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningType
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnDeltakerRequest
@@ -130,7 +131,7 @@ object TilsagnValidator {
         periode: Periode,
         prismodell: Prismodell,
     ): ValutaBelop = when (beregningType) {
-        TilsagnBeregningType.ANNEN_AVTALT_PRIS -> ValutaBelop(0, prismodell.valuta)
+        TilsagnBeregningType.ANNEN_AVTALT_PRIS, TilsagnBeregningType.FRI -> ValutaBelop(0, prismodell.valuta)
 
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,
@@ -176,6 +177,9 @@ object TilsagnValidator {
         return when (request.type) {
             TilsagnBeregningType.ANNEN_AVTALT_PRIS ->
                 validateBeregningAnnenAvtaltPrisInput(prismodell.valuta, request).bind()
+
+            TilsagnBeregningType.FRI ->
+                validateBeregningFriInput(prismodell.valuta, request).bind()
 
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
                 TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(
@@ -241,6 +245,7 @@ object TilsagnValidator {
         antallTimerOppfolgingPerDeltaker: Int?,
     ): Int = when (type) {
         TilsagnBeregningType.ANNEN_AVTALT_PRIS,
+        TilsagnBeregningType.FRI,
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,
         TilsagnBeregningType.PRIS_PER_HELE_UKESVERK,
@@ -260,7 +265,7 @@ object TilsagnValidator {
     }
 
     private fun FieldValidator.validateAntallPlasser(beregningType: TilsagnBeregningType, antallPlasser: Int?): Int = when (beregningType) {
-        TilsagnBeregningType.ANNEN_AVTALT_PRIS -> 0
+        TilsagnBeregningType.ANNEN_AVTALT_PRIS, TilsagnBeregningType.FRI -> 0
 
         TilsagnBeregningType.PRIS_PER_MANEDSVERK,
         TilsagnBeregningType.PRIS_PER_UKESVERK,
@@ -289,6 +294,12 @@ object TilsagnValidator {
                 validate(deltakere.isNullOrEmpty()) {
                     FieldError.of("Deltakere kan ikke velges", TilsagnRequest::deltakere)
                 }
+            }
+        }
+
+        is Prismodell.AnskaffetEnkeltplass -> {
+            validate(deltakere.isNullOrEmpty()) {
+                FieldError.of("Deltakere kan ikke velges", TilsagnRequest::deltakere)
             }
         }
 
@@ -352,6 +363,34 @@ object TilsagnValidator {
                     )
                 },
                 prisbetingelser = request.prisbetingelser,
+            ),
+        )
+    }
+
+    fun validateBeregningFriInput(
+        prismodellValuta: Valuta,
+        request: TilsagnBeregningRequest,
+    ): Either<List<FieldError>, TilsagnBeregning> = validation {
+        validate(request.pris != null && request.pris.belop > 0) {
+            FieldError.of(
+                "Beløp må være positivt",
+                TilsagnRequest::beregning,
+                TilsagnBeregningRequest::pris,
+            )
+        }
+        validate(request.pris?.valuta == prismodellValuta) {
+            FieldError.of(
+                "Må ha samme valuta som prismodellen: $prismodellValuta",
+                TilsagnRequest::beregning,
+                TilsagnBeregningRequest::pris,
+            )
+        }
+
+        requireValid(request.pris != null)
+
+        TilsagnBeregningFri.beregn(
+            TilsagnBeregningFri.Input(
+                pris = request.pris,
             ),
         )
     }

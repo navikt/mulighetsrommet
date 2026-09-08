@@ -21,7 +21,6 @@ sealed interface Prismodell {
         override val valuta: Valuta,
         val tilsagnPerDeltaker: Boolean,
         val prisbetingelser: String?,
-        val totalbelop: Int?,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.ANNEN_AVTALT_PRIS
@@ -108,6 +107,17 @@ sealed interface Prismodell {
     }
 
     @Serializable
+    data class AnskaffetEnkeltplass(
+        @Serializable(with = UUIDSerializer::class)
+        override val id: UUID,
+        override val valuta: Valuta,
+        val totalbelop: Int,
+    ) : Prismodell {
+        @Transient
+        override val type = PrismodellType.ANSKAFFET_ENKELTPLASS
+    }
+
+    @Serializable
     data class TilskuddTilOpplaering(
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
@@ -138,6 +148,7 @@ sealed interface Prismodell {
 
     fun satser(): List<AvtaltSats> = when (this) {
         is AnnenAvtaltPris -> emptyList()
+        is AnskaffetEnkeltplass -> emptyList()
         is AvtaltPrisPerBenyttetPlassPerManed -> satser
         is AvtaltPrisPerBenyttetPlassPerUke -> satser
         is AvtaltPrisPerBenyttetPlassPerHeleUke -> satser
@@ -151,6 +162,7 @@ sealed interface Prismodell {
     // TODO: enten behandle "prisbetingelser" og "tilleggsopplysninger" som to separate felter, eller benytte samme navn
     fun prisbetingelser(): String? = when (this) {
         is AnnenAvtaltPris -> prisbetingelser
+        is AnskaffetEnkeltplass -> null
         is AvtaltPrisPerBenyttetPlassPerManed -> prisbetingelser
         is AvtaltPrisPerBenyttetPlassPerUke -> prisbetingelser
         is AvtaltPrisPerBenyttetPlassPerHeleUke -> prisbetingelser
@@ -185,7 +197,12 @@ sealed interface Prismodell {
                     valuta = valuta,
                     prisbetingelser = prisbetingelser,
                     tilsagnPerDeltaker = requireNotNull(tilsagnPerDeltaker),
-                    totalbelop = totalbelop,
+                )
+
+                PrismodellType.ANSKAFFET_ENKELTPLASS -> AnskaffetEnkeltplass(
+                    id = id,
+                    valuta = valuta,
+                    totalbelop = requireNotNull(totalbelop),
                 )
 
                 PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED -> FastSatsPerBenyttetPlassPerManed(

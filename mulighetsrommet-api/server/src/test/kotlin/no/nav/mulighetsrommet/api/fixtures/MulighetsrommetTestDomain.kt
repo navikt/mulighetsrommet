@@ -46,6 +46,7 @@ data class MulighetsrommetTestDomain(
     val regelverklenke: List<RedaksjoneltInnholdLenke> = listOf(),
     val prismodeller: List<Prismodell> = listOf(
         PrismodellFixtures.AnnenAvtaltPris,
+        PrismodellFixtures.AnskaffetEnkeltplass,
         PrismodellFixtures.AvtaltPrisPerTimeOppfolging,
         PrismodellFixtures.ForhandsgodkjentAft,
         PrismodellFixtures.ForhandsgodkjentVtas,

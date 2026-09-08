@@ -35,6 +35,7 @@ export const tilsagnHandlers = [
           prisbetingelser: null,
           antallTimerOppfolgingPerDeltaker: null,
           linjer: [],
+          pris: null,
         },
         kostnadssted: null,
         kommentar: null,

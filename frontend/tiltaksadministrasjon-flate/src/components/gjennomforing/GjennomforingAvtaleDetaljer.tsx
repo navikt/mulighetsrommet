@@ -27,9 +27,9 @@ import {
   PrismodellDto,
   TiltakstypeDto,
 } from "@tiltaksadministrasjon/api-client";
-import { PrismodellDetaljer } from "@/components/avtaler/PrismodellDetaljer";
 import { kursOgTiltakErStudiespesialisering } from "@/utils/Utils";
 import { GjennomforingPageLayout } from "@/pages/gjennomforing/GjennomforingPageLayout";
+import { Betalingsbetingelser } from "@/components/gjennomforing/Betalingsbetingelser";
 
 interface Props {
   tiltakstype: TiltakstypeDto;
@@ -138,7 +138,7 @@ export function GjennomforingAvtaleDetaljer(props: Props) {
           {!harStartet(gjennomforing) && (
             <TiltakTilgjengeligForArrangor gjennomforing={gjennomforing} />
           )}
-          <PrismodellDetaljer prismodeller={[prismodell]} />
+          <Betalingsbetingelser prismodell={prismodell} />
         </DetaljerLayout>
       </TwoColumnGrid>
       <Separator />

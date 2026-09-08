@@ -2,7 +2,7 @@ import { TilsagnBeregningType } from "@tiltaksadministrasjon/api-client";
 
 export const tilsagnTekster = {
   kommentar: {
-    label: "Kommentarer (frivillig og vises kun internt i Nav)",
+    label: "Kommentar (frivillig og vises kun internt i Nav)",
   },
   beskrivelse: {
     label: "Beskrivelse (frivillig og vil vises til arrangøren)",
@@ -45,24 +45,6 @@ export const tilsagnTekster = {
   },
   prismodell: {
     label: "Prismodell",
-    sats: {
-      label: (type: TilsagnBeregningType) => {
-        switch (type) {
-          case TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED:
-            return "Fast sats per benyttet tiltaksplass per måned";
-          case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
-            return "Avtalt månedspris per tiltaksplass";
-          case TilsagnBeregningType.PRIS_PER_UKESVERK:
-            return "Avtalt ukespris per tiltaksplass";
-          case TilsagnBeregningType.PRIS_PER_HELE_UKESVERK:
-            return "Avtalt pris per uke med påbegynt oppfølging per deltaker";
-          case TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING:
-            return "Avtalt pris per time oppfølging per deltaker";
-          case TilsagnBeregningType.ANNEN_AVTALT_PRIS:
-            return "Annen avtalt pris";
-        }
-      },
-    },
   },
   sats: {
     label: (type: TilsagnBeregningType) => {
@@ -74,10 +56,11 @@ export const tilsagnTekster = {
         case TilsagnBeregningType.PRIS_PER_HELE_UKESVERK:
         case TilsagnBeregningType.PRIS_PER_UKESVERK:
           return "Avtalt ukespris";
-        case TilsagnBeregningType.ANNEN_AVTALT_PRIS:
-          return "Avtalt pris";
         case TilsagnBeregningType.PRIS_PER_MANEDSVERK:
           return "Avtalt månedspris";
+        case TilsagnBeregningType.ANNEN_AVTALT_PRIS:
+        case TilsagnBeregningType.FRI:
+          return null;
       }
     },
   },
