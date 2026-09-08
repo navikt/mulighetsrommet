@@ -214,6 +214,7 @@ class TilskuddBehandlingService(
         val attestant = ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted))
         val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
         val teamMulighetsrommet = ansatt.hasGenerellRolle(Rolle.TEAM_MULIGHETSROMMET)
+        val erIkkeBehandletAvAnsatt = totrinnskontroll.behandletAv.agent != ansatt.navIdent
 
         return when (handling) {
             TilskuddBehandlingHandling.REDIGER,
@@ -223,11 +224,11 @@ class TilskuddBehandlingService(
             -> saksbehandler || attestant
 
             TilskuddBehandlingHandling.ATTESTER -> {
-                attestant && totrinnskontroll.behandletAv.agent == ansatt.navIdent
+                attestant && erIkkeBehandletAvAnsatt
             }
 
             TilskuddBehandlingHandling.OPPHOR -> {
-                teamMulighetsrommet && totrinnskontroll.behandletAv.agent != ansatt.navIdent
+                teamMulighetsrommet && erIkkeBehandletAvAnsatt
             }
         }
     }
