@@ -3,13 +3,13 @@ import { DelMedBrukerService } from "@arbeidsmarkedstiltak/api-client";
 import { useModiaContext } from "./useModiaContext";
 import { useApiSuspenseQuery } from "@mr/frontend-common";
 
-export function useDeltMedBrukerHistorikk() {
+export function useDelMedBrukerHistorikk() {
   const { fnr: norskIdent } = useModiaContext();
 
   return useApiSuspenseQuery({
     queryKey: QueryKeys.deltMedBrukerHistorikk(norskIdent),
     queryFn: () => {
-      return DelMedBrukerService.getDeltMedBrukerHistorikk({
+      return DelMedBrukerService.getDelMedBrukerHistorikk({
         body: {
           norskIdent,
         },
