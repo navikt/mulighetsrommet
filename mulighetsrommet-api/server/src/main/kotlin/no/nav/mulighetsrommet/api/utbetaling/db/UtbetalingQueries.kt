@@ -578,17 +578,17 @@ class UtbetalingQueries(private val session: Session) {
         return list(queryOf(query, params)) { it.toUtbetaling() }
     }
 
-    fun getByTilskudd(tilskuddId: UUID): Utbetaling? = with(session) {
+    fun getByTilskudd(tilskuddVedtakId: UUID): Utbetaling? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *
             from view_utbetaling
             inner join tilskudd_vedtak on tilskudd_vedtak.utbetaling_id = view_utbetaling.id
-            where tilskudd_vedtak.tilskudd_id = :id::uuid
+            where tilskudd_vedtak.id = :id::uuid
         """.trimIndent()
 
         val params = mapOf(
-            "id" to tilskuddId,
+            "id" to tilskuddVedtakId,
         )
 
         return single(queryOf(query, params)) { it.toUtbetaling() }

@@ -79,7 +79,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun getByTilskudd(tilskuddId: UUID): BrukerUtbetalingDbo? {
+    fun getByTilskuddVedtak(tilskuddVedtakId: UUID): BrukerUtbetalingDbo? {
         @Language("PostgreSQL")
         val query = """
             select
@@ -87,12 +87,17 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 nav_enhet.enhetsnummer as kostnadssted_enhetsnummer,
                 nav_enhet.navn as kostnadssted_navn
             from bruker_utbetaling
-                inner join tilskudd_vedtak on tilskudd_vedtak.bruker_utbetaling_id = bruker_utbetaling.id
+                inner join tilskudd_vedtak_bruker_utbetaling on tilskudd_vedtak_bruker_utbetaling.bruker_utbetaling_id = bruker_utbetaling.id
+                inner join tilskudd_vedtak on tilskudd_vedtak_bruker_utbetaling.tilskudd_vedtak_id = tilskudd_vedtak.id
                 inner join nav_enhet on nav_enhet.enhetsnummer = tilskudd_vedtak.kostnadssted
             where tilskudd_vedtak.id = :id::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, mapOf("id" to tilskuddId))) { it.toBrukerUtbetalingDbo() }
+        return session.single(
+            queryOf(query, mapOf("id" to tilskuddVedtakId)),
+        ) {
+            it.toBrukerUtbetalingDbo()
+        }
     }
 
     fun setHelVedStatus(id: UUID, status: HelVedStatus) {

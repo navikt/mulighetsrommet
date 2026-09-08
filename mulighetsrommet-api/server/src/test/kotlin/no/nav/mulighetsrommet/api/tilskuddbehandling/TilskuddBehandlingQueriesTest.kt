@@ -40,6 +40,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
         tilskudd = listOf(
             TilskuddDbo(
                 id = UUID.randomUUID(),
+                tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                 soknadBelop = ValutaBelop(
                     belop = 100,
@@ -56,6 +57,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             ),
             TilskuddDbo(
                 id = UUID.randomUUID(),
+                tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSGEBYR,
                 soknadBelop = ValutaBelop(
                     belop = 1000,
@@ -72,6 +74,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             ),
             TilskuddDbo(
                 id = UUID.randomUUID(),
+                tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD,
                 soknadBelop = ValutaBelop(
                     belop = 1000,
@@ -108,6 +111,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     it.tilskudd.size shouldBe 3
                     it.tilskudd[0] should { v ->
                         v.id shouldBe behandling.tilskudd[0].id
+                        v.tilskuddId shouldBe behandling.tilskudd[0].tilskuddId
                         v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.SKOLEPENGER
                         v.soknadBelop.belop shouldBe 100
                         v.soknadBelop.valuta shouldBe Valuta.SEK
@@ -120,6 +124,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     }
                     it.tilskudd[1] should { v ->
                         v.id shouldBe behandling.tilskudd[1].id
+                        v.tilskuddId shouldBe behandling.tilskudd[1].tilskuddId
                         v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.EKSAMENSGEBYR
                         v.soknadBelop.belop shouldBe 1000
                         v.soknadBelop.valuta shouldBe Valuta.NOK
@@ -132,6 +137,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     }
                     it.tilskudd[2] should { v ->
                         v.id shouldBe behandling.tilskudd[2].id
+                        v.tilskuddId shouldBe behandling.tilskudd[2].tilskuddId
                         v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD
                         v.utbetalingBelop shouldBe null
                         v.vedtakResultat.type shouldBe VedtakResultat.AVSLAG

@@ -2,14 +2,15 @@ create or replace view view_tilskudd_behandling as
 select tb.id,
        tb.status,
        tb.gjennomforing_id,
-       tb.soknad_journalpost_id,
        vedtak_json
 from tilskudd_behandling tb
          left join lateral (
     select coalesce(jsonb_agg(
                             jsonb_build_object(
                                     'id', v.id,
-                                    'soknad_dato',v.soknad_dato,
+                                    'tilskudd_id', v.tilskudd_id,
+                                    'soknad_journalpost_id', v.soknad_journalpost_id,
+                                    'soknad_dato', v.soknad_dato,
                                     'periode', v.periode,
                                     'kostnadssted_enhetsnummer', v.kostnadssted,
                                     'kostnadssted_navn', nav_enhet.navn,
@@ -37,7 +38,7 @@ from tilskudd_behandling tb
                             )
                     ), '[]') as vedtak_json
     from tilskudd_vedtak v
-        inner join nav_enhet on nav_enhet.enhetsnummer = v.kostnadssted
-        inner join tilskudd on v.tilskudd_id = tilskudd.id
-        inner join tilskudd_opplaering on tilskudd_opplaering.id = tilskudd.tilskudd_opplaering_id
+             inner join nav_enhet on nav_enhet.enhetsnummer = v.kostnadssted
+             inner join tilskudd on v.tilskudd_id = tilskudd.id
+             inner join tilskudd_opplaering on tilskudd_opplaering.id = tilskudd.tilskudd_opplaering_id
     where v.tilskudd_behandling_id = tb.id) on true;

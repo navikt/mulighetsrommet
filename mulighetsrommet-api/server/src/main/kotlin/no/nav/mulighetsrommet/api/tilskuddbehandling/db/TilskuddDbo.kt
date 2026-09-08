@@ -8,6 +8,7 @@ import java.util.UUID
 
 data class TilskuddDbo(
     val id: UUID,
+    val tilskuddId: UUID,
     val tilskuddOpplaeringType: Opplaeringtilskudd.Kode,
     val soknadBelop: ValutaBelop,
     val vedtakResultat: VedtakResultat,

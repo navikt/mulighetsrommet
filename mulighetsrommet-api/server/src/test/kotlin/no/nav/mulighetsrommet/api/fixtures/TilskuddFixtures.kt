@@ -18,6 +18,7 @@ import java.util.UUID
 object TilskuddFixtures {
     val Tilskudd = TilskuddDbo(
         id = UUID.randomUUID(),
+        tilskuddId = UUID.randomUUID(),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
         soknadBelop = ValutaBelop(
             belop = 100,

@@ -53,7 +53,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
         dryrun = false,
     )
 
-    test("insert and getByTilskudd") {
+    test("insert and setBrukerUtbetaling") {
         val behandling = TilskuddFixtures.Behandling
         val tilskudd = TilskuddFixtures.Tilskudd
 
@@ -63,7 +63,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
             queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id)
         }
 
-        val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskudd.id) }
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id) }
 
         result.shouldNotBeNull()
         result.id shouldBe utbetaling.id
@@ -84,7 +84,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
         }
 
-        val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskudd.id) }
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id) }
         result.shouldBeNull()
     }
 
@@ -112,7 +112,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
             queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id)
         }
 
-        val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskudd.id) }
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id) }
 
         result.shouldNotBeNull()
         result.helVedStatus shouldBe HelVedStatus.Status.FEILET

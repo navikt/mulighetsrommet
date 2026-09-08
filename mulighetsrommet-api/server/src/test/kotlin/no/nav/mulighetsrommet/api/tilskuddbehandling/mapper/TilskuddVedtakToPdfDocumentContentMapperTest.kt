@@ -92,6 +92,7 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
 
     val skolepengerInnvilgelse = TilskuddDbo(
         id = UUID.fromString("b2b2b2b2-0000-4000-8000-000000000001"),
+        tilskuddId = UUID.fromString("b2b2b2b2-0000-4000-8000-100000000001"),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
         soknadBelop = ValutaBelop(belop = 50000, valuta = Valuta.NOK),
         utbetalingBelop = ValutaBelop(belop = 50000, valuta = Valuta.NOK),
@@ -103,6 +104,7 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
 
     val eksamensgebyrAvslag = TilskuddDbo(
         id = UUID.fromString("b2b2b2b2-0000-4000-8000-000000000002"),
+        tilskuddId = UUID.fromString("b2b2b2b2-0000-4000-8000-100000000002"),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSGEBYR,
         soknadBelop = ValutaBelop(belop = 1200, valuta = Valuta.NOK),
         utbetalingBelop = null,

@@ -43,6 +43,7 @@ class VedtaksbrevTaskTest : FunSpec({
 
     val behandlingId = UUID.randomUUID()
     val tilskuddId = UUID.randomUUID()
+    val tilskuddVedtakId = UUID.randomUUID()
     val deltakerId = UUID.randomUUID()
 
     val personaliaService = mockk<PersonaliaService>()
@@ -67,7 +68,7 @@ class VedtaksbrevTaskTest : FunSpec({
             avvistGrunn = null,
         )
 
-        opprettOgAttesterTilskudd(database.api, behandlingId, tilskuddId)
+        opprettOgAttesterTilskudd(database.api, behandlingId, tilskuddVedtakId, tilskuddId)
     }
 
     afterEach {
@@ -177,6 +178,7 @@ class VedtaksbrevTaskTest : FunSpec({
 private fun opprettOgAttesterTilskudd(
     db: ApiDatabase,
     behandlingId: UUID,
+    tilskuddVedtakId: UUID,
     tilskuddId: UUID,
 ) {
     val request = TilskuddBehandlingRequest(
@@ -190,7 +192,8 @@ private fun opprettOgAttesterTilskudd(
         kommentarIntern = null,
         tilskudd = listOf(
             TilskuddBehandlingRequest.TilskuddRequest(
-                id = tilskuddId,
+                id = tilskuddVedtakId,
+                tilskuddId = tilskuddId,
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                 soknadBelop = ValutaBelopRequest(belop = 5000, valuta = Valuta.NOK),
                 vedtakResultat = VedtakResultat.INNVILGELSE,

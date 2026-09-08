@@ -33,23 +33,19 @@ class TilskuddBehandlingQueries(private val session: Session) {
             insert into tilskudd_behandling (
                 id,
                 gjennomforing_id,
-                soknad_journalpost_id,
                 status
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
-                :soknad_journalpost_id,
                 :status
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
-                soknad_journalpost_id = excluded.soknad_journalpost_id,
                 status = excluded.status
         """.trimIndent()
 
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
-            "soknad_journalpost_id" to dbo.soknadJournalpostId,
             "status" to dbo.status.name,
         )
 
@@ -69,20 +65,16 @@ class TilskuddBehandlingQueries(private val session: Session) {
         val tilskuddQuery = """
             insert into tilskudd (
                 id,
-                tilskudd_behandling_id,
                 tilskudd_opplaering_id
             ) values (
                 :id::uuid,
-                :tilskudd_behandling_id::uuid,
                 (select id from tilskudd_opplaering where kode = :tilskudd_opplaering_kode)
             ) on conflict (id) do update set
-                tilskudd_behandling_id = excluded.tilskudd_behandling_id,
                 tilskudd_opplaering_id = excluded.tilskudd_opplaering_id
         """.trimIndent()
 
         val tilskuddParams = mapOf(
-            "id" to tilskudd.id,
-            "tilskudd_behandling_id" to behandling.id,
+            "id" to tilskudd.tilskuddId,
             "tilskudd_opplaering_kode" to tilskudd.tilskuddOpplaeringType.name,
         )
 
@@ -97,6 +89,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 lopenummer,
                 periode,
                 kostnadssted,
+                soknad_journalpost_id,
                 soknad_dato,
                 soknad_belop,
                 soknad_valuta,
@@ -108,21 +101,13 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 belop,
                 valuta
             ) values (
-                coalesce(
-                    (
-                        select tv.id
-                        from tilskudd_vedtak tv
-                        where tv.tilskudd_id = :tilskudd_id::uuid
-                        order by tv.lopenummer asc
-                        limit 1
-                    ),
-                    :id::uuid
-                ),
+                :id::uuid,
                 :tilskudd_id::uuid,
                 :tilskudd_behandling_id::uuid,
                 :lopenummer,
                 :periode::daterange,
                 :kostnadssted,
+                :soknad_journalpost_id,
                 :soknad_dato,
                 :soknad_belop,
                 :soknad_valuta::currency,
@@ -139,6 +124,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 lopenummer = excluded.lopenummer,
                 periode = excluded.periode,
                 kostnadssted = excluded.kostnadssted,
+                soknad_journalpost_id = excluded.soknad_journalpost_id,
                 soknad_dato = excluded.soknad_dato,
                 soknad_belop = excluded.soknad_belop,
                 soknad_valuta = excluded.soknad_valuta,
@@ -153,11 +139,12 @@ class TilskuddBehandlingQueries(private val session: Session) {
 
         val vedtakParams = mapOf(
             "id" to tilskudd.id,
-            "tilskudd_id" to tilskudd.id,
+            "tilskudd_id" to tilskudd.tilskuddId,
             "tilskudd_behandling_id" to behandling.id,
             "lopenummer" to lopenummer,
             "periode" to behandling.periode.toDaterange(),
             "kostnadssted" to behandling.kostnadssted.value,
+            "soknad_journalpost_id" to behandling.soknadJournalpostId,
             "soknad_dato" to behandling.soknadDato,
             "soknad_belop" to tilskudd.soknadBelop.belop,
             "soknad_valuta" to tilskudd.soknadBelop.valuta.name,
@@ -229,17 +216,24 @@ class TilskuddBehandlingQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to tilskuddId, "utbetaling_id" to utbetalingId)))
     }
 
-    fun setBrukerUtbetaling(tilskuddId: UUID, brukerUtbetalingId: UUID) {
+    fun setBrukerUtbetaling(tilskuddVedtakId: UUID, brukerUtbetalingId: UUID) {
         @Language("PostgreSQL")
         val query = """
-            update tilskudd_vedtak
-            set bruker_utbetaling_id = bruker_utbetaling.id ,
-                bruker_utbetaling_behandling_id = bruker_utbetaling.behandling_id
+            insert into tilskudd_vedtak_bruker_utbetaling (
+                tilskudd_vedtak_id,
+                bruker_utbetaling_id,
+                bruker_utbetaling_behandling_id
+            )
+            select
+                :tilskudd_vedtak_id::uuid,
+                bruker_utbetaling.id,
+                bruker_utbetaling.behandling_id
             from bruker_utbetaling
-            where tilskudd_vedtak.id = :id::uuid and bruker_utbetaling.id = :bruker_utbetaling_id::uuid
+            where bruker_utbetaling.id = :bruker_utbetaling_id::uuid
+            on conflict do nothing
         """.trimIndent()
 
-        session.execute(queryOf(query, mapOf("id" to tilskuddId, "bruker_utbetaling_id" to brukerUtbetalingId)))
+        session.execute(queryOf(query, mapOf("tilskudd_vedtak_id" to tilskuddVedtakId, "bruker_utbetaling_id" to brukerUtbetalingId)))
     }
 
     fun get(id: UUID): TilskuddBehandlingDto? {
@@ -294,8 +288,6 @@ private data class TilskuddBehandlingViewRow(
     @SerialName("gjennomforing_id")
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    @SerialName("soknad_journalpost_id")
-    val soknadJournalpostId: String,
     @SerialName("vedtak_json")
     val vedtakJson: String,
 )
@@ -304,6 +296,11 @@ private data class TilskuddBehandlingViewRow(
 private data class TilskuddVedtakViewRow(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    @Serializable(with = UUIDSerializer::class)
+    @SerialName("tilskudd_id")
+    val tilskuddId: UUID,
+    @SerialName("soknad_journalpost_id")
+    val soknadJournalpostId: String,
     @SerialName("soknad_dato")
     @Serializable(with = LocalDateSerializer::class)
     val soknadDato: LocalDate,
@@ -333,7 +330,6 @@ private fun Row.toTilskuddBehandlingViewRow(): TilskuddBehandlingViewRow {
         id = uuid("id"),
         status = string("status"),
         gjennomforingId = uuid("gjennomforing_id"),
-        soknadJournalpostId = string("soknad_journalpost_id"),
         vedtakJson = string("vedtak_json"),
     )
 }
@@ -352,7 +348,7 @@ private fun TilskuddBehandlingViewRow.toDto(): TilskuddBehandlingDto {
     return TilskuddBehandlingDto(
         id = id,
         gjennomforingId = gjennomforingId,
-        soknadJournalpostId = soknadJournalpostId,
+        soknadJournalpostId = firstVedtak.soknadJournalpostId,
         soknadDato = firstVedtak.soknadDato,
         periode = firstVedtak.periode.toPeriode(),
         kostnadssted = KostnadsstedDto(
@@ -370,6 +366,7 @@ private fun TilskuddBehandlingViewRow.toDto(): TilskuddBehandlingDto {
 private fun TilskuddVedtakViewRow.toDto(): TilskuddOpplaeringDto {
     return TilskuddOpplaeringDto(
         id = id,
+        tilskuddId = tilskuddId,
         tilskuddOpplaeringType = tilskuddOpplaeringType,
         soknadBelop = soknadBelop,
         vedtakResultat = VedtakResultatDto(vedtakResultat.type),

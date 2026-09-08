@@ -56,6 +56,7 @@ class TilskuddBehandlingServiceTest : FunSpec({
         tilskudd = listOf(
             TilskuddBehandlingRequest.TilskuddRequest(
                 id = UUID.randomUUID(),
+                tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                 soknadBelop = ValutaBelopRequest(
                     belop = 12,

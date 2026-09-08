@@ -48,6 +48,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     val journalforVedtaksbrev = mockk<JournalforVedtaksbrev>(relaxed = true)
 
     val behandlingId = UUID.randomUUID()
+    val tilskuddVedtakId = UUID.randomUUID()
     val tilskuddId = UUID.randomUUID()
     val deltakerId = UUID.randomUUID()
     val deltakerNorskIdent = NorskIdent("12345678901")
@@ -100,7 +101,8 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         kommentarIntern = null,
         tilskudd = listOf(
             TilskuddBehandlingRequest.TilskuddRequest(
-                id = tilskuddId,
+                id = tilskuddVedtakId,
+                tilskuddId = tilskuddId,
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                 soknadBelop = ValutaBelopRequest(belop = 5000, valuta = Valuta.NOK),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
@@ -141,7 +143,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
         createConsumer().consume(behandlingId, Json.encodeToJsonElement(godkjentHendelse))
 
-        val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskuddId) }
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }
 
         result.shouldNotBeNull()
         result.belop shouldBe 5000
@@ -181,7 +183,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         val hendelse = godkjentHendelse.copy(besluttetTidspunkt = besluttetTidspunkt)
         createConsumer().consume(behandlingId, Json.encodeToJsonElement(hendelse))
 
-        val result = database.api.session { queries.brukerUtbetaling.getByTilskudd(tilskuddId) }
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }
         result.shouldNotBeNull()
         val utbetaling = HelVedUtbetaling(
             id = result.id,
