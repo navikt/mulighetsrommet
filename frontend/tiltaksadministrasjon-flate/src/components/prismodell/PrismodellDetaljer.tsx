@@ -72,9 +72,13 @@ function AnnenAvtaltPris({ prismodell }: PrismodellDetaljerProps) {
 function BetalingsbetingelserAnskaffelse({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack gap="space-8">
-      <Heading size="xsmall">Anskaffelse</Heading>
+      <Heading level="4" size="xsmall">
+        Anskaffelse
+      </Heading>
       <BodyShort textColor="subtle">Nav har avtalt å betale leverandøren direkte</BodyShort>
-      <Heading size="xsmall">Totalbeløp for anskaffelsen</Heading>
+      <Heading level="4" size="xsmall">
+        Totalbeløp for anskaffelsen
+      </Heading>
       <BodyShort textColor="subtle">
         {prismodell.totalBelop ? formaterValuta(prismodell.totalBelop, prismodell.valuta) : "-"}
       </BodyShort>
@@ -86,9 +90,13 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
   const totalt = prismodell.tilskudd.reduce((acc, t) => t.belop + acc, 0);
   return (
     <VStack gap="space-8">
-      <Heading size="xsmall">Tilskudd til en tilgjengelig studie- eller skoleplass</Heading>
+      <Heading level="4" size="xsmall">
+        Tilskudd til en tilgjengelig studie- eller skoleplass
+      </Heading>
       <BodyShort textColor="subtle">Utbetales basert på dokumenterte utgifter</BodyShort>
-      <Heading size="xsmall">Aktuelle tilskuddstyper</Heading>
+      <Heading level="4" size="xsmall">
+        Aktuelle tilskuddstyper
+      </Heading>
       <BodyShort textColor="subtle" spacing={true}>
         Ved flere semester er den estimerte totalsummen oppgitt
       </BodyShort>
@@ -113,7 +121,9 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
       <Separator />
       {prismodell.prisbetingelser && (
         <>
-          <Heading size="xsmall">Tilleggsopplysninger om kostnader</Heading>
+          <Heading level="4" size="xsmall">
+            Tilleggsopplysninger om kostnader
+          </Heading>
           <BodyShort textColor="subtle">{prismodell.prisbetingelser}</BodyShort>
         </>
       )}
@@ -124,11 +134,13 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
 function BetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack gap="space-8">
-      <Heading size="xsmall">Ingen kostnader</Heading>
+      <Heading level="4" size="xsmall">
+        Ingen kostnader
+      </Heading>
       <BodyShort textColor="subtle">Ikke aktuelt med betaling eller refusjon fra Nav</BodyShort>
       {prismodell.aarsak && (
         <>
-          <Heading size="xsmall">
+          <Heading level="4" size="xsmall">
             Årsaken til at det ikke er aktuelt med betaling eller refusjon fra Nav
           </Heading>
           <BodyShort textColor="subtle">
@@ -138,7 +150,9 @@ function BetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerPr
       )}
       {prismodell.prisbetingelser && (
         <>
-          <Heading size="xsmall">Tilleggsopplysninger om egenfinansieringen</Heading>
+          <Heading level="4" size="xsmall">
+            Tilleggsopplysninger om egenfinansieringen
+          </Heading>
           <BodyShort textColor="subtle">{prismodell.prisbetingelser}</BodyShort>
         </>
       )}
