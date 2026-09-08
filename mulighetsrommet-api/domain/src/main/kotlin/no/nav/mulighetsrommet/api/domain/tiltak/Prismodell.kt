@@ -4,6 +4,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
+import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.time.LocalDate
 import java.util.UUID
@@ -111,7 +113,7 @@ sealed interface Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        val totalbelop: Int,
+        val totalbelop: ValutaBelop,
     ) : Prismodell {
         @Transient
         override val type = PrismodellType.ANSKAFFET_ENKELTPLASS
@@ -122,7 +124,7 @@ sealed interface Prismodell {
         @Serializable(with = UUIDSerializer::class)
         override val id: UUID,
         override val valuta: Valuta,
-        val tilskudd: Map<Opplaeringtilskudd.Kode, Int>,
+        val tilskudd: Map<Opplaeringtilskudd.Kode, ValutaBelop>,
         val tilleggsopplysninger: String?,
     ) : Prismodell {
         @Transient
@@ -199,12 +201,6 @@ sealed interface Prismodell {
                     tilsagnPerDeltaker = requireNotNull(tilsagnPerDeltaker),
                 )
 
-                PrismodellType.ANSKAFFET_ENKELTPLASS -> AnskaffetEnkeltplass(
-                    id = id,
-                    valuta = valuta,
-                    totalbelop = requireNotNull(totalbelop),
-                )
-
                 PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED -> FastSatsPerBenyttetPlassPerManed(
                     id = id,
                     valuta = valuta,
@@ -238,13 +234,6 @@ sealed interface Prismodell {
                     satser = requireNotNull(satser),
                 )
 
-                PrismodellType.INGEN_KOSTNADER -> IngenKostnader(
-                    id = id,
-                    valuta = valuta,
-                    tilleggsopplysninger = prisbetingelser,
-                    aarsak = IngenKostnader.Aarsak.valueOf(requireNotNull(aarsak)),
-                )
-
                 PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER -> AvtaltPrisPerTimeOppfolgingPerDeltaker(
                     id = id,
                     valuta = valuta,
@@ -252,11 +241,24 @@ sealed interface Prismodell {
                     satser = requireNotNull(satser),
                 )
 
+                PrismodellType.ANSKAFFET_ENKELTPLASS -> AnskaffetEnkeltplass(
+                    id = id,
+                    valuta = valuta,
+                    totalbelop = requireNotNull(totalbelop).withValuta(valuta),
+                )
+
                 PrismodellType.TILSKUDD_TIL_OPPLAERING -> TilskuddTilOpplaering(
                     id = id,
                     valuta = valuta,
                     tilleggsopplysninger = prisbetingelser,
-                    tilskudd = requireNotNull(tilskudd),
+                    tilskudd = requireNotNull(tilskudd).mapValues { it.value.withValuta(valuta) },
+                )
+
+                PrismodellType.INGEN_KOSTNADER -> IngenKostnader(
+                    id = id,
+                    valuta = valuta,
+                    tilleggsopplysninger = prisbetingelser,
+                    aarsak = IngenKostnader.Aarsak.valueOf(requireNotNull(aarsak)),
                 )
             }
         }

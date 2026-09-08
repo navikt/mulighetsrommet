@@ -7,7 +7,7 @@ import {
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { AvtaltSatsDto, PrismodellDto, PrismodellType } from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { formaterValuta } from "@mr/frontend-common/utils/utils";
+import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { ingenKostnaderAarsakToString, opplaeringTilskuddToString } from "@/utils/Utils";
 
 interface PrismodellDetaljerProps {
@@ -80,14 +80,17 @@ function BetalingsbetingelserAnskaffelse({ prismodell }: PrismodellDetaljerProps
         Totalbeløp for anskaffelsen
       </Heading>
       <BodyShort textColor="subtle">
-        {prismodell.totalBelop ? formaterValuta(prismodell.totalBelop, prismodell.valuta) : "-"}
+        {prismodell.totalbelop ? formaterValutaBelop(prismodell.totalbelop) : "-"}
       </BodyShort>
     </VStack>
   );
 }
 
 function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
-  const totalt = prismodell.tilskudd.reduce((acc, t) => t.belop + acc, 0);
+  const totalt = {
+    belop: prismodell.tilskudd.reduce((acc, t) => t.belop.belop + acc, 0),
+    valuta: prismodell.valuta,
+  };
   return (
     <VStack gap="space-8">
       <Heading level="4" size="xsmall">
@@ -108,7 +111,7 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
                 {opplaeringTilskuddToString(t.type)}
               </BodyShort>
               <BodyShort textColor="subtle" size="small">
-                {formaterValuta(t.belop, prismodell.valuta)}
+                {formaterValutaBelop(t.belop)}
               </BodyShort>
             </HStack>
           </List.Item>
@@ -116,7 +119,7 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
       </List>
       <Separator />
       <BodyShort size="small" weight="semibold" className="ml-auto">
-        {`Estimert totalsum: ${formaterValuta(totalt, prismodell.valuta)}`}
+        {`Estimert totalsum: ${formaterValutaBelop(totalt)}`}
       </BodyShort>
       <Separator />
       {prismodell.prisbetingelser && (

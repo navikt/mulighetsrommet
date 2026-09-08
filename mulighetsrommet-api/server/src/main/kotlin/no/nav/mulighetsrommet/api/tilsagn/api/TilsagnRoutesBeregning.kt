@@ -22,6 +22,7 @@ import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnResponse
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
+import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed
@@ -40,6 +41,7 @@ import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tokenprovider.requireAzureAd
@@ -245,14 +247,8 @@ fun resolveTilsagnRequest(tilsagn: Tilsagn, prismodell: Prismodell): TilsagnRequ
 
             else -> emptyList()
         },
-        antallTimerOppfolgingPerDeltaker = when (tilsagn.beregning) {
-            is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
-            else -> null
-        },
-        pris = when (prismodell) {
-            is Prismodell.AnskaffetEnkeltplass -> prismodell.totalbelop.withValuta(prismodell.valuta)
-            else -> null
-        },
+        antallTimerOppfolgingPerDeltaker = getAntallTimerOppfolgingPerdeltaker(tilsagn.beregning),
+        pris = getDefaultPris(prismodell),
     )
 
     return TilsagnRequest(
@@ -318,14 +314,8 @@ fun resolveTilsagnDefaults(
                 antall = 1,
             ),
         ),
-        antallTimerOppfolgingPerDeltaker = when (tilsagn?.beregning) {
-            is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> tilsagn.beregning.input.antallTimerOppfolgingPerDeltaker
-            else -> null
-        },
-        pris = when (prismodell) {
-            is Prismodell.AnskaffetEnkeltplass -> prismodell.totalbelop.withValuta(valuta)
-            else -> null
-        },
+        antallTimerOppfolgingPerDeltaker = tilsagn?.let { getAntallTimerOppfolgingPerdeltaker(it.beregning) },
+        pris = getDefaultPris(prismodell),
     )
 
     val kostnadssted = tilsagn?.kostnadssted?.enhetsnummer
@@ -452,6 +442,16 @@ private fun resolveBeregningTypeAndPrisbetingelser(
         is Prismodell.TilskuddTilOpplaering, is Prismodell.IngenKostnader -> stotterIkkeTilsagnError(prismodell)
     }
     return type to prismodell.prisbetingelser()
+}
+
+private fun getAntallTimerOppfolgingPerdeltaker(beregning: TilsagnBeregning): Int? = when (beregning) {
+    is TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker -> beregning.input.antallTimerOppfolgingPerDeltaker
+    else -> null
+}
+
+private fun getDefaultPris(prismodell: Prismodell): ValutaBelop? = when (prismodell) {
+    is Prismodell.AnskaffetEnkeltplass -> prismodell.totalbelop
+    else -> null
 }
 
 private fun stotterIkkeTilsagnError(prismodell: Prismodell): Nothing {

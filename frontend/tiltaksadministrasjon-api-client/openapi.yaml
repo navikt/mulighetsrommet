@@ -5149,11 +5149,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PrismodellDto.TilskuddOgBelop"
-        totalBelop:
-          type:
-          - "null"
-          - integer
-          format: int32
+        totalbelop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
         aarsak:
           oneOf:
           - type: "null"
@@ -5173,7 +5172,7 @@ components:
       - satser
       - tilsagnPerDeltaker
       - tilskudd
-      - totalBelop
+      - totalbelop
       - type
       - valuta
     AvtaltSatsDto:
@@ -5210,8 +5209,7 @@ components:
         type:
           $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
         belop:
-          type: integer
-          format: int32
+          $ref: "#/components/schemas/ValutaBelop"
       required:
       - belop
       - type

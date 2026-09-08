@@ -90,6 +90,6 @@ object PrismodellFixtures {
     val AnskaffetEnkeltplass = Prismodell.AnskaffetEnkeltplass(
         id = UUID.randomUUID(),
         valuta = Valuta.NOK,
-        totalbelop = 10_000,
+        totalbelop = 10_000.NOK,
     )
 }
