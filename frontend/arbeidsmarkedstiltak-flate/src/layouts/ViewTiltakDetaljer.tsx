@@ -1,8 +1,7 @@
-import { Oppskrift } from "@/components/oppskrift/Oppskrift";
 import { PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { Box, HGrid, HStack, List, Page, Tabs, VStack } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
-import { ReactNode, Suspense, useState } from "react";
+import { ReactNode, Suspense } from "react";
 import SidemenyInfo from "@/components/sidemeny/SidemenyInfo";
 import { TiltakDetaljer } from "@/components/tabs/TiltakDetaljer";
 import { TiltakHeader } from "./TiltakHeader";
@@ -21,8 +20,6 @@ interface Props {
 export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) {
   const { data: innsatsgrupper } = useInnsatsgrupper();
 
-  const [oppskriftId, setOppskriftId] = useState<string | undefined>(undefined);
-
   const harKombinasjon = tiltak.tiltakstype.kanKombineresMed.length > 0;
 
   return (
@@ -37,14 +34,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
           >
             <VStack>
               <TiltakHeader tiltak={tiltak} />
-              <TiltakDetaljer tiltak={tiltak} setOppskriftId={setOppskriftId} />
-              {oppskriftId && (
-                <Oppskrift
-                  oppskriftId={oppskriftId}
-                  tiltakskode={tiltak.tiltakstype.tiltakskode}
-                  setOppskriftId={setOppskriftId}
-                />
-              )}
+              <TiltakDetaljer tiltak={tiltak} />
             </VStack>
             <VStack gap="space-16" width="100%">
               {isTiltakGruppe(tiltak) && !tiltak.apentForPamelding && (
