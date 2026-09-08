@@ -280,13 +280,18 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun sendTilAvbrytelse(id: UUID, agent: Agent, operation: String, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Utbetaling> = with(tx) {
+    fun sendTilAvbrytelse(
+        id: UUID,
+        agent: Agent,
+        aarsaker: List<String>,
+        forklaring: String?,
+    ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
         return utbetaling.settTilAbrytelse(agent, aarsaker, forklaring).map { utbetalingTilAvbrytelse ->
             queries.utbetaling.save(utbetalingTilAvbrytelse)
 
             outbox.publish(utbetalingTilAvbrytelse.avbrytelse!!.totrinnskontroll)
-            logEndring(operation, utbetaling.id, agent)
+            logEndring("Utbetaling sendt til avbrytelse", utbetaling.id, agent)
         }
     }
 
@@ -304,7 +309,12 @@ class UtbetalingService(
     }
 
     context(tx: TransactionalQueryContext)
-    fun avslaAvbrytelse(id: UUID, besluttetAv: NavIdent, aarsaker: List<String>, forklaring: String?): Either<List<FieldError>, Utbetaling> = with(tx) {
+    fun avslaAvbrytelse(
+        id: UUID,
+        besluttetAv: NavIdent,
+        aarsaker: List<String>,
+        forklaring: String?,
+    ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val utbetaling = queries.utbetaling.getAndAquireLock(id)
         return utbetaling.avslaAbrytelse(besluttetAv, aarsaker, forklaring).map { utbetalingTilSaksbehandling ->
             queries.utbetaling.save(utbetalingTilSaksbehandling)
@@ -669,7 +679,7 @@ class UtbetalingService(
         besluttetAv: Agent,
     ): Either<List<FieldError>, Utbetaling> {
         val opprettelse = getTotrinnskontroll(utbetalingLinje.id)
-        opprettelse.godkjenn(besluttetAv).mapLeft { it.toFieldErrors() }.onLeft { return it.left() }.onRight { godkjent ->
+        opprettelse.godkjenn(besluttetAv).onLeft { return it.toFieldErrors().left() }.onRight { godkjent ->
             queries.totrinnskontroll.upsert(godkjent)
             outbox.publish(godkjent)
         }
@@ -767,8 +777,8 @@ class UtbetalingService(
     ) {
         queries.utbetalingLinje.setStatus(utbetalingLinjeId, UtbetalingLinjeStatus.RETURNERT)
         val opprettelse = getTotrinnskontroll(utbetalingLinjeId)
-        opprettelse.returner(besluttetAv, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.onLeft {
-            throw UtbetalingException(it)
+        opprettelse.returner(besluttetAv, aarsaker.map { it.name }, forklaring).onLeft {
+            throw UtbetalingException(it.toFieldErrors())
         }.onRight { returnert ->
             queries.totrinnskontroll.upsert(returnert)
             outbox.publish(returnert)

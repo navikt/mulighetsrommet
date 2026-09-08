@@ -227,7 +227,6 @@ class AdminUtbetalingService(
         utbetalingService.sendTilAvbrytelse(
             id = id,
             agent = navIdent,
-            operation = "Utbetaling sendt til avbrytelse",
             aarsaker = request.aarsaker.map { it.name },
             forklaring = request.forklaring,
         )
