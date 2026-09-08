@@ -67,7 +67,6 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
             valuta = Valuta.NOK,
             tilsagnPerDeltaker = false,
             prisbetingelser = null,
-            totalbelop = null,
         ),
         oppstart = GjennomforingOppstartstype.ENKELTPLASS,
         pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
