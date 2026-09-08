@@ -7,7 +7,7 @@ import {
 import { avtaletekster } from "@/components/ledetekster/avtaleLedetekster";
 import { AvtaltSatsDto, PrismodellDto, PrismodellType } from "@tiltaksadministrasjon/api-client";
 import { formaterDato } from "@mr/frontend-common/utils/date";
-import { formaterValuta } from "@mr/frontend-common/utils/utils";
+import { formaterValuta, formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { ingenKostnaderAarsakToString, opplaeringTilskuddToString } from "@/utils/Utils";
 
 interface PrismodellDetaljerProps {
@@ -38,7 +38,7 @@ export function PrismodellDetaljer({ prismodell }: PrismodellDetaljerProps) {
 function FastSats({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack key={prismodell.navn} gap="space-16">
-      <PrismodellTypenavn type={prismodell.navn} />
+      <PrismodellNavn type={prismodell.navn} />
       <PrismodellSatser satser={prismodell.satser} />
     </VStack>
   );
@@ -47,7 +47,7 @@ function FastSats({ prismodell }: PrismodellDetaljerProps) {
 function AvtaltPris({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack key={prismodell.navn} gap="space-16">
-      <PrismodellTypenavn type={prismodell.navn} />
+      <PrismodellNavn type={prismodell.navn} />
       <PrismodellSatser satser={prismodell.satser} />
       {prismodell.prisbetingelser && (
         <PrismodellPrisbetingelser prisbetingelser={prismodell.prisbetingelser} />
@@ -59,7 +59,7 @@ function AvtaltPris({ prismodell }: PrismodellDetaljerProps) {
 function AnnenAvtaltPris({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack key={prismodell.navn} gap="space-16">
-      <PrismodellTypenavn type={prismodell.navn} />
+      <PrismodellNavn type={prismodell.navn} />
       <MetadataVStack
         label={avtaletekster.prismodell.tilsagnPerDeltaker.label}
         value={prismodell.tilsagnPerDeltaker ? "Ja" : "Nei"}
@@ -72,23 +72,34 @@ function AnnenAvtaltPris({ prismodell }: PrismodellDetaljerProps) {
 function BetalingsbetingelserAnskaffelse({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack gap="space-8">
-      <Heading size="xsmall">Anskaffelse</Heading>
+      <Heading level="4" size="xsmall">
+        Anskaffelse
+      </Heading>
       <BodyShort textColor="subtle">Nav har avtalt å betale leverandøren direkte</BodyShort>
-      <Heading size="xsmall">Totalbeløp for anskaffelsen</Heading>
+      <Heading level="4" size="xsmall">
+        Totalbeløp for anskaffelsen
+      </Heading>
       <BodyShort textColor="subtle">
-        {prismodell.totalBelop ? formaterValuta(prismodell.totalBelop, prismodell.valuta) : "-"}
+        {prismodell.totalbelop ? formaterValutaBelop(prismodell.totalbelop) : "-"}
       </BodyShort>
     </VStack>
   );
 }
 
 function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
-  const totalt = prismodell.tilskudd.reduce((acc, t) => t.belop + acc, 0);
+  const totalt = {
+    belop: prismodell.tilskudd.reduce((acc, t) => t.belop.belop + acc, 0),
+    valuta: prismodell.valuta,
+  };
   return (
     <VStack gap="space-8">
-      <Heading size="xsmall">Tilskudd til en tilgjengelig studie- eller skoleplass</Heading>
+      <Heading level="4" size="xsmall">
+        Tilskudd til en tilgjengelig studie- eller skoleplass
+      </Heading>
       <BodyShort textColor="subtle">Utbetales basert på dokumenterte utgifter</BodyShort>
-      <Heading size="xsmall">Aktuelle tilskuddstyper</Heading>
+      <Heading level="4" size="xsmall">
+        Aktuelle tilskuddstyper
+      </Heading>
       <BodyShort textColor="subtle" spacing={true}>
         Ved flere semester er den estimerte totalsummen oppgitt
       </BodyShort>
@@ -100,7 +111,7 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
                 {opplaeringTilskuddToString(t.type)}
               </BodyShort>
               <BodyShort textColor="subtle" size="small">
-                {formaterValuta(t.belop, prismodell.valuta)}
+                {formaterValutaBelop(t.belop)}
               </BodyShort>
             </HStack>
           </List.Item>
@@ -108,12 +119,14 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
       </List>
       <Separator />
       <BodyShort size="small" weight="semibold" className="ml-auto">
-        {`Estimert totalsum: ${formaterValuta(totalt, prismodell.valuta)}`}
+        {`Estimert totalsum: ${formaterValutaBelop(totalt)}`}
       </BodyShort>
       <Separator />
       {prismodell.prisbetingelser && (
         <>
-          <Heading size="xsmall">Tilleggsopplysninger om kostnader</Heading>
+          <Heading level="4" size="xsmall">
+            Tilleggsopplysninger om kostnader
+          </Heading>
           <BodyShort textColor="subtle">{prismodell.prisbetingelser}</BodyShort>
         </>
       )}
@@ -124,11 +137,13 @@ function BetalingsbetingelserTilskudd({ prismodell }: PrismodellDetaljerProps) {
 function BetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerProps) {
   return (
     <VStack gap="space-8">
-      <Heading size="xsmall">Ingen kostnader</Heading>
+      <Heading level="4" size="xsmall">
+        Ingen kostnader
+      </Heading>
       <BodyShort textColor="subtle">Ikke aktuelt med betaling eller refusjon fra Nav</BodyShort>
       {prismodell.aarsak && (
         <>
-          <Heading size="xsmall">
+          <Heading level="4" size="xsmall">
             Årsaken til at det ikke er aktuelt med betaling eller refusjon fra Nav
           </Heading>
           <BodyShort textColor="subtle">
@@ -138,7 +153,9 @@ function BetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerPr
       )}
       {prismodell.prisbetingelser && (
         <>
-          <Heading size="xsmall">Tilleggsopplysninger om egenfinansieringen</Heading>
+          <Heading level="4" size="xsmall">
+            Tilleggsopplysninger om egenfinansieringen
+          </Heading>
           <BodyShort textColor="subtle">{prismodell.prisbetingelser}</BodyShort>
         </>
       )}
@@ -146,7 +163,7 @@ function BetalingsbetingelserIngenKostnader({ prismodell }: PrismodellDetaljerPr
   );
 }
 
-function PrismodellTypenavn({ type }: { type: string }) {
+function PrismodellNavn({ type }: { type: string }) {
   return <MetadataVStack label={avtaletekster.prismodell.label} value={type} />;
 }
 

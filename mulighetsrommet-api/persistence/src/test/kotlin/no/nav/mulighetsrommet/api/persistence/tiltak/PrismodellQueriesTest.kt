@@ -9,6 +9,7 @@ import io.kotest.matchers.types.shouldBeTypeOf
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabaseTestListener
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Valuta
 import java.util.UUID
 
@@ -21,20 +22,20 @@ class PrismodellQueriesTest : FunSpec({
                 val anskaffetEnkeltplass = Prismodell.AnskaffetEnkeltplass(
                     id = UUID.randomUUID(),
                     valuta = Valuta.NOK,
-                    totalbelop = 100_000,
+                    totalbelop = 100_000.NOK,
                 )
 
                 prismodell.upsert(anskaffetEnkeltplass)
 
                 prismodell.getOrError(anskaffetEnkeltplass.id)
                     .shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>()
-                    .totalbelop shouldBe 100_000
+                    .totalbelop shouldBe 100_000.NOK
 
-                prismodell.upsert(anskaffetEnkeltplass.copy(totalbelop = 999))
+                prismodell.upsert(anskaffetEnkeltplass.copy(totalbelop = 999.NOK))
 
                 prismodell.getOrError(anskaffetEnkeltplass.id)
                     .shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>()
-                    .totalbelop shouldBe 999
+                    .totalbelop shouldBe 999.NOK
             }
         }
     }
@@ -47,8 +48,8 @@ class PrismodellQueriesTest : FunSpec({
                     valuta = Valuta.NOK,
                     tilleggsopplysninger = null,
                     tilskudd = mapOf(
-                        Opplaeringtilskudd.Kode.SKOLEPENGER to 50_000,
-                        Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD to 30_000,
+                        Opplaeringtilskudd.Kode.SKOLEPENGER to 50_000.NOK,
+                        Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD to 30_000.NOK,
                     ),
                 )
 
@@ -56,8 +57,8 @@ class PrismodellQueriesTest : FunSpec({
 
                 prismodell.getOrError(tilskudd.id).shouldBeTypeOf<Prismodell.TilskuddTilOpplaering>().should {
                     it.tilskudd shouldBe mapOf(
-                        Opplaeringtilskudd.Kode.SKOLEPENGER to 50_000,
-                        Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD to 30_000,
+                        Opplaeringtilskudd.Kode.SKOLEPENGER to 50_000.NOK,
+                        Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD to 30_000.NOK,
                     )
                 }
             }

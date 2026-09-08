@@ -5,6 +5,7 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
@@ -18,7 +19,7 @@ data class PrismodellDto(
     val prisbetingelser: String?,
     val tilsagnPerDeltaker: Boolean?,
     val tilskudd: List<TilskuddOgBelop>,
-    val totalBelop: Int?,
+    val totalbelop: ValutaBelop?,
     val aarsak: Prismodell.IngenKostnader.Aarsak?,
 ) {
     val navn: String = type.navn
@@ -27,7 +28,7 @@ data class PrismodellDto(
     @Serializable
     data class TilskuddOgBelop(
         val type: Opplaeringtilskudd.Kode,
-        val belop: Int,
+        val belop: ValutaBelop,
     )
 }
 
@@ -104,7 +105,7 @@ fun Prismodell.toPrismodellDto(): PrismodellDto {
         prisbetingelser = prisbetingelser(),
         tilsagnPerDeltaker = tilsagnPerDeltaker,
         tilskudd = tilskudd,
-        totalBelop = totalbelop,
+        totalbelop = totalbelop,
         aarsak = aarsak,
     )
 }

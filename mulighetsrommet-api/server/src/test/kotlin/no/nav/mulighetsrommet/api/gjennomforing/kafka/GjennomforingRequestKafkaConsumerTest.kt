@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
@@ -259,7 +260,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             consumer.consume(gjennomforingId, Json.encodeToJsonElement<GjennomforingRequest>(request))
 
             service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, _) ->
-                gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 20000
+                gjennomforing.prismodell.shouldBeTypeOf<Prismodell.AnskaffetEnkeltplass>().totalbelop shouldBe 20000.NOK
             }
         }
 

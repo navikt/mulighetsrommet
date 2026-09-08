@@ -41,6 +41,7 @@ import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
+import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -541,14 +542,14 @@ class GjennomforingEnkeltplassService(
         is UpsertEnkeltplass.Prismodell.Anskaffelse -> Prismodell.AnskaffetEnkeltplass(
             id = id,
             valuta = Valuta.NOK,
-            totalbelop = prismodell.totalbelop,
+            totalbelop = prismodell.totalbelop.NOK,
         )
 
         is UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering -> Prismodell.TilskuddTilOpplaering(
             id = id,
             valuta = Valuta.NOK,
             tilleggsopplysninger = prismodell.tilleggsopplysninger,
-            tilskudd = prismodell.tilskudd,
+            tilskudd = prismodell.tilskudd.mapValues { it.value.NOK },
         )
 
         is UpsertEnkeltplass.Prismodell.IngenKostnader -> Prismodell.IngenKostnader(
@@ -711,7 +712,7 @@ private fun Deltaker.toUpsert(
 )
 
 private fun toUpsertPrismodell(prismodell: Prismodell): UpsertEnkeltplass.Prismodell = when (prismodell) {
-    is Prismodell.AnskaffetEnkeltplass -> UpsertEnkeltplass.Prismodell.Anskaffelse(prismodell.totalbelop)
+    is Prismodell.AnskaffetEnkeltplass -> UpsertEnkeltplass.Prismodell.Anskaffelse(prismodell.totalbelop.belop)
 
     is Prismodell.IngenKostnader -> UpsertEnkeltplass.Prismodell.IngenKostnader(
         prismodell.aarsak,
@@ -719,7 +720,7 @@ private fun toUpsertPrismodell(prismodell: Prismodell): UpsertEnkeltplass.Prismo
     )
 
     is Prismodell.TilskuddTilOpplaering -> UpsertEnkeltplass.Prismodell.TilskuddTilOpplaering(
-        prismodell.tilskudd,
+        prismodell.tilskudd.mapValues { it.value.belop },
         prismodell.tilleggsopplysninger,
     )
 
