@@ -1,6 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { ArrangorflateService, FieldError, PeriodeType } from "@arrangor-utbetalinger/api-client";
 import { queryClient } from "~/api/client";
+import { tekster } from "~/tekster";
 
 interface OpprettKravParams {
   orgnr: string;
@@ -43,6 +44,27 @@ export function useOpprettKrav() {
         },
         client: queryClient,
       });
+
+      const status = result.response?.status;
+      if (status === 413) {
+        return {
+          success: false,
+          errors: [
+            {
+              pointer: "/vedlegg",
+              detail: tekster.bokmal.utbetaling.feilmeldinger.vedleggForStort,
+            },
+          ],
+        };
+      }
+      if (status === 504) {
+        return {
+          success: false,
+          errors: [
+            { pointer: "/vedlegg", detail: tekster.bokmal.utbetaling.feilmeldinger.tidsavbrudd },
+          ],
+        };
+      }
 
       if (result.error) {
         if ("errors" in result.error) {
