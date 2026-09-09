@@ -61,6 +61,44 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
         upsertNavEnheter(avtale.id, avtale.veilederinfo.navEnheter)
         updatePersonvern(avtale.id, avtale.personvern)
         syncPrismodeller(avtale.id, avtale.prisinfo)
+        syncRammedetaljer(avtale.id, avtale.rammedetaljer)
+    }
+
+    private fun syncRammedetaljer(avtaleId: UUID, rammedetaljer: Avtale.Rammedetaljer?) {
+        if (rammedetaljer == null) {
+            @Language("PostgreSQL")
+            val deleteQuery = "delete from avtale_rammedetaljer where avtale_id = :avtale_id::uuid"
+            session.execute(queryOf(deleteQuery, mapOf("avtale_id" to avtaleId)))
+            return
+        }
+
+        @Language("PostgreSQL")
+        val upsertQuery = """
+            insert into avtale_rammedetaljer (
+                avtale_id,
+                valuta,
+                total_ramme,
+                utbetalt_arena
+            ) values (
+                :avtale_id::uuid,
+                :valuta::currency,
+                :total_ramme,
+                :utbetalt_arena
+            )
+            on conflict (avtale_id) do update set
+                valuta = excluded.valuta,
+                total_ramme = excluded.total_ramme,
+                utbetalt_arena = excluded.utbetalt_arena
+        """.trimIndent()
+
+        val params = mapOf(
+            "avtale_id" to avtaleId,
+            "valuta" to rammedetaljer.valuta.name,
+            "total_ramme" to rammedetaljer.totalRamme,
+            "utbetalt_arena" to rammedetaljer.utbetaltArena,
+        )
+
+        session.execute(queryOf(upsertQuery, params))
     }
 
     private fun syncPrismodeller(avtaleId: UUID, prisinfo: Avtale.Prisinfo) {
@@ -659,6 +697,15 @@ private fun Row.toAvtale(): Avtale {
             Avtaletype.FORHANDSGODKJENT -> Avtale.Prisinfo.Systembestemt(toPrismodeller().single())
             else -> Avtale.Prisinfo.Egendefinert(toPrismodeller())
         },
+        rammedetaljer = toRammedetaljer(),
+    )
+}
+
+private fun Row.toRammedetaljer(): Avtale.Rammedetaljer? = stringOrNull("rammedetaljer_valuta")?.let { valuta ->
+    Avtale.Rammedetaljer(
+        totalRamme = longOrNull("rammedetaljer_total_ramme"),
+        utbetaltArena = longOrNull("rammedetaljer_utbetalt_arena"),
+        valuta = Valuta.valueOf(valuta),
     )
 }
 

@@ -2,20 +2,24 @@
 
 package no.nav.mulighetsrommet.api.domain.avtale
 
+import arrow.core.Either
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Faneinnhold
+import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -38,7 +42,58 @@ data class Avtale(
     val opplaring: OpplaringKategorisering?,
     val opsjoner: Opsjoner,
     val prisinfo: Prisinfo,
+    val rammedetaljer: Rammedetaljer? = null,
 ) {
+    fun medRammedetaljer(totalRamme: Long?, utbetaltArena: Long?): Either<List<FieldError>, Avtale> = validation {
+        validate(prisinfo !is Prisinfo.Systembestemt) {
+            FieldError.of(
+                "Rammedetaljer kan kun legges til anskaffet avtaler",
+                Rammedetaljer::totalRamme,
+            )
+        }
+
+        val prismodeller = prisinfo.toList()
+        validate(prismodeller.distinctBy { it.valuta }.count() == 1) {
+            FieldError.of(
+                "Rammedetaljer kan kun legges til avtaler med én type valuta på prismodellene",
+                Rammedetaljer::totalRamme,
+            )
+        }
+        totalRamme?.let {
+            validate(it > 0) {
+                FieldError.of(
+                    "Total ramme må være et positivt beløp",
+                    Rammedetaljer::totalRamme,
+                )
+            }
+        }
+        utbetaltArena?.let {
+            validate(it >= 0) {
+                FieldError.of(
+                    "Utbetalt beløp fra Arena må være et positivt beløp",
+                    Rammedetaljer::utbetaltArena,
+                )
+            }
+        }
+
+        copy(
+            rammedetaljer = Rammedetaljer(
+                totalRamme = totalRamme,
+                utbetaltArena = utbetaltArena,
+                valuta = prismodeller.first().valuta,
+            ),
+        )
+    }
+
+    fun slettRammedetaljer(): Avtale = copy(rammedetaljer = null)
+
+    @Serializable
+    data class Rammedetaljer(
+        val totalRamme: Long?,
+        val utbetaltArena: Long?,
+        val valuta: Valuta,
+    )
+
     @Serializable
     data class Arrangor(
         val hovedenhet: UUID,

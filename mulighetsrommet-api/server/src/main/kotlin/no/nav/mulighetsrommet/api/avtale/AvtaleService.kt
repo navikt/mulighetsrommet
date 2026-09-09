@@ -253,11 +253,8 @@ class AvtaleService(
         if (request.totalRamme == null && request.utbetaltArena == null) {
             return@transaction deleteRammedetaljer(id, navIdent).right()
         }
-        RammedetaljerValidator.validateRammedetaljer(
-            context = RammedetaljerValidator.Ctx(avtale.id, avtale.prisinfo),
-            request,
-        ).map { rammedetalerDbo ->
-            queries.rammedetaljer.upsert(rammedetalerDbo)
+        avtale.medRammedetaljer(request.totalRamme, request.utbetaltArena).map { oppdatert ->
+            repository.avtale.save(oppdatert)
             logEndring("Rammedetaljer oppdatert", id, navIdent)
         }
     }
@@ -266,7 +263,8 @@ class AvtaleService(
         id: UUID,
         navIdent: NavIdent,
     ): Avtale = db.transaction {
-        queries.rammedetaljer.delete(id)
+        val avtale = getOrError(id)
+        repository.avtale.save(avtale.slettRammedetaljer())
         logEndring("Rammedetaljer slettet", id, navIdent)
     }
 

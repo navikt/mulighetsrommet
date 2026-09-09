@@ -6,7 +6,6 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.altinn.db.AltinnRettigheterQueries
 import no.nav.mulighetsrommet.api.arrangorflate.db.ArrangorflateQueries
 import no.nav.mulighetsrommet.api.avtale.db.OpsjonLoggQueries
-import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerQueries
 import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingQueries
 import no.nav.mulighetsrommet.api.datavarehus.db.DatavarehusTiltakQueries
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
@@ -86,7 +85,6 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
         val regelverklenke = RedaksjoneltInnholdLenkeQueries(session)
         val avtale = AvtaleQueries(session)
         val prismodell = PrismodellQueries(session)
-        val rammedetaljer = RammedetaljerQueries(session)
         val opsjoner = OpsjonLoggQueries(session)
         val gjennomforing = GjennomforingQueries(session)
         val tiltakDokument = TiltakDokumentQueries(session)
