@@ -5,6 +5,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling.Periode
@@ -13,16 +14,22 @@ import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHen
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
+import java.time.Instant
 import java.util.UUID
 
 class TilskuddBrukerUtbetalingConsumer(
@@ -55,12 +62,7 @@ class TilskuddBrukerUtbetalingConsumer(
 
         val behandling = db.session { queries.tilskuddBehandling.get(key) }
             ?: throw IllegalStateException("Fant ikke attestert tilskudd_behandling id=$key")
-
-        when (totrinnskontrollHendelse.type) {
-            TotrinnskontrollType.TILSKUDD_OPPRETTELSE -> utbetalTilskuddTilBruker(behandling, totrinnskontrollHendelse)
-            TotrinnskontrollType.TILSKUDD_OPPHOR -> throw NotImplementedError()
-            else -> throw IllegalStateException("Ukjent totrinnskontroll type=${totrinnskontrollHendelse.type}")
-        }
+        utbetalTilskuddTilBruker(behandling, totrinnskontrollHendelse)
     }
 
     private suspend fun utbetalTilskuddTilBruker(
@@ -74,6 +76,44 @@ class TilskuddBrukerUtbetalingConsumer(
         }
         val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
 
+        when (behandling.type) {
+            TilskuddBehandlingType.REGISTRERING -> nyUtbetalingTilBruker(behandling, totrinnskontroll, gjennomforing, personalia)
+            TilskuddBehandlingType.REVURDERING -> revurderUtbetalingTilBruker(behandling, totrinnskontroll, personalia)
+        }
+    }
+
+    private fun revurderUtbetalingTilBruker(
+        behandling: TilskuddBehandlingDto,
+        totrinnskontroll: TotrinnskontrollHendelse,
+        brukerPersonalia: Personalia,
+    ) {
+        val saksbehandler = (totrinnskontroll.behandletAv as? TotrinnskontrollAgent.NavAnsatt)?.navIdent
+            ?: error("behandletAv must be NavAnsatt")
+        val beslutter = (totrinnskontroll.besluttetAv as? TotrinnskontrollAgent.NavAnsatt)?.navIdent
+            ?: error("besluttetAv must be NavAnsatt")
+        val besluttetTidspunkt = requireNotNull(totrinnskontroll.besluttetTidspunkt)
+
+        behandling.tilskudd
+            .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
+            .filter { it.utbetalingMottaker == TilskuddMottaker.BRUKER }
+            // Idempotency check
+            .filter { db.session { queries.brukerUtbetaling.getByTilskuddVedtak(it.id) } == null }
+            .forEach { tilskudd ->
+                if (totrinnskontroll.type != TotrinnskontrollType.TILSKUDD_OPPHOR) {
+                    throw IllegalStateException("Revurdering av tilskudd med type ${totrinnskontroll.type} støttes ikke for utbetaling til bruker")
+                }
+                db.transaction {
+                    utbetalingTilOpphor(tilskudd, brukerPersonalia, saksbehandler, beslutter, besluttetTidspunkt)
+                }
+            }
+    }
+
+    private fun nyUtbetalingTilBruker(
+        behandling: TilskuddBehandlingDto,
+        totrinnskontroll: TotrinnskontrollHendelse,
+        gjennomforing: GjennomforingEnkeltplass,
+        brukerPersonalia: Personalia,
+    ) {
         val saksbehandler = (totrinnskontroll.behandletAv as? TotrinnskontrollAgent.NavAnsatt)?.navIdent
             ?: error("behandletAv must be NavAnsatt")
         val beslutter = (totrinnskontroll.besluttetAv as? TotrinnskontrollAgent.NavAnsatt)?.navIdent
@@ -91,7 +131,7 @@ class TilskuddBrukerUtbetalingConsumer(
                         id = UUID.randomUUID(),
                         sakId = gjennomforing.lopenummer.value,
                         behandlingId = "1",
-                        personIdent = requireNotNull(personalia.norskIdent()) {
+                        personIdent = requireNotNull(brukerPersonalia.norskIdent()) {
                             "Norsk ident var null"
                         },
                         periode = besluttetDato.tilNorskDato().let { Periode(it, it) },
@@ -115,6 +155,48 @@ class TilskuddBrukerUtbetalingConsumer(
             }
     }
 
+    context(tx: TransactionalQueryContext)
+    private fun utbetalingTilOpphor(
+        tilskudd: TilskuddOpplaeringDto,
+        brukerPersonalia: Personalia,
+        saksbehandler: NavIdent,
+        beslutter: NavIdent,
+        besluttetTidspunkt: Instant,
+    ) = with(tx) {
+        val brukerUtbetaling = queries.brukerUtbetaling.getLastFromTilskudd(tilskudd.tilskuddId)
+
+        requireNotNull(brukerUtbetaling) {
+            "Fant ikke tidligere utbetaling for tilskudd med id=${tilskudd.tilskuddId} som skal opphøres"
+        }
+        val tilOppgjor = brukerUtbetaling.settTilOpphor(
+            saksbehandler = saksbehandler,
+            beslutter = beslutter,
+            besluttetTidspunkt = besluttetTidspunkt,
+        )
+
+        val helvedOpphor = HelVedUtbetaling(
+            id = tilOppgjor.id,
+            sakId = tilOppgjor.sakId,
+            behandlingId = tilOppgjor.behandlingId.toString(),
+            personIdent = requireNotNull(brukerPersonalia.norskIdent()) {
+                "Norsk ident var null"
+            },
+            periode = HelVedUtbetaling.Periode(tilOppgjor.transaksjonsDato, tilOppgjor.transaksjonsDato),
+            belop = tilOppgjor.belop,
+            kostnadssted = tilOppgjor.kostnadssted.enhetsnummer,
+            tilskuddstype = tilOppgjor.tilskuddstype,
+            saksbehandler = tilOppgjor.saksbehandler,
+            beslutter = tilOppgjor.beslutter,
+            besluttetTidspunkt = tilOppgjor.besluttetTidspunkt,
+            tiltakskode = tilOppgjor.tiltakskode,
+            dryrun = false,
+        )
+        queries.brukerUtbetaling.insert(helvedOpphor)
+        queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, tilOppgjor.id, tilOppgjor.behandlingId)
+        brukerUtbetalingService.produceTilskuddUtbetaling(
+            helvedOpphor,
+        )
+    }
     private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker {
         val deltakelser = repository.deltaker.getByGjennomforing(gjennomforingId)
         if (deltakelser.size != 1) {

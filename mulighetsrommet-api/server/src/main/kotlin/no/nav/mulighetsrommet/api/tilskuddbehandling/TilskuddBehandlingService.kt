@@ -14,9 +14,6 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
-import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingDbo
-import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
-import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
@@ -136,9 +133,13 @@ class TilskuddBehandlingService(
                     .nel()
                     .left()
             }
+            val kontrollType = when (behandling.type) {
+                TilskuddBehandlingType.REGISTRERING -> TotrinnskontrollType.TILSKUDD_OPPRETTELSE
+                TilskuddBehandlingType.REVURDERING -> TotrinnskontrollType.TILSKUDD_OPPHOR
+            }
+            val totrinnskontroll = queries.totrinnskontroll.getOrError(id, kontrollType)
 
-            val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-            opprettelse.godkjenn(navIdent)
+            totrinnskontroll.godkjenn(navIdent)
                 .mapLeft { it.toFieldErrors() }
                 .map { godkjent ->
                     queries.totrinnskontroll.upsert(godkjent)
@@ -233,7 +234,7 @@ class TilskuddBehandlingService(
         }
     }
 
-    fun revurderingOpphor(tilskuddVedtakId: UUID, behandlingId: UUID, saksbehandler: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
+    fun revurderingOpphor(tilskuddVedtakId: UUID, behandlingId: UUID, saksbehandler: NavIdent): Either<List<FieldError>, UUID> = db.transaction {
         val tidligereBehandling = queries.tilskuddBehandling.get(behandlingId)?.toDbo()
             ?: throw IllegalStateException("Fant ikke tilskuddsbehandling for behandlingId=$behandlingId")
         val opphorRevurdering = tidligereBehandling.copy(
@@ -250,75 +251,24 @@ class TilskuddBehandlingService(
                 },
         )
         queries.tilskuddBehandling.upsert(opphorRevurdering)
-        revurderingOpphor(opphorRevurdering.id, listOf(TilskuddBehandlingStatusAarsak.ANNET), "Test av opphør", saksbehandler)
+        revurderingOpphorTotrinnkontroll(opphorRevurdering.id, listOf(TilskuddBehandlingStatusAarsak.ANNET), "Test av opphør", saksbehandler)
 
-        Unit.right()
+        opphorRevurdering.id.right()
     }
 
     context(tx: TransactionalQueryContext)
-    private fun revurderingOpphor(behandlingId: UUID, aarsaker: List<TilskuddBehandlingStatusAarsak>, forklaring: String?, behandletAv: Agent): Totrinnskontroll = with(tx) {
+    private fun revurderingOpphorTotrinnkontroll(behandlingId: UUID, aarsaker: List<TilskuddBehandlingStatusAarsak>, forklaring: String?, behandletAv: Agent): Totrinnskontroll = with(tx) {
         val opphorTotrinnskontroll = Totrinnskontroll.opprett(
             UUID.randomUUID(),
             behandlingId,
             TotrinnskontrollType.TILSKUDD_OPPHOR,
             behandletAv,
             aarsaker.map { it.name },
-            "Test opphør av tilskuddsutbetaling",
+            forklaring,
         )
         queries.totrinnskontroll.upsert(opphorTotrinnskontroll)
         outbox.publish(opphorTotrinnskontroll)
         return opphorTotrinnskontroll
-    }
-
-    context(tx: TransactionalQueryContext)
-    private fun godkjennOpphor(behandlingId: UUID, beslutter: Agent): Either<List<FieldError>, Totrinnskontroll> = with(tx) {
-        val opphorTotrinnskontroll = queries.totrinnskontroll.getOrError(behandlingId, TotrinnskontrollType.TILSKUDD_OPPHOR)
-        return opphorTotrinnskontroll.godkjenn(beslutter)
-            .mapLeft { it.toFieldErrors() }
-            .map { godkjent ->
-                queries.totrinnskontroll.upsert(godkjent)
-                outbox.publish(godkjent)
-                logEndring("Tilskudd opphørt", godkjent.entityId, beslutter)
-                return godkjent.right()
-            }
-    }
-
-    context(tx: TransactionalQueryContext)
-    private suspend fun settTilOpphor(brukerUtbetaling: BrukerUtbetalingDbo, gjennomforingId: UUID, kontroll: Totrinnskontroll) = with(tx) {
-        // TODO: fjern casts
-        val tilOppgjor = brukerUtbetaling.settTilOpphor(saksbehandler = kontroll.behandletAv as NavIdent, beslutter = kontroll.besluttetAv as NavIdent, besluttetTidspunkt = kontroll.besluttetTidspunkt!!)
-        queries.brukerUtbetaling.save(tilOppgjor)
-
-        val deltaker = getDeltaker(gjennomforingId)
-        val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
-
-        brukerUtbetalingService.produceTilskuddUtbetaling(
-            HelVedUtbetaling(
-                id = tilOppgjor.id,
-                sakId = tilOppgjor.sakId,
-                behandlingId = tilOppgjor.behandlingId.toString(),
-                personIdent = requireNotNull(personalia.norskIdent()) {
-                    "Norsk ident var null"
-                },
-                periode = HelVedUtbetaling.Periode(tilOppgjor.transaksjonsDato, tilOppgjor.transaksjonsDato),
-                belop = tilOppgjor.belop,
-                kostnadssted = tilOppgjor.kostnadssted.enhetsnummer,
-                tilskuddstype = tilOppgjor.tilskuddstype,
-                saksbehandler = tilOppgjor.saksbehandler,
-                beslutter = tilOppgjor.beslutter,
-                besluttetTidspunkt = tilOppgjor.besluttetTidspunkt,
-                tiltakskode = tilOppgjor.tiltakskode,
-                dryrun = false,
-            ),
-        )
-    }
-
-    private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker {
-        val deltakelser = repository.deltaker.getByGjennomforing(gjennomforingId)
-        if (deltakelser.size != 1) {
-            error("Enkeltplass med id=$gjennomforingId har ${deltakelser.size} antall deltakere (forventet akkurat én)")
-        }
-        return deltakelser.first()
     }
 
     private fun QueryContext.logEndring(

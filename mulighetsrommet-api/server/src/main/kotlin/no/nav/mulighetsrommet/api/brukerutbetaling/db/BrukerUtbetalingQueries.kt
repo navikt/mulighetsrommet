@@ -91,56 +91,6 @@ class BrukerUtbetalingQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun save(brukerUtbetaling: BrukerUtbetalingDbo) {
-        @Language("PostgreSQL")
-        val query = """
-            insert into bruker_utbetaling (
-                id,
-                sak_id,
-                behandling_id,
-                belop,
-                transaksjon_dato,
-                tilskuddstype,
-                tiltakskode,
-                saksbehandler,
-                beslutter,
-                besluttet_tidspunkt,
-                hel_ved_status,
-                hel_ved_status_error
-            ) values (
-                :id::uuid,
-                :sak_id,
-                :behandling_id,
-                :belop,
-                :transaksjon_dato,
-                :tilskuddstype,
-                :tiltakskode,
-                :saksbehandler,
-                :beslutter,
-                :besluttet_tidspunkt,
-                :hel_ved_status,
-                :hel_ved_status_error
-            )
-        """.trimIndent()
-
-        val params = mapOf(
-            "id" to brukerUtbetaling.id,
-            "sak_id" to brukerUtbetaling.sakId,
-            "behandling_id" to brukerUtbetaling.behandlingId,
-            "belop" to brukerUtbetaling.belop,
-            "transaksjon_dato" to brukerUtbetaling.transaksjonsDato,
-            "tilskuddstype" to brukerUtbetaling.tilskuddstype.name,
-            "tiltakskode" to brukerUtbetaling.tiltakskode.name,
-            "saksbehandler" to brukerUtbetaling.saksbehandler.value,
-            "beslutter" to brukerUtbetaling.beslutter.value,
-            "besluttet_tidspunkt" to brukerUtbetaling.besluttetTidspunkt,
-            "hel_ved_status" to brukerUtbetaling.helVedStatus?.name,
-            "hel_ved_status_error" to brukerUtbetaling.helVedStatusError?.let { Json.encodeToString(it) },
-        )
-
-        session.execute(queryOf(query, params))
-    }
-
     fun getByTilskuddVedtak(tilskuddVedtakId: UUID): BrukerUtbetalingDbo? {
         @Language("PostgreSQL")
         val query = """
@@ -157,6 +107,29 @@ class BrukerUtbetalingQueries(private val session: Session) {
 
         return session.single(
             queryOf(query, mapOf("id" to tilskuddVedtakId)),
+        ) {
+            it.toBrukerUtbetalingDbo()
+        }
+    }
+
+    fun getLastFromTilskudd(tilskuddId: UUID): BrukerUtbetalingDbo? {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                bruker_utbetaling.*,
+                nav_enhet.enhetsnummer as kostnadssted_enhetsnummer,
+                nav_enhet.navn as kostnadssted_navn
+            from bruker_utbetaling
+                inner join tilskudd_vedtak_bruker_utbetaling on tilskudd_vedtak_bruker_utbetaling.bruker_utbetaling_id = bruker_utbetaling.id
+                inner join tilskudd_vedtak on tilskudd_vedtak_bruker_utbetaling.tilskudd_vedtak_id = tilskudd_vedtak.id
+                inner join nav_enhet on nav_enhet.enhetsnummer = tilskudd_vedtak.kostnadssted
+            where tilskudd_vedtak.tilskudd_id = :tilskudd_id::uuid
+            order by bruker_utbetaling.behandling_id desc
+            limit 1
+        """.trimIndent()
+
+        return session.single(
+            queryOf(query, mapOf("tilskudd_id" to tilskuddId)),
         ) {
             it.toBrukerUtbetalingDbo()
         }
