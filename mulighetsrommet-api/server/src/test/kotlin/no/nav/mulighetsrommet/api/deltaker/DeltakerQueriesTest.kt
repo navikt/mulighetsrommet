@@ -90,7 +90,8 @@ class DeltakerQueriesTest : FunSpec({
                 deltakelsesmengder = listOf(
                     Deltakelsesmengde(
                         gyldigFra = LocalDate.of(2023, 3, 1),
-                        deltakelsesprosent = 100.0,
+                        deltakelsesprosent = 100f,
+                        dagerPerUke = null,
                         opprettetTidspunkt = mengdeOpprettetTidspunkt,
                     ),
                 ),
@@ -107,12 +108,14 @@ class DeltakerQueriesTest : FunSpec({
                 deltakelsesmengder = listOf(
                     Deltakelsesmengde(
                         gyldigFra = LocalDate.of(2023, 3, 10),
-                        deltakelsesprosent = 100.0,
+                        deltakelsesprosent = 100f,
+                        dagerPerUke = 1f,
                         opprettetTidspunkt = mengdeOpprettetTidspunkt,
                     ),
                     Deltakelsesmengde(
                         gyldigFra = LocalDate.of(2023, 3, 5),
-                        deltakelsesprosent = 100.0,
+                        deltakelsesprosent = 100f,
+                        dagerPerUke = 2f,
                         opprettetTidspunkt = mengdeOpprettetTidspunkt,
                     ),
                 ),
@@ -121,8 +124,8 @@ class DeltakerQueriesTest : FunSpec({
 
             repository.deltaker.get(deltaker1.id).shouldNotBeNull().deltakelsesmengder.shouldContainExactly(
                 listOf(
-                    Deltakelsesmengde(LocalDate.of(2023, 3, 5), 100.0, mengdeOpprettetTidspunkt),
-                    Deltakelsesmengde(LocalDate.of(2023, 3, 10), 100.0, mengdeOpprettetTidspunkt),
+                    Deltakelsesmengde(LocalDate.of(2023, 3, 5), 100f, 2f, mengdeOpprettetTidspunkt),
+                    Deltakelsesmengde(LocalDate.of(2023, 3, 10), 100f, 1f, mengdeOpprettetTidspunkt),
                 ),
             )
 

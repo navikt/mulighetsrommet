@@ -43,6 +43,13 @@ export const gjennomforingTekster = {
   norskproveLabel: "Norskprøve",
   innholdElementerLabel: "Elementer i kurset",
   amoKategoriseringMangler: "Du må velge kurstype for avtalen",
+  enkeltplass: {
+    deltakelsesmengde: {
+      dagerPerUke: {
+        label: "Antall dager i uken",
+      },
+    },
+  },
   oppstart: {
     label: "Oppstartstype",
     beskrivelse(type: GjennomforingOppstartstype) {

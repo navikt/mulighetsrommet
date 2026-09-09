@@ -720,8 +720,8 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     status = DeltakerStatusType.DELTAR,
                     deltakelsesmengder = listOf(
-                        Deltakelsesmengde(LocalDate.of(2025, 1, 1), 50.0, Instant.now()),
-                        Deltakelsesmengde(LocalDate.of(2025, 3, 1), 75.0, Instant.now()),
+                        Deltakelsesmengde(LocalDate.of(2025, 1, 1), 50f, null, Instant.now()),
+                        Deltakelsesmengde(LocalDate.of(2025, 3, 1), 75f, null, Instant.now()),
                     ),
                 )
 

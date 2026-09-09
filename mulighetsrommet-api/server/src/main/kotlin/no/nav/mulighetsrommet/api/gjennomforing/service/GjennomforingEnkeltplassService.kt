@@ -708,7 +708,7 @@ private fun Deltaker.toUpsert(
     sluttDato = sluttDato,
     status = toGjennomforingStatusType(this),
     // TODO: nullable i stedet for default 100
-    deltidsprosent = deltakelsesmengder.lastOrNull()?.deltakelsesprosent ?: 100.0,
+    deltidsprosent = deltakelsesmengder.lastOrNull()?.deltakelsesprosent?.toDouble() ?: 100.0,
 )
 
 private fun toUpsertPrismodell(prismodell: Prismodell): UpsertEnkeltplass.Prismodell = when (prismodell) {

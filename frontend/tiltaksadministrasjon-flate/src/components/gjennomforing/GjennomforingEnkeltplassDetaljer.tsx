@@ -126,7 +126,7 @@ export function GjennomforingEnkeltplassDetaljer(props: Props) {
                 opplaring.kurstype.kode,
                 tiltakstype.tiltakskode,
               ) && <AmoKategoriseringDetaljer opplaring={opplaring} erEnkeltplass />}
-            <GjennomforingEnkeltplassVarighet gjennomforing={gjennomforing} />
+            <GjennomforingEnkeltplassVarighet gjennomforing={gjennomforing} deltaker={deltaker} />
           </DetaljerLayout>
           <DetaljerLayout>
             <Definisjonsliste title="Arrangør" definitions={arrangorMeta} columns={1} />

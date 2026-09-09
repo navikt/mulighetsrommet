@@ -55,7 +55,12 @@ fun AmtDeltakerEksternV1Dto.toDeltaker(): Deltaker = Deltaker.opprett(
     endretTidspunkt = endretTidspunkt.tilNorskInstant(),
     status = status.toDeltakerStatus(),
     deltakelsesmengder = deltakelsesmengder.map {
-        Deltakelsesmengde(it.gyldigFraDato, it.deltakelsesprosent.toDouble(), it.opprettetTidspunkt.tilNorskInstant())
+        Deltakelsesmengde(
+            gyldigFra = it.gyldigFraDato,
+            deltakelsesprosent = it.deltakelsesprosent,
+            dagerPerUke = it.dagerPerUke,
+            opprettetTidspunkt = it.opprettetTidspunkt.tilNorskInstant(),
+        )
     },
     innholdAnnet = innhold?.let { innhold ->
         innhold.valgtInnhold.find { it.innholdskode == "annet" }?.tekst

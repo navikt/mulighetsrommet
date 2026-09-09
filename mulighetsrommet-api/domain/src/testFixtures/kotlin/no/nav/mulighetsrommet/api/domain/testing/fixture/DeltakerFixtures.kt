@@ -44,10 +44,12 @@ object DeltakerFixtures {
         status: DeltakerStatusType = DeltakerStatusType.DELTAR,
         endretTidspunkt: Instant = Instant.now(),
         deltakelsesprosent: Double = 100.0,
+        dagerPerUke: Double? = null,
         deltakelsesmengder: List<Deltakelsesmengde> = listOf(
             Deltakelsesmengde(
                 gyldigFra = startDato,
-                deltakelsesprosent = deltakelsesprosent,
+                deltakelsesprosent = deltakelsesprosent.toFloat(),
+                dagerPerUke = dagerPerUke?.toFloat(),
                 opprettetTidspunkt = Instant.now(),
             ),
         ),
