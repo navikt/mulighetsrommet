@@ -16,19 +16,9 @@ import java.time.LocalDate
 import java.util.UUID
 
 object TilskuddFixtures {
-    val Behandling = TilskuddBehandling(
-        id = UUID.randomUUID(),
-        gjennomforingId = EnkelAmo.id,
-        soknadJournalpostId = "J-2024-001",
-        soknadDato = LocalDate.of(2024, 1, 15),
-        periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
-        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
-        tilskudd = emptyList(),
-        status = TilskuddBehandlingStatus.TIL_ATTESTERING,
-        kommentarIntern = "kommentarIntern",
-    )
     val Tilskudd = TilskuddDbo(
         id = UUID.randomUUID(),
+        tilskuddId = UUID.randomUUID(),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
         soknadBelop = ValutaBelop(
             belop = 100,
@@ -42,5 +32,17 @@ object TilskuddFixtures {
         kommentarVedtaksbrev = null,
         utbetalingMottaker = TilskuddMottaker.ARRANGOR,
         kid = Kid.parse("116"),
+    )
+
+    val Behandling = TilskuddBehandling(
+        id = UUID.randomUUID(),
+        gjennomforingId = EnkelAmo.id,
+        soknadJournalpostId = "J-2024-001",
+        soknadDato = LocalDate.of(2024, 1, 15),
+        periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        tilskudd = listOf(Tilskudd),
+        status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+        kommentarIntern = "kommentarIntern",
     )
 }

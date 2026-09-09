@@ -122,6 +122,7 @@ object TilskuddBehandlingValidator {
 
         TilskuddDbo(
             id = req.id,
+            tilskuddId = req.tilskuddId,
             tilskuddOpplaeringType = req.tilskuddOpplaeringType,
             soknadBelop = ValutaBelop(req.soknadBelop.belop, req.soknadBelop.valuta),
             vedtakResultat = req.vedtakResultat,

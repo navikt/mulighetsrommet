@@ -70,7 +70,7 @@ fun Route.tilskuddUtbetalingRoutes() {
                                 vedtakResultat = tilskudd.vedtakResultat,
                             )
                         } else {
-                            queries.brukerUtbetaling.getByTilskudd(tilskudd.id)?.let { utbetaling ->
+                            queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id)?.let { utbetaling ->
                                 TilskuddUtbetalingKompaktDto(
                                     id = utbetaling.id,
                                     tilskuddBehandlingId = behandling.id,

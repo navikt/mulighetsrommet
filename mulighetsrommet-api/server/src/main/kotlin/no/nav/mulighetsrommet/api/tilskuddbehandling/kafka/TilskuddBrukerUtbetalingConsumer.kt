@@ -79,7 +79,7 @@ class TilskuddBrukerUtbetalingConsumer(
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
             .filter { it.utbetalingMottaker == TilskuddMottaker.BRUKER }
             // Idempotency check
-            .filter { db.session { queries.brukerUtbetaling.getByTilskudd(it.id) } == null }
+            .filter { db.session { queries.brukerUtbetaling.getByTilskuddVedtak(it.id) } == null }
             .forEach { t ->
                 db.transaction {
                     val besluttetDato = requireNotNull(totrinnskontroll.besluttetTidspunkt)

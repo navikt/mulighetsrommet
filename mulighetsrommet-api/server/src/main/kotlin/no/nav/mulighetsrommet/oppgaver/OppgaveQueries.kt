@@ -505,8 +505,8 @@ class OppgaveQueries(private val session: Session) {
             select
                 tb.id,
                 tb.status,
-                tb.periode,
-                tb.kostnadssted,
+                tv.periode,
+                tv.kostnadssted,
                 nav_enhet.navn as kostnadssted_navn,
                 gjennomforing.id as gjennomforing_id,
                 gjennomforing.lopenummer as gjennomforing_lopenummer,
@@ -521,10 +521,19 @@ class OppgaveQueries(private val session: Session) {
                 arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
             from tilskudd_behandling tb
+                inner join lateral (
+                    select
+                        periode,
+                        kostnadssted
+                    from tilskudd_vedtak
+                    where tilskudd_behandling_id = tb.id
+                    order by lopenummer asc
+                    limit 1
+                ) tv on true
                 inner join gjennomforing on gjennomforing.id = tb.gjennomforing_id
                 inner join arrangor on gjennomforing.arrangor_id = arrangor.id
                 inner join tiltakstype on tiltakstype.id = gjennomforing.tiltakstype_id
-                inner join nav_enhet on nav_enhet.enhetsnummer = tb.kostnadssted
+                inner join nav_enhet on nav_enhet.enhetsnummer = tv.kostnadssted
                 inner join (
                     select distinct on (entity_id) *
                     from totrinnskontroll
@@ -534,7 +543,7 @@ class OppgaveQueries(private val session: Session) {
             where
                 tb.status in ('TIL_ATTESTERING', 'RETURNERT')
                 and (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
-                and (:kostnadssteder::text[] is null or tb.kostnadssted = any(:kostnadssteder))
+                and (:kostnadssteder::text[] is null or tv.kostnadssted = any(:kostnadssteder))
                 and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer))
         """.trimIndent()
 

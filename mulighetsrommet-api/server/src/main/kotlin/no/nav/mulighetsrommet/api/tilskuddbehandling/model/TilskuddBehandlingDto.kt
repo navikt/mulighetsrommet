@@ -40,6 +40,7 @@ data class TilskuddBehandlingDto(
         tilskudd = this.tilskudd.map {
             TilskuddDbo(
                 id = it.id,
+                tilskuddId = it.tilskuddId,
                 tilskuddOpplaeringType = it.tilskuddOpplaeringType,
                 soknadBelop = it.soknadBelop,
                 vedtakResultat = it.vedtakResultat.type,

@@ -72,6 +72,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
     }
 
     val behandlingId = UUID.randomUUID()
+    val tilskuddVedtakId = UUID.randomUUID()
     val tilskuddId = UUID.randomUUID()
 
     val request = TilskuddBehandlingRequest(
@@ -85,7 +86,8 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         kommentarIntern = null,
         tilskudd = listOf(
             TilskuddBehandlingRequest.TilskuddRequest(
-                id = tilskuddId,
+                id = tilskuddVedtakId,
+                tilskuddId = tilskuddId,
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
                 soknadBelop = ValutaBelopRequest(belop = 100, valuta = Valuta.NOK),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
