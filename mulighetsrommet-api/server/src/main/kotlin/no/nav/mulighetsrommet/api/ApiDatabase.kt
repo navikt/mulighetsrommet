@@ -136,7 +136,7 @@ class TransactionalQueryContext(
      *
      * [0]: https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS
      */
-    fun aquireAdvisoryLock(key: String) {
+    fun acquireAdvisoryLock(key: String) {
         session.run(queryOf("select pg_advisory_xact_lock(hashtextextended(?, 0))", key).asExecute)
     }
 }

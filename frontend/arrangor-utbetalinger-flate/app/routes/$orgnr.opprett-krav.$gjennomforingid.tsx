@@ -99,6 +99,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
   const opprettKrav = useOpprettKrav();
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const utbetalingIdRef = useRef<string>(crypto.randomUUID());
   const [formState, setFormState] = useState<OpprettKravFormState>({
     periodeType: PeriodeType.EKSKLUSIV,
     files: [],
@@ -230,6 +231,7 @@ function OpprettKravContent({ orgnr, gjennomforingId }: OpprettKravContentProps)
     const result = await opprettKrav.mutateAsync({
       orgnr,
       gjennomforingId,
+      id: utbetalingIdRef.current,
       belop: Number(formState.belop),
       periodeStart: formState.periodeStart!,
       periodeSlutt: formState.periodeSlutt!,

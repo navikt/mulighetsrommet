@@ -1426,6 +1426,9 @@ components:
     OpprettKravUtbetalingRequest:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
         periodeStart:
           type: string
         periodeSlutt:
@@ -1446,6 +1449,7 @@ components:
             format: binary
       required:
       - belop
+      - id
       - kidNummer
       - periodeSlutt
       - periodeStart

@@ -69,7 +69,7 @@ class NavAnsattPrincipalService(
             // Hvis ansatt allerede er lagret i db så har ikke låsen en stor effekt, men den sørger
             // for at det kun er én request gjør et kall mot Entra samt lagrer ny ansatt db i de
             // tilfellenene der ansatt logger inn for aller første gang (og dermed ennå ikke finnes i db).
-            aquireAdvisoryLock("nav-ansatt-sync:$oid")
+            acquireAdvisoryLock("nav-ansatt-sync:$oid")
 
             // Sjekk cachen på nytt i tilfelle en annen request rakk å populere den mens vi ventet på låsen
             roleCache.getIfPresent(tokenId)?.also { return@transaction it }

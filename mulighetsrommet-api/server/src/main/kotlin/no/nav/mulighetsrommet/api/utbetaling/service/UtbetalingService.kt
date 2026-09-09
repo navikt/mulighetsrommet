@@ -72,7 +72,7 @@ class UtbetalingService(
         utbetalingId: UUID,
         kid: Kid?,
     ): Either<List<FieldError>, Unit> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(utbetalingId)
         if (utbetaling.status != UtbetalingStatusType.GENERERT) {
             return FieldError.of("Utbetalingen er allerede godkjent").nel().left()
         }
@@ -109,7 +109,7 @@ class UtbetalingService(
         rediger: UpsertUtbetaling,
         agent: Agent,
     ): Validated<Utbetaling> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(rediger.id)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(rediger.id)
         if (!utbetaling.erTilBehandling()) {
             return FieldError.of("Utbetalingen kan ikke redigeres").nel().left()
         }
@@ -125,7 +125,7 @@ class UtbetalingService(
         beregning: UtbetalingBeregning,
         agent: Agent,
     ): Validated<Utbetaling> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(id)
 
         if (beregning == utbetaling.beregning) {
             return utbetaling.right()
@@ -142,7 +142,7 @@ class UtbetalingService(
         linjer: List<OpprettUtbetalingLinje>,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(utbetalingId)
 
         if (!utbetaling.erTilBehandling() && utbetaling.status != UtbetalingStatusType.GENERERT) {
             return FieldError.of("Utbetalingen kan ikke sendes til attestering").nel().left()
@@ -198,7 +198,7 @@ class UtbetalingService(
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val linje = queries.utbetalingLinje.getOrError(id)
-        val utbetaling = queries.utbetaling.getAndAquireLock(linje.utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(linje.utbetalingId)
 
         if (utbetaling.status != UtbetalingStatusType.TIL_ATTESTERING || linje.status != UtbetalingLinjeStatus.TIL_ATTESTERING) {
             return FieldError.of("Utbetalingen kan ikke attesteres").nel().left()
@@ -233,7 +233,7 @@ class UtbetalingService(
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
         val linje = queries.utbetalingLinje.getOrError(id)
-        val utbetaling = queries.utbetaling.getAndAquireLock(linje.utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(linje.utbetalingId)
 
         if (utbetaling.status != UtbetalingStatusType.TIL_ATTESTERING || linje.status != UtbetalingLinjeStatus.TIL_ATTESTERING) {
             return FieldError.of("Utbetalingen kan ikke returneres").nel().left()
@@ -260,7 +260,7 @@ class UtbetalingService(
 
     context(tx: TransactionalQueryContext)
     fun slettKorreksjon(id: UUID): Either<List<FieldError>, Unit> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(id)
         if (!utbetaling.erTilBehandling()) {
             return FieldError.of("Kan ikke slette utbetaling fordi den har status: ${utbetaling.status}")
                 .nel()
@@ -286,7 +286,7 @@ class UtbetalingService(
         aarsaker: List<String>,
         forklaring: String?,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(id)
         return utbetaling.settTilAbrytelse(agent, aarsaker, forklaring).map { utbetalingTilAvbrytelse ->
             queries.utbetaling.save(utbetalingTilAvbrytelse)
 
@@ -297,7 +297,7 @@ class UtbetalingService(
 
     context(tx: TransactionalQueryContext)
     fun godkjennAvbrytelse(id: UUID, agent: Agent): Either<List<FieldError>, Utbetaling> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(id)
 
         return utbetaling.godkjennAvbrytelse(agent).map { avbruttUtbetaling ->
             queries.utbetaling.save(avbruttUtbetaling)
@@ -315,7 +315,7 @@ class UtbetalingService(
         aarsaker: List<String>,
         forklaring: String?,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(id)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(id)
         return utbetaling.avslaAbrytelse(besluttetAv, aarsaker, forklaring).map { utbetalingTilSaksbehandling ->
             queries.utbetaling.save(utbetalingTilSaksbehandling)
 
@@ -330,7 +330,7 @@ class UtbetalingService(
         begrunnelse: String,
         agent: Agent,
     ): Either<List<FieldError>, Utbetaling> = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(utbetalingId)
         if (!utbetaling.erTilBehandling()) {
             return FieldError.of("Utbetalingen kan ikke avbrytes").nel().left()
         }
@@ -391,7 +391,7 @@ class UtbetalingService(
     fun automatisertUtbetalingVedEttRelevantTilsagn(
         utbetalingId: UUID,
     ): AutomatisertUtbetalingResult = with(tx) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(utbetalingId)
 
         val relevanteTilsagn = queries.tilsagn.getAll(
             gjennomforingId = utbetaling.gjennomforing.id,
@@ -403,7 +403,7 @@ class UtbetalingService(
             return AutomatisertUtbetalingResult.FEIL_ANTALL_TILSAGN
         }
 
-        val tilsagn = queries.tilsagn.getAndAquireLock(relevanteTilsagn[0].id)
+        val tilsagn = queries.tilsagn.getAndAcquireLock(relevanteTilsagn[0].id)
         if (tilsagn.gjenstaendeBelop() < utbetaling.beregning.output.pris) {
             return AutomatisertUtbetalingResult.IKKE_NOK_PENGER
         }
@@ -545,7 +545,7 @@ class UtbetalingService(
     private suspend fun TransactionalQueryContext.upsertKorreksjon(
         upsert: UpsertUtbetaling.Korreksjon,
     ): Either<NonEmptyList<FieldError>, UtbetalingDbo> {
-        val utbetaling = queries.utbetaling.getAndAquireLock(upsert.korreksjonGjelderUtbetalingId)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(upsert.korreksjonGjelderUtbetalingId)
         if (!utbetaling.erFerdigBehandlet()) {
             return FieldError.of("Utbetaling kan ikke korrigeres når den har status ${utbetaling.status}")
                 .nel()
@@ -609,7 +609,7 @@ class UtbetalingService(
     private fun TransactionalQueryContext.oppdaterUtbetalingForUtbetaltUtbetalingLinje(
         utbetalingId: UUID,
     ) {
-        val utbetaling = queries.utbetaling.getAndAquireLock(utbetalingId)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(utbetalingId)
         val utbetalingLinjer = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id)
 
         val oppdatertUtbetalingStatus = when {
@@ -687,7 +687,7 @@ class UtbetalingService(
 
         val linjer = queries.utbetalingLinje.getByUtbetalingId(utbetalingLinje.utbetalingId)
             .associateWith { linje ->
-                val tilsagn = queries.tilsagn.getAndAquireLock(linje.tilsagnId)
+                val tilsagn = queries.tilsagn.getAndAcquireLock(linje.tilsagnId)
                 if (tilsagn.status != TilsagnStatus.GODKJENT) {
                     return returnerUtbetalingLinje(
                         linje,

@@ -143,7 +143,7 @@ class TilsagnService(
     }
 
     fun slettTilsagn(id: UUID, navIdent: NavIdent): Either<List<FieldError>, Unit> = db.transaction {
-        val tilsagn = queries.tilsagn.getAndAquireLock(id)
+        val tilsagn = queries.tilsagn.getAndAcquireLock(id)
         if (tilsagn.status != TilsagnStatus.RETURNERT) {
             return FieldError.of("Kan ikke slette tilsagn som er godkjent").nel().left()
         }
@@ -164,7 +164,7 @@ class TilsagnService(
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
     ): Tilsagn = db.transaction {
-        val tilsagn = queries.tilsagn.getAndAquireLock(id)
+        val tilsagn = queries.tilsagn.getAndAcquireLock(id)
         setTilAnnullering(tilsagn, navIdent, request.aarsaker.map { it.name }, request.forklaring)
     }
 
@@ -173,7 +173,7 @@ class TilsagnService(
         navIdent: NavIdent,
         request: AarsakerOgForklaringRequest<TilsagnStatusAarsak>,
     ): Tilsagn = db.transaction {
-        val tilsagn = queries.tilsagn.getAndAquireLock(id)
+        val tilsagn = queries.tilsagn.getAndAcquireLock(id)
         setTilOppgjor(
             tilsagn,
             navIdent,
@@ -323,7 +323,7 @@ class TilsagnService(
         id: UUID,
         agent: Agent,
     ): Either<List<FieldError>, Tilsagn> = with(tx) {
-        val tilsagn = queries.tilsagn.getAndAquireLock(id)
+        val tilsagn = queries.tilsagn.getAndAcquireLock(id)
 
         when (agent) {
             Tiltaksadministrasjon -> Unit
@@ -368,7 +368,7 @@ class TilsagnService(
         aarsaker: List<TilsagnStatusAarsak>,
         forklaring: String?,
     ): Either<List<FieldError>, Tilsagn> = db.transaction {
-        val tilsagn = queries.tilsagn.getAndAquireLock(id)
+        val tilsagn = queries.tilsagn.getAndAcquireLock(id)
 
         val ansatt = queries.ansatt.getOrError(navIdent)
         if (!(erSaksbehandler(ansatt) || erBeslutter(ansatt, tilsagn.kostnadssted))) {
