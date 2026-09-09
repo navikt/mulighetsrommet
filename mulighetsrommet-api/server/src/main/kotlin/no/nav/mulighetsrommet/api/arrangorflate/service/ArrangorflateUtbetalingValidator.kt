@@ -133,6 +133,7 @@ object ArrangorflateUtbetalingValidator {
             )
         }
         ArrangorflateOpprettUtbetaling(
+            id = request.id,
             gjennomforingId = ctx.gjennomforingId,
             periode = periode,
             pris = request.belop.withValuta(ctx.valuta),

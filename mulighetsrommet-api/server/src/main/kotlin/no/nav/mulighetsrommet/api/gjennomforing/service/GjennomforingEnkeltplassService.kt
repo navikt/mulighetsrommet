@@ -147,7 +147,7 @@ class GjennomforingEnkeltplassService(
         gjennomforingId: UUID,
         kategorisering: OpplaringKategoriseringRequest?,
     ): Enkeltplass = db.transaction {
-        val enkeltplass = getAndAquireLock(gjennomforingId)
+        val enkeltplass = getAndAcquireLock(gjennomforingId)
         upsertKategorisering(
             gjennomforingId,
             enkeltplass.gjennomforing.tiltakstype.tiltakskode,
@@ -166,7 +166,7 @@ class GjennomforingEnkeltplassService(
             return getEnkeltplassOrError(gjennomforingId).right()
         }
 
-        val enkeltplass = getAndAquireLock(gjennomforingId)
+        val enkeltplass = getAndAcquireLock(gjennomforingId)
 
         val okonomi = enkeltplass.okonomi
             ?: return FieldError.of("Kan ikke endre prismodell før deltaker er søkt inn").nel().left()
@@ -204,7 +204,7 @@ class GjennomforingEnkeltplassService(
         gjennomforingId: UUID,
         behandling: TotrinnskontrollBehandling,
     ): Either<TotrinnskontrollError, Enkeltplass> = db.transaction {
-        val enkeltplass = getAndAquireLock(gjennomforingId)
+        val enkeltplass = getAndAcquireLock(gjennomforingId)
 
         val totrinnskontroll = queries.totrinnskontroll.findById(behandling.id)
             ?: return enkeltplass.right()
@@ -254,7 +254,7 @@ class GjennomforingEnkeltplassService(
         id: UUID,
         arenadata: Gjennomforing.ArenaData,
     ): Enkeltplass = db.transaction {
-        val enkeltplass = getAndAquireLock(id)
+        val enkeltplass = getAndAcquireLock(id)
         if (enkeltplass.gjennomforing.arena == arenadata) {
             return enkeltplass
         }
@@ -278,7 +278,7 @@ class GjennomforingEnkeltplassService(
         deltaker: Deltaker,
         norskIdent: NorskIdent,
     ): Enkeltplass = db.transaction {
-        val enkeltplass = getAndAquireLock(deltaker.gjennomforingId)
+        val enkeltplass = getAndAcquireLock(deltaker.gjennomforingId)
 
         getDeltaker(deltaker.gjennomforingId)?.let { eksisterende ->
             when {
@@ -314,7 +314,7 @@ class GjennomforingEnkeltplassService(
         forventetTotrinnskontrollId: UUID,
         agent: Agent,
     ): Validated<Enkeltplass> = db.transaction {
-        val enkeltplass = getAndAquireLock(id)
+        val enkeltplass = getAndAcquireLock(id)
 
         if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
             if (enkeltplass.prisendring.totrinnskontroll.id != forventetTotrinnskontrollId) {
@@ -340,7 +340,7 @@ class GjennomforingEnkeltplassService(
         navIdent: NavIdent,
         forklaring: String?,
     ): Validated<Enkeltplass> = db.transaction {
-        val enkeltplass = getAndAquireLock(id)
+        val enkeltplass = getAndAcquireLock(id)
 
         if (enkeltplass.prisendring?.totrinnskontroll?.kanBesluttes() == true) {
             if (enkeltplass.prisendring.totrinnskontroll.id != forventetTotrinnskontrollId) {
@@ -506,7 +506,7 @@ class GjennomforingEnkeltplassService(
         return checkNotNull(getEnkeltplass(id))
     }
 
-    private fun TransactionalQueryContext.getAndAquireLock(id: UUID): Enkeltplass {
+    private fun TransactionalQueryContext.getAndAcquireLock(id: UUID): Enkeltplass {
         queries.gjennomforing.aquireLock(id)
         return getEnkeltplassOrError(id)
     }

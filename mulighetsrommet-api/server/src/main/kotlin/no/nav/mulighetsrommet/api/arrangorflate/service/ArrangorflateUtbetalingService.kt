@@ -67,20 +67,23 @@ class ArrangorflateUtbetalingService(
 
     suspend fun opprettUtbetaling(
         opprett: ArrangorflateOpprettUtbetaling,
-    ): Validated<Utbetaling> {
+    ): Validated<Utbetaling> = db.transaction {
+        acquireAdvisoryLock("opprett-utbetaling:${opprett.id}")
+        if (queries.utbetaling.get(opprett.id) != null) {
+            return FieldError.of("Utbetalingen er allerede opprettet").nel().left()
+        }
+
         return beregnUtbetaling(opprett).flatMap { (tilskuddstype, beregning) ->
             val utbetaling = UpsertUtbetaling.Innsending(
-                id = UUID.randomUUID(),
+                id = opprett.id,
                 gjennomforingId = opprett.gjennomforingId,
                 periode = opprett.periode,
                 beregning = beregning,
                 kid = opprett.kidNummer,
                 tilskuddstype = tilskuddstype,
             )
-            db.transaction {
-                scheduleJournalforUtbetaling(utbetaling.id, opprett.vedlegg)
-                utbetalingService.opprettUtbetaling(utbetaling, Arrangor)
-            }
+            scheduleJournalforUtbetaling(utbetaling.id, opprett.vedlegg)
+            utbetalingService.opprettUtbetaling(utbetaling, Arrangor)
         }
     }
 
@@ -155,9 +158,10 @@ class ArrangorflateUtbetalingService(
         return queries.arrangorflate.utbetaling.getOrError(id)
     }
 
+    context(tx: TransactionalQueryContext)
     private fun beregnUtbetaling(
         opprett: ArrangorflateOpprettUtbetaling,
-    ): Either<List<FieldError>, Pair<Tilskuddstype, UtbetalingBeregning>> = db.session {
+    ): Either<List<FieldError>, Pair<Tilskuddstype, UtbetalingBeregning>> = with(tx) {
         val gjennomforing = queries.gjennomforing.getGjennomforingAvtaleOrError(opprett.gjennomforingId)
         return when (gjennomforing.prismodell) {
             is Prismodell.FastSatsPerBenyttetPlassPerManed,

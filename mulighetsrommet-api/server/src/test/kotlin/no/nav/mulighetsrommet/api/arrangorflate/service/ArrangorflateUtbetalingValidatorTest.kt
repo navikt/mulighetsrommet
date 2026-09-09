@@ -36,6 +36,7 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
             )
 
             val request = OpprettKravUtbetalingRequest(
+                id = UUID.randomUUID(),
                 periodeStart = "2025-01-01",
                 periodeSlutt = "2025-01-31",
                 periodeType = PeriodeType.Inklusiv,
@@ -46,6 +47,7 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
                 ctx,
                 request,
             ) shouldBeRight ArrangorflateOpprettUtbetaling(
+                id = request.id,
                 gjennomforingId = ctx.gjennomforingId,
                 periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
                 kidNummer = null,
@@ -58,6 +60,7 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
             val ctx = createContext(Tiltakskode.AVKLARING, PrismodellType.ANNEN_AVTALT_PRIS)
 
             val request = OpprettKravUtbetalingRequest(
+                id = UUID.randomUUID(),
                 periodeStart = "2025-06-01",
                 periodeSlutt = "2025-06-30",
                 periodeType = PeriodeType.Inklusiv,
@@ -74,6 +77,7 @@ class ArrangorflateUtbetalingValidatorTest : FunSpec({
             )
 
             val request = OpprettKravUtbetalingRequest(
+                id = UUID.randomUUID(),
                 periodeStart = "2025-06-01",
                 periodeSlutt = "2025-07-01",
                 periodeType = PeriodeType.Eksklusiv,

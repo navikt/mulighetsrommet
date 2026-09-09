@@ -82,9 +82,9 @@ fun Route.arrangorflateOpprettKravRoutes(okonomiConfig: OkonomiConfig) {
     val db: ApiDatabase by inject()
     val arrangorflateUtbetalingService: ArrangorflateUtbetalingService by inject()
     val arrangorflateService: ArrangorflateService by inject()
-    val clamAvClient: ClamAvClient by inject()
     val personaliaService: PersonaliaService by inject()
     val altinnRettigheterService: AltinnRettigheterService by inject()
+    val clamAvClient: ClamAvClient by inject()
 
     fun requireGjennomforingTilArrangor(
         tiltak: ArrangorflateTiltak,
@@ -630,6 +630,8 @@ data class OpprettKravUtbetalingSteg(
 
 @Serializable
 data class OpprettKravUtbetalingRequest(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
     val periodeStart: String,
     val periodeSlutt: String,
     val periodeType: PeriodeType,
@@ -639,6 +641,7 @@ data class OpprettKravUtbetalingRequest(
 )
 
 private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either<List<FieldError>, OpprettKravUtbetalingRequest> = either {
+    var id: UUID? = null
     var periodeStart: String? = null
     var periodeSlutt: String? = null
     var periodeType: PeriodeType? = null
@@ -651,10 +654,20 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either
         when (part) {
             is PartData.FormItem -> {
                 when (part.name) {
+                    "id" -> id = try {
+                        UUID.fromString(part.value)
+                    } catch (_: IllegalArgumentException) {
+                        raise(listOf(FieldError("/id", "Ugyldig id")))
+                    }
+
                     "kidNummer" -> kidNummer = part.value
+
                     "belop" -> belop = part.value.toInt()
+
                     "periodeStart" -> periodeStart = part.value
+
                     "periodeSlutt" -> periodeSlutt = part.value
+
                     "periodeType" -> periodeType = part.value.let { PeriodeType.valueOf(it) }
                 }
             }
@@ -674,6 +687,7 @@ private suspend fun RoutingContext.receiveOpprettKravUtbetalingRequest(): Either
     val validatedVedlegg = vedlegg.validateVedlegg()
 
     OpprettKravUtbetalingRequest(
+        id = requireNotNull(id) { "Mangler id" },
         periodeStart = requireNotNull(periodeStart) { "Mangler periodeStart" },
         periodeSlutt = requireNotNull(periodeSlutt) { "Mangler periodeSlutt" },
         periodeType = requireNotNull(periodeType) { "Mangler periodeType" },

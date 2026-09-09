@@ -6,6 +6,7 @@ import { tekster } from "~/tekster";
 interface OpprettKravParams {
   orgnr: string;
   gjennomforingId: string;
+  id: string;
   belop: number;
   periodeStart: string;
   periodeSlutt: string;
@@ -25,6 +26,7 @@ export function useOpprettKrav() {
     mutationFn: async ({
       orgnr,
       gjennomforingId,
+      id,
       belop,
       periodeStart,
       periodeSlutt,
@@ -35,6 +37,7 @@ export function useOpprettKrav() {
       const result = await ArrangorflateService.postOpprettKrav({
         path: { orgnr, gjennomforingId },
         body: {
+          id,
           belop,
           periodeStart,
           periodeSlutt,

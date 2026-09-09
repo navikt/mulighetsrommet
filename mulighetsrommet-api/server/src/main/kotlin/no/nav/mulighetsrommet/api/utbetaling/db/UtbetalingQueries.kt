@@ -408,7 +408,7 @@ class UtbetalingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertDeltakelseFaktor, deltakelseFaktorParams)
     }
 
-    fun getAndAquireLock(id: UUID): Utbetaling {
+    fun getAndAcquireLock(id: UUID): Utbetaling {
         @Language("PostgreSQL")
         val query = """
             select id from utbetaling where id = ?::uuid for update

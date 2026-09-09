@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.LocalDate
+import java.util.UUID
 
 class ArrangorflateOpprettKravRoutesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
@@ -173,6 +174,7 @@ class ArrangorflateOpprettKravRoutesTest : FunSpec({
             val response = client.submitFormWithBinaryData(
                 url = "/api/arrangorflate/arrangor/$orgnr/gjennomforing/$gjennomforingId/opprett-krav",
                 formData = formData {
+                    append("id", UUID.randomUUID().toString())
                     append("periodeStart", "2024-01-01")
                     append("periodeSlutt", "2024-02-01")
                     append("periodeType", "Eksklusiv")

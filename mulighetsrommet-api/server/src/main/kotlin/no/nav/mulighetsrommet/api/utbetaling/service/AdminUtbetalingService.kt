@@ -166,7 +166,7 @@ class AdminUtbetalingService(
         rediger: UpsertUtbetaling,
         agent: NavIdent,
     ): Validated<Utbetaling> = db.transaction {
-        val utbetaling = queries.utbetaling.getAndAquireLock(rediger.id)
+        val utbetaling = queries.utbetaling.getAndAcquireLock(rediger.id)
 
         if (!kanRedigeres(utbetaling)) {
             return FieldError.of("Utbetalingen kan ikke redigeres").nel().left()
@@ -179,8 +179,8 @@ class AdminUtbetalingService(
         opprett: OpprettUtbetalingLinjer,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Utbetaling> = db.transaction {
-        val utbetaling = queries.utbetaling.getAndAquireLock(opprett.utbetalingId)
-        val tilsagnByLinjeId = opprett.linjer.associate { it.id to queries.tilsagn.getAndAquireLock(it.tilsagnId) }
+        val utbetaling = queries.utbetaling.getAndAcquireLock(opprett.utbetalingId)
+        val tilsagnByLinjeId = opprett.linjer.associate { it.id to queries.tilsagn.getAndAcquireLock(it.tilsagnId) }
 
         validation {
             validate(utbetaling.erTilBehandling()) {

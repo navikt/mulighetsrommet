@@ -140,6 +140,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.opprettUtbetaling(
                 ArrangorflateOpprettUtbetaling(
+                    id = UUID.randomUUID(),
                     gjennomforingId = AFT1.id,
                     periode = periode,
                     kidNummer = null,
@@ -162,6 +163,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.opprettUtbetaling(
                 ArrangorflateOpprettUtbetaling(
+                    id = UUID.randomUUID(),
                     gjennomforingId = GjennomforingFixtures.GruppeAmo1.id,
                     periode = periode,
                     kidNummer = null,
@@ -184,6 +186,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
             val utbetaling = service.opprettUtbetaling(
                 ArrangorflateOpprettUtbetaling(
+                    id = UUID.randomUUID(),
                     gjennomforingId = Oppfolging1.id,
                     periode = periode,
                     kidNummer = null,
@@ -227,6 +230,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
 
                 service.opprettUtbetaling(
                     ArrangorflateOpprettUtbetaling(
+                        id = UUID.randomUUID(),
                         gjennomforingId = GjennomforingFixtures.GruppeAmo1.id,
                         periode = periode,
                         kidNummer = null,
@@ -254,6 +258,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
             )
             val utbetaling = service.opprettUtbetaling(
                 ArrangorflateOpprettUtbetaling(
+                    id = UUID.randomUUID(),
                     gjennomforingId = AFT1.id,
                     periode = periode,
                     kidNummer = null,
@@ -269,6 +274,33 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                     any(),
                 )
             }
+        }
+
+        test("samme id to ganger oppretter kun én utbetaling og journalfører kun én gang") {
+            MulighetsrommetTestDomain(
+                avtaler = listOf(AvtaleFixtures.AFT),
+                gjennomforinger = listOf(AFT1),
+            ).initialize(database.api)
+
+            val journalforUtbetaling = mockk<JournalforUtbetaling>(relaxed = true)
+            val service = createUtbetalingService(journalforUtbetaling = journalforUtbetaling)
+
+            val id = UUID.randomUUID()
+            val opprett = ArrangorflateOpprettUtbetaling(
+                id = id,
+                gjennomforingId = AFT1.id,
+                periode = periode,
+                kidNummer = null,
+                pris = 1000.NOK,
+                vedlegg = emptyList(),
+            )
+
+            service.opprettUtbetaling(opprett).shouldBeRight()
+            service.opprettUtbetaling(opprett) shouldBeLeft listOf(
+                FieldError.of("Utbetalingen er allerede opprettet"),
+            )
+
+            verify(exactly = 1) { journalforUtbetaling.schedule(any(), any(), any()) }
         }
     }
 
