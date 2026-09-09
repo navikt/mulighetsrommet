@@ -51,15 +51,14 @@ class TilskuddBehandlingQueries(private val session: Session) {
 
         execute(queryOf(query, params))
 
-        dbo.tilskudd.forEachIndexed { index, tilskudd ->
-            upsertTilskudd(behandling = dbo, tilskudd = tilskudd, lopenummer = index + 1)
+        dbo.tilskudd.forEach { tilskudd ->
+            upsertTilskudd(behandling = dbo, tilskudd = tilskudd)
         }
     }
 
     private fun upsertTilskudd(
         behandling: TilskuddBehandling,
         tilskudd: TilskuddDbo,
-        lopenummer: Int,
     ): Unit = withTransaction(session) {
         @Language("PostgreSQL")
         val tilskuddQuery = """
@@ -141,7 +140,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "id" to tilskudd.id,
             "tilskudd_id" to tilskudd.tilskuddId,
             "tilskudd_behandling_id" to behandling.id,
-            "lopenummer" to lopenummer,
+            "lopenummer" to 1,
             "periode" to behandling.periode.toDaterange(),
             "kostnadssted" to behandling.kostnadssted.value,
             "soknad_journalpost_id" to behandling.soknadJournalpostId,
