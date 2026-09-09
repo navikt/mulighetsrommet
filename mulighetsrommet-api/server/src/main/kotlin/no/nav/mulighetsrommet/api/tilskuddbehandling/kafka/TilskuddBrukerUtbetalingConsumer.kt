@@ -168,7 +168,7 @@ class TilskuddBrukerUtbetalingConsumer(
         requireNotNull(brukerUtbetaling) {
             "Fant ikke tidligere utbetaling for tilskudd med id=${tilskudd.tilskuddId} som skal opphøres"
         }
-        val tilOppgjor = brukerUtbetaling.settTilOpphor(
+        val tilOppgjor = brukerUtbetaling.tilOpphor(
             saksbehandler = saksbehandler,
             beslutter = beslutter,
             besluttetTidspunkt = besluttetTidspunkt,

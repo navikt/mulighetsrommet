@@ -14,6 +14,7 @@ import io.ktor.server.routing.application
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -33,6 +34,7 @@ import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -270,6 +272,7 @@ fun Route.tilskuddBehandlingRoutes() {
                 }
                 response {
                     code(HttpStatusCode.OK) {
+                        body<TilskuddBehandlingOpphorResponse>()
                         description = "Opphørsvedtak er sendt til godkjenning"
                     }
                     default {
@@ -288,9 +291,18 @@ fun Route.tilskuddBehandlingRoutes() {
                 } else {
                     val saksbehandler = NavIdent("Z993637") // Midlertidig saksbehandler, slik at vi kan beslutte med 079 brukeren
                     service.revurderingOpphor(tilskuddVedtakId, tilskuddBehandlingId, saksbehandler)
-                    call.respond(HttpStatusCode.OK)
+                        .onRight { call.respond(TilskuddBehandlingOpphorResponse(it)) }
+                        .onLeft {
+                            call.respondWithProblemDetail(ValidationError(errors = it))
+                        }
                 }
             }
         }
     }
 }
+
+@Serializable
+data class TilskuddBehandlingOpphorResponse(
+    @Serializable(with = UUIDSerializer::class)
+    val behandlingId: UUID,
+)

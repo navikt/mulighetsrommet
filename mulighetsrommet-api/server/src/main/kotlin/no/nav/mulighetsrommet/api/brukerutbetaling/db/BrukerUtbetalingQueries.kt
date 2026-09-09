@@ -35,7 +35,7 @@ data class BrukerUtbetalingDbo(
 
     private fun nyBehandlingId() = behandlingId.plus(1)
 
-    fun settTilOpphor(saksbehandler: NavIdent, beslutter: NavIdent, besluttetTidspunkt: Instant): BrukerUtbetalingDbo = copy(
+    fun tilOpphor(saksbehandler: NavIdent, beslutter: NavIdent, besluttetTidspunkt: Instant): BrukerUtbetalingDbo = copy(
         behandlingId = nyBehandlingId(),
         belop = 0,
         saksbehandler = saksbehandler,

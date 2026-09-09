@@ -1,6 +1,7 @@
 import {
   AarsakerOgForklaringRequestTilskuddBehandlingStatusAarsak,
   ProblemDetail,
+  TilskuddBehandlingOpphorResponse,
   TilskuddBehandlingRequest,
   TilskuddBehandlingService,
   UtbetalingService,
@@ -56,14 +57,20 @@ export function useReturnerTilskuddBehandling(gjennomforingId: string) {
 export function useOpphorBrukerUtbetaling(behandlingId: string) {
   const queryClient = useQueryClient();
 
-  return useApiMutation<unknown, ProblemDetail, { tilskuddVedtakId: string }>({
-    mutationFn: ({ tilskuddVedtakId }) =>
-      UtbetalingService.postTilskuddVedtakOpphor({
-        path: { tilskuddBehandlingId: behandlingId, tilskuddVedtakId },
-      }),
-    async onSuccess() {
+  return useApiMutation<
+    TilskuddBehandlingOpphorResponse,
+    ProblemDetail,
+    { tilskuddVedtakId: string }
+  >({
+    mutationFn: async ({ tilskuddVedtakId }) =>
+      (
+        await UtbetalingService.postTilskuddVedtakOpphor({
+          path: { tilskuddBehandlingId: behandlingId, tilskuddVedtakId },
+        })
+      ).data,
+    async onSuccess(data) {
       await queryClient.invalidateQueries({
-        queryKey: QueryKeys.tilskuddBehandling(behandlingId),
+        queryKey: QueryKeys.tilskuddBehandling(data.behandlingId),
       });
     },
   });

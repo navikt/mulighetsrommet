@@ -4,6 +4,7 @@ import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -191,6 +192,57 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
         val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }
         result.shouldNotBeNull()
+        val utbetaling = HelVedUtbetaling(
+            id = result.id,
+            sakId = result.sakId,
+            behandlingId = result.behandlingId.toString(),
+            personIdent = deltakerNorskIdent,
+            periode = Periode(result.transaksjonsDato, result.transaksjonsDato),
+            belop = result.belop,
+            kostnadssted = result.kostnadssted.enhetsnummer,
+            tilskuddstype = result.tilskuddstype,
+            saksbehandler = result.saksbehandler,
+            beslutter = result.beslutter,
+            besluttetTidspunkt = result.besluttetTidspunkt,
+            tiltakskode = result.tiltakskode,
+            dryrun = false,
+        )
+        verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(utbetaling) }
+    }
+
+    test("håndterer opphørsrevurdering av tilskudd lagres som ny utbetaling og sender hel ved utbetaling") {
+        val service = TilskuddBehandlingService(
+            database.api,
+            journalforVedtaksbrev,
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+            mockk(relaxed = true),
+        )
+        val consumer = createConsumer()
+        service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+        val besluttetTidspunkt = Instant.parse("2025-03-15T10:00:00Z")
+        consumer.consume(behandlingId, Json.encodeToJsonElement(godkjentHendelse.copy(besluttetTidspunkt = besluttetTidspunkt)))
+
+        val forsteUtbetaling = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }.shouldNotBeNull()
+
+        val revurderingBehandlingId = service.revurderingOpphor(tilskuddVedtakId, behandlingId, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+
+        val hendelse = godkjentHendelse.copy(
+            entityId = revurderingBehandlingId,
+            type = TotrinnskontrollType.TILSKUDD_OPPHOR,
+            besluttetTidspunkt = besluttetTidspunkt,
+        )
+
+        consumer.consume(revurderingBehandlingId, Json.encodeToJsonElement(hendelse))
+
+        val result = database.api.session { queries.brukerUtbetaling.getLastFromTilskudd(tilskuddId) }
+        result.shouldNotBeNull()
+        result.id shouldBe forsteUtbetaling.id
+        result.transaksjonsDato shouldBe forsteUtbetaling.transaksjonsDato
+
+        result.belop shouldBe 0
+        result.behandlingId shouldNotBe forsteUtbetaling.behandlingId
+
         val utbetaling = HelVedUtbetaling(
             id = result.id,
             sakId = result.sakId,

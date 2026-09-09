@@ -3912,6 +3912,10 @@ paths:
         "200":
           description: Opphørsvedtak er sendt til godkjenning
           headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilskuddBehandlingOpphorResponse"
         default:
           description: Problem details
           headers: {}
@@ -9550,6 +9554,14 @@ components:
       required:
       - aarsaker
       - forklaring
+    TilskuddBehandlingOpphorResponse:
+      type: object
+      properties:
+        behandlingId:
+          type: string
+          format: uuid
+      required:
+      - behandlingId
     EndringshistorikkType:
       type: string
       enum:

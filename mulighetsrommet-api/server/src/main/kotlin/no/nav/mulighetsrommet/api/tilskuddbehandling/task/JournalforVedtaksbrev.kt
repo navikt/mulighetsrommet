@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -68,21 +69,25 @@ class JournalforVedtaksbrev(
     suspend fun journalfor(id: UUID): Either<String, DokarkResponse> = db.transaction {
         logger.info("Journalfører vedtak med id: $id")
 
-        val tilskudd = queries.tilskuddBehandling.getOrError(id)
-        val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskudd.gjennomforingId)
+        val tilskuddBehandling = queries.tilskuddBehandling.getOrError(id)
+        val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
         val fagsakId = gjennomforing.lopenummer.value
         val deltaker = repository.deltaker.getByGjennomforing(gjennomforing.id).single()
         val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
-        val totrinnskontroll = queries.totrinnskontroll.getDtoOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
+        val kontrollType = when (tilskuddBehandling.type) {
+            TilskuddBehandlingType.REGISTRERING -> TotrinnskontrollType.TILSKUDD_OPPRETTELSE
+            TilskuddBehandlingType.REVURDERING -> TotrinnskontrollType.TILSKUDD_OPPHOR
+        }
+        val totrinnskontroll = queries.totrinnskontroll.getDtoOrError(id, kontrollType)
         check(totrinnskontroll is TotrinnskontrollDto.Besluttet) {
             "Totrinnskontroll for tilskudd $id er ikke besluttet"
         }
 
-        generatePdf(tilskudd, totrinnskontroll, gjennomforing, personalia)
+        generatePdf(tilskuddBehandling, totrinnskontroll, gjennomforing, personalia)
             .flatMap { pdf ->
                 val journalpost = vedtakJournalpost(
                     pdf,
-                    tilskudd.id,
+                    tilskuddBehandling.id,
                     personalia.norskIdent()?.value ?: return@flatMap "Ikke tilgang til deltaker".left(),
                     fagsakId,
                 )

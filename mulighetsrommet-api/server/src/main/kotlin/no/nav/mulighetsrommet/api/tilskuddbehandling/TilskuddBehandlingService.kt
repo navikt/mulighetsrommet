@@ -176,9 +176,12 @@ class TilskuddBehandlingService(
                 .nel()
                 .left()
         }
-
-        val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-        opprettelse.returner(navIdent, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
+        val kontrollType = when (behandling.type) {
+            TilskuddBehandlingType.REGISTRERING -> TotrinnskontrollType.TILSKUDD_OPPRETTELSE
+            TilskuddBehandlingType.REVURDERING -> TotrinnskontrollType.TILSKUDD_OPPHOR
+        }
+        val totrinnskontroll = queries.totrinnskontroll.getOrError(id, kontrollType)
+        totrinnskontroll.returner(navIdent, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
             queries.totrinnskontroll.upsert(returnert)
             outbox.publish(returnert)
             queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
