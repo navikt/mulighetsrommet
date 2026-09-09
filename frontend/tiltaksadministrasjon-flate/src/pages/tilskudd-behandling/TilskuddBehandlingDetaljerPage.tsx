@@ -97,7 +97,7 @@ export function TilskuddBehandlingDetaljerPage() {
     opphorMutation.mutate(
       { tilskuddVedtakId: tilskuddId },
       {
-        onSuccess({behandlingId}) {
+        onSuccess({ behandlingId }) {
           navigate(`${listUrl}/${behandlingId}`);
         },
       },
