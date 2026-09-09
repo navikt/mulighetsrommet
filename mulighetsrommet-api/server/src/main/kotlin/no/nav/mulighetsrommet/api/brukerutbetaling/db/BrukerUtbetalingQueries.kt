@@ -136,6 +136,9 @@ class BrukerUtbetalingQueries(private val session: Session) {
     }
 
     fun setHelVedStatus(id: UUID, behandlingIds: Set<Int>, status: HelVedStatus) {
+        // Foventer at det finnes minst en bruker utbetaling -> har da behandlingsId 1
+        val effectiveBehandlingIds = behandlingIds.ifEmpty { setOf(1) }
+
         @Language("PostgreSQL")
         val query = """
             update bruker_utbetaling set
@@ -143,13 +146,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 hel_ved_status_error = :status_error::jsonb
             where
                 id = :id::uuid
-                and behandling_id = any(
-                    case
-                        when cardinality(:behandling_ids::int[]) > 0
-                        then :behandling_ids::int[]
-                        else array(select max(behandling_id) from bruker_utbetaling where id = :id::uuid)
-                    end
-                )
+                and behandling_id = any(:behandling_ids::int[])
         """.trimIndent()
 
         session.execute(
@@ -157,7 +154,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 query,
                 mapOf(
                     "id" to id,
-                    "behandling_ids" to behandlingIds.toIntArray(),
+                    "behandling_ids" to effectiveBehandlingIds.toIntArray(),
                     "status" to status.status.name,
                     "status_error" to Json.encodeToString(status.error),
                 ),
