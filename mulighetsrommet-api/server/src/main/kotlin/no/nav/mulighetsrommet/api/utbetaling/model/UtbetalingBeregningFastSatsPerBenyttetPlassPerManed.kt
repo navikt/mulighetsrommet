@@ -80,7 +80,7 @@ object FastSatsPerTiltaksplassPerManedBeregning :
                     Periode.of(mengde.gyldigFra, gyldigTil)?.intersect(periode)?.let { overlappingPeriode ->
                         DeltakelsesprosentPeriode(
                             periode = overlappingPeriode,
-                            deltakelsesprosent = mengde.deltakelsesprosent,
+                            deltakelsesprosent = mengde.deltakelsesprosent.toDouble(),
                         )
                     }
                 }

@@ -218,7 +218,8 @@ object BeregningTestHelpers {
 
     fun deltakelsesmengde(gyldigFra: LocalDate, deltakelsesprosent: Double): Deltakelsesmengde = Deltakelsesmengde(
         gyldigFra = gyldigFra,
-        deltakelsesprosent = deltakelsesprosent,
+        deltakelsesprosent = deltakelsesprosent.toFloat(),
+        dagerPerUke = null,
         opprettetTidspunkt = Instant.now(),
     )
 

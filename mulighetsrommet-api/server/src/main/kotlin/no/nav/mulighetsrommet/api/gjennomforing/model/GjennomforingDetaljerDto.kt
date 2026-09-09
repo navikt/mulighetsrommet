@@ -176,6 +176,7 @@ data class DeltakerDto(
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
     val navVeilederNavn: String?,
+    val dagerPerUke: Float?,
 ) {
     companion object {
         fun from(deltaker: Deltaker, personalia: Personalia, navVeilederNavn: String?) = DeltakerDto(
@@ -189,6 +190,7 @@ data class DeltakerDto(
             startDato = deltaker.startDato,
             sluttDato = deltaker.sluttDato,
             navVeilederNavn = navVeilederNavn,
+            dagerPerUke = deltaker.deltakelsesmengder.lastOrNull()?.dagerPerUke,
         )
     }
 }

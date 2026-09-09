@@ -6442,8 +6442,14 @@ components:
           type:
           - "null"
           - string
+        dagerPerUke:
+          type:
+          - "null"
+          - number
+          format: float
       required:
       - avvistGrunn
+      - dagerPerUke
       - id
       - innholdAnnet
       - navVeilederNavn

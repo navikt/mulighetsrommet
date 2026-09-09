@@ -81,8 +81,8 @@ class DeltakerQueries(private val session: Session) : DeltakerRepository {
 
         @Language("PostgreSQL")
         val insertDeltakelsesmengdeQuery = """
-            insert into deltaker_deltakelsesmengde (deltaker_id, gyldig_fra, opprettet_tidspunkt, deltakelsesprosent)
-            values (:deltaker_id::uuid, :gyldig_fra, :opprettet_tidspunkt, :deltakelsesprosent)
+            insert into deltaker_deltakelsesmengde (deltaker_id, gyldig_fra, opprettet_tidspunkt, deltakelsesprosent, dager_per_uke)
+            values (:deltaker_id::uuid, :gyldig_fra, :opprettet_tidspunkt, :deltakelsesprosent, :dager_per_uke)
         """.trimIndent()
         val deltakelsesmengder = deltaker.deltakelsesmengder.map {
             mapOf(
@@ -90,6 +90,7 @@ class DeltakerQueries(private val session: Session) : DeltakerRepository {
                 "gyldig_fra" to it.gyldigFra,
                 "opprettet_tidspunkt" to it.opprettetTidspunkt,
                 "deltakelsesprosent" to it.deltakelsesprosent,
+                "dager_per_uke" to it.dagerPerUke,
             )
         }
         batchPreparedNamedStatement(insertDeltakelsesmengdeQuery, deltakelsesmengder)

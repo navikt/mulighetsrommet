@@ -4,19 +4,21 @@ import {
   Definisjonsliste,
   Definition,
 } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
-import { GjennomforingEnkeltplassDto } from "@tiltaksadministrasjon/api-client";
+import { DeltakerDto, GjennomforingEnkeltplassDto } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   gjennomforing: GjennomforingEnkeltplassDto;
+  deltaker: DeltakerDto | null;
 }
 
-export function GjennomforingEnkeltplassVarighet({ gjennomforing }: Props) {
-  const definitions = getVarighetOgPameldingEnkeltplass(gjennomforing);
+export function GjennomforingEnkeltplassVarighet({ gjennomforing, deltaker }: Props) {
+  const definitions = getVarighetOgPameldingEnkeltplass(gjennomforing, deltaker);
   return <Definisjonsliste title="Varighet" definitions={definitions} />;
 }
 
 function getVarighetOgPameldingEnkeltplass(
   gjennomforing: GjennomforingEnkeltplassDto,
+  deltaker: DeltakerDto | null,
 ): Definition[] {
   return [
     {
@@ -26,6 +28,10 @@ function getVarighetOgPameldingEnkeltplass(
     {
       key: gjennomforingTekster.sluttdatoLabel,
       value: formaterDato(gjennomforing.sluttDato) ?? "-",
+    },
+    {
+      key: gjennomforingTekster.enkeltplass.deltakelsesmengde.dagerPerUke.label,
+      value: deltaker?.dagerPerUke,
     },
   ];
 }
