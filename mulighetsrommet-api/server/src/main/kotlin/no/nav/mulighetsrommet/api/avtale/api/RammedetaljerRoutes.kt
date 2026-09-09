@@ -15,9 +15,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
-import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerDefaults
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
+import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
@@ -55,7 +55,7 @@ fun Route.rammedetaljerRoutes() {
         }) {
             val id: UUID by call.parameters
             val result: RammedetaljerDto = db.session {
-                val rammedetaljer = queries.rammedetaljer.get(id)
+                val rammedetaljer = queries.avtale.getOrError(id).rammedetaljer
 
                 val utbetaltFraTiltaksadmin = queries.utbetalingLinje.getByAvtale(
                     id,
@@ -167,8 +167,9 @@ fun Route.rammedetaljerRoutes() {
             ) {
                 val id: UUID by call.parameters
                 val result = db.session {
-                    val prismodeller = queries.avtale.getOrError(id).prisinfo.toList()
-                    val rammedetaljer = queries.rammedetaljer.get(id)
+                    val avtale = queries.avtale.getOrError(id)
+                    val prismodeller = avtale.prisinfo.toList()
+                    val rammedetaljer = avtale.rammedetaljer
                     val valuta = prismodeller.first().valuta
                     RammedetaljerDefaults(
                         valuta,
@@ -252,7 +253,7 @@ sealed class RammedetaljerDto {
     }
 }
 
-fun RammedetaljerDbo.toDto(
+fun Avtale.Rammedetaljer.toDto(
     utbetaltFraTiltaksadmin: List<ValutaLongBelop>,
     reservert: List<ValutaLongBelop>,
 ): RammedetaljerDto {
@@ -265,6 +266,7 @@ fun RammedetaljerDbo.toDto(
         listOf(ValutaLongBelop(0, this.valuta))
     }
 
+    val totalRamme = totalRamme
     if (totalRamme != null) {
         return RammedetaljerDto.TotalRamme(
             totalRamme = ValutaLongBelop(

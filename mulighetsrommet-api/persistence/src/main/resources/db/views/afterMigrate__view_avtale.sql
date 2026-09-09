@@ -36,11 +36,15 @@ select avtale.id,
        arrangor_underenheter_json,
        arrangor_kontaktpersoner_json,
        coalesce(prismodeller_json, '[]'::jsonb)         as prismodeller_json,
-       opplaring_kategorisering_json                    as opplaring_kategorisering_json
+       opplaring_kategorisering_json                    as opplaring_kategorisering_json,
+       avtale_rammedetaljer.valuta                      as rammedetaljer_valuta,
+       avtale_rammedetaljer.total_ramme                 as rammedetaljer_total_ramme,
+       avtale_rammedetaljer.utbetalt_arena              as rammedetaljer_utbetalt_arena
 from avtale
          join tiltakstype on tiltakstype.id = avtale.tiltakstype_id
          left join arrangor on arrangor.id = avtale.arrangor_hovedenhet_id
          left join nav_enhet arena_nav_enhet on avtale.arena_ansvarlig_enhet = arena_nav_enhet.enhetsnummer
+         left join avtale_rammedetaljer on avtale_rammedetaljer.avtale_id = avtale.id
          left join lateral (select jsonb_agg(
                                            jsonb_build_object(
                                                    'id', id,

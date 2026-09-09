@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
-import no.nav.mulighetsrommet.api.avtale.db.RammedetaljerDbo
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.avtale.model.RammedetaljerRequest
@@ -918,7 +917,7 @@ class AvtaleServiceTest : FunSpec({
                 bertilNavIdent,
             ).shouldBeRight().id shouldBe avtale.id
 
-            database.api.session { queries.rammedetaljer.get(avtale.id) }.shouldNotBeNull().should {
+            database.api.session { queries.avtale.getOrError(avtale.id).rammedetaljer }.shouldNotBeNull().should {
                 it.totalRamme shouldBe 500_000L
                 it.utbetaltArena shouldBe 100_000L
                 it.valuta shouldBe Valuta.NOK
@@ -930,7 +929,7 @@ class AvtaleServiceTest : FunSpec({
                 bertilNavIdent,
             ).shouldBeRight().id shouldBe avtale.id
 
-            database.api.session { queries.rammedetaljer.get(avtale.id) }.shouldBeNull()
+            database.api.session { queries.avtale.getOrError(avtale.id).rammedetaljer }.shouldBeNull()
         }
 
         test("kan ikke legge til rammedetaljer for avtale med forhåndsgodkjent prismodell") {
@@ -947,23 +946,18 @@ class AvtaleServiceTest : FunSpec({
         }
 
         test("sletter eksisterende rammedetaljer") {
-            val avtale = AvtaleFixtures.oppfolging
-            MulighetsrommetTestDomain(
-                avtaler = listOf(avtale),
-            ) {
-                queries.rammedetaljer.upsert(
-                    RammedetaljerDbo(
-                        avtaleId = avtale.id,
-                        valuta = Valuta.NOK,
-                        totalRamme = 200_000L,
-                        utbetaltArena = 50_000L,
-                    ),
-                )
-            }.initialize(database.api)
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                rammedetaljer = Avtale.Rammedetaljer(
+                    totalRamme = 200_000L,
+                    utbetaltArena = 50_000L,
+                    valuta = Valuta.NOK,
+                ),
+            )
+            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
 
             avtaleService.deleteRammedetaljer(avtale.id, bertilNavIdent).id shouldBe avtale.id
 
-            database.api.session { queries.rammedetaljer.get(avtale.id) }.shouldBeNull()
+            database.api.session { queries.avtale.getOrError(avtale.id).rammedetaljer }.shouldBeNull()
         }
     }
 

@@ -16,6 +16,7 @@ kotlin {
 
 dependencies {
     implementation(projects.common.domain)
+    implementation(projects.common.validation)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.arrow.core)
 
