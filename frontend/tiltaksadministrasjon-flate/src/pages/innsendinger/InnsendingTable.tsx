@@ -68,8 +68,8 @@ export function InnsendingTable({ skjulKolonner, updateFilter }: Props) {
     <VStack gap="space-24" paddingInline="space-8">
       <Alert variant="info">
         Under ser du en oversikt over manglende innsendinger for tiltak med fast sats, avtalt
-        månedspris eller avtalt ukespris. Tiltak med avtalt timespris eller annen avtalt pris
-        mangler foreløpig i oversikten
+        månedspris, avtalt ukespris og avtalt timespris. Tiltak med annen avtalt pris mangler
+        foreløpig i oversikten
       </Alert>
       <TabellWrapper>
         {innsendinger.length === 0 ? (
