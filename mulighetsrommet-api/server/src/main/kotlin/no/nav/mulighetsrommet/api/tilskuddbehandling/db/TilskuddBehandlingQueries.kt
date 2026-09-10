@@ -164,6 +164,14 @@ class TilskuddBehandlingQueries(private val session: Session) {
         execute(queryOf(vedtakQuery, vedtakParams))
     }
 
+    fun acquireLockTilskuddVedtak(id: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            select id from tilskudd_vedtak where id = ?::uuid for update
+        """.trimIndent()
+        session.execute(queryOf(query, id))
+    }
+
     fun setJournalpostId(tilskuddBehandlingId: UUID, journalpostId: String) {
         @Language("PostgreSQL")
         val query = """

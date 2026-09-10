@@ -96,13 +96,17 @@ class TilskuddBrukerUtbetalingConsumer(
         behandling.tilskudd
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
             .filter { it.utbetalingMottaker == TilskuddMottaker.BRUKER }
-            // Idempotency check
-            .filter { db.session { queries.brukerUtbetaling.getByTilskuddVedtak(it.id) } == null }
             .forEach { tilskudd ->
                 if (totrinnskontroll.type != TotrinnskontrollType.TILSKUDD_OPPHOR) {
                     throw IllegalStateException("Revurdering av tilskudd med type ${totrinnskontroll.type} støttes ikke for utbetaling til bruker")
                 }
                 db.transaction {
+                    // Idempotency check
+                    queries.tilskuddBehandling.acquireLockTilskuddVedtak(tilskudd.id)
+                    if (queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id) != null) {
+                        logger.info("Utbetaling for tilskudd vedtak med id=${tilskudd.id} er allerede opprettet, hopper over")
+                        return
+                    }
                     utbetalingTilOpphor(tilskudd, brukerPersonalia, saksbehandler, beslutter, besluttetTidspunkt)
                 }
             }
@@ -122,10 +126,15 @@ class TilskuddBrukerUtbetalingConsumer(
         behandling.tilskudd
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
             .filter { it.utbetalingMottaker == TilskuddMottaker.BRUKER }
-            // Idempotency check
-            .filter { db.session { queries.brukerUtbetaling.getByTilskuddVedtak(it.id) } == null }
             .forEach { t ->
                 db.transaction {
+                    // Idempotency check
+                    queries.tilskuddBehandling.acquireLockTilskuddVedtak(t.id)
+                    if (queries.brukerUtbetaling.getByTilskuddVedtak(t.id) != null) {
+                        logger.info("Utbetaling for tilskudd vedtak med id=${t.id} er allerede opprettet, hopper over")
+                        return
+                    }
+
                     val besluttetDato = requireNotNull(totrinnskontroll.besluttetTidspunkt)
                     val utbetaling = HelVedUtbetaling(
                         id = UUID.randomUUID(),
