@@ -108,7 +108,7 @@ export function Delemodal({
                 Rediger melding
               </Button>
             )}
-            <div className="flex">
+            <HStack gap="space-4" align="center">
               <Checkbox
                 onChange={(e) => {
                   dispatch({
@@ -125,7 +125,7 @@ export function Delemodal({
                 Ved å huke av for at du venter på svar fra bruker vil du kunne bruke filteret i
                 oversikten til å se alle brukere du venter på svar fra.
               </HelpText>
-            </div>
+            </HStack>
           </div>
           <BodyShort size="small">
             Kandidatene vil få et varsel fra Nav, og kan logge inn på nav.no for å lese meldingen.

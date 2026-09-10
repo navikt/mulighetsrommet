@@ -5,3 +5,26 @@
 
 /* Import global styles directly */
 @import "./global-styles.css";
+
+/*
+ * Tailwind Typography (`prose`) hardkoder --tw-prose-*-farger (grå/svart) som ikke
+ * følger Aksel-temaet. Uten @layer vinner disse over pluginens lagdelte .prose,
+ * så prose-blokker tilpasser seg lyst/mørkt tema via Aksel-tokens.
+ */
+.prose {
+  --tw-prose-body: var(--ax-text-neutral);
+  --tw-prose-headings: var(--ax-text-neutral);
+  --tw-prose-lead: var(--ax-text-neutral-subtle);
+  --tw-prose-links: var(--ax-text-accent);
+  --tw-prose-bold: var(--ax-text-neutral);
+  --tw-prose-counters: var(--ax-text-neutral-subtle);
+  --tw-prose-bullets: var(--ax-border-neutral);
+  --tw-prose-hr: var(--ax-border-neutral-subtle);
+  --tw-prose-quotes: var(--ax-text-neutral);
+  --tw-prose-quote-borders: var(--ax-border-neutral-subtle);
+  --tw-prose-captions: var(--ax-text-neutral-subtle);
+  --tw-prose-code: var(--ax-text-neutral);
+  --tw-prose-pre-code: var(--ax-text-neutral);
+  --tw-prose-th-borders: var(--ax-border-neutral);
+  --tw-prose-td-borders: var(--ax-border-neutral-subtle);
+}

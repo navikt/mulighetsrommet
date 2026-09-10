@@ -7,10 +7,15 @@ import { Landingsside } from "./views/Landingsside";
 import { ModiaArbeidsmarkedstiltakDetaljer } from "./views/ModiaArbeidsmarkedstiltakDetaljer";
 import { ModiaArbeidsmarkedstiltakOversikt } from "./views/ModiaArbeidsmarkedstiltakOversikt";
 import { Theme } from "@navikt/ds-react";
+import { AppTheme } from "@/constants";
 
-export function ModiaArbeidsmarkedstiltak() {
+interface Props {
+  theme: AppTheme;
+}
+
+export function ModiaArbeidsmarkedstiltak({ theme }: Props) {
   return (
-    <Theme theme="light" data-color="accent" hasBackground={false}>
+    <Theme theme={theme} data-color="accent" hasBackground={false}>
       <AppContainer header={<DemoImageHeader />}>
         <ModiaArbeidsmarkedstiltakRoutes />
       </AppContainer>

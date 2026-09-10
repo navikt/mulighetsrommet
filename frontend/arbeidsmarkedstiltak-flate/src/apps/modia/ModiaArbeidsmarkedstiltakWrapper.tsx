@@ -1,6 +1,6 @@
 import { ModiaContext } from "@/apps/modia/ModiaContext";
 import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
-import { APPLICATION_WEB_COMPONENT_NAME } from "@/constants";
+import { APPLICATION_WEB_COMPONENT_NAME, AppTheme } from "@/constants";
 import createCache from "@emotion/cache";
 import { createRoot, Root } from "react-dom/client";
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router";
@@ -10,6 +10,7 @@ import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";
   static ENHET_PROP = "data-enhet";
+  static THEME_PROP = "theme";
   static BASE_URL_PROP = "data-base-url";
   static ASSET_MANIFEST_PROP = "data-asset-manifest";
 
@@ -30,6 +31,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
     return [
       ModiaArbeidsmarkedstiltakWrapper.FNR_PROP,
       ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP,
+      ModiaArbeidsmarkedstiltakWrapper.THEME_PROP,
       ModiaArbeidsmarkedstiltakWrapper.BASE_URL_PROP,
       ModiaArbeidsmarkedstiltakWrapper.ASSET_MANIFEST_PROP,
     ];
@@ -61,6 +63,8 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
       this.updateContextData("fnr", newValue);
     } else if (name === ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP && this.updateContextData) {
       this.updateContextData("enhet", newValue);
+    } else if (name === ModiaArbeidsmarkedstiltakWrapper.THEME_PROP && this.updateContextData) {
+      this.updateContextData("theme", newValue);
     } else if (name === ModiaArbeidsmarkedstiltakWrapper.BASE_URL_PROP) {
       this.baseUrl = newValue;
       this.tryMountApp();
@@ -90,7 +94,8 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
       .then(() => {
         const fnr = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.FNR_PROP) ?? undefined;
         const enhet = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP) ?? undefined;
-        return this.renderApp(fnr, enhet);
+        const theme = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.THEME_PROP) ?? undefined;
+        return this.renderApp(fnr, enhet, theme);
       })
       .catch((error) => {
         this.displayError(error?.message ?? `Error loading styles: ${error}`);
@@ -113,7 +118,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
     await Promise.all(loadedCss);
   }
 
-  renderApp(fnr?: string, enhet?: string) {
+  renderApp(fnr?: string, enhet?: string, theme?: string) {
     this.reactRoot = createRoot(this.root);
 
     const shadowrootCache = createCache({
@@ -129,7 +134,10 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
         >
           <Router>
             <Routes>
-              <Route path="arbeidsmarkedstiltak/*" element={<ModiaArbeidsmarkedstiltak />} />
+              <Route
+                path="arbeidsmarkedstiltak/*"
+                element={<ModiaArbeidsmarkedstiltak theme={(theme ?? "light") as AppTheme} />}
+              />
               <Route path="preview/*" element={<PreviewArbeidsmarkedstiltak />} />
               <Route path="*" element={<Navigate replace to="/arbeidsmarkedstiltak" />} />
             </Routes>
