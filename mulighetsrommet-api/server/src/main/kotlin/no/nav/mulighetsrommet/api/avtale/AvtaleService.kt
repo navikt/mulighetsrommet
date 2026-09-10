@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.avtale
 
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.left
 import arrow.core.mapOrAccumulate
 import arrow.core.nel
@@ -17,7 +18,6 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
-import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
@@ -84,24 +84,29 @@ class AvtaleService(
         }
         val detaljer = AvtaleValidator.validateCreateAvtale(request, createAvtaleContext).bind()
 
-        val systembestemtPrismodell = if (request.detaljer.avtaletype == Avtaletype.FORHANDSGODKJENT) {
-            db.session { queries.prismodell.getBySystemId(request.detaljer.tiltakskode.name) }
+        val prisinfo = if (detaljer.avtaletype == Avtaletype.FORHANDSGODKJENT) {
+            val prismodell = db.session { queries.prismodell.getBySystemId(request.detaljer.tiltakskode.name) }
+            if (prismodell == null) {
+                raise(
+                    FieldError.of(
+                        "Systembestemt prismodell mangler for forhåndsgodkjent avtale",
+                        OpprettAvtaleRequest::prismodeller,
+                    ).nel(),
+                )
+            }
+            Avtale.Prisinfo.Systembestemt(prismodell)
         } else {
-            null
+            val context = AvtaleValidator.PrismodellParseContext(
+                tiltakskode = detaljer.tiltakskode,
+                avtaleStartDato = detaljer.startDato,
+                gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
+            )
+            val prismodeller = AvtaleValidator.parsePrismodeller(request.prismodeller, context).bind()
+            Avtale.Prisinfo.Egendefinert.of(detaljer.tiltakskode, prismodeller).bind()
         }
-        val createPrismodellerContext = ValidatePrismodellerContext(
-            avtaletype = detaljer.avtaletype,
-            tiltakskode = request.detaljer.tiltakskode,
-            tiltakstypeNavn = createAvtaleContext.tiltakstype.navn,
-            avtaleStartDato = detaljer.startDato,
-            gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
-            bruktePrismodeller = setOf(),
-            systembestemtPrismodell = systembestemtPrismodell,
-        )
-        val prismodeller = AvtaleValidator.validatePrismodeller(request.prismodeller, createPrismodellerContext).bind()
 
         db.transaction {
-            val avtale = request.toAvtale(detaljer, prismodeller)
+            val avtale = request.toAvtale(detaljer, prisinfo)
             repository.avtale.save(avtale)
 
             dispatchNotificationToNewAdministrators(
@@ -223,21 +228,23 @@ class AvtaleService(
             return FieldError.of("Prismodell kan ikke endres for forhåndsgodkjente avtaler").nel().left()
         }
 
-        val gjennomforinger = queries.gjennomforing.getByAvtale(id)
-        val tiltakstype = queries.tiltakstype.getByTiltakskode(avtale.tiltakskode)
-        // TODO: forenkle context - f.eks. hele tiltakstype + avtale i context?
-        val context = ValidatePrismodellerContext(
-            avtaletype = avtale.avtaletype,
+        val context = AvtaleValidator.PrismodellParseContext(
             tiltakskode = avtale.tiltakskode,
-            tiltakstypeNavn = tiltakstype.navn,
             avtaleStartDato = avtale.startDato,
             gyldigTilsagnPeriode = config.gyldigTilsagnPeriode,
-            bruktePrismodeller = gjennomforinger.map { it.prismodell.id }.toSet(),
-            systembestemtPrismodell = null,
         )
-
-        AvtaleValidator.validatePrismodeller(request, context).map { prisinfo ->
-            repository.avtale.save(avtale.copy(prisinfo = prisinfo))
+        AvtaleValidator.parsePrismodeller(request, context).flatMap { prismodeller ->
+            val bruktePrismodeller = queries.gjennomforing.getByAvtale(id).map { it.prismodell.id }.toSet()
+            if (bruktePrismodeller.any { id -> prismodeller.none { it.id == id } }) {
+                FieldError.of(
+                    "Prismodell kan ikke fjernes fordi en eller flere gjennomføringer er koblet til prismodellen",
+                    OpprettAvtaleRequest::prismodeller,
+                ).nel().left()
+            } else {
+                avtale.medPrismodeller(prismodeller)
+            }
+        }.map { oppdatert ->
+            repository.avtale.save(oppdatert)
 
             logEndring("Prismodell oppdatert", id, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
