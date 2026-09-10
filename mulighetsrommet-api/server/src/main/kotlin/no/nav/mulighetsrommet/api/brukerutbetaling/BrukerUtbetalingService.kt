@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.brukerutbetaling
 
+import arrow.core.toNonEmptySetOrThrow
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.KafkaProducerClient
 import no.nav.mulighetsrommet.api.ApiDatabase
@@ -28,9 +29,11 @@ class BrukerUtbetalingService(
 
     fun handleHelvedStatus(id: UUID, statusMelding: HelVedStatus) {
         logger.info("Melding fra hel ved: {}", Json.encodeToString(statusMelding))
-        val behandlingIds = statusMelding.detaljer?.linjer?.mapNotNull { it.behandlingId.toIntOrNull() }?.toSet()
-
-        db.session { queries.brukerUtbetaling.setHelVedStatus(id, behandlingIds ?: emptySet(), statusMelding) }
+        val behandlingIds = statusMelding.detaljer?.linjer?.mapNotNull { it.behandlingId.toIntOrNull() }?.toNonEmptySetOrThrow()
+        requireNotNull(behandlingIds) { "Mottok statusmelding fra hel ved uten behandlingId(er)" }
+        db.session {
+            queries.brukerUtbetaling.setHelVedStatus(id, behandlingIds, statusMelding)
+        }
     }
 
     fun produceTilskuddUtbetaling(utbetaling: HelVedUtbetaling) {

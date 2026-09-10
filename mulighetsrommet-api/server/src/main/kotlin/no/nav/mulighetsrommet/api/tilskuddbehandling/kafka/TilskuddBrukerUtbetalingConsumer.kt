@@ -7,8 +7,9 @@ import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
+import no.nav.mulighetsrommet.api.brukerutbetaling.db.BrukerUtbetalingDbo
+import no.nav.mulighetsrommet.api.brukerutbetaling.db.UpsertBrukerUtbetalingDbo
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
-import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling.Periode
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.domain.deltaker.Deltaker
@@ -26,6 +27,7 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.NavIdent
+import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
@@ -103,10 +105,14 @@ class TilskuddBrukerUtbetalingConsumer(
                 db.transaction {
                     // Idempotency check
                     queries.tilskuddBehandling.acquireLockTilskuddVedtak(tilskudd.id)
-                    if (queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id) != null) {
-                        logger.info("Utbetaling for tilskudd vedtak med id=${tilskudd.id} er allerede opprettet, hopper over")
-                        return
+                    val tidligereUtbetaling = queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id)
+                    require(tidligereUtbetaling == null) {
+                        "Utbetaling for tilskudd vedtak med id=${tilskudd.id} er allerede opprettet"
                     }
+                    require(queries.brukerUtbetaling.getLastFromTilskudd(tilskudd.tilskuddId) != null) {
+                        "Forventet å kunne revurdere utbetaling for tilskuddId=${tilskudd.tilskuddId}, men det finnes ingen tidligere utbetalinger"
+                    }
+
                     utbetalingTilOpphor(tilskudd, brukerPersonalia, saksbehandler, beslutter, besluttetTidspunkt)
                 }
             }
@@ -136,30 +142,25 @@ class TilskuddBrukerUtbetalingConsumer(
                     }
 
                     val besluttetDato = requireNotNull(totrinnskontroll.besluttetTidspunkt)
-                    val utbetaling = HelVedUtbetaling(
-                        id = UUID.randomUUID(),
-                        sakId = gjennomforing.lopenummer.value,
-                        behandlingId = "1",
-                        personIdent = requireNotNull(brukerPersonalia.norskIdent()) {
-                            "Norsk ident var null"
-                        },
-                        periode = besluttetDato.tilNorskDato().let { Periode(it, it) },
-                        belop = requireNotNull(t.utbetalingBelop?.belop) {
-                            "utbetalingBelop var null"
-                        },
-                        kostnadssted = behandling.kostnadssted.enhetsnummer,
-                        tilskuddstype = t.tilskuddOpplaeringType.toHelVedTilskuddstype(),
-                        saksbehandler = saksbehandler,
-                        beslutter = beslutter,
-                        besluttetTidspunkt = besluttetDato,
-                        tiltakskode = gjennomforing.tiltakstype.tiltakskode.toHelVedTiltakskode(),
-                        dryrun = false,
+                    queries.brukerUtbetaling.insert(
+                        UpsertBrukerUtbetalingDbo(
+                            id = UUID.randomUUID(),
+                            sakId = gjennomforing.lopenummer.value,
+                            transaksjonsDato = besluttetDato.tilNorskDato(),
+                            belop = requireNotNull(t.utbetalingBelop?.belop) {
+                                "utbetalingBelop var null"
+                            },
+                            tilskuddstype = t.tilskuddOpplaeringType.toHelVedTilskuddstype(),
+                            saksbehandler = saksbehandler,
+                            beslutter = beslutter,
+                            besluttetTidspunkt = besluttetDato,
+                            tiltakskode = gjennomforing.tiltakstype.tiltakskode.toHelVedTiltakskode(),
+                            tilskuddVedtakId = t.id,
+                        ),
                     )
-                    queries.brukerUtbetaling.insert(utbetaling)
 
-                    queries.tilskuddBehandling.setBrukerUtbetaling(t.id, utbetaling.id, utbetaling.behandlingId.toInt())
-
-                    brukerUtbetalingService.produceTilskuddUtbetaling(utbetaling)
+                    val brukerUtbetaling = requireNotNull(queries.brukerUtbetaling.getByTilskuddVedtak(t.id))
+                    brukerUtbetalingService.produceTilskuddUtbetaling(brukerUtbetaling.toHelVedUtbetaling(brukerPersonalia.norskIdent()))
                 }
             }
     }
@@ -172,40 +173,33 @@ class TilskuddBrukerUtbetalingConsumer(
         beslutter: NavIdent,
         besluttetTidspunkt: Instant,
     ) = with(tx) {
-        val brukerUtbetaling = queries.brukerUtbetaling.getLastFromTilskudd(tilskudd.tilskuddId)
+        val forrigeUtbetaling = queries.brukerUtbetaling.getLastFromTilskudd(tilskudd.tilskuddId)
 
-        requireNotNull(brukerUtbetaling) {
+        requireNotNull(forrigeUtbetaling) {
             "Fant ikke tidligere utbetaling for tilskudd med id=${tilskudd.tilskuddId} som skal opphøres"
         }
-        val tilOppgjor = brukerUtbetaling.tilOpphor(
-            saksbehandler = saksbehandler,
-            beslutter = beslutter,
-            besluttetTidspunkt = besluttetTidspunkt,
+
+        queries.brukerUtbetaling.insert(
+            UpsertBrukerUtbetalingDbo(
+                belop = tilskudd.utbetalingBelop!!.belop,
+                saksbehandler = saksbehandler,
+                beslutter = beslutter,
+                besluttetTidspunkt = besluttetTidspunkt,
+                tilskuddVedtakId = tilskudd.id,
+                id = forrigeUtbetaling.id,
+                sakId = forrigeUtbetaling.sakId,
+                transaksjonsDato = forrigeUtbetaling.transaksjonsDato,
+                tilskuddstype = forrigeUtbetaling.tilskuddstype,
+                tiltakskode = forrigeUtbetaling.tiltakskode,
+            ),
         )
 
-        val helvedOpphor = HelVedUtbetaling(
-            id = tilOppgjor.id,
-            sakId = tilOppgjor.sakId,
-            behandlingId = tilOppgjor.behandlingId.toString(),
-            personIdent = requireNotNull(brukerPersonalia.norskIdent()) {
-                "Norsk ident var null"
-            },
-            periode = HelVedUtbetaling.Periode(tilOppgjor.transaksjonsDato, tilOppgjor.transaksjonsDato),
-            belop = tilOppgjor.belop,
-            kostnadssted = tilOppgjor.kostnadssted.enhetsnummer,
-            tilskuddstype = tilOppgjor.tilskuddstype,
-            saksbehandler = tilOppgjor.saksbehandler,
-            beslutter = tilOppgjor.beslutter,
-            besluttetTidspunkt = tilOppgjor.besluttetTidspunkt,
-            tiltakskode = tilOppgjor.tiltakskode,
-            dryrun = false,
-        )
-        queries.brukerUtbetaling.insert(helvedOpphor)
-        queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, tilOppgjor.id, tilOppgjor.behandlingId)
+        val opphor = requireNotNull(queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id))
         brukerUtbetalingService.produceTilskuddUtbetaling(
-            helvedOpphor,
+            opphor.toHelVedUtbetaling(brukerPersonalia.norskIdent()),
         )
     }
+
     private fun QueryContext.getDeltaker(gjennomforingId: UUID): Deltaker {
         val deltakelser = repository.deltaker.getByGjennomforing(gjennomforingId)
         if (deltakelser.size != 1) {
@@ -214,6 +208,23 @@ class TilskuddBrukerUtbetalingConsumer(
         return deltakelser.first()
     }
 }
+
+fun BrukerUtbetalingDbo.toHelVedUtbetaling(personIdent: NorskIdent?): HelVedUtbetaling = HelVedUtbetaling(
+    id = id,
+    sakId = sakId,
+    behandlingId = behandlingId.toString(),
+    personIdent = personIdent
+        ?: throw IllegalStateException("Fant ikke norsk ident for bruker utbetaling med id=$id, sakId=$sakId, behandlingId=$behandlingId"),
+    periode = HelVedUtbetaling.Periode(transaksjonsDato, transaksjonsDato),
+    belop = belop,
+    kostnadssted = kostnadssted.enhetsnummer,
+    tilskuddstype = tilskuddstype,
+    tiltakskode = tiltakskode,
+    saksbehandler = saksbehandler,
+    beslutter = beslutter,
+    besluttetTidspunkt = besluttetTidspunkt,
+    dryrun = false,
+)
 
 fun Tiltakskode.toHelVedTiltakskode(): HelVedUtbetaling.Tiltakskode = when (this) {
     Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING ->

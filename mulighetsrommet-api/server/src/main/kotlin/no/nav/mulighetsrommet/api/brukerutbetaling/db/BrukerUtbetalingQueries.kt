@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.brukerutbetaling.db
 
+import arrow.core.NonEmptySet
 import kotlinx.serialization.json.Json
 import kotliquery.Row
 import kotliquery.Session
@@ -27,27 +28,29 @@ data class BrukerUtbetalingDbo(
     val helVedStatus: HelVedStatus.Status?,
     val helVedStatusError: HelVedStatus.StatusError?,
     val kostnadssted: Kostnadssted,
+    val tilskuddVedtakId: UUID,
 ) {
     data class Kostnadssted(
         val navn: String,
         val enhetsnummer: NavEnhetNummer,
     )
-
-    private fun nyBehandlingId() = behandlingId.plus(1)
-
-    fun tilOpphor(saksbehandler: NavIdent, beslutter: NavIdent, besluttetTidspunkt: Instant): BrukerUtbetalingDbo = copy(
-        behandlingId = nyBehandlingId(),
-        belop = 0,
-        saksbehandler = saksbehandler,
-        beslutter = beslutter,
-        besluttetTidspunkt = besluttetTidspunkt,
-        helVedStatus = null,
-        helVedStatusError = null,
-    )
 }
 
+data class UpsertBrukerUtbetalingDbo(
+    val id: UUID,
+    val sakId: String,
+    val belop: Int,
+    val transaksjonsDato: LocalDate,
+    val tilskuddstype: HelVedUtbetaling.Tilskuddstype,
+    val tiltakskode: HelVedUtbetaling.Tiltakskode,
+    val saksbehandler: NavIdent,
+    val beslutter: NavIdent,
+    val besluttetTidspunkt: Instant,
+    val tilskuddVedtakId: UUID,
+)
+
 class BrukerUtbetalingQueries(private val session: Session) {
-    fun insert(utbetaling: HelVedUtbetaling) {
+    fun insert(utbetaling: UpsertBrukerUtbetalingDbo) {
         @Language("PostgreSQL")
         val query = """
             insert into bruker_utbetaling (
@@ -60,32 +63,35 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 saksbehandler,
                 beslutter,
                 besluttet_tidspunkt,
-                transaksjon_dato
-            ) values (
+                transaksjon_dato,
+                tilskudd_vedtak_id
+            ) select
                 :id::uuid,
                 :sak_id,
-                :behandling_id,
+                tv.lopenummer,
                 :belop,
                 :tilskuddstype,
                 :tiltakskode,
                 :saksbehandler,
                 :beslutter,
                 :besluttet_tidspunkt,
-                :transaksjon_dato
-            )
+                :transaksjon_dato,
+                tv.id
+            from tilskudd_vedtak tv
+            where tv.id = :tilskudd_vedtak_id::uuid
         """.trimIndent()
 
         val params = mapOf(
             "id" to utbetaling.id,
             "sak_id" to utbetaling.sakId,
-            "behandling_id" to parseBehandlingId(utbetaling.behandlingId),
             "belop" to utbetaling.belop,
             "tilskuddstype" to utbetaling.tilskuddstype.name,
             "tiltakskode" to utbetaling.tiltakskode.name,
             "saksbehandler" to utbetaling.saksbehandler.value,
             "beslutter" to utbetaling.beslutter.value,
             "besluttet_tidspunkt" to utbetaling.besluttetTidspunkt,
-            "transaksjon_dato" to utbetaling.periode.fom,
+            "transaksjon_dato" to utbetaling.transaksjonsDato,
+            "tilskudd_vedtak_id" to utbetaling.tilskuddVedtakId,
         )
 
         session.execute(queryOf(query, params))
@@ -99,8 +105,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 nav_enhet.enhetsnummer as kostnadssted_enhetsnummer,
                 nav_enhet.navn as kostnadssted_navn
             from bruker_utbetaling
-                inner join tilskudd_vedtak_bruker_utbetaling on tilskudd_vedtak_bruker_utbetaling.bruker_utbetaling_id = bruker_utbetaling.id
-                inner join tilskudd_vedtak on tilskudd_vedtak_bruker_utbetaling.tilskudd_vedtak_id = tilskudd_vedtak.id
+                inner join tilskudd_vedtak on bruker_utbetaling.tilskudd_vedtak_id = tilskudd_vedtak.id
                 inner join nav_enhet on nav_enhet.enhetsnummer = tilskudd_vedtak.kostnadssted
             where tilskudd_vedtak.id = :id::uuid
         """.trimIndent()
@@ -120,8 +125,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 nav_enhet.enhetsnummer as kostnadssted_enhetsnummer,
                 nav_enhet.navn as kostnadssted_navn
             from bruker_utbetaling
-                inner join tilskudd_vedtak_bruker_utbetaling on tilskudd_vedtak_bruker_utbetaling.bruker_utbetaling_id = bruker_utbetaling.id
-                inner join tilskudd_vedtak on tilskudd_vedtak_bruker_utbetaling.tilskudd_vedtak_id = tilskudd_vedtak.id
+                inner join tilskudd_vedtak on bruker_utbetaling.tilskudd_vedtak_id = tilskudd_vedtak.id
                 inner join nav_enhet on nav_enhet.enhetsnummer = tilskudd_vedtak.kostnadssted
             where tilskudd_vedtak.tilskudd_id = :tilskudd_id::uuid
             order by bruker_utbetaling.behandling_id desc
@@ -135,10 +139,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
         }
     }
 
-    fun setHelVedStatus(id: UUID, behandlingIds: Set<Int>, status: HelVedStatus) {
-        // Foventer at det finnes minst en bruker utbetaling -> har da behandlingsId 1
-        val effectiveBehandlingIds = behandlingIds.ifEmpty { setOf(1) }
-
+    fun setHelVedStatus(id: UUID, behandlingIds: NonEmptySet<Int>, status: HelVedStatus) {
         @Language("PostgreSQL")
         val query = """
             update bruker_utbetaling set
@@ -154,7 +155,7 @@ class BrukerUtbetalingQueries(private val session: Session) {
                 query,
                 mapOf(
                     "id" to id,
-                    "behandling_ids" to effectiveBehandlingIds.toIntArray(),
+                    "behandling_ids" to behandlingIds.toIntArray(),
                     "status" to status.status.name,
                     "status_error" to Json.encodeToString(status.error),
                 ),
@@ -180,10 +181,5 @@ private fun Row.toBrukerUtbetalingDbo() = BrukerUtbetalingDbo(
         navn = string("kostnadssted_navn"),
         enhetsnummer = NavEnhetNummer(string("kostnadssted_enhetsnummer")),
     ),
+    tilskuddVedtakId = uuid("tilskudd_vedtak_id"),
 )
-
-private fun parseBehandlingId(behandlingId: String): Int {
-    return requireNotNull(behandlingId.toIntOrNull()) {
-        "behandlingId må være et heltall, men var '$behandlingId'"
-    }
-}

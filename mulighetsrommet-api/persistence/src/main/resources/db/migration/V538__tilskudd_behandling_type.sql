@@ -1,5 +1,6 @@
 drop view if exists view_tilskudd_behandling;
 
+-- Legg til behandlingstype
 create table tilskudd_behandling_type (
     value text primary key
 );
@@ -19,3 +20,8 @@ alter table tilskudd_behandling
     alter column type set not null;
 
 insert into totrinnskontroll_type (value) values ('TILSKUDD_OPPHOR');
+
+-- Unikt løpenummer per vedtak for et tilskudd
+alter table tilskudd_vedtak
+    add constraint tilskudd_vedtak_tilskudd_id_lopenummer_key
+        unique (tilskudd_id, lopenummer);

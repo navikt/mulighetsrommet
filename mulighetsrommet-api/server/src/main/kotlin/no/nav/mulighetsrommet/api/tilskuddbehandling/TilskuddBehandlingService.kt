@@ -45,8 +45,6 @@ class TilskuddBehandlingService(
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
-    private val personaliaService: PersonaliaService,
-    private val brukerUtbetalingService: BrukerUtbetalingService,
 ) {
     fun upsert(
         request: TilskuddBehandlingRequest,
