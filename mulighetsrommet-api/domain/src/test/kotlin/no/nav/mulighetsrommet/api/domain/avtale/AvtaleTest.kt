@@ -7,6 +7,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.model.Avtaletype
@@ -244,6 +245,57 @@ class AvtaleTest : FunSpec({
                 personopplysninger = setOf(Personopplysning.Type.ANNET),
                 annetBeskrivelse = "En beskrivelse",
                 erBekreftet = true,
+            )
+        }
+    }
+
+    context("VeilederInfo.of") {
+        test("krever minst én Nav-region") {
+            Avtale.VeilederInfo.of(
+                beskrivelse = null,
+                faneinnhold = null,
+                navEnheter = setOf(NavEnhetFixtures.Gjovik),
+            ).shouldBeLeft(
+                listOf(
+                    FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region"),
+                    FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet"),
+                ),
+            )
+        }
+
+        test("krever minst én Nav-enhet innenfor de valgte regionene") {
+            Avtale.VeilederInfo.of(
+                beskrivelse = null,
+                faneinnhold = null,
+                navEnheter = setOf(NavEnhetFixtures.Innlandet),
+            ).shouldBeLeft(
+                listOf(FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet")),
+            )
+        }
+
+        test("akkumulerer feil når verken region eller enhet er valgt") {
+            Avtale.VeilederInfo.of(
+                beskrivelse = null,
+                faneinnhold = null,
+                navEnheter = setOf(),
+            ).shouldBeLeft(
+                listOf(
+                    FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region"),
+                    FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet"),
+                ),
+            )
+        }
+
+        test("filtrerer bort enheter som ikke er regioner eller underenheter av valgte regioner") {
+            val veilederinfo = Avtale.VeilederInfo.of(
+                beskrivelse = "Beskrivelse",
+                faneinnhold = null,
+                navEnheter = setOf(NavEnhetFixtures.Innlandet, NavEnhetFixtures.Gjovik, NavEnhetFixtures.TiltakOslo),
+            ).shouldBeRight()
+
+            veilederinfo.navEnheter shouldContainExactlyInAnyOrder setOf(
+                NavEnhetFixtures.Innlandet.enhetsnummer,
+                NavEnhetFixtures.Gjovik.enhetsnummer,
             )
         }
     }
