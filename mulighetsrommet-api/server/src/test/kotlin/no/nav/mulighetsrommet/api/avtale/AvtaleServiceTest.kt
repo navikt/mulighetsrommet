@@ -4,7 +4,6 @@ import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
@@ -593,6 +592,11 @@ class AvtaleServiceTest : FunSpec({
         test("Man skal ikke få avbryte, men få en melding dersom avtalen allerede er avsluttet") {
             val avbruttAvtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
+                status = AvtaleStatus.Avbrutt(
+                    tidspunkt = LocalDateTime.now(),
+                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
+                    forklaring = null,
+                ),
             )
             val avsluttetAvtale = AvtaleFixtures.oppfolging.copy(
                 id = UUID.randomUUID(),
@@ -601,15 +605,7 @@ class AvtaleServiceTest : FunSpec({
 
             MulighetsrommetTestDomain(
                 avtaler = listOf(avbruttAvtale, avsluttetAvtale),
-            ) {
-                queries.avtale.setStatus(
-                    avbruttAvtale.id,
-                    AvtaleStatusType.AVBRUTT,
-                    tidspunkt = LocalDateTime.now(),
-                    aarsaker = listOf(AvbrytAvtaleAarsak.BUDSJETT_HENSYN),
-                    forklaring = null,
-                )
-            }.initialize(database.api)
+            ).initialize(database.api)
 
             avtaleService.avbrytAvtale(
                 avbruttAvtale.id,
@@ -705,18 +701,21 @@ class AvtaleServiceTest : FunSpec({
             )
             MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
 
-            shouldThrow<IllegalStateException> {
-                avtaleService.avsluttAvtale(avtale.id, LocalDateTime.now(), bertilNavIdent)
-            }.message shouldBe "Avtalen må være aktiv for å kunne avsluttes"
+            avtaleService.avsluttAvtale(avtale.id, LocalDateTime.now(), bertilNavIdent).shouldBeLeft(
+                listOf(
+                    FieldError.of("Avtalen må være aktiv for å kunne avsluttes"),
+                    FieldError.of("Avtalen kan ikke avsluttes før sluttdato"),
+                ),
+            )
         }
 
         test("kan ikke avslutte avtale før sluttdato") {
             val avtale = AvtaleFixtures.oppfolging
             MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
 
-            shouldThrow<IllegalStateException> {
-                avtaleService.avsluttAvtale(avtale.id, LocalDateTime.now(), bertilNavIdent)
-            }.message shouldBe "Avtalen kan ikke avsluttes før sluttdato"
+            avtaleService.avsluttAvtale(avtale.id, LocalDateTime.now(), bertilNavIdent).shouldBeLeft(
+                listOf(FieldError.of("Avtalen kan ikke avsluttes før sluttdato")),
+            )
         }
 
         test("avslutter avtale når tidspunktet er etter sluttdato") {
@@ -725,7 +724,7 @@ class AvtaleServiceTest : FunSpec({
 
             val avsluttetTidspunkt = avtale.sluttDato!!.plusDays(1).atStartOfDay()
 
-            avtaleService.avsluttAvtale(avtale.id, avsluttetTidspunkt, bertilNavIdent).should {
+            avtaleService.avsluttAvtale(avtale.id, avsluttetTidspunkt, bertilNavIdent).shouldBeRight().should {
                 it.id shouldBe avtale.id
                 it.status.type shouldBe AvtaleStatusType.AVSLUTTET
             }

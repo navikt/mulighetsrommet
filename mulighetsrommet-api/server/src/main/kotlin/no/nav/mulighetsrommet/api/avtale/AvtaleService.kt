@@ -6,6 +6,7 @@ import arrow.core.left
 import arrow.core.mapOrAccumulate
 import arrow.core.nel
 import arrow.core.raise.either
+import arrow.core.raise.ensure
 import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
@@ -45,7 +46,6 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
-import no.nav.mulighetsrommet.validation.validation
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -262,21 +262,16 @@ class AvtaleService(
         logEndring("Rammedetaljer slettet", id, navIdent)
     }
 
-    fun avsluttAvtale(id: UUID, avsluttetTidspunkt: LocalDateTime, endretAv: Agent) = db.transaction {
-        val avtale = getOrError(id)
+    fun avsluttAvtale(
+        id: UUID,
+        avsluttetTidspunkt: LocalDateTime,
+        endretAv: Agent,
+    ): Either<List<FieldError>, Avtale> = db.transaction {
+        getOrError(id).avslutt(avsluttetTidspunkt).map { oppdatert ->
+            repository.avtale.save(oppdatert)
 
-        check(avtale.status == AvtaleStatus.Aktiv) {
-            "Avtalen må være aktiv for å kunne avsluttes"
+            logEndring("Avtalen ble avsluttet", id, endretAv)
         }
-
-        val tidspunktForSlutt = avtale.sluttDato?.plusDays(1)?.atStartOfDay()
-        check(tidspunktForSlutt != null && !avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
-            "Avtalen kan ikke avsluttes før sluttdato"
-        }
-
-        queries.avtale.setStatus(id, AvtaleStatusType.AVSLUTTET, null, null, null)
-
-        logEndring("Avtalen ble avsluttet", id, endretAv)
     }
 
     fun avbrytAvtale(
@@ -285,34 +280,25 @@ class AvtaleService(
         tidspunkt: LocalDateTime,
         aarsakerOgForklaring: AarsakerOgForklaringRequest<AvbrytAvtaleAarsak>,
     ): Either<List<FieldError>, Avtale> = db.transaction {
-        validation {
+        either {
             val avtale = getOrError(id)
-            when (avtale.status) {
-                is AvtaleStatus.Utkast, is AvtaleStatus.Aktiv -> Unit
-                is AvtaleStatus.Avbrutt -> error { FieldError.of("Avtalen er allerede avbrutt") }
-                is AvtaleStatus.Avsluttet -> error { FieldError.of("Avtalen er allerede avsluttet") }
-            }
 
             val antallAktiveGjennomforinger = queries.gjennomforing.getByAvtale(id).count {
                 it.status is GjennomforingAvtaleStatus.Gjennomfores
             }
-            validate(antallAktiveGjennomforinger == 0) {
+            ensure(antallAktiveGjennomforinger == 0) {
                 val message = listOf(
                     "Avtalen har",
                     antallAktiveGjennomforinger,
                     if (antallAktiveGjennomforinger > 1) "aktive gjennomføringer" else "aktiv gjennomføring",
                     "og kan derfor ikke avbrytes",
                 ).joinToString(" ")
-                FieldError.of(message)
+                FieldError.of(message).nel()
             }
-        }.map {
-            queries.avtale.setStatus(
-                id = id,
-                status = AvtaleStatusType.AVBRUTT,
-                tidspunkt = tidspunkt,
-                aarsaker = aarsakerOgForklaring.aarsaker,
-                forklaring = aarsakerOgForklaring.forklaring,
-            )
+
+            avtale.avbryt(tidspunkt, aarsakerOgForklaring.aarsaker, aarsakerOgForklaring.forklaring).bind()
+        }.map { oppdatert ->
+            repository.avtale.save(oppdatert)
 
             logEndring("Avtalen ble avbrutt", id, avbruttAv)
         }
@@ -421,21 +407,8 @@ class AvtaleService(
     }
 
     private fun QueryContext.updateAvtaleVarighet(avtaleId: UUID, nySluttDato: LocalDate, today: LocalDate) {
-        queries.avtale.setSluttDato(avtaleId, nySluttDato)
-
-        val currentStatus = getOrError(avtaleId).status.type
-        val newStatus = when (currentStatus) {
-            AvtaleStatusType.UTKAST, AvtaleStatusType.AVBRUTT -> currentStatus
-
-            AvtaleStatusType.AKTIV, AvtaleStatusType.AVSLUTTET -> if (!nySluttDato.isBefore(today)) {
-                AvtaleStatusType.AKTIV
-            } else {
-                AvtaleStatusType.AVSLUTTET
-            }
-        }
-        if (newStatus != currentStatus) {
-            queries.avtale.setStatus(avtaleId, newStatus, null, null, null)
-        }
+        val oppdatert = getOrError(avtaleId).oppdaterVarighet(nySluttDato, today)
+        repository.avtale.save(oppdatert)
     }
 
     private fun QueryContext.getOrError(id: UUID): Avtale {

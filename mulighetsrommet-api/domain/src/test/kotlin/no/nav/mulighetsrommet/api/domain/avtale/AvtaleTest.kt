@@ -14,6 +14,8 @@ import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Valuta
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 class AvtaleTest : FunSpec({
     context("medRammedetaljer") {
@@ -297,6 +299,98 @@ class AvtaleTest : FunSpec({
                 NavEnhetFixtures.Innlandet.enhetsnummer,
                 NavEnhetFixtures.Gjovik.enhetsnummer,
             )
+        }
+    }
+    context("avslutt") {
+        test("krever at avtalen er aktiv") {
+            val avtale = AvtaleFixtures.oppfolging.copy(status = AvtaleStatus.Utkast)
+
+            avtale.avslutt(LocalDateTime.now()).shouldBeLeft(
+                listOf(
+                    FieldError.of("Avtalen må være aktiv for å kunne avsluttes"),
+                    FieldError.of("Avtalen kan ikke avsluttes før sluttdato"),
+                ),
+            )
+        }
+
+        test("krever at avsluttet-tidspunkt er etter sluttdato") {
+            val avtale = AvtaleFixtures.oppfolging
+
+            avtale.avslutt(avtale.sluttDato!!.atStartOfDay()).shouldBeLeft(
+                listOf(FieldError.of("Avtalen kan ikke avsluttes før sluttdato")),
+            )
+        }
+
+        test("setter status til Avsluttet når avtalen er aktiv og tidspunktet er etter sluttdato") {
+            val avtale = AvtaleFixtures.oppfolging
+
+            avtale.avslutt(avtale.sluttDato!!.plusDays(1).atStartOfDay())
+                .shouldBeRight().status shouldBe AvtaleStatus.Avsluttet
+        }
+    }
+
+    context("avbryt") {
+        test("kan avbryte avtale som er Utkast eller Aktiv") {
+            val tidspunkt = LocalDateTime.now()
+
+            AvtaleFixtures.oppfolging.copy(status = AvtaleStatus.Utkast)
+                .avbryt(tidspunkt, listOf(AvbrytAvtaleAarsak.ANNET), null)
+                .shouldBeRight().status shouldBe AvtaleStatus.Avbrutt(tidspunkt, listOf(AvbrytAvtaleAarsak.ANNET), null)
+
+            AvtaleFixtures.oppfolging.copy(status = AvtaleStatus.Aktiv)
+                .avbryt(tidspunkt, listOf(AvbrytAvtaleAarsak.ANNET), null)
+                .shouldBeRight().status shouldBe AvtaleStatus.Avbrutt(tidspunkt, listOf(AvbrytAvtaleAarsak.ANNET), null)
+        }
+
+        test("kan ikke avbryte avtale som allerede er avbrutt") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                status = AvtaleStatus.Avbrutt(LocalDateTime.now(), listOf(AvbrytAvtaleAarsak.ANNET), null),
+            )
+
+            avtale.avbryt(LocalDateTime.now(), listOf(AvbrytAvtaleAarsak.ANNET), null).shouldBeLeft(
+                listOf(FieldError.of("Avtalen er allerede avbrutt")),
+            )
+        }
+
+        test("kan ikke avbryte avtale som allerede er avsluttet") {
+            val avtale = AvtaleFixtures.oppfolging.copy(status = AvtaleStatus.Avsluttet)
+
+            avtale.avbryt(LocalDateTime.now(), listOf(AvbrytAvtaleAarsak.ANNET), null).shouldBeLeft(
+                listOf(FieldError.of("Avtalen er allerede avsluttet")),
+            )
+        }
+    }
+
+    context("oppdaterVarighet") {
+        test("setter avtalen til Aktiv når ny sluttdato ikke har passert") {
+            val avtale = AvtaleFixtures.oppfolging.copy(status = AvtaleStatus.Avsluttet)
+            val today = LocalDate.of(2025, 1, 1)
+
+            val oppdatert = avtale.oppdaterVarighet(today.plusDays(1), today)
+
+            oppdatert.sluttDato shouldBe today.plusDays(1)
+            oppdatert.status shouldBe AvtaleStatus.Aktiv
+        }
+
+        test("setter avtalen til Avsluttet når ny sluttdato har passert") {
+            val avtale = AvtaleFixtures.oppfolging.copy(status = AvtaleStatus.Aktiv)
+            val today = LocalDate.of(2025, 1, 1)
+
+            val oppdatert = avtale.oppdaterVarighet(today.minusDays(1), today)
+
+            oppdatert.sluttDato shouldBe today.minusDays(1)
+            oppdatert.status shouldBe AvtaleStatus.Avsluttet
+        }
+
+        test("beholder status Utkast og Avbrutt uansett ny sluttdato") {
+            val today = LocalDate.of(2025, 1, 1)
+
+            AvtaleFixtures.oppfolging.copy(status = AvtaleStatus.Utkast)
+                .oppdaterVarighet(today.minusDays(1), today).status shouldBe AvtaleStatus.Utkast
+
+            val avbrutt = AvtaleStatus.Avbrutt(LocalDateTime.now(), listOf(AvbrytAvtaleAarsak.ANNET), null)
+            AvtaleFixtures.oppfolging.copy(status = avbrutt)
+                .oppdaterVarighet(today.minusDays(1), today).status shouldBe avbrutt
         }
     }
 })

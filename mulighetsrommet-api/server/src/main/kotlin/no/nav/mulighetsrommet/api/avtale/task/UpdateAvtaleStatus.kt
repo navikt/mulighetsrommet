@@ -39,7 +39,9 @@ class UpdateAvtaleStatus(
                 id = id,
                 avsluttetTidspunkt = now,
                 endretAv = Tiltaksadministrasjon,
-            )
+            ).onLeft {
+                error("Kunne ikke avslutte avtale id=$id: $it")
+            }
         }
 
         logger.info("Oppdaterte status for ${avtaler.size} avtaler")

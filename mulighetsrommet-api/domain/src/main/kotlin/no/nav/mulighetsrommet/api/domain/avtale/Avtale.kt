@@ -107,6 +107,47 @@ data class Avtale(
 
     fun medVeilederinfo(veilederinfo: VeilederInfo): Avtale = copy(veilederinfo = veilederinfo)
 
+    fun avslutt(avsluttetTidspunkt: LocalDateTime): Either<List<FieldError>, Avtale> = validation {
+        validate(status == AvtaleStatus.Aktiv) {
+            FieldError.of("Avtalen må være aktiv for å kunne avsluttes")
+        }
+
+        val tidspunktForSlutt = sluttDato?.plusDays(1)?.atStartOfDay()
+        validate(tidspunktForSlutt != null && !avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
+            FieldError.of("Avtalen kan ikke avsluttes før sluttdato")
+        }
+
+        copy(status = AvtaleStatus.Avsluttet)
+    }
+
+    fun avbryt(
+        tidspunkt: LocalDateTime,
+        aarsaker: List<AvbrytAvtaleAarsak>,
+        forklaring: String?,
+    ): Either<List<FieldError>, Avtale> = validation {
+        when (status) {
+            is AvtaleStatus.Utkast, is AvtaleStatus.Aktiv -> Unit
+            is AvtaleStatus.Avbrutt -> error { FieldError.of("Avtalen er allerede avbrutt") }
+            is AvtaleStatus.Avsluttet -> error { FieldError.of("Avtalen er allerede avsluttet") }
+        }
+
+        copy(status = AvtaleStatus.Avbrutt(tidspunkt, aarsaker, forklaring))
+    }
+
+    fun oppdaterVarighet(nySluttDato: LocalDate, today: LocalDate): Avtale {
+        val nyStatus = when (status) {
+            is AvtaleStatus.Utkast, is AvtaleStatus.Avbrutt -> status
+
+            is AvtaleStatus.Aktiv, is AvtaleStatus.Avsluttet -> if (!nySluttDato.isBefore(today)) {
+                AvtaleStatus.Aktiv
+            } else {
+                AvtaleStatus.Avsluttet
+            }
+        }
+
+        return copy(sluttDato = nySluttDato, status = nyStatus)
+    }
+
     @Serializable
     data class Rammedetaljer(
         val totalRamme: Long?,

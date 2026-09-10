@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.avtale.task
 
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -97,21 +98,17 @@ class UpdateAvtaleStatusTest : FunSpec({
 
     test("endre ikke status på avtaler som allerede er avsluttet eller avbrutt") {
         database.run {
-            queries.avtale.setStatus(
-                id = avtale1.id,
-                status = AvtaleStatusType.AVBRUTT,
+            val avbrutt = repository.avtale.getOrError(avtale1.id).avbryt(
                 tidspunkt = LocalDate.of(2022, 12, 31).atStartOfDay(),
                 aarsaker = listOf(AvbrytAvtaleAarsak.FEILREGISTRERING),
                 forklaring = null,
-            )
+            ).shouldBeRight()
+            repository.avtale.save(avbrutt)
 
-            queries.avtale.setStatus(
-                id = avtale2.id,
-                status = AvtaleStatusType.AVSLUTTET,
-                tidspunkt = null,
-                aarsaker = null,
-                forklaring = null,
-            )
+            val avsluttet = repository.avtale.getOrError(avtale2.id)
+                .avslutt(avtale2.sluttDato!!.plusDays(1).atStartOfDay())
+                .shouldBeRight()
+            repository.avtale.save(avsluttet)
         }
 
         val task = createTask()
