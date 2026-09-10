@@ -10,7 +10,7 @@ import { ModiaArbeidsmarkedstiltak } from "./ModiaArbeidsmarkedstiltak";
 export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
   static FNR_PROP = "data-fnr";
   static ENHET_PROP = "data-enhet";
-  static THEME_PROP = "theme";
+  static THEME_PROP = "aksel-theme";
   static BASE_URL_PROP = "data-base-url";
   static ASSET_MANIFEST_PROP = "data-asset-manifest";
 
