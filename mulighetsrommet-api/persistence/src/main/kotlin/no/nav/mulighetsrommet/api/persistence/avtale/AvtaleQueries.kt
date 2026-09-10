@@ -47,8 +47,6 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.sql.Array
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQueryHandler {
@@ -287,6 +285,9 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
                 start_dato,
                 slutt_dato,
                 status,
+                avbrutt_tidspunkt,
+                avbrutt_aarsaker,
+                avbrutt_forklaring,
                 avtaletype,
                 opsjon_maks_varighet,
                 opsjonsmodell,
@@ -300,6 +301,9 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
                 :start_dato,
                 :slutt_dato,
                 :status::avtale_status,
+                :avbrutt_tidspunkt,
+                :avbrutt_aarsaker,
+                :avbrutt_forklaring,
                 :avtaletype::avtaletype,
                 :opsjon_maks_varighet,
                 :opsjonsmodell::opsjonsmodell,
@@ -312,11 +316,15 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
                 start_dato = excluded.start_dato,
                 slutt_dato = excluded.slutt_dato,
                 status = excluded.status,
+                avbrutt_tidspunkt = excluded.avbrutt_tidspunkt,
+                avbrutt_aarsaker = excluded.avbrutt_aarsaker,
+                avbrutt_forklaring = excluded.avbrutt_forklaring,
                 avtaletype = excluded.avtaletype,
                 opsjon_maks_varighet = excluded.opsjon_maks_varighet,
                 opsjonsmodell = excluded.opsjonsmodell,
                 opsjon_custom_opsjonsmodell_navn = excluded.opsjon_custom_opsjonsmodell_navn
         """.trimIndent()
+        val avbrutt = avtale.status as? AvtaleStatus.Avbrutt
         val params = mapOf(
             "id" to id,
             "navn" to avtale.navn,
@@ -327,6 +335,9 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
             "slutt_dato" to avtale.sluttDato,
             "avtaletype" to avtale.avtaletype.name,
             "status" to avtale.status.type.name,
+            "avbrutt_tidspunkt" to avbrutt?.tidspunkt,
+            "avbrutt_aarsaker" to avbrutt?.aarsaker?.let { session.createTextArray(it) },
+            "avbrutt_forklaring" to avbrutt?.forklaring,
             "opsjonsmodell" to avtale.opsjoner.modell.type.name,
             "opsjon_maks_varighet" to avtale.opsjoner.modell.opsjonMaksVarighet,
             "opsjon_custom_opsjonsmodell_navn" to avtale.opsjoner.modell.customOpsjonsmodellNavn,
@@ -491,33 +502,6 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
             .runWithSession(this)
     }
 
-    fun setStatus(
-        id: UUID,
-        status: AvtaleStatusType,
-        tidspunkt: LocalDateTime?,
-        aarsaker: List<AvbrytAvtaleAarsak>?,
-        forklaring: String?,
-    ): Int {
-        @Language("PostgreSQL")
-        val query = """
-            update avtale set
-                status = :status::avtale_status,
-                avbrutt_tidspunkt = :tidspunkt,
-                avbrutt_aarsaker = :aarsaker,
-                avbrutt_forklaring = :forklaring
-            where id = :id::uuid
-        """.trimIndent()
-
-        val params = mapOf(
-            "id" to id,
-            "status" to status.name,
-            "tidspunkt" to tidspunkt,
-            "aarsaker" to aarsaker?.let { session.createTextArray(it) },
-            "forklaring" to forklaring,
-        )
-        return session.update(queryOf(query, params))
-    }
-
     fun delete(id: UUID) {
         @Language("PostgreSQL")
         val query = """
@@ -541,17 +525,6 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
         """.trimIndent()
 
         session.execute(queryOf(query, kontaktpersonId, avtaleId))
-    }
-
-    fun setSluttDato(avtaleId: UUID, sluttDato: LocalDate) {
-        @Language("PostgreSQL")
-        val query = """
-            update avtale
-            set slutt_dato = ?
-            where id = ?::uuid
-        """
-
-        session.update(queryOf(query, sluttDato, avtaleId))
     }
 
     override fun getPersonopplysninger(): List<Personopplysning> {
