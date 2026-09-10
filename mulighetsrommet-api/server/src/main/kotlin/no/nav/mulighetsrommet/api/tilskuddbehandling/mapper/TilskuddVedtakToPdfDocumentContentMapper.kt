@@ -9,7 +9,7 @@ import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
 import no.nav.mulighetsrommet.api.pdfgen.Signature
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -68,7 +68,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
     }
 
     private fun PdfDocumentContentBuilder.innvilgelseSection(
-        tilskudd: TilskuddDbo,
+        tilskudd: TilskuddVedtak,
         tilskuddBehandling: TilskuddBehandling,
     ) {
         val belop = requireNotNull(tilskudd.utbetalingBelop?.belop) {
@@ -92,7 +92,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
     }
 
     private fun PdfDocumentContentBuilder.avslagSection(
-        tilskudd: TilskuddDbo,
+        tilskudd: TilskuddVedtak,
         tilskuddBehandling: TilskuddBehandling,
     ) {
         section(

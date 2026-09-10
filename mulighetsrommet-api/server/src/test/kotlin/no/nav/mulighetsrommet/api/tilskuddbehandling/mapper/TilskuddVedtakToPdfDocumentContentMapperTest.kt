@@ -10,9 +10,10 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -78,7 +79,7 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
 
     val periode = Periode(LocalDate.of(2026, 8, 1), LocalDate.of(2027, 7, 1))
 
-    fun tilskuddBehandling(vararg tilskudd: TilskuddDbo) = TilskuddBehandling(
+    fun tilskuddBehandling(vararg tilskudd: TilskuddVedtak) = TilskuddBehandling(
         id = UUID.fromString("a1a1a1a1-0000-4000-8000-000000000001"),
         gjennomforingId = gjennomforing.id,
         soknadJournalpostId = "J-2026-001",
@@ -87,10 +88,11 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
         kostnadssted = NavEnhetNummer("0387"),
         tilskudd = tilskudd.toList(),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+        type = TilskuddBehandlingType.REGISTRERING,
         kommentarIntern = null,
     )
 
-    val skolepengerInnvilgelse = TilskuddDbo(
+    val skolepengerInnvilgelse = TilskuddVedtak(
         id = UUID.fromString("b2b2b2b2-0000-4000-8000-000000000001"),
         tilskuddId = UUID.fromString("b2b2b2b2-0000-4000-8000-100000000001"),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
@@ -102,7 +104,7 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
         kid = Kid.parse("116"),
     )
 
-    val eksamensgebyrAvslag = TilskuddDbo(
+    val eksamensgebyrAvslag = TilskuddVedtak(
         id = UUID.fromString("b2b2b2b2-0000-4000-8000-000000000002"),
         tilskuddId = UUID.fromString("b2b2b2b2-0000-4000-8000-100000000002"),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSGEBYR,

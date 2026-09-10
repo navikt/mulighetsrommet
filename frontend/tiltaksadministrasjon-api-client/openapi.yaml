@@ -3884,6 +3884,46 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/tilskudd-behandling/{tilskuddBehandlingId}/opphor/{tilskuddVedtakId}:
+    post:
+      tags:
+      - Utbetaling
+      - Tilskudd
+      description: Test opphørsvedtak for tilskuddsutbetaling
+      operationId: postTilskuddVedtakOpphor
+      parameters:
+      - name: tilskuddBehandlingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      - name: tilskuddVedtakId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Opphørsvedtak er sendt til godkjenning
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TilskuddBehandlingOpphorResponse"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/historikk/{id}:
     get:
       tags:
@@ -9247,6 +9287,8 @@ components:
             $ref: "#/components/schemas/TilskuddOpplaeringDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+        type:
+          $ref: "#/components/schemas/TilskuddBehandlingType"
         kommentarIntern:
           type:
           - "null"
@@ -9268,6 +9310,7 @@ components:
       - soknadJournalpostId
       - status
       - tilskudd
+      - type
       - vedtakJournalpostId
     TilskuddOpplaeringDto:
       type: object
@@ -9324,6 +9367,11 @@ components:
       - TIL_ATTESTERING
       - FERDIG_BEHANDLET
       - RETURNERT
+    TilskuddBehandlingType:
+      type: string
+      enum:
+      - REGISTRERING
+      - REVURDERING
     SamletVedtakResultat:
       type: string
       enum:
@@ -9336,6 +9384,7 @@ components:
       - REDIGER
       - ATTESTER
       - RETURNER
+      - OPPHOR
     TilskuddBehandlingDetaljerDto:
       type: object
       properties:
@@ -9374,6 +9423,8 @@ components:
           $ref: "#/components/schemas/KostnadsstedDto"
         status:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
+        type:
+          $ref: "#/components/schemas/TilskuddBehandlingType"
         samletVedtakResultat:
           $ref: "#/components/schemas/SamletVedtakResultat"
       required:
@@ -9385,6 +9436,7 @@ components:
       - soknadDato
       - status
       - tilskuddtyper
+      - type
     TilskuddBehandlingRequest.TilskuddRequest:
       type: object
       properties:
@@ -9502,6 +9554,14 @@ components:
       required:
       - aarsaker
       - forklaring
+    TilskuddBehandlingOpphorResponse:
+      type: object
+      properties:
+        behandlingId:
+          type: string
+          format: uuid
+      required:
+      - behandlingId
     EndringshistorikkType:
       type: string
       enum:

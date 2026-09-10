@@ -151,6 +151,7 @@ enum class TotrinnskontrollType {
     ENKELTPLASS_OKONOMI,
     ENKELTPLASS_PRISENDRING,
     TILSKUDD_OPPRETTELSE,
+    TILSKUDD_OPPHOR,
 }
 
 enum class TotrinnskontrollStatus {

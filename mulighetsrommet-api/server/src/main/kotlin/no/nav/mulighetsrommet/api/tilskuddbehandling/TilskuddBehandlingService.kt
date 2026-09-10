@@ -4,10 +4,12 @@ import arrow.core.Either
 import arrow.core.getOrElse
 import arrow.core.left
 import arrow.core.nel
+import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
+import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
@@ -25,6 +27,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKom
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
@@ -53,12 +56,21 @@ class TilskuddBehandlingService(
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
-                    val opprettelse = Totrinnskontroll.opprett(
-                        UUID.randomUUID(),
-                        dbo.id,
-                        TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
-                        navIdent,
-                    )
+                    val opprettelse = when (dbo.type) {
+                        TilskuddBehandlingType.REGISTRERING -> Totrinnskontroll.opprett(
+                            UUID.randomUUID(),
+                            dbo.id,
+                            TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                            navIdent,
+                        )
+
+                        TilskuddBehandlingType.REVURDERING -> Totrinnskontroll.opprett(
+                            UUID.randomUUID(),
+                            dbo.id,
+                            TotrinnskontrollType.TILSKUDD_OPPHOR,
+                            navIdent,
+                        )
+                    }
                     queries.totrinnskontroll.upsert(opprettelse)
                     outbox.publish(opprettelse)
                     logEndring("Sendt til attestering", dbo.id, navIdent)
@@ -79,6 +91,7 @@ class TilskuddBehandlingService(
                             .toSet(),
                         kostnadssted = it.kostnadssted,
                         status = it.status,
+                        type = it.type,
                         samletVedtakResultat = it.samletVedtakResultat,
                     )
                 }
@@ -89,10 +102,21 @@ class TilskuddBehandlingService(
         return db.session {
             val behandling = queries.tilskuddBehandling.get(id)
             behandling?.let {
+                val totrinnskontroll = when (behandling.type) {
+                    TilskuddBehandlingType.REGISTRERING -> queries.totrinnskontroll.getDtoOrError(
+                        behandling.id,
+                        TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                    )
+
+                    TilskuddBehandlingType.REVURDERING -> queries.totrinnskontroll.getDtoOrError(
+                        behandling.id,
+                        TotrinnskontrollType.TILSKUDD_OPPHOR,
+                    )
+                }
                 TilskuddBehandlingDetaljerDto(
                     it,
-                    queries.totrinnskontroll.getDtoOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE),
-                    handlinger(it, navIdent),
+                    totrinnskontroll,
+                    handlinger(it, navIdent, totrinnskontroll),
                 )
             }
         }
@@ -112,9 +136,13 @@ class TilskuddBehandlingService(
                     .nel()
                     .left()
             }
+            val kontrollType = when (behandling.type) {
+                TilskuddBehandlingType.REGISTRERING -> TotrinnskontrollType.TILSKUDD_OPPRETTELSE
+                TilskuddBehandlingType.REVURDERING -> TotrinnskontrollType.TILSKUDD_OPPHOR
+            }
+            val totrinnskontroll = queries.totrinnskontroll.getOrError(id, kontrollType)
 
-            val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-            opprettelse.godkjenn(navIdent)
+            totrinnskontroll.godkjenn(navIdent)
                 .mapLeft { it.toFieldErrors() }
                 .map { godkjent ->
                     queries.totrinnskontroll.upsert(godkjent)
@@ -151,31 +179,37 @@ class TilskuddBehandlingService(
                 .nel()
                 .left()
         }
-
-        val opprettelse = queries.totrinnskontroll.getOrError(id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-        opprettelse.returner(navIdent, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
-            queries.totrinnskontroll.upsert(returnert)
-            outbox.publish(returnert)
-            queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
-            logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
+        val kontrollType = when (behandling.type) {
+            TilskuddBehandlingType.REGISTRERING -> TotrinnskontrollType.TILSKUDD_OPPRETTELSE
+            TilskuddBehandlingType.REVURDERING -> TotrinnskontrollType.TILSKUDD_OPPHOR
         }
+        val totrinnskontroll = queries.totrinnskontroll.getOrError(id, kontrollType)
+        totrinnskontroll.returner(navIdent, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }
+            .map { returnert ->
+                queries.totrinnskontroll.upsert(returnert)
+                outbox.publish(returnert)
+                queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
+                logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
+            }
     }
 
-    fun handlinger(behandling: TilskuddBehandlingDto, navIdent: NavIdent): Set<TilskuddBehandlingHandling> = db.session {
-        val opprettelse =
-            queries.totrinnskontroll.getOrError(behandling.id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-
+    fun handlinger(
+        behandling: TilskuddBehandlingDto,
+        navIdent: NavIdent,
+        totrinnskontroll: TotrinnskontrollDto,
+    ): Set<TilskuddBehandlingHandling> = db.session {
         return setOfNotNull(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },
             TilskuddBehandlingHandling.ATTESTER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
             TilskuddBehandlingHandling.RETURNER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
+            TilskuddBehandlingHandling.OPPHOR.takeIf { behandling.status.type == TilskuddBehandlingStatus.FERDIG_BEHANDLET },
         )
             .filter {
                 tilgangTilHandling(
                     handling = it,
                     navIdent = navIdent,
                     kostnadssted = behandling.kostnadssted.enhetsnummer,
-                    opprettelse = opprettelse,
+                    totrinnskontroll = totrinnskontroll,
                 )
             }
             .toSet()
@@ -185,12 +219,14 @@ class TilskuddBehandlingService(
         handling: TilskuddBehandlingHandling,
         navIdent: NavIdent,
         kostnadssted: NavEnhetNummer,
-        opprettelse: Totrinnskontroll,
+        totrinnskontroll: TotrinnskontrollDto,
     ): Boolean {
         val ansatt = db.session { queries.ansatt.getOrError(navIdent) }
 
         val attestant = ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted))
         val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
+        val teamMulighetsrommet = ansatt.hasGenerellRolle(Rolle.TEAM_MULIGHETSROMMET)
+        val erIkkeBehandletAvAnsatt = totrinnskontroll.behandletAv.agent != ansatt.navIdent
 
         return when (handling) {
             TilskuddBehandlingHandling.REDIGER,
@@ -200,9 +236,68 @@ class TilskuddBehandlingService(
             -> saksbehandler || attestant
 
             TilskuddBehandlingHandling.ATTESTER -> {
-                attestant && opprettelse.behandletAv != ansatt.navIdent
+                attestant && erIkkeBehandletAvAnsatt
+            }
+
+            TilskuddBehandlingHandling.OPPHOR -> {
+                teamMulighetsrommet && erIkkeBehandletAvAnsatt
             }
         }
+    }
+
+    fun revurderingOpphor(
+        forrigeTilskuddVedtakId: UUID,
+        behandlingId: UUID,
+        saksbehandler: NavIdent,
+    ): Either<List<FieldError>, UUID> = db.transaction {
+        val tidligereBehandling = queries.tilskuddBehandling.get(behandlingId)?.toDbo()
+            ?: throw IllegalStateException("Fant ikke tilskuddsbehandling for behandlingId=$behandlingId")
+        val forrigeTilskuddVedtak = tidligereBehandling.tilskudd.firstOrNull { it.id == forrigeTilskuddVedtakId }
+            ?: throw IllegalStateException("Fant ikke tilskudd for tilskuddVedtakId=$forrigeTilskuddVedtakId i behandlingId=$behandlingId")
+
+        queries.tilskuddBehandling.acquireLockTilskudd(forrigeTilskuddVedtak.tilskuddId)
+
+        val opphorRevurdering = tidligereBehandling.copy(
+            id = UUID.randomUUID(),
+            type = TilskuddBehandlingType.REVURDERING,
+            status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+            tilskudd = listOf(
+                forrigeTilskuddVedtak.copy(
+                    id = UUID.randomUUID(),
+                    utbetalingBelop = forrigeTilskuddVedtak.utbetalingBelop?.copy(belop = 0),
+                ),
+            ),
+        )
+
+        queries.tilskuddBehandling.upsert(opphorRevurdering)
+        revurderingOpphorTotrinnkontroll(
+            opphorRevurdering.id,
+            listOf(TilskuddBehandlingStatusAarsak.ANNET),
+            "Test av opphør",
+            saksbehandler,
+        )
+
+        opphorRevurdering.id.right()
+    }
+
+    context(tx: TransactionalQueryContext)
+    private fun revurderingOpphorTotrinnkontroll(
+        behandlingId: UUID,
+        aarsaker: List<TilskuddBehandlingStatusAarsak>,
+        forklaring: String?,
+        behandletAv: Agent,
+    ): Totrinnskontroll = with(tx) {
+        val opphorTotrinnskontroll = Totrinnskontroll.opprett(
+            UUID.randomUUID(),
+            behandlingId,
+            TotrinnskontrollType.TILSKUDD_OPPHOR,
+            behandletAv,
+            aarsaker.map { it.name },
+            forklaring,
+        )
+        queries.totrinnskontroll.upsert(opphorTotrinnskontroll)
+        outbox.publish(opphorTotrinnskontroll)
+        return opphorTotrinnskontroll
     }
 
     private fun QueryContext.logEndring(
@@ -241,7 +336,8 @@ class TilskuddBehandlingService(
     }
 
     private suspend fun vedtaksbrevForhandsvisPdf(tilskuddBehandling: TilskuddBehandling): Either<PdfGenError, ByteArray> = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
+        val gjennomforing =
+            queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
 
         val content = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(
             tilskuddBehandling = tilskuddBehandling,

@@ -1,6 +1,7 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.db
 
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
@@ -13,7 +14,8 @@ data class TilskuddBehandling(
     val soknadDato: LocalDate,
     val periode: Periode,
     val kostnadssted: NavEnhetNummer,
-    val tilskudd: List<TilskuddDbo>,
+    val tilskudd: List<TilskuddVedtak>,
     val status: TilskuddBehandlingStatus,
+    val type: TilskuddBehandlingType,
     val kommentarIntern: String?,
 )

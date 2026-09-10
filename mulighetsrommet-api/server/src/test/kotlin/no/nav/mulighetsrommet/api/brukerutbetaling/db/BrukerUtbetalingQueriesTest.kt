@@ -1,5 +1,6 @@
 package no.nav.mulighetsrommet.api.brukerutbetaling.db
 
+import arrow.core.nonEmptySetOf
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -12,8 +13,6 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.TilskuddFixtures
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NorskIdent
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
@@ -21,10 +20,13 @@ import java.util.UUID
 class BrukerUtbetalingQueriesTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
+    val behandling = TilskuddFixtures.Behandling
+
     val domain = MulighetsrommetTestDomain(
         tiltakstyper = listOf(TiltakstypeFixtures.EnkelAmo),
         gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
     )
+        { queries.tilskuddBehandling.upsert(behandling) }
 
     beforeEach {
         domain.initialize(database.api)
@@ -33,24 +35,18 @@ class BrukerUtbetalingQueriesTest : FunSpec({
     afterEach {
         database.truncateAll()
     }
-
-    val utbetaling = HelVedUtbetaling(
+    val tilskudd = behandling.tilskudd.first()
+    val brukerUtbetaling = UpsertBrukerUtbetalingDbo(
         id = UUID.randomUUID(),
         sakId = "SAK-2025-001",
-        behandlingId = "1",
-        personIdent = NorskIdent("12345678901"),
-        periode = HelVedUtbetaling.Periode(
-            fom = LocalDate.of(2025, 1, 1),
-            tom = LocalDate.of(2025, 1, 31),
-        ),
+        transaksjonsDato = LocalDate.of(2025, 1, 1),
         belop = 10000,
-        kostnadssted = NavEnhetNummer("1234"),
         tilskuddstype = HelVedUtbetaling.Tilskuddstype.SKOLEPENGER,
         tiltakskode = HelVedUtbetaling.Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
         saksbehandler = NavAnsattFixture.DonaldDuck.navIdent,
         beslutter = NavAnsattFixture.MikkeMus.navIdent,
         besluttetTidspunkt = Instant.parse("2025-01-15T10:00:00Z"),
-        dryrun = false,
+        tilskuddVedtakId = tilskudd.id,
     )
 
     test("insert and setBrukerUtbetaling") {
@@ -59,21 +55,20 @@ class BrukerUtbetalingQueriesTest : FunSpec({
 
         database.api.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
-            queries.brukerUtbetaling.insert(utbetaling)
-            queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id)
+            queries.brukerUtbetaling.insert(brukerUtbetaling)
         }
 
         val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id) }
 
         result.shouldNotBeNull()
-        result.id shouldBe utbetaling.id
-        result.sakId shouldBe utbetaling.sakId
-        result.behandlingId shouldBe utbetaling.behandlingId
-        result.belop shouldBe utbetaling.belop
-        result.tilskuddstype shouldBe utbetaling.tilskuddstype
-        result.tiltakskode shouldBe utbetaling.tiltakskode
-        result.saksbehandler shouldBe utbetaling.saksbehandler
-        result.beslutter shouldBe utbetaling.beslutter
+        result.id shouldBe brukerUtbetaling.id
+        result.sakId shouldBe brukerUtbetaling.sakId
+        result.behandlingId shouldBe 1
+        result.belop shouldBe brukerUtbetaling.belop
+        result.tilskuddstype shouldBe brukerUtbetaling.tilskuddstype
+        result.tiltakskode shouldBe brukerUtbetaling.tiltakskode
+        result.saksbehandler shouldBe brukerUtbetaling.saksbehandler
+        result.beslutter shouldBe brukerUtbetaling.beslutter
     }
 
     test("getByTilskudd returns null when no utbetaling linked") {
@@ -90,7 +85,7 @@ class BrukerUtbetalingQueriesTest : FunSpec({
 
     test("setHelVedStatus persists status and error") {
         database.api.transaction {
-            queries.brukerUtbetaling.insert(utbetaling)
+            queries.brukerUtbetaling.insert(brukerUtbetaling)
         }
 
         val error = HelVedStatus.StatusError(
@@ -103,13 +98,12 @@ class BrukerUtbetalingQueriesTest : FunSpec({
             detaljer = null,
             error = error,
         )
-        database.api.session { queries.brukerUtbetaling.setHelVedStatus(utbetaling.id, status) }
+        database.api.session { queries.brukerUtbetaling.setHelVedStatus(brukerUtbetaling.id, nonEmptySetOf(1), status) }
 
         val behandling = TilskuddFixtures.Behandling
         val tilskudd = TilskuddFixtures.Tilskudd
         database.api.transaction {
             queries.tilskuddBehandling.upsert(behandling.copy(tilskudd = listOf(tilskudd)))
-            queries.tilskuddBehandling.setBrukerUtbetaling(tilskudd.id, utbetaling.id)
         }
 
         val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id) }

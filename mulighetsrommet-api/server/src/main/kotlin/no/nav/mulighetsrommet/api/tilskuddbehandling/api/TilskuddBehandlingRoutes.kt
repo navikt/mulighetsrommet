@@ -14,6 +14,7 @@ import io.ktor.server.routing.application
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
 import io.ktor.server.util.getValue
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -28,9 +29,12 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKompakt
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
+import no.nav.mulighetsrommet.env.NaisEnv
 import no.nav.mulighetsrommet.ktor.exception.InternalServerError
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.UUID
 
@@ -252,5 +256,53 @@ fun Route.tilskuddBehandlingRoutes() {
                     }
             }
         }
+
+        authorize(Rolle.TEAM_MULIGHETSROMMET) {
+            post("/{tilskuddBehandlingId}/opphor/{tilskuddVedtakId}", {
+                description = "Test opphørsvedtak for tilskuddsutbetaling"
+                tags = setOf("Utbetaling", "Tilskudd")
+                operationId = "postTilskuddVedtakOpphor"
+                request {
+                    pathParameterUuid("tilskuddBehandlingId") {
+                        required = true
+                    }
+                    pathParameterUuid("tilskuddVedtakId") {
+                        required = true
+                    }
+                }
+                response {
+                    code(HttpStatusCode.OK) {
+                        body<TilskuddBehandlingOpphorResponse>()
+                        description = "Opphørsvedtak er sendt til godkjenning"
+                    }
+                    default {
+                        description = "Problem details"
+                        body<ProblemDetail>()
+                    }
+                }
+            }) {
+                val tilskuddVedtakId: UUID by call.parameters
+                val tilskuddBehandlingId: UUID by call.parameters
+                if (NaisEnv.current().isProdGCP()) {
+                    call.respond(
+                        HttpStatusCode.Forbidden,
+                        "Opphørsvedtak er kun tillatt i dev-gcp miljøet",
+                    )
+                } else {
+                    val saksbehandler = NavIdent("Z993637") // Midlertidig saksbehandler, slik at vi kan beslutte med 079 brukeren
+                    service.revurderingOpphor(tilskuddVedtakId, tilskuddBehandlingId, saksbehandler)
+                        .onRight { call.respond(TilskuddBehandlingOpphorResponse(it)) }
+                        .onLeft {
+                            call.respondWithProblemDetail(ValidationError(errors = it))
+                        }
+                }
+            }
+        }
     }
 }
+
+@Serializable
+data class TilskuddBehandlingOpphorResponse(
+    @Serializable(with = UUIDSerializer::class)
+    val behandlingId: UUID,
+)

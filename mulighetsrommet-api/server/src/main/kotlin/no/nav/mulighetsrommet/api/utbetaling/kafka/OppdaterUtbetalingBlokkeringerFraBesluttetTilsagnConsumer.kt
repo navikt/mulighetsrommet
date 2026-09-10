@@ -41,6 +41,7 @@ class OppdaterUtbetalingBlokkeringerFraBesluttetTilsagnConsumer(
             TotrinnskontrollType.ENKELTPLASS_OKONOMI,
             TotrinnskontrollType.ENKELTPLASS_PRISENDRING,
             TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+            TotrinnskontrollType.TILSKUDD_OPPHOR,
             -> false
         }
         if (relevant) {

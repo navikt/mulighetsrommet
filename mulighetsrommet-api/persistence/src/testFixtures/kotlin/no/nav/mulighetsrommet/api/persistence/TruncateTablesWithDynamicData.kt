@@ -32,6 +32,7 @@ fun truncateTablesWithDynamicData(session: Session) {
         "vedtak_resultat",
         "tilskudd_opplaering",
         "tilskudd_behandling_status",
+        "tilskudd_behandling_type",
         "totrinnskontroll_type",
         "totrinnskontroll_status_type",
     )

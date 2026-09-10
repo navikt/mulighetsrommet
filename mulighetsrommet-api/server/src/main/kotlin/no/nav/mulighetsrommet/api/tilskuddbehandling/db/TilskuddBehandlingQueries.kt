@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.samletVedtakResultatStatusTag
@@ -33,32 +34,36 @@ class TilskuddBehandlingQueries(private val session: Session) {
             insert into tilskudd_behandling (
                 id,
                 gjennomforing_id,
-                status
+                status,
+                type
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
-                :status
+                :status,
+                :type
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
-                status = excluded.status
+                status = excluded.status,
+                type = excluded.type
         """.trimIndent()
 
         val params = mapOf(
             "id" to dbo.id,
             "gjennomforing_id" to dbo.gjennomforingId,
             "status" to dbo.status.name,
+            "type" to dbo.type.name,
         )
 
         execute(queryOf(query, params))
 
-        dbo.tilskudd.forEach { tilskudd ->
-            upsertTilskudd(behandling = dbo, tilskudd = tilskudd)
+        dbo.tilskudd.forEach { tilskuddVedtak ->
+            upsertTilskudd(behandling = dbo, tilskuddVedtak = tilskuddVedtak)
         }
     }
 
     private fun upsertTilskudd(
         behandling: TilskuddBehandling,
-        tilskudd: TilskuddDbo,
+        tilskuddVedtak: TilskuddVedtak,
     ): Unit = withTransaction(session) {
         @Language("PostgreSQL")
         val tilskuddQuery = """
@@ -73,15 +78,20 @@ class TilskuddBehandlingQueries(private val session: Session) {
         """.trimIndent()
 
         val tilskuddParams = mapOf(
-            "id" to tilskudd.tilskuddId,
-            "tilskudd_opplaering_kode" to tilskudd.tilskuddOpplaeringType.name,
+            "id" to tilskuddVedtak.tilskuddId,
+            "tilskudd_opplaering_kode" to tilskuddVedtak.tilskuddOpplaeringType.name,
         )
 
         execute(queryOf(tilskuddQuery, tilskuddParams))
 
         @Language("PostgreSQL")
         val vedtakQuery = """
-            insert into tilskudd_vedtak (
+            with neste_lopenummer as (
+                     select coalesce(max(tv.lopenummer), 0) + 1 as nytt_lopenummer
+                     from tilskudd_vedtak tv
+                     where tv.tilskudd_id = :tilskudd_id::uuid
+                 ),
+            update as (insert into tilskudd_vedtak (
                 id,
                 tilskudd_id,
                 tilskudd_behandling_id,
@@ -100,63 +110,71 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 belop,
                 valuta
             ) values (
-                :id::uuid,
-                :tilskudd_id::uuid,
-                :tilskudd_behandling_id::uuid,
-                :lopenummer,
-                :periode::daterange,
-                :kostnadssted,
-                :soknad_journalpost_id,
-                :soknad_dato,
-                :soknad_belop,
-                :soknad_valuta::currency,
-                :vedtak_resultat,
-                :kommentar_vedtaksbrev,
-                :kommentar_intern,
-                :utbetaling_mottaker,
-                :kid,
-                :belop,
-                :valuta::currency
-            ) on conflict (id) do update set
-                tilskudd_id = excluded.tilskudd_id,
-                tilskudd_behandling_id = excluded.tilskudd_behandling_id,
-                lopenummer = excluded.lopenummer,
-                periode = excluded.periode,
-                kostnadssted = excluded.kostnadssted,
-                soknad_journalpost_id = excluded.soknad_journalpost_id,
-                soknad_dato = excluded.soknad_dato,
-                soknad_belop = excluded.soknad_belop,
-                soknad_valuta = excluded.soknad_valuta,
-                vedtak_resultat = excluded.vedtak_resultat,
-                kommentar_vedtaksbrev = excluded.kommentar_vedtaksbrev,
-                kommentar_intern = excluded.kommentar_intern,
-                utbetaling_mottaker = excluded.utbetaling_mottaker,
-                kid = excluded.kid,
-                belop = excluded.belop,
-                valuta = excluded.valuta
+             :id::uuid,
+             :tilskudd_id::uuid,
+             :tilskudd_behandling_id::uuid,
+             (select nytt_lopenummer from neste_lopenummer),
+             :periode::daterange,
+             :kostnadssted,
+             :soknad_journalpost_id,
+             :soknad_dato,
+             :soknad_belop,
+             :soknad_valuta::currency,
+             :vedtak_resultat,
+             :kommentar_vedtaksbrev,
+             :kommentar_intern,
+             :utbetaling_mottaker,
+             :kid,
+             :belop,
+             :valuta::currency
+         ) on conflict (id) do update set
+              tilskudd_id = excluded.tilskudd_id,
+              tilskudd_behandling_id = excluded.tilskudd_behandling_id,
+              periode = excluded.periode,
+              kostnadssted = excluded.kostnadssted,
+              soknad_journalpost_id = excluded.soknad_journalpost_id,
+              soknad_dato = excluded.soknad_dato,
+              soknad_belop = excluded.soknad_belop,
+              soknad_valuta = excluded.soknad_valuta,
+              vedtak_resultat = excluded.vedtak_resultat,
+              kommentar_vedtaksbrev = excluded.kommentar_vedtaksbrev,
+              kommentar_intern = excluded.kommentar_intern,
+              utbetaling_mottaker = excluded.utbetaling_mottaker,
+              kid = excluded.kid,
+              belop = excluded.belop,
+              valuta = excluded.valuta
+         returning id)
+         select id from update
         """.trimIndent()
 
         val vedtakParams = mapOf(
-            "id" to tilskudd.id,
-            "tilskudd_id" to tilskudd.tilskuddId,
+            "id" to tilskuddVedtak.id,
+            "tilskudd_id" to tilskuddVedtak.tilskuddId,
             "tilskudd_behandling_id" to behandling.id,
-            "lopenummer" to 1,
             "periode" to behandling.periode.toDaterange(),
             "kostnadssted" to behandling.kostnadssted.value,
             "soknad_journalpost_id" to behandling.soknadJournalpostId,
             "soknad_dato" to behandling.soknadDato,
-            "soknad_belop" to tilskudd.soknadBelop.belop,
-            "soknad_valuta" to tilskudd.soknadBelop.valuta.name,
-            "vedtak_resultat" to tilskudd.vedtakResultat.name,
-            "kommentar_vedtaksbrev" to tilskudd.kommentarVedtaksbrev,
+            "soknad_belop" to tilskuddVedtak.soknadBelop.belop,
+            "soknad_valuta" to tilskuddVedtak.soknadBelop.valuta.name,
+            "vedtak_resultat" to tilskuddVedtak.vedtakResultat.name,
+            "kommentar_vedtaksbrev" to tilskuddVedtak.kommentarVedtaksbrev,
             "kommentar_intern" to behandling.kommentarIntern,
-            "utbetaling_mottaker" to tilskudd.utbetalingMottaker.name,
-            "kid" to tilskudd.kid?.value,
-            "belop" to tilskudd.utbetalingBelop?.belop,
-            "valuta" to tilskudd.utbetalingBelop?.valuta?.name,
+            "utbetaling_mottaker" to tilskuddVedtak.utbetalingMottaker.name,
+            "kid" to tilskuddVedtak.kid?.value,
+            "belop" to tilskuddVedtak.utbetalingBelop?.belop,
+            "valuta" to tilskuddVedtak.utbetalingBelop?.valuta?.name,
         )
 
         execute(queryOf(vedtakQuery, vedtakParams))
+    }
+
+    fun acquireLockTilskudd(id: UUID) {
+        @Language("PostgreSQL")
+        val query = """
+            select tilskudd_id from tilskudd_vedtak where tilskudd_id = ?::uuid for update
+        """.trimIndent()
+        session.execute(queryOf(query, id))
     }
 
     fun setJournalpostId(tilskuddBehandlingId: UUID, journalpostId: String) {
@@ -215,26 +233,6 @@ class TilskuddBehandlingQueries(private val session: Session) {
         session.execute(queryOf(query, mapOf("id" to tilskuddId, "utbetaling_id" to utbetalingId)))
     }
 
-    fun setBrukerUtbetaling(tilskuddVedtakId: UUID, brukerUtbetalingId: UUID) {
-        @Language("PostgreSQL")
-        val query = """
-            insert into tilskudd_vedtak_bruker_utbetaling (
-                tilskudd_vedtak_id,
-                bruker_utbetaling_id,
-                bruker_utbetaling_behandling_id
-            )
-            select
-                :tilskudd_vedtak_id::uuid,
-                bruker_utbetaling.id,
-                bruker_utbetaling.behandling_id
-            from bruker_utbetaling
-            where bruker_utbetaling.id = :bruker_utbetaling_id::uuid
-            on conflict do nothing
-        """.trimIndent()
-
-        session.execute(queryOf(query, mapOf("tilskudd_vedtak_id" to tilskuddVedtakId, "bruker_utbetaling_id" to brukerUtbetalingId)))
-    }
-
     fun get(id: UUID): TilskuddBehandlingDto? {
         @Language("PostgreSQL")
         val query = """
@@ -284,6 +282,7 @@ private data class TilskuddBehandlingViewRow(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
     val status: String,
+    val type: String,
     @SerialName("gjennomforing_id")
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
@@ -328,6 +327,7 @@ private fun Row.toTilskuddBehandlingViewRow(): TilskuddBehandlingViewRow {
     return TilskuddBehandlingViewRow(
         id = uuid("id"),
         status = string("status"),
+        type = string("type"),
         gjennomforingId = uuid("gjennomforing_id"),
         vedtakJson = string("vedtak_json"),
     )
@@ -356,6 +356,7 @@ private fun TilskuddBehandlingViewRow.toDto(): TilskuddBehandlingDto {
         ),
         tilskudd = tilskudd,
         status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(status)),
+        type = TilskuddBehandlingType.valueOf(type),
         kommentarIntern = firstVedtak.kommentarIntern,
         vedtakJournalpostId = firstVedtak.vedtakJournalpostId,
         samletVedtakResultat = samletVedtakResultatStatusTag(tilskudd.map { it.vedtakResultat.type }),

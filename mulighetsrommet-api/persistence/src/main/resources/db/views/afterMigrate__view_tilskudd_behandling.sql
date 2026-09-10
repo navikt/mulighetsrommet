@@ -1,6 +1,7 @@
 create or replace view view_tilskudd_behandling as
 select tb.id,
        tb.status,
+       tb.type,
        tb.gjennomforing_id,
        vedtak_json
 from tilskudd_behandling tb

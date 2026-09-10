@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -27,6 +27,7 @@ data class TilskuddBehandlingDto(
     val kostnadssted: KostnadsstedDto,
     val tilskudd: List<TilskuddOpplaeringDto>,
     val status: TilskuddBehandlingStatusDto,
+    val type: TilskuddBehandlingType,
     val kommentarIntern: String?,
     val samletVedtakResultat: SamletVedtakResultat,
     val vedtakJournalpostId: String?,
@@ -38,7 +39,7 @@ data class TilskuddBehandlingDto(
         soknadDato = this.soknadDato,
         periode = this.periode,
         tilskudd = this.tilskudd.map {
-            TilskuddDbo(
+            TilskuddVedtak(
                 id = it.id,
                 tilskuddId = it.tilskuddId,
                 tilskuddOpplaeringType = it.tilskuddOpplaeringType,
@@ -52,6 +53,7 @@ data class TilskuddBehandlingDto(
         },
         kostnadssted = this.kostnadssted.enhetsnummer,
         status = this.status.type,
+        type = this.type,
         kommentarIntern = this.kommentarIntern,
     )
 }
@@ -74,6 +76,7 @@ data class TilskuddBehandlingKompakt(
     val periode: Periode,
     val kostnadssted: KostnadsstedDto,
     val status: TilskuddBehandlingStatusDto,
+    val type: TilskuddBehandlingType,
     val samletVedtakResultat: SamletVedtakResultat,
 )
 
@@ -108,4 +111,5 @@ enum class TilskuddBehandlingHandling {
     REDIGER,
     ATTESTER,
     RETURNER,
+    OPPHOR,
 }
