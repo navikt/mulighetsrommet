@@ -29,7 +29,7 @@ export function ArbeidsmarkedstiltakListItem({
 
   return (
     <li
-      className="list-none w-full bg-ax-bg-default rounded-lg text-medium hover:bg-ax-bg-accent-moderate-hover [&_a]:text-ax-text-neutral border border-solid border-ax-border-neutral hover:border-ax-border-accent"
+      className="list-none w-full bg-ax-bg-raised rounded-lg text-medium hover:bg-ax-bg-accent-moderate-hover [&_a]:text-ax-text-neutral border border-solid border-ax-border-neutral hover:border-ax-border-accent"
       id={`list_element_${index}`}
       data-testid={`gjennomforing_${kebabCase(tiltak.tiltakstype.navn)}`}
     >

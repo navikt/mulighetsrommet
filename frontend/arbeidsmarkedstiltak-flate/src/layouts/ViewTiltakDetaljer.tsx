@@ -57,7 +57,7 @@ export function ViewTiltakDetaljer({ tiltak, brukerActions, knapperad }: Props) 
                 <Box
                   padding="space-20"
                   borderRadius="0 0 8 8"
-                  background="neutral-soft"
+                  background="neutral-moderate"
                   id="sidemeny"
                 >
                   <Tabs.Panel value="info">

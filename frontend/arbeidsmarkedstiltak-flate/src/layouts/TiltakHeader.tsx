@@ -42,7 +42,7 @@ export function TiltakHeader({ tiltak }: Props) {
 
       {stengtPerioder && stengtPerioder.length > 0 && (
         <Box
-          background="neutral-soft"
+          background="neutral-moderate"
           padding="space-8"
           borderColor="neutral"
           borderWidth="1"
