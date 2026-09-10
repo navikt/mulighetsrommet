@@ -209,8 +209,6 @@ private fun opprettOgAttesterTilskudd(
         db = db,
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),
-        personaliaService = mockk(relaxed = true),
-        brukerUtbetalingService = mockk(relaxed = true),
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()

@@ -139,8 +139,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
-            mockk(relaxed = true),
-            mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -163,8 +161,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
-            mockk(relaxed = true),
-            mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -180,8 +176,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         val service = TilskuddBehandlingService(
             database.api,
             journalforVedtaksbrev,
-            mockk(relaxed = true),
-            mockk(relaxed = true),
             mockk(relaxed = true),
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
@@ -214,8 +208,6 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         val service = TilskuddBehandlingService(
             database.api,
             journalforVedtaksbrev,
-            mockk(relaxed = true),
-            mockk(relaxed = true),
             mockk(relaxed = true),
         )
         val consumer = createConsumer()
