@@ -4,8 +4,8 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 object TilskuddFixtures {
-    val Tilskudd = TilskuddDbo(
+    val Tilskudd = TilskuddVedtak(
         id = UUID.randomUUID(),
         tilskuddId = UUID.randomUUID(),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,

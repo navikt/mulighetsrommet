@@ -6,7 +6,7 @@ import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.util.UUID
 
-data class TilskuddDbo(
+data class TilskuddVedtak(
     val id: UUID,
     val tilskuddId: UUID,
     val tilskuddOpplaeringType: Opplaeringtilskudd.Kode,

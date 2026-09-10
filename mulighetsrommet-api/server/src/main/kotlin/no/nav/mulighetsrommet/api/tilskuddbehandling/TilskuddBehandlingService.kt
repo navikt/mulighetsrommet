@@ -103,8 +103,15 @@ class TilskuddBehandlingService(
             val behandling = queries.tilskuddBehandling.get(id)
             behandling?.let {
                 val totrinnskontroll = when (behandling.type) {
-                    TilskuddBehandlingType.REGISTRERING -> queries.totrinnskontroll.getDtoOrError(behandling.id, TotrinnskontrollType.TILSKUDD_OPPRETTELSE)
-                    TilskuddBehandlingType.REVURDERING -> queries.totrinnskontroll.getDtoOrError(behandling.id, TotrinnskontrollType.TILSKUDD_OPPHOR)
+                    TilskuddBehandlingType.REGISTRERING -> queries.totrinnskontroll.getDtoOrError(
+                        behandling.id,
+                        TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                    )
+
+                    TilskuddBehandlingType.REVURDERING -> queries.totrinnskontroll.getDtoOrError(
+                        behandling.id,
+                        TotrinnskontrollType.TILSKUDD_OPPHOR,
+                    )
                 }
                 TilskuddBehandlingDetaljerDto(
                     it,
@@ -177,15 +184,20 @@ class TilskuddBehandlingService(
             TilskuddBehandlingType.REVURDERING -> TotrinnskontrollType.TILSKUDD_OPPHOR
         }
         val totrinnskontroll = queries.totrinnskontroll.getOrError(id, kontrollType)
-        totrinnskontroll.returner(navIdent, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }.map { returnert ->
-            queries.totrinnskontroll.upsert(returnert)
-            outbox.publish(returnert)
-            queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
-            logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
-        }
+        totrinnskontroll.returner(navIdent, aarsaker.map { it.name }, forklaring).mapLeft { it.toFieldErrors() }
+            .map { returnert ->
+                queries.totrinnskontroll.upsert(returnert)
+                outbox.publish(returnert)
+                queries.tilskuddBehandling.setStatus(id, TilskuddBehandlingStatus.RETURNERT)
+                logEndring("Tilskuddsbehandling returnert", behandling.id, navIdent)
+            }
     }
 
-    fun handlinger(behandling: TilskuddBehandlingDto, navIdent: NavIdent, totrinnskontroll: TotrinnskontrollDto): Set<TilskuddBehandlingHandling> = db.session {
+    fun handlinger(
+        behandling: TilskuddBehandlingDto,
+        navIdent: NavIdent,
+        totrinnskontroll: TotrinnskontrollDto,
+    ): Set<TilskuddBehandlingHandling> = db.session {
         return setOfNotNull(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },
             TilskuddBehandlingHandling.ATTESTER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
@@ -233,30 +245,48 @@ class TilskuddBehandlingService(
         }
     }
 
-    fun revurderingOpphor(tilskuddVedtakId: UUID, behandlingId: UUID, saksbehandler: NavIdent): Either<List<FieldError>, UUID> = db.transaction {
+    fun revurderingOpphor(
+        forrigeTilskuddVedtakId: UUID,
+        behandlingId: UUID,
+        saksbehandler: NavIdent,
+    ): Either<List<FieldError>, UUID> = db.transaction {
         val tidligereBehandling = queries.tilskuddBehandling.get(behandlingId)?.toDbo()
             ?: throw IllegalStateException("Fant ikke tilskuddsbehandling for behandlingId=$behandlingId")
+        val forrigeTilskuddVedtak = tidligereBehandling.tilskudd.firstOrNull { it.id == forrigeTilskuddVedtakId }
+            ?: throw IllegalStateException("Fant ikke tilskudd for tilskuddVedtakId=$forrigeTilskuddVedtakId i behandlingId=$behandlingId")
+
+        queries.tilskuddBehandling.acquireLockTilskudd(forrigeTilskuddVedtak.tilskuddId)
+
         val opphorRevurdering = tidligereBehandling.copy(
             id = UUID.randomUUID(),
             type = TilskuddBehandlingType.REVURDERING,
             status = TilskuddBehandlingStatus.TIL_ATTESTERING,
-            tilskudd = tidligereBehandling.tilskudd
-                .filter { it.id == tilskuddVedtakId }
-                .map {
-                    it.copy(
-                        id = UUID.randomUUID(),
-                        utbetalingBelop = it.utbetalingBelop?.copy(belop = 0),
-                    )
-                },
+            tilskudd = listOf(
+                forrigeTilskuddVedtak.copy(
+                    id = UUID.randomUUID(),
+                    utbetalingBelop = forrigeTilskuddVedtak.utbetalingBelop?.copy(belop = 0),
+                ),
+            ),
         )
+
         queries.tilskuddBehandling.upsert(opphorRevurdering)
-        revurderingOpphorTotrinnkontroll(opphorRevurdering.id, listOf(TilskuddBehandlingStatusAarsak.ANNET), "Test av opphør", saksbehandler)
+        revurderingOpphorTotrinnkontroll(
+            opphorRevurdering.id,
+            listOf(TilskuddBehandlingStatusAarsak.ANNET),
+            "Test av opphør",
+            saksbehandler,
+        )
 
         opphorRevurdering.id.right()
     }
 
     context(tx: TransactionalQueryContext)
-    private fun revurderingOpphorTotrinnkontroll(behandlingId: UUID, aarsaker: List<TilskuddBehandlingStatusAarsak>, forklaring: String?, behandletAv: Agent): Totrinnskontroll = with(tx) {
+    private fun revurderingOpphorTotrinnkontroll(
+        behandlingId: UUID,
+        aarsaker: List<TilskuddBehandlingStatusAarsak>,
+        forklaring: String?,
+        behandletAv: Agent,
+    ): Totrinnskontroll = with(tx) {
         val opphorTotrinnskontroll = Totrinnskontroll.opprett(
             UUID.randomUUID(),
             behandlingId,
@@ -306,7 +336,8 @@ class TilskuddBehandlingService(
     }
 
     private suspend fun vedtaksbrevForhandsvisPdf(tilskuddBehandling: TilskuddBehandling): Either<PdfGenError, ByteArray> = db.transaction {
-        val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
+        val gjennomforing =
+            queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
 
         val content = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(
             tilskuddBehandling = tilskuddBehandling,

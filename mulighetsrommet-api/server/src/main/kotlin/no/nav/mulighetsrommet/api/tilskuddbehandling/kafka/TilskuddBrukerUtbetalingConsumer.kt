@@ -104,7 +104,7 @@ class TilskuddBrukerUtbetalingConsumer(
                 }
                 db.transaction {
                     // Idempotency check
-                    queries.tilskuddBehandling.acquireLockTilskuddVedtak(tilskudd.id)
+                    queries.tilskuddBehandling.acquireLockTilskudd(tilskudd.tilskuddId)
                     val tidligereUtbetaling = queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id)
                     require(tidligereUtbetaling == null) {
                         "Utbetaling for tilskudd vedtak med id=${tilskudd.id} er allerede opprettet"
@@ -135,7 +135,7 @@ class TilskuddBrukerUtbetalingConsumer(
             .forEach { t ->
                 db.transaction {
                     // Idempotency check
-                    queries.tilskuddBehandling.acquireLockTilskuddVedtak(t.id)
+                    queries.tilskuddBehandling.acquireLockTilskudd(t.tilskuddId)
                     if (queries.brukerUtbetaling.getByTilskuddVedtak(t.id) != null) {
                         logger.info("Utbetaling for tilskudd vedtak med id=${t.id} er allerede opprettet, hopper over")
                         return

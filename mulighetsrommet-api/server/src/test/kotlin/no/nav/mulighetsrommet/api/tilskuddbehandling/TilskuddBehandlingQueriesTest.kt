@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
@@ -39,7 +39,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
         periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
         kostnadssted = NavEnhetNummer("0502"),
         tilskudd = listOf(
-            TilskuddDbo(
+            TilskuddVedtak(
                 id = UUID.randomUUID(),
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
@@ -56,7 +56,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 utbetalingMottaker = TilskuddMottaker.BRUKER,
                 kid = null,
             ),
-            TilskuddDbo(
+            TilskuddVedtak(
                 id = UUID.randomUUID(),
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSGEBYR,
@@ -73,7 +73,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kid = Kid.parse("116"),
             ),
-            TilskuddDbo(
+            TilskuddVedtak(
                 id = UUID.randomUUID(),
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD,

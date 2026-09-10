@@ -14,7 +14,7 @@ data class TilskuddBehandling(
     val soknadDato: LocalDate,
     val periode: Periode,
     val kostnadssted: NavEnhetNummer,
-    val tilskudd: List<TilskuddDbo>,
+    val tilskudd: List<TilskuddVedtak>,
     val status: TilskuddBehandlingStatus,
     val type: TilskuddBehandlingType,
     val kommentarIntern: String?,

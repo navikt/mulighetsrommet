@@ -56,14 +56,14 @@ class TilskuddBehandlingQueries(private val session: Session) {
 
         execute(queryOf(query, params))
 
-        dbo.tilskudd.forEach { tilskudd ->
-            upsertTilskudd(behandling = dbo, tilskudd = tilskudd)
+        dbo.tilskudd.forEach { tilskuddVedtak ->
+            upsertTilskudd(behandling = dbo, tilskuddVedtak = tilskuddVedtak)
         }
     }
 
     private fun upsertTilskudd(
         behandling: TilskuddBehandling,
-        tilskudd: TilskuddDbo,
+        tilskuddVedtak: TilskuddVedtak,
     ): Unit = withTransaction(session) {
         @Language("PostgreSQL")
         val tilskuddQuery = """
@@ -78,21 +78,17 @@ class TilskuddBehandlingQueries(private val session: Session) {
         """.trimIndent()
 
         val tilskuddParams = mapOf(
-            "id" to tilskudd.tilskuddId,
-            "tilskudd_opplaering_kode" to tilskudd.tilskuddOpplaeringType.name,
+            "id" to tilskuddVedtak.tilskuddId,
+            "tilskudd_opplaering_kode" to tilskuddVedtak.tilskuddOpplaeringType.name,
         )
 
         execute(queryOf(tilskuddQuery, tilskuddParams))
 
         @Language("PostgreSQL")
         val vedtakQuery = """
-            with lock_row as (
-                select pg_advisory_xact_lock(hashtextextended(:tilskudd_id::text, 0))
-            ),
-            neste_lopenummer as (
-                     select coalesce(max(tv.lopenummer), 0) + 1 AS nytt_lopenummer
+            with neste_lopenummer as (
+                     select coalesce(max(tv.lopenummer), 0) + 1 as nytt_lopenummer
                      from tilskudd_vedtak tv
-                     cross join lock_row
                      where tv.tilskudd_id = :tilskudd_id::uuid
                  ),
             update as (insert into tilskudd_vedtak (
@@ -152,32 +148,31 @@ class TilskuddBehandlingQueries(private val session: Session) {
         """.trimIndent()
 
         val vedtakParams = mapOf(
-            "id" to tilskudd.id,
-            "tilskudd_id" to tilskudd.tilskuddId,
+            "id" to tilskuddVedtak.id,
+            "tilskudd_id" to tilskuddVedtak.tilskuddId,
             "tilskudd_behandling_id" to behandling.id,
-            "lopenummer" to 1,
             "periode" to behandling.periode.toDaterange(),
             "kostnadssted" to behandling.kostnadssted.value,
             "soknad_journalpost_id" to behandling.soknadJournalpostId,
             "soknad_dato" to behandling.soknadDato,
-            "soknad_belop" to tilskudd.soknadBelop.belop,
-            "soknad_valuta" to tilskudd.soknadBelop.valuta.name,
-            "vedtak_resultat" to tilskudd.vedtakResultat.name,
-            "kommentar_vedtaksbrev" to tilskudd.kommentarVedtaksbrev,
+            "soknad_belop" to tilskuddVedtak.soknadBelop.belop,
+            "soknad_valuta" to tilskuddVedtak.soknadBelop.valuta.name,
+            "vedtak_resultat" to tilskuddVedtak.vedtakResultat.name,
+            "kommentar_vedtaksbrev" to tilskuddVedtak.kommentarVedtaksbrev,
             "kommentar_intern" to behandling.kommentarIntern,
-            "utbetaling_mottaker" to tilskudd.utbetalingMottaker.name,
-            "kid" to tilskudd.kid?.value,
-            "belop" to tilskudd.utbetalingBelop?.belop,
-            "valuta" to tilskudd.utbetalingBelop?.valuta?.name,
+            "utbetaling_mottaker" to tilskuddVedtak.utbetalingMottaker.name,
+            "kid" to tilskuddVedtak.kid?.value,
+            "belop" to tilskuddVedtak.utbetalingBelop?.belop,
+            "valuta" to tilskuddVedtak.utbetalingBelop?.valuta?.name,
         )
 
         execute(queryOf(vedtakQuery, vedtakParams))
     }
 
-    fun acquireLockTilskuddVedtak(id: UUID) {
+    fun acquireLockTilskudd(id: UUID) {
         @Language("PostgreSQL")
         val query = """
-            select id from tilskudd_vedtak where id = ?::uuid for update
+            select tilskudd_id from tilskudd_vedtak where tilskudd_id = ?::uuid for update
         """.trimIndent()
         session.execute(queryOf(query, id))
     }

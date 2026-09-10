@@ -3,7 +3,7 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
@@ -66,7 +66,7 @@ object TilskuddBehandlingValidator {
         )
     }
 
-    fun validateTilskuddRequest(req: TilskuddBehandlingRequest.TilskuddRequest, index: Int): Validated<TilskuddDbo> = validation {
+    fun validateTilskuddRequest(req: TilskuddBehandlingRequest.TilskuddRequest, index: Int): Validated<TilskuddVedtak> = validation {
         validateNotNull(req.tilskuddOpplaeringType) {
             FieldError(
                 "/tilskudd/$index/tilskuddOpplaeringType",
@@ -122,7 +122,7 @@ object TilskuddBehandlingValidator {
         requireValid(req.soknadBelop?.belop != null && req.soknadBelop.valuta != null && req.vedtakResultat != null && req.utbetalingMottaker != null && req.tilskuddOpplaeringType != null)
         requireValid(req.vedtakResultat != VedtakResultat.INNVILGELSE || req.belop != null)
 
-        TilskuddDbo(
+        TilskuddVedtak(
             id = req.id,
             tilskuddId = req.tilskuddId,
             tilskuddOpplaeringType = req.tilskuddOpplaeringType,

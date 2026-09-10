@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddDbo
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -39,7 +39,7 @@ data class TilskuddBehandlingDto(
         soknadDato = this.soknadDato,
         periode = this.periode,
         tilskudd = this.tilskudd.map {
-            TilskuddDbo(
+            TilskuddVedtak(
                 id = it.id,
                 tilskuddId = it.tilskuddId,
                 tilskuddOpplaeringType = it.tilskuddOpplaeringType,
