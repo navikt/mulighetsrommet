@@ -2,7 +2,6 @@ import { paginationAtom } from "@/core/atoms";
 import { formaterDato, utledOppstart } from "@/utils/Utils";
 import { ChevronRightIcon, PadlockLockedFillIcon } from "@navikt/aksel-icons";
 import { BodyShort, VStack } from "@navikt/ds-react";
-import classNames from "classnames";
 import { useAtomValue } from "jotai";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { kebabCase } from "@mr/frontend-common/utils/TestUtils";
@@ -30,24 +29,19 @@ export function ArbeidsmarkedstiltakListItem({
 
   return (
     <li
-      className={classNames(
-        "list-none w-full bg-ax-bg-default rounded-lg text-medium hover:bg-ax-bg-accent-moderate-hover [&_a]:text-black border border-solid border-ax-border-neutral hover:border-ax-border-accent",
-        {
-          harDeltMedBruker: "border border-solid border-[rgba(7,26,54,0.21)]",
-        },
-      )}
+      className="list-none w-full bg-ax-bg-raised rounded-lg text-medium hover:bg-ax-bg-accent-moderate-hover [&_a]:text-ax-text-neutral border border-solid border-ax-border-neutral hover:border-ax-border-accent"
       id={`list_element_${index}`}
       data-testid={`gjennomforing_${kebabCase(tiltak.tiltakstype.navn)}`}
     >
       <Lenke
-        className="block w-full no-underline text-[#000000]"
+        className="block w-full no-underline text-ax-text-neutral"
         to={`../tiltak/${id}${paginationUrl}`}
       >
         {deltMedBruker && <TiltakDeltMedBrukerInfo delMedBruker={deltMedBruker} />}
         <div className="w-full grid grid-cols-[0_theme(spacing.72)_1fr_theme(spacing.6)] [grid-template-areas:'status_navn_metadata_ikon'] lg:grid-areas-[status_navn_navn_ikon_metadata_metadata_metadata] items-start grid-rows-[auto] lg:items-center min-h-16 gap-8 p-3">
           {isTiltakGruppe(tiltak) && !tiltak.apentForPamelding && (
             <PadlockLockedFillIcon
-              className="[grid-area:status] w-6 h-auto text-black"
+              className="[grid-area:status] w-6 h-auto text-ax-text-neutral"
               title="Tiltaket er stengt for påmelding"
             />
           )}

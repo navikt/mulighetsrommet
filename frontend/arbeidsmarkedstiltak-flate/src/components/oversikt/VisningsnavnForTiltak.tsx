@@ -13,7 +13,7 @@ export function VisningsnavnForTiltak({ navn, tiltakstypeNavn, noLink = false }:
     <div>
       <BodyShort
         className={classNames(
-          `overflow-hidden overflow-ellipsis whitespace-nowrap text-[#0067c5]`,
+          `overflow-hidden overflow-ellipsis whitespace-nowrap text-ax-text-accent-subtle`,
           {
             "text-[#000000]": noLink,
           },

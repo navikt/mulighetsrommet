@@ -56,7 +56,7 @@ export function Landingsside() {
         <VStack align={{ xs: "start", lg: "end" }} className="mt-0 ml-0 md:mt-16 md:ml-4">
           <Button
             as={Link}
-            icon={<PlusIcon color="white" fontSize={30} aria-hidden />}
+            icon={<PlusIcon fontSize={30} aria-hidden />}
             data-testid="finn-nytt-arbeidsmarkedstiltak-btn"
             to="/arbeidsmarkedstiltak/oversikt"
           >

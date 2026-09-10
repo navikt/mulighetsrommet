@@ -1,6 +1,6 @@
 import { PortableTextTypedObject, VeilederflateArrangor } from "@arbeidsmarkedstiltak/api-client";
 import { PortableText } from "@mr/frontend-common";
-import { BodyLong, BodyShort, Heading, Link } from "@navikt/ds-react";
+import { BodyLong, BodyShort, Box, Heading, Link } from "@navikt/ds-react";
 
 interface ArrangorInfoProps {
   arrangor: VeilederflateArrangor;
@@ -21,8 +21,15 @@ const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
       </BodyShort>
 
       {kontaktpersoner.map((person) => (
-        <div key={person.id} className="prose bg-ax-bg-sunken p-2 mt-2 rounded-md">
-          <Heading level="4" size="xsmall" className="font-bold mt-5">
+        <Box
+          key={person.id}
+          className="p-2 mt-2"
+          borderColor="neutral-subtle"
+          borderRadius="4"
+          borderWidth="1"
+          background="raised"
+        >
+          <Heading level="4" size="xsmall" className="font-bold">
             {person.navn}
           </Heading>
           {person.beskrivelse && (
@@ -31,22 +38,22 @@ const ArrangorInfo = ({ arrangor, faneinnhold }: ArrangorInfoProps) => {
             </BodyShort>
           )}
           <BodyShort as="div" size="small">
-            <dl>
-              <dt>Epost:</dt>
-              <dd>
-                <Link href={`mailto:${person.epost}`}>{person.epost}</Link>
-              </dd>
+            <dl className="flex flex-col gap-1">
+              <div>
+                <dt className="inline font-bold">Epost: </dt>
+                <dd className="inline">
+                  <Link href={`mailto:${person.epost}`}>{person.epost}</Link>
+                </dd>
+              </div>
               {person.telefon ? (
-                <>
-                  <dt>Telefon:</dt>
-                  <dd>
-                    <span>{person.telefon}</span>
-                  </dd>
-                </>
+                <div>
+                  <dt className="inline font-bold">Telefon: </dt>
+                  <dd className="inline">{person.telefon}</dd>
+                </div>
               ) : null}
             </dl>
           </BodyShort>
-        </div>
+        </Box>
       ))}
       {faneinnhold && (
         <BodyLong as="div" textColor="subtle" size="small">

@@ -44,7 +44,7 @@ export function FilterSidebar({ filterTab, setFilterOpen, filterOpen }: Props) {
         paddingInline="space-16"
         paddingBlock="space-24"
         className={`absolute top-full mt-2 w-full overflow-y-auto ${filterOpen ? "" : "hidden"}`}
-        background="default"
+        background="raised"
         shadow="dialog"
       >
         {filterTab}
