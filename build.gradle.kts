@@ -97,12 +97,24 @@ subprojects {
         }
     }
 
+    fun addNettyVersionConstraints(configurationName: String) {
+        dependencies {
+            constraints {
+                add(configurationName, rootProject.libs.netty.bom) {
+                    because("CVE i transitive avhengigheter til Netty")
+                }
+            }
+        }
+    }
+
     pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
         addJacksonVersionConstraints("implementation")
+        addNettyVersionConstraints("implementation")
     }
 
     pluginManager.withPlugin("java-test-fixtures") {
         addJacksonVersionConstraints("testFixturesImplementation")
+        addNettyVersionConstraints("testFixturesImplementation")
     }
 }
 

@@ -7,7 +7,7 @@ koin-bom = "4.2.2"
 kotest = "6.2.2"
 kotlin = "2.4.0"
 ktor = "3.5.1"
-netty = "4.2.16.Final"
+netty = "4.2.17.Final"
 logback = "1.5.38"
 metrics = "4.2.39"
 arrow = "2.2.3"
@@ -54,6 +54,7 @@ arrow-core-serialization = { module = "io.arrow-kt:arrow-core-serialization", ve
 
 jackson2-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson2" }
 jackson3-bom = { module = "tools.jackson:jackson-bom", version.ref = "jackson3" }
+netty-bom = { module = "io.netty:netty-bom", version.ref = "netty" }
 
 ktor-openapi = "io.github.smiley4:ktor-openapi:5.7.0"
 ktor-swagger-ui = "io.github.smiley4:ktor-swagger-ui:5.7.0"
