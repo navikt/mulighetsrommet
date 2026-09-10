@@ -1,4 +1,5 @@
 @file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class, LocalDateTimeSerializer::class)
+@file:OptIn(ExperimentalContracts::class)
 
 package no.nav.mulighetsrommet.api.domain.avtale
 
@@ -7,6 +8,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodeller
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.FieldError
@@ -23,6 +26,7 @@ import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.contracts.ExperimentalContracts
 
 @Serializable
 data class Avtale(
@@ -87,6 +91,16 @@ data class Avtale(
 
     fun slettRammedetaljer(): Avtale = copy(rammedetaljer = null)
 
+    fun medPrismodeller(prismodeller: List<Prismodell>): Either<List<FieldError>, Avtale> = validation {
+        requireValid(avtaletype != Avtaletype.FORHANDSGODKJENT) {
+            FieldError.of("Prismodell kan ikke endres for forhåndsgodkjente avtaler")
+        }
+
+        val prisinfo = Prisinfo.Egendefinert.of(tiltakskode, prismodeller).bind()
+
+        copy(prisinfo = prisinfo)
+    }
+
     @Serializable
     data class Rammedetaljer(
         val totalRamme: Long?,
@@ -108,7 +122,29 @@ data class Avtale(
     @Serializable
     sealed interface Prisinfo {
         @Serializable
-        data class Egendefinert(val prismodeller: List<Prismodell>) : Prisinfo
+        data class Egendefinert(val prismodeller: List<Prismodell>) : Prisinfo {
+            companion object {
+                fun of(tiltakskode: Tiltakskode, prismodeller: List<Prismodell>): Either<List<FieldError>, Egendefinert> = validation {
+                    requireValid(prismodeller.isNotEmpty()) {
+                        FieldError("/prismodeller", "Minst én prismodell er påkrevd")
+                    }
+
+                    prismodeller.forEachIndexed { index, prismodell ->
+                        validate(prismodell.type in Prismodeller.getPrismodellerForTiltak(tiltakskode)) {
+                            FieldError(
+                                "/prismodeller/$index/type",
+                                "${prismodell.type.navn} er ikke tillatt for tiltakskode ${tiltakskode.name}",
+                            )
+                        }
+                        validate(prismodell.type != PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED) {
+                            FieldError("/prismodeller", "Prismodell kan ikke opprettes med typen ${prismodell.type.navn}")
+                        }
+                    }
+
+                    Egendefinert(prismodeller)
+                }
+            }
+        }
 
         @Serializable
         data class Systembestemt(val prismodell: Prismodell) : Prisinfo

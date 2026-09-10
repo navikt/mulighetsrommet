@@ -8,6 +8,8 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
+import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Valuta
 
@@ -131,6 +133,63 @@ class AvtaleTest : FunSpec({
             val oppdatert = avtale.slettRammedetaljer()
 
             oppdatert.rammedetaljer.shouldBeNull()
+        }
+    }
+
+    context("medPrismodeller") {
+        test("kan ikke endres for forhåndsgodkjente avtaler") {
+            val avtale = AvtaleFixtures.AFT
+
+            avtale.medPrismodeller(listOf(PrismodellFixtures.AnnenAvtaltPris)).shouldBeLeft(
+                listOf(FieldError.of("Prismodell kan ikke endres for forhåndsgodkjente avtaler")),
+            )
+        }
+
+        test("krever minst én prismodell") {
+            val avtale = AvtaleFixtures.oppfolging
+
+            avtale.medPrismodeller(emptyList()).shouldBeLeft(
+                listOf(FieldError("/prismodeller", "Minst én prismodell er påkrevd")),
+            )
+        }
+
+        test("prismodelltype må være tillatt for avtalens tiltakskode") {
+            val avtale = AvtaleFixtures.oppfolging
+
+            avtale.medPrismodeller(
+                listOf(PrismodellFixtures.createPrismodell(type = PrismodellType.FAST_SATS_PER_AVTALT_PLASS_PER_MANED)),
+            ).shouldBeLeft(
+                listOf(
+                    FieldError(
+                        "/prismodeller/0/type",
+                        "Fast sats per avtalt tiltaksplass per måned er ikke tillatt for tiltakskode OPPFOLGING",
+                    ),
+                ),
+            )
+        }
+
+        test("FAST_SATS_PER_BENYTTET_PLASS_PER_MANED er forbeholdt systembestemte prismodeller") {
+            val avtale = AvtaleFixtures.AFT.copy(
+                avtaletype = Avtaletype.RAMMEAVTALE,
+                prisinfo = Avtale.Prisinfo.Egendefinert(listOf(PrismodellFixtures.ForhandsgodkjentAft)),
+            )
+
+            avtale.medPrismodeller(listOf(PrismodellFixtures.ForhandsgodkjentAft)).shouldBeLeft(
+                listOf(
+                    FieldError(
+                        "/prismodeller",
+                        "Prismodell kan ikke opprettes med typen Fast sats per benyttet tiltaksplass per måned",
+                    ),
+                ),
+            )
+        }
+
+        test("oppdaterer prisinfo til egendefinerte prismodeller når validering går bra") {
+            val avtale = AvtaleFixtures.oppfolging
+
+            val oppdatert = avtale.medPrismodeller(listOf(PrismodellFixtures.AnnenAvtaltPris)).shouldBeRight()
+
+            oppdatert.prisinfo shouldBe Avtale.Prisinfo.Egendefinert(listOf(PrismodellFixtures.AnnenAvtaltPris))
         }
     }
 })

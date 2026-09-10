@@ -500,7 +500,7 @@ class AvtaleServiceTest : FunSpec({
                 type = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                 valuta = Valuta.NOK,
                 prisbetingelser = null,
-                satser = listOf(AvtaltSatsRequest(LocalDate.of(2025, 1, 1), 100)),
+                satser = listOf(AvtaltSatsRequest(LocalDate.of(2023, 1, 1), 100)),
                 tilsagnPerDeltaker = false,
             )
 
@@ -517,6 +517,38 @@ class AvtaleServiceTest : FunSpec({
                 .shouldBeLeft()
                 .shouldContain(
                     FieldError.of("Prismodell kan ikke endres for forhåndsgodkjente avtaler"),
+                )
+        }
+
+        test("kan ikke fjerne prismodell som er i bruk av en gjennomføring") {
+            val avtale = AvtaleFixtures.oppfolging
+            val gjennomforing = GjennomforingFixtures.Oppfolging1.copy(
+                avtaleId = avtale.id,
+                status = GjennomforingStatusType.GJENNOMFORES,
+            )
+            MulighetsrommetTestDomain(
+                avtaler = listOf(avtale),
+                gjennomforinger = listOf(gjennomforing),
+            ).initialize(database.api)
+
+            val request = listOf(
+                PrismodellRequest(
+                    id = UUID.randomUUID(),
+                    type = PrismodellType.ANNEN_AVTALT_PRIS,
+                    valuta = Valuta.NOK,
+                    satser = emptyList(),
+                    prisbetingelser = null,
+                    tilsagnPerDeltaker = false,
+                ),
+            )
+
+            avtaleService.upsertPrismodell(avtale.id, request, bertilNavIdent)
+                .shouldBeLeft()
+                .shouldContain(
+                    FieldError(
+                        "/prismodeller",
+                        "Prismodell kan ikke fjernes fordi en eller flere gjennomføringer er koblet til prismodellen",
+                    ),
                 )
         }
 
