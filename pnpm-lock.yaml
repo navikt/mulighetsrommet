@@ -316,9 +316,6 @@ importers:
       isbot:
         specifier: 5.2.1
         version: 5.2.1
-      morgan:
-        specifier: 1.11.0
-        version: 1.11.0
       msw:
         specifier: 2.15.0
         version: 2.15.0(@types/node@26.1.1)(typescript@6.0.3)
