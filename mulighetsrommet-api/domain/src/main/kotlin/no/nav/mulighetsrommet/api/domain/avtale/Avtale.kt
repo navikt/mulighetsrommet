@@ -6,6 +6,8 @@ package no.nav.mulighetsrommet.api.domain.avtale
 import arrow.core.Either
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
+import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
@@ -103,6 +105,8 @@ data class Avtale(
 
     fun medPersonvern(personvern: Personvern): Avtale = copy(personvern = personvern)
 
+    fun medVeilederinfo(veilederinfo: VeilederInfo): Avtale = copy(veilederinfo = veilederinfo)
+
     @Serializable
     data class Rammedetaljer(
         val totalRamme: Long?,
@@ -168,7 +172,31 @@ data class Avtale(
         val beskrivelse: String? = null,
         val faneinnhold: Faneinnhold? = null,
         val navEnheter: Set<NavEnhetNummer> = setOf(),
-    )
+    ) {
+        companion object {
+            fun of(
+                beskrivelse: String?,
+                faneinnhold: Faneinnhold?,
+                navEnheter: Set<NavEnhet>,
+            ): Either<List<FieldError>, VeilederInfo> = validation {
+                val regioner = navEnheter.filter { it.type == NavEnhetType.FYLKE }.map { it.enhetsnummer }.toSet()
+                validate(regioner.isNotEmpty()) {
+                    FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region")
+                }
+
+                val kontorer = navEnheter.filter { it.overordnetEnhet in regioner }.map { it.enhetsnummer }.toSet()
+                validate(kontorer.isNotEmpty()) {
+                    FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet")
+                }
+
+                VeilederInfo(
+                    beskrivelse = beskrivelse,
+                    faneinnhold = faneinnhold,
+                    navEnheter = regioner + kontorer,
+                )
+            }
+        }
+    }
 
     @Serializable
     data class Personvern(
