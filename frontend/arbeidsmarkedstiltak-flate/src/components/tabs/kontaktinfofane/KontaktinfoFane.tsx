@@ -1,8 +1,8 @@
 import { Alert, HGrid, VStack } from "@navikt/ds-react";
 import { VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
 import { TiltakDetaljerFaneContainer } from "../TiltakDetaljerFaneContainer";
-import ArrangorInfo from "./ArrangorInfo";
-import NavKontaktpersonInfo from "./NavKontaktpersonInfo";
+import { ArrangorInfo } from "./ArrangorInfo";
+import { NavKontaktpersonInfo } from "./NavKontaktpersonInfo";
 import { isTiltakMedArrangor } from "@/api/queries/useArbeidsmarkedstiltakById";
 
 interface Props {

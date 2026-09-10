@@ -4,6 +4,7 @@ import {
 } from "@arbeidsmarkedstiltak/api-client";
 import { Alert, BodyShort, Button, Heading, Modal } from "@navikt/ds-react";
 import { RefObject, useRef } from "react";
+import { KontaktpersonBox } from "./KontaktpersonBox";
 
 const TEAMS_DYPLENKE = "https://teams.microsoft.com/l/chat/0/0?users=";
 
@@ -11,7 +12,7 @@ interface NavKontaktpersonInfoProps {
   kontaktinfo?: VeilederflateKontaktinfo;
 }
 
-const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
+export function NavKontaktpersonInfo({ kontaktinfo }: NavKontaktpersonInfoProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
 
   if (!kontaktinfo) return null;
@@ -31,8 +32,8 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
           {tiltaksansvarlige.map((tiltaksansvarlig: VeilederflateKontaktinfoTiltaksansvarlig) => {
             const { navn, epost, telefon, enhet, beskrivelse } = tiltaksansvarlig;
             return (
-              <div key={epost} className="prose bg-ax-bg-sunken p-2 mt-2 rounded-md">
-                <Heading level="4" size="xsmall" className="font-bold mt-5">
+              <KontaktpersonBox key={epost}>
+                <Heading level="4" size="xsmall" className="font-bold">
                   {navn}
                 </Heading>
                 {beskrivelse && (
@@ -41,42 +42,54 @@ const NavKontaktpersonInfo = ({ kontaktinfo }: NavKontaktpersonInfoProps) => {
                   </BodyShort>
                 )}
                 <BodyShort as="div" size="small">
-                  <dl>
-                    <dt>Teams:</dt>
-                    <dd>
-                      <a onClick={() => modalRef.current?.showModal()}>Kontakt meg på Teams</a>
-                    </dd>
-                    <dt>Epost:</dt>
-                    <dd>
-                      <a href={`mailto:${epost}`}>{epost}</a>
-                    </dd>
+                  <dl className="flex flex-col gap-1">
+                    <div>
+                      <dt className="inline">Teams:</dt>
+                      <dd className="inline">
+                        <Button
+                          as="a"
+                          variant="tertiary"
+                          size="small"
+                          className="inline"
+                          onClick={() => modalRef.current?.showModal()}
+                        >
+                          Kontakt meg på Teams
+                        </Button>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="inline">Epost:</dt>
+                      <dd className="inline">
+                        <a href={`mailto:${epost}`}>{epost}</a>
+                      </dd>
+                    </div>
                     {telefon ? (
-                      <>
-                        <dt>Telefon:</dt>
-                        <dd>
+                      <div>
+                        <dt className="inline">Telefon:</dt>
+                        <dd className="inline">
                           <span>{telefon}</span>
                         </dd>
-                      </>
+                      </div>
                     ) : null}
                     {enhet ? (
-                      <>
-                        <dt>Enhet:</dt>
-                        <dd>
+                      <div>
+                        <dt className="inline">Enhet:</dt>
+                        <dd className="inline">
                           <span>{`${enhet.navn} - ${enhet.enhetsnummer}`}</span>
                         </dd>
-                      </>
+                      </div>
                     ) : null}
                   </dl>
                 </BodyShort>
                 {epost && <PersonsensitiveOpplysningerModal modalRef={modalRef} epost={epost} />}
-              </div>
+              </KontaktpersonBox>
             );
           })}
         </>
       )}
     </div>
   );
-};
+}
 
 interface Props {
   modalRef: RefObject<HTMLDialogElement | null>;
@@ -115,5 +128,3 @@ function PersonsensitiveOpplysningerModal({ modalRef, epost }: Props) {
     </Modal>
   );
 }
-
-export default NavKontaktpersonInfo;
