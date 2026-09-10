@@ -101,6 +101,8 @@ data class Avtale(
         copy(prisinfo = prisinfo)
     }
 
+    fun medPersonvern(personvern: Personvern): Avtale = copy(personvern = personvern)
+
     @Serializable
     data class Rammedetaljer(
         val totalRamme: Long?,
@@ -124,7 +126,10 @@ data class Avtale(
         @Serializable
         data class Egendefinert(val prismodeller: List<Prismodell>) : Prisinfo {
             companion object {
-                fun of(tiltakskode: Tiltakskode, prismodeller: List<Prismodell>): Either<List<FieldError>, Egendefinert> = validation {
+                fun of(
+                    tiltakskode: Tiltakskode,
+                    prismodeller: List<Prismodell>,
+                ): Either<List<FieldError>, Egendefinert> = validation {
                     requireValid(prismodeller.isNotEmpty()) {
                         FieldError("/prismodeller", "Minst én prismodell er påkrevd")
                     }
@@ -137,7 +142,10 @@ data class Avtale(
                             )
                         }
                         validate(prismodell.type != PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED) {
-                            FieldError("/prismodeller", "Prismodell kan ikke opprettes med typen ${prismodell.type.navn}")
+                            FieldError(
+                                "/prismodeller",
+                                "Prismodell kan ikke opprettes med typen ${prismodell.type.navn}",
+                            )
                         }
                     }
 
@@ -169,14 +177,22 @@ data class Avtale(
         val erBekreftet: Boolean,
     ) {
         companion object {
-            fun bekreftet(
-                personopplysninger: Set<Personopplysning.Type> = setOf(),
-                annetBeskrivelse: String? = null,
-            ): Personvern {
-                return Personvern(
+            fun of(
+                personopplysninger: Set<Personopplysning.Type>,
+                annetBeskrivelse: String?,
+                erBekreftet: Boolean,
+            ): Either<List<FieldError>, Personvern> = validation {
+                requireValid(Personopplysning.Type.ANNET !in personopplysninger || !annetBeskrivelse.isNullOrBlank()) {
+                    FieldError("/personvern/annetBeskrivelse", "Beskrivelse er påkrevd når annet er valgt")
+                }
+                requireValid((annetBeskrivelse?.length ?: 0) <= 300) {
+                    FieldError("/personvern/annetBeskrivelse", "Beskrivelse kan maks være 300 tegn")
+                }
+
+                Personvern(
                     personopplysninger = personopplysninger,
-                    annetBeskrivelse = annetBeskrivelse,
-                    erBekreftet = true,
+                    annetBeskrivelse = annetBeskrivelse?.takeIf { Personopplysning.Type.ANNET in personopplysninger },
+                    erBekreftet = erBekreftet,
                 )
             }
         }
