@@ -107,8 +107,10 @@ class AvtaleService(
             Avtale.Prisinfo.Egendefinert.of(detaljer.tiltakskode, prismodeller).bind()
         }
 
+        val personvern = request.personvern.toAvtalePersonvern().bind()
+
         db.transaction {
-            val avtale = request.toAvtale(detaljer, prisinfo)
+            val avtale = request.toAvtale(detaljer, prisinfo, personvern)
             repository.avtale.save(avtale)
 
             dispatchNotificationToNewAdministrators(
@@ -178,16 +180,11 @@ class AvtaleService(
         request: PersonvernRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
-        if ((request.annetChecked ?: false) && request.annetBeskrivelse.isNullOrBlank()) {
-            raise(listOf(FieldError("/personvern/annetBeskrivelse", "Beskrivelse er påkrevd når annet er valgt")))
-        }
-        if ((request.annetBeskrivelse?.length ?: 0) > 300) {
-            raise(listOf(FieldError("/personvern/annetBeskrivelse", "Beskrivelse kan maks være 300 tegn")))
-        }
+        val personvern = request.toAvtalePersonvern().bind()
+
         db.transaction {
             val previous = getOrError(avtaleId)
-            val personvern = request.toAvtalePersonvern()
-            repository.avtale.save(previous.copy(personvern = personvern))
+            repository.avtale.save(previous.medPersonvern(personvern))
 
             logEndring("Personvern oppdatert", previous.id, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
@@ -580,6 +577,7 @@ class AvtaleService(
 private fun OpprettAvtaleRequest.toAvtale(
     detaljer: AvtaleValidator.ValidatedDetaljer,
     prisinfo: Avtale.Prisinfo,
+    personvern: Avtale.Personvern,
 ): Avtale = Avtale(
     id = id,
     tiltakskode = detaljer.tiltakskode,
@@ -597,7 +595,7 @@ private fun OpprettAvtaleRequest.toAvtale(
         faneinnhold = veilederinformasjon.faneinnhold,
         navEnheter = veilederinformasjon.navEnheter.toSet(),
     ),
-    personvern = personvern.toAvtalePersonvern(),
+    personvern = personvern,
     opplaring = detaljer.opplaring,
     opsjoner = Avtale.Opsjoner(detaljer.opsjonsmodell, emptyList()),
     prisinfo = prisinfo,
@@ -622,7 +620,7 @@ private fun Avtale.toUpdatedAvtale(detaljer: AvtaleValidator.ValidatedDetaljer):
     prisinfo = prisinfo,
 )
 
-private fun PersonvernRequest.toAvtalePersonvern(): Avtale.Personvern {
+private fun PersonvernRequest.toAvtalePersonvern(): Either<List<FieldError>, Avtale.Personvern> {
     val typer = buildSet {
         addAll(personopplysninger)
         if (annetChecked == true) {
@@ -631,9 +629,9 @@ private fun PersonvernRequest.toAvtalePersonvern(): Avtale.Personvern {
             remove(Personopplysning.Type.ANNET)
         }
     }
-    return Avtale.Personvern(
+    return Avtale.Personvern.of(
         personopplysninger = typer,
-        annetBeskrivelse = annetBeskrivelse?.takeIf { Personopplysning.Type.ANNET in typer },
+        annetBeskrivelse = annetBeskrivelse,
         erBekreftet = personvernBekreftet,
     )
 }
