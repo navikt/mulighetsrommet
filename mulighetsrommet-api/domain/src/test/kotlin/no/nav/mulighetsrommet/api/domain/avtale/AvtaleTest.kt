@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.FieldError
+import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Valuta
 
 class AvtaleTest : FunSpec({
@@ -190,6 +191,60 @@ class AvtaleTest : FunSpec({
             val oppdatert = avtale.medPrismodeller(listOf(PrismodellFixtures.AnnenAvtaltPris)).shouldBeRight()
 
             oppdatert.prisinfo shouldBe Avtale.Prisinfo.Egendefinert(listOf(PrismodellFixtures.AnnenAvtaltPris))
+        }
+    }
+
+    context("Personvern.of") {
+        test("krever beskrivelse når ANNET er valgt") {
+            Avtale.Personvern.of(
+                personopplysninger = setOf(Personopplysning.Type.ANNET),
+                annetBeskrivelse = null,
+                erBekreftet = true,
+            ).shouldBeLeft(
+                listOf(FieldError("/personvern/annetBeskrivelse", "Beskrivelse er påkrevd når annet er valgt")),
+            )
+
+            Avtale.Personvern.of(
+                personopplysninger = setOf(Personopplysning.Type.ANNET),
+                annetBeskrivelse = "   ",
+                erBekreftet = true,
+            ).shouldBeLeft(
+                listOf(FieldError("/personvern/annetBeskrivelse", "Beskrivelse er påkrevd når annet er valgt")),
+            )
+        }
+
+        test("beskrivelse kan ikke være lengre enn 300 tegn") {
+            Avtale.Personvern.of(
+                personopplysninger = setOf(Personopplysning.Type.ANNET),
+                annetBeskrivelse = "a".repeat(301),
+                erBekreftet = true,
+            ).shouldBeLeft(
+                listOf(FieldError("/personvern/annetBeskrivelse", "Beskrivelse kan maks være 300 tegn")),
+            )
+        }
+
+        test("nullstiller beskrivelse når ANNET ikke er valgt") {
+            val personvern = Avtale.Personvern.of(
+                personopplysninger = setOf(Personopplysning.Type.NAVN),
+                annetBeskrivelse = "Skal fjernes",
+                erBekreftet = true,
+            ).shouldBeRight()
+
+            personvern.annetBeskrivelse.shouldBeNull()
+        }
+
+        test("oppretter personvern når validering går bra") {
+            val personvern = Avtale.Personvern.of(
+                personopplysninger = setOf(Personopplysning.Type.ANNET),
+                annetBeskrivelse = "En beskrivelse",
+                erBekreftet = true,
+            ).shouldBeRight()
+
+            personvern shouldBe Avtale.Personvern(
+                personopplysninger = setOf(Personopplysning.Type.ANNET),
+                annetBeskrivelse = "En beskrivelse",
+                erBekreftet = true,
+            )
         }
     }
 })
