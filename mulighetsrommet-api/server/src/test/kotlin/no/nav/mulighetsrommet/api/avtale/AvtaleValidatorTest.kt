@@ -105,7 +105,6 @@ class AvtaleValidatorTest : FunSpec({
             navn = TiltakstypeFixtures.Oppfolging.navn,
             tiltakskode = TiltakstypeFixtures.Oppfolging.tiltakskode,
         ),
-        navEnheter = listOf(NavEnhetFixtures.Innlandet.toDto(), NavEnhetFixtures.Gjovik.toDto()),
     )
 
     val createForhandsgodkjentAvtaleContext = Ctx(
@@ -117,7 +116,6 @@ class AvtaleValidatorTest : FunSpec({
             navn = TiltakstypeFixtures.AFT.navn,
             tiltakskode = TiltakstypeFixtures.AFT.tiltakskode,
         ),
-        navEnheter = listOf(NavEnhetFixtures.Innlandet.toDto(), NavEnhetFixtures.Gjovik.toDto()),
     )
 
     test("skal akkumulere feil når forespørselen har flere problemer") {
@@ -136,9 +134,7 @@ class AvtaleValidatorTest : FunSpec({
 
         AvtaleValidator.validateCreateAvtale(
             request,
-            ctx.copy(
-                navEnheter = emptyList(),
-            ),
+            ctx,
         ).shouldBeLeft().shouldContainAll(
             listOf(
                 FieldError("/detaljer/startDato", "Startdato må være før sluttdato"),
@@ -192,16 +188,6 @@ class AvtaleValidatorTest : FunSpec({
         val request2 =
             avtaleRequest.copy(detaljer = avtaleRequest.detaljer.copy(startDato = dagensDato, sluttDato = dagensDato))
         AvtaleValidator.validateCreateAvtale(request2, ctx).shouldBeRight()
-    }
-
-    test("skal validere at Nav-fylke og Nav-enheter er påkrevd") {
-        AvtaleValidator.validateCreateAvtale(avtaleRequest, ctx.copy(navEnheter = emptyList())).shouldBeLeft()
-            .shouldContainExactlyInAnyOrder(
-                listOf(
-                    FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region"),
-                    FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet"),
-                ),
-            )
     }
 
     test("sluttDato er påkrevd hvis ikke forhåndsgodkjent") {
