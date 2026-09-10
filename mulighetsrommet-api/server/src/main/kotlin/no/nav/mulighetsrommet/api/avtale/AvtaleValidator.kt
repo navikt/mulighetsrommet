@@ -17,8 +17,6 @@ import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing.ArrangorUnderenhet
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
-import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetDto
-import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
 import no.nav.mulighetsrommet.api.domain.opplaring.InnholdElement
@@ -29,13 +27,11 @@ import no.nav.mulighetsrommet.api.domain.opplaring.UtdanningslopDetaljer
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
-import no.nav.mulighetsrommet.api.domain.tiltak.Prismodeller
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Avtaletyper
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.SakarkivNummer
@@ -55,7 +51,6 @@ object AvtaleValidator {
         val administratorer: List<NavAnsatt>,
         val kategorisering: Kategorisering,
         val tiltakstype: Tiltakstype,
-        val navEnheter: List<NavEnhetDto>,
     ) {
         data class Avtale(
             val status: AvtaleStatusType,
@@ -114,7 +109,6 @@ object AvtaleValidator {
             validateDetaljer(request.detaljer, ctx).bind()
         }
 
-        validateNavEnheter(ctx.navEnheter).bind()
         detaljer
     }
 
@@ -289,20 +283,6 @@ object AvtaleValidator {
             status = request.type.toOpsjonLoggStatus(),
             registrertAv = context.navIdent,
         )
-    }
-
-    fun validateNavEnheter(navEnheter: List<NavEnhetDto>): Either<List<FieldError>, Set<NavEnhetNummer>> = validation {
-        val regioner = navEnheter.filter { it.type == NavEnhetType.FYLKE }.map { it.enhetsnummer }.toSet()
-        validate(regioner.isNotEmpty()) {
-            FieldError("/veilederinformasjon/navRegioner", "Du må velge minst én Nav-region")
-        }
-
-        val kontorer = navEnheter.filter { it.overordnetEnhet in regioner }.map { it.enhetsnummer }.toSet()
-        validate(kontorer.isNotEmpty()) {
-            FieldError("/veilederinformasjon/navKontorer", "Du må velge minst én Nav-enhet")
-        }
-
-        regioner + kontorer
     }
 
     private fun FieldValidator.validateDetaljer(

@@ -17,8 +17,6 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
@@ -35,12 +33,10 @@ import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.domain.navenhet.toDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
@@ -80,7 +76,6 @@ class AvtaleService(
         val createAvtaleContext = db.session {
             getValidatorCtx(
                 request = request.detaljer,
-                navEnheter = request.veilederinformasjon.navEnheter,
                 previous = null,
             ).bind()
         }
@@ -109,8 +104,10 @@ class AvtaleService(
 
         val personvern = request.personvern.toAvtalePersonvern().bind()
 
+        val veilederinfo = request.veilederinformasjon.toVeilederinfo().bind()
+
         db.transaction {
-            val avtale = request.toAvtale(detaljer, prisinfo, personvern)
+            val avtale = request.toAvtale(detaljer, prisinfo, personvern, veilederinfo)
             repository.avtale.save(avtale)
 
             dispatchNotificationToNewAdministrators(
@@ -150,7 +147,6 @@ class AvtaleService(
             )
             val context = getValidatorCtx(
                 request = request,
-                navEnheter = listOf(),
                 previous = previous,
             ).bind()
 
@@ -196,20 +192,12 @@ class AvtaleService(
         request: VeilederinfoRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = either {
+        val veilederinfo = request.toVeilederinfo().bind()
+
         db.transaction {
             val previous = getOrError(avtaleId)
 
-            val navEnheter = request.navEnheter.mapNotNull {
-                queries.enhet.get(it)?.toDto()
-            }
-            val validatedNavEnheter = AvtaleValidator.validateNavEnheter(navEnheter).bind()
-            val veilederinfo = Avtale.VeilederInfo(
-                beskrivelse = request.beskrivelse,
-                faneinnhold = request.faneinnhold,
-                navEnheter = validatedNavEnheter,
-            )
-
-            repository.avtale.save(previous.copy(veilederinfo = veilederinfo))
+            repository.avtale.save(previous.medVeilederinfo(veilederinfo))
 
             logEndring("Veilederinformasjon oppdatert", previous.id, navIdent)
                 .also { schedulePublishGjennomforingerForAvtale(it) }
@@ -402,12 +390,10 @@ class AvtaleService(
 
     private suspend fun QueryContext.getValidatorCtx(
         request: DetaljerRequest,
-        navEnheter: List<NavEnhetNummer>,
         previous: AvtaleValidator.Ctx.Avtale?,
     ): Either<List<FieldError>, AvtaleValidator.Ctx> = either {
         val tiltakstype = queries.tiltakstype.getByTiltakskode(request.tiltakskode)
         val administratorer = request.administratorer.mapNotNull { queries.ansatt.get(it) }
-        val navEnheter = navEnheter.mapNotNull { queries.enhet.get(it)?.toDto() }
 
         val arrangor = request.arrangor?.let {
             val (hovedenhet, underenheter) = syncArrangorerFromBrreg(it.hovedenhet, it.underenheter).bind()
@@ -430,7 +416,6 @@ class AvtaleService(
                 navn = tiltakstype.navn,
                 tiltakskode = tiltakstype.tiltakskode,
             ),
-            navEnheter = navEnheter,
             kategorisering = kategorisering,
         )
     }
@@ -490,6 +475,13 @@ class AvtaleService(
             Json.encodeToJsonElement(avtale)
         }
         return avtale
+    }
+
+    private fun VeilederinfoRequest.toVeilederinfo(): Either<List<FieldError>, Avtale.VeilederInfo> {
+        val navEnheter = db.session {
+            navEnheter.mapNotNull { queries.enhet.get(it) }.toSet()
+        }
+        return Avtale.VeilederInfo.of(beskrivelse, faneinnhold, navEnheter)
     }
 
     private suspend fun syncArrangorerFromBrreg(
@@ -578,6 +570,7 @@ private fun OpprettAvtaleRequest.toAvtale(
     detaljer: AvtaleValidator.ValidatedDetaljer,
     prisinfo: Avtale.Prisinfo,
     personvern: Avtale.Personvern,
+    veilederinfo: Avtale.VeilederInfo,
 ): Avtale = Avtale(
     id = id,
     tiltakskode = detaljer.tiltakskode,
@@ -590,11 +583,7 @@ private fun OpprettAvtaleRequest.toAvtale(
     avtaletype = detaljer.avtaletype,
     status = detaljer.status.toAvtaleStatus(),
     administratorer = detaljer.administratorer.toSet(),
-    veilederinfo = Avtale.VeilederInfo(
-        beskrivelse = veilederinformasjon.beskrivelse,
-        faneinnhold = veilederinformasjon.faneinnhold,
-        navEnheter = veilederinformasjon.navEnheter.toSet(),
-    ),
+    veilederinfo = veilederinfo,
     personvern = personvern,
     opplaring = detaljer.opplaring,
     opsjoner = Avtale.Opsjoner(detaljer.opsjonsmodell, emptyList()),
