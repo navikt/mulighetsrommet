@@ -1,7 +1,7 @@
 import { ModiaContext } from "@/apps/modia/ModiaContext";
 import { PreviewArbeidsmarkedstiltak } from "@/apps/nav/PreviewArbeidsmarkedstiltak";
 import { APPLICATION_WEB_COMPONENT_NAME, AppTheme } from "@/constants";
-import createCache from "@emotion/cache";
+import createCache, { EmotionCache } from "@emotion/cache";
 import { createRoot, Root } from "react-dom/client";
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router";
 import { CustomEmotionCacheProvider } from "./CustomEmotionCacheProvider";
@@ -16,6 +16,7 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
 
   private readonly root: HTMLDivElement;
   private reactRoot?: Root;
+  private emotionCache?: EmotionCache;
   private baseUrl: string | null = null;
   private assetManifest: string | null = null;
 
@@ -56,6 +57,8 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
 
   disconnectedCallback() {
     this.reactRoot?.unmount();
+    this.reactRoot = undefined;
+    this.emotionCache = undefined;
   }
 
   attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
@@ -63,8 +66,8 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
       this.updateContextData("fnr", newValue);
     } else if (name === ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP && this.updateContextData) {
       this.updateContextData("enhet", newValue);
-    } else if (name === ModiaArbeidsmarkedstiltakWrapper.THEME_PROP && this.updateContextData) {
-      this.updateContextData("theme", newValue);
+    } else if (name === ModiaArbeidsmarkedstiltakWrapper.THEME_PROP) {
+      this.rerenderFromAttributes();
     } else if (name === ModiaArbeidsmarkedstiltakWrapper.BASE_URL_PROP) {
       this.baseUrl = newValue;
       this.tryMountApp();
@@ -118,16 +121,37 @@ export class ModiaArbeidsmarkedstiltakWrapper extends HTMLElement {
     await Promise.all(loadedCss);
   }
 
-  renderApp(fnr?: string, enhet?: string, theme?: string) {
-    this.reactRoot = createRoot(this.root);
+  /**
+   * Re-renders med gjeldende attributtverdier. Brukes ved theme-endring slik at
+   * `<Theme>` får ny verdi umiddelbart. Gjenbruker React-rooten så det blir en
+   * re-render (state bevares), ikke en remount.
+   */
+  private rerenderFromAttributes() {
+    if (!this.reactRoot) {
+      return;
+    }
 
-    const shadowrootCache = createCache({
-      key: "shadowroot-cache",
-      container: this.root,
-      prepend: true,
-    });
+    const fnr = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.FNR_PROP) ?? undefined;
+    const enhet = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.ENHET_PROP) ?? undefined;
+    const theme = this.getAttribute(ModiaArbeidsmarkedstiltakWrapper.THEME_PROP) ?? undefined;
+    this.renderApp(fnr, enhet, theme);
+  }
+
+  renderApp(fnr?: string, enhet?: string, theme?: string) {
+    if (!this.reactRoot) {
+      this.reactRoot = createRoot(this.root);
+    }
+
+    if (!this.emotionCache) {
+      this.emotionCache = createCache({
+        key: "shadowroot-cache",
+        container: this.root,
+        prepend: true,
+      });
+    }
+
     this.reactRoot.render(
-      <CustomEmotionCacheProvider cache={shadowrootCache}>
+      <CustomEmotionCacheProvider cache={this.emotionCache}>
         <ModiaContext
           contextData={{ enhet, fnr }}
           updateContextDataRef={(updateContextData) => (this.updateContextData = updateContextData)}
