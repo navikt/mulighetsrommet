@@ -2,27 +2,20 @@ package no.nav.mulighetsrommet.api.tilsagn.task
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.getOrElse
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.FailureHandler
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
-import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.JournalpostId
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
-import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapper
-import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
-import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -39,7 +32,7 @@ class JournalforEnkeltplassTilsagnsbrev(
     private val dokarkClient: DokarkClient,
     private val personaliaService: PersonaliaService,
     private val pdf: PdfGenClient,
-    private val distribuerTilsagnsbrev: DistribuerTilsagnsbrev,
+    private val sendTilsagnsbrevTilAltinn: SendTilsagnsbrevTilAltinn,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -57,8 +50,8 @@ class JournalforEnkeltplassTilsagnsbrev(
             journalfor(inst.data.tilsagnId).onLeft { message ->
                 throw Exception("Feil ved journalføring av tilsagnsbrev med id=${inst.data.tilsagnId}: $message")
             }.onRight { journalpostId ->
-                logger.info("Skedulerer distribusjon av tilsagnsbrev journapostId: $journalpostId, tilsagnId: ${inst.data.tilsagnId}")
-                distribuerTilsagnsbrev.schedule(inst.data.tilsagnId)
+                logger.info("Skedulerer sending av tilsagnsbrev til Altinn journalpostId: $journalpostId, tilsagnId: ${inst.data.tilsagnId}")
+                sendTilsagnsbrevTilAltinn.schedule(inst.data.tilsagnId)
             }
         }
 
@@ -77,73 +70,44 @@ class JournalforEnkeltplassTilsagnsbrev(
     suspend fun journalfor(tilsagnId: UUID): Either<String, JournalpostId> = db.transaction {
         logger.info("Journalfører tilsagn med id: $tilsagnId")
 
-        val tilsagn = queries.tilsagn.getOrError(tilsagnId)
-        if (tilsagn.journalpost != null) {
-            logger.info("Tilsagn med id $tilsagnId er allrede journalført med id ${tilsagn.journalpost.id}")
-            return@transaction Either.Right(tilsagn.journalpost.id)
+        val eksisterendeJournalpost = queries.tilsagn.getOrError(tilsagnId).journalpost
+        if (eksisterendeJournalpost != null) {
+            logger.info("Tilsagn med id $tilsagnId er allrede journalført med id ${eksisterendeJournalpost.id}")
+            return@transaction Either.Right(eksisterendeJournalpost.id)
         }
 
-        val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
-        val deltakere = repository.deltaker.getByGjennomforing(enkeltplass.id)
-        val deltaker = when (deltakere.size) {
-            1 -> deltakere.single()
-            0 -> return@transaction Either.Left("Fant ingen deltaker for enkeltplas ${enkeltplass.id}")
-            else -> return@transaction Either.Left("Fant ${deltakere.size} deltakere for enkeltplass ${enkeltplass.id}")
-        }
-        val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
-        val arrangor = repository.arrangor.get(tilsagn.arrangor.id)
-
-        val kontonummer = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
-            .map { kontonummer -> Kontonummer(kontonummer.kontonr) }
-            .getOrElse {
-                return@transaction Either.Left("Kunne ikke hente kontonummer for arrangør ${arrangor.organisasjonsnummer.value}: $it")
+        hentTilsagnsbrevInnhold(tilsagnId, personaliaService, kontoregisterOrganisasjonClient)
+            .flatMap { innhold ->
+                generatePdf(innhold).flatMap { pdf ->
+                    val journalpost = tilsagnJournalpost(
+                        pdf = pdf,
+                        tilsagnId = innhold.tilsagn.id,
+                        deltaker = requireNotNull(innhold.personalia.norskIdent()),
+                        arrangor = innhold.arrangor,
+                        fagsakId = innhold.fagsakId,
+                    )
+                    dokarkClient
+                        .opprettJournalpost(journalpost, AccessType.M2M)
+                        .mapLeft { error -> "Feil fra dokark ved journalføring av tilsagn $tilsagnId: ${error.message}" }
+                }
             }
-
-        val fagsakId = enkeltplass.arena?.tiltaksnummer?.value ?: enkeltplass.lopenummer.value
-
-        val opprettelse = queries.totrinnskontroll.getDtoOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-        val saksbehandler = opprettelse.behandletAv
-        val beslutter = when (opprettelse) {
-            is TotrinnskontrollDto.Besluttet -> opprettelse.besluttetAv
-            is TotrinnskontrollDto.TilBeslutning -> null
-        }
-
-        val journalpostResult = generatePdf(tilsagn, personalia, kontonummer, saksbehandler, beslutter)
-            .flatMap { pdf ->
-                val journalpost = tilsagnJournalpost(
-                    pdf = pdf,
-                    tilsagnId = tilsagn.id,
-                    deltaker = requireNotNull(personalia.norskIdent()),
-                    arrangor = arrangor,
-                    fagsakId = fagsakId,
-                )
-                dokarkClient
-                    .opprettJournalpost(journalpost, AccessType.M2M)
-                    .mapLeft { error -> "Feil fra dokark ved journalføring av tilsagn $tilsagnId: ${error.message}" }
+            .map { response ->
+                queries.tilsagn.setJournalpostId(tilsagnId, response.journalpostId)
+                if (!response.journalpostferdigstilt) {
+                    logger.info("Journalpost ${response.journalpostId} for tilsagn $tilsagnId er ikke ferdigstilt: ${response.melding}")
+                }
+                response.journalpostId
             }
-
-        journalpostResult.map { response ->
-            queries.tilsagn.setJournalpostId(tilsagnId, response.journalpostId)
-            if (!response.journalpostferdigstilt) {
-                logger.info("Journalpost ${response.journalpostId} for tilsagn $tilsagnId er ikke ferdigstilt: ${response.melding}")
-            }
-            response.journalpostId
-        }
     }
 
-    private suspend fun generatePdf(
-        tilsagn: Tilsagn,
-        personalia: Personalia,
-        kontonummer: Kontonummer,
-        saksbehandler: AgentDto,
-        beslutter: AgentDto?,
-    ): Either<String, ByteArray> {
+    private suspend fun generatePdf(innhold: TilsagnsbrevInnhold): Either<String, ByteArray> {
         val content = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
-            tilsagn,
-            kontonummer,
-            personalia,
-            saksbehandler = saksbehandler,
-            beslutter = beslutter,
+            innhold.tilsagn,
+            innhold.kontonummer,
+            innhold.personalia,
+            saksbehandler = innhold.saksbehandler,
+            beslutter = innhold.beslutter,
+            visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = false,
         )
         return pdf
             .getPdfDocument(content)
@@ -170,7 +134,7 @@ fun tilsagnJournalpost(
         idType = "FNR",
     ),
     tema = "TIL", // Tiltak
-    kanal = "ALTINN", // https://confluence.adeo.no/spaces/BOA/pages/316407153/Utsendingskanal
+    kanal = "INGEN_DISTRIBUSJON", // https://confluence.adeo.no/spaces/BOA/pages/316407153/Utsendingskanal
     journalfoerendeEnhet = "9999", // Automatisk journalføring
     eksternReferanseId = tilsagnId.toString(),
     datoMottatt = LocalDateTime.now().toString(),

@@ -53,6 +53,9 @@ import java.time.LocalDate
 
 private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
 
+private val altinnAttachmentIdForLokalUtvikling = "b5b04caa-df58-4a6a-9c78-7f5eb9c6e5a0".toUUID()
+private val altinnCorrespondenceIdForLokalUtvikling = "6f8f7a3b-df9a-4a89-9cf5-2b6c1e7a44c3".toUUID()
+
 private val navAnsattForLokalUtvikling = MsGraphUserDto(
     id = "0bab029e-e84e-4842-8a27-d153b29782cf".toUUID(),
     givenName = "Bertil",
@@ -497,6 +500,50 @@ val ApplicationConfigLocal = AppConfig(
     altinn = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/altinn",
         scope = "default",
+    ),
+    altinnCorrespondence = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8091/altinn-correspondence",
+        scope = "default",
+        engine = MockEngine { request ->
+            val path = request.url.encodedPath
+            when {
+                request.method == HttpMethod.Post && path.endsWith("/correspondence/api/v1/attachment") ->
+                    respond(
+                        content = ByteReadChannel(""""$altinnAttachmentIdForLokalUtvikling""""),
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                    )
+
+                request.method == HttpMethod.Post && path.endsWith("/upload") ->
+                    respondOk()
+
+                request.method == HttpMethod.Get && path.contains("/correspondence/api/v1/attachment/") ->
+                    respond(
+                        content = ByteReadChannel(
+                            """{"status": "Published"}""",
+                        ),
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                    )
+
+                request.method == HttpMethod.Post && path.endsWith("/correspondence/api/v1/correspondence") ->
+                    respond(
+                        content = ByteReadChannel(
+                            """
+                            {
+                              "correspondences": [
+                                { "correspondenceId": "$altinnCorrespondenceIdForLokalUtvikling" }
+                              ]
+                            }
+                            """.trimIndent(),
+                        ),
+                        status = HttpStatusCode.OK,
+                        headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                    )
+
+                else -> respondError(HttpStatusCode.NotFound, "Mangler MockEngine for Altinn Correspondence: ${request.method.value} $path")
+            }
+        },
     ),
     dokark = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/dokark",

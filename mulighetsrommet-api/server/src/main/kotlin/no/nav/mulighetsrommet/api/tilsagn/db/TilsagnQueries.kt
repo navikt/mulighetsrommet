@@ -433,18 +433,18 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setJournalpostDistribueringId(id: UUID, journalpostDistribueringId: String) {
+    fun setAltinnCorrespondenceId(id: UUID, altinnCorrespondenceId: String) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn
-              set journalpost_distribuering_id = :journalpost_distribuering_id
+              set altinn_correspondence_id = :altinn_correspondence_id
             where
               id = :id::uuid
         """.trimIndent()
 
         val params = mapOf(
             "id" to id,
-            "journalpost_distribuering_id" to journalpostDistribueringId,
+            "altinn_correspondence_id" to altinnCorrespondenceId,
         )
         session.execute(queryOf(query, params))
     }
@@ -511,7 +511,7 @@ class TilsagnQueries(private val session: Session) {
             journalpost = stringOrNull("journalpost_id")?.let { journalpostId ->
                 Tilsagn.Journalpost(
                     id = journalpostId,
-                    distribueringId = stringOrNull("journalpost_distribuering_id"),
+                    altinnCorrespondenceId = stringOrNull("altinn_correspondence_id"),
                 )
             },
             deltakere = deltakere,
