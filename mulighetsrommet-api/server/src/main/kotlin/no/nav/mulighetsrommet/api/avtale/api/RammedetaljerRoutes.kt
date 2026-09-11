@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.api.avtale.api
 
-import io.github.smiley4.ktoropenapi.delete
 import io.github.smiley4.ktoropenapi.get
 import io.github.smiley4.ktoropenapi.put
 import io.ktor.http.HttpStatusCode
@@ -120,30 +119,6 @@ fun Route.rammedetaljerRoutes() {
                     .onLeft {
                         call.respondWithProblemDetail(ValidationError(errors = it))
                     }
-            }
-
-            delete({
-                tags = setOf("Avtale")
-                operationId = "deleteRammedetaljer"
-                request {
-                    pathParameterUuid("id")
-                }
-                response {
-                    code(HttpStatusCode.NoContent) {
-                        description = "Rammedetaljer er slettet"
-                    }
-                    default {
-                        description = "Problem details"
-                        body<ProblemDetail>()
-                    }
-                }
-            }) {
-                val navIdent = getNavIdent()
-                val id: UUID by call.parameters
-
-                avtaleService.deleteRammedetaljer(id, navIdent)
-
-                call.respond(HttpStatusCode.NoContent)
             }
 
             get(

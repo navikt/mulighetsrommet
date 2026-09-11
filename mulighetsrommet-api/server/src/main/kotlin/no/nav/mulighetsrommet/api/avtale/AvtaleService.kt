@@ -18,8 +18,6 @@ import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
-import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.ValidatePrismodellerContext
-import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.api.AvtaleHandling
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
@@ -36,7 +34,6 @@ import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.api.domain.navenhet.toDto
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -247,22 +244,10 @@ class AvtaleService(
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = db.transaction {
         val avtale = getOrError(id)
-        if (request.totalRamme == null && request.utbetaltArena == null) {
-            return@transaction deleteRammedetaljer(id, navIdent).right()
-        }
         avtale.medRammedetaljer(request.totalRamme, request.utbetaltArena).map { oppdatert ->
             repository.avtale.save(oppdatert)
             logEndring("Rammedetaljer oppdatert", id, navIdent)
         }
-    }
-
-    fun deleteRammedetaljer(
-        id: UUID,
-        navIdent: NavIdent,
-    ): Avtale = db.transaction {
-        val avtale = getOrError(id)
-        repository.avtale.save(avtale.slettRammedetaljer())
-        logEndring("Rammedetaljer slettet", id, navIdent)
     }
 
     fun avsluttAvtale(
