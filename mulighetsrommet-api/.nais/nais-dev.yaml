@@ -154,6 +154,8 @@ spec:
       consumes:
         - name: "altinn:authorization/authorize"
         - name: "altinn:accessmanagement/authorizedparties.resourceowner"
+        - name: "altinn:correspondence.write"
+        - name: "altinn:serviceowner"
   accessPolicy:
     inbound:
       rules:
