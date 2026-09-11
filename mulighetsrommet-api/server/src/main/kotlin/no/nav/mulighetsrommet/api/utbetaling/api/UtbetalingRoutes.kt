@@ -85,18 +85,23 @@ fun Route.utbetalingRoutes() {
             queries.utbetaling.getByGjennomforing(gjennomforingId).map { utbetaling ->
                 val utbetalingLinjer = queries.utbetalingLinje.getByUtbetalingId(utbetaling.id)
 
-                val (belopUtbetalt, kostnadssteder) = if (utbetaling.erFerdigBehandlet()) {
-                    Pair(
-                        utbetalingLinjer.sumOf { it.pris.belop }.withValuta(utbetaling.valuta),
-                        utbetalingLinjer.map { queries.tilsagn.getOrError(it.tilsagnId).kostnadssted }.distinct(),
-                    )
+                val belopUtbetalt = if (utbetaling.erFerdigBehandlet()) {
+                    utbetalingLinjer.sumOf { it.pris.belop }.withValuta(utbetaling.valuta)
                 } else {
-                    Pair(null, emptyList())
+                    null
                 }
+
+                val kostnadssteder = utbetalingLinjer
+                    .map { queries.tilsagn.getOrError(it.tilsagnId).kostnadssted }
+                    .distinct()
 
                 UtbetalingKompaktDto(
                     id = utbetaling.id,
-                    status = UtbetalingStatusDto.fromUtbetalingStatus(utbetaling.status, utbetaling.blokkeringer, utbetaling.avbrytelse?.totrinnskontroll),
+                    status = UtbetalingStatusDto.fromUtbetalingStatus(
+                        utbetaling.status,
+                        utbetaling.blokkeringer,
+                        utbetaling.avbrytelse?.totrinnskontroll,
+                    ),
                     periode = utbetaling.periode,
                     kostnadssteder = kostnadssteder.map { KostnadsstedDto.fromNavEnhet(it) },
                     belopUtbetalt = belopUtbetalt,
@@ -389,7 +394,11 @@ fun Route.utbetalingRoutes() {
                         kontorstruktur,
                         utbetalingPeriode = utbetaling.periode,
                         advarsler = advarsler.map { advarsel ->
-                            DeltakerAdvarselDto.from(advarsel, deltakelsePersoner[advarsel.deltakerId]?.navn(), deltakelsePersoner[advarsel.deltakerId]?.norskIdent())
+                            DeltakerAdvarselDto.from(
+                                advarsel,
+                                deltakelsePersoner[advarsel.deltakerId]?.navn(),
+                                deltakelsePersoner[advarsel.deltakerId]?.norskIdent(),
+                            )
                         },
                     )
                 }
