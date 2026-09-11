@@ -99,7 +99,7 @@ private fun harGjennomforingEndringer(opprett: OpprettGjennomforingArena, gjenno
         navn = gjennomforing.navn,
         startDato = gjennomforing.startDato,
         sluttDato = gjennomforing.sluttDato,
-        status = gjennomforing.status,
+        status = gjennomforing.status.type,
         deltidsprosent = gjennomforing.deltidsprosent,
         antallPlasser = gjennomforing.antallPlasser,
         arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,

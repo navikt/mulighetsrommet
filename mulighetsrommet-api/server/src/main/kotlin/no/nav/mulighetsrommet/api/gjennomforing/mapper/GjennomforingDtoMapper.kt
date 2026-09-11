@@ -8,15 +8,15 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDtoArrangor
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktpersonDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
 import no.nav.mulighetsrommet.model.DataElement
-import no.nav.mulighetsrommet.model.DeltakerStatusType
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object GjennomforingDtoMapper {
     fun fromGjennomforingAvtale(
@@ -39,7 +39,7 @@ object GjennomforingDtoMapper {
                 ),
                 startDato = gjennomforing.startDato,
                 sluttDato = gjennomforing.sluttDato,
-                status = fromGjennomforingStatus(gjennomforing.status),
+                status = fromGjennomforingAvtaleStatus(gjennomforing.status),
                 antallPlasser = gjennomforing.antallPlasser,
                 avtaleId = gjennomforing.avtaleId,
                 oppstart = gjennomforing.oppstart,
@@ -49,12 +49,7 @@ object GjennomforingDtoMapper {
                 stengt = gjennomforing.stengt.map { it.toStengtPeriodeDto() },
                 tilgjengeligForArrangorDato = detaljer.tilgjengeligForArrangorDato,
                 administratorer = detaljer.administratorer.map { it.toAdministratorDto() },
-                avbrytelse = detaljer.avbrytelse?.let {
-                    GjennomforingAvtaleDto.AvbrytelseDto(
-                        it.aarsaker,
-                        it.forklaring,
-                    )
-                },
+                avbrytelse = gjennomforing.status.toAvbrytelseDto(),
             ),
             veilederinfo = GjennomforingVeilederinfoDto(
                 kontorstruktur = detaljer.kontorstruktur,
@@ -92,8 +87,7 @@ object GjennomforingDtoMapper {
                 ),
                 startDato = gjennomforing.startDato,
                 sluttDato = gjennomforing.sluttDato,
-                status = deltaker?.status
-                    ?: fromGjennomforingStatus(gjennomforing.status),
+                status = deltaker?.status ?: fromEnkeltplassStatus(gjennomforing.status),
                 ansvarligEnhet = gjennomforing.toAnsvarligEnhetDto(),
             ),
             prismodell = gjennomforing.prismodell.toPrismodellDto(),
@@ -104,21 +98,40 @@ object GjennomforingDtoMapper {
         )
     }
 
-    fun fromGjennomforingStatus(status: GjennomforingStatusType): DataElement.Status {
+    fun fromGjennomforingAvtaleStatus(status: GjennomforingAvtaleStatus): DataElement.Status {
         val variant = when (status) {
-            GjennomforingStatusType.GJENNOMFORES -> DataElement.Status.Variant.SUCCESS
-            GjennomforingStatusType.AVSLUTTET -> DataElement.Status.Variant.NEUTRAL
-            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> DataElement.Status.Variant.ERROR
+            is GjennomforingAvtaleStatus.Gjennomfores -> DataElement.Status.Variant.SUCCESS
+            is GjennomforingAvtaleStatus.Avsluttet -> DataElement.Status.Variant.NEUTRAL
+            is GjennomforingAvtaleStatus.Avlyst, is GjennomforingAvtaleStatus.Avbrutt -> DataElement.Status.Variant.ERROR
         }
-        return DataElement.Status(status.beskrivelse, variant, null)
+        return DataElement.Status(status.type.beskrivelse, variant, null)
     }
 
-    fun fromEnkeltplassStatus(status: DeltakerStatusType?): DataElement.Status {
-        if (status == null) {
-            // Gjennomføringen mangler foreløpig en deltaker, og har dermed ingen reell status å vise frem.
-            return DataElement.Status("Ukjent", DataElement.Status.Variant.BLANK)
+    fun fromEnkeltplassStatus(status: GjennomforingEnkeltplassStatus): DataElement.Status {
+        val variant = when (status) {
+            is GjennomforingEnkeltplassStatus.UtkastTilPamelding -> DataElement.Status.Variant.INFO
+
+            is GjennomforingEnkeltplassStatus.SoktInn -> DataElement.Status.Variant.ALT_2
+
+            is GjennomforingEnkeltplassStatus.VenterPaOppstart -> DataElement.Status.Variant.ALT_3
+
+            is GjennomforingEnkeltplassStatus.Deltar -> DataElement.Status.Variant.BLANK
+
+            is GjennomforingEnkeltplassStatus.Fullfort -> DataElement.Status.Variant.ALT_1
+
+            is GjennomforingEnkeltplassStatus.IkkeAktuell,
+            is GjennomforingEnkeltplassStatus.Avbrutt,
+            is GjennomforingEnkeltplassStatus.AvbruttUtkast,
+            is GjennomforingEnkeltplassStatus.Feilregistrert,
+            -> DataElement.Status.Variant.NEUTRAL
         }
-        return status.toDataElement()
+        return DataElement.Status(status.type.beskrivelse, variant, null)
+    }
+
+    private fun GjennomforingAvtaleStatus.toAvbrytelseDto(): GjennomforingAvtaleDto.AvbrytelseDto? = when (this) {
+        is GjennomforingAvtaleStatus.Gjennomfores, is GjennomforingAvtaleStatus.Avsluttet -> null
+        is GjennomforingAvtaleStatus.Avlyst -> GjennomforingAvtaleDto.AvbrytelseDto(aarsaker, forklaring)
+        is GjennomforingAvtaleStatus.Avbrutt -> GjennomforingAvtaleDto.AvbrytelseDto(aarsaker, forklaring)
     }
 
     private fun GjennomforingAvtaleDetaljer.Administrator.toAdministratorDto(): GjennomforingAvtaleDto.Administrator {

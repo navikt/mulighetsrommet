@@ -220,7 +220,7 @@ components:
         arrangor:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
         status:
-          $ref: "#/components/schemas/GjennomforingStatusType"
+          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Status"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
         pameldingType:
@@ -274,7 +274,7 @@ components:
           type: string
       required:
       - organisasjonsnummer
-    GjennomforingStatusType:
+    TiltaksgjennomforingV2Dto.Status:
       type: string
       enum:
       - GJENNOMFORES
@@ -311,7 +311,7 @@ components:
         arrangor:
           $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Arrangor"
         status:
-          $ref: "#/components/schemas/GjennomforingStatusType"
+          $ref: "#/components/schemas/TiltaksgjennomforingV2Dto.Status"
         oppstart:
           $ref: "#/components/schemas/GjennomforingOppstartstype"
         pameldingType:

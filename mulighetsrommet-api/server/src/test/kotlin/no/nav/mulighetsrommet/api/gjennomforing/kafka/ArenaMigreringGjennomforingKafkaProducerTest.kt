@@ -23,7 +23,6 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.ArenaTiltaksgjennomforingDto
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -56,7 +55,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             navn = "Gjennomføring",
             startDato = LocalDate.of(2025, 1, 1),
             sluttDato = null,
-            status = GjennomforingStatusType.GJENNOMFORES,
+            status = TiltaksgjennomforingV2Dto.Status.GJENNOMFORES,
             oppstart = GjennomforingOppstartstype.LOPENDE,
             pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
             tilgjengeligForArrangorFraOgMedDato = null,
@@ -72,7 +71,7 @@ class ArenaMigreringGjennomforingKafkaProducerTest : FunSpec({
             oppdatertTidspunkt = Instant.now(),
             tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
             arrangor = TiltaksgjennomforingV2Dto.Arrangor(ArrangorFixtures.underenhet1.organisasjonsnummer),
-            status = GjennomforingStatusType.GJENNOMFORES,
+            status = TiltaksgjennomforingV2Dto.Status.GJENNOMFORES,
             oppstart = GjennomforingOppstartstype.ENKELTPLASS,
             pameldingType = GjennomforingPameldingType.TRENGER_GODKJENNING,
         )

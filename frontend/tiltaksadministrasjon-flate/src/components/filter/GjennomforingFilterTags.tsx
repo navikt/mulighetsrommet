@@ -1,13 +1,12 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { gjennomforingStatusLabel, TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
+import { gjennomforingStatusLabel } from "@/utils/filterUtils";
 import { FilterTagsContainer } from "@mr/frontend-common";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
-import { ArrangorKobling, FeatureToggle } from "@tiltaksadministrasjon/api-client";
+import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { KontorstrukturFilterTag } from "@/components/filter/KontorstrukturFilterTag";
 import { Chips } from "@navikt/ds-react";
 import { TiltakskodeFilterTags } from "@/components/filter/TiltakskodeFilterTags";
-import { useFeatureToggle } from "@/api/features/useFeatureToggle";
 
 interface Props {
   filter: GjennomforingFilterType;
@@ -25,9 +24,6 @@ export function GjennomforingFilterTags({
   const { data: arrangorer } = useArrangorer(ArrangorKobling.TILTAKSGJENNOMFORING, {
     pageSize: 10000,
   });
-  const { data: enableEnkeltplassFilter } = useFeatureToggle(
-    FeatureToggle.TILTAKSADMINISTRASJON_ENKELTPLASS_FILTER,
-  );
 
   const removeArrayItem = (key: keyof GjennomforingFilterType, value: any) => {
     updateFilter({
@@ -54,21 +50,11 @@ export function GjennomforingFilterTags({
           tiltakskoder={filter.tiltakstyper}
           onRemove={(tiltakskode) => removeArrayItem("tiltakstyper", tiltakskode)}
         />
-        {enableEnkeltplassFilter
-          ? filter.gjennomforingStatuser.map((status) => (
-              <Chips.Removable
-                key={status}
-                onClick={() => removeArrayItem("gjennomforingStatuser", status)}
-              >
-                {gjennomforingStatusLabel(status)}
-              </Chips.Removable>
-            ))
-          : filter.statuser.map((status) => (
-              <Chips.Removable key={status} onClick={() => removeArrayItem("statuser", status)}>
-                {TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((o) => status === o.value)?.label ||
-                  status}
-              </Chips.Removable>
-            ))}
+        {filter.statuser.map((status) => (
+          <Chips.Removable key={status} onClick={() => removeArrayItem("statuser", status)}>
+            {gjennomforingStatusLabel(status)}
+          </Chips.Removable>
+        ))}
         {filter.visMineGjennomforinger && (
           <Chips.Removable onClick={() => updateFilter({ visMineGjennomforinger: false, page: 1 })}>
             Mine gjennomføringer

@@ -66,7 +66,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
               )
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
               and arrangor_organisasjonsnummer = any(:arrangor_orgnrs)
-              and status = any(:statuser)
+              and status = any(:statuser::text[])
               and prismodell_type = any(:prismodeller::text[])
             order by $order
             limit :limit
@@ -78,7 +78,7 @@ class ArrangorflateTiltakQueries(private val session: Session) {
             "sok" to filter.sok?.let { "%$it%" },
             "slutt_dato_cutoff" to filter.sluttDatoGreaterThanOrEqualTo,
             "arrangor_orgnrs" to createArrayOfValue(organisasjonsnummer) { it.value },
-            "statuser" to createArrayOf("gjennomforing_status", filter.type.toGjennomforingStatuses()),
+            "statuser" to createTextArray(filter.type.toGjennomforingStatuses()),
             "prismodeller" to createTextArray(prismodeller),
         )
 

@@ -6,7 +6,6 @@ select gjennomforing.id,
        gjennomforing.start_dato,
        gjennomforing.slutt_dato,
        gjennomforing.status,
-       enkeltplass_status.status_type as enkeltplass_status,
        gjennomforing.avsluttet_tidspunkt,
        gjennomforing.avbrutt_aarsaker,
        gjennomforing.avbrutt_forklaring,
@@ -33,9 +32,4 @@ from gjennomforing
                                    ) as nav_enheter_json
                             from gjennomforing_nav_enhet gjennomforing_enhet
                                      join nav_enhet enhet on enhet.enhetsnummer = gjennomforing_enhet.enhetsnummer
-                            where gjennomforing_id = gjennomforing.id) on true
-         left join lateral (select deltaker.status_type
-                             from deltaker
-                             where deltaker.gjennomforing_id = gjennomforing.id
-                               and gjennomforing.gjennomforing_type = 'ENKELTPLASS'
-                             limit 1) enkeltplass_status on true;
+                            where gjennomforing_id = gjennomforing.id) on true;

@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingArenaService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
@@ -28,7 +29,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.arena.ArenaGjennomforingDbo
 import no.nav.mulighetsrommet.arena.Avslutningsstatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -235,7 +235,7 @@ class ArenaAdapterServiceTest : FunSpec({
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing1.id).should {
                     it.arena?.tiltaksnummer shouldBe Tiltaksnummer("2024#2024")
                     it.arena?.ansvarligNavEnhet shouldBe "0387"
-                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status shouldBe GjennomforingAvtaleStatus.Gjennomfores
                     it.avtaleId shouldBe gjennomforing1.avtaleId
                     it.navn shouldBe gjennomforing1.navn
                     it.arrangor.organisasjonsnummer shouldBe ArrangorFixtures.underenhet1.organisasjonsnummer
@@ -345,7 +345,7 @@ class ArenaAdapterServiceTest : FunSpec({
                     it.tiltakstype.id shouldBe TiltakstypeFixtures.EnkelAmo.id
                     it.arrangor.organisasjonsnummer shouldBe Organisasjonsnummer("976663934")
                     it.navn shouldBe "En enkeltplass"
-                    it.status shouldBe GjennomforingStatusType.AVSLUTTET
+                    it.status shouldBe GjennomforingAvtaleStatus.Avsluttet
                 }
             }
         }

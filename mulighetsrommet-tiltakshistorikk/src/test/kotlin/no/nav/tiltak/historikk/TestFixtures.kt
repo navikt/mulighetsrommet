@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -101,7 +100,7 @@ object TestFixtures {
             navn = "Gruppe AMO",
             startDato = LocalDate.now(),
             sluttDato = null,
-            status = GjennomforingStatusType.GJENNOMFORES,
+            status = TiltaksgjennomforingV2Dto.Status.GJENNOMFORES,
             oppstart = GjennomforingOppstartstype.FELLES,
             tilgjengeligForArrangorFraOgMedDato = null,
             apentForPamelding = true,
@@ -120,7 +119,7 @@ object TestFixtures {
             arrangor = TiltaksgjennomforingV2Dto.Arrangor(
                 organisasjonsnummer = Organisasjonsnummer("987654321"),
             ),
-            status = GjennomforingStatusType.GJENNOMFORES,
+            status = TiltaksgjennomforingV2Dto.Status.GJENNOMFORES,
             opprettetTidspunkt = Instant.now(),
             oppdatertTidspunkt = Instant.now(),
             oppstart = GjennomforingOppstartstype.ENKELTPLASS,

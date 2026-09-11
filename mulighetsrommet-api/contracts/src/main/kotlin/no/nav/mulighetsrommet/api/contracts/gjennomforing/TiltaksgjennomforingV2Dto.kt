@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonClassDiscriminator
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -27,7 +26,7 @@ sealed class TiltaksgjennomforingV2Dto {
     abstract val oppdatertTidspunkt: Instant
     abstract val tiltakskode: Tiltakskode
     abstract val arrangor: Arrangor
-    abstract val status: GjennomforingStatusType
+    abstract val status: Status
     abstract val oppstart: GjennomforingOppstartstype
     abstract val pameldingType: GjennomforingPameldingType
 
@@ -48,7 +47,7 @@ sealed class TiltaksgjennomforingV2Dto {
         override val oppdatertTidspunkt: Instant,
         override val tiltakskode: Tiltakskode,
         override val arrangor: Arrangor,
-        override val status: GjennomforingStatusType,
+        override val status: Status,
         override val oppstart: GjennomforingOppstartstype,
         override val pameldingType: GjennomforingPameldingType,
         val navn: String,
@@ -76,8 +75,15 @@ sealed class TiltaksgjennomforingV2Dto {
         override val oppdatertTidspunkt: Instant,
         override val tiltakskode: Tiltakskode,
         override val arrangor: Arrangor,
-        override val status: GjennomforingStatusType,
+        override val status: Status,
         override val oppstart: GjennomforingOppstartstype,
         override val pameldingType: GjennomforingPameldingType,
     ) : TiltaksgjennomforingV2Dto()
+
+    enum class Status {
+        GJENNOMFORES,
+        AVSLUTTET,
+        AVBRUTT,
+        AVLYST,
+    }
 }

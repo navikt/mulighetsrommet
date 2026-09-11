@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.getAnsattClaims
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.navansatt.ktor.NavAnsattManglerTilgang
 import no.nav.mulighetsrommet.api.responses.ValidationError
 import no.nav.mulighetsrommet.api.withTestApplication
@@ -350,7 +351,10 @@ class GjennomforingRoutesTest : FunSpec({
 
                 database.run {
                     queries.gjennomforing.getGjennomforingAvtaleOrError(aktivGjennomforingId).should {
-                        it.status shouldBe GjennomforingStatusType.AVBRUTT
+                        it.status shouldBe GjennomforingAvtaleStatus.Avbrutt(
+                            aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
+                            forklaring = null,
+                        )
                     }
                 }
             }
