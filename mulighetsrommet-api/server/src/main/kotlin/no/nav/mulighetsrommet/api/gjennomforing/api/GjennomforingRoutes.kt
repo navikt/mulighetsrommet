@@ -32,7 +32,6 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
@@ -51,6 +50,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.ManglerTilgangTilPerson
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.ktor.exception.BadRequest
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
@@ -665,6 +665,7 @@ data class GetGjennomforingerRequest(
     val navEnheter: List<NavEnhetNummer> = emptyList(),
     val tiltakstyper: List<Tiltakskode> = emptyList(),
     val statuser: List<GjennomforingStatusType> = emptyList(),
+    val enkeltplassStatuser: List<DeltakerStatusType> = emptyList(),
     val sort: String? = null,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID? = null,
@@ -674,7 +675,6 @@ data class GetGjennomforingerRequest(
         > = emptyList(),
     val publisert: Boolean? = null,
     val visMineGjennomforinger: Boolean = false,
-    val gjennomforingTyper: List<GjennomforingType> = emptyList(),
 )
 
 data class AdminTiltaksgjennomforingFilter(
@@ -682,13 +682,13 @@ data class AdminTiltaksgjennomforingFilter(
     val navEnheter: List<NavEnhetNummer> = emptyList(),
     val tiltakskoder: List<Tiltakskode> = emptyList(),
     val statuser: List<GjennomforingStatusType> = emptyList(),
+    val enkeltplassStatuser: List<DeltakerStatusType> = emptyList(),
     val sortering: String? = null,
     val avtaleId: UUID? = null,
     val arrangorIds: List<UUID> = emptyList(),
     val administratorNavIdent: NavIdent? = null,
     val publisert: Boolean? = null,
     val koordinatorNavIdent: NavIdent? = null,
-    val gjennomforingTyper: List<GjennomforingType> = emptyList(),
 )
 
 suspend fun RoutingContext.getAdminTiltaksgjennomforingFilter(): AdminTiltaksgjennomforingFilter {
@@ -699,8 +699,8 @@ suspend fun RoutingContext.getAdminTiltaksgjennomforingFilter(): AdminTiltaksgje
         search = request.search,
         navEnheter = request.navEnheter,
         tiltakskoder = request.tiltakstyper,
-        gjennomforingTyper = request.gjennomforingTyper,
         statuser = request.statuser,
+        enkeltplassStatuser = request.enkeltplassStatuser,
         sortering = request.sort,
         avtaleId = request.avtaleId,
         arrangorIds = request.arrangorer,

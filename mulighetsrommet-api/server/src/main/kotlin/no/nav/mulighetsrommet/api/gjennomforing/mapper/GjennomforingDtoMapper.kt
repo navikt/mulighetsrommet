@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKontaktpersonDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingVeilederinfoDto
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object GjennomforingDtoMapper {
@@ -93,7 +94,7 @@ object GjennomforingDtoMapper {
                 startDato = gjennomforing.startDato,
                 sluttDato = gjennomforing.sluttDato,
                 status = deltaker
-                    ?.let { GjennomforingDtoStatus(gjennomforing.status, it.status) }
+                    ?.let { GjennomforingDtoStatus(it.status) }
                     ?: fromGjennomforingStatus(gjennomforing.status),
                 ansvarligEnhet = gjennomforing.toAnsvarligEnhetDto(),
             ),
@@ -112,7 +113,15 @@ object GjennomforingDtoMapper {
             GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> DataElement.Status.Variant.ERROR
         }
         val element = DataElement.Status(status.beskrivelse, variant, null)
-        return GjennomforingDtoStatus(status, element)
+        return GjennomforingDtoStatus(element)
+    }
+
+    fun fromEnkeltplassStatus(status: DeltakerStatusType?): GjennomforingDtoStatus {
+        if (status == null) {
+            // Gjennomføringen mangler foreløpig en deltaker, og har dermed ingen reell status å vise frem.
+            return GjennomforingDtoStatus(DataElement.Status("Ukjent", DataElement.Status.Variant.BLANK))
+        }
+        return GjennomforingDtoStatus(status.toDataElement())
     }
 
     private fun GjennomforingAvtaleDetaljer.Administrator.toAdministratorDto(): GjennomforingAvtaleDto.Administrator {
