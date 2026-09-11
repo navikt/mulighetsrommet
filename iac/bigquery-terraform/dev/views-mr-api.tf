@@ -195,12 +195,6 @@ module "mr_api_gjennomforing_view" {
         type        = "TIMESTAMP"
         description = "Tidspunktet som gjennomføringen sist ble oppdatert (i databasen)."
       },
-      {
-        mode        = "NULLABLE"
-        name        = "avsluttet_tidspunkt"
-        type        = "TIMESTAMP"
-        description = "Tidspunktet som gjennomføringen ble avsluttet, null om den fortsatt er aktiv."
-      },
     ]
   )
   view_query = <<EOF
@@ -213,8 +207,7 @@ SELECT
   slutt_dato,
   status,
   created_at as opprettet_tidspunkt,
-  updated_at as oppdatert_tidspunkt,
-  avsluttet_tidspunkt
+  updated_at as oppdatert_tidspunkt
 FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_gjennomforing`
 EOF
 }
