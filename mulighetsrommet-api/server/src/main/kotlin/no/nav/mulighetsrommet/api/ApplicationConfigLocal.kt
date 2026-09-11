@@ -17,6 +17,8 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder.consumerBuilder
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
+import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceResponse
+import no.nav.mulighetsrommet.altinn.AltinnVedleggStatusResponse
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.msgraph.GetGroupMembersResponse
 import no.nav.mulighetsrommet.api.clients.msgraph.GetMemberGroupsResponse
@@ -50,6 +52,7 @@ import no.nav.mulighetsrommet.utils.toUUID
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.ByteArraySerializer
 import java.time.LocalDate
+import java.util.UUID
 
 private val adGruppeForLokalUtvikling = "52bb9196-b071-4cc7-9472-be4942d33c4b".toUUID()
 
@@ -497,6 +500,45 @@ val ApplicationConfigLocal = AppConfig(
     altinn = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/altinn",
         scope = "default",
+    ),
+    altinnCorrespondence = AuthenticatedHttpClientConfig(
+        url = "http://localhost:8091/altinn-correspondence",
+        scope = "default",
+        engine = MockEngine { request ->
+            val path = request.url.encodedPath
+            when (request.method) {
+                HttpMethod.Post if path.endsWith("/correspondence/api/v1/attachment") -> respond(
+                    content = ByteReadChannel(""""${UUID.randomUUID()}""""),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+
+                HttpMethod.Post if path.endsWith("/upload") -> respondOk()
+
+                HttpMethod.Get if path.contains("/correspondence/api/v1/attachment/") -> respond(
+                    content = Json.encodeToString(AltinnVedleggStatusResponse(status = "Published")),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+
+                HttpMethod.Post if path.endsWith("/correspondence/api/v1/correspondence") -> respond(
+                    content = Json.encodeToString(
+                        AltinnCorrespondenceResponse(
+                            correspondences = listOf(
+                                AltinnCorrespondenceResponse.Correspondence(UUID.randomUUID()),
+                            ),
+                        ),
+                    ),
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+
+                else -> respondError(
+                    HttpStatusCode.NotFound,
+                    "Mangler MockEngine for Altinn Correspondence: ${request.method.value} $path",
+                )
+            }
+        },
     ),
     dokark = AuthenticatedHttpClientConfig(
         url = "http://localhost:8090/dokark",

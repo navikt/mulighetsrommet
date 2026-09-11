@@ -24,6 +24,7 @@ object TilsagnToPdfDocumentContentMapper {
         saksbehandler: AgentDto? = null,
         beslutter: AgentDto? = null,
         referanseDato: LocalDate = LocalDate.now(),
+        visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson: Boolean = false,
     ): PdfDocumentContent = PdfDocumentContent.create(
         title = "Tilsagnsbrev",
         subject = "Tilsagnsbrev til ${tilsagn.arrangor.navn}",
@@ -37,13 +38,19 @@ object TilsagnToPdfDocumentContentMapper {
                 date = referanseDato.toString(),
                 reference = "Ref. ${tilsagn.bestilling.bestillingsnummer}",
                 deltaker =
-                when (personalia.gradering) {
-                    Gradering.SKJERMING -> Deltaker("Skjermet")
+                when {
+                    visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson -> Deltaker(
+                        navn = personalia.navn(),
+                        norskIdent = personalia.norskIdent()?.value,
+                    )
 
-                    Gradering.STRENGT_FORTROLIG_UTLAND,
-                    Gradering.STRENGT_FORTROLIG_ADRESSE,
-                    Gradering.FORTROLIG_ADRESSE,
-                    -> Deltaker("Adressebeskyttet")
+                    personalia.gradering == Gradering.SKJERMING -> Deltaker("Skjermet")
+
+                    personalia.gradering in setOf(
+                        Gradering.STRENGT_FORTROLIG_UTLAND,
+                        Gradering.STRENGT_FORTROLIG_ADRESSE,
+                        Gradering.FORTROLIG_ADRESSE,
+                    ) -> Deltaker("Adressebeskyttet")
 
                     else -> Deltaker(
                         navn = personalia.navn(),
@@ -62,13 +69,16 @@ object TilsagnToPdfDocumentContentMapper {
                 )
                 text(
                     "Deltakeren",
-                    when (personalia.gradering) {
-                        Gradering.SKJERMING -> "Skjermet"
+                    when {
+                        visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson -> "${personalia.navn()} (${personalia.norskIdent()?.value})"
 
-                        Gradering.STRENGT_FORTROLIG_UTLAND,
-                        Gradering.STRENGT_FORTROLIG_ADRESSE,
-                        Gradering.FORTROLIG_ADRESSE,
-                        -> "Adressebeskyttet"
+                        personalia.gradering == Gradering.SKJERMING -> "Skjermet"
+
+                        personalia.gradering in setOf(
+                            Gradering.STRENGT_FORTROLIG_UTLAND,
+                            Gradering.STRENGT_FORTROLIG_ADRESSE,
+                            Gradering.FORTROLIG_ADRESSE,
+                        ) -> "Adressebeskyttet"
 
                         else -> "${personalia.navn()} (${personalia.norskIdent()?.value})"
                     },

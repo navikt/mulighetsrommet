@@ -408,6 +408,10 @@ val ApplicationConfigDev = AppConfig(
         url = "https://platform.tt02.altinn.no",
         scope = System.getenv("MASKINPORTEN_SCOPES"),
     ),
+    altinnCorrespondence = AuthenticatedHttpClientConfig(
+        url = "https://platform.tt02.altinn.no",
+        scope = System.getenv("MASKINPORTEN_SCOPES"),
+    ),
     dokark = AuthenticatedHttpClientConfig(
         url = "https://dokarkiv-q2.dev-fss-pub.nais.io",
         scope = "api://dev-fss.teamdokumenthandtering.dokarkiv/.default",

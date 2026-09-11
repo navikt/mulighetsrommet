@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.admin.tiltak.UpdateTiltakstypeUseCase
 import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentAdminService
 import no.nav.mulighetsrommet.admin.utdanning.SynkroniserUtdanningerUseCase
 import no.nav.mulighetsrommet.altinn.AltinnClient
+import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
@@ -98,8 +99,8 @@ import no.nav.mulighetsrommet.api.sanity.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
-import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
 import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
+import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevTilAltinn
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddArrangorUtbetalingConsumer
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddBrukerUtbetalingConsumer
@@ -421,6 +422,16 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single {
+        AltinnCorrespondenceClient(
+            baseUrl = appConfig.altinnCorrespondence.url,
+            clientEngine = appConfig.altinnCorrespondence.engine ?: appConfig.engine,
+            tokenProvider = maskinportenTokenProvider.withScopeAndResource(
+                scope = appConfig.altinnCorrespondence.scope,
+                resource = appConfig.altinnCorrespondence.url,
+            ),
+        )
+    }
+    single {
         IsoppfolgingstilfelleClient(
             baseUrl = appConfig.isoppfolgingstilfelleConfig.url,
             clientEngine = appConfig.engine,
@@ -610,7 +621,7 @@ private fun tasks(config: AppConfig) = module {
     single { NotificationTask(get()) }
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
     single { JournalforEnkeltplassTilsagnsbrev(get(), get(), get(), get(), get(), get()) }
-    single { DistribuerTilsagnsbrev(get(), get()) }
+    single { SendTilsagnsbrevTilAltinn(get(), get(), get(), get(), get()) }
     single { JournalforVedtaksbrev(get(), get(), get(), get(), get()) }
     single { DistribuerVedtaksbrev(get(), get()) }
     single { UpdateGjennomforingAvtaleFreeTextSearch(get(), get()) }
@@ -645,7 +656,7 @@ private fun tasks(config: AppConfig) = module {
         val oppdaterUtbetalingBeregning: GenererUtbetalingService by inject()
         val beregnUtbetaling: BeregnUtbetaling by inject()
         val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
-        val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
+        val sendTilsagnsbrevTilAltinn: SendTilsagnsbrevTilAltinn by inject()
         val journalforVedtaksbrev: JournalforVedtaksbrev by inject()
         val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
         val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
@@ -663,7 +674,7 @@ private fun tasks(config: AppConfig) = module {
                 oppdaterUtbetalingBeregning.task,
                 beregnUtbetaling.task,
                 journalforEnkeltplassTilsagnsbrev.task,
-                distribuerTilsagnsbrev.task,
+                sendTilsagnsbrevTilAltinn.task,
                 journalforVedtaksbrev.task,
                 distribuerVedtaksbrev.task,
                 updateGjennomforingAvtaleFreeTextSearch.task,

@@ -67,7 +67,7 @@ data class Tilsagn(
     @Serializable
     data class Journalpost(
         val id: String,
-        val distribueringId: String?,
+        val altinnCorrespondenceId: String?,
     )
 
     @Serializable
