@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -28,7 +27,6 @@ sealed class Gjennomforing {
     abstract val arrangor: ArrangorUnderenhet
     abstract val arena: ArenaData?
     abstract val navn: String
-    abstract val status: GjennomforingStatusType
     abstract val startDato: LocalDate?
     abstract val sluttDato: LocalDate?
     abstract val deltidsprosent: Double
@@ -81,7 +79,6 @@ data class GjennomforingAvtaleDetaljer(
     @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val arrangorKontaktpersoner: List<ArrangorKontaktperson>,
-    val avbrytelse: Avbrytelse?,
 ) {
     @Serializable
     data class Administrator(
@@ -114,12 +111,6 @@ data class GjennomforingAvtaleDetaljer(
         val telefon: String?,
         val epost: String,
     )
-
-    @Serializable
-    data class Avbrytelse(
-        val aarsaker: List<AvbrytGjennomforingAarsak>,
-        val forklaring: String?,
-    )
 }
 
 @Serializable
@@ -131,7 +122,7 @@ data class GjennomforingAvtale(
     override val arrangor: ArrangorUnderenhet,
     override val arena: ArenaData?,
     override val navn: String,
-    override val status: GjennomforingStatusType,
+    val status: GjennomforingAvtaleStatus,
     @Serializable(with = LocalDateSerializer::class)
     override val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
@@ -171,7 +162,7 @@ data class GjennomforingEnkeltplass(
     override val arrangor: ArrangorUnderenhet,
     override val arena: ArenaData?,
     override val navn: String,
-    override val status: GjennomforingStatusType,
+    val status: GjennomforingEnkeltplassStatus,
     @Serializable(with = LocalDateSerializer::class)
     override val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
@@ -210,7 +201,7 @@ data class GjennomforingArena(
     override val arrangor: ArrangorUnderenhet,
     override val arena: ArenaData?,
     override val navn: String,
-    override val status: GjennomforingStatusType,
+    val status: GjennomforingAvtaleStatus,
     @Serializable(with = LocalDateSerializer::class)
     override val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)

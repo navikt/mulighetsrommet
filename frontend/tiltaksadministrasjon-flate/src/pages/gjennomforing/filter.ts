@@ -22,7 +22,6 @@ export const GjennomforingFilterSchema = z.object({
   publisert: z.string().array(),
   page: z.number(),
   pageSize: z.number(),
-  gjennomforingStatuser: z.string().array(),
 });
 
 export type GjennomforingFilterType = z.infer<typeof GjennomforingFilterSchema>;
@@ -45,7 +44,6 @@ export const defaultGjennomforingFilter: GjennomforingFilterType = {
   visMineGjennomforinger: false,
   page: 1,
   pageSize: PAGE_SIZE,
-  gjennomforingStatuser: [],
 };
 
 export const gjennomforingFilterStateAtom = createFilterStateAtom<GjennomforingFilterType>(

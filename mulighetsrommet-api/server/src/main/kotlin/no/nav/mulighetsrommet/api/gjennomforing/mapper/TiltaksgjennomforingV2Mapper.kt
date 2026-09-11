@@ -27,7 +27,7 @@ object TiltaksgjennomforingV2Mapper {
             navn = gjennomforing.navn,
             startDato = gjennomforing.startDato,
             sluttDato = gjennomforing.sluttDato,
-            status = gjennomforing.status,
+            status = gjennomforing.status.type,
             oppstart = gjennomforing.oppstart,
             antallPlasser = gjennomforing.antallPlasser,
             deltidsprosent = gjennomforing.deltidsprosent,
@@ -48,7 +48,7 @@ object TiltaksgjennomforingV2Mapper {
             arrangor = Arrangor(
                 organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
             ),
-            status = gjennomforing.status,
+            status = gjennomforing.status.type,
             oppstart = gjennomforing.oppstart,
             pameldingType = gjennomforing.pameldingType,
         )
@@ -68,7 +68,7 @@ object TiltaksgjennomforingV2Mapper {
                 navn = gjennomforing.navn,
                 startDato = gjennomforing.startDato,
                 sluttDato = gjennomforing.sluttDato,
-                status = gjennomforing.status,
+                status = gjennomforing.status.type,
                 oppstart = gjennomforing.oppstart,
                 antallPlasser = gjennomforing.antallPlasser,
                 deltidsprosent = gjennomforing.deltidsprosent,
@@ -87,7 +87,7 @@ object TiltaksgjennomforingV2Mapper {
                 arrangor = Arrangor(
                     organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
                 ),
-                status = gjennomforing.status,
+                status = gjennomforing.status.type,
                 oppstart = gjennomforing.oppstart,
                 pameldingType = gjennomforing.pameldingType,
             )

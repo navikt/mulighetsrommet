@@ -26,6 +26,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDetaljerDto
@@ -40,7 +41,6 @@ import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
 import no.nav.mulighetsrommet.auditlog.AuditLog.auditLogger
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -159,7 +159,6 @@ class GjennomforingDetaljerService(
             navEnheter = filter.navEnheter,
             tiltakstyper = tiltakstyper,
             statuser = filter.statuser,
-            enkeltplassStatuser = filter.enkeltplassStatuser,
             sortering = filter.sortering,
             avtaleId = filter.avtaleId,
             arrangorIds = filter.arrangorIds,
@@ -217,7 +216,7 @@ class GjennomforingDetaljerService(
         gjennomforing: GjennomforingAvtale,
         ansatt: NavAnsatt,
     ): Set<GjennomforingHandling> {
-        val statusGjennomfores = gjennomforing.status == GjennomforingStatusType.GJENNOMFORES
+        val statusGjennomfores = gjennomforing.status is GjennomforingAvtaleStatus.Gjennomfores
         return setOfNotNull(
             GjennomforingHandling.DUPLISER.takeIf {
                 !tiltakstypeService.erUtfaset(gjennomforing.tiltakstype.tiltakskode)
@@ -225,7 +224,7 @@ class GjennomforingDetaljerService(
             GjennomforingHandling.PUBLISER.takeIf { statusGjennomfores },
             GjennomforingHandling.FORHANDSVIS_I_MODIA.takeIf { statusGjennomfores },
             GjennomforingHandling.AVBRYT.takeIf { statusGjennomfores },
-            GjennomforingHandling.GJENAPNE.takeIf { gjennomforing.status == GjennomforingStatusType.AVSLUTTET },
+            GjennomforingHandling.GJENAPNE.takeIf { gjennomforing.status is GjennomforingAvtaleStatus.Avsluttet },
             GjennomforingHandling.ENDRE_APEN_FOR_PAMELDING.takeIf { statusGjennomfores },
             GjennomforingHandling.ENDRE_TILGJENGELIG_FOR_ARRANGOR.takeIf { statusGjennomfores },
             GjennomforingHandling.REGISTRER_STENGT_HOS_ARRANGOR.takeIf { statusGjennomfores },
@@ -323,7 +322,7 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
         lopenummer = lopenummer,
         startDato = startDato,
         sluttDato = sluttDato,
-        status = GjennomforingDtoMapper.fromGjennomforingStatus(status),
+        status = GjennomforingDtoMapper.fromGjennomforingAvtaleStatus(status),
         arrangor = arrangor,
         tiltakstype = tiltakstype,
         publisert = publisert,

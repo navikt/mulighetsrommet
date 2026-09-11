@@ -37,10 +37,10 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.FieldError
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -111,7 +111,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
             service.get(utkast.id).shouldNotBeNull().should { (gjennomforing, okonomi) ->
                 gjennomforing.id shouldBe utkast.id
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.UtkastTilPamelding
                 okonomi.shouldBeNull()
             }
         }
@@ -379,7 +379,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
             arrangorId = GjennomforingFixtures.EnkelAmo.arrangorId,
             startDato = LocalDate.of(2025, 1, 1),
             sluttDato = LocalDate.of(2025, 6, 1),
-            status = GjennomforingStatusType.GJENNOMFORES,
+            status = GjennomforingEnkeltplassStatus.Deltar,
             ansvarligEnhet = GjennomforingFixtures.EnkelAmo.ansvarligEnhet!!,
             prismodell = UpsertEnkeltplass.Prismodell.Anskaffelse(1000),
             navn = navn,
@@ -657,7 +657,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 gjennomforing.startDato shouldBe GjennomforingFixtures.EnkelAmo.startDato
                 gjennomforing.sluttDato shouldBe GjennomforingFixtures.EnkelAmo.sluttDato
-                gjennomforing.status shouldBe GjennomforingFixtures.EnkelAmo.status
+                gjennomforing.status.type shouldBe GjennomforingFixtures.EnkelAmo.status
             }
 
             test("publiserer ikke til kafka") {
@@ -690,10 +690,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 gjennomforing.startDato shouldBe startDato
                 gjennomforing.sluttDato shouldBe sluttDato
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.Deltar
             }
 
-            test("setter status AVBRUTT når deltaker er FEILREGISTRERT") {
+            test("setter status FEILREGISTRERT når deltaker er FEILREGISTRERT") {
                 val deltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     status = DeltakerStatusType.FEILREGISTRERT,
@@ -701,10 +701,10 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
-                gjennomforing.status shouldBe GjennomforingStatusType.AVBRUTT
+                gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.Feilregistrert
             }
 
-            test("setter status AVSLUTTET når deltaker er FULLFORT") {
+            test("setter status FULLFORT når deltaker er FULLFORT") {
                 val deltaker = DeltakerFixtures.createDeltaker(
                     gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
                     status = DeltakerStatusType.FULLFORT,
@@ -712,7 +712,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
-                gjennomforing.status shouldBe GjennomforingStatusType.AVSLUTTET
+                gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.Fullfort
             }
 
             test("bruker deltakelsesprosent fra siste deltakelsesmengde") {
@@ -756,7 +756,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 gjennomforing.startDato shouldBe startDato
                 gjennomforing.sluttDato shouldBe sluttDato
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.Deltar
 
                 database.run {
                     queries.kafkaProducerRecord.getRecords(10, listOf(TEST_GJENNOMFORING_V2_TOPIC))
@@ -1314,7 +1314,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     endretTidspunkt = nyereEndretTidspunkt,
                 )
                 val (gjennomforing) = service.updateFromDeltaker(deltakerAvbrutt, norskIdent)
-                gjennomforing.status shouldBe GjennomforingStatusType.AVBRUTT
+                gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.Avbrutt
 
                 val deltakerDeltar = DeltakerFixtures.createDeltaker(
                     id = lagretDeltaker.id,
@@ -1323,7 +1323,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
                     endretTidspunkt = nyereEndretTidspunkt,
                 )
                 val (gjennomforing2) = service.updateFromDeltaker(deltakerDeltar, norskIdent)
-                gjennomforing2.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                gjennomforing2.status shouldBe GjennomforingEnkeltplassStatus.Deltar
             }
 
             test("hopper over når deltaker-eventet er eldre enn lagret") {
@@ -1344,7 +1344,7 @@ class GjennomforingEnkeltplassServiceTest : FunSpec({
 
                 val (gjennomforing) = createService(migrert).updateFromDeltaker(deltaker, norskIdent)
 
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.Deltar
             }
         }
     }

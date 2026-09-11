@@ -5791,23 +5791,15 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
-    DeltakerStatusType:
-      type: string
-      enum:
-      - AVBRUTT
-      - AVBRUTT_UTKAST
-      - DELTAR
-      - FEILREGISTRERT
-      - FULLFORT
-      - HAR_SLUTTET
-      - IKKE_AKTUELL
-      - KLADD
-      - PABEGYNT_REGISTRERING
-      - SOKT_INN
-      - UTKAST_TIL_PAMELDING
-      - VENTELISTE
-      - VENTER_PA_OPPSTART
-      - VURDERES
+      - ENKELTPLASS_UTKAST_TIL_PAMELDING
+      - ENKELTPLASS_SOKT_INN
+      - ENKELTPLASS_VENTER_PA_OPPSTART
+      - ENKELTPLASS_DELTAR
+      - ENKELTPLASS_IKKE_AKTUELL
+      - ENKELTPLASS_FULLFORT
+      - ENKELTPLASS_AVBRUTT
+      - ENKELTPLASS_AVBRUTT_UTKAST
+      - ENKELTPLASS_FEILREGISTRERT
     GetGjennomforingerRequest:
       type: object
       properties:
@@ -5827,10 +5819,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingStatusType"
-        enkeltplassStatuser:
-          type: array
-          items:
-            $ref: "#/components/schemas/DeltakerStatusType"
         sort:
           type:
           - "null"
@@ -5854,7 +5842,6 @@ components:
       required:
       - arrangorer
       - avtaleId
-      - enkeltplassStatuser
       - navEnheter
       - publisert
       - search

@@ -2,8 +2,6 @@ import { addOrRemove } from "@mr/frontend-common/utils/utils";
 import {
   ENKELTPLASS_STATUS_OPTIONS,
   TILTAKSGJENNOMFORING_STATUS_OPTIONS,
-  toEnkeltplassStatusFilterId,
-  toGjennomforingStatusFilterId,
 } from "@/utils/filterUtils";
 import { CheckboxDropdownGroup, FilterAccordion } from "@mr/frontend-common";
 import { Accordion, Search, Switch, VStack } from "@navikt/ds-react";
@@ -17,6 +15,7 @@ import {
   ArrangorKobling,
   AvtaleDto,
   FeatureToggle,
+  GjennomforingStatusType,
   GjennomforingType,
 } from "@tiltaksadministrasjon/api-client";
 import { GjennomforingTiltakstypeFilter } from "@/components/filter/GjennomforingTiltakstypeFilter";
@@ -125,7 +124,7 @@ export function GjennomforingFilter({
         {enableEnkeltplassFilter ? (
           <FilterAccordion
             tittel="Status"
-            antallValgteFilter={filter.gjennomforingStatuser.length}
+            antallValgteFilter={filter.statuser.length}
             open={accordionsOpen.includes("status")}
             onClick={() => toggleAccordion("status")}
           >
@@ -137,7 +136,7 @@ export function GjennomforingFilter({
                   id: GjennomforingType.AVTALE,
                   items: TILTAKSGJENNOMFORING_STATUS_OPTIONS.map(({ label, value }) => ({
                     navn: label,
-                    id: toGjennomforingStatusFilterId(value),
+                    id: value,
                     erStandardvalg: true,
                   })),
                 },
@@ -146,14 +145,14 @@ export function GjennomforingFilter({
                   id: GjennomforingType.ENKELTPLASS,
                   items: ENKELTPLASS_STATUS_OPTIONS.map(({ label, value }) => ({
                     navn: label,
-                    id: toEnkeltplassStatusFilterId(value),
+                    id: value,
                     erStandardvalg: true,
                   })),
                 },
               ]}
-              value={filter.gjennomforingStatuser}
-              onChange={(gjennomforingStatuser) => {
-                updateFilter({ gjennomforingStatuser, page: 1 });
+              value={filter.statuser}
+              onChange={(statuser) => {
+                updateFilter({ statuser: statuser as GjennomforingStatusType[], page: 1 });
               }}
             />
           </FilterAccordion>

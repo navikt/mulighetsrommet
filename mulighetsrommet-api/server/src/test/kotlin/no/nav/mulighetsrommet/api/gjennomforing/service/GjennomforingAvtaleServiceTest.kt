@@ -12,6 +12,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
@@ -35,6 +36,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.api.GjennomforingVeilederinfoReq
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -379,7 +381,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 aarsakerOgForklaring = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {
-                it.status shouldBe GjennomforingStatusType.AVBRUTT
+                it.status.shouldBeTypeOf<GjennomforingAvtaleStatus.Avbrutt>()
                 it.apentForPamelding shouldBe false
             }
 
@@ -432,7 +434,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 aarsakerOgForklaring = feilregistrering,
                 avbruttAv = bertilNavIdent,
             ).shouldBeRight().should {
-                it.status shouldBe GjennomforingStatusType.AVLYST
+                it.status.shouldBeTypeOf<GjennomforingAvtaleStatus.Avlyst>()
                 it.apentForPamelding shouldBe false
             }
 
@@ -494,7 +496,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 LocalDate.of(2023, 7, 2).atStartOfDay(),
                 bertilNavIdent,
             ).shouldBeRight().should {
-                it.status shouldBe GjennomforingStatusType.AVSLUTTET
+                it.status shouldBe GjennomforingAvtaleStatus.Avsluttet
                 it.apentForPamelding shouldBe false
             }
 
@@ -631,7 +633,7 @@ class GjennomforingAvtaleServiceTest : FunSpec({
                 navIdent = bertilNavIdent,
                 today = LocalDate.of(2024, 6, 1),
             ).shouldBeRight().should {
-                it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                it.status shouldBe GjennomforingAvtaleStatus.Gjennomfores
                 it.sluttDato shouldBe nySluttDato
             }
 
