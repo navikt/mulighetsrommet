@@ -5883,7 +5883,7 @@ components:
           - string
           format: date
         status:
-          $ref: "#/components/schemas/GjennomforingDtoStatus"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
         publisert:
           type: boolean
         kontorstruktur:
@@ -5908,13 +5908,6 @@ components:
       - status
       - tiltakstype
       - type
-    GjennomforingDtoStatus:
-      type: object
-      properties:
-        status:
-          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
-      required:
-      - status
     GjennomforingKompakt.ArrangorUnderenhet:
       type: object
       properties:
@@ -6021,7 +6014,7 @@ components:
           - string
           format: date
         status:
-          $ref: "#/components/schemas/GjennomforingDtoStatus"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
         antallPlasser:
           type: integer
           format: int32
@@ -6296,7 +6289,7 @@ components:
           - string
           format: date
         status:
-          $ref: "#/components/schemas/GjennomforingDtoStatus"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
         ansvarligEnhet:
           $ref: "#/components/schemas/GjennomforingEnkeltplassDto.AnsvarligEnhet"
       required:

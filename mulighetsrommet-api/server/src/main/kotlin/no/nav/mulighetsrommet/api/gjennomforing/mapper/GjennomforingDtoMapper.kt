@@ -9,7 +9,6 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetalje
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDtoArrangor
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDtoStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDetaljerDto
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassDto
@@ -93,8 +92,7 @@ object GjennomforingDtoMapper {
                 ),
                 startDato = gjennomforing.startDato,
                 sluttDato = gjennomforing.sluttDato,
-                status = deltaker
-                    ?.let { GjennomforingDtoStatus(it.status) }
+                status = deltaker?.status
                     ?: fromGjennomforingStatus(gjennomforing.status),
                 ansvarligEnhet = gjennomforing.toAnsvarligEnhetDto(),
             ),
@@ -106,22 +104,21 @@ object GjennomforingDtoMapper {
         )
     }
 
-    fun fromGjennomforingStatus(status: GjennomforingStatusType): GjennomforingDtoStatus {
+    fun fromGjennomforingStatus(status: GjennomforingStatusType): DataElement.Status {
         val variant = when (status) {
             GjennomforingStatusType.GJENNOMFORES -> DataElement.Status.Variant.SUCCESS
             GjennomforingStatusType.AVSLUTTET -> DataElement.Status.Variant.NEUTRAL
             GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT -> DataElement.Status.Variant.ERROR
         }
-        val element = DataElement.Status(status.beskrivelse, variant, null)
-        return GjennomforingDtoStatus(element)
+        return DataElement.Status(status.beskrivelse, variant, null)
     }
 
-    fun fromEnkeltplassStatus(status: DeltakerStatusType?): GjennomforingDtoStatus {
+    fun fromEnkeltplassStatus(status: DeltakerStatusType?): DataElement.Status {
         if (status == null) {
             // Gjennomføringen mangler foreløpig en deltaker, og har dermed ingen reell status å vise frem.
-            return GjennomforingDtoStatus(DataElement.Status("Ukjent", DataElement.Status.Variant.BLANK))
+            return DataElement.Status("Ukjent", DataElement.Status.Variant.BLANK)
         }
-        return GjennomforingDtoStatus(status.toDataElement())
+        return status.toDataElement()
     }
 
     private fun GjennomforingAvtaleDetaljer.Administrator.toAdministratorDto(): GjennomforingAvtaleDto.Administrator {

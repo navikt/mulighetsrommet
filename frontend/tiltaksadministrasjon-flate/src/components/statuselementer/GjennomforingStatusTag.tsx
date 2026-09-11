@@ -1,10 +1,10 @@
 import { DataElementStatusTag } from "@mr/frontend-common";
-import { GjennomforingDtoStatus } from "@tiltaksadministrasjon/api-client";
+import { DataElementStatus } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
-  status: GjennomforingDtoStatus;
+  status: DataElementStatus;
 }
 
 export function GjennomforingStatusTag({ status }: Props) {
-  return <DataElementStatusTag value={status.status.value} variant={status.status.variant} />;
+  return <DataElementStatusTag value={status.value} variant={status.variant} />;
 }

@@ -57,11 +57,9 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       sluttDato: "2029-12-12",
       deltidsprosent: 100,
       status: {
-        status: {
-          value: "Gjennomføres",
-          variant: DataElementStatusVariant.SUCCESS,
-          description: null,
-        },
+        value: "Gjennomføres",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
       },
       oppstart: GjennomforingOppstartstype.LOPENDE,
       tilgjengeligForArrangorDato: null,
@@ -150,12 +148,10 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       sluttDato: "2022-12-12",
       administratorer: [],
       status: {
-        status: {
-          value: "Avlyst",
-          variant: DataElementStatusVariant.SUCCESS,
-          description:
-            "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
-        },
+        value: "Avlyst",
+        variant: DataElementStatusVariant.SUCCESS,
+        description:
+          "Denne gjennomføringen ble avbrutt pga av noe som ikke var listen opp i listen over mulige årsaker.",
       },
       oppstart: GjennomforingOppstartstype.LOPENDE,
       tilgjengeligForArrangorDato: null,
@@ -192,11 +188,9 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       sluttDato: "2022-12-12",
       administratorer: [],
       status: {
-        status: {
-          value: "Gjennomføres",
-          variant: DataElementStatusVariant.SUCCESS,
-          description: null,
-        },
+        value: "Gjennomføres",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
       },
       oppstart: GjennomforingOppstartstype.LOPENDE,
       tilgjengeligForArrangorDato: null,
@@ -234,11 +228,9 @@ export const mockGjennomforinger: GjennomforingDetaljerDto[] = [
       sluttDato: null,
       deltidsprosent: 100,
       status: {
-        status: {
-          value: "Gjennomføres",
-          variant: DataElementStatusVariant.SUCCESS,
-          description: null,
-        },
+        value: "Gjennomføres",
+        variant: DataElementStatusVariant.SUCCESS,
+        description: null,
       },
       oppstart: GjennomforingOppstartstype.LOPENDE,
       tilgjengeligForArrangorDato: null,

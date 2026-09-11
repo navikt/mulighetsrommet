@@ -72,7 +72,7 @@ data class GjennomforingAvtaleDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: GjennomforingDtoStatus,
+    val status: DataElement.Status,
     val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
@@ -122,7 +122,7 @@ data class GjennomforingEnkeltplassDto(
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: GjennomforingDtoStatus,
+    val status: DataElement.Status,
     val ansvarligEnhet: AnsvarligEnhet,
 ) {
     @Serializable
@@ -193,11 +193,6 @@ data class DeltakerDto(
         )
     }
 }
-
-@Serializable
-data class GjennomforingDtoStatus(
-    val status: DataElement.Status,
-)
 
 @Serializable
 data class GjennomforingDtoArrangor(
