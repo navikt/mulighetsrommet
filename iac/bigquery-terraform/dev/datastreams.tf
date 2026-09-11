@@ -119,7 +119,6 @@ module "mr_api_datastream" {
             "deltidsprosent",
             "estimert_ventetid_verdi",
             "estimert_ventetid_enhet",
-            "avsluttet_tidspunkt",
             "avbrutt_aarsaker",
             "tilgjengelig_for_arrangor_dato",
           ]
