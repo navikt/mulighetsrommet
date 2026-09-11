@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.util.UUID
 
 /**
@@ -33,7 +34,20 @@ suspend fun QueryContext.hentTilsagnsbrevInnhold(
     personaliaService: PersonaliaService,
     kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ): Either<String, TilsagnsbrevInnhold> {
-    val tilsagn = queries.tilsagn.getOrError(tilsagnId)
+    val altinnTestArrangor = queries.arrangor.getByOrganisasjonsnummer(Organisasjonsnummer("310438707"))
+
+    val tilsagn = if (altinnTestArrangor != null) {
+        queries.tilsagn.getOrError(tilsagnId).copy(
+            arrangor = Tilsagn.Arrangor(
+                id = altinnTestArrangor.id,
+                organisasjonsnummer = altinnTestArrangor.organisasjonsnummer,
+                navn = altinnTestArrangor.navn,
+                slettet = false,
+            ),
+        )
+    } else {
+        queries.tilsagn.getOrError(tilsagnId)
+    }
 
     val enkeltplass = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilsagn.gjennomforing.id)
     val deltakere = repository.deltaker.getByGjennomforing(enkeltplass.id)
@@ -45,12 +59,15 @@ suspend fun QueryContext.hentTilsagnsbrevInnhold(
     val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
     val arrangor = repository.arrangor.get(tilsagn.arrangor.id)
 
-    val kontonummer = kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
-        .map { Kontonummer(it.kontonr) }
-        .getOrElse {
-            return Either.Left("Kunne ikke hente kontonummer for arrangør ${arrangor.organisasjonsnummer.value}: $it")
-        }
-
+    val kontonummer = if (altinnTestArrangor != null) {
+        Kontonummer("11111111111")
+    } else {
+        kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(arrangor.organisasjonsnummer)
+            .map { Kontonummer(it.kontonr) }
+            .getOrElse {
+                return Either.Left("Kunne ikke hente kontonummer for arrangør ${arrangor.organisasjonsnummer.value}: $it")
+            }
+    }
     val opprettelse = queries.totrinnskontroll.getDtoOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
     val saksbehandler = opprettelse.behandletAv
     val beslutter = when (opprettelse) {
