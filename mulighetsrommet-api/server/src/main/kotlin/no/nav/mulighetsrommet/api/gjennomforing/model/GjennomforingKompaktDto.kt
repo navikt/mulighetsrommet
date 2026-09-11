@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.gjennomforing.model
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
+import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -19,7 +20,7 @@ data class GjennomforingKompaktDto(
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: GjennomforingDtoStatus,
+    val status: DataElement.Status,
     val publisert: Boolean,
     val kontorstruktur: List<Kontorstruktur>,
     val arrangor: GjennomforingKompakt.ArrangorUnderenhet,

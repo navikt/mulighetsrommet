@@ -5,12 +5,14 @@ import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeTypeOf
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingAvtaleService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingStatusType.AVBRUTT
@@ -76,13 +78,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing1.id).should {
-                    it.status shouldBe GJENNOMFORES
+                    it.status shouldBe GjennomforingAvtaleStatus.Gjennomfores
                 }
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing2.id).should {
-                    it.status shouldBe GJENNOMFORES
+                    it.status shouldBe GjennomforingAvtaleStatus.Gjennomfores
                 }
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing3.id).should {
-                    it.status shouldBe GJENNOMFORES
+                    it.status shouldBe GjennomforingAvtaleStatus.Gjennomfores
                 }
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()
@@ -96,13 +98,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing1.id).should {
-                    it.status shouldBe GJENNOMFORES
+                    it.status shouldBe GjennomforingAvtaleStatus.Gjennomfores
                 }
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing2.id).should {
-                    it.status shouldBe AVSLUTTET
+                    it.status shouldBe GjennomforingAvtaleStatus.Avsluttet
                 }
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing3.id).should {
-                    it.status shouldBe AVSLUTTET
+                    it.status shouldBe GjennomforingAvtaleStatus.Avsluttet
                 }
             }
         }
@@ -114,13 +116,13 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing1.id).should {
-                    it.status shouldBe GJENNOMFORES
+                    it.status shouldBe GjennomforingAvtaleStatus.Gjennomfores
                 }
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing2.id).should {
-                    it.status shouldBe AVSLUTTET
+                    it.status shouldBe GjennomforingAvtaleStatus.Avsluttet
                 }
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing3.id).should {
-                    it.status shouldBe AVSLUTTET
+                    it.status shouldBe GjennomforingAvtaleStatus.Avsluttet
                 }
             }
         }
@@ -158,14 +160,14 @@ class UpdateGjennomforingStatusTest : FunSpec({
 
             database.run {
                 queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing1.id).should {
-                    it.status shouldBe AVSLUTTET
+                    it.status shouldBe GjennomforingAvtaleStatus.Avsluttet
                 }
-                queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing2.id).status shouldBe AVLYST
-                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing2.id)
-                    .avbrytelse!!.aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING
-                queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing3.id).status shouldBe AVBRUTT
-                queries.gjennomforing.getGjennomforingAvtaleDetaljerOrError(gjennomforing3.id)
-                    .avbrytelse!!.aarsaker shouldContain AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE
+                queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing2.id).status
+                    .shouldBeTypeOf<GjennomforingAvtaleStatus.Avlyst>()
+                    .aarsaker shouldContain AvbrytGjennomforingAarsak.FEILREGISTRERING
+                queries.gjennomforing.getGjennomforingAvtaleOrError(gjennomforing3.id).status
+                    .shouldBeTypeOf<GjennomforingAvtaleStatus.Avbrutt>()
+                    .aarsaker shouldContain AvbrytGjennomforingAarsak.FOR_FAA_DELTAKERE
 
                 queries.kafkaProducerRecord.getRecords(10).shouldBeEmpty()
             }

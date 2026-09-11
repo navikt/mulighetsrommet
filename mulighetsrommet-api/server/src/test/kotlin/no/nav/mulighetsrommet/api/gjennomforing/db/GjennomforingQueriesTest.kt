@@ -17,6 +17,7 @@ import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.InnholdElementFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.KurstypeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
@@ -38,12 +39,16 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.shared.Pagination
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.database.utils.IntegrityConstraintViolation
 import no.nav.mulighetsrommet.database.utils.query
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -93,7 +98,7 @@ class GjennomforingQueriesTest : FunSpec({
                     )
                     it.startDato shouldBe Oppfolging1.startDato
                     it.sluttDato shouldBe Oppfolging1.sluttDato
-                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status shouldBe GjennomforingAvtaleStatus.Gjennomfores
                     it.antallPlasser shouldBe 12
                     it.avtaleId shouldBe Oppfolging1.avtaleId
                     it.oppstart shouldBe GjennomforingOppstartstype.LOPENDE
@@ -360,7 +365,10 @@ class GjennomforingQueriesTest : FunSpec({
                     listOf(AvbrytGjennomforingAarsak.ANNET),
                     ":)",
                 )
-                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingStatusType.AVBRUTT
+                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingAvtaleStatus.Avbrutt(
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.ANNET),
+                    forklaring = ":)",
+                )
 
                 queries.gjennomforing.setStatus(
                     id = id,
@@ -369,7 +377,10 @@ class GjennomforingQueriesTest : FunSpec({
                     aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
                     forklaring = null,
                 )
-                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingStatusType.AVLYST
+                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingAvtaleStatus.Avlyst(
+                    aarsaker = listOf(AvbrytGjennomforingAarsak.FEILREGISTRERING),
+                    forklaring = null,
+                )
 
                 queries.gjennomforing.setStatus(
                     id = id,
@@ -378,7 +389,7 @@ class GjennomforingQueriesTest : FunSpec({
                     aarsaker = null,
                     forklaring = null,
                 )
-                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingStatusType.GJENNOMFORES
+                queries.gjennomforing.getGjennomforingAvtaleOrError(id).status shouldBe GjennomforingAvtaleStatus.Gjennomfores
             }
         }
 
@@ -541,7 +552,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.navn shouldBe "Arenanavn"
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato shouldBe LocalDate.of(2025, 2, 1)
-                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status shouldBe GjennomforingAvtaleStatus.Gjennomfores
                     it.deltidsprosent shouldBe 100.0
                     it.antallPlasser shouldBe 10
                     it.oppstart shouldBe GjennomforingOppstartstype.ENKELTPLASS
@@ -560,7 +571,7 @@ class GjennomforingQueriesTest : FunSpec({
             navn = "Arena-navn",
             startDato = LocalDate.of(2025, 1, 1),
             sluttDato = null,
-            status = GjennomforingStatusType.GJENNOMFORES,
+            status = GjennomforingStatusType.ENKELTPLASS_DELTAR,
         )
 
         test("lagre enkeltplass") {
@@ -585,7 +596,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.navn shouldBe "Arena-navn"
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
                     it.sluttDato.shouldBeNull()
-                    it.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                    it.status shouldBe GjennomforingEnkeltplassStatus.Deltar
                     it.ansvarligEnhet shouldBe GjennomforingEnkeltplass.AnsvarligEnhet(
                         enhetsnummer = NavEnhetNummer("0400"),
                         navn = "Nav Innlandet",
@@ -810,6 +821,7 @@ class GjennomforingQueriesTest : FunSpec({
             database.runAndRollback {
                 MulighetsrommetTestDomain(
                     gjennomforinger = listOf(Oppfolging1, AFT1, EnkelAmo, ArenaEnkelAmo),
+                    deltakere = listOf(DeltakerFixtures.createDeltaker(gjennomforingId = EnkelAmo.id)),
                 ).initialize()
 
                 queries.gjennomforing.getAll().should {
@@ -838,6 +850,55 @@ class GjennomforingQueriesTest : FunSpec({
                     it.totalCount shouldBe 1
                     it.items shouldContainExactlyIds listOf(ArenaEnkelAmo.id)
                 }
+            }
+        }
+
+        test("filtrering på status treffer både avtale, arena og enkeltplass i én samlet liste") {
+            database.runAndRollback {
+                val avsluttetAft = AFT1.copy(status = GjennomforingStatusType.AVSLUTTET)
+                MulighetsrommetTestDomain(
+                    gjennomforinger = listOf(Oppfolging1, avsluttetAft, EnkelAmo),
+                    deltakere = listOf(
+                        DeltakerFixtures.createDeltaker(
+                            gjennomforingId = EnkelAmo.id,
+                            status = DeltakerStatusType.DELTAR,
+                        ),
+                    ),
+                ).initialize()
+
+                queries.gjennomforing.getAll().should {
+                    it.items.filterIsInstance<GjennomforingEnkeltplassKompakt>()
+                        .shouldHaveSize(1).first().status shouldBe GjennomforingEnkeltplassStatus.Deltar
+                }
+
+                queries.gjennomforing.getAll().items shouldContainExactlyIds
+                    listOf(Oppfolging1.id, avsluttetAft.id, EnkelAmo.id)
+
+                queries.gjennomforing.getAll(statuser = listOf(GjennomforingStatusType.GJENNOMFORES)).items
+                    .shouldContainExactlyIds(listOf(Oppfolging1.id))
+
+                queries.gjennomforing.getAll(statuser = listOf(GjennomforingStatusType.AVSLUTTET)).items
+                    .shouldContainExactlyIds(listOf(avsluttetAft.id))
+
+                queries.gjennomforing.getAll(statuser = listOf(GjennomforingStatusType.ENKELTPLASS_DELTAR)).items
+                    .shouldContainExactlyIds(listOf(EnkelAmo.id))
+
+                queries.gjennomforing.getAll(statuser = listOf(GjennomforingStatusType.ENKELTPLASS_FULLFORT)).items
+                    .shouldHaveSize(0)
+
+                queries.gjennomforing.getAll(
+                    statuser = listOf(
+                        GjennomforingStatusType.GJENNOMFORES,
+                        GjennomforingStatusType.ENKELTPLASS_DELTAR,
+                    ),
+                ).items.shouldContainExactlyIds(listOf(Oppfolging1.id, EnkelAmo.id))
+
+                queries.gjennomforing.getAll(
+                    statuser = listOf(
+                        GjennomforingStatusType.GJENNOMFORES,
+                        GjennomforingStatusType.ENKELTPLASS_FULLFORT,
+                    ),
+                ).items.shouldContainExactlyIds(listOf(Oppfolging1.id))
             }
         }
     }

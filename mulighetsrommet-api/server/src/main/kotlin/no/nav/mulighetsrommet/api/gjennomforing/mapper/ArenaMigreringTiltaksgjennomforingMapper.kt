@@ -5,9 +5,10 @@ import no.nav.mulighetsrommet.api.contracts.arenamigrering.ArenaTiltaksgjennomfo
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskLocalDateTime
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 
 object ArenaMigreringTiltaksgjennomforingMapper {
     fun from(
@@ -19,11 +20,10 @@ object ArenaMigreringTiltaksgjennomforingMapper {
             ?: (gjennomforing as? GjennomforingEnkeltplass)?.ansvarligEnhet?.enhetsnummer?.value
             ?: error("navRegion or arenaAnsvarligEnhet was null! Should not be possible!")
 
-        val arenaStatus = when (gjennomforing.status) {
-            GjennomforingStatusType.GJENNOMFORES -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
-            GjennomforingStatusType.AVSLUTTET -> ArenaTiltaksgjennomforingStatus.AVSLUTTET
-            GjennomforingStatusType.AVBRUTT -> ArenaTiltaksgjennomforingStatus.AVBRUTT
-            GjennomforingStatusType.AVLYST -> ArenaTiltaksgjennomforingStatus.AVLYST
+        val arenaStatus = when (gjennomforing) {
+            is GjennomforingAvtale -> toArenaStatus(gjennomforing.status)
+            is GjennomforingArena -> toArenaStatus(gjennomforing.status)
+            is GjennomforingEnkeltplass -> toArenaStatus(gjennomforing.status)
         }
 
         val startDato = gjennomforing.startDato ?: return null
@@ -49,5 +49,28 @@ object ArenaMigreringTiltaksgjennomforingMapper {
             },
             deltidsprosent = gjennomforing.deltidsprosent,
         )
+    }
+
+    private fun toArenaStatus(status: GjennomforingAvtaleStatus): ArenaTiltaksgjennomforingStatus = when (status) {
+        is GjennomforingAvtaleStatus.Gjennomfores -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
+        is GjennomforingAvtaleStatus.Avsluttet -> ArenaTiltaksgjennomforingStatus.AVSLUTTET
+        is GjennomforingAvtaleStatus.Avbrutt -> ArenaTiltaksgjennomforingStatus.AVBRUTT
+        is GjennomforingAvtaleStatus.Avlyst -> ArenaTiltaksgjennomforingStatus.AVLYST
+    }
+
+    private fun toArenaStatus(status: GjennomforingEnkeltplassStatus): ArenaTiltaksgjennomforingStatus = when (status) {
+        is GjennomforingEnkeltplassStatus.UtkastTilPamelding,
+        is GjennomforingEnkeltplassStatus.SoktInn,
+        is GjennomforingEnkeltplassStatus.VenterPaOppstart,
+        is GjennomforingEnkeltplassStatus.Deltar,
+        -> ArenaTiltaksgjennomforingStatus.GJENNOMFORES
+
+        is GjennomforingEnkeltplassStatus.Fullfort -> ArenaTiltaksgjennomforingStatus.AVSLUTTET
+
+        is GjennomforingEnkeltplassStatus.IkkeAktuell,
+        is GjennomforingEnkeltplassStatus.Avbrutt,
+        is GjennomforingEnkeltplassStatus.AvbruttUtkast,
+        is GjennomforingEnkeltplassStatus.Feilregistrert,
+        -> ArenaTiltaksgjennomforingStatus.AVBRUTT
     }
 }

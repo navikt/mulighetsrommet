@@ -4,10 +4,13 @@ import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto.Arrangor
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto.Enkeltplass
 import no.nav.mulighetsrommet.api.contracts.gjennomforing.TiltaksgjennomforingV2Dto.Gruppe
+import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 
 object TiltaksgjennomforingV2Mapper {
@@ -21,13 +24,11 @@ object TiltaksgjennomforingV2Mapper {
             opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
             oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-            arrangor = Arrangor(
-                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-            ),
+            arrangor = gjennomforing.arrangor.toArrangor(),
             navn = gjennomforing.navn,
             startDato = gjennomforing.startDato,
             sluttDato = gjennomforing.sluttDato,
-            status = gjennomforing.status,
+            status = gjennomforing.status.toTiltaksgjennomforingV2Status(),
             oppstart = gjennomforing.oppstart,
             antallPlasser = gjennomforing.antallPlasser,
             deltidsprosent = gjennomforing.deltidsprosent,
@@ -45,10 +46,8 @@ object TiltaksgjennomforingV2Mapper {
             opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
             oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
             tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-            arrangor = Arrangor(
-                organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-            ),
-            status = gjennomforing.status,
+            arrangor = gjennomforing.arrangor.toArrangor(),
+            status = gjennomforing.status.toTiltaksgjennomforingV2Status(),
             oppstart = gjennomforing.oppstart,
             pameldingType = gjennomforing.pameldingType,
         )
@@ -62,13 +61,11 @@ object TiltaksgjennomforingV2Mapper {
                 opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
                 oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
                 tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-                arrangor = Arrangor(
-                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-                ),
+                arrangor = gjennomforing.arrangor.toArrangor(),
                 navn = gjennomforing.navn,
                 startDato = gjennomforing.startDato,
                 sluttDato = gjennomforing.sluttDato,
-                status = gjennomforing.status,
+                status = gjennomforing.status.toTiltaksgjennomforingV2Status(),
                 oppstart = gjennomforing.oppstart,
                 antallPlasser = gjennomforing.antallPlasser,
                 deltidsprosent = gjennomforing.deltidsprosent,
@@ -84,13 +81,38 @@ object TiltaksgjennomforingV2Mapper {
                 opprettetTidspunkt = gjennomforing.opprettetTidspunkt,
                 oppdatertTidspunkt = gjennomforing.oppdatertTidspunkt,
                 tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-                arrangor = Arrangor(
-                    organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
-                ),
-                status = gjennomforing.status,
+                arrangor = gjennomforing.arrangor.toArrangor(),
+                status = gjennomforing.status.toTiltaksgjennomforingV2Status(),
                 oppstart = gjennomforing.oppstart,
                 pameldingType = gjennomforing.pameldingType,
             )
         }
+    }
+
+    private fun Gjennomforing.ArrangorUnderenhet.toArrangor(): Arrangor = Arrangor(
+        organisasjonsnummer = organisasjonsnummer,
+    )
+
+    private fun GjennomforingAvtaleStatus.toTiltaksgjennomforingV2Status() = when (this) {
+        GjennomforingAvtaleStatus.Gjennomfores -> TiltaksgjennomforingV2Dto.Status.GJENNOMFORES
+        GjennomforingAvtaleStatus.Avsluttet -> TiltaksgjennomforingV2Dto.Status.AVSLUTTET
+        is GjennomforingAvtaleStatus.Avbrutt -> TiltaksgjennomforingV2Dto.Status.AVBRUTT
+        is GjennomforingAvtaleStatus.Avlyst -> TiltaksgjennomforingV2Dto.Status.AVLYST
+    }
+
+    private fun GjennomforingEnkeltplassStatus.toTiltaksgjennomforingV2Status() = when (this) {
+        is GjennomforingEnkeltplassStatus.UtkastTilPamelding,
+        is GjennomforingEnkeltplassStatus.SoktInn,
+        is GjennomforingEnkeltplassStatus.VenterPaOppstart,
+        is GjennomforingEnkeltplassStatus.Deltar,
+        -> TiltaksgjennomforingV2Dto.Status.GJENNOMFORES
+
+        is GjennomforingEnkeltplassStatus.Fullfort -> TiltaksgjennomforingV2Dto.Status.AVSLUTTET
+
+        is GjennomforingEnkeltplassStatus.IkkeAktuell,
+        is GjennomforingEnkeltplassStatus.Avbrutt,
+        is GjennomforingEnkeltplassStatus.AvbruttUtkast,
+        is GjennomforingEnkeltplassStatus.Feilregistrert,
+        -> TiltaksgjennomforingV2Dto.Status.AVBRUTT
     }
 }

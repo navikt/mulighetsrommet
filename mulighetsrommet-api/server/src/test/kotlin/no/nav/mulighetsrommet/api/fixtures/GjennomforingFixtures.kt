@@ -14,6 +14,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingDbo
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -179,7 +180,7 @@ object GjennomforingFixtures {
         navn = "Enkelamo 1",
         startDato = LocalDate.of(2025, 1, 1),
         sluttDato = LocalDate.of(2025, 12, 31),
-        status = GjennomforingStatusType.GJENNOMFORES,
+        status = GjennomforingStatusType.ENKELTPLASS_DELTAR,
         deltidsprosent = 100.0,
         antallPlasser = 1,
         prismodellId = PrismodellFixtures.AnskaffetEnkeltplass.id,
@@ -199,7 +200,7 @@ object GjennomforingFixtures {
         navn = "Enkelfag og yrke 1",
         startDato = LocalDate.of(2025, 1, 1),
         sluttDato = LocalDate.of(2025, 12, 31),
-        status = GjennomforingStatusType.GJENNOMFORES,
+        status = GjennomforingStatusType.ENKELTPLASS_DELTAR,
         deltidsprosent = 100.0,
         antallPlasser = 1,
         prismodellId = PrismodellFixtures.AnskaffetEnkeltplass.id,
@@ -281,7 +282,7 @@ object GjennomforingFixtures {
             sluttDato = periode.getLastInclusiveDate(),
             deltidsprosent = 100.0,
             antallPlasser = 10,
-            status = GjennomforingStatusType.GJENNOMFORES,
+            status = GjennomforingAvtaleStatus.Gjennomfores,
             apentForPamelding = true,
             avtaleId = UUID.randomUUID(),
             kontorstruktur = emptyList(),

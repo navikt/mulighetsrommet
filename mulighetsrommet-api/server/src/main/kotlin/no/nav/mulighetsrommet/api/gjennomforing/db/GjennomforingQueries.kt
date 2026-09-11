@@ -15,8 +15,10 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArenaKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassKompakt
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingKompakt
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.persistence.tiltak.toPrismodell
@@ -74,7 +76,7 @@ class GjennomforingQueries(private val session: Session) {
                     :navn,
                     :start_dato,
                     :slutt_dato,
-                    :status::gjennomforing_status,
+                    :status,
                     :deltidsprosent,
                     :antall_plasser,
                     :avtale_id::uuid,
@@ -133,7 +135,7 @@ class GjennomforingQueries(private val session: Session) {
                 navn                            = :navn,
                 start_dato                      = :start_dato,
                 slutt_dato                      = :slutt_dato,
-                status                          = :status::gjennomforing_status,
+                status                          = :status,
                 deltidsprosent                  = :deltidsprosent,
                 antall_plasser                  = :antall_plasser,
                 prismodell_id                   = :prismodell_id::uuid,
@@ -337,7 +339,7 @@ class GjennomforingQueries(private val session: Session) {
             "tiltakstype_ids" to tiltakstyper.ifEmpty { null }?.let { createUuidArray(it) },
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { createUuidArray(it) },
             "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
-            "statuser" to statuser.ifEmpty { null }?.let { createArrayOf("gjennomforing_status", it) },
+            "statuser" to statuser.ifEmpty { null }?.let { createTextArray(it) },
             "administrator_nav_ident" to administratorNavIdent?.value,
             "koordinator_nav_ident" to koordinatorNavIdent?.value,
             "publisert" to publisert,
@@ -396,7 +398,7 @@ class GjennomforingQueries(private val session: Session) {
                     or :administrator_nav_ident in (select nav_ident from gjennomforing_administrator where gjennomforing_id = id)
                     or :koordinator_nav_ident in (select nav_ident from gjennomforing_koordinator where gjennomforing_id = view_gjennomforing_kompakt.id))
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
-              and (:statuser::text[] is null or status = any(:statuser))
+              and (:statuser::text[] is null or status = any(:statuser::text[]))
               and (:publisert::boolean is null or publisert = :publisert::boolean)
               and (:gjennomforing_typer::gjennomforing_type[] is null or gjennomforing_type = any(:gjennomforing_typer))
             order by $order
@@ -580,7 +582,7 @@ class GjennomforingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             update gjennomforing
-            set status = :status::gjennomforing_status,
+            set status = :status,
                 slutt_dato = coalesce(:slutt_dato, slutt_dato),
                 avbrutt_aarsaker = :aarsaker,
                 avbrutt_forklaring = :forklaring
@@ -718,7 +720,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
                 lopenummer = Tiltaksnummer(string("lopenummer")),
                 startDato = localDate("start_dato"),
                 sluttDato = localDateOrNull("slutt_dato"),
-                status = GjennomforingStatusType.valueOf(string("status")),
+                status = toGjennomforingAvtaleStatus(),
                 publisert = boolean("publisert"),
                 kontorstruktur = Kontorstruktur.fromNavEnheter(toNavEnheter()),
                 arrangor = arrangor,
@@ -732,7 +734,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
                 lopenummer = Tiltaksnummer(string("lopenummer")),
                 startDato = localDateOrNull("start_dato"),
                 sluttDato = localDateOrNull("slutt_dato"),
-                status = GjennomforingStatusType.valueOf(string("status")),
+                status = GjennomforingEnkeltplassStatus.from(GjennomforingStatusType.valueOf(string("status"))),
                 arrangor = arrangor,
                 tiltakstype = tiltakstype,
             )
@@ -745,7 +747,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
                 lopenummer = Tiltaksnummer(string("lopenummer")),
                 startDato = localDate("start_dato"),
                 sluttDato = localDateOrNull("slutt_dato"),
-                status = GjennomforingStatusType.valueOf(string("status")),
+                status = toGjennomforingAvtaleStatus(),
                 arrangor = arrangor,
                 tiltakstype = tiltakstype,
             )
@@ -771,7 +773,7 @@ private fun Row.toGjennomforingAvtale(): GjennomforingAvtale {
         ),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = GjennomforingStatusType.valueOf(string("status")),
+        status = toGjennomforingAvtaleStatus(),
         antallPlasser = int("antall_plasser"),
         apentForPamelding = boolean("apent_for_pamelding"),
         avtaleId = uuid("avtale_id"),
@@ -818,19 +820,15 @@ private fun Row.toGjennomforingAvtaleDetaljer(): GjennomforingAvtaleDetaljer {
         tilgjengeligForArrangorDato = localDateOrNull("tilgjengelig_for_arrangor_dato"),
         opplaringKategorisering = opplaringKategorisering,
         arrangorKontaktpersoner = arrangorKontaktpersoner,
-        avbrytelse = when (GjennomforingStatusType.valueOf(string("status"))) {
-            GjennomforingStatusType.GJENNOMFORES,
-            GjennomforingStatusType.AVSLUTTET,
-            -> null
+    )
+}
 
-            GjennomforingStatusType.AVBRUTT,
-            GjennomforingStatusType.AVLYST,
-            -> GjennomforingAvtaleDetaljer.Avbrytelse(
-                array<String>("avbrutt_aarsaker").map { AvbrytGjennomforingAarsak.valueOf(it) },
-                stringOrNull("avbrutt_forklaring"),
-            )
-        },
-
+private fun Row.toGjennomforingAvtaleStatus(): GjennomforingAvtaleStatus {
+    val aarsaker = arrayOrNull<String>("avbrutt_aarsaker")?.map { AvbrytGjennomforingAarsak.valueOf(it) } ?: emptyList()
+    return GjennomforingAvtaleStatus.from(
+        type = GjennomforingStatusType.valueOf(string("status")),
+        aarsaker = aarsaker,
+        forklaring = stringOrNull("avbrutt_forklaring"),
     )
 }
 
@@ -876,7 +874,7 @@ private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
         navn = string("navn"),
         startDato = localDateOrNull("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = GjennomforingStatusType.valueOf(string("status")),
+        status = GjennomforingEnkeltplassStatus.from(GjennomforingStatusType.valueOf(string("status"))),
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),
         prismodell = toPrismodell(),
@@ -915,7 +913,7 @@ private fun Row.toGjennomforingArena(): GjennomforingArena {
         navn = string("navn"),
         startDato = localDate("start_dato"),
         sluttDato = localDateOrNull("slutt_dato"),
-        status = GjennomforingStatusType.valueOf(string("status")),
+        status = toGjennomforingAvtaleStatus(),
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),
         oppstart = GjennomforingOppstartstype.valueOf(string("oppstart")),

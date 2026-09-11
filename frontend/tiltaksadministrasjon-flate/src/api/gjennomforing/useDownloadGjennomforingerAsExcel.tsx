@@ -9,7 +9,6 @@ export function useDownloadGjennomforingerAsExcel(filter: GjennomforingFilterTyp
     navEnheter: filter.navEnheter,
     tiltakstyper: filter.tiltakstyper,
     statuser: filter.statuser,
-    gjennomforingTyper: filter.gjennomforingTyper,
     avtaleId: filter.avtale || null,
     arrangorer: filter.arrangorer,
     visMineGjennomforinger: filter.visMineGjennomforinger,

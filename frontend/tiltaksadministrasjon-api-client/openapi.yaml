@@ -5831,12 +5831,15 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
-    GjennomforingType:
-      type: string
-      enum:
-      - ARENA
-      - AVTALE
-      - ENKELTPLASS
+      - ENKELTPLASS_UTKAST_TIL_PAMELDING
+      - ENKELTPLASS_SOKT_INN
+      - ENKELTPLASS_VENTER_PA_OPPSTART
+      - ENKELTPLASS_DELTAR
+      - ENKELTPLASS_IKKE_AKTUELL
+      - ENKELTPLASS_FULLFORT
+      - ENKELTPLASS_AVBRUTT
+      - ENKELTPLASS_AVBRUTT_UTKAST
+      - ENKELTPLASS_FEILREGISTRERT
     GetGjennomforingerRequest:
       type: object
       properties:
@@ -5876,14 +5879,9 @@ components:
           - boolean
         visMineGjennomforinger:
           type: boolean
-        gjennomforingTyper:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingType"
       required:
       - arrangorer
       - avtaleId
-      - gjennomforingTyper
       - navEnheter
       - publisert
       - search
@@ -5912,7 +5910,7 @@ components:
           - string
           format: date
         status:
-          $ref: "#/components/schemas/GjennomforingDtoStatus"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
         publisert:
           type: boolean
         kontorstruktur:
@@ -5936,16 +5934,6 @@ components:
       - startDato
       - status
       - tiltakstype
-      - type
-    GjennomforingDtoStatus:
-      type: object
-      properties:
-        type:
-          $ref: "#/components/schemas/GjennomforingStatusType"
-        status:
-          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
-      required:
-      - status
       - type
     GjennomforingKompakt.ArrangorUnderenhet:
       type: object
@@ -5975,6 +5963,12 @@ components:
       - id
       - navn
       - tiltakskode
+    GjennomforingType:
+      type: string
+      enum:
+      - ARENA
+      - AVTALE
+      - ENKELTPLASS
     PaginatedResponse_GjennomforingKompaktDto:
       type: object
       properties:
@@ -6047,7 +6041,7 @@ components:
           - string
           format: date
         status:
-          $ref: "#/components/schemas/GjennomforingDtoStatus"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
         antallPlasser:
           type: integer
           format: int32
@@ -6322,7 +6316,7 @@ components:
           - string
           format: date
         status:
-          $ref: "#/components/schemas/GjennomforingDtoStatus"
+          $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
         ansvarligEnhet:
           $ref: "#/components/schemas/GjennomforingEnkeltplassDto.AnsvarligEnhet"
       required:

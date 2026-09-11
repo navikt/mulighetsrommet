@@ -23,7 +23,12 @@ enum class ArrangorflateFilterType {
 
     fun toGjennomforingStatuses(): List<GjennomforingStatusType> = when (this) {
         AKTIVE -> listOf(GjennomforingStatusType.GJENNOMFORES)
-        HISTORISKE -> GjennomforingStatusType.entries.filter { it != GjennomforingStatusType.GJENNOMFORES }
+
+        HISTORISKE -> listOf(
+            GjennomforingStatusType.AVSLUTTET,
+            GjennomforingStatusType.AVBRUTT,
+            GjennomforingStatusType.AVLYST,
+        )
     }
 
     fun utbetalingStatuser(): Set<UtbetalingStatusType> = when (this) {

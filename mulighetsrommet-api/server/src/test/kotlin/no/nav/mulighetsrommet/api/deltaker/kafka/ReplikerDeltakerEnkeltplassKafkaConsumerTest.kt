@@ -12,6 +12,8 @@ import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.AFT1
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.EnkelAmo
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.DeltakerStatusType
@@ -52,13 +54,13 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         createConsumer(features).consume(deltaker.id, Json.encodeToJsonElement(deltaker))
 
         database.run {
-            queries.gjennomforing.getGjennomforingOrError(AFT1.id).status shouldBe GjennomforingStatusType.GJENNOMFORES
+            queries.gjennomforing.getGjennomforingAvtaleOrError(AFT1.id).status shouldBe GjennomforingAvtaleStatus.Gjennomfores
         }
     }
 
     test("oppdaterer ikke gjennomføring når tiltakstype enda ikke er migrert") {
         MulighetsrommetTestDomain(
-            gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.GJENNOMFORES)),
+            gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.ENKELTPLASS_DELTAR)),
         ).initialize(database.api)
 
         val deltaker = AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerDto(
@@ -70,13 +72,13 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         createConsumer().consume(deltaker.id, Json.encodeToJsonElement(deltaker))
 
         database.run {
-            queries.gjennomforing.getGjennomforingOrError(EnkelAmo.id).status shouldBe GjennomforingStatusType.GJENNOMFORES
+            queries.gjennomforing.getGjennomforingEnkeltplassOrError(EnkelAmo.id).status shouldBe GjennomforingEnkeltplassStatus.Deltar
         }
     }
 
     test("oppdaterer gjennomføring når tiltakstypen er migrert") {
         MulighetsrommetTestDomain(
-            gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.GJENNOMFORES)),
+            gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.ENKELTPLASS_DELTAR)),
         ).initialize(database.api)
 
         val deltaker = AmtDeltakerEksternV1DtoFixtures.createAmtDeltakerDto(
@@ -89,7 +91,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         createConsumer(features).consume(deltaker.id, Json.encodeToJsonElement(deltaker))
 
         database.run {
-            queries.gjennomforing.getGjennomforingOrError(EnkelAmo.id).status shouldBe GjennomforingStatusType.AVSLUTTET
+            queries.gjennomforing.getGjennomforingEnkeltplassOrError(EnkelAmo.id).status shouldBe GjennomforingEnkeltplassStatus.Fullfort
         }
     }
 
@@ -100,7 +102,7 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
             endretTidspunkt = tidspunktMs.tilNorskInstant(),
         )
         MulighetsrommetTestDomain(
-            gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.GJENNOMFORES)),
+            gjennomforinger = listOf(EnkelAmo.copy(status = GjennomforingStatusType.ENKELTPLASS_DELTAR)),
             deltakere = listOf(lagretDeltaker),
         ).initialize(database.api)
 
@@ -117,13 +119,13 @@ class ReplikerDeltakerEnkeltplassKafkaConsumerTest : FunSpec({
         consumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker))
 
         database.run {
-            queries.gjennomforing.getGjennomforingOrError(EnkelAmo.id).status shouldBe GjennomforingStatusType.GJENNOMFORES
+            queries.gjennomforing.getGjennomforingEnkeltplassOrError(EnkelAmo.id).status shouldBe GjennomforingEnkeltplassStatus.Deltar
         }
 
         consumer.consume(deltaker.id, Json.encodeToJsonElement(deltaker.copy(endretTidspunkt = tidspunktMs)))
 
         database.run {
-            queries.gjennomforing.getGjennomforingOrError(EnkelAmo.id).status shouldBe GjennomforingStatusType.AVSLUTTET
+            queries.gjennomforing.getGjennomforingEnkeltplassOrError(EnkelAmo.id).status shouldBe GjennomforingEnkeltplassStatus.Fullfort
         }
     }
 })

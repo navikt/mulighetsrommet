@@ -1,13 +1,12 @@
 import { useArrangorer } from "@/api/arrangor/useArrangorer";
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
+import { gjennomforingStatusLabel } from "@/utils/filterUtils";
 import { FilterTagsContainer } from "@mr/frontend-common";
 import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 import { ArrangorKobling } from "@tiltaksadministrasjon/api-client";
 import { KontorstrukturFilterTag } from "@/components/filter/KontorstrukturFilterTag";
 import { Chips } from "@navikt/ds-react";
 import { TiltakskodeFilterTags } from "@/components/filter/TiltakskodeFilterTags";
-import { gjennomforingTypeToString } from "@/utils/Utils";
 
 interface Props {
   filter: GjennomforingFilterType;
@@ -53,7 +52,7 @@ export function GjennomforingFilterTags({
         />
         {filter.statuser.map((status) => (
           <Chips.Removable key={status} onClick={() => removeArrayItem("statuser", status)}>
-            {TILTAKSGJENNOMFORING_STATUS_OPTIONS.find((o) => status === o.value)?.label || status}
+            {gjennomforingStatusLabel(status)}
           </Chips.Removable>
         ))}
         {filter.visMineGjennomforinger && (
@@ -69,11 +68,6 @@ export function GjennomforingFilterTags({
         {filter.arrangorer.map((id) => (
           <Chips.Removable key={id} onClick={() => removeArrayItem("arrangorer", id)}>
             {arrangorer?.data.find((arrangor) => arrangor.id === id)?.navn ?? id}
-          </Chips.Removable>
-        ))}
-        {filter.gjennomforingTyper.map((type) => (
-          <Chips.Removable key={type} onClick={() => removeArrayItem("gjennomforingTyper", type)}>
-            {gjennomforingTypeToString(type)}
           </Chips.Removable>
         ))}
       </Chips>

@@ -32,7 +32,6 @@ import no.nav.mulighetsrommet.api.aarsakerforklaring.AarsakerOgForklaringRequest
 import no.nav.mulighetsrommet.api.avtale.api.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
-import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingType
 import no.nav.mulighetsrommet.api.gjennomforing.model.AvbrytGjennomforingAarsak
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingDetaljerDto
@@ -674,7 +673,6 @@ data class GetGjennomforingerRequest(
         > = emptyList(),
     val publisert: Boolean? = null,
     val visMineGjennomforinger: Boolean = false,
-    val gjennomforingTyper: List<GjennomforingType> = emptyList(),
 )
 
 data class AdminTiltaksgjennomforingFilter(
@@ -688,7 +686,6 @@ data class AdminTiltaksgjennomforingFilter(
     val administratorNavIdent: NavIdent? = null,
     val publisert: Boolean? = null,
     val koordinatorNavIdent: NavIdent? = null,
-    val gjennomforingTyper: List<GjennomforingType> = emptyList(),
 )
 
 suspend fun RoutingContext.getAdminTiltaksgjennomforingFilter(): AdminTiltaksgjennomforingFilter {
@@ -699,7 +696,6 @@ suspend fun RoutingContext.getAdminTiltaksgjennomforingFilter(): AdminTiltaksgje
         search = request.search,
         navEnheter = request.navEnheter,
         tiltakskoder = request.tiltakstyper,
-        gjennomforingTyper = request.gjennomforingTyper,
         statuser = request.statuser,
         sortering = request.sort,
         avtaleId = request.avtaleId,

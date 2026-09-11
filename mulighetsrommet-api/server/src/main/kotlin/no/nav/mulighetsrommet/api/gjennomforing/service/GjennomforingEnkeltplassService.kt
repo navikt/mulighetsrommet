@@ -32,6 +32,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Enkeltplass
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
@@ -40,7 +41,6 @@ import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -84,7 +84,7 @@ data class UpsertArenaEnkeltplass(
     val id: UUID,
     val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
-    val status: GjennomforingStatusType,
+    val status: GjennomforingEnkeltplassStatus,
     val prismodell: UpsertEnkeltplass.Prismodell,
     val ansvarligEnhet: NavEnhetNummer,
     // TODO: fjerne fra modell når feltene ikke lengre trengs for å deles med arena
@@ -394,7 +394,7 @@ class GjennomforingEnkeltplassService(
             navn = upsert.navn ?: tiltakstype.navn,
             startDato = upsert.startDato,
             sluttDato = upsert.sluttDato,
-            status = upsert.status,
+            status = upsert.status.type,
             deltidsprosent = upsert.deltidsprosent,
             antallPlasser = upsert.antallPlasser,
             oppstart = GjennomforingOppstartstype.ENKELTPLASS,
@@ -682,7 +682,7 @@ private fun UpsertEnkeltplass.toUpsert(gjennomforing: GjennomforingEnkeltplass? 
     arrangorId = arrangorId,
     ansvarligEnhet = ansvarligEnhet,
     prismodell = prismodell,
-    status = gjennomforing?.status ?: GjennomforingStatusType.GJENNOMFORES,
+    status = gjennomforing?.status ?: GjennomforingEnkeltplassStatus.UtkastTilPamelding,
     startDato = gjennomforing?.startDato,
     sluttDato = gjennomforing?.sluttDato,
     deltidsprosent = gjennomforing?.deltidsprosent ?: 100.0,
@@ -706,7 +706,7 @@ private fun Deltaker.toUpsert(
     antallPlasser = gjennomforing.antallPlasser,
     startDato = startDato,
     sluttDato = sluttDato,
-    status = toGjennomforingStatusType(this),
+    status = toGjennomforingEnkeltplassStatus(status.type),
     // TODO: nullable i stedet for default 100
     deltidsprosent = deltakelsesmengder.lastOrNull()?.deltakelsesprosent?.toDouble() ?: 100.0,
 )
@@ -734,26 +734,34 @@ private fun toUpsertPrismodell(prismodell: Prismodell): UpsertEnkeltplass.Prismo
     -> error("${prismodell.type} er ikke støttet for enkeltplasser")
 }
 
-private fun toGjennomforingStatusType(deltaker: Deltaker): GjennomforingStatusType = when (deltaker.status.type) {
-    DeltakerStatusType.FEILREGISTRERT,
-    DeltakerStatusType.IKKE_AKTUELL,
-    DeltakerStatusType.AVBRUTT_UTKAST,
-    DeltakerStatusType.AVBRUTT,
-    -> GjennomforingStatusType.AVBRUTT
+/**
+ * Statusen til en enkeltplass speiler statusen til deltakeren som er knyttet til gjennomføringen.
+ */
+private fun toGjennomforingEnkeltplassStatus(status: DeltakerStatusType): GjennomforingEnkeltplassStatus = when (status) {
+    DeltakerStatusType.UTKAST_TIL_PAMELDING -> GjennomforingEnkeltplassStatus.UtkastTilPamelding
+
+    DeltakerStatusType.SOKT_INN -> GjennomforingEnkeltplassStatus.SoktInn
+
+    DeltakerStatusType.VENTER_PA_OPPSTART -> GjennomforingEnkeltplassStatus.VenterPaOppstart
+
+    DeltakerStatusType.DELTAR -> GjennomforingEnkeltplassStatus.Deltar
+
+    DeltakerStatusType.IKKE_AKTUELL -> GjennomforingEnkeltplassStatus.IkkeAktuell
+
+    DeltakerStatusType.FULLFORT -> GjennomforingEnkeltplassStatus.Fullfort
+
+    DeltakerStatusType.AVBRUTT -> GjennomforingEnkeltplassStatus.Avbrutt
+
+    DeltakerStatusType.AVBRUTT_UTKAST -> GjennomforingEnkeltplassStatus.AvbruttUtkast
+
+    DeltakerStatusType.FEILREGISTRERT -> GjennomforingEnkeltplassStatus.Feilregistrert
 
     DeltakerStatusType.KLADD,
     DeltakerStatusType.PABEGYNT_REGISTRERING,
-    DeltakerStatusType.UTKAST_TIL_PAMELDING,
-    DeltakerStatusType.SOKT_INN,
     DeltakerStatusType.VURDERES,
     DeltakerStatusType.VENTELISTE,
-    DeltakerStatusType.VENTER_PA_OPPSTART,
-    DeltakerStatusType.DELTAR,
-    -> GjennomforingStatusType.GJENNOMFORES
-
-    DeltakerStatusType.FULLFORT,
     DeltakerStatusType.HAR_SLUTTET,
-    -> GjennomforingStatusType.AVSLUTTET
+    -> error("Forventet ikke deltaker med status $status for enkeltplasser")
 }
 
 private fun harEnkeltplassEndringer(

@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -73,7 +72,7 @@ data class GjennomforingAvtaleDto(
     val startDato: LocalDate,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: GjennomforingDtoStatus,
+    val status: DataElement.Status,
     val antallPlasser: Int,
     @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
@@ -123,7 +122,7 @@ data class GjennomforingEnkeltplassDto(
     val startDato: LocalDate?,
     @Serializable(with = LocalDateSerializer::class)
     val sluttDato: LocalDate?,
-    val status: GjennomforingDtoStatus,
+    val status: DataElement.Status,
     val ansvarligEnhet: AnsvarligEnhet,
 ) {
     @Serializable
@@ -194,12 +193,6 @@ data class DeltakerDto(
         )
     }
 }
-
-@Serializable
-data class GjennomforingDtoStatus(
-    val type: GjennomforingStatusType,
-    val status: DataElement.Status,
-)
 
 @Serializable
 data class GjennomforingDtoArrangor(

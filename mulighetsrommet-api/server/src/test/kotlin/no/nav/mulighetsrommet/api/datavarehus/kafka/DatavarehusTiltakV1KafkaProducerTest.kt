@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.Instant
@@ -122,7 +121,7 @@ private fun tiltaksgjennomforingHendelse(key: UUID): TiltaksgjennomforingV2Dto.G
     ),
     startDato = LocalDate.now(),
     sluttDato = null,
-    status = GjennomforingStatusType.GJENNOMFORES,
+    status = TiltaksgjennomforingV2Dto.Status.GJENNOMFORES,
     oppstart = GjennomforingOppstartstype.FELLES,
     tilgjengeligForArrangorFraOgMedDato = null,
     apentForPamelding = true,

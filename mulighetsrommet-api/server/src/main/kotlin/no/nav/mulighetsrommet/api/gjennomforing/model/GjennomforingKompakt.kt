@@ -2,7 +2,6 @@ package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
@@ -17,7 +16,6 @@ sealed class GjennomforingKompakt {
     abstract val arrangor: ArrangorUnderenhet
     abstract val startDato: LocalDate?
     abstract val sluttDato: LocalDate?
-    abstract val status: GjennomforingStatusType
 
     @Serializable
     data class Tiltakstype(
@@ -43,7 +41,7 @@ data class GjennomforingAvtaleKompakt(
     override val arrangor: ArrangorUnderenhet,
     override val startDato: LocalDate,
     override val sluttDato: LocalDate?,
-    override val status: GjennomforingStatusType,
+    val status: GjennomforingAvtaleStatus,
     val navn: String,
     val kontorstruktur: List<Kontorstruktur>,
     val publisert: Boolean,
@@ -56,7 +54,7 @@ data class GjennomforingEnkeltplassKompakt(
     override val arrangor: ArrangorUnderenhet,
     override val startDato: LocalDate?,
     override val sluttDato: LocalDate?,
-    override val status: GjennomforingStatusType,
+    val status: GjennomforingEnkeltplassStatus,
 ) : GjennomforingKompakt()
 
 data class GjennomforingArenaKompakt(
@@ -66,6 +64,6 @@ data class GjennomforingArenaKompakt(
     override val arrangor: ArrangorUnderenhet,
     override val startDato: LocalDate,
     override val sluttDato: LocalDate?,
-    override val status: GjennomforingStatusType,
+    val status: GjennomforingAvtaleStatus,
     val navn: String,
 ) : GjennomforingKompakt()

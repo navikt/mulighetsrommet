@@ -9,14 +9,12 @@ import { GjennomforingFilterType } from "@/pages/gjennomforing/filter";
 
 export function useGjennomforinger(filter: Partial<GjennomforingFilterType>) {
   const debouncedSok = useDebounce(filter.search?.trim(), 300);
-
   const request: Pick<GetGjennomforingerData, "body" | "query"> = {
     body: {
       search: debouncedSok || null,
       navEnheter: filter.navEnheter ?? [],
       tiltakstyper: filter.tiltakstyper ?? [],
       statuser: filter.statuser ?? [],
-      gjennomforingTyper: filter.gjennomforingTyper ?? [],
       arrangorer: filter.arrangorer ?? [],
       sort: filter.sortering ? filter.sortering.sortString : null,
       avtaleId: filter.avtale ? filter.avtale : null,

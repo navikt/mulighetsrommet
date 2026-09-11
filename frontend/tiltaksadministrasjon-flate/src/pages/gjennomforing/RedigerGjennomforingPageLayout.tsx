@@ -30,7 +30,7 @@ export function RedigerGjennomforingPageLayout({ children }: Props) {
       <HeaderBanner
         ikon={<GjennomforingAvtaleIkon />}
         heading={gjennomforing.navn}
-        status={gjennomforing.status.status}
+        status={gjennomforing.status}
       />
       <WhitePaddedBox>
         <InlineErrorBoundary>{children}</InlineErrorBoundary>

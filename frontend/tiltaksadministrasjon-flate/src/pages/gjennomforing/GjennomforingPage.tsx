@@ -61,7 +61,7 @@ export function GjennomforingPage() {
           )
         }
         heading={detaljer.gjennomforing.navn}
-        status={detaljer.gjennomforing.status.status}
+        status={detaljer.gjennomforing.status}
       />
       {"deltaker" in detaljer && detaljer.deltaker && (
         <GjennomforingEnkeltplassHeader

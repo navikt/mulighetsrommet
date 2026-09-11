@@ -28,6 +28,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingArena
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleDetaljer
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
@@ -111,7 +112,7 @@ class GjennomforingAvtaleService(
                 arrangor = arrangor,
                 previous = GjennomforingValidator.Context.Gjennomforing(
                     arrangorId = previous.arrangor.id,
-                    status = previous.status,
+                    status = previous.status.type,
                     oppstart = previous.oppstart,
                     pameldingType = previous.pameldingType,
                     antallDeltakere = antallDeltakere,
@@ -219,7 +220,7 @@ class GjennomforingAvtaleService(
     ): Either<List<FieldError>, GjennomforingAvtale> = db.transaction {
         val gjennomforing = getOrError(id)
 
-        if (gjennomforing.status != GjennomforingStatusType.AVSLUTTET) {
+        if (gjennomforing.status !is GjennomforingAvtaleStatus.Avsluttet) {
             return FieldError.of("Gjennomføringen må være avsluttet for å kunne gjenåpnes").nel().left()
         }
 
@@ -247,7 +248,7 @@ class GjennomforingAvtaleService(
     ): Either<List<FieldError>, GjennomforingAvtale> = db.transaction {
         val gjennomforing = getOrError(id)
 
-        if (gjennomforing.status != GjennomforingStatusType.GJENNOMFORES) {
+        if (gjennomforing.status !is GjennomforingAvtaleStatus.Gjennomfores) {
             return FieldError.of("Gjennomføringen må være aktiv for å kunne avsluttes").nel().left()
         }
 
@@ -280,12 +281,12 @@ class GjennomforingAvtaleService(
         val gjennomforing = getOrError(id)
 
         when (gjennomforing.status) {
-            GjennomforingStatusType.GJENNOMFORES -> Unit
+            is GjennomforingAvtaleStatus.Gjennomfores -> Unit
 
-            GjennomforingStatusType.AVLYST, GjennomforingStatusType.AVBRUTT ->
+            is GjennomforingAvtaleStatus.Avlyst, is GjennomforingAvtaleStatus.Avbrutt ->
                 return FieldError.of("Gjennomføringen er allerede avbrutt").nel().left()
 
-            GjennomforingStatusType.AVSLUTTET ->
+            is GjennomforingAvtaleStatus.Avsluttet ->
                 return FieldError.of("Gjennomføringen er allerede avsluttet").nel().left()
         }
 

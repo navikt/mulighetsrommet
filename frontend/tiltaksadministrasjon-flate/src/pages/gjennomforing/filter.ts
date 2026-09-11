@@ -4,11 +4,7 @@ import {
   createGracefulParser,
 } from "@mr/frontend-common/utils/filter-validator";
 import { PAGE_SIZE } from "@/constants";
-import {
-  GjennomforingStatusType,
-  GjennomforingType,
-  Tiltakskode,
-} from "@tiltaksadministrasjon/api-client";
+import { GjennomforingStatusType, Tiltakskode } from "@tiltaksadministrasjon/api-client";
 import { z } from "zod";
 import { createFilterStateAtom, FilterAction, FilterState } from "@/filter/filter-state";
 import { atom, WritableAtom } from "jotai";
@@ -26,7 +22,6 @@ export const GjennomforingFilterSchema = z.object({
   publisert: z.string().array(),
   page: z.number(),
   pageSize: z.number(),
-  gjennomforingTyper: z.custom<GjennomforingType>().array(),
 });
 
 export type GjennomforingFilterType = z.infer<typeof GjennomforingFilterSchema>;
@@ -49,7 +44,6 @@ export const defaultGjennomforingFilter: GjennomforingFilterType = {
   visMineGjennomforinger: false,
   page: 1,
   pageSize: PAGE_SIZE,
-  gjennomforingTyper: [],
 };
 
 export const gjennomforingFilterStateAtom = createFilterStateAtom<GjennomforingFilterType>(

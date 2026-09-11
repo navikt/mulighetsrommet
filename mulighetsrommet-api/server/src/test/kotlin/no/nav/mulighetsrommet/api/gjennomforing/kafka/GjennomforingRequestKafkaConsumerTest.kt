@@ -25,9 +25,9 @@ import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollStatus
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
 import no.nav.mulighetsrommet.api.gjennomforing.service.GjennomforingEnkeltplassService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
@@ -100,7 +100,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
             service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, okonomi) ->
                 gjennomforing.id shouldBe gjennomforingId
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.UtkastTilPamelding
                 gjennomforing.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
                 gjennomforing.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
                 okonomi.shouldBeNull()
@@ -156,7 +156,7 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
 
             service.get(gjennomforingId).shouldNotBeNull().should { (gjennomforing, okonomi) ->
                 gjennomforing.id shouldBe gjennomforingId
-                gjennomforing.status shouldBe GjennomforingStatusType.GJENNOMFORES
+                gjennomforing.status shouldBe GjennomforingEnkeltplassStatus.UtkastTilPamelding
                 gjennomforing.arrangor.id shouldBe ArrangorFixtures.underenhet1.id
                 gjennomforing.ansvarligEnhet.enhetsnummer shouldBe NavEnhetNummer("0400")
                 okonomi.shouldNotBeNull().behandletAv shouldBe NavIdent("B123456")

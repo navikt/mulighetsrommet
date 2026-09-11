@@ -33,12 +33,12 @@ import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.FieldError
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -134,7 +134,7 @@ class AvtaleService(
                         arrangor = it.arrangor,
                         startDato = it.startDato,
                         utdanningslop = queries.opplaering.get(it.id)?.utdanningslop,
-                        status = it.status,
+                        status = it.status.type,
                         prismodellId = it.prismodell.id,
                     )
                 },
@@ -302,7 +302,7 @@ class AvtaleService(
             }
 
             val antallAktiveGjennomforinger = queries.gjennomforing.getByAvtale(id).count {
-                it.status == GjennomforingStatusType.GJENNOMFORES
+                it.status is GjennomforingAvtaleStatus.Gjennomfores
             }
             validate(antallAktiveGjennomforinger == 0) {
                 val message = listOf(

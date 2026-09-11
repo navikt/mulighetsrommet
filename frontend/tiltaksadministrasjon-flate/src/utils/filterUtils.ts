@@ -28,6 +28,30 @@ export const TILTAKSGJENNOMFORING_STATUS_OPTIONS: {
   },
 ];
 
+export const ENKELTPLASS_STATUS_OPTIONS: {
+  label: string;
+  value: GjennomforingStatusType;
+}[] = [
+  {
+    label: "Utkast til påmelding",
+    value: GjennomforingStatusType.ENKELTPLASS_UTKAST_TIL_PAMELDING,
+  },
+  { label: "Søkt inn", value: GjennomforingStatusType.ENKELTPLASS_SOKT_INN },
+  { label: "Venter på oppstart", value: GjennomforingStatusType.ENKELTPLASS_VENTER_PA_OPPSTART },
+  { label: "Deltar", value: GjennomforingStatusType.ENKELTPLASS_DELTAR },
+  { label: "Ikke aktuell", value: GjennomforingStatusType.ENKELTPLASS_IKKE_AKTUELL },
+  { label: "Fullført", value: GjennomforingStatusType.ENKELTPLASS_FULLFORT },
+  { label: "Avbrutt", value: GjennomforingStatusType.ENKELTPLASS_AVBRUTT },
+];
+
+export function gjennomforingStatusLabel(status: GjennomforingStatusType): string {
+  return (
+    [...TILTAKSGJENNOMFORING_STATUS_OPTIONS, ...ENKELTPLASS_STATUS_OPTIONS].find(
+      (option) => option.value === status,
+    )?.label ?? status
+  );
+}
+
 export const AVTALE_STATUS_OPTIONS: { label: string; value: AvtaleStatusType }[] = [
   {
     label: "Aktiv",
