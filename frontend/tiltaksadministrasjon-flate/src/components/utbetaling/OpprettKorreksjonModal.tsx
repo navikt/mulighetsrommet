@@ -16,13 +16,16 @@ interface OpprettKorreksjonModalProps {
 export function OpprettKorreksjonModal({ utbetaling, open, close }: OpprettKorreksjonModalProps) {
   const { gjennomforing } = useGjennomforing(utbetaling.gjennomforingId);
 
-  const { form, submit } = useOpprettUtbetalingForm({
-    gjennomforingId: gjennomforing.id,
-    korrigererUtbetaling: utbetaling.id,
-    periodeStart: utbetaling.periode.start,
-    periodeSlutt: yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 })),
-    pris: { belop: null, valuta: utbetaling.beregning.valuta },
-  });
+  const { form, submit } = useOpprettUtbetalingForm(
+    {
+      gjennomforingId: gjennomforing.id,
+      korrigererUtbetaling: utbetaling.id,
+      periodeStart: utbetaling.periode.start,
+      periodeSlutt: yyyyMMddFormatting(subDuration(utbetaling.periode.slutt, { days: 1 })),
+      pris: { belop: null, valuta: utbetaling.beregning.valuta },
+    },
+    { onSuccess: close },
+  );
 
   const formId = "opprett-korreksjon";
   return (

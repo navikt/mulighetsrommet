@@ -5,7 +5,14 @@ import { useRef } from "react";
 import { useOpprettUtbetaling } from "@/api/utbetaling/mutations";
 import { applyValidationErrors } from "@/components/skjema/helpers";
 
-export function useOpprettUtbetalingForm(defaults: Partial<UtbetalingRequest>) {
+export interface OpprettUtbetalingFormOptions {
+  onSuccess?: () => void;
+}
+
+export function useOpprettUtbetalingForm(
+  defaults: Partial<UtbetalingRequest>,
+  options: OpprettUtbetalingFormOptions = {},
+) {
   const navigate = useNavigate();
 
   const mutation = useOpprettUtbetaling();
@@ -24,6 +31,7 @@ export function useOpprettUtbetalingForm(defaults: Partial<UtbetalingRequest>) {
           navigate(
             `/gjennomforinger/${defaults.gjennomforingId}/utbetalinger/${utbetalingId.current}`,
           );
+          options.onSuccess?.();
         },
         onValidationError: (error: ValidationError) => applyValidationErrors(form, error),
       },
