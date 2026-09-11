@@ -1,9 +1,9 @@
 @file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class, LocalDateTimeSerializer::class)
-@file:OptIn(ExperimentalContracts::class)
 
 package no.nav.mulighetsrommet.api.domain.avtale
 
 import arrow.core.Either
+import arrow.core.right
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
@@ -28,7 +28,6 @@ import no.nav.mulighetsrommet.validation.validation
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.contracts.ExperimentalContracts
 
 @Serializable
 data class Avtale(
@@ -50,48 +49,53 @@ data class Avtale(
     val prisinfo: Prisinfo,
     val rammedetaljer: Rammedetaljer? = null,
 ) {
-    fun medRammedetaljer(totalRamme: Long?, utbetaltArena: Long?): Either<List<FieldError>, Avtale> = validation {
-        validate(prisinfo !is Prisinfo.Systembestemt) {
-            FieldError.of(
-                "Rammedetaljer kan kun legges til anskaffet avtaler",
-                Rammedetaljer::totalRamme,
-            )
+    fun medRammedetaljer(totalRamme: Long?, utbetaltArena: Long?): Either<List<FieldError>, Avtale> {
+        if (totalRamme == null && utbetaltArena == null) {
+            // Fjerner rammedetaljer uten videre validering - tilsvarer en sletting.
+            return copy(rammedetaljer = null).right()
         }
 
-        val prismodeller = prisinfo.toList()
-        validate(prismodeller.distinctBy { it.valuta }.count() == 1) {
-            FieldError.of(
-                "Rammedetaljer kan kun legges til avtaler med én type valuta på prismodellene",
-                Rammedetaljer::totalRamme,
-            )
-        }
-        totalRamme?.let {
-            validate(it > 0) {
+        return validation {
+            validate(prisinfo !is Prisinfo.Systembestemt) {
                 FieldError.of(
-                    "Total ramme må være et positivt beløp",
+                    "Rammedetaljer kan kun legges til anskaffet avtaler",
                     Rammedetaljer::totalRamme,
                 )
             }
-        }
-        utbetaltArena?.let {
-            validate(it >= 0) {
+
+            val prismodeller = prisinfo.toList()
+            validate(prismodeller.distinctBy { it.valuta }.count() == 1) {
                 FieldError.of(
-                    "Utbetalt beløp fra Arena må være et positivt beløp",
-                    Rammedetaljer::utbetaltArena,
+                    "Rammedetaljer kan kun legges til avtaler med én type valuta på prismodellene",
+                    Rammedetaljer::totalRamme,
                 )
             }
+            totalRamme?.let {
+                validate(it > 0) {
+                    FieldError.of(
+                        "Total ramme må være et positivt beløp",
+                        Rammedetaljer::totalRamme,
+                    )
+                }
+            }
+            utbetaltArena?.let {
+                validate(it >= 0) {
+                    FieldError.of(
+                        "Utbetalt beløp fra Arena må være et positivt beløp",
+                        Rammedetaljer::utbetaltArena,
+                    )
+                }
+            }
+
+            copy(
+                rammedetaljer = Rammedetaljer(
+                    totalRamme = totalRamme,
+                    utbetaltArena = utbetaltArena,
+                    valuta = prismodeller.first().valuta,
+                ),
+            )
         }
-
-        copy(
-            rammedetaljer = Rammedetaljer(
-                totalRamme = totalRamme,
-                utbetaltArena = utbetaltArena,
-                valuta = prismodeller.first().valuta,
-            ),
-        )
     }
-
-    fun slettRammedetaljer(): Avtale = copy(rammedetaljer = null)
 
     fun medPrismodeller(prismodeller: List<Prismodell>): Either<List<FieldError>, Avtale> = validation {
         requireValid(avtaletype != Avtaletype.FORHANDSGODKJENT) {
