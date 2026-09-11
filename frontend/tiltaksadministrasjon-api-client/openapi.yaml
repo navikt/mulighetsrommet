@@ -5831,12 +5831,23 @@ components:
       - AVSLUTTET
       - AVBRUTT
       - AVLYST
-    GjennomforingType:
+    DeltakerStatusType:
       type: string
       enum:
-      - ARENA
-      - AVTALE
-      - ENKELTPLASS
+      - AVBRUTT
+      - AVBRUTT_UTKAST
+      - DELTAR
+      - FEILREGISTRERT
+      - FULLFORT
+      - HAR_SLUTTET
+      - IKKE_AKTUELL
+      - KLADD
+      - PABEGYNT_REGISTRERING
+      - SOKT_INN
+      - UTKAST_TIL_PAMELDING
+      - VENTELISTE
+      - VENTER_PA_OPPSTART
+      - VURDERES
     GetGjennomforingerRequest:
       type: object
       properties:
@@ -5856,6 +5867,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GjennomforingStatusType"
+        enkeltplassStatuser:
+          type: array
+          items:
+            $ref: "#/components/schemas/DeltakerStatusType"
         sort:
           type:
           - "null"
@@ -5876,14 +5891,10 @@ components:
           - boolean
         visMineGjennomforinger:
           type: boolean
-        gjennomforingTyper:
-          type: array
-          items:
-            $ref: "#/components/schemas/GjennomforingType"
       required:
       - arrangorer
       - avtaleId
-      - gjennomforingTyper
+      - enkeltplassStatuser
       - navEnheter
       - publisert
       - search
@@ -5940,13 +5951,10 @@ components:
     GjennomforingDtoStatus:
       type: object
       properties:
-        type:
-          $ref: "#/components/schemas/GjennomforingStatusType"
         status:
           $ref: "#/components/schemas/DATA_ELEMENT_STATUS"
       required:
       - status
-      - type
     GjennomforingKompakt.ArrangorUnderenhet:
       type: object
       properties:
@@ -5975,6 +5983,12 @@ components:
       - id
       - navn
       - tiltakskode
+    GjennomforingType:
+      type: string
+      enum:
+      - ARENA
+      - AVTALE
+      - ENKELTPLASS
     PaginatedResponse_GjennomforingKompaktDto:
       type: object
       properties:

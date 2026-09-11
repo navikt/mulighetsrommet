@@ -159,15 +159,14 @@ class GjennomforingDetaljerService(
             navEnheter = filter.navEnheter,
             tiltakstyper = tiltakstyper,
             statuser = filter.statuser,
+            enkeltplassStatuser = filter.enkeltplassStatuser,
             sortering = filter.sortering,
             avtaleId = filter.avtaleId,
             arrangorIds = filter.arrangorIds,
             administratorNavIdent = filter.administratorNavIdent,
             koordinatorNavIdent = filter.koordinatorNavIdent,
             publisert = filter.publisert,
-            typer = filter.gjennomforingTyper.ifEmpty {
-                listOf(GjennomforingType.AVTALE, GjennomforingType.ENKELTPLASS)
-            },
+            typer = listOf(GjennomforingType.AVTALE, GjennomforingType.ENKELTPLASS),
         ).let { (totalCount, items) ->
             val data = items.map { it.toKompaktDto() }
             PaginatedResponse.of(pagination, totalCount, data)
@@ -338,7 +337,7 @@ private fun GjennomforingKompakt.toKompaktDto(): GjennomforingKompaktDto = when 
         lopenummer = lopenummer,
         startDato = startDato,
         sluttDato = sluttDato,
-        status = GjennomforingDtoMapper.fromGjennomforingStatus(status),
+        status = GjennomforingDtoMapper.fromEnkeltplassStatus(status),
         arrangor = arrangor,
         tiltakstype = tiltakstype,
         publisert = false,

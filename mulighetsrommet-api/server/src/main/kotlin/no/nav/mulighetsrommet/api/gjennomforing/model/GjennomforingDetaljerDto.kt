@@ -16,7 +16,6 @@ import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
-import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
@@ -197,7 +196,6 @@ data class DeltakerDto(
 
 @Serializable
 data class GjennomforingDtoStatus(
-    val type: GjennomforingStatusType,
     val status: DataElement.Status,
 )
 

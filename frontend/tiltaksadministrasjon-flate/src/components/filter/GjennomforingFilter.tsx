@@ -1,6 +1,11 @@
 import { addOrRemove } from "@mr/frontend-common/utils/utils";
-import { TILTAKSGJENNOMFORING_STATUS_OPTIONS } from "@/utils/filterUtils";
-import { FilterAccordion } from "@mr/frontend-common";
+import {
+  ENKELTPLASS_STATUS_OPTIONS,
+  TILTAKSGJENNOMFORING_STATUS_OPTIONS,
+  toEnkeltplassStatusFilterId,
+  toGjennomforingStatusFilterId,
+} from "@/utils/filterUtils";
+import { CheckboxDropdownGroup, FilterAccordion } from "@mr/frontend-common";
 import { Accordion, Search, Switch, VStack } from "@navikt/ds-react";
 import { useAtom } from "jotai";
 import { CheckboxList } from "./CheckboxList";
@@ -117,58 +122,67 @@ export function GjennomforingFilter({
             />
           </FilterAccordion>
         )}
-        {enableEnkeltplassFilter && (
+        {enableEnkeltplassFilter ? (
           <FilterAccordion
-            tittel="Gjennomføringtype"
-            antallValgteFilter={filter.gjennomforingTyper.length}
-            open={accordionsOpen.includes("gjennomforingType")}
-            onClick={() => toggleAccordion("gjennomforingType")}
+            tittel="Status"
+            antallValgteFilter={filter.gjennomforingStatuser.length}
+            open={accordionsOpen.includes("status")}
+            onClick={() => toggleAccordion("status")}
           >
-            <CheckboxList
+            <CheckboxDropdownGroup
+              legend="Status"
               items={[
                 {
-                  label: gjennomforingTypeToString(GjennomforingType.AVTALE),
-                  value: GjennomforingType.AVTALE,
+                  navn: gjennomforingTypeToString(GjennomforingType.AVTALE),
+                  id: GjennomforingType.AVTALE,
+                  items: TILTAKSGJENNOMFORING_STATUS_OPTIONS.map(({ label, value }) => ({
+                    navn: label,
+                    id: toGjennomforingStatusFilterId(value),
+                    erStandardvalg: true,
+                  })),
                 },
                 {
-                  label: gjennomforingTypeToString(GjennomforingType.ENKELTPLASS),
-                  value: GjennomforingType.ENKELTPLASS,
+                  navn: gjennomforingTypeToString(GjennomforingType.ENKELTPLASS),
+                  id: GjennomforingType.ENKELTPLASS,
+                  items: ENKELTPLASS_STATUS_OPTIONS.map(({ label, value }) => ({
+                    navn: label,
+                    id: toEnkeltplassStatusFilterId(value),
+                    erStandardvalg: true,
+                  })),
                 },
               ]}
-              isChecked={(type) => filter.gjennomforingTyper.includes(type)}
-              onChange={(type) => {
+              value={filter.gjennomforingStatuser}
+              onChange={(gjennomforingStatuser) => {
+                updateFilter({ gjennomforingStatuser, page: 1 });
+              }}
+            />
+          </FilterAccordion>
+        ) : (
+          <FilterAccordion
+            tittel="Status"
+            antallValgteFilter={filter.statuser.length}
+            open={accordionsOpen.includes("status")}
+            onClick={() => toggleAccordion("status")}
+          >
+            <CheckboxList
+              onSelectAll={(checked) => {
+                selectDeselectAll(
+                  checked,
+                  "statuser",
+                  TILTAKSGJENNOMFORING_STATUS_OPTIONS.map((s) => s.value),
+                );
+              }}
+              items={TILTAKSGJENNOMFORING_STATUS_OPTIONS}
+              isChecked={(status) => filter.statuser.includes(status)}
+              onChange={(status) => {
                 updateFilter({
-                  gjennomforingTyper: addOrRemove(filter.gjennomforingTyper, type),
+                  statuser: addOrRemove(filter.statuser, status),
                   page: 1,
                 });
               }}
             />
           </FilterAccordion>
         )}
-        <FilterAccordion
-          tittel="Status"
-          antallValgteFilter={filter.statuser.length}
-          open={accordionsOpen.includes("status")}
-          onClick={() => toggleAccordion("status")}
-        >
-          <CheckboxList
-            onSelectAll={(checked) => {
-              selectDeselectAll(
-                checked,
-                "statuser",
-                TILTAKSGJENNOMFORING_STATUS_OPTIONS.map((s) => s.value),
-              );
-            }}
-            items={TILTAKSGJENNOMFORING_STATUS_OPTIONS}
-            isChecked={(status) => filter.statuser.includes(status)}
-            onChange={(status) => {
-              updateFilter({
-                statuser: addOrRemove(filter.statuser, status),
-                page: 1,
-              });
-            }}
-          />
-        </FilterAccordion>
 
         <FilterAccordion
           tittel="Arrangør"

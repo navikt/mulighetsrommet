@@ -29,6 +29,7 @@ import no.nav.mulighetsrommet.database.datatypes.toDaterange
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.utils.parameters
 import no.nav.mulighetsrommet.database.utils.toFTSPrefixQuery
+import no.nav.mulighetsrommet.model.DeltakerStatusType
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingPameldingType
@@ -318,6 +319,7 @@ class GjennomforingQueries(private val session: Session) {
         navEnheter: List<NavEnhetNummer> = emptyList(),
         tiltakstyper: List<UUID> = emptyList(),
         statuser: List<GjennomforingStatusType> = emptyList(),
+        enkeltplassStatuser: List<DeltakerStatusType> = emptyList(),
         sortering: String? = null,
         sluttDatoGreaterThanOrEqualTo: LocalDate? = null,
         avtaleId: UUID? = null,
@@ -338,6 +340,7 @@ class GjennomforingQueries(private val session: Session) {
             "arrangor_ids" to arrangorIds.ifEmpty { null }?.let { createUuidArray(it) },
             "arrangor_orgnrs" to arrangorOrgnr.ifEmpty { null }?.let { createArrayOfValue(it) { it.value } },
             "statuser" to statuser.ifEmpty { null }?.let { createArrayOf("gjennomforing_status", it) },
+            "enkeltplass_statuser" to enkeltplassStatuser.ifEmpty { null }?.let { createTextArray(it.map { s -> s.name }) },
             "administrator_nav_ident" to administratorNavIdent?.value,
             "koordinator_nav_ident" to koordinatorNavIdent?.value,
             "publisert" to publisert,
@@ -371,6 +374,7 @@ class GjennomforingQueries(private val session: Session) {
                    start_dato,
                    slutt_dato,
                    status,
+                   enkeltplass_status,
                    avbrutt_aarsaker,
                    avbrutt_forklaring,
                    publisert,
@@ -396,7 +400,13 @@ class GjennomforingQueries(private val session: Session) {
                     or :administrator_nav_ident in (select nav_ident from gjennomforing_administrator where gjennomforing_id = id)
                     or :koordinator_nav_ident in (select nav_ident from gjennomforing_koordinator where gjennomforing_id = view_gjennomforing_kompakt.id))
               and (:slutt_dato_cutoff::date is null or slutt_dato >= :slutt_dato_cutoff or slutt_dato is null)
-              and (:statuser::text[] is null or status = any(:statuser))
+              and (
+                (:statuser::text[] is null and :enkeltplass_statuser::text[] is null)
+                or (gjennomforing_type = 'ENKELTPLASS' and
+                    enkeltplass_status = any(coalesce(:enkeltplass_statuser::text[], array []::text[])))
+                or (gjennomforing_type != 'ENKELTPLASS' and
+                    status::text = any(coalesce(:statuser::text[], array []::text[])))
+              )
               and (:publisert::boolean is null or publisert = :publisert::boolean)
               and (:gjennomforing_typer::gjennomforing_type[] is null or gjennomforing_type = any(:gjennomforing_typer))
             order by $order
@@ -732,7 +742,7 @@ private fun Row.toGjennomforingKompakt(): GjennomforingKompakt {
                 lopenummer = Tiltaksnummer(string("lopenummer")),
                 startDato = localDateOrNull("start_dato"),
                 sluttDato = localDateOrNull("slutt_dato"),
-                status = GjennomforingStatusType.valueOf(string("status")),
+                status = stringOrNull("enkeltplass_status")?.let { DeltakerStatusType.valueOf(it) },
                 arrangor = arrangor,
                 tiltakstype = tiltakstype,
             )
