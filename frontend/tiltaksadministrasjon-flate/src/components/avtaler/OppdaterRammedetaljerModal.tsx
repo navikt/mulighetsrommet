@@ -6,7 +6,6 @@ import { applyValidationErrors } from "@/components/skjema/helpers";
 import { useUpsertRammedetaljer } from "@/api/avtaler/useUpsertRammedetaljer";
 import AvtaleRammedetaljerForm from "./AvtaleRammedetaljerForm";
 import { useAvtaleRammedetaljerDefaults } from "@/api/avtaler/useAvtaleRammedetaljerDefaults";
-import { useDeleteRammedetaljer } from "@/api/avtaler/useDeleteAvtaleRammedetaljer";
 import { TrashFillIcon } from "@navikt/aksel-icons";
 
 interface Props {
@@ -18,7 +17,6 @@ const formId = "oppdater-rammedetaljer-form";
 
 export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
   const { data: rammeDetaljerDefaults } = useAvtaleRammedetaljerDefaults(avtaleId);
-  const deletion = useDeleteRammedetaljer(avtaleId);
   const mutation = useUpsertRammedetaljer(avtaleId);
   const form = useForm<RammedetaljerRequest>({
     defaultValues: {
@@ -37,9 +35,10 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
   };
 
   async function deleteRammedetaljer() {
-    return deletion.mutate(undefined, {
-      onSuccess: closeAndResetForm,
-    });
+    mutation.mutate(
+      { totalRamme: null, utbetaltArena: null },
+      { onSuccess: closeAndResetForm },
+    );
   }
 
   function closeAndResetForm() {
@@ -79,11 +78,11 @@ export function OppdaterRammedetaljerModal({ onClose, avtaleId }: Props) {
                 size="small"
                 variant="secondary"
                 data-color="neutral"
-                disabled={deletion.isPending}
+                disabled={mutation.isPending}
                 onClick={deleteRammedetaljer}
                 icon={<TrashFillIcon />}
               >
-                {deletion.isPending ? "Sletter..." : "Slett"}
+                {mutation.isPending ? "Sletter..." : "Slett"}
               </Button>
             )}
           </HStack>

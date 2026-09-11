@@ -244,22 +244,10 @@ class AvtaleService(
         navIdent: NavIdent,
     ): Either<List<FieldError>, Avtale> = db.transaction {
         val avtale = getOrError(id)
-        if (request.totalRamme == null && request.utbetaltArena == null) {
-            return@transaction deleteRammedetaljer(id, navIdent).right()
-        }
         avtale.medRammedetaljer(request.totalRamme, request.utbetaltArena).map { oppdatert ->
             repository.avtale.save(oppdatert)
             logEndring("Rammedetaljer oppdatert", id, navIdent)
         }
-    }
-
-    fun deleteRammedetaljer(
-        id: UUID,
-        navIdent: NavIdent,
-    ): Avtale = db.transaction {
-        val avtale = getOrError(id)
-        repository.avtale.save(avtale.slettRammedetaljer())
-        logEndring("Rammedetaljer slettet", id, navIdent)
     }
 
     fun avsluttAvtale(

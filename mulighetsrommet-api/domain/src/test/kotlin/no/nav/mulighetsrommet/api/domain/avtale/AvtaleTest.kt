@@ -80,6 +80,19 @@ class AvtaleTest : FunSpec({
             )
         }
 
+        test("fjerner rammedetaljer når begge felt er null") {
+            val avtale = AvtaleFixtures.ARR.copy(
+                prisinfo = Avtale.Prisinfo.Egendefinert(
+                    listOf(PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK)),
+                ),
+                rammedetaljer = Avtale.Rammedetaljer(totalRamme = 1000, utbetaltArena = 100, valuta = Valuta.NOK),
+            )
+
+            val oppdatert = avtale.medRammedetaljer(totalRamme = null, utbetaltArena = null).shouldBeRight()
+
+            oppdatert.rammedetaljer.shouldBeNull()
+        }
+
         test("samler opp alle feil samtidig") {
             val avtale = AvtaleFixtures.AFT
 
@@ -106,37 +119,6 @@ class AvtaleTest : FunSpec({
                 utbetaltArena = null,
                 valuta = Valuta.NOK,
             )
-        }
-
-        test("tillater at både totalRamme og utbetaltArena er null") {
-            val avtale = AvtaleFixtures.ARR.copy(
-                prisinfo = Avtale.Prisinfo.Egendefinert(
-                    listOf(PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK)),
-                ),
-            )
-
-            val oppdatert = avtale.medRammedetaljer(totalRamme = null, utbetaltArena = null).shouldBeRight()
-
-            oppdatert.rammedetaljer shouldBe Avtale.Rammedetaljer(
-                totalRamme = null,
-                utbetaltArena = null,
-                valuta = Valuta.NOK,
-            )
-        }
-    }
-
-    context("slettRammedetaljer") {
-        test("fjerner eksisterende rammedetaljer") {
-            val avtale = AvtaleFixtures.ARR.copy(
-                prisinfo = Avtale.Prisinfo.Egendefinert(
-                    listOf(PrismodellFixtures.AvtaltPrisPerManedsverk.copy(valuta = Valuta.NOK)),
-                ),
-                rammedetaljer = Avtale.Rammedetaljer(totalRamme = 1000, utbetaltArena = 100, valuta = Valuta.NOK),
-            )
-
-            val oppdatert = avtale.slettRammedetaljer()
-
-            oppdatert.rammedetaljer.shouldBeNull()
         }
     }
 

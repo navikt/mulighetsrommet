@@ -938,7 +938,7 @@ class AvtaleServiceTest : FunSpec({
     context("rammedetaljer") {
         val avtaleService = createAvtaleService()
 
-        test("legger til og fjerner rammedetaljer for avtale med prismodell som støtter det") {
+        test("legger til og fjerner rammedetaljer via upsertRammedetaljer") {
             val avtale = AvtaleFixtures.oppfolging
             MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
 
@@ -974,21 +974,6 @@ class AvtaleServiceTest : FunSpec({
             ).shouldBeLeft(
                 listOf(FieldError("/totalRamme", "Rammedetaljer kan kun legges til anskaffet avtaler")),
             )
-        }
-
-        test("sletter eksisterende rammedetaljer") {
-            val avtale = AvtaleFixtures.oppfolging.copy(
-                rammedetaljer = Avtale.Rammedetaljer(
-                    totalRamme = 200_000L,
-                    utbetaltArena = 50_000L,
-                    valuta = Valuta.NOK,
-                ),
-            )
-            MulighetsrommetTestDomain(avtaler = listOf(avtale)).initialize(database.api)
-
-            avtaleService.deleteRammedetaljer(avtale.id, bertilNavIdent).id shouldBe avtale.id
-
-            database.api.session { queries.avtale.getOrError(avtale.id).rammedetaljer }.shouldBeNull()
         }
     }
 
