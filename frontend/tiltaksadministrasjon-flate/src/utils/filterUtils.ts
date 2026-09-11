@@ -36,12 +36,38 @@ export const ENKELTPLASS_STATUS_OPTIONS: {
     label: "Utkast til påmelding",
     value: GjennomforingStatusType.ENKELTPLASS_UTKAST_TIL_PAMELDING,
   },
-  { label: "Søkt inn", value: GjennomforingStatusType.ENKELTPLASS_SOKT_INN },
-  { label: "Venter på oppstart", value: GjennomforingStatusType.ENKELTPLASS_VENTER_PA_OPPSTART },
-  { label: "Deltar", value: GjennomforingStatusType.ENKELTPLASS_DELTAR },
-  { label: "Ikke aktuell", value: GjennomforingStatusType.ENKELTPLASS_IKKE_AKTUELL },
-  { label: "Fullført", value: GjennomforingStatusType.ENKELTPLASS_FULLFORT },
-  { label: "Avbrutt", value: GjennomforingStatusType.ENKELTPLASS_AVBRUTT },
+  {
+    label: "Søkt inn",
+    value: GjennomforingStatusType.ENKELTPLASS_SOKT_INN,
+  },
+  {
+    label: "Venter på oppstart",
+    value: GjennomforingStatusType.ENKELTPLASS_VENTER_PA_OPPSTART,
+  },
+  {
+    label: "Deltar",
+    value: GjennomforingStatusType.ENKELTPLASS_DELTAR,
+  },
+  {
+    label: "Ikke aktuell",
+    value: GjennomforingStatusType.ENKELTPLASS_IKKE_AKTUELL,
+  },
+  {
+    label: "Fullført",
+    value: GjennomforingStatusType.ENKELTPLASS_FULLFORT,
+  },
+  {
+    label: "Avbrutt",
+    value: GjennomforingStatusType.ENKELTPLASS_AVBRUTT,
+  },
+  {
+    label: "Avbrutt utkast",
+    value: GjennomforingStatusType.ENKELTPLASS_AVBRUTT_UTKAST,
+  },
+  {
+    label: "Feilregistrert",
+    value: GjennomforingStatusType.ENKELTPLASS_FEILREGISTRERT,
+  },
 ];
 
 export function gjennomforingStatusLabel(status: GjennomforingStatusType): string {
