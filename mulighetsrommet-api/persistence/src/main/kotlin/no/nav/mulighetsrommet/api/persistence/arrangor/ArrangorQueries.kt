@@ -7,7 +7,6 @@ import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorHovedenhetDto
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorKobling
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorQueryHandler
-import no.nav.mulighetsrommet.admin.arrangor.ArrangorType
 import no.nav.mulighetsrommet.admin.arrangor.DokumentKoblingForKontaktperson
 import no.nav.mulighetsrommet.admin.arrangor.medUnderenheter
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
@@ -16,7 +15,6 @@ import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorRepository
 import no.nav.mulighetsrommet.api.domain.arrangor.Betalingsinformasjon
 import no.nav.mulighetsrommet.api.shared.PaginatedResult
 import no.nav.mulighetsrommet.api.shared.Pagination
-import no.nav.mulighetsrommet.database.createTextArray
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.database.utils.mapPaginated
 import no.nav.mulighetsrommet.database.utils.parameters
@@ -26,29 +24,20 @@ import java.sql.Array
 import java.util.UUID
 
 class ArrangorQueries(private val session: Session) : ArrangorRepository, ArrangorQueryHandler {
+    /** Upserter enheten (tar ikke hensyn til underenheter) */
     override fun save(arrangor: Arrangor) {
         @Language("PostgreSQL")
         val query = """
-            insert into arrangor(id, organisasjonsnummer, organisasjonsform, navn, overordnet_enhet, slettet_dato, arrangor_type)
-            values (:id, :organisasjonsnummer, :organisasjonsform, :navn, :overordnet_enhet, :slettet_dato, :arrangor_type)
+            insert into arrangor(id, organisasjonsnummer, organisasjonsform, navn, overordnet_enhet, slettet_dato, er_utenlandsk_virksomhet)
+            values (:id, :organisasjonsnummer, :organisasjonsform, :navn, :overordnet_enhet, :slettet_dato, :er_utenlandsk_virksomhet)
             on conflict (id) do update set
                 organisasjonsnummer = excluded.organisasjonsnummer,
                 organisasjonsform = excluded.organisasjonsform,
                 navn = excluded.navn,
                 overordnet_enhet = excluded.overordnet_enhet,
                 slettet_dato = excluded.slettet_dato,
-                arrangor_type = excluded.arrangor_type
+                er_utenlandsk_virksomhet = excluded.er_utenlandsk_virksomhet
         """.trimIndent()
-
-        val type = when (arrangor) {
-            is Arrangor.Utenlandsk -> ArrangorType.UTENLANDSK
-
-            is Arrangor.Norsk -> if (arrangor.overordnetEnhet == null) {
-                ArrangorType.NORSK_HOVEDENHET
-            } else {
-                ArrangorType.NORSK_UNDERENHET
-            }
-        }
 
         val parameters = arrangor.run {
             mapOf(
@@ -58,7 +47,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
                 "navn" to navn,
                 "overordnet_enhet" to (this as? Arrangor.Norsk)?.overordnetEnhet?.value,
                 "slettet_dato" to slettetDato,
-                "arrangor_type" to type.name,
+                "er_utenlandsk_virksomhet" to (this is Arrangor.Utenlandsk),
             )
         }
 
@@ -116,11 +105,11 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
     }
 
     override fun getAll(
-        typer: Set<ArrangorType>?,
         kobling: ArrangorKobling?,
         sok: String?,
         overordnetEnhetOrgnr: Organisasjonsnummer?,
         slettet: Boolean?,
+        utenlandsk: Boolean?,
         pagination: Pagination,
         sortering: String?,
     ): PaginatedResult<ArrangorDto> {
@@ -145,14 +134,14 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
                 arrangor.overordnet_enhet,
                 arrangor.navn,
                 arrangor.slettet_dato,
-                arrangor.arrangor_type,
+                arrangor.er_utenlandsk_virksomhet,
                 count(*) over() as total_count
             from arrangor
             where $isRelatedToTiltak
               (:sok::text is null or arrangor.navn ilike :sok or arrangor.organisasjonsnummer ilike :sok)
               and (:overordnet_enhet::text is null or arrangor.overordnet_enhet = :overordnet_enhet)
               and (:slettet::boolean is null or arrangor.slettet_dato is not null = :slettet)
-              and (:typer::text[] is null or arrangor.arrangor_type = any(:typer))
+              and (:utenlandsk::boolean is null or arrangor.er_utenlandsk_virksomhet = :utenlandsk)
             order by $order
             limit :limit
             offset :offset
@@ -162,7 +151,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
             "sok" to sok?.let { "%$it%" },
             "overordnet_enhet" to overordnetEnhetOrgnr?.value,
             "slettet" to slettet,
-            "typer" to typer?.map { it.name }?.let { session.createTextArray(it) },
+            "utenlandsk" to utenlandsk,
         )
 
         return queryOf(query, params + pagination.parameters)
@@ -180,7 +169,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
                 overordnet_enhet,
                 navn,
                 slettet_dato,
-                arrangor_type
+                er_utenlandsk_virksomhet
             from arrangor
             where id = ?::uuid
         """.trimIndent()
@@ -204,7 +193,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
                 overordnet_enhet,
                 navn,
                 slettet_dato,
-                arrangor_type
+                er_utenlandsk_virksomhet
             from arrangor
             where overordnet_enhet = ?
             order by navn
@@ -227,7 +216,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
                 arrangor.overordnet_enhet,
                 arrangor.navn,
                 arrangor.slettet_dato,
-                arrangor.arrangor_type,
+                arrangor.er_utenlandsk_virksomhet,
                 arrangor_utenlandsk.bic,
                 arrangor_utenlandsk.iban,
                 arrangor_utenlandsk.bank_navn,
@@ -258,7 +247,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
                 arrangor.overordnet_enhet,
                 arrangor.navn,
                 arrangor.slettet_dato,
-                arrangor.arrangor_type,
+                arrangor.er_utenlandsk_virksomhet,
                 arrangor_utenlandsk.bic,
                 arrangor_utenlandsk.iban,
                 arrangor_utenlandsk.bank_navn,
@@ -376,7 +365,7 @@ class ArrangorQueries(private val session: Session) : ArrangorRepository, Arrang
         val overordnetEnhet = stringOrNull("overordnet_enhet")?.let { Organisasjonsnummer(it) }
         val slettetDato = localDateOrNull("slettet_dato")
 
-        if (ArrangorType.valueOf(string("arrangor_type")) != ArrangorType.UTENLANDSK) {
+        if (!boolean("er_utenlandsk_virksomhet")) {
             return Arrangor.Norsk.fromStorage(
                 id = id,
                 organisasjonsnummer = organisasjonsnummer,

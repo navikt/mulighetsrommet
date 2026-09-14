@@ -5,7 +5,6 @@ import arrow.core.left
 import arrow.core.right
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorDto
-import no.nav.mulighetsrommet.admin.arrangor.ArrangorType
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
@@ -26,7 +25,7 @@ class EnhetsregisterQuery(
 
         return gateway.sokHovedenheter(sok).map { hovedenheter ->
             val utenlandske = db.session {
-                queries.arrangor.getAll(sok = sok, typer = setOf(ArrangorType.UTENLANDSK)).items.map { it.toHovedenhet() }
+                queries.arrangor.getAll(sok = sok, utenlandsk = true).items.map { it.toHovedenhet() }
             }
             hovedenheter + utenlandske
         }

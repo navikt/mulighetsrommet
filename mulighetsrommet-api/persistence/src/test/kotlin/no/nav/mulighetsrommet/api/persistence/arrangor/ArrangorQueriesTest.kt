@@ -8,7 +8,6 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import no.nav.mulighetsrommet.admin.arrangor.ArrangorType
 import no.nav.mulighetsrommet.admin.arrangor.toDto
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.arrangor.ArrangorKontaktperson
@@ -58,12 +57,10 @@ class ArrangorQueriesTest : FunSpec({
                 )
                 repository.arrangor.save(utenlandsk)
 
-                queries.arrangor.getAll(typer = setOf(ArrangorType.UTENLANDSK)).items shouldContainExactlyInAnyOrder listOf(
+                queries.arrangor.getAll(utenlandsk = true).items shouldContainExactlyInAnyOrder listOf(
                     utenlandsk.toDto(),
                 )
-                queries.arrangor.getAll(
-                    typer = setOf(ArrangorType.NORSK_HOVEDENHET, ArrangorType.NORSK_UNDERENHET),
-                ).items shouldContainExactlyInAnyOrder listOf(
+                queries.arrangor.getAll(utenlandsk = false).items shouldContainExactlyInAnyOrder listOf(
                     hovedenhet.toDto(),
                     underenhet1.toDto(),
                     underenhet2.toDto(),
@@ -71,14 +68,6 @@ class ArrangorQueriesTest : FunSpec({
 
                 queries.arrangor.getAll(sok = "utenlandsk").items shouldContainExactlyInAnyOrder listOf(utenlandsk.toDto())
                 queries.arrangor.getAll(sok = "østland").items shouldContainExactlyInAnyOrder listOf(underenhet2.toDto())
-
-                queries.arrangor.getAll(typer = setOf(ArrangorType.NORSK_HOVEDENHET)).items shouldContainExactlyInAnyOrder listOf(
-                    hovedenhet.toDto(),
-                )
-                queries.arrangor.getAll(typer = setOf(ArrangorType.NORSK_UNDERENHET)).items shouldContainExactlyInAnyOrder listOf(
-                    underenhet1.toDto(),
-                    underenhet2.toDto(),
-                )
 
                 queries.arrangor.getAll(overordnetEnhetOrgnr = hovedenhet.organisasjonsnummer).items shouldContainExactlyInAnyOrder listOf(
                     underenhet1.toDto(),
