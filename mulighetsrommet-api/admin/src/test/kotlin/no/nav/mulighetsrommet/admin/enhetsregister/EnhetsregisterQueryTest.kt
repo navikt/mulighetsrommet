@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorType
 import no.nav.mulighetsrommet.admin.arrangor.toDto
 import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
@@ -44,7 +45,7 @@ class EnhetsregisterQueryTest : FunSpec({
         every {
             db.queries.arrangor.getAll(
                 sok = "nord",
-                utenlandsk = true,
+                typer = setOf(ArrangorType.UTENLANDSK),
             )
         } returns PaginatedResult(
             totalCount = 1,

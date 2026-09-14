@@ -8,11 +8,11 @@ import java.util.UUID
 
 interface ArrangorQueryHandler {
     fun getAll(
+        typer: Set<ArrangorType>? = null,
         kobling: ArrangorKobling? = null,
         sok: String? = null,
         overordnetEnhetOrgnr: Organisasjonsnummer? = null,
         slettet: Boolean? = null,
-        utenlandsk: Boolean? = null,
         pagination: Pagination = Pagination.all(),
         sortering: String? = null,
     ): PaginatedResult<ArrangorDto>
