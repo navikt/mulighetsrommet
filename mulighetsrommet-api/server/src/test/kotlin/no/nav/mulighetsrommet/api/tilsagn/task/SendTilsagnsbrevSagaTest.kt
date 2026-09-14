@@ -34,6 +34,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import java.time.LocalDateTime
 import java.util.Base64
 import java.util.UUID
 
@@ -66,9 +67,20 @@ class SendTilsagnsbrevSagaTest : FunSpec({
     beforeEach {
         domain.initialize(database.api)
 
-        clearMocks(personaliaService, pdfGenClient, dokarkClient, altinnCorrespondenceClient, kontoregisterOrganisasjonClient)
+        clearMocks(
+            personaliaService,
+            pdfGenClient,
+            dokarkClient,
+            altinnCorrespondenceClient,
+            kontoregisterOrganisasjonClient,
+        )
 
-        coEvery { personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System) } returns Personalia(
+        coEvery {
+            personaliaService.getPersonalia(
+                deltaker.id,
+                PersonaliaService.OnBehalfOf.System,
+            )
+        } returns Personalia(
             deltakerId = deltaker.id,
             norskIdent = NorskIdent("12345678901"),
             navn = "Test Testesen",
@@ -147,10 +159,11 @@ class SendTilsagnsbrevSagaTest : FunSpec({
         fun taskData() = SendTilsagnsbrevSaga.ArkiverIDokarkTaskData(
             tilsagnId = tilsagn.id,
             pdfBase64 = Base64.getEncoder().encodeToString("pdf".toByteArray()),
-            deltakerFnr = "12345678901",
+            deltaker = NorskIdent("12345678901"),
             arrangorOrganisasjonsnummer = "976663934",
             arrangorNavn = "Underenhet 1 AS",
             fagsakId = "2025/11457",
+            besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 12, 0, 0),
         )
 
         test("journalforer og setter journalpost_id") {

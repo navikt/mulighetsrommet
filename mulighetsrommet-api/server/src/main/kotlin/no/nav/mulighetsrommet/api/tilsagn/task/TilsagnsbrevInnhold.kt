@@ -13,19 +13,22 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Kontonummer
+import no.nav.mulighetsrommet.model.Tiltaksnummer
+import java.time.LocalDateTime
 import java.util.UUID
 
 /**
  * Samler informasjonen som trengs for å produsere innholdet i et tilsagnsbrev for en enkeltplass
  */
 data class TilsagnsbrevInnhold(
+    val tiltaksnummer: Tiltaksnummer,
     val tilsagn: Tilsagn,
     val personalia: Personalia,
     val arrangor: Arrangor,
     val kontonummer: Kontonummer,
     val saksbehandler: AgentDto,
-    val beslutter: AgentDto?,
-    val fagsakId: String,
+    val beslutter: AgentDto,
+    val besluttetTidspunkt: LocalDateTime,
 )
 
 suspend fun QueryContext.hentTilsagnsbrevInnhold(
@@ -52,19 +55,19 @@ suspend fun QueryContext.hentTilsagnsbrevInnhold(
         }
 
     val opprettelse = queries.totrinnskontroll.getDtoOrError(tilsagn.id, TotrinnskontrollType.TILSAGN_OPPRETTELSE)
-    val saksbehandler = opprettelse.behandletAv
     val beslutter = when (opprettelse) {
         is TotrinnskontrollDto.Besluttet -> opprettelse.besluttetAv
-        is TotrinnskontrollDto.TilBeslutning -> null
+        is TotrinnskontrollDto.TilBeslutning -> return Either.Left("Tilsagn $tilsagnId er ikke besluttet")
     }
 
     return TilsagnsbrevInnhold(
+        tiltaksnummer = enkeltplass.lopenummer,
         tilsagn = tilsagn,
         personalia = personalia,
         arrangor = arrangor,
         kontonummer = kontonummer,
-        saksbehandler = saksbehandler,
+        saksbehandler = opprettelse.behandletAv,
         beslutter = beslutter,
-        fagsakId = enkeltplass.arena?.tiltaksnummer?.value ?: enkeltplass.lopenummer.value,
+        besluttetTidspunkt = opprettelse.besluttetTidspunkt,
     ).right()
 }

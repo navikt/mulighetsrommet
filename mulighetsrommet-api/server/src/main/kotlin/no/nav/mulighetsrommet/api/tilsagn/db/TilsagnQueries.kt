@@ -472,6 +472,14 @@ class TilsagnQueries(private val session: Session) {
             ?.let { Json.decodeFromString<List<Tilsagn.Deltaker>>(it) }
             ?: emptyList()
 
+        val journalpostId = stringOrNull("journalpost_id")
+        val altinnCorrespondenceId = stringOrNull("altinn_correspondence_id")
+        val tilsagnsbrev = if (journalpostId != null || altinnCorrespondenceId != null) {
+            Tilsagn.Tilsagnsbrev(journalpostId = journalpostId, altinnCorrespondenceId = altinnCorrespondenceId)
+        } else {
+            null
+        }
+
         return Tilsagn(
             id = uuid("id"),
             type = TilsagnType.valueOf(string("tilsagn_type")),
@@ -508,14 +516,7 @@ class TilsagnQueries(private val session: Session) {
             status = TilsagnStatus.valueOf(string("status")),
             kommentar = stringOrNull("kommentar"),
             beskrivelse = stringOrNull("beskrivelse"),
-            tilsagnsbrev = stringOrNull("journalpost_id").let { journalpostId ->
-                val altinnCorrespondenceId = stringOrNull("altinn_correspondence_id")
-                if (journalpostId != null || altinnCorrespondenceId != null) {
-                    Tilsagn.Tilsagnsbrev(journalpostId = journalpostId, altinnCorrespondenceId = altinnCorrespondenceId)
-                } else {
-                    null
-                }
-            },
+            tilsagnsbrev = tilsagnsbrev,
             deltakere = deltakere,
         )
     }

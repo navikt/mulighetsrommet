@@ -2,23 +2,29 @@ package no.nav.mulighetsrommet.api.tilsagn.task
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.raise.either
 import com.github.kagkarlsson.scheduler.SchedulerClient
 import com.github.kagkarlsson.scheduler.task.FailureHandler
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceClient
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
-import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnAltinnSnapshot
+import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnJournalpostSnapshot
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnTilAltinnMapper
+import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnTilJournalpostMapper
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapper
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -63,10 +69,12 @@ class SendTilsagnsbrevSaga(
         @Serializable(with = UUIDSerializer::class)
         val tilsagnId: UUID,
         val pdfBase64: String,
-        val deltakerFnr: String,
+        val deltaker: NorskIdent,
         val arrangorOrganisasjonsnummer: String,
         val arrangorNavn: String,
         val fagsakId: String,
+        @Serializable(with = LocalDateTimeSerializer::class)
+        val besluttetTidspunkt: LocalDateTime,
     )
 
     @Serializable
@@ -128,61 +136,71 @@ class SendTilsagnsbrevSaga(
         }
 
         hentTilsagnsbrevInnhold(tilsagnId, personaliaService, kontoregisterOrganisasjonClient).flatMap { innhold ->
-            val deltakerFnr = innhold.personalia.norskIdent()
-            if (deltakerFnr == null) {
-                return@flatMap Either.Left("Har ikke tilgang til deltakers norske identitetsnummer for tilsagn $tilsagnId")
-            }
-
-            generatePdf(innhold, visPersonopplysninger = false).flatMap { pdfJoark ->
-                generatePdf(innhold, visPersonopplysninger = true).map { pdfAltinn ->
-                    Triple(deltakerFnr, pdfJoark, pdfAltinn)
-                }
-            }.map { (fnr, pdfJoark, pdfAltinn) ->
-                val client = transactionalSchedulerClient(arkiverIDokarkTask, session.connection.underlying)
-                client.scheduleIfNotExists(
-                    arkiverIDokarkTask.instance(
-                        tilsagnId.toString(),
-                        ArkiverIDokarkTaskData(
-                            tilsagnId = tilsagnId,
-                            pdfBase64 = Base64.getEncoder().encodeToString(pdfJoark),
-                            deltakerFnr = fnr.value,
-                            arrangorOrganisasjonsnummer = innhold.arrangor.organisasjonsnummer.value,
-                            arrangorNavn = innhold.arrangor.navn,
-                            fagsakId = innhold.fagsakId,
-                        ),
-                    ),
-                    Instant.now(),
-                )
-
-                val altinnClient = transactionalSchedulerClient(sendTilAltinnTask, session.connection.underlying)
-                altinnClient.scheduleIfNotExists(
-                    sendTilAltinnTask.instance(
-                        tilsagnId.toString(),
-                        SendTilAltinnTaskData(
-                            tilsagnId = tilsagnId,
-                            pdfBase64 = Base64.getEncoder().encodeToString(pdfAltinn),
-                            tiltakstypeNavn = innhold.tilsagn.tiltakstype.navn,
-                            bestillingsnummer = innhold.tilsagn.bestilling.bestillingsnummer,
-                            arrangorOrganisasjonsnummer = innhold.arrangor.organisasjonsnummer.value,
-                            arrangorNavn = innhold.arrangor.navn,
-                        ),
-                    ),
-                    Instant.now(),
-                )
-
-                logger.info("Skedulerer arkivering i Joark og sending til Altinn for tilsagn med id: $tilsagnId")
-            }
+            generatePdfs(innhold).map { pdfs -> schedulePdfDistribution(innhold, pdfs) }
         }
     }
 
-    private suspend fun generatePdf(innhold: TilsagnsbrevInnhold, visPersonopplysninger: Boolean): Either<String, ByteArray> {
+    private class TilsagnsbrevPdfs(
+        val pdfJoark: ByteArray,
+        val pdfAltinn: ByteArray,
+    )
+
+    private suspend fun generatePdfs(innhold: TilsagnsbrevInnhold): Either<String, TilsagnsbrevPdfs> = coroutineScope {
+        val pdfJoark = async { generatePdf(innhold, visPersonopplysningerOmAdressebeskyttetPerson = false) }
+        val pdfAltinn = async { generatePdf(innhold, visPersonopplysningerOmAdressebeskyttetPerson = true) }
+        either {
+            TilsagnsbrevPdfs(pdfJoark = pdfJoark.await().bind(), pdfAltinn = pdfAltinn.await().bind())
+        }
+    }
+
+    private fun TransactionalQueryContext.schedulePdfDistribution(
+        innhold: TilsagnsbrevInnhold,
+        pdfer: TilsagnsbrevPdfs,
+    ) {
+        val tilsagnId = innhold.tilsagn.id
+        val client = transactionalSchedulerClient(arkiverIDokarkTask, session.connection.underlying)
+        client.scheduleIfNotExists(
+            arkiverIDokarkTask.instance(
+                tilsagnId.toString(),
+                ArkiverIDokarkTaskData(
+                    tilsagnId = tilsagnId,
+                    pdfBase64 = Base64.getEncoder().encodeToString(pdfer.pdfJoark),
+                    deltaker = innhold.personalia.norskIdent() ?: error("Mangler fnr for $tilsagnId"),
+                    arrangorOrganisasjonsnummer = innhold.arrangor.organisasjonsnummer.value,
+                    arrangorNavn = innhold.arrangor.navn,
+                    fagsakId = innhold.tiltaksnummer.value,
+                    besluttetTidspunkt = innhold.besluttetTidspunkt,
+                ),
+            ),
+            Instant.now(),
+        )
+
+        val altinnClient = transactionalSchedulerClient(sendTilAltinnTask, session.connection.underlying)
+        altinnClient.scheduleIfNotExists(
+            sendTilAltinnTask.instance(
+                tilsagnId.toString(),
+                SendTilAltinnTaskData(
+                    tilsagnId = tilsagnId,
+                    pdfBase64 = Base64.getEncoder().encodeToString(pdfer.pdfAltinn),
+                    tiltakstypeNavn = innhold.tilsagn.tiltakstype.navn,
+                    bestillingsnummer = innhold.tilsagn.bestilling.bestillingsnummer,
+                    arrangorOrganisasjonsnummer = innhold.arrangor.organisasjonsnummer.value,
+                    arrangorNavn = innhold.arrangor.navn,
+                ),
+            ),
+            Instant.now(),
+        )
+
+        logger.info("Skedulerer arkivering i Joark og sending til Altinn for tilsagn med id: $tilsagnId")
+    }
+
+    private suspend fun generatePdf(
+        innhold: TilsagnsbrevInnhold,
+        visPersonopplysningerOmAdressebeskyttetPerson: Boolean,
+    ): Either<String, ByteArray> {
         val content = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
-            innhold.tilsagn,
-            innhold.kontonummer,
-            innhold.personalia,
-            saksbehandler = innhold.saksbehandler,
-            beslutter = innhold.beslutter,
-            visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = visPersonopplysninger,
+            innhold,
+            visPersonopplysningerOmAdressebeskyttetPerson,
         )
         return pdf
             .getPdfDocument(content)
@@ -197,14 +215,16 @@ class SendTilsagnsbrevSaga(
             return@transaction Either.Right(Unit)
         }
 
-        val journalpost = tilsagnJournalpost(
-            pdf = Base64.getDecoder().decode(data.pdfBase64),
+        val pdfJoark = Base64.getDecoder().decode(data.pdfBase64)
+        val tilsagn = TilsagnJournalpostSnapshot(
             tilsagnId = tilsagnId,
-            deltaker = NorskIdent(data.deltakerFnr),
+            deltaker = data.deltaker,
             arrangorOrganisasjonsnummer = Organisasjonsnummer(data.arrangorOrganisasjonsnummer),
             arrangorNavn = data.arrangorNavn,
             fagsakId = data.fagsakId,
+            besluttetTidspunkt = data.besluttetTidspunkt,
         )
+        val journalpost = TilsagnTilJournalpostMapper.tilJournalpost(tilsagn, pdfJoark)
 
         dokarkClient
             .opprettJournalpost(journalpost, AccessType.M2M)
@@ -253,47 +273,3 @@ class SendTilsagnsbrevSaga(
             }
     }
 }
-
-fun tilsagnJournalpost(
-    pdf: ByteArray,
-    tilsagnId: UUID,
-    deltaker: NorskIdent,
-    arrangorOrganisasjonsnummer: Organisasjonsnummer,
-    arrangorNavn: String,
-    fagsakId: String,
-): Journalpost = Journalpost(
-    tittel = "Tilsagnsbrev",
-    journalposttype = "UTGAAENDE",
-    avsenderMottaker = Journalpost.AvsenderMottaker(
-        id = arrangorOrganisasjonsnummer.value,
-        idType = "ORGNR",
-        navn = arrangorNavn,
-    ),
-    bruker = Journalpost.Bruker(
-        id = deltaker.value,
-        idType = "FNR",
-    ),
-    tema = "TIL", // Tiltak
-    kanal = "INGEN_DISTRIBUSJON", // https://confluence.adeo.no/spaces/BOA/pages/316407153/Utsendingskanal
-    journalfoerendeEnhet = "9999", // Automatisk journalføring
-    eksternReferanseId = tilsagnId.toString(),
-    datoMottatt = LocalDateTime.now().toString(),
-    dokumenter = listOf(
-        Journalpost.Dokument(
-            tittel = "Tilsagnsbrev",
-            brevKode = "Tilsagnsbrev_v1",
-            dokumentvarianter = listOf(
-                Journalpost.Dokument.Dokumentvariant(
-                    "PDFA",
-                    pdf,
-                    "ARKIV",
-                ),
-            ),
-        ),
-    ),
-    sak = Journalpost.Sak(
-        sakstype = Journalpost.Sak.Sakstype.FAGSAK,
-        fagsakId = fagsakId,
-        fagsaksystem = Journalpost.Sak.Fagsaksystem.TILTAKSADMINISTRASJON,
-    ),
-)

@@ -5,6 +5,7 @@ import io.kotest.core.spec.style.FunSpec
 import kotlinx.serialization.json.Json
 import no.nav.mulighetsrommet.admin.navenhet.toDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
+import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
@@ -14,6 +15,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
+import no.nav.mulighetsrommet.api.tilsagn.task.TilsagnsbrevInnhold
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.Kontonummer
@@ -27,6 +29,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.tiltak.okonomi.BestillingStatusType
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 class TilsagnToPdfDocumentContentMapperTest : FunSpec({
@@ -73,6 +76,13 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
     val saksbehandler = AgentDto.fromAgent(NavIdent("Z111111"), "Saksbehandler Navn")
     val beslutter = AgentDto.fromAgent(NavIdent("Z222222"), "Beslutter Navn")
 
+    val arrangor = Arrangor.Norsk.opprett(
+        id = UUID.fromString("4d4938fa-d4ad-4697-9e20-0e776f7b0f2f"),
+        organisasjonsnummer = Organisasjonsnummer("310438707"),
+        navn = "AKSEPTABEL EMPIRISK TIGER AS",
+        organisasjonsform = "AS",
+    )
+
     val tilsagn = Tilsagn(
         id = UUID.fromString("72c45b92-4452-4b44-b1cd-9cfe7be86222"),
         type = TilsagnType.TILSAGN,
@@ -100,9 +110,9 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
             status = NavEnhetStatus.AKTIV,
         ),
         arrangor = Tilsagn.Arrangor(
-            id = UUID.fromString("4d4938fa-d4ad-4697-9e20-0e776f7b0f2f"),
-            organisasjonsnummer = Organisasjonsnummer("310438707"),
-            navn = "AKSEPTABEL EMPIRISK TIGER AS",
+            id = arrangor.id,
+            organisasjonsnummer = arrangor.organisasjonsnummer,
+            navn = arrangor.navn,
             slettet = false,
         ),
         status = TilsagnStatus.GODKJENT,
@@ -131,12 +141,16 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
     context("pdf-content for tilsagnsbrev til arrangør") {
         test("annen avtalt pris") {
             val pdfContent = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
-                tilsagn,
-                kontonummer,
-                deltaker,
-                saksbehandler = saksbehandler,
-                beslutter = beslutter,
-                referanseDato = LocalDate.of(2026, 3, 1),
+                TilsagnsbrevInnhold(
+                    tilsagn = tilsagn,
+                    personalia = deltaker,
+                    arrangor = arrangor,
+                    kontonummer = kontonummer,
+                    saksbehandler = saksbehandler,
+                    beslutter = beslutter,
+                    tiltaksnummer = tilsagn.gjennomforing.lopenummer,
+                    besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 10, 0),
+                ),
             )
 
             expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
@@ -144,12 +158,16 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         }
         test("annen avtalt pris - skjermet deltaker") {
             val pdfContent = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
-                tilsagn,
-                kontonummer,
-                skjermetDeltaker,
-                saksbehandler = saksbehandler,
-                beslutter = beslutter,
-                referanseDato = LocalDate.of(2026, 3, 1),
+                TilsagnsbrevInnhold(
+                    tilsagn = tilsagn,
+                    personalia = skjermetDeltaker,
+                    arrangor = arrangor,
+                    kontonummer = kontonummer,
+                    saksbehandler = saksbehandler,
+                    beslutter = beslutter,
+                    tiltaksnummer = tilsagn.gjennomforing.lopenummer,
+                    besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 10, 0),
+                ),
             )
 
             expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
@@ -158,12 +176,16 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
 
         test("annen avtalt pris - gradert deltaker") {
             val pdfContent = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
-                tilsagn,
-                kontonummer,
-                adressebekyttetDeltaker,
-                saksbehandler = saksbehandler,
-                beslutter = beslutter,
-                referanseDato = LocalDate.of(2026, 3, 1),
+                TilsagnsbrevInnhold(
+                    tilsagn = tilsagn,
+                    personalia = adressebekyttetDeltaker,
+                    arrangor = arrangor,
+                    kontonummer = kontonummer,
+                    saksbehandler = saksbehandler,
+                    beslutter = beslutter,
+                    tiltaksnummer = tilsagn.gjennomforing.lopenummer,
+                    besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 10, 0),
+                ),
             )
 
             expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
