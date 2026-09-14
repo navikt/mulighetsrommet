@@ -10,7 +10,6 @@ import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -139,57 +138,85 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
     )
 
     context("pdf-content for tilsagnsbrev til arrangør") {
-        test("annen avtalt pris") {
-            val pdfContent = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
-                TilsagnsbrevInnhold(
-                    tilsagn = tilsagn,
-                    personalia = deltaker,
-                    arrangor = arrangor,
-                    kontonummer = kontonummer,
-                    saksbehandler = saksbehandler,
-                    beslutter = beslutter,
-                    tiltaksnummer = tilsagn.gjennomforing.lopenummer,
-                    besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 10, 0),
-                ),
+        context("når deltaker er adressebeskyttet") {
+            val innhold = TilsagnsbrevInnhold(
+                tilsagn = tilsagn,
+                personalia = adressebekyttetDeltaker,
+                arrangor = arrangor,
+                kontonummer = kontonummer,
+                saksbehandler = saksbehandler,
+                beslutter = beslutter,
+                tiltaksnummer = tilsagn.gjennomforing.lopenummer,
+                besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 10, 0),
             )
 
-            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
-                .toMatchDisk("tilsagnsbrev")
-        }
-        test("annen avtalt pris - skjermet deltaker") {
-            val pdfContent = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
-                TilsagnsbrevInnhold(
-                    tilsagn = tilsagn,
-                    personalia = skjermetDeltaker,
-                    arrangor = arrangor,
-                    kontonummer = kontonummer,
-                    saksbehandler = saksbehandler,
-                    beslutter = beslutter,
-                    tiltaksnummer = tilsagn.gjennomforing.lopenummer,
-                    besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 10, 0),
-                ),
-            )
+            test("inkluderer personalia kun når visningsflagg er satt til true") {
+                val medPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                    innhold,
+                    visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = true,
+                )
+                expectSelfie(jsonPrettyPrint.encodeToString(medPersonalia)).toMatchDisk("adressebeskyttet-med-personalia")
 
-            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
-                .toMatchDisk("tilsagnsbrevSkjermet")
+                val utenPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                    innhold,
+                    visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = false,
+                )
+                expectSelfie(jsonPrettyPrint.encodeToString(utenPersonalia)).toMatchDisk("adressebeskyttet-uten-personalia")
+            }
         }
 
-        test("annen avtalt pris - gradert deltaker") {
-            val pdfContent = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
-                TilsagnsbrevInnhold(
-                    tilsagn = tilsagn,
-                    personalia = adressebekyttetDeltaker,
-                    arrangor = arrangor,
-                    kontonummer = kontonummer,
-                    saksbehandler = saksbehandler,
-                    beslutter = beslutter,
-                    tiltaksnummer = tilsagn.gjennomforing.lopenummer,
-                    besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 10, 0),
-                ),
+        context("når deltaker er skjermet") {
+            val innhold = TilsagnsbrevInnhold(
+                tilsagn = tilsagn,
+                personalia = skjermetDeltaker,
+                arrangor = arrangor,
+                kontonummer = kontonummer,
+                saksbehandler = saksbehandler,
+                beslutter = beslutter,
+                tiltaksnummer = tilsagn.gjennomforing.lopenummer,
+                besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 10, 0),
             )
 
-            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
-                .toMatchDisk("tilsagnsbrevAdressebeskyttet")
+            test("inkluderer personalia kun når visningsflagg er satt til true") {
+                val medPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                    innhold,
+                    visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = true,
+                )
+                expectSelfie(jsonPrettyPrint.encodeToString(medPersonalia)).toMatchDisk("skjermet-med-personalia")
+
+                val utenPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                    innhold,
+                    visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = false,
+                )
+                expectSelfie(jsonPrettyPrint.encodeToString(utenPersonalia)).toMatchDisk("skjermet-uten-personalia")
+            }
+        }
+
+        context("når person er ugradert") {
+            val innhold = TilsagnsbrevInnhold(
+                tilsagn = tilsagn,
+                personalia = deltaker,
+                arrangor = arrangor,
+                kontonummer = kontonummer,
+                saksbehandler = saksbehandler,
+                beslutter = beslutter,
+                tiltaksnummer = tilsagn.gjennomforing.lopenummer,
+                besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 10, 0),
+            )
+
+            test("inkluderer personalia uavhengig om visningsflagg er satt til true eller false") {
+                val medPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                    innhold,
+                    visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = true,
+                )
+                expectSelfie(jsonPrettyPrint.encodeToString(medPersonalia)).toMatchDisk("ugradert-med-personalia")
+
+                val utenPersonalia = TilsagnToPdfDocumentContentMapper.toTilsagnsbrev(
+                    innhold,
+                    visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson = false,
+                )
+                expectSelfie(jsonPrettyPrint.encodeToString(utenPersonalia)).toMatchDisk("ugradert-med-personalia")
+            }
         }
     }
 })

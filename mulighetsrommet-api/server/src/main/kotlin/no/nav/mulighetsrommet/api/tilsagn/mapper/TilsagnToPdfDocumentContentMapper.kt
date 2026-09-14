@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.api.pdfgen.Signature
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
 import no.nav.mulighetsrommet.api.tilsagn.task.TilsagnsbrevInnhold
 import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.ValutaBelop
 import java.text.NumberFormat
@@ -62,7 +63,7 @@ object TilsagnToPdfDocumentContentMapper {
                 text(
                     "Deltakeren",
                     when {
-                        visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson -> "${innhold.personalia.navn()} (${innhold.personalia.norskIdent()?.value})"
+                        visPersonopplysningerOmAdressebeskyttetEllerSkjermetPerson -> formaterDeltakerPersonalia(innhold.personalia)
 
                         innhold.personalia.gradering == Gradering.SKJERMING -> "Skjermet"
 
@@ -72,7 +73,7 @@ object TilsagnToPdfDocumentContentMapper {
                             Gradering.FORTROLIG_ADRESSE,
                         ) -> "Adressebeskyttet"
 
-                        else -> "${innhold.personalia.navn()} (${innhold.personalia.norskIdent()?.value})"
+                        else -> formaterDeltakerPersonalia(innhold.personalia)
                     },
                 )
                 text("Utbetalingsperioden", innhold.tilsagn.periode.formatPeriode())
@@ -105,6 +106,10 @@ object TilsagnToPdfDocumentContentMapper {
                 enhet = innhold.tilsagn.kostnadssted.navn,
             ),
         )
+    }
+
+    private fun formaterDeltakerPersonalia(personalia: Personalia): String {
+        return personalia.norskIdent()?.let { "${personalia.navn()} (${it.value})" } ?: personalia.navn()
     }
 
     private fun AgentDto.personNavn(): String? = when (agent) {
