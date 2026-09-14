@@ -13,14 +13,12 @@ import io.ktor.http.Parameters
 import io.ktor.http.Url
 import io.ktor.http.content.TextContent
 import io.ktor.http.headersOf
-import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 
 /**
  * Utility to decode the body of [HttpRequestData] to the type [T].
  */
-@OptIn(InternalSerializationApi::class)
 inline fun <reified T : Any> HttpRequestData.decodeRequestBody(): T {
     return JsonIgnoreUnknownKeys.decodeFromString((body as TextContent).text)
 }

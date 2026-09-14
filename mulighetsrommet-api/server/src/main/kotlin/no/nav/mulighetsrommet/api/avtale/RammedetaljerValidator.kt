@@ -7,9 +7,7 @@ import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.validation.validation
 import java.util.UUID
-import kotlin.contracts.ExperimentalContracts
 
-@OptIn(ExperimentalContracts::class)
 object RammedetaljerValidator {
     data class Ctx(
         val avtaleId: UUID,

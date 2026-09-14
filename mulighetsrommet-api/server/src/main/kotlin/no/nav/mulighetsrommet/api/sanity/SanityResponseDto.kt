@@ -1,15 +1,11 @@
 package no.nav.mulighetsrommet.api.sanity
 
-import kotlinx.serialization.EncodeDefault
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.jsonObject
-import no.nav.mulighetsrommet.model.Faneinnhold
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -19,46 +15,6 @@ import java.util.UUID
 data class SanityTiltakstype(
     val _id: String,
     val tiltakstypeNavn: String? = null,
-)
-
-@Serializable
-data class SanityTiltaksgjennomforing(
-    val _id: String,
-    val tiltakstype: SanityTiltakstype,
-    val tiltaksgjennomforingNavn: String? = null,
-    val tiltaksnummer: String? = null,
-    val beskrivelse: String? = null,
-    val stedForGjennomforing: String? = null,
-    val fylke: NavEnhetNummer? = null,
-    val enheter: List<NavEnhetNummer?>? = null,
-    val arrangor: SanityArrangor? = null,
-    val kontaktpersoner: List<SanityKontaktperson>? = null,
-    val faneinnhold: Faneinnhold? = null,
-    val delingMedBruker: String? = null,
-    val redaktor: List<SanityRedaktor>? = null,
-)
-
-@Serializable
-data class SanityNavKontaktperson(
-    val _id: String,
-    val _type: String,
-    val navIdent: Slug,
-    val enhet: String,
-    val enhetsnummer: NavEnhetNummer? = null,
-    val telefonnummer: String? = null,
-    val epost: String,
-    val navn: String,
-)
-
-@Serializable
-data class SanityRedaktor(
-    val _id: String,
-    val _type: String,
-    val navIdent: Slug,
-    val enhet: String,
-    val enhetsnummer: NavEnhetNummer? = null,
-    val epost: Slug,
-    val navn: String,
 )
 
 @Serializable
@@ -78,43 +34,6 @@ data class SanityArrangorKontaktperson(
     val telefon: String?,
     val epost: String,
     val beskrivelse: String?,
-)
-
-@Serializable
-data class KontaktinfoTiltaksansvarlig(
-    val _rev: String? = null,
-    val _type: String? = null,
-    val navn: String? = null,
-    val telefonnummer: String? = null,
-    val _id: String? = null,
-    val enhet: String? = null,
-    val enhetsnummer: NavEnhetNummer? = null,
-    val _updatedAt: String? = null,
-    val _createdAt: String? = null,
-    val epost: String? = null,
-    val beskrivelse: String? = null,
-    val navIdent: Slug? = null,
-)
-
-@Serializable
-@OptIn(ExperimentalSerializationApi::class)
-data class Slug(
-    @EncodeDefault
-    val _type: String = "slug",
-    val current: String,
-)
-
-@Serializable
-data class SanityKontaktperson(
-    val navKontaktperson: KontaktinfoTiltaksansvarlig? = null,
-    val enheter: List<String>,
-)
-
-@Serializable
-data class EnhetRef(
-    val _type: String = "reference",
-    val _ref: String,
-    val _key: String? = null,
 )
 
 @Serializable(with = SanityReponseSerializer::class)
