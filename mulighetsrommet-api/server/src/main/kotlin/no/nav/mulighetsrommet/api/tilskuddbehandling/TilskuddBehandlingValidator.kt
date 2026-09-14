@@ -11,11 +11,13 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.validation.Validated
 import no.nav.mulighetsrommet.validation.validation
+import java.time.LocalDate
 import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
@@ -38,9 +40,6 @@ object TilskuddBehandlingValidator {
         validateNotNull(request.soknadJournalpostId) {
             FieldError.of("JournalpostId må være satt", TilskuddBehandlingRequest::soknadJournalpostId)
         }
-        val tilskudd = request.tilskudd.mapIndexed { index, v ->
-            validateTilskuddRequest(v, index).bind()
-        }
         requireValid(request.soknadDato != null && request.soknadJournalpostId != null && request.kostnadssted != null && periodeStart != null && periodeSlutt != null)
         requireValid(!periodeStart.isAfter(periodeSlutt)) {
             FieldError.of("Periodestart må være før slutt", TilskuddBehandlingRequest::periodeStart)
@@ -52,21 +51,40 @@ object TilskuddBehandlingValidator {
             )
         }
 
+        val soknadJournalpostId = requireNotNull(request.soknadJournalpostId)
+        val soknadDato = requireNotNull(request.soknadDato)
+        val kostnadssted = requireNotNull(request.kostnadssted)
+        val periode = Periode.fromInclusiveDates(requireNotNull(periodeStart), requireNotNull(periodeSlutt))
+        val tilskudd = request.tilskudd.mapIndexed { index, v ->
+            validateTilskuddRequest(
+                req = v,
+                index = index,
+                soknadJournalpostId = soknadJournalpostId,
+                soknadDato = soknadDato,
+                periode = periode,
+                kostnadssted = kostnadssted,
+                kommentarIntern = request.kommentarIntern,
+            ).bind()
+        }
+
         TilskuddBehandling(
             id = request.id,
             gjennomforingId = request.gjennomforingId,
-            soknadJournalpostId = request.soknadJournalpostId,
-            soknadDato = request.soknadDato,
-            periode = Periode.fromInclusiveDates(periodeStart, periodeSlutt),
-            kostnadssted = request.kostnadssted,
             tilskudd = tilskudd,
             status = TilskuddBehandlingStatus.TIL_ATTESTERING,
             type = TilskuddBehandlingType.REGISTRERING,
-            kommentarIntern = request.kommentarIntern,
         )
     }
 
-    fun validateTilskuddRequest(req: TilskuddBehandlingRequest.TilskuddRequest, index: Int): Validated<TilskuddVedtak> = validation {
+    fun validateTilskuddRequest(
+        req: TilskuddBehandlingRequest.TilskuddRequest,
+        index: Int,
+        soknadJournalpostId: String,
+        soknadDato: LocalDate,
+        periode: Periode,
+        kostnadssted: NavEnhetNummer,
+        kommentarIntern: String?,
+    ): Validated<TilskuddVedtak> = validation {
         validateNotNull(req.tilskuddOpplaeringType) {
             FieldError(
                 "/tilskudd/$index/tilskuddOpplaeringType",
@@ -126,9 +144,12 @@ object TilskuddBehandlingValidator {
             id = req.id,
             tilskuddId = req.tilskuddId,
             tilskuddOpplaeringType = req.tilskuddOpplaeringType,
+            soknadJournalpostId = soknadJournalpostId,
+            soknadDato = soknadDato,
             soknadBelop = ValutaBelop(req.soknadBelop.belop, req.soknadBelop.valuta),
+            periode = periode,
+            kostnadssted = kostnadssted,
             vedtakResultat = req.vedtakResultat,
-            kommentarVedtaksbrev = req.kommentarVedtaksbrev,
             utbetalingMottaker = req.utbetalingMottaker,
             kid = kid,
             utbetalingBelop = if (req.vedtakResultat == VedtakResultat.INNVILGELSE) {
@@ -139,6 +160,8 @@ object TilskuddBehandlingValidator {
             } else {
                 null
             },
+            kommentarIntern = kommentarIntern,
+            kommentarVedtaksbrev = req.kommentarVedtaksbrev,
         )
     }
 }

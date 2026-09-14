@@ -64,8 +64,8 @@ class TilskuddArrangorUtbetalingConsumer(
                 db.transaction {
                     opprettOgGodkjennTilsagn(
                         gjennomforingId = behandling.gjennomforingId,
-                        kostnadssted = behandling.kostnadssted.enhetsnummer,
-                        periode = behandling.periode,
+                        kostnadssted = t.kostnadssted.enhetsnummer,
+                        periode = t.periode,
                         belop = requireNotNull(t.utbetalingBelop) {
                             "Utbetaling beløp var null ved inngivelse av tilskudd til arrangør"
                         },
@@ -73,7 +73,7 @@ class TilskuddArrangorUtbetalingConsumer(
                     )
                     val utbetaling = opprettOgBetalUtbetaling(
                         gjennomforingId = behandling.gjennomforingId,
-                        periode = behandling.periode,
+                        periode = t.periode,
                         belop = t.utbetalingBelop,
                         kid = t.kid,
                     )

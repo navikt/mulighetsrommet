@@ -82,14 +82,9 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
     fun tilskuddBehandling(vararg tilskudd: TilskuddVedtak) = TilskuddBehandling(
         id = UUID.fromString("a1a1a1a1-0000-4000-8000-000000000001"),
         gjennomforingId = gjennomforing.id,
-        soknadJournalpostId = "J-2026-001",
-        soknadDato = LocalDate.of(2026, 5, 1),
-        periode = periode,
-        kostnadssted = NavEnhetNummer("0387"),
         tilskudd = tilskudd.toList(),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
         type = TilskuddBehandlingType.REGISTRERING,
-        kommentarIntern = null,
     )
 
     val skolepengerInnvilgelse = TilskuddVedtak(
@@ -102,6 +97,11 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
         kommentarVedtaksbrev = null,
         utbetalingMottaker = TilskuddMottaker.BRUKER,
         kid = Kid.parse("116"),
+        kommentarIntern = null,
+        soknadJournalpostId = "J-2026-001",
+        soknadDato = LocalDate.of(2026, 5, 1),
+        periode = periode,
+        kostnadssted = NavEnhetNummer("0387"),
     )
 
     val eksamensgebyrAvslag = TilskuddVedtak(
@@ -114,6 +114,11 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
         kommentarVedtaksbrev = "Søknaden er avslått fordi det ikke er dokumentert at vilkårene for tilskuddet er oppfylt.",
         utbetalingMottaker = TilskuddMottaker.BRUKER,
         kid = null,
+        kommentarIntern = null,
+        soknadJournalpostId = "J-2026-001",
+        soknadDato = LocalDate.of(2026, 5, 1),
+        periode = periode,
+        kostnadssted = NavEnhetNummer("0387"),
     )
 
     val besluttetTidspunkt = LocalDateTime.of(2026, 5, 26, 12, 0)

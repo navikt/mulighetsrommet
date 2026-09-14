@@ -33,18 +33,18 @@ object TilskuddFixtures {
         kommentarVedtaksbrev = null,
         utbetalingMottaker = TilskuddMottaker.ARRANGOR,
         kid = Kid.parse("116"),
+        soknadJournalpostId = "J-2024-001",
+        soknadDato = LocalDate.of(2024, 1, 15),
+        periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        kommentarIntern = "kommentarIntern",
     )
 
     val Behandling = TilskuddBehandling(
         id = UUID.randomUUID(),
         gjennomforingId = EnkelAmo.id,
-        soknadJournalpostId = "J-2024-001",
-        soknadDato = LocalDate.of(2024, 1, 15),
-        periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
-        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
         tilskudd = listOf(Tilskudd),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
         type = TilskuddBehandlingType.REGISTRERING,
-        kommentarIntern = "kommentarIntern",
     )
 }
