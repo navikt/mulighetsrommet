@@ -55,19 +55,32 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
         Informasjon fra søknad
       </Heading>
       <VStack gap="space-20" align="start">
-        <FormTextField label="Journalpost-ID i Gosys" name="soknadJournalpostId" required />
-        <FormDateInput name="soknadDato" label="Søknadsdato" required />
-        <HStack gap="space-8">
-          <FormDateInput name="periodeStart" label="Periodestart" required />
-          <FormDateInput name="periodeSlutt" label="Periodeslutt" required />
-        </HStack>
-        <VelgKostnadssted
-          kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
-        />
         {fields.map((field, index) => (
           <FormGroup key={field.id}>
             <HStack align="center" justify="space-between" wrap={false}>
               <VStack gap="space-8">
+                <FormTextField
+                  label="Journalpost-ID i Gosys"
+                  name={`tilskudd.${index}.soknadJournalpostId`}
+                  required
+                />
+                <FormDateInput name={`tilskudd.${index}.soknadDato`} label="Søknadsdato" required />
+                <HStack gap="space-8">
+                  <FormDateInput
+                    name={`tilskudd.${index}.periodeStart`}
+                    label="Periodestart"
+                    required
+                  />
+                  <FormDateInput
+                    name={`tilskudd.${index}.periodeSlutt`}
+                    label="Periodeslutt"
+                    required
+                  />
+                </HStack>
+                <VelgKostnadssted
+                  fieldName={`tilskudd.${index}.kostnadssted`}
+                  kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
+                />
                 <HStack gap="space-24" align="start">
                   <FormSelect
                     label="Tilskuddstype"
