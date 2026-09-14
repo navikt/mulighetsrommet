@@ -12,8 +12,9 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotliquery.queryOf
-import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceClient
-import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceError
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorMeldingSender
+import no.nav.mulighetsrommet.admin.arrangor.MeldingError
+import no.nav.mulighetsrommet.admin.arrangor.MeldingId
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
@@ -61,7 +62,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
     val personaliaService = mockk<PersonaliaService>()
     val pdfGenClient = mockk<PdfGenClient>()
     val dokarkClient = mockk<DokarkClient>()
-    val altinnCorrespondenceClient = mockk<AltinnCorrespondenceClient>()
+    val arrangorMeldingSender = mockk<ArrangorMeldingSender>()
     val kontoregisterOrganisasjonClient = mockk<KontoregisterOrganisasjonClient>()
 
     beforeEach {
@@ -71,7 +72,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
             personaliaService,
             pdfGenClient,
             dokarkClient,
-            altinnCorrespondenceClient,
+            arrangorMeldingSender,
             kontoregisterOrganisasjonClient,
         )
 
@@ -107,7 +108,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
         dokarkClient = dokarkClient,
         personaliaService = personaliaService,
         pdf = pdfGenClient,
-        altinnCorrespondenceClient = altinnCorrespondenceClient,
+        arrangorMeldingSender = arrangorMeldingSender,
         kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
     )
 
@@ -219,12 +220,10 @@ class SendTilsagnsbrevSagaTest : FunSpec({
             arrangorNavn = "Underenhet 1 AS",
         )
 
-        val vedleggId = UUID.randomUUID()
         val correspondenceId = UUID.randomUUID()
 
-        test("laster opp vedlegg, sender korrespondanse og lagrer altinn-referanse") {
-            coEvery { altinnCorrespondenceClient.sendVedlegg(any(), any()) } returns vedleggId.right()
-            coEvery { altinnCorrespondenceClient.sendKorrespondanse(any()) } returns correspondenceId.right()
+        test("sender melding og lagrer altinn-referanse") {
+            coEvery { arrangorMeldingSender.send(any()) } returns MeldingId(correspondenceId).right()
 
             val saga = createSaga()
 
@@ -243,24 +242,11 @@ class SendTilsagnsbrevSagaTest : FunSpec({
 
             saga.sendTilAltinn(taskData()).shouldBeRight()
 
-            coVerify(exactly = 0) { altinnCorrespondenceClient.sendVedlegg(any(), any()) }
+            coVerify(exactly = 0) { arrangorMeldingSender.send(any()) }
         }
 
-        test("feiler nar opplasting av vedlegg feiler") {
-            coEvery {
-                altinnCorrespondenceClient.sendVedlegg(any(), any())
-            } returns AltinnCorrespondenceError("Feil").left()
-
-            val saga = createSaga()
-
-            saga.sendTilAltinn(taskData()).shouldBeLeft()
-
-            database.run { queries.tilsagn.getOrError(tilsagn.id).tilsagnsbrev?.altinnCorrespondenceId } shouldBe null
-        }
-
-        test("feiler nar sending av korrespondanse feiler etter vellykket opplasting") {
-            coEvery { altinnCorrespondenceClient.sendVedlegg(any(), any()) } returns vedleggId.right()
-            coEvery { altinnCorrespondenceClient.sendKorrespondanse(any()) } returns AltinnCorrespondenceError("Feil").left()
+        test("feiler nar sending av melding feiler") {
+            coEvery { arrangorMeldingSender.send(any()) } returns MeldingError("Feil").left()
 
             val saga = createSaga()
 

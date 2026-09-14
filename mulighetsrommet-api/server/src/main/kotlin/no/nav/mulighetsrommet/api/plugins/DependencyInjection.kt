@@ -14,6 +14,7 @@ import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProce
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonService
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorMeldingSender
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.arrangor.KontoregisterGateway
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
@@ -42,6 +43,7 @@ import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterService
+import no.nav.mulighetsrommet.api.arrangor.AltinnArrangorMeldingSender
 import no.nav.mulighetsrommet.api.arrangor.KontoregisterOrganisasjonGateway
 import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
@@ -430,6 +432,7 @@ private fun services(appConfig: AppConfig) = module {
             ),
         )
     }
+    single<ArrangorMeldingSender> { AltinnArrangorMeldingSender(client = get()) }
     single {
         IsoppfolgingstilfelleClient(
             baseUrl = appConfig.isoppfolgingstilfelleConfig.url,

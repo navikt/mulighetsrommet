@@ -10,17 +10,17 @@ import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
-import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceClient
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorMeldingSender
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
-import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnAltinnSnapshot
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnJournalpostSnapshot
-import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnTilAltinnMapper
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnTilJournalpostMapper
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapper
+import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnsbrevMeldingMapper
+import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnsbrevMeldingSnapshot
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -53,7 +53,7 @@ class SendTilsagnsbrevSaga(
     private val dokarkClient: DokarkClient,
     private val personaliaService: PersonaliaService,
     private val pdf: PdfGenClient,
-    private val altinnCorrespondenceClient: AltinnCorrespondenceClient,
+    private val arrangorMeldingSender: ArrangorMeldingSender,
     private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -246,30 +246,20 @@ class SendTilsagnsbrevSaga(
         }
 
         val pdfAltinn = Base64.getDecoder().decode(data.pdfBase64)
-        val tilsagn = TilsagnAltinnSnapshot(
+        val tilsagn = TilsagnsbrevMeldingSnapshot(
+            tilsagnId = data.tilsagnId,
             tiltakstypeNavn = data.tiltakstypeNavn,
             bestillingsnummer = data.bestillingsnummer,
             arrangorOrganisasjonsnummer = Organisasjonsnummer(data.arrangorOrganisasjonsnummer),
             arrangorNavn = data.arrangorNavn,
         )
+        val melding = TilsagnsbrevMeldingMapper.tilArrangorMelding(tilsagn, pdfAltinn)
 
-        val vedlegg = TilsagnTilAltinnMapper.tilAltinnVedlegg(tilsagn, pdfAltinn)
-        altinnCorrespondenceClient.sendVedlegg(vedlegg, pdfAltinn)
-            .mapLeft { error -> "Feil ved opplasting av vedlegg til Altinn for tilsagn $tilsagnId: ${error.message}" }
-            .flatMap { vedleggId ->
-                val korrespondanse = TilsagnTilAltinnMapper.tilAltinnKorrespondanse(
-                    tilsagn = tilsagn,
-                    vedleggId = vedleggId,
-                    // Deterministisk idempotent-nøkkel basert på tilsagnId, slik at reforsøk av
-                    // tasken ikke fører til at samme tilsagnsbrev sendes flere ganger til Altinn.
-                    idempotentKey = tilsagnId,
-                )
-                altinnCorrespondenceClient.sendKorrespondanse(korrespondanse)
-                    .mapLeft { error -> "Feil ved sending av korrespondanse til Altinn for tilsagn $tilsagnId: ${error.message}" }
-            }
-            .map { correspondenceId ->
-                queries.tilsagn.setAltinnCorrespondenceId(tilsagnId, correspondenceId.toString())
-                logger.info("Tilsagnsbrev for tilsagn $tilsagnId sendt til Altinn med referanse $correspondenceId")
+        arrangorMeldingSender.send(melding)
+            .mapLeft { error -> "Feil ved sending av tilsagnsbrev til Altinn for tilsagn $tilsagnId: ${error.message}" }
+            .map { meldingId ->
+                queries.tilsagn.setAltinnCorrespondenceId(tilsagnId, meldingId.value.toString())
+                logger.info("Tilsagnsbrev for tilsagn $tilsagnId sendt til Altinn med referanse ${meldingId.value}")
             }
     }
 }
