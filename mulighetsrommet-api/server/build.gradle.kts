@@ -120,7 +120,7 @@ dependencies {
     // Tilgangskontroll
     implementation(libs.nav.poaoTilgang.client)
     constraints {
-        implementation("org.yaml:snakeyaml:2.6") {
+        implementation("org.yaml:snakeyaml:2.7") {
             because("sikkerhetshull i transitiv avhengighet")
         }
     }
