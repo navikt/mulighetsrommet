@@ -18,7 +18,7 @@ data class DelMedBrukerDto(
     @Serializable
     data class Tiltak(
         @Serializable(with = UUIDSerializer::class)
-        val id: UUID,
+        val id: UUID?,
         val navn: String?,
         val slettet: Boolean,
     )
