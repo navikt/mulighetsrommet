@@ -1,4 +1,7 @@
-import { VeilederflateTiltak } from "@arbeidsmarkedstiltak/api-client";
+import {
+  GjennomforingAvtaleStengtPeriode,
+  VeilederflateTiltak,
+} from "@arbeidsmarkedstiltak/api-client";
 import { isTiltakAktivt, isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { BodyLong, BodyShort, Box, Heading, HStack, Table, VStack } from "@navikt/ds-react";
 import { StatusTag } from "@mr/frontend-common";
@@ -10,7 +13,10 @@ interface Props {
 
 export function TiltakHeader({ tiltak }: Props) {
   const { beskrivelse, tiltakstype } = tiltak;
-  const stengtPerioder = "stengtPerioder" in tiltak ? tiltak.stengtPerioder : null;
+  const stengtPerioder: GjennomforingAvtaleStengtPeriode[] = (
+    "stengtPerioder" in tiltak ? tiltak.stengtPerioder : []
+  ).filter((p) => new Date(p.slutt) >= new Date());
+
   return (
     <VStack>
       <BodyShort spacing size="small">
@@ -40,7 +46,7 @@ export function TiltakHeader({ tiltak }: Props) {
         </>
       )}
 
-      {stengtPerioder && stengtPerioder.length > 0 && (
+      {stengtPerioder.length > 0 && (
         <Box
           background="neutral-moderate"
           padding="space-8"
