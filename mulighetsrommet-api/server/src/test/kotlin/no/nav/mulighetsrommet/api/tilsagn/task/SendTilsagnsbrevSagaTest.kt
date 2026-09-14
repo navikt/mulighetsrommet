@@ -13,10 +13,9 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorMeldingSender
+import no.nav.mulighetsrommet.admin.arrangor.KontoregisterGateway
 import no.nav.mulighetsrommet.admin.arrangor.MeldingError
 import no.nav.mulighetsrommet.admin.arrangor.MeldingId
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontonummerResponse
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkError
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
@@ -33,6 +32,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
+import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import java.time.LocalDateTime
@@ -63,7 +63,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
     val pdfGenClient = mockk<PdfGenClient>()
     val dokarkClient = mockk<DokarkClient>()
     val arrangorMeldingSender = mockk<ArrangorMeldingSender>()
-    val kontoregisterOrganisasjonClient = mockk<KontoregisterOrganisasjonClient>()
+    val kontoregister = mockk<KontoregisterGateway>()
 
     beforeEach {
         domain.initialize(database.api)
@@ -73,7 +73,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
             pdfGenClient,
             dokarkClient,
             arrangorMeldingSender,
-            kontoregisterOrganisasjonClient,
+            kontoregister,
         )
 
         coEvery {
@@ -92,11 +92,8 @@ class SendTilsagnsbrevSagaTest : FunSpec({
             avvistGrunn = null,
         )
         coEvery {
-            kontoregisterOrganisasjonClient.getKontonummerForOrganisasjon(Organisasjonsnummer("976663934"))
-        } returns KontonummerResponse(
-            mottaker = "Underenhet 1 AS",
-            kontonr = "12345678910",
-        ).right()
+            kontoregister.hentKontonummer(Organisasjonsnummer("976663934"))
+        } returns Kontonummer("12345678910").right()
     }
 
     afterEach {
@@ -109,7 +106,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
         personaliaService = personaliaService,
         pdf = pdfGenClient,
         arrangorMeldingSender = arrangorMeldingSender,
-        kontoregisterOrganisasjonClient = kontoregisterOrganisasjonClient,
+        kontoregister = kontoregister,
     )
 
     fun scheduledTaskNames(): List<String> = database.run {

@@ -11,9 +11,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorMeldingSender
+import no.nav.mulighetsrommet.admin.arrangor.KontoregisterGateway
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
-import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnJournalpostSnapshot
@@ -54,7 +54,7 @@ class SendTilsagnsbrevSaga(
     private val personaliaService: PersonaliaService,
     private val pdf: PdfGenClient,
     private val arrangorMeldingSender: ArrangorMeldingSender,
-    private val kontoregisterOrganisasjonClient: KontoregisterOrganisasjonClient,
+    private val kontoregister: KontoregisterGateway,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -135,7 +135,7 @@ class SendTilsagnsbrevSaga(
             return@transaction Either.Right(Unit)
         }
 
-        hentTilsagnsbrevInnhold(tilsagnId, personaliaService, kontoregisterOrganisasjonClient).flatMap { innhold ->
+        hentTilsagnsbrevInnhold(tilsagnId, personaliaService, kontoregister).flatMap { innhold ->
             generatePdfs(innhold).map { pdfs -> schedulePdfDistribution(innhold, pdfs) }
         }
     }
