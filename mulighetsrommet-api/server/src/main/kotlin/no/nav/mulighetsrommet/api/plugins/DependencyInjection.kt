@@ -14,6 +14,7 @@ import no.nav.common.kafka.producer.feilhandtering.util.KafkaProducerRecordProce
 import no.nav.common.kafka.producer.util.KafkaProducerClientBuilder
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.arrangor.ArrangorKontaktpersonService
+import no.nav.mulighetsrommet.admin.arrangor.ArrangorMeldingSender
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.admin.arrangor.KontoregisterGateway
 import no.nav.mulighetsrommet.admin.arrangor.SyncArrangorUseCase
@@ -35,12 +36,14 @@ import no.nav.mulighetsrommet.admin.tiltak.UpdateTiltakstypeUseCase
 import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentAdminService
 import no.nav.mulighetsrommet.admin.utdanning.SynkroniserUtdanningerUseCase
 import no.nav.mulighetsrommet.altinn.AltinnClient
+import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceClient
 import no.nav.mulighetsrommet.altinn.AltinnRettigheterService
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.AppConfig
 import no.nav.mulighetsrommet.api.SlackConfig
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterClient
 import no.nav.mulighetsrommet.api.arenaadapter.ArenaAdapterService
+import no.nav.mulighetsrommet.api.arrangor.AltinnArrangorMeldingSender
 import no.nav.mulighetsrommet.api.arrangor.KontoregisterOrganisasjonGateway
 import no.nav.mulighetsrommet.api.arrangor.kafka.AmtVirksomheterV1KafkaConsumer
 import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateService
@@ -98,8 +101,7 @@ import no.nav.mulighetsrommet.api.sanity.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
-import no.nav.mulighetsrommet.api.tilsagn.task.DistribuerTilsagnsbrev
-import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
+import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevSaga
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddArrangorUtbetalingConsumer
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddBrukerUtbetalingConsumer
@@ -421,6 +423,17 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single {
+        AltinnCorrespondenceClient(
+            baseUrl = appConfig.altinnCorrespondence.url,
+            clientEngine = appConfig.altinnCorrespondence.engine ?: appConfig.engine,
+            tokenProvider = maskinportenTokenProvider.withScopeAndResource(
+                scope = appConfig.altinnCorrespondence.scope,
+                resource = appConfig.altinnCorrespondence.url,
+            ),
+        )
+    }
+    single<ArrangorMeldingSender> { AltinnArrangorMeldingSender(client = get()) }
+    single {
         IsoppfolgingstilfelleClient(
             baseUrl = appConfig.isoppfolgingstilfelleConfig.url,
             clientEngine = appConfig.engine,
@@ -609,8 +622,7 @@ private fun tasks(config: AppConfig) = module {
     single { JournalforUtbetaling(get(), get(), get(), get()) }
     single { NotificationTask(get()) }
     single { BeregnUtbetaling(tasks.beregnUtbetaling, get(), get()) }
-    single { JournalforEnkeltplassTilsagnsbrev(get(), get(), get(), get(), get(), get()) }
-    single { DistribuerTilsagnsbrev(get(), get()) }
+    single { SendTilsagnsbrevSaga(get(), get(), get(), get(), get(), get()) }
     single { JournalforVedtaksbrev(get(), get(), get(), get(), get()) }
     single { DistribuerVedtaksbrev(get(), get()) }
     single { UpdateGjennomforingAvtaleFreeTextSearch(get(), get()) }
@@ -644,8 +656,7 @@ private fun tasks(config: AppConfig) = module {
         val journalforUtbetaling: JournalforUtbetaling by inject()
         val oppdaterUtbetalingBeregning: GenererUtbetalingService by inject()
         val beregnUtbetaling: BeregnUtbetaling by inject()
-        val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
-        val distribuerTilsagnsbrev: DistribuerTilsagnsbrev by inject()
+        val sendTilsagnsbrevSaga: SendTilsagnsbrevSaga by inject()
         val journalforVedtaksbrev: JournalforVedtaksbrev by inject()
         val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
         val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
@@ -662,8 +673,9 @@ private fun tasks(config: AppConfig) = module {
                 journalforUtbetaling.task,
                 oppdaterUtbetalingBeregning.task,
                 beregnUtbetaling.task,
-                journalforEnkeltplassTilsagnsbrev.task,
-                distribuerTilsagnsbrev.task,
+                sendTilsagnsbrevSaga.opprettInnholdTask,
+                sendTilsagnsbrevSaga.arkiverIDokarkTask,
+                sendTilsagnsbrevSaga.sendTilAltinnTask,
                 journalforVedtaksbrev.task,
                 distribuerVedtaksbrev.task,
                 updateGjennomforingAvtaleFreeTextSearch.task,

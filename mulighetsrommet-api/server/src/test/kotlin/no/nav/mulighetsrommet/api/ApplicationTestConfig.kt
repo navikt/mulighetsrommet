@@ -233,6 +233,10 @@ val ApplicationConfigTest = AppConfig(
         url = "http://localhost/altinn",
         scope = "default",
     ),
+    altinnCorrespondence = AuthenticatedHttpClientConfig(
+        url = "http://localhost/altinn-correspondence",
+        scope = "default",
+    ),
     dokark = AuthenticatedHttpClientConfig(
         url = "http://localhost/dokark",
         scope = "default",

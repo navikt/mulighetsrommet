@@ -433,18 +433,18 @@ class TilsagnQueries(private val session: Session) {
         session.execute(queryOf(query, params))
     }
 
-    fun setJournalpostDistribueringId(id: UUID, journalpostDistribueringId: String) {
+    fun setAltinnCorrespondenceId(id: UUID, altinnCorrespondenceId: String) {
         @Language("PostgreSQL")
         val query = """
             update tilsagn
-              set journalpost_distribuering_id = :journalpost_distribuering_id
+              set altinn_correspondence_id = :altinn_correspondence_id
             where
               id = :id::uuid
         """.trimIndent()
 
         val params = mapOf(
             "id" to id,
-            "journalpost_distribuering_id" to journalpostDistribueringId,
+            "altinn_correspondence_id" to altinnCorrespondenceId,
         )
         session.execute(queryOf(query, params))
     }
@@ -471,6 +471,14 @@ class TilsagnQueries(private val session: Session) {
         val deltakere = stringOrNull("deltakere")
             ?.let { Json.decodeFromString<List<Tilsagn.Deltaker>>(it) }
             ?: emptyList()
+
+        val journalpostId = stringOrNull("journalpost_id")
+        val altinnCorrespondenceId = stringOrNull("altinn_correspondence_id")
+        val tilsagnsbrev = if (journalpostId != null || altinnCorrespondenceId != null) {
+            Tilsagn.Tilsagnsbrev(journalpostId = journalpostId, altinnCorrespondenceId = altinnCorrespondenceId)
+        } else {
+            null
+        }
 
         return Tilsagn(
             id = uuid("id"),
@@ -508,12 +516,7 @@ class TilsagnQueries(private val session: Session) {
             status = TilsagnStatus.valueOf(string("status")),
             kommentar = stringOrNull("kommentar"),
             beskrivelse = stringOrNull("beskrivelse"),
-            journalpost = stringOrNull("journalpost_id")?.let { journalpostId ->
-                Tilsagn.Journalpost(
-                    id = journalpostId,
-                    distribueringId = stringOrNull("journalpost_distribuering_id"),
-                )
-            },
+            tilsagnsbrev = tilsagnsbrev,
             deltakere = deltakere,
         )
     }

@@ -171,7 +171,7 @@ object BeregningTestHelpers {
         status = TilsagnStatus.GODKJENT,
         kommentar = null,
         beskrivelse = null,
-        journalpost = null,
+        tilsagnsbrev = null,
         deltakere = emptyList(),
     )
 

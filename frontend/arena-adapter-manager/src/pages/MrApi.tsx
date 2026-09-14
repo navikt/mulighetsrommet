@@ -121,26 +121,12 @@ export function MrApi() {
 
       <RunTask
         base={ApiBase.MR_API}
-        task={"journalfor-tilsagnsbrev"}
+        task={"send-tilsagnsbrev"}
         form={(props) => <TextInputForm {...props} label="Tilsangs id" name="tilsagnId" />}
       >
-        <BodyShort>Lager et tilsagnsbrev</BodyShort>
-      </RunTask>
-
-      <RunTask
-        base={ApiBase.MR_API}
-        task={"distribuer-tilsagnsbrev"}
-        form={(props) => (
-          <TextInputForm
-            {...props}
-            label="Tilsangs id med eksisterende journalført tilsagnsbrev"
-            name="tilsagnId"
-          />
-        )}
-      >
         <BodyShort>
-          Distribuerer et tilsagnsbrev for gitt tilsagn id. Tryner om ikke journalpostId eksisterer
-          for tilsagnet (kjør journalføring av tilsagnsbrev først)
+          Lager et tilsagnsbrev for gitt tilsagn id, journalfører det i Joark og sender det til
+          arrangøren via Altinn.
         </BodyShort>
       </RunTask>
       <RunTask base={ApiBase.MR_API} task={"hel-ved-utbetaling"}>

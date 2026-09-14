@@ -58,6 +58,7 @@ data class AppConfig(
     val pdl: AuthenticatedHttpClientConfig,
     val utdanning: HttpClientConfig,
     val altinn: AuthenticatedHttpClientConfig,
+    val altinnCorrespondence: AuthenticatedHttpClientConfig,
     val dokark: AuthenticatedHttpClientConfig,
     val dokdistfordeling: AuthenticatedHttpClientConfig,
     val kontoregisterOrganisasjon: AuthenticatedHttpClientConfig,
