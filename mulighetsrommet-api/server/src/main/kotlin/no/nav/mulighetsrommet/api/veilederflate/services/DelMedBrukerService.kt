@@ -117,11 +117,11 @@ private fun Row.toDelMedBrukerDto(): DelMedBrukerDto {
         tiltakskode = this.string("tiltakstype_tiltakskode").let { Tiltakskode.valueOf(it) },
         navn = this.string("tiltakstype_navn"),
     )
-    val navn = this.stringOrNull("tiltak_navn")
+    val id = this.uuidOrNull("tiltak_id")
     val tiltak = DelMedBrukerDto.Tiltak(
-        id = this.uuid("tiltak_id"),
-        navn = navn,
-        slettet = navn == null,
+        id = id,
+        navn = this.stringOrNull("tiltak_navn"),
+        slettet = id == null,
     )
     return DelMedBrukerDto(
         tiltak,

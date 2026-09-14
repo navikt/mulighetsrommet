@@ -32,7 +32,7 @@ export function DelMedBrukerHistorikk() {
   const gruppertHistorikk = data
     .sort(sortOnCreatedAt)
     .reduce<Record<string, DelMedBrukerDto[]>>((acc, obj) => {
-      (acc[obj.tiltak.id] ??= []).push(obj);
+      (acc[obj.tiltak.id ?? crypto.randomUUID()] ??= []).push(obj);
       return acc;
     }, {});
 
