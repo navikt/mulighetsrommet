@@ -145,7 +145,7 @@ class TilskuddBrukerUtbetalingConsumer(
                     queries.brukerUtbetaling.insert(
                         UpsertBrukerUtbetalingDbo(
                             id = UUID.randomUUID(),
-                            sakId = gjennomforing.lopenummer.value,
+                            sakId = t.sakId,
                             transaksjonsDato = besluttetDato.tilNorskDato(),
                             belop = requireNotNull(t.utbetalingBelop?.belop) {
                                 "utbetalingBelop var null"

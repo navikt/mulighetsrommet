@@ -9313,6 +9313,8 @@ components:
         id:
           type: string
           format: uuid
+        sakId:
+          type: string
         tilskuddId:
           type: string
           format: uuid
@@ -9340,6 +9342,7 @@ components:
       - id
       - kid
       - kommentarVedtaksbrev
+      - sakId
       - soknadBelop
       - tilskuddId
       - tilskuddOpplaeringType

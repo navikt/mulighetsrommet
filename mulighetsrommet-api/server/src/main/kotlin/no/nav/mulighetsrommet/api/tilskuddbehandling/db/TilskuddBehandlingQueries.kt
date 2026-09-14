@@ -66,13 +66,36 @@ class TilskuddBehandlingQueries(private val session: Session) {
         tilskuddVedtak: TilskuddVedtak,
     ): Unit = withTransaction(session) {
         @Language("PostgreSQL")
+        val tilskuddSaksnummerQuery = """
+            select
+                g.lopenummer,
+                (
+                    select count(distinct tv.tilskudd_id)
+                    from tilskudd_behandling tb
+                    left join tilskudd_vedtak tv on tv.tilskudd_behandling_id = tb.id
+                    where tb.gjennomforing_id = g.id
+                ) as antall_eksisterende_vedtak
+            from gjennomforing g
+            where g.id = ?::uuid
+        """.trimIndent()
+
+        val nySakId = single(queryOf(tilskuddSaksnummerQuery, behandling.gjennomforingId)) { row ->
+            val lopenummer = row.string("lopenummer")
+            val antallEksisterendeVedtak = row.int("antall_eksisterende_vedtak")
+            "$lopenummer-${antallEksisterendeVedtak + 1}"
+        }
+        requireNotNull(nySakId) { "Mangler gjennomforing med id ${behandling.gjennomforingId}" }
+
+        @Language("PostgreSQL")
         val tilskuddQuery = """
             insert into tilskudd (
                 id,
-                tilskudd_opplaering_id
+                tilskudd_opplaering_id,
+                sak_id
             ) values (
                 :id::uuid,
-                (select id from tilskudd_opplaering where kode = :tilskudd_opplaering_kode)
+                (select id from tilskudd_opplaering where kode = :tilskudd_opplaering_kode),
+                :sak_id
             ) on conflict (id) do update set
                 tilskudd_opplaering_id = excluded.tilskudd_opplaering_id
         """.trimIndent()
@@ -80,6 +103,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
         val tilskuddParams = mapOf(
             "id" to tilskuddVedtak.tilskuddId,
             "tilskudd_opplaering_kode" to tilskuddVedtak.tilskuddOpplaeringType.name,
+            "sak_id" to nySakId,
         )
 
         execute(queryOf(tilskuddQuery, tilskuddParams))
@@ -294,6 +318,8 @@ private data class TilskuddBehandlingViewRow(
 private data class TilskuddVedtakViewRow(
     @Serializable(with = UUIDSerializer::class)
     val id: UUID,
+    @SerialName("sak_id")
+    val sakId: String,
     @Serializable(with = UUIDSerializer::class)
     @SerialName("tilskudd_id")
     val tilskuddId: UUID,
@@ -367,6 +393,7 @@ private fun TilskuddVedtakViewRow.toDto(): TilskuddOpplaeringDto {
     return TilskuddOpplaeringDto(
         id = id,
         tilskuddId = tilskuddId,
+        sakId = sakId,
         tilskuddOpplaeringType = tilskuddOpplaeringType,
         soknadBelop = soknadBelop,
         vedtakResultat = VedtakResultatDto(vedtakResultat.type),
