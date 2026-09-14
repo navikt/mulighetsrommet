@@ -1,7 +1,6 @@
 package no.nav.mulighetsrommet.api.sanity
 
 import kotlinx.serialization.EncodeDefault
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -51,34 +50,6 @@ data class SanityTiltakstypeFields(
     val tiltakstypeNavn: String,
 )
 
-@OptIn(ExperimentalSerializationApi::class)
-@Serializable
-data class CreateSanityTiltaksgjennomforingDto(
-    val _id: String,
-    @EncodeDefault
-    val _type: String = "tiltaksgjennomforing",
-    val tiltaksgjennomforingNavn: String,
-    val tiltakstype: TiltakstypeRef? = null,
-    val tiltaksnummer: Slug? = null,
-)
-
-@Serializable
-data class SanityTiltaksgjennomforingFields(
-    val tiltaksgjennomforingNavn: String,
-    val fylke: FylkeRef? = null,
-    val enheter: List<EnhetRef>? = null,
-    val tiltakstype: TiltakstypeRef? = null,
-    val tiltaksnummer: Slug? = null,
-) {
-    fun toSanityTiltaksgjennomforing(id: String) = CreateSanityTiltaksgjennomforingDto(
-        _id = id,
-        tiltaksgjennomforingNavn = this.tiltaksgjennomforingNavn,
-        tiltakstype = this.tiltakstype,
-        tiltaksnummer = this.tiltaksnummer,
-    )
-}
-
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class SanityEnhet(
     val _id: String,
@@ -91,7 +62,6 @@ data class SanityEnhet(
     val fylke: FylkeRef?,
 )
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class EnhetSlug(
     @EncodeDefault
@@ -99,7 +69,6 @@ data class EnhetSlug(
     val current: String,
 )
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class TiltakstypeRef(
     @EncodeDefault
@@ -108,7 +77,6 @@ data class TiltakstypeRef(
     val _key: String? = null,
 )
 
-@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class FylkeRef(
     @EncodeDefault
