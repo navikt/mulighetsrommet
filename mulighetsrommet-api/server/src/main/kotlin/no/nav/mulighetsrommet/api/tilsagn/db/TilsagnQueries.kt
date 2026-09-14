@@ -508,11 +508,13 @@ class TilsagnQueries(private val session: Session) {
             status = TilsagnStatus.valueOf(string("status")),
             kommentar = stringOrNull("kommentar"),
             beskrivelse = stringOrNull("beskrivelse"),
-            journalpost = stringOrNull("journalpost_id")?.let { journalpostId ->
-                Tilsagn.Journalpost(
-                    id = journalpostId,
-                    altinnCorrespondenceId = stringOrNull("altinn_correspondence_id"),
-                )
+            tilsagnsbrev = stringOrNull("journalpost_id").let { journalpostId ->
+                val altinnCorrespondenceId = stringOrNull("altinn_correspondence_id")
+                if (journalpostId != null || altinnCorrespondenceId != null) {
+                    Tilsagn.Tilsagnsbrev(journalpostId = journalpostId, altinnCorrespondenceId = altinnCorrespondenceId)
+                } else {
+                    null
+                }
             },
             deltakere = deltakere,
         )

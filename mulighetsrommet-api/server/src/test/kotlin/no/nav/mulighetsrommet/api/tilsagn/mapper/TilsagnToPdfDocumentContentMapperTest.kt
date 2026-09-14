@@ -108,7 +108,7 @@ class TilsagnToPdfDocumentContentMapperTest : FunSpec({
         status = TilsagnStatus.GODKJENT,
         kommentar = null,
         beskrivelse = null,
-        journalpost = null,
+        tilsagnsbrev = null,
         beregning = TilsagnBeregningAnnenAvtaltPris(
             input = TilsagnBeregningAnnenAvtaltPris.Input(
                 listOf(

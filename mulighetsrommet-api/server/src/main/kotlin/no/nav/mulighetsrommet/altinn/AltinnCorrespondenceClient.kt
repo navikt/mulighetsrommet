@@ -115,12 +115,6 @@ class AltinnCorrespondenceClient(
         return Unit.right()
     }
 
-    /**
-     * Poller vedlegg-status med et fast intervall inntil vedlegget er ferdig virussjekket
-     * (Published/Failed), eller til [ATTACHMENT_POLL_TIMEOUT] er nådd. Selve tasken som bruker
-     * klienten har sin egen retry med backoff (se SendTilsagnsbrevTilAltinn), så det er ikke
-     * behov for noen mer avansert backoff-strategi her.
-     */
     private suspend fun ventTilVedleggErPublisert(attachmentId: UUID): Either<AltinnCorrespondenceError, Unit> {
         val sluttstatus = withTimeoutOrNull(ATTACHMENT_POLL_TIMEOUT) {
             var status = hentVedleggStatus(attachmentId)
@@ -168,9 +162,6 @@ class AltinnCorrespondenceClient(
         }
     }
 
-    /**
-     * Resultatet av å spørre Altinn om status for et vedlegg som er lastet opp.
-     */
     private sealed interface AttachmentStatus {
         data object Published : AttachmentStatus
         data object Processing : AttachmentStatus

@@ -19,8 +19,7 @@ import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateGjennomforingAvtaleFr
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.sanity.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
-import no.nav.mulighetsrommet.api.tilsagn.task.JournalforEnkeltplassTilsagnsbrev
-import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevTilAltinn
+import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevSaga
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
@@ -55,8 +54,7 @@ fun Route.maamRoutes() {
     val synchronizeUtdanninger: SynchronizeUtdanninger by inject()
     val generateUtbetaling: GenerateUtbetaling by inject()
     val beregnUtbetaling: BeregnUtbetaling by inject()
-    val journalforEnkeltplassTilsagnsbrev: JournalforEnkeltplassTilsagnsbrev by inject()
-    val sendTilsagnsbrevTilAltinn: SendTilsagnsbrevTilAltinn by inject()
+    val sendTilsagnsbrevSaga: SendTilsagnsbrevSaga by inject()
     val distribuerVedtaksbrev: DistribuerVedtaksbrev by inject()
     val updateGjennomforingAvtaleFreeTextSearch: UpdateGjennomforingAvtaleFreeTextSearch by inject()
     val migrerSanityTiltaksgjennomforinger: MigrerSanityTiltaksgjennomforinger by inject()
@@ -173,15 +171,9 @@ fun Route.maamRoutes() {
                 call.respond(HttpStatusCode.Accepted, response)
             }
 
-            post("journalfor-tilsagnsbrev") {
+            post("send-tilsagnsbrev") {
                 val request = call.receive<TilsagnIdRequest>()
-                val taskId = journalforEnkeltplassTilsagnsbrev.schedule(request.tilsagnId)
-                call.respond(ScheduleTaskResponse(taskId))
-            }
-
-            post("distribuer-tilsagnsbrev") {
-                val request = call.receive<TilsagnIdRequest>()
-                val taskId = sendTilsagnsbrevTilAltinn.schedule(request.tilsagnId)
+                val taskId = sendTilsagnsbrevSaga.schedule(request.tilsagnId)
                 call.respond(ScheduleTaskResponse(taskId))
             }
 
