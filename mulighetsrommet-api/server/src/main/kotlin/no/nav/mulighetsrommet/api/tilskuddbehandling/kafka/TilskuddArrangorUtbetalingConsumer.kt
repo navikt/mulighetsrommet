@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.kafka
 
 import arrow.core.flatMap
 import arrow.core.getOrElse
-import kotliquery.Session
-import kotliquery.queryOf
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.TransactionalQueryContext
@@ -25,7 +23,6 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
-import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -33,7 +30,6 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.tiltak.okonomi.Tilskuddstype
-import org.intellij.lang.annotations.Language
 import java.util.UUID
 
 class TilskuddArrangorUtbetalingConsumer(
@@ -45,11 +41,6 @@ class TilskuddArrangorUtbetalingConsumer(
     TotrinnskontrollHendelseDeserializer(),
 ) {
     override suspend fun consume(key: UUID, message: TotrinnskontrollHendelse) {
-        val isRunning = db.session { isTopicRunning(this.session, "tilskudd-arrangor-utbetaling") }
-        if (!isRunning) {
-            return
-        }
-
         if (message.type != TotrinnskontrollType.TILSKUDD_OPPRETTELSE) {
             return
         }
@@ -162,15 +153,4 @@ class TilskuddArrangorUtbetalingConsumer(
                 throw IllegalStateException("Feil ved automatisk utbetaling av tilskudd til arrangør. Errors: $it")
             }
     }
-}
-
-fun isTopicRunning(session: Session, consumerName: String): Boolean {
-    @Language("PostgreSQL")
-    val query = """
-            select running
-            from topics
-            where id = ?
-    """.trimIndent()
-
-    return session.requireSingle(queryOf(query, consumerName)) { it.boolean("running") }
 }

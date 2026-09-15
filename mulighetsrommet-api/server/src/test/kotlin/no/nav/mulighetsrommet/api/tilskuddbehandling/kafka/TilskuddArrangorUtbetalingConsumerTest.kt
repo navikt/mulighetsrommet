@@ -6,7 +6,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
@@ -48,16 +47,6 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             gjennomforinger = listOf(GjennomforingFixtures.EnkelAmo),
         ).initialize(database.api)
-
-        database.api.db.session { session ->
-            session.execute(
-                queryOf(
-                    "insert into topics (id, topic, type, running) values (?, ?, 'CONSUMER'::topic_type, true) on conflict (id) do update set running = true",
-                    "tilskudd-arrangor-utbetaling",
-                    "team-mulighetsrommet.totrinnskontroll-v1",
-                ),
-            )
-        }
 
         coEvery { betalingsinformasjon.execute(any()) } returns Betalingsinformasjon.BBan(
             Kontonummer("12345678901"),

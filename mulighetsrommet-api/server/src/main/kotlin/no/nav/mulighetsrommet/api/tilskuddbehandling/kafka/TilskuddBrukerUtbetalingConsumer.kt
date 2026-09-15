@@ -42,11 +42,6 @@ class TilskuddBrukerUtbetalingConsumer(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun consume(key: UUID, message: TotrinnskontrollHendelse) {
-        val isRunning = db.session { isTopicRunning(this.session, "tilskudd-bruker-utbetaling") }
-        if (!isRunning) {
-            return
-        }
-
         if (message.status != TotrinnskontrollHendelse.Status.GODKJENT) {
             return
         }
