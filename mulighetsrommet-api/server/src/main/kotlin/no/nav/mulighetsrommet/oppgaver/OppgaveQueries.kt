@@ -367,7 +367,7 @@ class OppgaveQueries(private val session: Session) {
         }
     }
 
-    fun getUtbetalingOppgaveData(tiltakskoder: Set<Tiltakskode>?, arrangorer: Set<UUID>?): List<UtbetalingOppgaveData> {
+    fun getUtbetalingBehandlingOppgaveData(tiltakskoder: Set<Tiltakskode>?, arrangorer: Set<UUID>?): List<UtbetalingBehandlingOppgaveData> {
         @Language("PostgreSQL")
         val utbetalingQuery = """
             select
@@ -408,7 +408,8 @@ class OppgaveQueries(private val session: Session) {
                 ) avbrytelse on true
             where
                 (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
-                and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer));
+                and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer))
+                and utbetaling.status in ('TIL_AVBRYTELSE', 'TIL_BEHANDLING');
         """.trimIndent()
 
         val params = mapOf(
@@ -417,7 +418,7 @@ class OppgaveQueries(private val session: Session) {
         )
 
         return session.list(queryOf(utbetalingQuery, params)) { row ->
-            UtbetalingOppgaveData(
+            UtbetalingBehandlingOppgaveData(
                 id = row.uuid("id"),
                 periode = row.periode("periode"),
                 createdAt = row.localDateTime("created_at"),
@@ -433,6 +434,66 @@ class OppgaveQueries(private val session: Session) {
                 ),
                 avbrytelseBehandletTidspunkt = row.localDateTimeOrNull("avbrytelse_behandlet_tidspunkt"),
                 avbrytelseBehandletAv = row.stringOrNull("avbrytelse_behandlet_av")?.toAgent(),
+            )
+        }
+    }
+
+    fun getUtbetalingManglerTilsagnOppgaveData(tiltakskoder: Set<Tiltakskode>?, arrangorer: Set<UUID>?): List<UtbetalingManglerTilsagnOppgaveData> {
+        @Language("PostgreSQL")
+        val utbetalingQuery = """
+            select
+                utbetaling.id,
+                utbetaling.periode,
+                utbetaling.created_at,
+                utbetaling.innsendt_av_arrangor_tidspunkt,
+                utbetaling.status,
+                gjennomforing.id as gjennomforing_id,
+                gjennomforing.lopenummer as gjennomforing_lopenummer,
+                gjennomforing.navn as gjennomforing_navn,
+                gjennomforing.gjennomforing_type,
+                tiltakstype.navn as tiltakstype_navn,
+                tiltakstype.tiltakskode as tiltakstype_tiltakskode,
+                ks.kostnadssteder,
+                arrangor.navn as arrangor_navn,
+                arrangor.id as arrangor_id,
+                arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
+            from utbetaling
+                join gjennomforing on gjennomforing.id = utbetaling.gjennomforing_id
+                inner join arrangor on gjennomforing.arrangor_id = arrangor.id
+                join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
+                left join lateral (
+                    select array_agg(tilsagn.kostnadssted) as kostnadssteder
+                    from tilsagn
+                    where tilsagn.gjennomforing_id = utbetaling.gjennomforing_id
+                      and tilsagn.periode && utbetaling.periode
+                ) ks on true
+                inner join utbetaling_blokkering on utbetaling_blokkering.utbetaling_id = utbetaling.id
+            where
+                (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
+                and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer))
+                and utbetaling_blokkering.blokkering = 'MANGLER_TILSAGN';
+        """.trimIndent()
+
+        val params = mapOf(
+            "tiltakskoder" to tiltakskoder?.let { session.createTextArray(it) },
+            "arrangorer" to arrangorer?.let { session.createUuidArray(it) },
+        )
+
+        return session.list(queryOf(utbetalingQuery, params)) { row ->
+            UtbetalingManglerTilsagnOppgaveData(
+                id = row.uuid("id"),
+                periode = row.periode("periode"),
+                createdAt = row.localDateTime("created_at"),
+                godkjentAvArrangorTidspunkt = row.localDateTimeOrNull("innsendt_av_arrangor_tidspunkt"),
+                status = UtbetalingStatusType.valueOf(row.string("status")),
+                kostnadssteder = row.arrayOrNull<String>("kostnadssteder")?.map { NavEnhetNummer(it) } ?: emptyList(),
+                tiltakstype = row.toOppgaveTiltakstype(),
+                gjennomforing = row.toOppgaveGjennomforing(),
+                arrangor = OppgaveArrangor(
+                    Organisasjonsnummer(row.string("arrangor_organisasjonsnummer")),
+                    row.string("arrangor_navn"),
+                    row.uuid("arrangor_id"),
+                ),
             )
         }
     }
@@ -623,7 +684,7 @@ data class TilsagnOppgaveData(
     val arrangor: OppgaveArrangor,
 )
 
-data class UtbetalingOppgaveData(
+data class UtbetalingBehandlingOppgaveData(
     val id: UUID,
     val status: UtbetalingStatusType,
     val periode: Periode,
@@ -635,6 +696,18 @@ data class UtbetalingOppgaveData(
     val arrangor: OppgaveArrangor,
     val avbrytelseBehandletTidspunkt: LocalDateTime?,
     val avbrytelseBehandletAv: Agent?,
+)
+
+data class UtbetalingManglerTilsagnOppgaveData(
+    val id: UUID,
+    val status: UtbetalingStatusType,
+    val periode: Periode,
+    val createdAt: LocalDateTime,
+    val godkjentAvArrangorTidspunkt: LocalDateTime?,
+    val kostnadssteder: List<NavEnhetNummer>,
+    val tiltakstype: OppgaveTiltakstype,
+    val gjennomforing: OppgaveGjennomforing,
+    val arrangor: OppgaveArrangor,
 )
 
 data class AvtaleManglerAdministratorOppgaveData(

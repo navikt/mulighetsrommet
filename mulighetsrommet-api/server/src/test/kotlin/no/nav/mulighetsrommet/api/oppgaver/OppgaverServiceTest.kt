@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.api.fixtures.setTilsagnStatus
 import no.nav.mulighetsrommet.api.fixtures.setUtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
+import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingLinjeStatus
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingStatusType
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
@@ -736,6 +737,94 @@ class OppgaverServiceTest : FunSpec({
                 ),
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_TIL_BEHANDLING),
+            )
+        }
+    }
+
+    context("utbetaling mangler tilsagn") {
+        test("Skal hente oppgave for utbetaling som er blokkert på grunn av manglende tilsagn") {
+            MulighetsrommetTestDomain(
+                ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
+                arrangorer = listOf(ArrangorFixtures.hovedenhet, underenhet1),
+                avtaler = listOf(AvtaleFixtures.AFT, AvtaleFixtures.VTA),
+                navEnheter = listOf(
+                    NavEnhetFixtures.Innlandet,
+                    NavEnhetFixtures.Gjovik,
+                    NavEnhetFixtures.Oslo,
+                    NavEnhetFixtures.TiltakOslo,
+                ),
+                gjennomforinger = listOf(AFT1, VTA1),
+                utbetalinger = listOf(
+                    UtbetalingFixtures.utbetaling1.copy(
+                        status = UtbetalingStatusType.GENERERT,
+                        gjennomforingId = AFT1.id,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
+                    ),
+                    UtbetalingFixtures.utbetaling3.copy(
+                        status = UtbetalingStatusType.GENERERT,
+                        gjennomforingId = VTA1.id,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 2, 1)),
+                    ),
+                    UtbetalingFixtures.utbetaling2.copy(
+                        status = UtbetalingStatusType.GENERERT,
+                        gjennomforingId = AFT1.id,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
+                    ),
+                ),
+                additionalSetup = {
+                    // Bare utbetaling1 og utbetaling3 er blokkert på grunn av manglende tilsagn
+                    queries.utbetaling.setBlokkeringer(
+                        UtbetalingFixtures.utbetaling1.id,
+                        setOf(Utbetaling.Blokkering.MANGLER_TILSAGN),
+                    )
+                    queries.utbetaling.setBlokkeringer(
+                        UtbetalingFixtures.utbetaling3.id,
+                        setOf(Utbetaling.Blokkering.MANGLER_TILSAGN),
+                    )
+                },
+            ).initialize(database.api)
+
+            val service = OppgaverService(database.api, features())
+
+            // Skal se oppgave for begge blokkerte utbetalinger, men ikke for utbetaling2 som ikke er blokkert
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_MANGLER_TILSAGN),
+                PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_MANGLER_TILSAGN),
+            )
+
+            // Skal kunne filtrere på oppgavetype
+            service.oppgaver(
+                oppgavetyper = setOf(OppgaveType.UTBETALING_MANGLER_TILSAGN),
+                tiltakskoder = setOf(),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_MANGLER_TILSAGN),
+                PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_MANGLER_TILSAGN),
+            )
+
+            // Skal kunne filtrere på tiltakskode
+            service.oppgaver(
+                oppgavetyper = setOf(),
+                tiltakskoder = setOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
+                navEnheter = setOf(),
+                arrangorer = setOf(),
+                ansatt = NavAnsattFixture.MikkeMus.medRoller(
+                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
+                ),
+            ) shouldMatchAllOppgaver listOf(
+                PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_MANGLER_TILSAGN),
             )
         }
     }
