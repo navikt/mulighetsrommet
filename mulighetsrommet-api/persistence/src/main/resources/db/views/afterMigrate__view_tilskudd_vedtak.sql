@@ -18,7 +18,7 @@ select v.id,
                    'belop', v.belop
                 )
            END as utbetaling_belop,
-       jsonb_build_object('type', v.vedtak_resultat) as vedtak_resultat,
+       v.vedtak_resultat,
        v.kommentar_vedtaksbrev,
        v.utbetaling_mottaker,
        v.kid,
