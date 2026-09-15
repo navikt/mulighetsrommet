@@ -1322,8 +1322,12 @@ class OppgaverServiceTest : FunSpec({
 
             val behandlingOslo = TilskuddFixtures.Behandling.copy(
                 id = UUID.randomUUID(),
-                kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer,
-                tilskudd = listOf(TilskuddFixtures.Tilskudd.copy(id = UUID.randomUUID())),
+                tilskudd = listOf(
+                    TilskuddFixtures.Tilskudd.copy(
+                        id = UUID.randomUUID(),
+                        kostnadssted = NavEnhetFixtures.Oslo.enhetsnummer,
+                    ),
+                ),
             )
 
             MulighetsrommetTestDomain(

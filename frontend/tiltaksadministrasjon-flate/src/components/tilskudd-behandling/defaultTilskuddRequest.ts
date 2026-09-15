@@ -18,5 +18,11 @@ export function defaultTilskuddRequest(): TilskuddBehandlingRequestTilskuddReque
     vedtakResultat: null,
     utbetalingMottaker: null,
     kidNummer: null,
+    soknadJournalpostId: null,
+    soknadDato: null,
+    periodeStart: null,
+    periodeSlutt: null,
+    kostnadssted: null,
+    kommentarIntern: null,
   };
 }

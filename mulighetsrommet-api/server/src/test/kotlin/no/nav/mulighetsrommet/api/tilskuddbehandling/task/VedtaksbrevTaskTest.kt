@@ -101,7 +101,7 @@ class VedtaksbrevTaskTest : FunSpec({
         task.journalfor(behandlingId).shouldBeRight()
 
         database.run {
-            queries.tilskuddBehandling.getOrError(behandlingId).vedtakJournalpostId shouldBe "121212"
+            queries.tilskuddBehandling.getOrError(behandlingId).tilskudd[0].vedtakJournalpostId shouldBe "121212"
         }
     }
 
@@ -184,23 +184,23 @@ private fun opprettOgAttesterTilskudd(
     val request = TilskuddBehandlingRequest(
         id = behandlingId,
         gjennomforingId = GjennomforingFixtures.EnkelAmo.id,
-        soknadJournalpostId = "J-2024-001",
-        soknadDato = LocalDate.of(2024, 1, 15),
-        periodeStart = "2025-01-01",
-        periodeSlutt = "2025-07-01",
-        kostnadssted = NavEnhetNummer("0502"),
-        kommentarIntern = null,
         tilskudd = listOf(
             TilskuddBehandlingRequest.TilskuddRequest(
                 id = tilskuddVedtakId,
                 tilskuddId = tilskuddId,
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
+                soknadJournalpostId = "J-2024-001",
+                soknadDato = LocalDate.of(2024, 1, 15),
+                periodeStart = "2025-01-01",
+                periodeSlutt = "2025-07-01",
+                kostnadssted = NavEnhetNummer("0502"),
                 soknadBelop = ValutaBelopRequest(belop = 5000, valuta = Valuta.NOK),
                 vedtakResultat = VedtakResultat.INNVILGELSE,
                 kommentarVedtaksbrev = null,
                 utbetalingMottaker = TilskuddMottaker.BRUKER,
                 kidNummer = null,
                 belop = 5000,
+                kommentarIntern = null,
             ),
         ),
     )

@@ -116,7 +116,7 @@ export function TilsagnForm(props: Props) {
                     toDate={toDate}
                   />
                 </HGrid>
-                <VelgKostnadssted kostnadssteder={kostnadssteder} />
+                <VelgKostnadssted fieldName="kostnadssted" kostnadssteder={kostnadssteder} />
                 {props.beregningInput}
                 <FormTextarea<TilsagnRequest>
                   name="kommentar"

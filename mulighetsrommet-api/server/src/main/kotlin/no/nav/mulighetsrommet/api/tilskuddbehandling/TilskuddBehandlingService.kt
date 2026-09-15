@@ -82,14 +82,16 @@ class TilskuddBehandlingService(
         return db.session {
             queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId)
                 .map {
+                    val førsteTilskudd = it.tilskudd.firstOrNull()
+                        ?: error("Tilskuddsbehandling med id=${it.id} mangler tilskudd")
                     TilskuddBehandlingKompakt(
                         id = it.id,
-                        soknadDato = it.soknadDato,
-                        periode = it.periode,
-                        journalpostId = it.soknadJournalpostId,
+                        soknadDato = førsteTilskudd.soknadDato,
+                        periode = førsteTilskudd.periode,
+                        journalpostId = førsteTilskudd.soknadJournalpostId,
                         tilskuddtyper = it.tilskudd.map { tilskudd -> tilskudd.tilskuddOpplaeringType }
                             .toSet(),
-                        kostnadssted = it.kostnadssted,
+                        kostnadssted = førsteTilskudd.kostnadssted,
                         status = it.status,
                         type = it.type,
                         samletVedtakResultat = it.samletVedtakResultat,
@@ -205,10 +207,12 @@ class TilskuddBehandlingService(
             TilskuddBehandlingHandling.OPPHOR.takeIf { behandling.status.type == TilskuddBehandlingStatus.FERDIG_BEHANDLET },
         )
             .filter {
+                val kostnadssted = behandling.tilskudd.firstOrNull()?.kostnadssted?.enhetsnummer
+                    ?: error("Tilskuddsbehandling med id=${behandling.id} mangler tilskudd")
                 tilgangTilHandling(
                     handling = it,
                     navIdent = navIdent,
-                    kostnadssted = behandling.kostnadssted.enhetsnummer,
+                    kostnadssted = kostnadssted,
                     totrinnskontroll = totrinnskontroll,
                 )
             }
