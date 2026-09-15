@@ -40,6 +40,7 @@ export function GjennomforingPage() {
       lenke:
         currentTab === "detaljer" ? undefined : `/gjennomforinger/${detaljer.gjennomforing.id}`,
     },
+    currentTab === "tilskudd" ? { tittel: "Tilskudd" } : undefined,
     currentTab === "tilskudd-behandling" ? { tittel: "Tilskuddsbehandlinger" } : undefined,
     currentTab === "tilskudd-utbetalinger" ? { tittel: "Utbetalinger" } : undefined,
     currentTab === "tilsagn" ? { tittel: "Tilsagnoversikt" } : undefined,
@@ -122,6 +123,7 @@ const ENKELTPLASS_TILSKUDD_TABS: TabConfig[] = [
     label: "Tilskuddsbehandlinger",
   },
   { key: "tilskudd-utbetalinger", label: "Utbetalinger" },
+  { key: "tilskudd", label: "Tilskudd" },
 ];
 
 const ENKELTPLASS_INGEN_KOSTNADER_TABS: TabConfig[] = [{ key: "detaljer", label: "Detaljer" }];
@@ -133,6 +135,7 @@ const TAB_KEYS = [
   "deltakerliste",
   "utbetalinger",
   "tilskudd-utbetalinger",
+  "tilskudd",
 ] as const;
 
 function createTabUrl(gjennomforingId: string, tabKey: string): string {
