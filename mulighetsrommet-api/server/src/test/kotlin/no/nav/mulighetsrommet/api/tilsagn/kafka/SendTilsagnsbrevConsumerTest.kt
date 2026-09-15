@@ -5,8 +5,6 @@ import io.kotest.data.forAll
 import io.kotest.data.row
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
@@ -76,7 +74,7 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
             TotrinnskontrollType.TILSAGN_OPPRETTELSE,
             TotrinnskontrollHendelse.Status.GODKJENT,
         )
-        consumer.consume(hendelse.entityId, Json.encodeToJsonElement(hendelse))
+        consumer.consume(hendelse.entityId, hendelse)
 
         verify(exactly = 1) { saga.schedule(enkeltplassTilsagn.id, any()) }
     }
@@ -90,7 +88,7 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
             TotrinnskontrollType.TILSAGN_OPPRETTELSE,
             TotrinnskontrollHendelse.Status.GODKJENT,
         )
-        consumer.consume(hendelse.entityId, Json.encodeToJsonElement(hendelse))
+        consumer.consume(hendelse.entityId, hendelse)
 
         verify(exactly = 0) { saga.schedule(any(), any()) }
     }
@@ -108,7 +106,7 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
             TotrinnskontrollType.TILSAGN_OPPRETTELSE,
             TotrinnskontrollHendelse.Status.GODKJENT,
         )
-        consumer.consume(hendelse.entityId, Json.encodeToJsonElement(hendelse))
+        consumer.consume(hendelse.entityId, hendelse)
 
         verify(exactly = 0) { saga.schedule(any(), any()) }
     }
@@ -122,7 +120,7 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
             TotrinnskontrollType.TILSAGN_OPPRETTELSE,
             TotrinnskontrollHendelse.Status.GODKJENT,
         )
-        consumer.consume(hendelse.entityId, Json.encodeToJsonElement(hendelse))
+        consumer.consume(hendelse.entityId, hendelse)
 
         verify(exactly = 0) { saga.schedule(any(), any()) }
     }
@@ -141,7 +139,7 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
             val consumer = createConsumer(saga)
 
             val hendelse = opprettHendelseMedStatus(enkeltplassTilsagn.id, type, status)
-            consumer.consume(hendelse.entityId, Json.encodeToJsonElement(hendelse))
+            consumer.consume(hendelse.entityId, hendelse)
 
             verify(exactly = if (shouldBeCalled) 1 else 0) { saga.schedule(enkeltplassTilsagn.id, any()) }
         }

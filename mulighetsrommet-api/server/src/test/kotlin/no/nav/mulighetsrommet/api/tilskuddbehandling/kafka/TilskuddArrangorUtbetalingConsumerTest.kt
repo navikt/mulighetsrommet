@@ -6,8 +6,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.arrangor.BetalingsinformasjonQuery
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
@@ -145,7 +143,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()
-        consumer.consume(behandlingId, Json.encodeToJsonElement(godkjentHendelse))
+        consumer.consume(behandlingId, godkjentHendelse)
 
         database.run {
             val utbetaling = queries.utbetaling.getByGjennomforing(request.gjennomforingId).shouldHaveSize(1)[0]
@@ -165,9 +163,8 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()
-        val hendelse = Json.encodeToJsonElement(godkjentHendelse)
-        consumer.consume(behandlingId, hendelse)
-        consumer.consume(behandlingId, hendelse)
+        consumer.consume(behandlingId, godkjentHendelse)
+        consumer.consume(behandlingId, godkjentHendelse)
 
         database.run {
             queries.utbetaling.getByGjennomforing(request.gjennomforingId).shouldHaveSize(1)
