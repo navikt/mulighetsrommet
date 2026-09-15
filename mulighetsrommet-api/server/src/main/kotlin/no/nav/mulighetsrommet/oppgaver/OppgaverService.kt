@@ -71,11 +71,18 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
             }
             if (oppgavetyper.isEmpty() || oppgavetyper.any { it.kategori == Kategori.UTBETALING }) {
                 addAll(
-                    utbetalingOppgaver(
+                    utbetalingBehandlingOppgaver(
                         tiltakskoder = tiltakskoder,
                         kostnadssteder = navEnheter,
                         arrangorer = arrangorer,
                         ansatt = ansatt,
+                    ),
+                )
+                addAll(
+                    utbetalingManglerTilsangOppgaver(
+                        tiltakskoder = tiltakskoder,
+                        kostnadssteder = navEnheter,
+                        arrangorer = arrangorer,
                     ),
                 )
             }
@@ -160,20 +167,36 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
             .toList()
     }
 
-    private fun QueryContext.utbetalingOppgaver(
+    private fun QueryContext.utbetalingBehandlingOppgaver(
         tiltakskoder: Set<Tiltakskode>,
         kostnadssteder: Set<NavEnhetNummer>,
         arrangorer: Set<UUID>,
         ansatt: NavAnsatt,
     ): List<Oppgave> {
         return queries.oppgave
-            .getUtbetalingOppgaveData(
+            .getUtbetalingBehandlingOppgaveData(
                 tiltakskoder = tiltakskoder.ifEmpty { null },
                 arrangorer = arrangorer.ifEmpty { null },
             )
             .asSequence()
-            .filter { utbetaling -> byKostnadssted(utbetaling, kostnadssteder) }
+            .filter { utbetaling -> byKostnadssted(utbetaling.kostnadssteder, kostnadssteder) }
             .mapNotNull { toOppgave(it, ansatt) }
+            .toList()
+    }
+
+    private fun QueryContext.utbetalingManglerTilsangOppgaver(
+        tiltakskoder: Set<Tiltakskode>,
+        kostnadssteder: Set<NavEnhetNummer>,
+        arrangorer: Set<UUID>,
+    ): List<Oppgave> {
+        return queries.oppgave
+            .getUtbetalingManglerTilsagnOppgaveData(
+                tiltakskoder = tiltakskoder.ifEmpty { null },
+                arrangorer = arrangorer.ifEmpty { null },
+            )
+            .asSequence()
+            .filter { utbetaling -> byKostnadssted(utbetaling.kostnadssteder, kostnadssteder) }
+            .map { toOppgave(it) }
             .toList()
     }
 
@@ -240,13 +263,13 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
     }
 
     private fun byKostnadssted(
-        data: UtbetalingOppgaveData,
-        kostnadssteder: Set<NavEnhetNummer>,
+        kostnadssteder: List<NavEnhetNummer>,
+        kostnadsstedFilter: Set<NavEnhetNummer>,
     ): Boolean = when {
-        kostnadssteder.isEmpty() -> true
+        kostnadsstedFilter.isEmpty() -> true
 
         else -> {
-            data.kostnadssteder.isEmpty() || data.kostnadssteder.any { it in kostnadssteder }
+            kostnadssteder.isEmpty() || kostnadssteder.any { it in kostnadsstedFilter }
         }
     }
 }
@@ -426,7 +449,7 @@ private fun toOppgave(data: UtbetalingLinjeOppgaveData, ansatt: NavAnsatt): Oppg
     }
 }
 
-private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? {
+private fun toOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt): Oppgave? {
     return when (data.status) {
         UtbetalingStatusType.GENERERT,
         UtbetalingStatusType.RETURNERT,
@@ -459,7 +482,23 @@ private fun toOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? 
     }
 }
 
-private fun tilAvbrytelseOppgave(data: UtbetalingOppgaveData, ansatt: NavAnsatt): Oppgave? = Oppgave(
+private fun toOppgave(data: UtbetalingManglerTilsagnOppgaveData) = Oppgave(
+    id = data.id,
+    type = OppgaveType.UTBETALING_MANGLER_TILSAGN,
+    navn = OppgaveType.UTBETALING_MANGLER_TILSAGN.navn,
+    enhet = null,
+    title = getOkonomiOppgaveTitle(data.tiltakstype, data.gjennomforing),
+    description = "Utbetaling for perioden ${data.periode.formatPeriode()} mangler tilsagn",
+    tiltakstype = data.tiltakstype,
+    link = OppgaveLink(
+        linkText = "Se utbetaling",
+        link = "/gjennomforinger/${data.gjennomforing.id}/utbetalinger/${data.id}",
+    ),
+    createdAt = data.godkjentAvArrangorTidspunkt ?: data.createdAt,
+    arrangor = data.arrangor,
+)
+
+private fun tilAvbrytelseOppgave(data: UtbetalingBehandlingOppgaveData, ansatt: NavAnsatt): Oppgave? = Oppgave(
     id = data.id,
     type = OppgaveType.UTBETALING_TIL_AVBRYTELSE,
     navn = OppgaveType.UTBETALING_TIL_AVBRYTELSE.navn,

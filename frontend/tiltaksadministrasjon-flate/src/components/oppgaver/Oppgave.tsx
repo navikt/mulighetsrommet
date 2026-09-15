@@ -65,6 +65,7 @@ function OppgaveIcon({ type, fontSize }: { type: OppgaveType; fontSize?: string 
     case OppgaveType.UTBETALING_TIL_BEHANDLING:
     case OppgaveType.UTBETALING_TIL_ATTESTERING:
     case OppgaveType.UTBETALING_TIL_AVBRYTELSE:
+    case OppgaveType.UTBETALING_MANGLER_TILSAGN:
       return <BankNoteIcon fontSize={fontSize} />;
     case OppgaveType.TILSAGN_TIL_OPPGJOR:
     case OppgaveType.TILSAGN_TIL_ANNULLERING:
@@ -86,6 +87,7 @@ function getOppgaveVariant(type: OppgaveType) {
     case OppgaveType.GJENNOMFORING_MANGLER_ADMINISTRATOR:
     case OppgaveType.ENKELTPLASS_SATT_PA_VENT:
     case OppgaveType.UTBETALING_TIL_AVBRYTELSE:
+    case OppgaveType.UTBETALING_MANGLER_TILSAGN:
       return "warning";
     case OppgaveType.TILSAGN_TIL_ANNULLERING:
     case OppgaveType.TILSAGN_RETURNERT:
