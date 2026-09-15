@@ -228,6 +228,52 @@ class KafkaConsumerOrchestratorTest : FunSpec({
         }
     }
 
+    test("stored records should not be reprocessed by the failed record processor while the topic is not running") {
+        val topic = uniqueTopicName()
+
+        val producer = kafka.stringStringProducer()
+        producer.send(ProducerRecord(topic, "false"))
+        producer.close()
+
+        val config = KafkaTopicConsumer.Config(id = "1", topic, kafka.getConsumerProperties())
+        val consumer = spyk(TestConsumer())
+
+        val orchestrator = KafkaConsumerOrchestrator(
+            defaultConfig.copy(
+                consumerRecordProcessorPollTimeout = Duration.ofMillis(100),
+                consumerRunningStatePollDelay = 10,
+            ),
+            database.db,
+            mapOf(
+                config to consumer,
+            ),
+        )
+
+        // Vent til meldingen har feilet og blitt lagret som en failed record
+        eventually(5.seconds) {
+            orchestrator.getAllStoredConsumerRecords().shouldHaveSize(1)
+        }
+
+        // Pause topicet før vi starter re-prosessering av lagrede records
+        orchestrator.updateRunningTopics(
+            orchestrator.getTopics().map { it.copy(running = false) },
+        )
+        eventually(3.seconds) {
+            orchestrator.getConsumers().first().isRunning shouldBe false
+        }
+
+        orchestrator.enableFailedRecordProcessor()
+
+        // Den lagrede recorden skal bli fjernet (behandlet som OK) uten at consumeren blir kalt på nytt,
+        // siden topicet er satt til å ikke kjøre. Det opprinnelige kallet (som feilet og ble lagret) telles fortsatt.
+        eventually(5.seconds) {
+            orchestrator.getAllStoredConsumerRecords().shouldBeEmpty()
+        }
+        coVerify(exactly = 1) {
+            consumer.consume(null, "false")
+        }
+    }
+
     context("meldinger skedulert via egen header") {
 
         class TestScheduledConsumer(repo: KafkaConsumerRepository) :

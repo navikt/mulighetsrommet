@@ -27,6 +27,12 @@ class KafkaConsumerOrchestrator(
     private val topicRepository = TopicRepository(db)
     private val kafkaConsumerRepository = KafkaConsumerRepositoryImpl(db)
 
+    /**
+     * Cached running-state per consumer id, kept up to date by [updateClientRunningState].
+     */
+    @Volatile
+    private var runningTopics: Map<String, Boolean> = emptyMap()
+
     data class Config(
         /**
          * Whether consumer clients starts in a running state or not.
@@ -66,6 +72,7 @@ class KafkaConsumerOrchestrator(
         validateConsumers(consumers)
 
         resetTopics(config, consumers.keys)
+        runningTopics = topicRepository.getAll().associate { it.id to it.running }
 
         consumersById = consumers.entries.associate { (config, consumer) ->
             config.id to createConsumer(config, consumer)
@@ -125,13 +132,22 @@ class KafkaConsumerOrchestrator(
         config: KafkaTopicConsumer.Config,
         consumer: KafkaTopicConsumer<*, *>,
     ): Consumer {
-        val topicConfig = toTopicConfig(config.topic, consumer, kafkaConsumerRepository)
+        val guardedConsumer = RunningTopicKafkaConsumer(
+            id = config.id,
+            isRunning = { runningTopics[config.id] ?: false },
+            delegate = consumer,
+        )
+        val topicConfig = toTopicConfig(config.topic, guardedConsumer, kafkaConsumerRepository)
         val client = toKafkaConsumerClient(config.consumerProperties, topicConfig)
         return Consumer(topicConfig, client)
     }
 
     private fun updateClientRunningState() {
-        getTopics().forEach {
+        val topics = getTopics()
+
+        runningTopics = topics.associate { it.id to it.running }
+
+        topics.forEach {
             val client = consumersById[it.id]?.client
             if (client != null) {
                 if (client.isRunning && !it.running) {
