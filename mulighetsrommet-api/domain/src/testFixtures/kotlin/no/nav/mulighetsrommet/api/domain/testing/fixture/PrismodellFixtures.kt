@@ -92,4 +92,13 @@ object PrismodellFixtures {
         valuta = Valuta.NOK,
         totalbelop = 10_000.NOK,
     )
+
+    val TilskuddTilOpplaering = Prismodell.TilskuddTilOpplaering(
+        id = UUID.randomUUID(),
+        valuta = Valuta.NOK,
+        tilskudd = mapOf(
+            Opplaeringtilskudd.Kode.SKOLEPENGER to 10_000.NOK,
+        ),
+        tilleggsopplysninger = null,
+    )
 }

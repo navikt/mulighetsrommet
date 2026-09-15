@@ -9,6 +9,7 @@ import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAge
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
+import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -23,11 +24,16 @@ import java.util.UUID
 class SendTilsagnsbrevConsumerTest : FunSpec({
     val database = extension(ApiDatabaseTestListener())
 
-    val enkeltplassGjennomforing = GjennomforingFixtures.EnkelAmo
     val avtaleGjennomforing = GjennomforingFixtures.ArbeidsrettetRehabilitering
+    val enkeltplassAnskaffelse = GjennomforingFixtures.EnkelAmo
+    val enkeltplassTilskudd = GjennomforingFixtures.EnkelAmo.copy(
+        id = UUID.randomUUID(),
+        prismodellId = PrismodellFixtures.TilskuddTilOpplaering.id,
+    )
 
-    val enkeltplassTilsagn = TilsagnFixtures.createTilsagn(gjennomforingId = enkeltplassGjennomforing.id, lopenummer = 1)
     val avtaleTilsagn = TilsagnFixtures.createTilsagn(gjennomforingId = avtaleGjennomforing.id, lopenummer = 2)
+    val anskaffelseTilsagn = TilsagnFixtures.createTilsagn(gjennomforingId = enkeltplassAnskaffelse.id, lopenummer = 1)
+    val tilskuddTilsagn = TilsagnFixtures.createTilsagn(gjennomforingId = enkeltplassTilskudd.id, lopenummer = 3)
 
     fun createConsumer(sendTilsagnsbrevSaga: SendTilsagnsbrevSaga = mockk(relaxed = true)): SendTilsagnsbrevConsumer {
         return SendTilsagnsbrevConsumer(
@@ -57,11 +63,17 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
         MulighetsrommetTestDomain(
             ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
             avtaler = listOf(AvtaleFixtures.ARR),
-            gjennomforinger = listOf(enkeltplassGjennomforing, avtaleGjennomforing),
-            tilsagn = listOf(enkeltplassTilsagn, avtaleTilsagn),
+            prismodeller = listOf(
+                PrismodellFixtures.AnnenAvtaltPris,
+                PrismodellFixtures.AnskaffetEnkeltplass,
+                PrismodellFixtures.TilskuddTilOpplaering,
+            ),
+            gjennomforinger = listOf(avtaleGjennomforing, enkeltplassAnskaffelse, enkeltplassTilskudd),
+            tilsagn = listOf(avtaleTilsagn, anskaffelseTilsagn, tilskuddTilsagn),
         ) {
-            setTilsagnStatus(enkeltplassTilsagn, TilsagnStatus.GODKJENT)
             setTilsagnStatus(avtaleTilsagn, TilsagnStatus.GODKJENT)
+            setTilsagnStatus(anskaffelseTilsagn, TilsagnStatus.GODKJENT)
+            setTilsagnStatus(tilskuddTilsagn, TilsagnStatus.GODKJENT)
         }.initialize(database.api)
     }
 
@@ -70,13 +82,13 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
         val consumer = createConsumer(saga)
 
         val hendelse = opprettHendelseMedStatus(
-            enkeltplassTilsagn.id,
+            anskaffelseTilsagn.id,
             TotrinnskontrollType.TILSAGN_OPPRETTELSE,
             TotrinnskontrollHendelse.Status.GODKJENT,
         )
         consumer.consume(hendelse.entityId, hendelse)
 
-        verify(exactly = 1) { saga.schedule(enkeltplassTilsagn.id, any()) }
+        verify(exactly = 1) { saga.schedule(anskaffelseTilsagn.id, any()) }
     }
 
     test("skedulerer ikke tilsagnsbrev for tilsagn tilhørende en gjennomføring som ikke er enkeltplass") {
@@ -93,16 +105,30 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
         verify(exactly = 0) { saga.schedule(any(), any()) }
     }
 
+    test("skedulerer ikke tilsagnsbrev for enkeltplass-gjennomføring med annen prismodell enn anskaffet enkeltplass") {
+        val saga = mockk<SendTilsagnsbrevSaga>(relaxed = true)
+        val consumer = createConsumer(saga)
+
+        val hendelse = opprettHendelseMedStatus(
+            tilskuddTilsagn.id,
+            TotrinnskontrollType.TILSAGN_OPPRETTELSE,
+            TotrinnskontrollHendelse.Status.GODKJENT,
+        )
+        consumer.consume(hendelse.entityId, hendelse)
+
+        verify(exactly = 0) { saga.schedule(any(), any()) }
+    }
+
     test("skedulerer ikke tilsagnsbrev dersom tilsagnet ikke lenger er godkjent (gammel hendelse)") {
         val saga = mockk<SendTilsagnsbrevSaga>(relaxed = true)
         val consumer = createConsumer(saga)
 
         database.api.session {
-            setTilsagnStatus(enkeltplassTilsagn, TilsagnStatus.RETURNERT)
+            setTilsagnStatus(anskaffelseTilsagn, TilsagnStatus.RETURNERT)
         }
 
         val hendelse = opprettHendelseMedStatus(
-            enkeltplassTilsagn.id,
+            anskaffelseTilsagn.id,
             TotrinnskontrollType.TILSAGN_OPPRETTELSE,
             TotrinnskontrollHendelse.Status.GODKJENT,
         )
@@ -138,10 +164,10 @@ class SendTilsagnsbrevConsumerTest : FunSpec({
             val saga = mockk<SendTilsagnsbrevSaga>(relaxed = true)
             val consumer = createConsumer(saga)
 
-            val hendelse = opprettHendelseMedStatus(enkeltplassTilsagn.id, type, status)
+            val hendelse = opprettHendelseMedStatus(anskaffelseTilsagn.id, type, status)
             consumer.consume(hendelse.entityId, hendelse)
 
-            verify(exactly = if (shouldBeCalled) 1 else 0) { saga.schedule(enkeltplassTilsagn.id, any()) }
+            verify(exactly = if (shouldBeCalled) 1 else 0) { saga.schedule(anskaffelseTilsagn.id, any()) }
         }
     }
 })

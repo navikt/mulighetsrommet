@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.kafka
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
+import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnStatus
@@ -47,6 +48,9 @@ class SendTilsagnsbrevConsumer(
 
         val gjennomforing = db.session { queries.gjennomforing.getGjennomforingOrError(tilsagn.gjennomforing.id) }
         if (gjennomforing !is GjennomforingEnkeltplass) {
+            return
+        }
+        if (gjennomforing.prismodell !is Prismodell.AnskaffetEnkeltplass) {
             return
         }
 
