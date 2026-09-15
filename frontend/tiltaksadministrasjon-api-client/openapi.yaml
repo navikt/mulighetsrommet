@@ -9313,6 +9313,8 @@ components:
         id:
           type: string
           format: uuid
+        tilskuddsnummer:
+          type: string
         tilskuddId:
           type: string
           format: uuid
@@ -9343,6 +9345,7 @@ components:
       - soknadBelop
       - tilskuddId
       - tilskuddOpplaeringType
+      - tilskuddsnummer
       - utbetalingBelop
       - utbetalingMottaker
       - vedtakResultat
