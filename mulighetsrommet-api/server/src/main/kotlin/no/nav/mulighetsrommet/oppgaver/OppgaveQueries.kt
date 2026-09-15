@@ -453,7 +453,7 @@ class OppgaveQueries(private val session: Session) {
                 gjennomforing.gjennomforing_type,
                 tiltakstype.navn as tiltakstype_navn,
                 tiltakstype.tiltakskode as tiltakstype_tiltakskode,
-                ks.kostnadssteder,
+                enheter.enheter,
                 arrangor.navn as arrangor_navn,
                 arrangor.id as arrangor_id,
                 arrangor.organisasjonsnummer as arrangor_organisasjonsnummer
@@ -462,11 +462,10 @@ class OppgaveQueries(private val session: Session) {
                 inner join arrangor on gjennomforing.arrangor_id = arrangor.id
                 join tiltakstype on gjennomforing.tiltakstype_id = tiltakstype.id
                 left join lateral (
-                    select array_agg(tilsagn.kostnadssted) as kostnadssteder
-                    from tilsagn
-                    where tilsagn.gjennomforing_id = utbetaling.gjennomforing_id
-                      and tilsagn.periode && utbetaling.periode
-                ) ks on true
+                    select array_agg(gjennomforing_nav_enhet.enhetsnummer) as enheter
+                    from gjennomforing_nav_enhet
+                    where gjennomforing_nav_enhet.gjennomforing_id = utbetaling.gjennomforing_id
+                ) enheter on true
                 inner join utbetaling_blokkering on utbetaling_blokkering.utbetaling_id = utbetaling.id
             where
                 (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
@@ -486,7 +485,7 @@ class OppgaveQueries(private val session: Session) {
                 createdAt = row.localDateTime("created_at"),
                 godkjentAvArrangorTidspunkt = row.localDateTimeOrNull("innsendt_av_arrangor_tidspunkt"),
                 status = UtbetalingStatusType.valueOf(row.string("status")),
-                kostnadssteder = row.arrayOrNull<String>("kostnadssteder")?.map { NavEnhetNummer(it) } ?: emptyList(),
+                gjennomforingNavEnheter = row.arrayOrNull<String>("enheter")?.map { NavEnhetNummer(it) } ?: emptyList(),
                 tiltakstype = row.toOppgaveTiltakstype(),
                 gjennomforing = row.toOppgaveGjennomforing(),
                 arrangor = OppgaveArrangor(
@@ -704,7 +703,7 @@ data class UtbetalingManglerTilsagnOppgaveData(
     val periode: Periode,
     val createdAt: LocalDateTime,
     val godkjentAvArrangorTidspunkt: LocalDateTime?,
-    val kostnadssteder: List<NavEnhetNummer>,
+    val gjennomforingNavEnheter: List<NavEnhetNummer>,
     val tiltakstype: OppgaveTiltakstype,
     val gjennomforing: OppgaveGjennomforing,
     val arrangor: OppgaveArrangor,

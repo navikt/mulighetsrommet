@@ -195,7 +195,7 @@ class OppgaverService(val db: ApiDatabase, private val features: FeatureToggleSe
                 arrangorer = arrangorer.ifEmpty { null },
             )
             .asSequence()
-            .filter { utbetaling -> byKostnadssted(utbetaling.kostnadssteder, kostnadssteder) }
+            .filter { utbetaling -> byKostnadssted(utbetaling.gjennomforingNavEnheter, kostnadssteder) }
             .map { toOppgave(it) }
             .toList()
     }
