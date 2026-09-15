@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory
 const val VALP_BEHANDLINGSNUMMER: String = "B450"
 
 class PdlClient(
-    private val config: Config,
-    private val tokenProvider: TokenProvider,
+    @PublishedApi internal val config: Config,
+    @PublishedApi internal val tokenProvider: TokenProvider,
     clientEngine: HttpClientEngine,
 ) {
     data class Config(
@@ -38,9 +38,9 @@ class PdlClient(
         val maxRetries: Int = 0,
     )
 
-    private val log = LoggerFactory.getLogger(javaClass)
+    @PublishedApi internal val log = LoggerFactory.getLogger(javaClass)
 
-    private val client = httpJsonClient(clientEngine).config {
+    @PublishedApi internal val client = httpJsonClient(clientEngine).config {
         install(HttpCache)
         install(HttpRequestRetry) {
             retryOnException(maxRetries = config.maxRetries, retryOnTimeout = true)
@@ -51,7 +51,7 @@ class PdlClient(
         }
     }
 
-    internal suspend inline fun <reified T, reified V> graphqlRequest(
+    suspend inline fun <reified T, reified V> graphqlRequest(
         req: GraphqlRequest<T>,
         accessType: AccessType,
     ): Either<PdlError, V> {

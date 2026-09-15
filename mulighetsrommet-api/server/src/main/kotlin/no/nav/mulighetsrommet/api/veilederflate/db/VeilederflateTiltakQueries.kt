@@ -5,7 +5,6 @@ import kotliquery.Row
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.veilederflate.models.EstimertVentetid
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangorKontaktperson
@@ -136,7 +135,7 @@ private fun Row.toTiltaksgjennomforing(): Tiltaksgjennomforing {
         ?.let { Json.decodeFromString<List<VeilederflateArrangorKontaktperson>>(it) }
         ?: emptyList()
     val stengt = stringOrNull("stengt_perioder_json")
-        ?.let { Json.decodeFromString<List<GjennomforingAvtale.StengtPeriode>>(it) }
+        ?.let { Json.decodeFromString<List<Tiltaksgjennomforing.StengtPeriode>>(it) }
         ?: emptyList()
 
     val status = GjennomforingStatusType.valueOf(string("status"))

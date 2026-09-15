@@ -7,7 +7,7 @@ import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeKombinasjon
 import no.nav.mulighetsrommet.api.clients.norg2.Norg2Type
 import no.nav.mulighetsrommet.api.domain.redaksjoneltinnhold.RedaksjoneltInnholdLenke
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeFeature
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale.StengtPeriode
+import no.nav.mulighetsrommet.api.veilederflate.db.Tiltaksgjennomforing
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -69,7 +69,7 @@ data class VeilederflateTiltakGruppe(
     val estimertVentetid: EstimertVentetid?,
     val personvernBekreftet: Boolean,
     val personopplysningerSomKanBehandles: List<Personopplysning>,
-    val stengtPerioder: List<StengtPeriode>,
+    val stengtPerioder: List<Tiltaksgjennomforing.StengtPeriode>,
 ) : VeilederflateTiltak()
 
 @Serializable

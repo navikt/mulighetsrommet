@@ -52,7 +52,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
         Deferred,
     }
 
-    private val client: HttpClient = HttpClient(engine) {
+    @PublishedApi internal val client: HttpClient = HttpClient(engine) {
         expectSuccess = false
 
         install(Logging) {
@@ -104,7 +104,7 @@ class SanityClient(engine: HttpClientEngine = CIO.create(), val config: Config) 
 
     data class MutateResponse(val status: HttpStatusCode, val body: String)
 
-    internal suspend inline fun <reified T> mutate(
+    suspend inline fun <reified T> mutate(
         mutations: List<Mutation<T>>,
         returnIds: Boolean = false,
         returnDocuments: Boolean = false,
@@ -139,7 +139,7 @@ class SanityParam private constructor(val key: String, val value: String) {
             return SanityParam(key, encodedValue)
         }
 
-        internal fun of(key: String, value: UUID): SanityParam {
+        fun of(key: String, value: UUID): SanityParam {
             return SanityParam(key, "\"$value\"")
         }
     }

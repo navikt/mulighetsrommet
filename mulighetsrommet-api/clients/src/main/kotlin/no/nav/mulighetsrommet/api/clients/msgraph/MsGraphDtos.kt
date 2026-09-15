@@ -12,7 +12,7 @@ internal data class AddMemberRequest(
 )
 
 @Serializable
-internal data class GetGroupMembersResponse(
+data class GetGroupMembersResponse(
     val value: List<MsGraphUserDto>,
     @SerialName("@odata.nextLink")
     val nextLink: String? = null,
@@ -24,7 +24,7 @@ internal data class GetMemberGroupsRequest(
 )
 
 @Serializable
-internal data class GetMemberGroupsResponse(
+data class GetMemberGroupsResponse(
     val value: List<
         @Serializable(with = UUIDSerializer::class)
         UUID,
@@ -32,6 +32,6 @@ internal data class GetMemberGroupsResponse(
 )
 
 @Serializable
-internal data class GetUserSearchResponse(
+data class GetUserSearchResponse(
     val value: List<MsGraphUserDto>,
 )

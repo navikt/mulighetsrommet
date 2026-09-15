@@ -5,7 +5,7 @@ import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import java.util.UUID
 
 @Serializable
-internal data class MsGraphUserDto(
+data class MsGraphUserDto(
     /**
      * Object ID i Azure AD
      */

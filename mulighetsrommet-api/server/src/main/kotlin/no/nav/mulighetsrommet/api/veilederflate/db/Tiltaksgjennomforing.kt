@@ -1,6 +1,6 @@
 package no.nav.mulighetsrommet.api.veilederflate.db
 
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.veilederflate.models.EstimertVentetid
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateArrangor
 import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfo
@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import java.time.LocalDate
 import java.util.UUID
 
@@ -34,5 +35,15 @@ data class Tiltaksgjennomforing(
     val personvernBekreftet: Boolean,
     val personopplysningerSomKanBehandles: List<Personopplysning>,
     val lopenummer: String,
-    val stengt: List<GjennomforingAvtale.StengtPeriode>,
-)
+    val stengt: List<StengtPeriode>,
+) {
+    @Serializable
+    data class StengtPeriode(
+        val id: Int,
+        @Serializable(with = LocalDateSerializer::class)
+        val start: LocalDate,
+        @Serializable(with = LocalDateSerializer::class)
+        val slutt: LocalDate,
+        val beskrivelse: String,
+    )
+}
