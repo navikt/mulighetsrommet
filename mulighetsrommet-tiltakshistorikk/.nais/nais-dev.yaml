@@ -105,6 +105,12 @@ spec:
           permissions:
             roles:
               - tiltakshistorikk-read
+        - application: dp-oppslag-tiltak
+          namespace: teamdagpenger
+          cluster: dev-gcp
+          permissions:
+            roles:
+              - tiltakshistorikk-read
     outbound:
       external:
         - host: data.brreg.no
