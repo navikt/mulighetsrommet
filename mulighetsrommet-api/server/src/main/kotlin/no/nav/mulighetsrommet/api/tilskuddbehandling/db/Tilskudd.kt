@@ -33,3 +33,13 @@ data class Tilskudd(
         val vedtakJournalpostId: String?,
     )
 }
+
+data class TilskuddKompakt(
+    val id: UUID,
+    val type: Opplaeringtilskudd,
+    val gjennomforingId: UUID,
+    val tilskuddsnummer: String,
+    val sisteVedtakResultat: VedtakResultat?,
+    val periode: Periode?,
+    val sisteVedtakLopenummer: Int?
+)

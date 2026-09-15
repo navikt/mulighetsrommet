@@ -3924,6 +3924,68 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/gjennomforing/{gjennomforingId}/tilskudd:
+    get:
+      tags:
+      - Tilskudd
+      description: Hent alle tilskudds for en gjennomføring
+      operationId: getAllTilskuddKompakt
+      parameters:
+      - name: gjennomforingId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Liste av tilskudd
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/gjennomforing/{gjennomforingId}/tilskudd/{tilskuddId}:
+    get:
+      tags:
+      - Tilskudd
+      description: Hent tilskudds gitt id
+      operationId: getTilskudd
+      parameters:
+      - name: tilskuddId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Tilskudd
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/historikk/{id}:
     get:
       tags:

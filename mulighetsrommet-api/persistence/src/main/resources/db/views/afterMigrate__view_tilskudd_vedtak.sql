@@ -1,6 +1,7 @@
 create or replace view view_tilskudd_vedtak as
 select v.id,
        v.tilskudd_id,
+       v.lopenummer,
        v.tilskudd_behandling_id,
        v.soknad_journalpost_id,
        v.soknad_dato,

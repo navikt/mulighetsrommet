@@ -14,6 +14,7 @@ import java.util.UUID
 
 class TilskuddQueries(private val session: Session) {
     fun get(id: UUID): Tilskudd? {
+        @Language("PostgreSQL")
         val vedtakQuery = """
             select * from view_tilskudd_vedtak
             where tilskudd_id = :id::uuid
@@ -38,6 +39,39 @@ class TilskuddQueries(private val session: Session) {
         """.trimIndent()
 
         return session.single(queryOf(tilskuddQuery, mapOf("id" to id))) { it.toTilskudd(vedtak) }
+    }
+
+    fun getAll(gjennomforingId: UUID): List<TilskuddKompakt> {
+        @Language("PostgreSQL")
+        val query = """
+            select
+                t.id,
+                jsonb_build_object(
+                   'id', o.id,
+                   'navn', o.navn,
+                   'kode', o.kode
+                ) as tilskudd_opplaering,
+                t.gjennomforing_id,
+                t.tilskuddsnummer,
+                siste_vedtak.vedtak_resultat,
+                siste_vedtak.periode,
+                siste_vedtak.lopenummer
+            from tilskudd t
+            inner join tilskudd_opplaering o on o.id = t.tilskudd_opplaering_id
+            left join lateral (
+                select tv.vedtak_resultat,
+                       tv.periode,
+                       tv.lopenummer
+                from tilskudd_vedtak tv
+                where tv.tilskudd_id = t.id
+                order by tv.lopenummer desc
+                limit 1
+            ) siste_vedtak on true
+            where t.gjennomforing_id = :gjennomforingId::uuid
+            order by t.tilskuddsnummer
+        """.trimIndent()
+
+        return session.list(queryOf(query, mapOf("gjennomforingId" to gjennomforingId))) { it.toTilskuddKompakt() }
     }
 }
 
@@ -67,5 +101,17 @@ private fun Row.toVedtak(): Tilskudd.Vedtak {
         kid = stringOrNull("kid")?.let { Kid.parse(it) },
         kommentarIntern = stringOrNull("kommentar_intern"),
         vedtakJournalpostId = stringOrNull("vedtak_journalpost_id"),
+    )
+}
+
+private fun Row.toTilskuddKompakt(): TilskuddKompakt {
+    return TilskuddKompakt(
+        id = uuid("id"),
+        type = Json.decodeFromString(string("tilskudd_opplaering")),
+        gjennomforingId = uuid("gjennomforing_id"),
+        tilskuddsnummer = string("tilskuddsnummer"),
+        periode = periode("periode"),
+        sisteVedtakResultat = stringOrNull("vedtak_resultat")?.let { VedtakResultat.valueOf(it) },
+        sisteVedtakLopenummer = int("lopenummer"),
     )
 }
