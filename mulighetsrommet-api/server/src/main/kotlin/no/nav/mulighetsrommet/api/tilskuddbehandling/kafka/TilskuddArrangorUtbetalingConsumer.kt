@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.kafka
 
 import arrow.core.flatMap
 import arrow.core.getOrElse
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.decodeFromJsonElement
 import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
@@ -21,6 +19,7 @@ import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer
 import no.nav.mulighetsrommet.api.utbetaling.model.AutomatisertUtbetalingResult
 import no.nav.mulighetsrommet.api.utbetaling.model.UpsertUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.model.Utbetaling
@@ -28,44 +27,33 @@ import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningFri
 import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.database.requireSingle
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.okonomi.Tilskuddstype
 import org.intellij.lang.annotations.Language
-import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class TilskuddArrangorUtbetalingConsumer(
     private val db: ApiDatabase,
     private val utbetalingService: UtbetalingService,
     private val tilsagnService: TilsagnService,
-) : KafkaTopicConsumer<UUID, JsonElement>(
+) : KafkaTopicConsumer<UUID, TotrinnskontrollHendelse>(
     uuidDeserializer(),
-    JsonElementDeserializer(),
+    TotrinnskontrollHendelseDeserializer(),
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
-    override suspend fun consume(key: UUID, message: JsonElement) {
+    override suspend fun consume(key: UUID, message: TotrinnskontrollHendelse) {
         val isRunning = db.session { isTopicRunning(this.session, "tilskudd-arrangor-utbetaling") }
         if (!isRunning) {
             return
         }
 
-        val totrinnskontrollHendelse = JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelse?>(message)
-        if (totrinnskontrollHendelse == null) {
-            logger.warn("Mottok tombstone for totrinnskontroll med key=$key")
+        if (message.type != TotrinnskontrollType.TILSKUDD_OPPRETTELSE) {
             return
         }
-
-        if (totrinnskontrollHendelse.type != TotrinnskontrollType.TILSKUDD_OPPRETTELSE) {
-            return
-        }
-        if (totrinnskontrollHendelse.status != TotrinnskontrollHendelse.Status.GODKJENT) {
+        if (message.status != TotrinnskontrollHendelse.Status.GODKJENT) {
             return
         }
 

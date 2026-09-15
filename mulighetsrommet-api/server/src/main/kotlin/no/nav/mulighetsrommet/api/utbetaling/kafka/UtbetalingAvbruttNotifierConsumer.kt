@@ -1,42 +1,33 @@
 package no.nav.mulighetsrommet.api.utbetaling.kafka
 
 import arrow.core.nonEmptyListOf
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelse
-import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollHendelseOld
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
+import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import java.time.Instant
 import java.util.*
 
 class UtbetalingAvbruttNotifierConsumer(
     private val db: ApiDatabase,
     private val navAnsattService: NavAnsattService,
-) : KafkaTopicConsumer<UUID, JsonElement>(
+) : KafkaTopicConsumer<UUID, TotrinnskontrollHendelse>(
     uuidDeserializer(),
-    JsonElementDeserializer(),
+    TotrinnskontrollHendelseDeserializer(),
 ) {
-    override suspend fun consume(key: UUID, message: JsonElement) {
-        val totrinnskontrollHendelse = try {
-            JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelse?>(message)
-        } catch (_: Throwable) {
-            JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelseOld>(message).toNew()
-        }
-        if (totrinnskontrollHendelse == null || totrinnskontrollHendelse.type != TotrinnskontrollType.UTBETALING_AVBRYTELSE) {
+    override suspend fun consume(key: UUID, message: TotrinnskontrollHendelse) {
+        if (message.type != TotrinnskontrollType.UTBETALING_AVBRYTELSE) {
             return
         }
 
-        if (totrinnskontrollHendelse.status == TotrinnskontrollHendelse.Status.RETURNERT) {
-            informerSaksbehandlerAvslattAvbytelse(totrinnskontrollHendelse)
+        if (message.status == TotrinnskontrollHendelse.Status.RETURNERT) {
+            informerSaksbehandlerAvslattAvbytelse(message)
         }
     }
 

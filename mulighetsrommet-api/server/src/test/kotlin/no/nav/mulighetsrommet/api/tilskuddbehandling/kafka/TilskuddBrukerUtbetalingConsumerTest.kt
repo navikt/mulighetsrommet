@@ -9,8 +9,6 @@ import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.encodeToJsonElement
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
@@ -142,7 +140,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
-        createConsumer().consume(behandlingId, Json.encodeToJsonElement(godkjentHendelse))
+        createConsumer().consume(behandlingId, godkjentHendelse)
 
         val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }
 
@@ -165,9 +163,8 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()
-        val hendelse = Json.encodeToJsonElement(godkjentHendelse)
-        consumer.consume(behandlingId, hendelse)
-        consumer.consume(behandlingId, hendelse)
+        consumer.consume(behandlingId, godkjentHendelse)
+        consumer.consume(behandlingId, godkjentHendelse)
 
         verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
     }
@@ -182,7 +179,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
 
         val besluttetTidspunkt = Instant.parse("2025-03-15T10:00:00Z")
         val hendelse = godkjentHendelse.copy(besluttetTidspunkt = besluttetTidspunkt)
-        createConsumer().consume(behandlingId, Json.encodeToJsonElement(hendelse))
+        createConsumer().consume(behandlingId, hendelse)
 
         val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }
         result.shouldNotBeNull()
@@ -212,20 +209,25 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         )
         val consumer = createConsumer()
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+
         val besluttetTidspunkt = Instant.parse("2025-03-15T10:00:00Z")
-        consumer.consume(behandlingId, Json.encodeToJsonElement(godkjentHendelse.copy(besluttetTidspunkt = besluttetTidspunkt)))
+        consumer.consume(behandlingId, godkjentHendelse.copy(besluttetTidspunkt = besluttetTidspunkt))
 
-        val forsteUtbetaling = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }.shouldNotBeNull()
+        val forsteUtbetaling = database.api.session {
+            queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId)
+        }.shouldNotBeNull()
 
-        val revurderingBehandlingId = service.revurderingOpphor(tilskuddVedtakId, behandlingId, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+        val revurderingBehandlingId = service
+            .revurderingOpphor(tilskuddVedtakId, behandlingId, NavAnsattFixture.DonaldDuck.navIdent)
+            .shouldBeRight()
 
-        val hendelse = godkjentHendelse.copy(
+        val revurderingHendelse = godkjentHendelse.copy(
             entityId = revurderingBehandlingId,
             type = TotrinnskontrollType.TILSKUDD_OPPHOR,
             besluttetTidspunkt = besluttetTidspunkt,
         )
 
-        consumer.consume(revurderingBehandlingId, Json.encodeToJsonElement(hendelse))
+        consumer.consume(revurderingBehandlingId, revurderingHendelse)
 
         val result = database.api.session { queries.brukerUtbetaling.getLastFromTilskudd(tilskuddId) }
         result.shouldNotBeNull()

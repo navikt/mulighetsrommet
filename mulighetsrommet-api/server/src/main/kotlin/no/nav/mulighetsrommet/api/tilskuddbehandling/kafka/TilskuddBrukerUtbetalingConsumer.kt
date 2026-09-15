@@ -1,7 +1,5 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.kafka
 
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.uuidDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -21,15 +19,14 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddOpplaeringDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.totrinnskontroll.kafka.TotrinnskontrollHendelseDeserializer
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
-import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import org.slf4j.LoggerFactory
 import java.time.Instant
 import java.util.UUID
@@ -38,33 +35,28 @@ class TilskuddBrukerUtbetalingConsumer(
     private val db: ApiDatabase,
     private val personaliaService: PersonaliaService,
     private val brukerUtbetalingService: BrukerUtbetalingService,
-) : KafkaTopicConsumer<UUID, JsonElement>(
+) : KafkaTopicConsumer<UUID, TotrinnskontrollHendelse>(
     uuidDeserializer(),
-    JsonElementDeserializer(),
+    TotrinnskontrollHendelseDeserializer(),
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    override suspend fun consume(key: UUID, message: JsonElement) {
+    override suspend fun consume(key: UUID, message: TotrinnskontrollHendelse) {
         val isRunning = db.session { isTopicRunning(this.session, "tilskudd-bruker-utbetaling") }
         if (!isRunning) {
             return
         }
-        val totrinnskontrollHendelse = JsonIgnoreUnknownKeys.decodeFromJsonElement<TotrinnskontrollHendelse?>(message)
-        if (totrinnskontrollHendelse == null) {
-            logger.warn("Mottok tombstone for totrinnskontroll med key=$key")
-            return
-        }
 
-        if (totrinnskontrollHendelse.status != TotrinnskontrollHendelse.Status.GODKJENT) {
+        if (message.status != TotrinnskontrollHendelse.Status.GODKJENT) {
             return
         }
-        if (!listOf(TotrinnskontrollType.TILSKUDD_OPPRETTELSE, TotrinnskontrollType.TILSKUDD_OPPHOR).contains(totrinnskontrollHendelse.type)) {
+        if (!listOf(TotrinnskontrollType.TILSKUDD_OPPRETTELSE, TotrinnskontrollType.TILSKUDD_OPPHOR).contains(message.type)) {
             return
         }
 
         val behandling = db.session { queries.tilskuddBehandling.get(key) }
             ?: throw IllegalStateException("Fant ikke attestert tilskudd_behandling id=$key")
-        utbetalTilskuddTilBruker(behandling, totrinnskontrollHendelse)
+        utbetalTilskuddTilBruker(behandling, message)
     }
 
     private suspend fun utbetalTilskuddTilBruker(
