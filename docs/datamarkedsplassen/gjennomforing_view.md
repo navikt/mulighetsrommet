@@ -15,7 +15,6 @@ View: `gjennomforing_view`
 | `status`              | STRING        | [Status til gjennomføringen](#gjennomføring-status)                                                                                                                                                                                       |
 | `opprettet_tidspunkt` | TIMESTAMP     | Tidspunktet (UTC) som gjennomføringen ble opprettet (i databasen). Merk at dette tidspunktet ofte ikke samsvarer med når gjennomføringen initielt ble opprettet (gjelder bl.a. for alle gjennomføringer som har blitt overført fra Arena) |
 | `oppdatert_tidspunkt` | TIMESTAMP     | Tidspunktet (UTC) som gjennomføringen sist ble oppdatert (i databasen)                                                                                                                                                                    |
-| `avsluttet_tidspunkt` | TIMESTAMP     | Tidspunktet (UTC) som gjennomføringen ble avsluttet, null om den fortsatt er aktiv                                                                                                                                                        |
 
 ## Gjennomføring status
 
