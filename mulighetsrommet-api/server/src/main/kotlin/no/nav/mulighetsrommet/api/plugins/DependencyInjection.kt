@@ -101,6 +101,7 @@ import no.nav.mulighetsrommet.api.sanity.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilsagn.kafka.ReplikerBestillingStatusConsumer
+import no.nav.mulighetsrommet.api.tilsagn.kafka.SendTilsagnsbrevConsumer
 import no.nav.mulighetsrommet.api.tilsagn.task.SendTilsagnsbrevSaga
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddArrangorUtbetalingConsumer
@@ -259,6 +260,7 @@ private fun kafka(appConfig: AppConfig) = module {
             ),
             config.clients.helvedUtbetalingStatusV1 to HelvedStatusV1KafkaConsumer(get()),
             config.clients.utbetalingAvbruttNotifier to UtbetalingAvbruttNotifierConsumer(get(), get()),
+            config.clients.sendTilsagnsbrev to SendTilsagnsbrevConsumer(get(), get()),
         )
         KafkaConsumerOrchestrator(
             db = get(),
