@@ -9,7 +9,7 @@ from tilskudd_behandling tb
     select coalesce(jsonb_agg(
                             jsonb_build_object(
                                     'id', v.id,
-                                    'sak_id', tilskudd.sak_id,
+                                    'tilskuddsnummer', tilskudd.tilskuddsnummer,
                                     'tilskudd_id', v.tilskudd_id,
                                     'soknad_journalpost_id', v.soknad_journalpost_id,
                                     'soknad_dato', v.soknad_dato,

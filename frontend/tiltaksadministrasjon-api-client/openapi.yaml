@@ -9313,7 +9313,7 @@ components:
         id:
           type: string
           format: uuid
-        sakId:
+        tilskuddsnummer:
           type: string
         tilskuddId:
           type: string
@@ -9342,10 +9342,10 @@ components:
       - id
       - kid
       - kommentarVedtaksbrev
-      - sakId
       - soknadBelop
       - tilskuddId
       - tilskuddOpplaeringType
+      - tilskuddsnummer
       - utbetalingBelop
       - utbetalingMottaker
       - vedtakResultat
