@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingQueries
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
 import no.nav.mulighetsrommet.api.veilederflate.db.VeilederflateTiltakQueries
@@ -111,6 +112,7 @@ open class QueryContext(open val session: Session, topics: KafkaTopics) {
         val kafkaConsumerRecords = KafkaConsumerRecordQueries(session)
         val opplaeringtilskudd = OpplaeringtilskuddQueries(session)
         val tilskuddBehandling = TilskuddBehandlingQueries(session)
+        val tilskudd = TilskuddQueries(session)
         val brukerUtbetaling = BrukerUtbetalingQueries(session)
     }
 
