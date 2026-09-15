@@ -68,6 +68,7 @@ import { TiltakDokumentPage } from "./pages/tiltak-dokument/TiltakDokumentPage";
 import { TiltakDokumentDetaljer } from "./pages/tiltak-dokument/TiltakDokumentDetaljer";
 import { TiltakDokumentRedaksjoneltInnhold } from "./pages/tiltak-dokument/TiltakDokumentRedaksjoneltInnhold";
 import { RedigerTiltakDokumentPage } from "./pages/tiltak-dokument/RedigerTiltakDokumentPage";
+import { TilskuddPage } from "./pages/tilskudd/TilskuddPage";
 
 import { APPLICATION_NAME } from "./constants";
 
@@ -148,6 +149,7 @@ const GJENNOMFORING_ROUTES: RouteObject[] = [
   { path: "redaksjonelt-innhold", element: <GjennomforingRedaksjoneltInnhold /> },
   { path: "deltakerliste/*", element: <DeltakerlisteContainer /> },
   { path: "tilskudd-behandling", element: <TilskuddBehandlingerPage /> },
+  { path: "tilskudd", element: <TilskuddPage /> },
   { path: "tilsagn", element: <TilsagnForGjennomforingPage /> },
   { path: "utbetalinger", element: <UtbetalingerForGjennomforingContainer /> },
   { path: "tilskudd-utbetalinger", element: <TilskuddUtbetalingerForGjennomforingContainer /> },
@@ -255,6 +257,10 @@ const routes: RouteObject[] = [
         element: <TilsagnPage />,
         children: TILSAGN_ROUTES,
       }),
+      {
+        path: "gjennomforinger/:gjennomforingId/tilskudd",
+        element: <TilskuddPage />,
+      },
       {
         path: "gjennomforinger/:gjennomforingId/tilskudd-behandling",
         element: <TilskuddBehandlingerPage />,
