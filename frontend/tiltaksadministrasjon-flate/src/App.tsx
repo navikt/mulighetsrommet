@@ -71,6 +71,7 @@ import { RedigerTiltakDokumentPage } from "./pages/tiltak-dokument/RedigerTiltak
 import { TilskuddPage } from "./pages/tilskudd/TilskuddPage";
 
 import { APPLICATION_NAME } from "./constants";
+import { TilskuddDetaljerPage } from "./pages/tilskudd/TilskuddDetaljerPage";
 
 const head = createHead();
 
@@ -261,6 +262,11 @@ const routes: RouteObject[] = [
         path: "gjennomforinger/:gjennomforingId/tilskudd",
         element: <TilskuddPage />,
       },
+
+      route({
+        path: "gjennomforinger/:gjennomforingId/tilskudd/:tilskuddId",
+        element: <TilskuddDetaljerPage />,
+      }),
       {
         path: "gjennomforinger/:gjennomforingId/tilskudd-behandling",
         element: <TilskuddBehandlingerPage />,
