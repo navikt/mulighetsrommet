@@ -51,6 +51,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.withValuta
+import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -859,7 +860,6 @@ class TilsagnServiceTest : FunSpec({
                 id = requestId,
                 agent = ansatt2,
             ).shouldBeRight().status shouldBe TilsagnStatus.GODKJENT
-            val bestillingsnummer = database.run { queries.tilsagn.getOrError(requestId).bestilling.bestillingsnummer }
 
             service.tilOppgjorRequest(
                 id = requestId,
@@ -889,6 +889,10 @@ class TilsagnServiceTest : FunSpec({
                     it.besluttetAv shouldBe ansatt2
                     it.status shouldBe TotrinnskontrollStatus.GODKJENT
                 }
+            }
+
+            val bestillingsnummer = database.run {
+                Bestillingsnummer(queries.tilsagn.getOrError(requestId).bestilling.bestillingsnummer)
             }
 
             val value = database.run { queries.kafkaProducerRecord.getRecords(50, listOf(BESTILLING_TOPIC)) }

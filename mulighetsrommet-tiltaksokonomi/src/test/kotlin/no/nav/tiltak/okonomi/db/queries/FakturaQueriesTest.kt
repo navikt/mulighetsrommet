@@ -12,6 +12,7 @@ class FakturaQueriesTest : FunSpec({
     val bestilling = Fixtures.bestilling
 
     val faktura = Fixtures.faktura
+    val fakturanummer = faktura.fakturanummer
 
     test("opprett faktura") {
         database.runAndRollback {
@@ -22,7 +23,7 @@ class FakturaQueriesTest : FunSpec({
 
             fakturaQueries.insertFaktura(faktura)
 
-            fakturaQueries.getByFakturanummer("4567") shouldBe faktura
+            fakturaQueries.getByFakturanummer(fakturanummer) shouldBe faktura
         }
     }
 })

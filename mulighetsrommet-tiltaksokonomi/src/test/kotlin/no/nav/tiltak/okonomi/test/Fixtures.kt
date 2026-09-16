@@ -9,7 +9,9 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.model.Bestilling
@@ -25,7 +27,7 @@ object Fixtures {
         arrangorHovedenhet = Organisasjonsnummer("123456789"),
         arrangorUnderenhet = Organisasjonsnummer("234567890"),
         kostnadssted = NavEnhetNummer("0400"),
-        bestillingsnummer = "A-1",
+        bestillingsnummer = Bestillingsnummer("A-1"),
         avtalenummer = null,
         belop = 1000,
         periode = Periode(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 4, 1)),
@@ -59,8 +61,8 @@ object Fixtures {
     )
 
     val faktura = Faktura(
-        fakturanummer = "4567",
-        bestillingsnummer = "A-1",
+        fakturanummer = Fakturanummer("A-1-1"),
+        bestillingsnummer = Bestillingsnummer("A-1"),
         betalingsinformasjon = Faktura.Betalingsinformasjon(
             kontonummer = Kontonummer("12345678901"),
             kid = Kid.parseOrThrow("0004614992"),

@@ -8,7 +8,9 @@ import no.nav.mulighetsrommet.database.withTransaction
 import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
@@ -63,8 +65,8 @@ class FakturaQueries(private val session: Session) {
             returning id
         """
         val params = mapOf(
-            "fakturanummer" to faktura.fakturanummer,
-            "bestillingsnummer" to faktura.bestillingsnummer,
+            "fakturanummer" to faktura.fakturanummer.value,
+            "bestillingsnummer" to faktura.bestillingsnummer.value,
             "belop" to faktura.belop,
             "periode" to faktura.periode.toDaterange(),
             "status" to faktura.status.name,
@@ -102,7 +104,7 @@ class FakturaQueries(private val session: Session) {
         batchPreparedNamedStatement(insertLinje, linjer)
     }
 
-    fun setStatus(fakturanummer: String, status: FakturaStatusType) {
+    fun setStatus(fakturanummer: Fakturanummer, status: FakturaStatusType) {
         @Language("PostgreSQL")
         val query = """
             update faktura
@@ -110,11 +112,11 @@ class FakturaQueries(private val session: Session) {
             status_sist_oppdatert = now()
             where fakturanummer = ?
         """.trimIndent()
-        session.execute(queryOf(query, status.name, fakturanummer))
+        session.execute(queryOf(query, status.name, fakturanummer.value))
     }
 
     fun setFeilmelding(
-        fakturanummer: String,
+        fakturanummer: Fakturanummer,
         feilKode: String?,
         feilMelding: String?,
     ) {
@@ -126,14 +128,14 @@ class FakturaQueries(private val session: Session) {
             where fakturanummer = :fakturanummer
         """.trimIndent()
         val params = mapOf(
-            "fakturanummer" to fakturanummer,
+            "fakturanummer" to fakturanummer.value,
             "feil_kode" to feilKode,
             "feil_melding" to feilMelding,
         )
         session.execute(queryOf(query, params))
     }
 
-    fun getByFakturanummer(fakturanummer: String): Faktura? {
+    fun getByFakturanummer(fakturanummer: Fakturanummer): Faktura? {
         @Language("PostgreSQL")
         val selectLinje = """
             select linjenummer, periode, belop
@@ -169,7 +171,7 @@ class FakturaQueries(private val session: Session) {
             where fakturanummer = ?
         """.trimIndent()
 
-        return session.single(queryOf(selectFaktura, fakturanummer)) { row ->
+        return session.single(queryOf(selectFaktura, fakturanummer.value)) { row ->
             val linjer = session.list(queryOf(selectLinje, row.int("id"))) { linje ->
                 Faktura.Linje(
                     linjenummer = linje.int("linjenummer"),
@@ -180,8 +182,8 @@ class FakturaQueries(private val session: Session) {
             val betalingskanal = row.stringOrNull("betalingskanal")?.let { OebsBetalingskanal.valueOf(it) }
 
             Faktura(
-                bestillingsnummer = row.string("bestillingsnummer"),
-                fakturanummer = row.string("fakturanummer"),
+                bestillingsnummer = Bestillingsnummer(row.string("bestillingsnummer")),
+                fakturanummer = Fakturanummer(row.string("fakturanummer")),
                 betalingsinformasjon = betalingskanal?.let {
                     Faktura.Betalingsinformasjon(
                         kontonummer = row.stringOrNull("kontonummer")?.let { Kontonummer(it) },
@@ -208,13 +210,13 @@ class FakturaQueries(private val session: Session) {
         }
     }
 
-    fun getByBestillingsnummer(bestillingsnummer: String): List<Faktura> {
+    fun getByBestillingsnummer(bestillingsnummer: Bestillingsnummer): List<Faktura> {
         @Language("PostgreSQL")
         val sql = """
             select fakturanummer from faktura where bestillingsnummer = ?
         """.trimIndent()
 
-        return session.list(queryOf(sql, bestillingsnummer)) { it.string("fakturanummer") }
+        return session.list(queryOf(sql, bestillingsnummer.value)) { Fakturanummer(it.string("fakturanummer")) }
             .mapNotNull { getByFakturanummer(it) }
     }
 }

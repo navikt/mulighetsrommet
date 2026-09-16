@@ -3,7 +3,6 @@ package no.nav.tiltak.okonomi.oebs
 import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
-import no.nav.tiltak.okonomi.oebs.OebsKontering
 import java.time.ZoneId
 
 private val osloZone = ZoneId.of("Europe/Oslo")
@@ -27,7 +26,7 @@ object OebsMeldingMapper {
 
         return OebsBestillingMelding(
             kilde = OebsKilde.TILTADM,
-            bestillingsNummer = bestilling.bestillingsnummer,
+            bestillingsNummer = bestilling.bestillingsnummer.value,
             opprettelsesTidspunkt = bestilling.opprettelse.besluttetTidspunkt.atZone(osloZone).toLocalDateTime(),
             bestillingsType = OebsBestillingType.NY,
             selger = selger,
@@ -51,7 +50,7 @@ object OebsMeldingMapper {
         annullerBestilling: AnnullerBestilling,
     ): OebsAnnulleringMelding {
         return OebsAnnulleringMelding(
-            bestillingsNummer = bestilling.bestillingsnummer,
+            bestillingsNummer = bestilling.bestillingsnummer.value,
             opprettelsesTidspunkt = annullerBestilling.besluttetTidspunkt.atZone(osloZone).toLocalDateTime(),
             kilde = OebsKilde.TILTADM,
             bestillingsType = OebsBestillingType.ANNULLER,
@@ -69,7 +68,7 @@ object OebsMeldingMapper {
     ): OebsFakturaMelding {
         val linjer = faktura.linjer.mapIndexed { index, linje ->
             OebsFakturaMelding.Linje(
-                bestillingsNummer = bestilling.bestillingsnummer,
+                bestillingsNummer = bestilling.bestillingsnummer.value,
                 bestillingsLinjeNummer = linje.linjenummer,
                 antall = linje.belop,
                 pris = 1,
@@ -79,7 +78,7 @@ object OebsMeldingMapper {
 
         return OebsFakturaMelding(
             kilde = OebsKilde.TILTADM,
-            fakturaNummer = faktura.fakturanummer,
+            fakturaNummer = faktura.fakturanummer.value,
             opprettelsesTidspunkt = faktura.besluttetTidspunkt.atZone(osloZone).toLocalDateTime(),
             organisasjonsNummer = bestilling.arrangorHovedenhet.value,
             bedriftsNummer = bestilling.arrangorUnderenhet.value,

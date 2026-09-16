@@ -18,6 +18,7 @@ class BestillingQueriesTest : FunSpec({
     val database = extension(FlywayDatabaseTestListener(databaseConfig))
 
     val bestilling = Fixtures.bestilling
+    val bestillingsnummer = bestilling.bestillingsnummer
 
     test("opprett bestilling") {
         database.runAndRollback {
@@ -25,7 +26,7 @@ class BestillingQueriesTest : FunSpec({
 
             queries.insertBestilling(bestilling)
 
-            queries.getByBestillingsnummer("A-1") shouldBe bestilling
+            queries.getByBestillingsnummer(bestillingsnummer) shouldBe bestilling
         }
     }
 
@@ -35,13 +36,13 @@ class BestillingQueriesTest : FunSpec({
 
             queries.insertBestilling(bestilling)
 
-            queries.getByBestillingsnummer("A-1").shouldNotBeNull().should {
+            queries.getByBestillingsnummer(bestillingsnummer).shouldNotBeNull().should {
                 it.status shouldBe BestillingStatusType.AKTIV
             }
 
-            queries.setStatus("A-1", BestillingStatusType.ANNULLERT)
+            queries.setStatus(bestillingsnummer, BestillingStatusType.ANNULLERT)
 
-            queries.getByBestillingsnummer("A-1").shouldNotBeNull().should {
+            queries.getByBestillingsnummer(bestillingsnummer).shouldNotBeNull().should {
                 it.status shouldBe BestillingStatusType.ANNULLERT
             }
         }
@@ -59,9 +60,9 @@ class BestillingQueriesTest : FunSpec({
                 besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
                 besluttetTidspunkt = Instant.parse("2025-01-04T00:00:00Z"),
             )
-            queries.setAnnullering("A-1", annullering)
+            queries.setAnnullering(bestillingsnummer, annullering)
 
-            queries.getByBestillingsnummer("A-1").shouldNotBeNull().should {
+            queries.getByBestillingsnummer(bestillingsnummer).shouldNotBeNull().should {
                 it.annullering shouldBe annullering
             }
         }
