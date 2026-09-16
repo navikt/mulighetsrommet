@@ -103,13 +103,13 @@ class TiltakshistorikkService(
      * Ideelt sett hadde vi bare mappet disse komet deltakelsene fra tiltakshistorikken
      * Se [TiltakshistorikkService.getDeltakelserKomet]
      */
-    private fun toDeltakelse(it: TiltakshistorikkV1Dto): no.nav.mulighetsrommet.api.veilederflate.Deltakelse? = when (it) {
+    private fun toDeltakelse(it: TiltakshistorikkV1Dto): Deltakelse? = when (it) {
         is TiltakshistorikkV1Dto.ArenaDeltakelse -> toDeltakelse(it)
         is TiltakshistorikkV1Dto.TeamKometDeltakelse -> null
         is TiltakshistorikkV1Dto.TeamTiltakAvtale -> toDeltakelse(it)
     }
 
-    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): no.nav.mulighetsrommet.api.veilederflate.Deltakelse? {
+    private fun toDeltakelse(deltakelse: TiltakshistorikkV1Dto.ArenaDeltakelse): Deltakelse? {
         // TODO: denne filtreringslogikken kan fjernes etter at Komet har tatt over eierskap til enkeltplassene og
         //  ENKELAMO, ENKFAGYRKE og HOYEREUTD har blitt fjernet fra `arena_gjennomforing`-tabellen i `tiltakshistorikk`
         if (Tiltakskoder.isEnkeltplassTiltak(deltakelse.tiltakstype.tiltakskode)) {
