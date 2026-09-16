@@ -4,7 +4,7 @@ import { QueryKeys } from "../QueryKeys";
 
 export function useTilskudd(id: string) {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.gjennomforing(id),
+    queryKey: QueryKeys.tilskudd(id),
     queryFn: () => TilskuddService.getTilskudd({ path: { tilskuddId: id } }),
   });
 }

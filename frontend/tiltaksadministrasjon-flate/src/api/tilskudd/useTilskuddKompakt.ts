@@ -4,7 +4,7 @@ import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 export function useTilskuddKompakt(gjennomforingId: string) {
   return useApiSuspenseQuery({
-    queryKey: QueryKeys.tilskuddBehandlinger(gjennomforingId),
+    queryKey: QueryKeys.tilskuddKompakt(gjennomforingId),
     queryFn: async () =>
       TilskuddService.getAllTilskuddKompakt({
         query: { gjennomforingId },
