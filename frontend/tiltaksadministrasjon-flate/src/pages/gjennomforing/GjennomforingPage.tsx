@@ -191,7 +191,7 @@ function useTabs(
 
   const filteredTabConfigs = enableTilskuddsbehandling
     ? tabConfigs
-    : tabConfigs.filter((tab) => tab.key !== "tilskudd-behandling");
+    : tabConfigs.filter((tab) => !["tilskudd-behandling", "tilskudd"].includes(tab.key));
 
   const tabs: Tab[] = filteredTabConfigs.map(({ key, label }) => ({
     key,

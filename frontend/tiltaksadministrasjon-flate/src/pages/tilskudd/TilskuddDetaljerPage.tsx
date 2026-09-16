@@ -47,8 +47,6 @@ export function TilskuddDetaljerPage() {
                     title="Vedtaksdata"
                     columns={1}
                     definitions={[
-                      { key: "ID", value: vedtak.id },
-                      { key: "Behandling-ID", value: vedtak.behandlingId },
                       { key: "Vedtaksjournalpost-ID", value: vedtak.vedtakJournalpostId ?? "-" },
                       { key: "Journalpost-ID i Gosys", value: vedtak.soknadJournalpostId },
                       { key: "Søknadsdato", value: formaterDato(vedtak.soknadDato) },
