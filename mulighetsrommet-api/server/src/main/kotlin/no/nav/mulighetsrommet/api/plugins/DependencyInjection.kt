@@ -51,7 +51,9 @@ import no.nav.mulighetsrommet.api.arrangorflate.service.ArrangorflateUtbetalingS
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.avtale.task.UpdateAvtaleStatus
+import no.nav.mulighetsrommet.api.bruker.BrukerService
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
+import no.nav.mulighetsrommet.api.clients.amtDeltaker.AmtDeltakerClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.isoppfolgingstilfelle.IsoppfolgingstilfelleClient
 import no.nav.mulighetsrommet.api.clients.kontoregisterOrganisasjon.KontoregisterOrganisasjonClient
@@ -65,7 +67,7 @@ import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokdistClient
 import no.nav.mulighetsrommet.api.clients.tilgangsmaskin.TilgangsmaskinClient
 import no.nav.mulighetsrommet.api.clients.vedtak.VeilarbvedtaksstotteClient
 import no.nav.mulighetsrommet.api.datavarehus.kafka.DatavarehusTiltakV1KafkaProducer
-import no.nav.mulighetsrommet.api.deltaker.client.AmtDeltakerClient
+import no.nav.mulighetsrommet.api.delmedbruker.DelMedBrukerService
 import no.nav.mulighetsrommet.api.deltaker.kafka.AmtArrangorMeldingV1KafkaConsumer
 import no.nav.mulighetsrommet.api.deltaker.kafka.ReplikerDeltakerEnkeltplassKafkaConsumer
 import no.nav.mulighetsrommet.api.deltaker.kafka.ReplikerDeltakerKafkaConsumer
@@ -90,13 +92,16 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
-import no.nav.mulighetsrommet.api.navenhet.service.SanityNavEnhetPublisher
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
+import no.nav.mulighetsrommet.api.pdl.HentBrukerPdlQuery
+import no.nav.mulighetsrommet.api.pdl.HentHistoriskeIdenterPdlQuery
 import no.nav.mulighetsrommet.api.persistence.OutboxTopics
 import no.nav.mulighetsrommet.api.persistence.SqlAdminDatabase
 import no.nav.mulighetsrommet.api.persistence.navenhet.SqlNavEnhetRepository
+import no.nav.mulighetsrommet.api.persistence.veilederflate.SqlVeilederflateDatabase
 import no.nav.mulighetsrommet.api.sanity.SanityService
+import no.nav.mulighetsrommet.api.sanity.VeilederflateSanityService
 import no.nav.mulighetsrommet.api.sanity.task.MigrerSanityTiltaksgjennomforinger
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
@@ -108,6 +113,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddArrangorUtbet
 import no.nav.mulighetsrommet.api.tilskuddbehandling.kafka.TilskuddBrukerUtbetalingConsumer
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.DistribuerVedtaksbrev
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
+import no.nav.mulighetsrommet.api.tiltakshistorikk.TiltakshistorikkService
 import no.nav.mulighetsrommet.api.tiltakstype.task.InitialLoadTiltakstyper
 import no.nav.mulighetsrommet.api.utbetaling.kafka.HelvedStatusV1KafkaConsumer
 import no.nav.mulighetsrommet.api.utbetaling.kafka.OppdaterUtbetalingBeregningForGjennomforingConsumer
@@ -128,13 +134,9 @@ import no.nav.mulighetsrommet.api.utbetaling.service.UtbetalingService
 import no.nav.mulighetsrommet.api.utbetaling.task.BeregnUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.GenerateUtbetaling
 import no.nav.mulighetsrommet.api.utbetaling.task.JournalforUtbetaling
-import no.nav.mulighetsrommet.api.veilederflate.pdl.HentBrukerPdlQuery
-import no.nav.mulighetsrommet.api.veilederflate.pdl.HentHistoriskeIdenterPdlQuery
-import no.nav.mulighetsrommet.api.veilederflate.services.BrukerService
-import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
-import no.nav.mulighetsrommet.api.veilederflate.services.NavEnhetService
-import no.nav.mulighetsrommet.api.veilederflate.services.TiltakshistorikkService
-import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
+import no.nav.mulighetsrommet.api.veilederflate.NavEnhetService
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateDatabase
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateService
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.clamav.ClamAvClient
 import no.nav.mulighetsrommet.database.Database
@@ -201,6 +203,7 @@ private fun db(config: AppConfig) = module {
         )
         SqlAdminDatabase(database, topics)
     }
+    single<VeilederflateDatabase> { SqlVeilederflateDatabase(database) }
 }
 
 private fun kafka(appConfig: AppConfig) = module {
@@ -395,6 +398,7 @@ private fun services(appConfig: AppConfig) = module {
         )
     }
     single { SanityService(get()) }
+    single { VeilederflateSanityService(get()) }
     single {
         BrregClient(clientEngine = appConfig.engine)
     }
@@ -522,7 +526,6 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeDtoQuery(get(), get()) }
     single { UpdateTiltakstypeUseCase(get()) }
     single { RedaksjoneltInnholdLenkeService(get()) }
-    single { SanityNavEnhetPublisher(get(), get()) }
     single { SynkroniserNavEnheterUseCase(get()) }
     single { SynkroniserUtdanningerUseCase(get()) }
     single { NavEnhetDtoQuery(get()) }
@@ -637,7 +640,7 @@ private fun tasks(config: AppConfig) = module {
             get(),
             get(),
         )
-        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(tasks.synchronizeNorgEnheter, get(), get(), get())
+        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(tasks.synchronizeNorgEnheter, get(), get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
             tasks.notifySluttdatoForGjennomforingerNarmerSeg,
             get(),

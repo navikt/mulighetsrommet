@@ -22,6 +22,8 @@ include(
     "mulighetsrommet-api",
     "mulighetsrommet-api:admin",
     "mulighetsrommet-api:server",
+    "mulighetsrommet-api:clients",
+    "mulighetsrommet-api:veilederflate",
     "mulighetsrommet-api:domain",
     "mulighetsrommet-api:persistence",
     "mulighetsrommet-api:contracts",

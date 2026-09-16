@@ -22,8 +22,9 @@ import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.ArbeidsrettetRe
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.Oppfolging1
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
 import no.nav.mulighetsrommet.api.gjennomforing.db.GjennomforingKontaktpersonDbo
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateKontaktinfoTiltaksansvarlig
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltaksansvarligHovedenhet
+import no.nav.mulighetsrommet.api.persistence.veilederflate.VeilederflateTiltakQueries
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateKontaktinfoTiltaksansvarlig
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltaksansvarligHovedenhet
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer

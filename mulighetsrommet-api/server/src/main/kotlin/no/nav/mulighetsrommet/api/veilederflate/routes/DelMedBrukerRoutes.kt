@@ -11,13 +11,13 @@ import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.clients.dialog.DialogRequest
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogClient
 import no.nav.mulighetsrommet.api.clients.dialog.VeilarbdialogError
+import no.nav.mulighetsrommet.api.delmedbruker.DelMedBrukerDbo
+import no.nav.mulighetsrommet.api.delmedbruker.DelMedBrukerDto
+import no.nav.mulighetsrommet.api.delmedbruker.DelMedBrukerService
 import no.nav.mulighetsrommet.api.plugins.getAccessType
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.veilederflate.models.DelMedBrukerDto
-import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerDbo
-import no.nav.mulighetsrommet.api.veilederflate.services.DelMedBrukerService
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.ProblemDetail

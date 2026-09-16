@@ -5,12 +5,12 @@ import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.api.clients.sanity.SanityArrangor
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
 import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
+import no.nav.mulighetsrommet.api.clients.sanity.SanityResponse
+import no.nav.mulighetsrommet.api.clients.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltakdokument.TiltakDokument
-import no.nav.mulighetsrommet.api.sanity.SanityArrangor
-import no.nav.mulighetsrommet.api.sanity.SanityResponse
-import no.nav.mulighetsrommet.api.sanity.SanityTiltakstype
 import no.nav.mulighetsrommet.model.Faneinnhold
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer

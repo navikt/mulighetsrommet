@@ -11,7 +11,6 @@ import no.nav.mulighetsrommet.api.clients.norg2.Norg2Client
 import no.nav.mulighetsrommet.api.clients.norg2.toNavEnhetStatus
 import no.nav.mulighetsrommet.api.clients.norg2.toNavEnhetType
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
-import no.nav.mulighetsrommet.api.navenhet.service.SanityNavEnhetPublisher
 import no.nav.mulighetsrommet.tasks.executeSuspend
 import org.slf4j.LoggerFactory
 
@@ -19,7 +18,6 @@ class SynchronizeNorgEnheter(
     config: Config,
     private val norg2Client: Norg2Client,
     private val synkroniserNavEnheter: SynkroniserNavEnheterUseCase,
-    private val sanityNavEnhetPublisher: SanityNavEnhetPublisher,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -57,8 +55,6 @@ class SynchronizeNorgEnheter(
             )
         }
 
-        val synkroniserteEnheter = synkroniserNavEnheter.execute(SynkroniserNavEnheterCommand(navEnheter))
-
-        sanityNavEnhetPublisher.publish(synkroniserteEnheter)
+        synkroniserNavEnheter.execute(SynkroniserNavEnheterCommand(navEnheter))
     }
 }

@@ -13,11 +13,12 @@ import no.nav.mulighetsrommet.api.clients.sanity.SanityPerspective
 import no.nav.mulighetsrommet.api.plugins.getNavAnsattEntraObjectId
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.services.PoaoTilgangService
-import no.nav.mulighetsrommet.api.veilederflate.models.Oppskrifter
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateInnsatsgruppe
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltak
-import no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakstype
-import no.nav.mulighetsrommet.api.veilederflate.services.VeilederflateService
+import no.nav.mulighetsrommet.api.veilederflate.ApentForPamelding
+import no.nav.mulighetsrommet.api.veilederflate.Oppskrifter
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateInnsatsgruppe
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateService
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltak
+import no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakstype
 import no.nav.mulighetsrommet.ktor.exception.StatusException
 import no.nav.mulighetsrommet.model.Innsatsgruppe
 import no.nav.mulighetsrommet.model.NavEnhetNummer
@@ -34,11 +35,6 @@ internal data class ArbeidsmarkedstiltakFilter(
     val apentForPamelding: List<ApentForPamelding>?,
     val erSykmeldtMedArbeidsgiver: Boolean,
 )
-
-enum class ApentForPamelding {
-    APENT,
-    STENGT,
-}
 
 internal fun RoutingContext.getArbeidsmarkedstiltakFilter(): ArbeidsmarkedstiltakFilter {
     val queryParameters = call.request.queryParameters
