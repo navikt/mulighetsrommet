@@ -56,9 +56,9 @@ class TilskuddBehandlingQueries(private val session: Session) {
 
         execute(queryOf(query, params))
 
-        val (gjennomforingsnummer, sisteLopenummer) = getTiltaksnummerBase(dbo.gjennomforingId)
+        val (gjennomforingsnummer, sisteTilskuddLopenummer) = getTiltaksnummerBase(dbo.gjennomforingId)
         dbo.tilskudd.forEachIndexed { index, tilskuddVedtak ->
-            val nyttTilskuddsnummer = "$gjennomforingsnummer-${sisteLopenummer + index + 1}"
+            val nyttTilskuddsnummer = "$gjennomforingsnummer-${sisteTilskuddLopenummer + index + 1}"
             upsertTilskudd(behandling = dbo, tilskuddVedtak = tilskuddVedtak, nyttTilskuddsnummer = nyttTilskuddsnummer)
         }
     }
@@ -72,15 +72,15 @@ class TilskuddBehandlingQueries(private val session: Session) {
                     select coalesce(max(split_part(t.tilskuddsnummer, '-', 2)::int), 0)
                     from tilskudd t
                     where t.gjennomforing_id = g.id
-                ) as siste_lopenummer
+                ) as siste_tilskudd_lopenummer
             from gjennomforing g
             where g.id = ?::uuid
         """.trimIndent()
 
         val nyTilskuddsnummer = single(queryOf(tilskuddsnummerQuery, gjennomforingId)) { row ->
             val lopenummer = row.string("lopenummer")
-            val sisteLopenummer = row.int("siste_lopenummer")
-            Pair(lopenummer, sisteLopenummer)
+            val sisteTilskuddLopenummer = row.int("siste_tilskudd_lopenummer")
+            Pair(lopenummer, sisteTilskuddLopenummer)
         }
         requireNotNull(nyTilskuddsnummer) { "Mangler gjennomforing med id $gjennomforingId" }
         nyTilskuddsnummer
