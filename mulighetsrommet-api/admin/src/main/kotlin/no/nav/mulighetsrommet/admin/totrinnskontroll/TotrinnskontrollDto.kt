@@ -64,14 +64,14 @@ sealed class TotrinnskontrollDto {
 data class AgentDto(
     @Serializable(with = AgentSerializer::class)
     val agent: Agent,
-    val navn: String,
+    val navn: String?,
 ) {
     companion object {
         fun fromAgent(agent: Agent, navAnsattNavn: String?) = when (agent) {
             is Arrangor -> AgentDto(agent, "Arrangør")
             is Tiltaksadministrasjon -> AgentDto(agent, "Tiltaksadministrasjon")
             is Arena -> AgentDto(agent, "Arena")
-            is NavIdent -> AgentDto(agent, navAnsattNavn ?: agent.value)
+            is NavIdent -> AgentDto(agent, navAnsattNavn)
         }
     }
 }

@@ -85,7 +85,7 @@ object TilsagnToPdfDocumentContentMapper {
         {
             addInvoiceInfo()
             paragraph { regular("Vi kan kontrollere om pengene som blir utbetalt blir brukt riktig.") }
-            paragraph { regular("Følgende informasjon er registrert hos NAV:") }
+            paragraph { regular("Følgende informasjon er registrert hos Nav:") }
             descriptionList {
                 text("Bedriftsnummer", innhold.arrangor.organisasjonsnummer)
                 text("Kontonummer", innhold.kontonummer)

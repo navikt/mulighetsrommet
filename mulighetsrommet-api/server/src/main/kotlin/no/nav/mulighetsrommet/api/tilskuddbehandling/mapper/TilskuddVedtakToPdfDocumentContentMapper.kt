@@ -1,54 +1,47 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.mapper
 
-import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
-import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.pdfgen.Deltaker
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContentBuilder
 import no.nav.mulighetsrommet.api.pdfgen.Signature
 import no.nav.mulighetsrommet.api.pdfgen.TopSection
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
-import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.model.NorskIdent
-import java.time.LocalDateTime
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.TilskuddBrevVedtak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.VedtaksbrevInnhold
+import no.nav.mulighetsrommet.model.Periode
 
 object TilskuddVedtakToPdfDocumentContentMapper {
     fun toPdfDocumentContent(
-        tilskuddBehandling: TilskuddBehandling,
-        navn: String,
-        norskIdent: NorskIdent?,
-        gjennomforing: GjennomforingEnkeltplass,
-        saksbehandler: AgentDto,
-        beslutter: AgentDto,
-        besluttetTidspunkt: LocalDateTime,
+        innhold: VedtaksbrevInnhold,
     ): PdfDocumentContent {
-        val saksnummer = gjennomforing.lopenummer.value
-
         return PdfDocumentContent.create(
-            title = "Vedtak om tilskudd til opplæring – $navn ($saksnummer)",
+            title = "Vedtak om tilskudd til opplæring – ${innhold.deltakerPersonalia.navn} (${innhold.tiltak.lopenummer})",
             subject = "Vedtak om tilskudd til opplæring",
-            description = "Vedtak om tilskudd til opplæring til $navn",
+            description = "Vedtak om tilskudd til opplæring til ${innhold.deltakerPersonalia.navn}",
             author = "Nav",
         ) {
             topSection(
                 TopSection(
-                    reference = saksnummer,
-                    date = besluttetTidspunkt.toLocalDate().toString(),
+                    reference = innhold.tiltak.lopenummer,
+                    date = innhold.besluttetTidspunkt.toLocalDate().toString(),
                     deltaker = Deltaker(
-                        navn = navn,
-                        norskIdent = norskIdent?.value,
+                        navn = innhold.deltakerPersonalia.navn,
+                        norskIdent = innhold.deltakerPersonalia.norskIdent,
                     ),
                 ),
             )
 
             mainSection("Vedtak om tilskudd til opplæring")
 
-            tilskuddBehandling.tilskudd.forEach { tilskudd ->
+            innhold.tilskuddvedtak.forEach { tilskudd ->
                 when (tilskudd.vedtakResultat) {
-                    VedtakResultat.INNVILGELSE -> innvilgelseSection(tilskudd)
+                    VedtakResultat.INNVILGELSE -> innvilgelseSection(
+                        tilskudd,
+                        innhold.tiltak.periode,
+                        innhold.arrangor.navn,
+                        innhold.tiltak.navn,
+                    )
+
                     VedtakResultat.AVSLAG -> avslagSection(tilskudd)
                 }
             }
@@ -59,31 +52,38 @@ object TilskuddVedtakToPdfDocumentContentMapper {
 
             signature(
                 Signature(
-                    saksbehandler = saksbehandler.personNavn(),
-                    beslutter = beslutter.personNavn(),
-                    enhet = gjennomforing.ansvarligEnhet.navn,
+                    saksbehandler = innhold.saksbehandler,
+                    beslutter = innhold.beslutter,
+                    enhet = innhold.enhet,
                 ),
             )
         }
     }
 
     private fun PdfDocumentContentBuilder.innvilgelseSection(
-        tilskudd: TilskuddVedtak,
+        tilskudd: TilskuddBrevVedtak,
+        tiltaksperiode: Periode,
+        arrangorNavn: String,
+        tiltaksnavn: String,
     ) {
-        val belop = requireNotNull(tilskudd.utbetalingBelop?.belop) {
+        val belop = requireNotNull(tilskudd.belop) {
             "Innvilget tilskudd beløp var null"
         }
-        val valuta = tilskudd.utbetalingBelop.valuta.name
 
         section(
-            "Ditt krav om ${tilskudd.tilskuddOpplaeringType.toDisplayName()} er innvilget for perioden ${tilskudd.periode.formatPeriode()}.",
+            "Nav har innvilget ${tilskudd.tilskuddType} for perioden ${tilskudd.periode.formatPeriode()}.",
         ) {
-            paragraph { regular("Beløp til utbetaling: $belop $valuta") }
+            paragraph { regular("Beløp til utbetaling: ${belop.belop} ${belop.valuta}") }
+            paragraph { regular(HJEMMEL) }
+        }
+        section(
+            "Slik har vi vurdert saken din",
+        ) {
             paragraph {
                 regular(
-                    "Vi utbetaler til kontonummeret du har registrert hos Nav. Du kan bare registrere ett " +
-                        "kontonummer hos oss. Du kan se, endre og registrere kontonummeret ditt på nav.no. Hvis du " +
-                        "ikke har et kontonummer må du ta kontakt med oss.",
+                    "Du får dekket ${tilskudd.tilskuddType} for å gjennomføre tiltaket $tiltaksnavn ved $arrangorNavn i perioden ${
+                        tiltaksperiode.formatPeriode()
+                    }.",
                 )
             }
             paragraph { regular(HJEMMEL) }
@@ -91,13 +91,13 @@ object TilskuddVedtakToPdfDocumentContentMapper {
     }
 
     private fun PdfDocumentContentBuilder.avslagSection(
-        tilskudd: TilskuddVedtak,
+        tilskudd: TilskuddBrevVedtak,
     ) {
         section(
-            "Ditt krav om ${tilskudd.tilskuddOpplaeringType.toDisplayName()} er avslått for perioden ${tilskudd.periode.formatPeriode()}.",
+            "Ditt krav om ${tilskudd.tilskuddType} er avslått for perioden ${tilskudd.periode.formatPeriode()}.",
         ) {
             paragraph { regular("Begrunnelse:") }
-            paragraph { regular(tilskudd.kommentarVedtaksbrev.orEmpty()) }
+            paragraph { regular(tilskudd.begrunnelse.orEmpty()) }
             paragraph { regular(HJEMMEL) }
         }
     }
@@ -157,23 +157,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
         }
     }
 
-    private fun AgentDto.personNavn(): String? = when (agent) {
-        is NavIdent -> formatNavn(navn)
-        else -> null
-    }
 
-    private fun formatNavn(fulltNavn: String): String {
-        val parts = fulltNavn.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
-        return parts.joinToString(" ")
-    }
-
-    private fun Opplaeringtilskudd.Kode.toDisplayName(): String = when (this) {
-        Opplaeringtilskudd.Kode.SKOLEPENGER -> "Skolepenger"
-        Opplaeringtilskudd.Kode.STUDIEREISE -> "Studiereise"
-        Opplaeringtilskudd.Kode.EKSAMENSGEBYR -> "Eksamensgebyr"
-        Opplaeringtilskudd.Kode.SEMESTERAVGIFT -> "Semesteravgift"
-        Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD -> "Integrert botilbud"
-    }
 }
 
 private const val HJEMMEL =
