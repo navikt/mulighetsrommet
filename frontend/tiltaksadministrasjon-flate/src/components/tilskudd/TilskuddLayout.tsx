@@ -29,10 +29,7 @@ export function TilskuddLayout({ gjennomforingId, children }: Props) {
           { tittel: "Tilskudd" },
         ]}
       />
-      <HeaderBanner
-        ikon={<TilskuddIkon />}
-        heading={`Tilskudd for ${tiltakstype.navn}`}
-      />
+      <HeaderBanner ikon={<TilskuddIkon />} heading={`Tilskudd for ${tiltakstype.navn}`} />
       {deltaker && (
         <GjennomforingEnkeltplassHeader gjennomforing={gjennomforing} deltaker={deltaker} />
       )}

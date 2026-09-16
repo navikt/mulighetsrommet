@@ -7,14 +7,20 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import io.ktor.server.util.getOrFail
+import kotlinx.serialization.Serializable
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
+import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.Tilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddKompakt
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
+import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
+import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.koin.ktor.ext.inject
 import java.util.*
 
@@ -33,7 +39,7 @@ fun Route.tilskuddRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Liste av tilskudd"
-                        body<List<TilskuddKompakt>>()
+                        body<List<TilskuddKompaktDto>>()
                     }
                     default {
                         description = "Problem details"
@@ -42,7 +48,7 @@ fun Route.tilskuddRoutes() {
                 }
             }) {
                 val gjennomforingId = call.parameters.getOrFail<UUID>("gjennomforingId")
-                val result = db.session { queries.tilskudd.getAll(gjennomforingId) }
+                val result = db.session { queries.tilskudd.getAll(gjennomforingId).map { TilskuddKompaktDto.fromTilskuddKompakt(it) } }
                 call.respond(result)
             }
 
@@ -69,6 +75,33 @@ fun Route.tilskuddRoutes() {
                     ?: return@get call.respond(HttpStatusCode.NotFound)
                 call.respond(result)
             }
+        }
+    }
+}
+
+@Serializable
+data class TilskuddKompaktDto(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    val type: Opplaeringtilskudd,
+    @Serializable(with = UUIDSerializer::class)
+    val gjennomforingId: UUID,
+    val tilskuddsnummer: String,
+    val sisteVedtakResultat: VedtakResultatDto?,
+    val periode: Periode?,
+    val sisteVedtakLopenummer: Int?,
+) {
+    companion object {
+        fun fromTilskuddKompakt(tilskuddKompakt: TilskuddKompakt): TilskuddKompaktDto {
+            return TilskuddKompaktDto(
+                id = tilskuddKompakt.id,
+                type = tilskuddKompakt.type,
+                gjennomforingId = tilskuddKompakt.gjennomforingId,
+                tilskuddsnummer = tilskuddKompakt.tilskuddsnummer,
+                sisteVedtakResultat = tilskuddKompakt.sisteVedtakResultat?.let { VedtakResultatDto(it) },
+                periode = tilskuddKompakt.periode,
+                sisteVedtakLopenummer = tilskuddKompakt.sisteVedtakLopenummer,
+            )
         }
     }
 }

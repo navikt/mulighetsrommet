@@ -3948,7 +3948,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/TilskuddKompakt"
+                  $ref: "#/components/schemas/TilskuddKompaktDto"
         default:
           description: Problem details
           headers: {}
@@ -9624,7 +9624,7 @@ components:
           format: uuid
       required:
       - behandlingId
-    TilskuddKompakt:
+    TilskuddKompaktDto:
       type: object
       properties:
         id:
@@ -9640,7 +9640,7 @@ components:
         sisteVedtakResultat:
           oneOf:
           - type: "null"
-          - $ref: "#/components/schemas/VedtakResultat"
+          - $ref: "#/components/schemas/VedtakResultatDto"
         periode:
           oneOf:
           - type: "null"

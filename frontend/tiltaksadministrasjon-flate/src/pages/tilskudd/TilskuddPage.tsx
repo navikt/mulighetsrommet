@@ -1,11 +1,11 @@
 import { useTilskuddKompakt } from "@/api/tilskudd/useTilskuddKompakt";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
-import { useSortableData } from "@mr/frontend-common";
+import { DataElementStatusTag, useSortableData } from "@mr/frontend-common";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { formaterPeriodeSlutt, formaterPeriodeStart } from "@mr/frontend-common/utils/date";
 import { Alert, Table } from "@navikt/ds-react";
 import { TableColumnHeader } from "@navikt/ds-react/Table";
-import { TilskuddKompakt } from "@tiltaksadministrasjon/api-client";
+import { TilskuddKompaktDto } from "@tiltaksadministrasjon/api-client";
 
 export function TilskuddPage() {
   const { gjennomforingId } = useRequiredParams(["gjennomforingId"]);
@@ -48,13 +48,19 @@ export function TilskuddPage() {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {sortedData.map((b: TilskuddKompakt) => (
+            {sortedData.map((b: TilskuddKompaktDto) => (
               <Table.Row key={b.id}>
                 <Table.DataCell>{b.periode && formaterPeriodeStart(b.periode)}</Table.DataCell>
                 <Table.DataCell>{b.periode && formaterPeriodeSlutt(b.periode)}</Table.DataCell>
                 <Table.DataCell>{b.type.navn}</Table.DataCell>
-                <Table.DataCell>{b.sisteVedtakResultat}</Table.DataCell>
                 <Table.DataCell>{b.tilskuddsnummer}</Table.DataCell>
+                <Table.DataCell>
+                  {b.sisteVedtakResultat ? (
+                    <DataElementStatusTag {...b.sisteVedtakResultat.status} />
+                  ) : (
+                    "-"
+                  )}
+                </Table.DataCell>
                 <Table.DataCell>
                   <Lenke to={b.id}> Detaljer </Lenke>
                 </Table.DataCell>
