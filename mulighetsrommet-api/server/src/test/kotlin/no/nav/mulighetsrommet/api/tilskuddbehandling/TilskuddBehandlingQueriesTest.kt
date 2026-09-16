@@ -34,10 +34,6 @@ class TilskuddBehandlingQueriesTest : FunSpec({
     val behandling = TilskuddBehandling(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        soknadJournalpostId = "J-2024-001",
-        soknadDato = LocalDate.of(2024, 1, 15),
-        periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
-        kostnadssted = NavEnhetNummer("0502"),
         tilskudd = listOf(
             TilskuddVedtak(
                 id = UUID.randomUUID(),
@@ -55,6 +51,10 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k1",
                 utbetalingMottaker = TilskuddMottaker.BRUKER,
                 kid = null,
+                soknadJournalpostId = "J-2024-001",
+                soknadDato = LocalDate.of(2024, 1, 15),
+                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)), kostnadssted = NavEnhetNummer("0502"),
+                kommentarIntern = "kommentar intern 1",
             ),
             TilskuddVedtak(
                 id = UUID.randomUUID(),
@@ -72,6 +72,11 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k2",
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kid = Kid.parse("116"),
+                soknadJournalpostId = "J-2024-001",
+                soknadDato = LocalDate.of(2024, 1, 15),
+                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
+                kostnadssted = NavEnhetNummer("0502"),
+                kommentarIntern = "kommentar intern 2",
             ),
             TilskuddVedtak(
                 id = UUID.randomUUID(),
@@ -86,11 +91,15 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kommentarVedtaksbrev = "k2",
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kid = null,
+                soknadJournalpostId = "J-2024-001",
+                soknadDato = LocalDate.of(2024, 1, 15),
+                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
+                kostnadssted = NavEnhetNummer("0502"),
+                kommentarIntern = "kommentar intern 3",
             ),
         ),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
         type = TilskuddBehandlingType.REGISTRERING,
-        kommentarIntern = "kommentar intern",
     )
 
     context("insert and get") {
@@ -104,11 +113,6 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                     requireNotNull(it)
                     it.id shouldBe behandling.id
                     it.gjennomforingId shouldBe GjennomforingFixtures.AFT1.id
-                    it.soknadJournalpostId shouldBe behandling.soknadJournalpostId
-                    it.soknadDato shouldBe behandling.soknadDato
-                    it.periode shouldBe behandling.periode
-                    it.kostnadssted.enhetsnummer shouldBe behandling.kostnadssted
-                    it.kommentarIntern shouldBe behandling.kommentarIntern
 
                     it.tilskudd.size shouldBe 3
                     it.tilskudd[0] should { v ->
@@ -123,6 +127,11 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.kid shouldBe null
                         v.utbetalingBelop?.valuta shouldBe Valuta.NOK
                         v.utbetalingBelop?.belop shouldBe 100
+                        v.soknadJournalpostId shouldBe behandling.tilskudd[0].soknadJournalpostId
+                        v.soknadDato shouldBe behandling.tilskudd[0].soknadDato
+                        v.periode shouldBe behandling.tilskudd[0].periode
+                        v.kostnadssted.enhetsnummer shouldBe behandling.tilskudd[0].kostnadssted
+                        v.kommentarIntern shouldBe behandling.tilskudd[0].kommentarIntern
                     }
                     it.tilskudd[1] should { v ->
                         v.id shouldBe behandling.tilskudd[1].id
@@ -136,6 +145,11 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.kid shouldBe Kid.parse("116")
                         v.utbetalingBelop?.belop shouldBe 200
                         v.utbetalingBelop?.valuta shouldBe Valuta.NOK
+                        v.soknadJournalpostId shouldBe behandling.tilskudd[1].soknadJournalpostId
+                        v.soknadDato shouldBe behandling.tilskudd[1].soknadDato
+                        v.periode shouldBe behandling.tilskudd[1].periode
+                        v.kostnadssted.enhetsnummer shouldBe behandling.tilskudd[1].kostnadssted
+                        v.kommentarIntern shouldBe behandling.tilskudd[1].kommentarIntern
                     }
                     it.tilskudd[2] should { v ->
                         v.id shouldBe behandling.tilskudd[2].id
@@ -143,6 +157,11 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                         v.tilskuddOpplaeringType shouldBe Opplaeringtilskudd.Kode.INTEGRERT_BOTILBUD
                         v.utbetalingBelop shouldBe null
                         v.vedtakResultat.type shouldBe VedtakResultat.AVSLAG
+                        v.soknadJournalpostId shouldBe behandling.tilskudd[2].soknadJournalpostId
+                        v.soknadDato shouldBe behandling.tilskudd[2].soknadDato
+                        v.periode shouldBe behandling.tilskudd[2].periode
+                        v.kostnadssted.enhetsnummer shouldBe behandling.tilskudd[2].kostnadssted
+                        v.kommentarIntern shouldBe behandling.tilskudd[2].kommentarIntern
                     }
                 }
             }

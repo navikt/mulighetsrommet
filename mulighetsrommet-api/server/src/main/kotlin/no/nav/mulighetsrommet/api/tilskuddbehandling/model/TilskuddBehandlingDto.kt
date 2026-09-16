@@ -5,7 +5,6 @@ import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
 import no.nav.mulighetsrommet.model.DataElement
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
@@ -20,41 +19,17 @@ data class TilskuddBehandlingDto(
     val id: UUID,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    val soknadJournalpostId: String,
-    @Serializable(with = LocalDateSerializer::class)
-    val soknadDato: LocalDate,
-    val periode: Periode,
-    val kostnadssted: KostnadsstedDto,
     val tilskudd: List<TilskuddOpplaeringDto>,
     val status: TilskuddBehandlingStatusDto,
     val type: TilskuddBehandlingType,
-    val kommentarIntern: String?,
     val samletVedtakResultat: SamletVedtakResultat,
-    val vedtakJournalpostId: String?,
 ) {
     fun toDbo() = TilskuddBehandling(
         id = this.id,
         gjennomforingId = this.gjennomforingId,
-        soknadJournalpostId = this.soknadJournalpostId,
-        soknadDato = this.soknadDato,
-        periode = this.periode,
-        tilskudd = this.tilskudd.map {
-            TilskuddVedtak(
-                id = it.id,
-                tilskuddId = it.tilskuddId,
-                tilskuddOpplaeringType = it.tilskuddOpplaeringType,
-                soknadBelop = it.soknadBelop,
-                vedtakResultat = it.vedtakResultat.type,
-                kommentarVedtaksbrev = it.kommentarVedtaksbrev,
-                utbetalingMottaker = it.utbetalingMottaker,
-                kid = it.kid,
-                utbetalingBelop = it.utbetalingBelop,
-            )
-        },
-        kostnadssted = this.kostnadssted.enhetsnummer,
+        tilskudd = this.tilskudd.map { it.toDbo() },
         status = this.status.type,
         type = this.type,
-        kommentarIntern = this.kommentarIntern,
     )
 }
 

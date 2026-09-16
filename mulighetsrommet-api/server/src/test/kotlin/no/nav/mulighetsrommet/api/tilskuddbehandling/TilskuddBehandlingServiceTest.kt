@@ -47,17 +47,13 @@ class TilskuddBehandlingServiceTest : FunSpec({
     val request = TilskuddBehandlingRequest(
         id = UUID.randomUUID(),
         gjennomforingId = GjennomforingFixtures.AFT1.id,
-        soknadJournalpostId = "J-2024-001",
-        soknadDato = LocalDate.of(2024, 1, 15),
-        periodeStart = "2025-01-01",
-        periodeSlutt = "2025-07-01",
-        kostnadssted = NavEnhetNummer("0502"),
-        kommentarIntern = "kommentar intern",
         tilskudd = listOf(
             TilskuddBehandlingRequest.TilskuddRequest(
                 id = UUID.randomUUID(),
                 tilskuddId = UUID.randomUUID(),
                 tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
+                soknadJournalpostId = "J-2024-001",
+                soknadDato = LocalDate.of(2024, 1, 15),
                 soknadBelop = ValutaBelopRequest(
                     belop = 12,
                     valuta = Valuta.SEK,
@@ -67,6 +63,10 @@ class TilskuddBehandlingServiceTest : FunSpec({
                 utbetalingMottaker = TilskuddMottaker.ARRANGOR,
                 kidNummer = "116",
                 belop = 100,
+                periodeStart = "2025-01-01",
+                periodeSlutt = "2025-07-01",
+                kostnadssted = NavEnhetNummer("0502"),
+                kommentarIntern = "kommentar intern",
             ),
         ),
     )

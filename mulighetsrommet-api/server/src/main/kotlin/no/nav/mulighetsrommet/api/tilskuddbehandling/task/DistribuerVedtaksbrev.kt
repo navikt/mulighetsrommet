@@ -57,10 +57,11 @@ class DistribuerVedtaksbrev(
         logger.info("Distribuerer journalpost for vedtak id: $tilskuddBehandlingId")
 
         val tilskudd = queries.tilskuddBehandling.getOrError(tilskuddBehandlingId)
-        require(tilskudd.vedtakJournalpostId != null) { "Vedtak med id=$tilskuddBehandlingId har ingen journalpostId, distribuering ikke mulig" }
+        val journalpostId = tilskudd.tilskudd.firstNotNullOfOrNull { it.vedtakJournalpostId }
+        require(journalpostId != null) { "Vedtak med id=$tilskuddBehandlingId har ingen journalpostId, distribuering ikke mulig" }
 
         dokdistClient.distribuerJournalpost(
-            journalpostId = tilskudd.vedtakJournalpostId,
+            journalpostId = journalpostId,
             accessType = AccessType.M2M,
             distribusjonstype = DokdistRequest.DistribusjonsType.VEDTAK,
             adresse = null,

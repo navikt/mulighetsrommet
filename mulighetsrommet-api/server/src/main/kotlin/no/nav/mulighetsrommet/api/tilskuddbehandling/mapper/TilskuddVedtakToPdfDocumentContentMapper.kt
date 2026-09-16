@@ -48,8 +48,8 @@ object TilskuddVedtakToPdfDocumentContentMapper {
 
             tilskuddBehandling.tilskudd.forEach { tilskudd ->
                 when (tilskudd.vedtakResultat) {
-                    VedtakResultat.INNVILGELSE -> innvilgelseSection(tilskudd, tilskuddBehandling)
-                    VedtakResultat.AVSLAG -> avslagSection(tilskudd, tilskuddBehandling)
+                    VedtakResultat.INNVILGELSE -> innvilgelseSection(tilskudd)
+                    VedtakResultat.AVSLAG -> avslagSection(tilskudd)
                 }
             }
 
@@ -69,7 +69,6 @@ object TilskuddVedtakToPdfDocumentContentMapper {
 
     private fun PdfDocumentContentBuilder.innvilgelseSection(
         tilskudd: TilskuddVedtak,
-        tilskuddBehandling: TilskuddBehandling,
     ) {
         val belop = requireNotNull(tilskudd.utbetalingBelop?.belop) {
             "Innvilget tilskudd beløp var null"
@@ -77,7 +76,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
         val valuta = tilskudd.utbetalingBelop.valuta.name
 
         section(
-            "Ditt krav om ${tilskudd.tilskuddOpplaeringType.toDisplayName()} er innvilget for perioden ${tilskuddBehandling.periode.formatPeriode()}.",
+            "Ditt krav om ${tilskudd.tilskuddOpplaeringType.toDisplayName()} er innvilget for perioden ${tilskudd.periode.formatPeriode()}.",
         ) {
             paragraph { regular("Beløp til utbetaling: $belop $valuta") }
             paragraph {
@@ -93,10 +92,9 @@ object TilskuddVedtakToPdfDocumentContentMapper {
 
     private fun PdfDocumentContentBuilder.avslagSection(
         tilskudd: TilskuddVedtak,
-        tilskuddBehandling: TilskuddBehandling,
     ) {
         section(
-            "Ditt krav om ${tilskudd.tilskuddOpplaeringType.toDisplayName()} er avslått for perioden ${tilskuddBehandling.periode.formatPeriode()}.",
+            "Ditt krav om ${tilskudd.tilskuddOpplaeringType.toDisplayName()} er avslått for perioden ${tilskudd.periode.formatPeriode()}.",
         ) {
             paragraph { regular("Begrunnelse:") }
             paragraph { regular(tilskudd.kommentarVedtaksbrev.orEmpty()) }

@@ -29,34 +29,29 @@ export function VedtakForm() {
 
   // FIXME: Småhacky konvertering fra separate dato-felter til Periode
   //  Det ideelle hadde kanskje heller vært å ta høyde off-by-one-problematikken ved å ha en egen FormPeriode-komponent
-  const start = watch("periodeStart");
-  const slutt = watch("periodeSlutt");
-  const periode =
+  const valgtPeriode = (start: string | null, slutt: string | null) =>
     start && slutt
       ? {
           start,
           slutt: yyyyMMddSafeFormatting(addDuration(new Date(slutt), { days: 1 })),
         }
       : null;
-
-  const valgtKostnadssted = watch("kostnadssted");
-  const kostnadssted = kostnadssteder
-    .flatMap((region) => region.kostnadssteder)
-    .find((k) => k.enhetsnummer === valgtKostnadssted);
-
+  const valgtKostnadsted = (kostnadsted: string | null) =>
+    kostnadssteder
+      .flatMap((region) => region.kostnadssteder)
+      .find((k) => k.enhetsnummer === kostnadsted) || null;
   return (
     <>
       <VStack gap="space-20">
-        <VStack gap="space-8">
-          <InformasjonFraSoknad
-            journalpostId={watch("soknadJournalpostId")}
-            soknadsdato={watch("soknadDato")}
-            periode={periode}
-            kostnadssted={kostnadssted || null}
-          />
-        </VStack>
+        <VStack gap="space-8"></VStack>
         {tilskudd.map((t, index) => (
           <FormGroup key={index}>
+            <InformasjonFraSoknad
+              journalpostId={t.soknadJournalpostId}
+              soknadsdato={t.soknadDato}
+              periode={valgtPeriode(t.periodeStart, t.periodeSlutt)}
+              kostnadssted={valgtKostnadsted(t.kostnadssted)}
+            />
             <VStack gap="space-4">
               <MetadataVStack
                 label="Tilskuddstype"
@@ -119,6 +114,11 @@ export function VedtakForm() {
                 label="Kommentar til deltaker (vil vises i vedtaksbrev)"
                 name={`tilskudd.${index}.kommentarVedtaksbrev`}
               />
+              <FormTextarea
+                className="w-full"
+                label="Kommentar (internt i Nav)"
+                name={`tilskudd.${index}.kommentarIntern`}
+              />
             </Box>
           </FormGroup>
         ))}
@@ -136,7 +136,6 @@ export function VedtakForm() {
             valuta: Valuta.NOK,
           }}
         />
-        <FormTextarea className="w-full" label="Kommentar (internt i Nav)" name="kommentarIntern" />
       </VStack>
     </>
   );

@@ -9267,15 +9267,6 @@ components:
         gjennomforingId:
           type: string
           format: uuid
-        soknadJournalpostId:
-          type: string
-        soknadDato:
-          type: string
-          format: date
-        periode:
-          $ref: "#/components/schemas/Periode"
-        kostnadssted:
-          $ref: "#/components/schemas/KostnadsstedDto"
         tilskudd:
           type: array
           items:
@@ -9284,29 +9275,15 @@ components:
           $ref: "#/components/schemas/TilskuddBehandlingStatusDto"
         type:
           $ref: "#/components/schemas/TilskuddBehandlingType"
-        kommentarIntern:
-          type:
-          - "null"
-          - string
         samletVedtakResultat:
           $ref: "#/components/schemas/SamletVedtakResultat"
-        vedtakJournalpostId:
-          type:
-          - "null"
-          - string
       required:
       - gjennomforingId
       - id
-      - kommentarIntern
-      - kostnadssted
-      - periode
       - samletVedtakResultat
-      - soknadDato
-      - soknadJournalpostId
       - status
       - tilskudd
       - type
-      - vedtakJournalpostId
     TilskuddOpplaeringDto:
       type: object
       properties:
@@ -9320,8 +9297,17 @@ components:
           format: uuid
         tilskuddOpplaeringType:
           $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
+        soknadDato:
+          type: string
+          format: date
+        soknadJournalpostId:
+          type: string
         soknadBelop:
           $ref: "#/components/schemas/ValutaBelop"
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssted:
+          $ref: "#/components/schemas/KostnadsstedDto"
         vedtakResultat:
           $ref: "#/components/schemas/VedtakResultatDto"
         kommentarVedtaksbrev:
@@ -9338,16 +9324,30 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/ValutaBelop"
+        kommentarIntern:
+          type:
+          - "null"
+          - string
+        vedtakJournalpostId:
+          type:
+          - "null"
+          - string
       required:
       - id
       - kid
+      - kommentarIntern
       - kommentarVedtaksbrev
+      - kostnadssted
+      - periode
       - soknadBelop
+      - soknadDato
+      - soknadJournalpostId
       - tilskuddId
       - tilskuddOpplaeringType
       - tilskuddsnummer
       - utbetalingBelop
       - utbetalingMottaker
+      - vedtakJournalpostId
       - vedtakResultat
     TilskuddBehandlingStatusDto:
       type: object
@@ -9448,6 +9448,15 @@ components:
           oneOf:
           - type: "null"
           - $ref: "#/components/schemas/Opplaeringtilskudd.Kode"
+        soknadJournalpostId:
+          type:
+          - "null"
+          - string
+        soknadDato:
+          type:
+          - "null"
+          - string
+          format: date
         soknadBelop:
           oneOf:
           - type: "null"
@@ -9473,34 +9482,6 @@ components:
           - "null"
           - integer
           format: int32
-      required:
-      - belop
-      - id
-      - kidNummer
-      - kommentarVedtaksbrev
-      - soknadBelop
-      - tilskuddId
-      - tilskuddOpplaeringType
-      - utbetalingMottaker
-      - vedtakResultat
-    TilskuddBehandlingRequest:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        gjennomforingId:
-          type: string
-          format: uuid
-        soknadJournalpostId:
-          type:
-          - "null"
-          - string
-        soknadDato:
-          type:
-          - "null"
-          - string
-          format: date
         periodeStart:
           type:
           - "null"
@@ -9517,6 +9498,31 @@ components:
           type:
           - "null"
           - string
+      required:
+      - belop
+      - id
+      - kidNummer
+      - kommentarIntern
+      - kommentarVedtaksbrev
+      - kostnadssted
+      - periodeSlutt
+      - periodeStart
+      - soknadBelop
+      - soknadDato
+      - soknadJournalpostId
+      - tilskuddId
+      - tilskuddOpplaeringType
+      - utbetalingMottaker
+      - vedtakResultat
+    TilskuddBehandlingRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        gjennomforingId:
+          type: string
+          format: uuid
         tilskudd:
           type: array
           items:
@@ -9524,12 +9530,6 @@ components:
       required:
       - gjennomforingId
       - id
-      - kommentarIntern
-      - kostnadssted
-      - periodeSlutt
-      - periodeStart
-      - soknadDato
-      - soknadJournalpostId
       - tilskudd
     TilskuddBehandlingStatusAarsak:
       type: string

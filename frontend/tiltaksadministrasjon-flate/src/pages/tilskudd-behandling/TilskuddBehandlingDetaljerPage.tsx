@@ -152,12 +152,6 @@ export function TilskuddBehandlingDetaljerPage() {
             />
             <Separator />
             <VStack gap="space-16">
-              <InformasjonFraSoknad
-                journalpostId={behandling.soknadJournalpostId}
-                soknadsdato={behandling.soknadDato}
-                periode={behandling.periode}
-                kostnadssted={behandling.kostnadssted}
-              />
               <VStack gap="space-20" align="start">
                 {behandling.tilskudd.map((t) => (
                   <Box
@@ -168,6 +162,12 @@ export function TilskuddBehandlingDetaljerPage() {
                     padding="space-8"
                     key={t.id}
                   >
+                    <InformasjonFraSoknad
+                      journalpostId={t.soknadJournalpostId}
+                      soknadsdato={t.soknadDato}
+                      periode={t.periode}
+                      kostnadssted={t.kostnadssted}
+                    />
                     <VStack gap="space-8">
                       <Definisjonsliste
                         definitions={[
@@ -212,6 +212,10 @@ export function TilskuddBehandlingDetaljerPage() {
                           Opphør
                         </Button>
                       )}
+                    <MetadataFritekstfelt
+                      label="Kommentar (internt i Nav)"
+                      value={t.kommentarIntern}
+                    />
                   </Box>
                 ))}
               </VStack>
@@ -231,10 +235,6 @@ export function TilskuddBehandlingDetaljerPage() {
                   ),
                   valuta: Valuta.NOK,
                 }}
-              />
-              <MetadataFritekstfelt
-                label="Kommentar (internt i Nav)"
-                value={behandling.kommentarIntern}
               />
             </VStack>
           </>

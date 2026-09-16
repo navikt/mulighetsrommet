@@ -178,15 +178,15 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "id" to tilskuddVedtak.id,
             "tilskudd_id" to tilskuddVedtak.tilskuddId,
             "tilskudd_behandling_id" to behandling.id,
-            "periode" to behandling.periode.toDaterange(),
-            "kostnadssted" to behandling.kostnadssted.value,
-            "soknad_journalpost_id" to behandling.soknadJournalpostId,
-            "soknad_dato" to behandling.soknadDato,
+            "periode" to tilskuddVedtak.periode.toDaterange(),
+            "kostnadssted" to tilskuddVedtak.kostnadssted.value,
+            "soknad_journalpost_id" to tilskuddVedtak.soknadJournalpostId,
+            "soknad_dato" to tilskuddVedtak.soknadDato,
             "soknad_belop" to tilskuddVedtak.soknadBelop.belop,
             "soknad_valuta" to tilskuddVedtak.soknadBelop.valuta.name,
             "vedtak_resultat" to tilskuddVedtak.vedtakResultat.name,
             "kommentar_vedtaksbrev" to tilskuddVedtak.kommentarVedtaksbrev,
-            "kommentar_intern" to behandling.kommentarIntern,
+            "kommentar_intern" to tilskuddVedtak.kommentarIntern,
             "utbetaling_mottaker" to tilskuddVedtak.utbetalingMottaker.name,
             "kid" to tilskuddVedtak.kid?.value,
             "belop" to tilskuddVedtak.utbetalingBelop?.belop,
@@ -371,23 +371,13 @@ private fun TilskuddBehandlingViewRow.toDto(): TilskuddBehandlingDto {
     require(vedtak.isNotEmpty()) { "Tilskuddsbehandling med id $id mangler vedtak" }
 
     val tilskudd = vedtak.map { it.toDto() }
-    val firstVedtak = vedtak.first()
 
     return TilskuddBehandlingDto(
         id = id,
         gjennomforingId = gjennomforingId,
-        soknadJournalpostId = firstVedtak.soknadJournalpostId,
-        soknadDato = firstVedtak.soknadDato,
-        periode = firstVedtak.periode.toPeriode(),
-        kostnadssted = KostnadsstedDto(
-            navn = firstVedtak.kostnadsstedNavn,
-            enhetsnummer = NavEnhetNummer(firstVedtak.kostnadsstedEnhetsnummer),
-        ),
         tilskudd = tilskudd,
         status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(status)),
         type = TilskuddBehandlingType.valueOf(type),
-        kommentarIntern = firstVedtak.kommentarIntern,
-        vedtakJournalpostId = firstVedtak.vedtakJournalpostId,
         samletVedtakResultat = samletVedtakResultatStatusTag(tilskudd.map { it.vedtakResultat.type }),
     )
 }
@@ -398,12 +388,21 @@ private fun TilskuddVedtakViewRow.toDto(): TilskuddOpplaeringDto {
         tilskuddId = tilskuddId,
         tilskuddsnummer = tilskuddsnummer,
         tilskuddOpplaeringType = tilskuddOpplaeringType,
+        soknadDato = soknadDato,
+        soknadJournalpostId = soknadJournalpostId,
         soknadBelop = soknadBelop,
+        periode = periode.toPeriode(),
+        kostnadssted = KostnadsstedDto(
+            navn = kostnadsstedNavn,
+            enhetsnummer = NavEnhetNummer(kostnadsstedEnhetsnummer),
+        ),
         vedtakResultat = VedtakResultatDto(vedtakResultat.type),
         kommentarVedtaksbrev = kommentarVedtaksbrev,
         utbetalingMottaker = utbetalingMottaker,
         kid = kid,
         utbetalingBelop = utbetalingBelop,
+        kommentarIntern = kommentarIntern,
+        vedtakJournalpostId = vedtakJournalpostId,
     )
 }
 

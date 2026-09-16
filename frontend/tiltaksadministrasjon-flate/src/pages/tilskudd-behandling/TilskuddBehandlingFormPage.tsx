@@ -58,34 +58,27 @@ export function TilskuddBehandlingFormPage() {
     ? {
         id: behandling.id,
         gjennomforingId: behandling.gjennomforingId,
-        periodeStart: yyyyMMddFormatting(behandling.periode.start) ?? null,
-        periodeSlutt:
-          yyyyMMddFormatting(subDuration(behandling.periode.slutt, { days: 1 })) ?? null,
-        soknadJournalpostId: behandling.soknadJournalpostId,
-        kostnadssted: behandling.kostnadssted.enhetsnummer,
-        soknadDato: behandling.soknadDato,
-        kommentarIntern: behandling.kommentarIntern,
         tilskudd: behandling.tilskudd.map((t) => ({
           id: t.id,
           tilskuddId: t.tilskuddId,
           tilskuddOpplaeringType: t.tilskuddOpplaeringType,
           soknadBelop: t.soknadBelop,
+          periodeStart: yyyyMMddFormatting(t.periode.start) ?? null,
+          periodeSlutt: yyyyMMddFormatting(subDuration(t.periode.slutt, { days: 1 })) ?? null,
           vedtakResultat: t.vedtakResultat.type,
           kommentarVedtaksbrev: t.kommentarVedtaksbrev,
           utbetalingMottaker: t.utbetalingMottaker,
           belop: t.utbetalingBelop?.belop ?? null,
           kidNummer: t.kid,
+          soknadJournalpostId: t.soknadJournalpostId,
+          kostnadssted: t.kostnadssted.enhetsnummer,
+          soknadDato: t.soknadDato,
+          kommentarIntern: t.kommentarIntern,
         })),
       }
     : {
         id: v4(),
         gjennomforingId,
-        periodeSlutt: null,
-        periodeStart: null,
-        soknadJournalpostId: null,
-        kostnadssted: null,
-        soknadDato: null,
-        kommentarIntern: null,
         tilskudd: [defaultTilskuddRequest()],
       };
 
