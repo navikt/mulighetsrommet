@@ -27,7 +27,7 @@ data class TilskuddBehandlingDto(
     fun toDbo() = TilskuddBehandling(
         id = this.id,
         gjennomforingId = this.gjennomforingId,
-        tilskudd = this.tilskudd.map { it.toDbo() },
+        tilskudd = this.tilskudd.map { it.toTilskuddVedtak() },
         status = this.status.type,
         type = this.type,
     )

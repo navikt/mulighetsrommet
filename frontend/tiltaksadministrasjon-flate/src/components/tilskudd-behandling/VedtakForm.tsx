@@ -43,7 +43,6 @@ export function VedtakForm() {
   return (
     <>
       <VStack gap="space-20">
-        <VStack gap="space-8"></VStack>
         {tilskudd.map((t, index) => (
           <FormGroup key={index}>
             <InformasjonFraSoknad

@@ -4,7 +4,7 @@ import { FieldPath, FieldValues } from "react-hook-form";
 
 interface Props<T extends FieldValues> {
   kostnadssteder: KostnadsstedOption[];
-  fieldName: FieldPath<T>;
+  name: FieldPath<T>;
 }
 
 export interface KostnadsstedOption {
@@ -12,7 +12,7 @@ export interface KostnadsstedOption {
   navn: string;
 }
 
-export function VelgKostnadssted<T extends FieldValues>({ kostnadssteder, fieldName }: Props<T>) {
+export function VelgKostnadssted<T extends FieldValues>({ kostnadssteder, name }: Props<T>) {
   const options = kostnadssteder
     .sort((a, b) => a.navn.localeCompare(b.navn))
     .map(({ navn, enhetsnummer }) => {
@@ -27,7 +27,7 @@ export function VelgKostnadssted<T extends FieldValues>({ kostnadssteder, fieldN
       placeholder="Velg kostnadssted"
       size="small"
       label={tilsagnTekster.kostnadssted.label}
-      name={fieldName}
+      name={name}
       options={options}
     />
   );
