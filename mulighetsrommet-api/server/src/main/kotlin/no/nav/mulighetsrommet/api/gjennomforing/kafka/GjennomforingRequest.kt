@@ -1,14 +1,19 @@
+@file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class)
+
 package no.nav.mulighetsrommet.api.gjennomforing.kafka
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringResponse
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
@@ -18,7 +23,6 @@ sealed interface GjennomforingRequest {
     @Serializable
     @SerialName("EnkeltplassUtkast")
     data class EnkeltplassUtkast(
-        @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
         val payload: UpsertEnkeltplass,
     ) : GjennomforingRequest
@@ -26,7 +30,6 @@ sealed interface GjennomforingRequest {
     @Serializable
     @SerialName("EnkeltplassSoktInn")
     data class EnkeltplassSoktInn(
-        @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
         val totrinnskontroll: Totrinnskontroll,
         val payload: UpsertEnkeltplass,
@@ -35,7 +38,6 @@ sealed interface GjennomforingRequest {
     @Serializable
     @SerialName("EnkeltplassEndrePrisinformasjon")
     data class EnkeltplassEndrePrisinformasjon(
-        @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
         val totrinnskontroll: Totrinnskontroll,
         val payload: EnkeltplassPrisinformasjon,
@@ -44,7 +46,6 @@ sealed interface GjennomforingRequest {
     @Serializable
     @SerialName("EnkeltplassEndreInnhold")
     data class EnkeltplassEndreInnhold(
-        @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
         val payload: OpplaringKategorisering?,
     ) : GjennomforingRequest
@@ -52,7 +53,6 @@ sealed interface GjennomforingRequest {
     @Serializable
     @SerialName("EnkeltplassTilbakekallPrisinformasjon")
     data class EnkeltplassTilbakekallPrisinformasjon(
-        @Serializable(with = UUIDSerializer::class)
         override val gjennomforingId: UUID,
         val totrinnskontroll: Totrinnskontroll,
     ) : GjennomforingRequest
@@ -62,6 +62,8 @@ sealed interface GjennomforingRequest {
         val tiltakskode: Tiltakskode,
         val organisasjonsnummer: Organisasjonsnummer,
         val ansvarligEnhet: NavEnhetNummer,
+        val startDato: LocalDate,
+        val sluttDato: LocalDate,
         val prisinformasjon: EnkeltplassPrisinformasjon,
         val kategorisering: OpplaringKategorisering?,
         val opprettetAv: NavIdent,
@@ -69,7 +71,6 @@ sealed interface GjennomforingRequest {
 
     @Serializable
     data class Totrinnskontroll(
-        @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val behandletAv: NavIdent,
     )
@@ -104,13 +105,7 @@ sealed interface GjennomforingRequest {
 
     @Serializable
     data class OpplaringKategorisering(
-        val verdier: Map<
-            OpplaringKategoriseringResponse.Representerer,
-            List<
-                @Serializable(with = UUIDSerializer::class)
-                UUID,
-                >,
-            >,
+        val verdier: Map<OpplaringKategoriseringResponse.Representerer, List<UUID>>,
         val sertifiseringer: List<SertifiseringValg>,
     ) {
         @Serializable

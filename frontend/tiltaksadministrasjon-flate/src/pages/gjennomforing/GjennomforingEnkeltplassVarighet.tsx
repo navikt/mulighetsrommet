@@ -27,7 +27,7 @@ function getVarighetOgPameldingEnkeltplass(
     },
     {
       key: gjennomforingTekster.sluttdatoLabel,
-      value: formaterDato(gjennomforing.sluttDato) ?? "-",
+      value: formaterDato(gjennomforing.sluttDato),
     },
     {
       key: gjennomforingTekster.enkeltplass.deltakelsesmengde.dagerPerUke.label,

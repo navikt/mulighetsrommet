@@ -872,8 +872,8 @@ private fun Row.toGjennomforingEnkeltplass(): GjennomforingEnkeltplass {
             )
         },
         navn = string("navn"),
-        startDato = localDateOrNull("start_dato"),
-        sluttDato = localDateOrNull("slutt_dato"),
+        startDato = localDate("start_dato"),
+        sluttDato = localDate("slutt_dato"),
         status = GjennomforingEnkeltplassStatus.from(GjennomforingStatusType.valueOf(string("status"))),
         deltidsprosent = double("deltidsprosent"),
         antallPlasser = int("antall_plasser"),

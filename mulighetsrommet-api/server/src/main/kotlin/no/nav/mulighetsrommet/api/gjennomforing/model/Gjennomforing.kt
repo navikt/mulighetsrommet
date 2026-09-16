@@ -1,6 +1,9 @@
+@file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class, InstantSerializer::class)
+
 package no.nav.mulighetsrommet.api.gjennomforing.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.admin.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.admin.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
@@ -38,7 +41,6 @@ sealed class Gjennomforing {
 
     @Serializable
     data class Tiltakstype(
-        @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
         val tiltakskode: Tiltakskode,
@@ -46,7 +48,6 @@ sealed class Gjennomforing {
 
     @Serializable
     data class ArrangorUnderenhet(
-        @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val organisasjonsnummer: Organisasjonsnummer,
         val navn: String,
@@ -76,7 +77,6 @@ data class GjennomforingAvtaleDetaljer(
     val estimertVentetid: EstimertVentetid?,
     val administratorer: List<Administrator>,
     val opplaringKategorisering: OpplaringKategoriseringDetaljer?,
-    @Serializable(with = LocalDateSerializer::class)
     val tilgjengeligForArrangorDato: LocalDate?,
     val arrangorKontaktpersoner: List<ArrangorKontaktperson>,
 ) {
@@ -104,7 +104,6 @@ data class GjennomforingAvtaleDetaljer(
 
     @Serializable
     data class ArrangorKontaktperson(
-        @Serializable(with = UUIDSerializer::class)
         val id: UUID,
         val navn: String,
         val beskrivelse: String?,
@@ -115,7 +114,6 @@ data class GjennomforingAvtaleDetaljer(
 
 @Serializable
 data class GjennomforingAvtale(
-    @Serializable(with = UUIDSerializer::class)
     override val id: UUID,
     override val tiltakstype: Tiltakstype,
     override val lopenummer: Tiltaksnummer,
@@ -123,20 +121,15 @@ data class GjennomforingAvtale(
     override val arena: ArenaData?,
     override val navn: String,
     val status: GjennomforingAvtaleStatus,
-    @Serializable(with = LocalDateSerializer::class)
     override val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
     override val sluttDato: LocalDate?,
     override val deltidsprosent: Double,
     override val antallPlasser: Int,
-    @Serializable(with = InstantSerializer::class)
     override val opprettetTidspunkt: Instant,
-    @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
     override val prismodell: Prismodell,
     override val oppstart: GjennomforingOppstartstype,
     override val pameldingType: GjennomforingPameldingType,
-    @Serializable(with = UUIDSerializer::class)
     val avtaleId: UUID,
     val kontorstruktur: List<Kontorstruktur>,
     val apentForPamelding: Boolean,
@@ -145,9 +138,7 @@ data class GjennomforingAvtale(
     @Serializable
     data class StengtPeriode(
         val id: Int,
-        @Serializable(with = LocalDateSerializer::class)
         val start: LocalDate,
-        @Serializable(with = LocalDateSerializer::class)
         val slutt: LocalDate,
         val beskrivelse: String,
     )
@@ -155,7 +146,6 @@ data class GjennomforingAvtale(
 
 @Serializable
 data class GjennomforingEnkeltplass(
-    @Serializable(with = UUIDSerializer::class)
     override val id: UUID,
     override val lopenummer: Tiltaksnummer,
     override val tiltakstype: Tiltakstype,
@@ -163,15 +153,11 @@ data class GjennomforingEnkeltplass(
     override val arena: ArenaData?,
     override val navn: String,
     val status: GjennomforingEnkeltplassStatus,
-    @Serializable(with = LocalDateSerializer::class)
-    override val startDato: LocalDate?,
-    @Serializable(with = LocalDateSerializer::class)
-    override val sluttDato: LocalDate?,
+    override val startDato: LocalDate,
+    override val sluttDato: LocalDate,
     override val deltidsprosent: Double,
     override val antallPlasser: Int,
-    @Serializable(with = InstantSerializer::class)
     override val opprettetTidspunkt: Instant,
-    @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
     override val prismodell: Prismodell,
     override val oppstart: GjennomforingOppstartstype,
@@ -194,7 +180,6 @@ data class GjennomforingEnkeltplass(
 
 @Serializable
 data class GjennomforingArena(
-    @Serializable(with = UUIDSerializer::class)
     override val id: UUID,
     override val lopenummer: Tiltaksnummer,
     override val tiltakstype: Tiltakstype,
@@ -202,15 +187,11 @@ data class GjennomforingArena(
     override val arena: ArenaData?,
     override val navn: String,
     val status: GjennomforingAvtaleStatus,
-    @Serializable(with = LocalDateSerializer::class)
     override val startDato: LocalDate,
-    @Serializable(with = LocalDateSerializer::class)
     override val sluttDato: LocalDate?,
     override val deltidsprosent: Double,
     override val antallPlasser: Int,
-    @Serializable(with = InstantSerializer::class)
     override val opprettetTidspunkt: Instant,
-    @Serializable(with = InstantSerializer::class)
     override val oppdatertTidspunkt: Instant,
     override val oppstart: GjennomforingOppstartstype,
     override val pameldingType: GjennomforingPameldingType,

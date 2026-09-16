@@ -60,6 +60,8 @@ data class UpsertEnkeltplass(
     val tiltakskode: Tiltakskode,
     val arrangorId: UUID,
     val ansvarligEnhet: NavEnhetNummer,
+    val startDato: LocalDate,
+    val sluttDato: LocalDate,
     val kategorisering: OpplaringKategoriseringRequest?,
     val prismodell: Prismodell,
 ) {
@@ -114,7 +116,7 @@ class GjennomforingEnkeltplassService(
             return enkeltplass.right()
         }
 
-        upsert(utkast.toUpsert())
+        upsert(utkast.toUpsert(GjennomforingEnkeltplassStatus.UtkastTilPamelding))
             .also { upsertKategorisering(utkast.id, utkast.tiltakskode, utkast.kategorisering) }
             .also { updateFreeTextSearch(it, norskIdent = null) }
             .also { publishTiltaksgjennomforingV2ToKafka(it) }
@@ -130,12 +132,12 @@ class GjennomforingEnkeltplassService(
         }
 
         when (enkeltplass) {
-            null -> upsert(soktInn.toUpsert())
+            null -> upsert(soktInn.toUpsert(GjennomforingEnkeltplassStatus.SoktInn))
                 .also { upsertKategorisering(soktInn.id, soktInn.tiltakskode, soktInn.kategorisering) }
                 .also { updateFreeTextSearch(it, norskIdent = null) }
                 .also { publishTiltaksgjennomforingV2ToKafka(it) }
 
-            else -> upsert(soktInn.toUpsert(enkeltplass.gjennomforing))
+            else -> upsert(soktInn.toUpsert(GjennomforingEnkeltplassStatus.SoktInn, enkeltplass.gjennomforing))
                 .also { upsertKategorisering(soktInn.id, soktInn.tiltakskode, soktInn.kategorisering) }
                 .also { publishTiltaksgjennomforingV2ToKafka(it) }
         }
@@ -277,14 +279,19 @@ class GjennomforingEnkeltplassService(
     fun updateFromDeltaker(
         deltaker: Deltaker,
         norskIdent: NorskIdent,
-    ): Enkeltplass = db.transaction {
+    ): Validated<Enkeltplass> = db.transaction {
         val enkeltplass = getAndAcquireLock(deltaker.gjennomforingId)
 
         getDeltaker(deltaker.gjennomforingId)?.let { eksisterende ->
             when {
-                deltaker.id != eksisterende.id && deltaker.erFeilregistrert() -> return enkeltplass
-                deltaker.id != eksisterende.id -> error("Enkeltplass med id=${deltaker.gjennomforingId} har allerede en annen deltaker")
-                deltaker.endretTidspunkt < eksisterende.endretTidspunkt -> return enkeltplass
+                deltaker.id != eksisterende.id && deltaker.erFeilregistrert() -> return enkeltplass.right()
+
+                deltaker.id != eksisterende.id ->
+                    return FieldError.of("Enkeltplass med id=${deltaker.gjennomforingId} har allerede en annen deltaker")
+                        .nel()
+                        .left()
+
+                deltaker.endretTidspunkt < eksisterende.endretTidspunkt -> return enkeltplass.right()
             }
         }
 
@@ -292,17 +299,18 @@ class GjennomforingEnkeltplassService(
         updateFreeTextSearch(enkeltplass.gjennomforing, norskIdent)
 
         if (!tiltakstyper.erMigrert(enkeltplass.gjennomforing.tiltakstype.tiltakskode)) {
-            return enkeltplass
+            return enkeltplass.right()
         }
 
-        val upsert = deltaker.toUpsert(enkeltplass.gjennomforing)
-        if (!harEnkeltplassEndringer(upsert, enkeltplass.gjennomforing)) {
-            return enkeltplass
-        }
+        deltaker.toUpsert(enkeltplass.gjennomforing).map { upsert ->
+            if (!harEnkeltplassEndringer(upsert, enkeltplass.gjennomforing)) {
+                return@map enkeltplass
+            }
 
-        upsert(upsert)
-            .also { publishTiltaksgjennomforingV2ToKafka(it) }
-            .let { logEndring("Oppdatert fra deltaker", it.id, Tiltaksadministrasjon) }
+            upsert(upsert)
+                .also { publishTiltaksgjennomforingV2ToKafka(it) }
+                .let { logEndring("Oppdatert fra deltaker", it.id, Tiltaksadministrasjon) }
+        }
     }
 
     fun get(id: UUID): Enkeltplass? = db.session {
@@ -676,15 +684,18 @@ class GjennomforingEnkeltplassService(
     }
 }
 
-private fun UpsertEnkeltplass.toUpsert(gjennomforing: GjennomforingEnkeltplass? = null) = UpsertArenaEnkeltplass(
+private fun UpsertEnkeltplass.toUpsert(
+    status: GjennomforingEnkeltplassStatus,
+    gjennomforing: GjennomforingEnkeltplass? = null,
+) = UpsertArenaEnkeltplass(
     id = id,
     tiltakskode = tiltakskode,
     arrangorId = arrangorId,
     ansvarligEnhet = ansvarligEnhet,
     prismodell = prismodell,
-    status = gjennomforing?.status ?: GjennomforingEnkeltplassStatus.UtkastTilPamelding,
-    startDato = gjennomforing?.startDato,
-    sluttDato = gjennomforing?.sluttDato,
+    status = gjennomforing?.status ?: status,
+    startDato = gjennomforing?.startDato ?: startDato,
+    sluttDato = gjennomforing?.sluttDato ?: sluttDato,
     deltidsprosent = gjennomforing?.deltidsprosent ?: 100.0,
     antallPlasser = gjennomforing?.antallPlasser ?: 1,
     navn = gjennomforing?.navn,
@@ -694,22 +705,28 @@ private fun UpsertEnkeltplass.toUpsert(gjennomforing: GjennomforingEnkeltplass? 
 
 private fun Deltaker.toUpsert(
     gjennomforing: GjennomforingEnkeltplass,
-): UpsertArenaEnkeltplass = UpsertArenaEnkeltplass(
-    id = gjennomforing.id,
-    tiltakskode = gjennomforing.tiltakstype.tiltakskode,
-    arrangorId = gjennomforing.arrangor.id,
-    navn = gjennomforing.navn,
-    prismodell = toUpsertPrismodell(gjennomforing.prismodell),
-    ansvarligEnhet = gjennomforing.ansvarligEnhet.enhetsnummer,
-    arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
-    arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
-    antallPlasser = gjennomforing.antallPlasser,
-    startDato = startDato,
-    sluttDato = sluttDato,
-    status = toGjennomforingEnkeltplassStatus(status.type),
-    // TODO: nullable i stedet for default 100
-    deltidsprosent = deltakelsesmengder.lastOrNull()?.deltakelsesprosent?.toDouble() ?: 100.0,
-)
+): Validated<UpsertArenaEnkeltplass> {
+    val startDato = startDato
+        ?: return FieldError.of("Deltaker mangler startdato").nel().left()
+    val sluttDato = sluttDato
+        ?: return FieldError.of("Deltaker mangler sluttdato").nel().left()
+    return UpsertArenaEnkeltplass(
+        id = gjennomforing.id,
+        tiltakskode = gjennomforing.tiltakstype.tiltakskode,
+        arrangorId = gjennomforing.arrangor.id,
+        navn = gjennomforing.navn,
+        prismodell = toUpsertPrismodell(gjennomforing.prismodell),
+        ansvarligEnhet = gjennomforing.ansvarligEnhet.enhetsnummer,
+        arenaTiltaksnummer = gjennomforing.arena?.tiltaksnummer,
+        arenaAnsvarligEnhet = gjennomforing.arena?.ansvarligNavEnhet,
+        antallPlasser = gjennomforing.antallPlasser,
+        startDato = startDato,
+        sluttDato = sluttDato,
+        status = toGjennomforingEnkeltplassStatus(status.type),
+        // TODO: nullable i stedet for default 100
+        deltidsprosent = deltakelsesmengder.lastOrNull()?.deltakelsesprosent?.toDouble() ?: 100.0,
+    ).right()
+}
 
 private fun toUpsertPrismodell(prismodell: Prismodell): UpsertEnkeltplass.Prismodell = when (prismodell) {
     is Prismodell.AnskaffetEnkeltplass -> UpsertEnkeltplass.Prismodell.Anskaffelse(prismodell.totalbelop.belop)

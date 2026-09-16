@@ -129,6 +129,8 @@ private fun toRequest(
     tiltakskode = payload.tiltakskode,
     arrangorId = arrangorId,
     ansvarligEnhet = payload.ansvarligEnhet,
+    startDato = payload.startDato,
+    sluttDato = payload.sluttDato,
     kategorisering = payload.kategorisering?.let(KategoriseringMapper::fromKafkaPayload),
     prismodell = toPrismodell(payload.prisinformasjon),
 )

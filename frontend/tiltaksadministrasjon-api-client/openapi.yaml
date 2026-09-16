@@ -6306,14 +6306,10 @@ components:
         arrangor:
           $ref: "#/components/schemas/GjennomforingDtoArrangor"
         startDato:
-          type:
-          - "null"
-          - string
+          type: string
           format: date
         sluttDato:
-          type:
-          - "null"
-          - string
+          type: string
           format: date
         status:
           $ref: "#/components/schemas/DATA_ELEMENT_STATUS"

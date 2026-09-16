@@ -78,9 +78,7 @@ export function TilsagnForm(props: Props) {
     });
   };
 
-  const fromDate = gjennomforing.startDato
-    ? subDuration(new Date(gjennomforing.startDato), { months: 1 })
-    : new Date();
+  const fromDate = subDuration(new Date(gjennomforing.startDato), { months: 1 });
   const toDate = addDuration(new Date(), { years: 1 });
   return (
     <FormProvider {...form}>
