@@ -35,7 +35,7 @@ export function TilskuddDetaljerPage() {
                 <ExpansionCard.Title>
                   <VStack gap="space-2" align="start">
                     <Heading level="2" size="xsmall" spacing={false}>
-                      Vedtak {index + 1}
+                      Vedtak {vedtak.lopenummer}
                     </Heading>
                     <BodyShort size="small">{vedtak.vedtakResultat}</BodyShort>
                   </VStack>
@@ -45,7 +45,7 @@ export function TilskuddDetaljerPage() {
                 <VStack gap="space-16">
                   <Definisjonsliste
                     title="Vedtaksdata"
-                    columns={1}
+                    columns={2}
                     definitions={[
                       { key: "Vedtaksjournalpost-ID", value: vedtak.vedtakJournalpostId ?? "-" },
                       { key: "Journalpost-ID i Gosys", value: vedtak.soknadJournalpostId },

@@ -28,6 +28,7 @@ data class Tilskudd(
         val id: UUID,
         @Serializable(with = UUIDSerializer::class)
         val behandlingId: UUID,
+        val lopenummer: Int,
         val soknadJournalpostId: String,
         @Serializable(with = LocalDateSerializer::class)
         val soknadDato: LocalDate,

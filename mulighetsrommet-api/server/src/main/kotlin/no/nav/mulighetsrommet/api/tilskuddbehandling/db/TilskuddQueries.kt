@@ -18,6 +18,7 @@ class TilskuddQueries(private val session: Session) {
         val vedtakQuery = """
             select * from view_tilskudd_vedtak
             where tilskudd_id = :id::uuid
+            order by lopenummer desc
         """.trimIndent()
 
         val vedtak = session.list(queryOf(vedtakQuery, mapOf("id" to id))) { it.toVedtak() }
@@ -89,6 +90,7 @@ private fun Row.toVedtak(): Tilskudd.Vedtak {
     return Tilskudd.Vedtak(
         id = uuid("id"),
         behandlingId = uuid("tilskudd_behandling_id"),
+        lopenummer = int("lopenummer"),
         soknadJournalpostId = string("soknad_journalpost_id"),
         soknadDato = localDate("soknad_dato"),
         periode = periode("periode"),

@@ -42,6 +42,9 @@ export function TilskuddPage() {
                 Tilskuddsnummer
               </TableColumnHeader>
               <TableColumnHeader sortKey="type" sortable>
+                Antall vedtak
+              </TableColumnHeader>
+              <TableColumnHeader sortKey="type" sortable>
                 Vedtaksresultat
               </TableColumnHeader>
               <Table.HeaderCell></Table.HeaderCell>
@@ -54,6 +57,7 @@ export function TilskuddPage() {
                 <Table.DataCell>{b.periode && formaterPeriodeSlutt(b.periode)}</Table.DataCell>
                 <Table.DataCell>{b.type.navn}</Table.DataCell>
                 <Table.DataCell>{b.tilskuddsnummer}</Table.DataCell>
+                <Table.DataCell>{b.sisteVedtakLopenummer}</Table.DataCell>
                 <Table.DataCell>
                   {b.sisteVedtakResultat ? (
                     <DataElementStatusTag {...b.sisteVedtakResultat.status} />
