@@ -56,35 +56,41 @@ class TilskuddBehandlingQueries(private val session: Session) {
 
         execute(queryOf(query, params))
 
-        dbo.tilskudd.forEach { tilskuddVedtak ->
-            upsertTilskudd(behandling = dbo, tilskuddVedtak = tilskuddVedtak)
+        val (gjennomforingsnummer, sisteLopenummer) = getTiltaksnummerBase(dbo.gjennomforingId)
+        dbo.tilskudd.forEachIndexed { index, tilskuddVedtak ->
+            val nyttTilskuddsnummer = "$gjennomforingsnummer-${sisteLopenummer + index + 1}"
+            upsertTilskudd(behandling = dbo, tilskuddVedtak = tilskuddVedtak, nyttTilskuddsnummer = nyttTilskuddsnummer)
         }
     }
 
-    private fun upsertTilskudd(
-        behandling: TilskuddBehandling,
-        tilskuddVedtak: TilskuddVedtak,
-    ): Unit = withTransaction(session) {
+    private fun getTiltaksnummerBase(gjennomforingId: UUID): Pair<String, Int> = withTransaction(session) {
         @Language("PostgreSQL")
         val tilskuddsnummerQuery = """
             select
                 g.lopenummer,
                 (
-                    select count(distinct t.id)
+                    select coalesce(max(split_part(t.tilskuddsnummer, '-', 2)::int), 0)
                     from tilskudd t
                     where t.gjennomforing_id = g.id
-                ) as antall_eksisterende_tilskudd
+                ) as siste_lopenummer
             from gjennomforing g
             where g.id = ?::uuid
         """.trimIndent()
 
-        val nyTilskuddsnummer = single(queryOf(tilskuddsnummerQuery, behandling.gjennomforingId)) { row ->
+        val nyTilskuddsnummer = single(queryOf(tilskuddsnummerQuery, gjennomforingId)) { row ->
             val lopenummer = row.string("lopenummer")
-            val antallEksisterendeTilskudd = row.int("antall_eksisterende_tilskudd")
-            "$lopenummer-${antallEksisterendeTilskudd + 1}"
+            val sisteLopenummer = row.int("siste_lopenummer")
+            Pair(lopenummer, sisteLopenummer)
         }
-        requireNotNull(nyTilskuddsnummer) { "Mangler gjennomforing med id ${behandling.gjennomforingId}" }
+        requireNotNull(nyTilskuddsnummer) { "Mangler gjennomforing med id $gjennomforingId" }
+        nyTilskuddsnummer
+    }
 
+    private fun upsertTilskudd(
+        behandling: TilskuddBehandling,
+        tilskuddVedtak: TilskuddVedtak,
+        nyttTilskuddsnummer: String,
+    ): Unit = withTransaction(session) {
         @Language("PostgreSQL")
         val tilskuddQuery = """
             insert into tilskudd (
@@ -98,14 +104,13 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 :tilskuddsnummer,
                 :gjennomforing_id::uuid
             ) on conflict (id) do update set
-                tilskudd_opplaering_id = excluded.tilskudd_opplaering_id,
-                tilskuddsnummer = excluded.tilskuddsnummer
+                tilskudd_opplaering_id = excluded.tilskudd_opplaering_id
         """.trimIndent()
 
         val tilskuddParams = mapOf(
             "id" to tilskuddVedtak.tilskuddId,
             "tilskudd_opplaering_kode" to tilskuddVedtak.tilskuddOpplaeringType.name,
-            "tilskuddsnummer" to nyTilskuddsnummer,
+            "tilskuddsnummer" to nyttTilskuddsnummer,
             "gjennomforing_id" to behandling.gjennomforingId,
         )
 
