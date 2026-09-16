@@ -3,7 +3,6 @@ package no.nav.mulighetsrommet.api.sanity
 import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.clients.sanity.Mutation
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.clients.sanity.SanityEnhet
 import no.nav.mulighetsrommet.api.clients.sanity.SanityTiltakstypeFields
 import org.slf4j.LoggerFactory
 import java.util.UUID
@@ -30,12 +29,5 @@ class SanityService(
         } else {
             log.info("Patchet tiltakstype med id=$sanityId")
         }
-    }
-
-    suspend fun createSanityEnheter(
-        sanityEnheter: List<SanityEnhet>,
-    ): SanityClient.MutateResponse {
-        val mutations = sanityEnheter.map { Mutation.createOrReplace(it) }
-        return sanityClient.mutate(mutations)
     }
 }

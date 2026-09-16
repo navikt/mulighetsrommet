@@ -92,7 +92,6 @@ import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
-import no.nav.mulighetsrommet.api.navenhet.service.SanityNavEnhetPublisher
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdl.HentBrukerPdlQuery
@@ -525,7 +524,6 @@ private fun services(appConfig: AppConfig) = module {
     single { TiltakstypeDtoQuery(get(), get()) }
     single { UpdateTiltakstypeUseCase(get()) }
     single { RedaksjoneltInnholdLenkeService(get()) }
-    single { SanityNavEnhetPublisher(get(), get()) }
     single { SynkroniserNavEnheterUseCase(get()) }
     single { SynkroniserUtdanningerUseCase(get()) }
     single { NavEnhetDtoQuery(get()) }
@@ -640,7 +638,7 @@ private fun tasks(config: AppConfig) = module {
             get(),
             get(),
         )
-        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(tasks.synchronizeNorgEnheter, get(), get(), get())
+        val synchronizeNorgEnheterTask = SynchronizeNorgEnheter(tasks.synchronizeNorgEnheter, get(), get())
         val notifySluttdatoForGjennomforingerNarmerSeg = NotifySluttdatoForGjennomforingerNarmerSeg(
             tasks.notifySluttdatoForGjennomforingerNarmerSeg,
             get(),
