@@ -8,7 +8,6 @@ import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
-import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -29,6 +28,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingSta
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentForhandsvisningVedtaksbrevInnhold
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.model.Agent
@@ -214,7 +214,9 @@ class TilskuddBehandlingService(
                     navIdent = navIdent,
                     kostnadssted = kostnadssted,
                     totrinnskontroll = totrinnskontroll,
-                    harTilskuddUtenOpphor = behandling.tilskudd.any { tilskudd -> tilskudd.utbetalingBelop?.let { utbetalingsBelop -> utbetalingsBelop.belop > 0 } ?: false },
+                    harTilskuddUtenOpphor = behandling.tilskudd.any { tilskudd ->
+                        tilskudd.utbetalingBelop?.let { utbetalingsBelop -> utbetalingsBelop.belop > 0 } ?: false
+                    },
                 )
             }
             .toSet()
@@ -345,16 +347,18 @@ class TilskuddBehandlingService(
         val gjennomforing =
             queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
 
-        val content = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(
+        val innhold = hentForhandsvisningVedtaksbrevInnhold(
             tilskuddBehandling = tilskuddBehandling,
-            navn = "<navn>",
-            norskIdent = null,
             gjennomforing = gjennomforing,
-            saksbehandler = AgentDto.fromAgent(NavIdent("Z123456"), "<saksbehandler-navn>"),
-            beslutter = AgentDto.fromAgent(NavIdent("Z123456"), "<beslutter-navn>"),
-            besluttetTidspunkt = LocalDateTime.now(),
+        ).fold(
+            { error -> throw IllegalStateException("Klarte ikke hente innhold for vedtaksbrev: $error") },
+            { it },
         )
 
-        return pdf.getPdfDocument(content)
+        val mappedContent = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(
+            innhold,
+        )
+
+        return pdf.getPdfDocument(mappedContent)
     }
 }

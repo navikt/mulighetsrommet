@@ -59,10 +59,10 @@ class JournalforVedtaksbrev(
     }
 
     suspend fun journalfor(id: UUID): Either<String, String> = db.transaction {
-        val tilskuddbehandling = queries.tilskuddBehandling.getOrError(id)
-        if (tilskuddbehandling.vedtakJournalpostId != null) {
-            logger.info("Vedtak om tilskudd er allerede journalført med id ${tilskuddbehandling.vedtakJournalpostId}")
-            return@transaction Either.Right(tilskuddbehandling.vedtakJournalpostId)
+        val vedtakJournalpostId = queries.tilskuddBehandling.getVedtakJournalpostId(id)
+        if (vedtakJournalpostId != null) {
+            logger.info("Vedtak om tilskudd er allerede journalført med id $vedtakJournalpostId")
+            return@transaction Either.Right(vedtakJournalpostId)
         }
 
         logger.info("Journalfører vedtak med id: $id")
@@ -73,8 +73,8 @@ class JournalforVedtaksbrev(
                     val journalpost = vedtakJournalpost(
                         pdf,
                         id,
-                        innhold.deltakerNorskIdent,
-                        innhold.saksnummer,
+                        innhold.deltakerPersonalia.norskIdent,
+                        innhold.tiltak.lopenummer,
                     )
                     dokarkClient
                         .opprettJournalpost(journalpost, AccessType.M2M)

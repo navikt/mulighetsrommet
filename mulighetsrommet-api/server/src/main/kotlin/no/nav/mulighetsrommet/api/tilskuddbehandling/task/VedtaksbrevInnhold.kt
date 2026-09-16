@@ -8,7 +8,9 @@ import no.nav.mulighetsrommet.api.QueryContext
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.validateGjennomforingPeriode
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Periode
@@ -95,7 +97,7 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
 
     val tilskuddvedtak = tilskuddBehandling.tilskudd.map { tilskudd ->
         TilskuddBrevVedtak(
-            periode = tilskuddBehandling.periode,
+            periode = tilskudd.periode,
             tilskuddType = tilskudd.tilskuddOpplaeringType.toDisplayName(),
             vedtakResultat = tilskudd.vedtakResultat.type,
             begrunnelse = tilskudd.kommentarVedtaksbrev,
@@ -117,6 +119,55 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
         beslutter = formatNavn(beslutterNavn),
         enhet = gjennomforing.ansvarligEnhet.navn,
         besluttetTidspunkt = (totrinnskontroll as TotrinnskontrollDto.Besluttet).besluttetTidspunkt,
+    ).right()
+}
+
+fun hentForhandsvisningVedtaksbrevInnhold(
+    tilskuddBehandling: TilskuddBehandling,
+    gjennomforing: Gjennomforing,
+): Either<String, VedtaksbrevInnhold> {
+    val deltakerPersonalia = DeltakerPersonalia(
+        navn = "<deltaker-navn>",
+        norskIdent = "<deltaker-fnr>",
+    )
+
+    val arrangor = Arrangor(
+        navn = gjennomforing.arrangor.navn,
+        organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer.value,
+    )
+
+    val tiltak = Tiltak(
+        navn = gjennomforing.navn,
+        type = gjennomforing.tiltakstype.tiltakskode.name,
+        lopenummer = gjennomforing.lopenummer.value,
+        periode = validateGjennomforingPeriode(gjennomforing)
+            .fold({ return it.left() }, { it }),
+    )
+
+    val tilskuddvedtak = tilskuddBehandling.tilskudd.map { tilskudd ->
+        TilskuddBrevVedtak(
+            periode = tilskudd.periode,
+            tilskuddType = tilskudd.tilskuddOpplaeringType.toDisplayName(),
+            vedtakResultat = tilskudd.vedtakResultat,
+            begrunnelse = tilskudd.kommentarVedtaksbrev,
+            belop = tilskudd.utbetalingBelop?.belop?.let {
+                Belop(
+                    belop = it,
+                    valuta = tilskudd.utbetalingBelop.valuta.name,
+                )
+            },
+        )
+    }
+
+    return VedtaksbrevInnhold(
+        tilskuddvedtak = tilskuddvedtak,
+        tiltak = tiltak,
+        deltakerPersonalia = deltakerPersonalia,
+        arrangor = arrangor,
+        saksbehandler = "<saksbehandler-navn>",
+        beslutter = "<beslutter-navn>",
+        enhet = "<enhet-navn>",
+        besluttetTidspunkt = LocalDateTime.now(),
     ).right()
 }
 

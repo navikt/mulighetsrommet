@@ -117,7 +117,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Følgende informasjon er registrert hos NAV:"
+              "text": "Følgende informasjon er registrert hos Nav:"
             }
           ]
         },
@@ -285,7 +285,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Følgende informasjon er registrert hos NAV:"
+              "text": "Følgende informasjon er registrert hos Nav:"
             }
           ]
         },
@@ -454,7 +454,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Følgende informasjon er registrert hos NAV:"
+              "text": "Følgende informasjon er registrert hos Nav:"
             }
           ]
         },
@@ -622,7 +622,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Følgende informasjon er registrert hos NAV:"
+              "text": "Følgende informasjon er registrert hos Nav:"
             }
           ]
         },
@@ -791,7 +791,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Følgende informasjon er registrert hos NAV:"
+              "text": "Følgende informasjon er registrert hos Nav:"
             }
           ]
         },

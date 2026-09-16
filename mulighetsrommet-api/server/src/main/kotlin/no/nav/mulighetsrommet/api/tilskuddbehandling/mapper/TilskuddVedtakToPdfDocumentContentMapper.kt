@@ -156,8 +156,6 @@ object TilskuddVedtakToPdfDocumentContentMapper {
             }
         }
     }
-
-
 }
 
 private const val HJEMMEL =

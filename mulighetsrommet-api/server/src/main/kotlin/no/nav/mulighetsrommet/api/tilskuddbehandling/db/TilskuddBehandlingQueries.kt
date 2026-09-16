@@ -283,7 +283,28 @@ class TilskuddBehandlingQueries(private val session: Session) {
             where tilskudd_behandling_id = :behandling_id::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, mapOf("behandling_id" to behandlingId))) { it.stringOrNull("vedtak_journalpost_distribuering_id") }
+        return session.single(
+            queryOf(
+                query,
+                mapOf("behandling_id" to behandlingId),
+            ),
+        ) { it.stringOrNull("vedtak_journalpost_distribuering_id") }
+    }
+
+    fun getVedtakJournalpostId(behandlingId: UUID): String? {
+        @Language("PostgreSQL")
+        val query = """
+            select vedtak_journalpost_id
+            from tilskudd_vedtak
+            where tilskudd_behandling_id = :behandling_id::uuid
+        """.trimIndent()
+
+        return session.single(
+            queryOf(
+                query,
+                mapOf("behandling_id" to behandlingId),
+            ),
+        ) { it.stringOrNull("vedtak_journalpost_id") }
     }
 
     fun getOrError(id: UUID): TilskuddBehandlingDto {
