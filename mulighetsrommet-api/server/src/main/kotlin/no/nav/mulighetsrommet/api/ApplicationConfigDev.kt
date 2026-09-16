@@ -421,7 +421,7 @@ val ApplicationConfigDev = AppConfig(
         scope = "api://dev-fss.teamdokumenthandtering.dokdistfordeling/.default",
     ),
     kontoregisterOrganisasjon = AuthenticatedHttpClientConfig(
-        url = "https://sokos-kontoregister-q1.dev-fss-pub.nais.io",
+        url = "https://sokos-kontoregister-q2.dev-fss-pub.nais.io",
         scope = "api://dev-fss.okonomi.sokos-kontoregister/.default",
     ),
     tasks = TaskConfig(
