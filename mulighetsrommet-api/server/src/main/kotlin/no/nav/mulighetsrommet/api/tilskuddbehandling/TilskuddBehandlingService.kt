@@ -214,6 +214,7 @@ class TilskuddBehandlingService(
                     navIdent = navIdent,
                     kostnadssted = kostnadssted,
                     totrinnskontroll = totrinnskontroll,
+                    harTilskuddUtenOpphor = behandling.tilskudd.any { tilskudd -> tilskudd.utbetalingBelop?.let { utbetalingsBelop -> utbetalingsBelop.belop > 0 } ?: false },
                 )
             }
             .toSet()
@@ -224,6 +225,7 @@ class TilskuddBehandlingService(
         navIdent: NavIdent,
         kostnadssted: NavEnhetNummer,
         totrinnskontroll: TotrinnskontrollDto,
+        harTilskuddUtenOpphor: Boolean,
     ): Boolean {
         val ansatt = db.session { queries.ansatt.getOrError(navIdent) }
 
@@ -244,7 +246,7 @@ class TilskuddBehandlingService(
             }
 
             TilskuddBehandlingHandling.OPPHOR -> {
-                teamMulighetsrommet && erIkkeBehandletAvAnsatt
+                teamMulighetsrommet && harTilskuddUtenOpphor
             }
         }
     }
