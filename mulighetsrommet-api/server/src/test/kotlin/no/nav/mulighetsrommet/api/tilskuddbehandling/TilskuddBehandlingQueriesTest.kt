@@ -3,6 +3,8 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import kotliquery.queryOf
+import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
@@ -183,4 +185,30 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             }
         }
     }
+
+    test("upsert beholder tilskuddsnummer ved retry") {
+        database.runAndRollback {
+            domain.initialize()
+
+            queries.tilskuddBehandling.upsert(behandling)
+            val førsteTilskuddsnummer = behandling.tilskudd.map { tilskuddVedtak ->
+                tilskuddsnummerFor(tilskuddVedtak.tilskuddId)
+            }
+
+            queries.tilskuddBehandling.upsert(behandling)
+            val andreTilskuddsnummer = behandling.tilskudd.map { tilskuddVedtak ->
+                tilskuddsnummerFor(tilskuddVedtak.tilskuddId)
+            }
+
+            andreTilskuddsnummer shouldBe førsteTilskuddsnummer
+        }
+    }
 })
+
+private fun TransactionalQueryContext.tilskuddsnummerFor(tilskuddId: UUID): String {
+    return requireNotNull(
+        session.single(queryOf("select tilskuddsnummer from tilskudd where id = ?::uuid", tilskuddId)) {
+            it.string("tilskuddsnummer")
+        },
+    )
+}
