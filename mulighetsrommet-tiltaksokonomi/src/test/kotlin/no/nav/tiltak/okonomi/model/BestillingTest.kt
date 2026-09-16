@@ -10,6 +10,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
@@ -21,7 +22,7 @@ class BestillingTest : FunSpec({
 
     context("fromOpprettBestilling") {
         val opprettBestilling = OpprettBestilling(
-            bestillingsnummer = "2025/1",
+            bestillingsnummer = Bestillingsnummer("A-2025/1-1"),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             arrangor = OpprettBestilling.Arrangor.Norsk(Organisasjonsnummer("234567891")),

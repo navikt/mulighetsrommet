@@ -67,6 +67,7 @@ import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
@@ -1031,7 +1032,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 Json.decodeFromString<OkonomiBestillingMelding>(records[0].value.decodeToString())
                     .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
                     .payload.should {
-                        it.fakturanummer shouldBe "A-2025/1-1-1"
+                        it.fakturanummer shouldBe Fakturanummer("A-2025/1-1-1")
                         it.belop shouldBe 1
                         it.behandletAv shouldBe NavAnsattFixture.DonaldDuck.navIdent.toOkonomiPart()
                         it.besluttetAv shouldBe NavAnsattFixture.MikkeMus.navIdent.toOkonomiPart()
@@ -1041,7 +1042,7 @@ class AdminUtbetalingServiceTest : FunSpec({
                 Json.decodeFromString<OkonomiBestillingMelding>(records[1].value.decodeToString())
                     .shouldBeTypeOf<OkonomiBestillingMelding.Faktura>()
                     .payload.should {
-                        it.fakturanummer shouldBe "A-2025/1-2-1"
+                        it.fakturanummer shouldBe Fakturanummer("A-2025/1-2-1")
                         it.belop shouldBe 2
                         it.behandletAv shouldBe NavAnsattFixture.DonaldDuck.navIdent.toOkonomiPart()
                         it.besluttetAv shouldBe NavAnsattFixture.MikkeMus.navIdent.toOkonomiPart()

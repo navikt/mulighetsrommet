@@ -6,7 +6,6 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.tiltak.okonomi.Tilskuddstype
-import no.nav.tiltak.okonomi.oebs.OebsKontering
 import no.nav.tiltak.okonomi.test.Fixtures
 import java.time.LocalDate
 
@@ -72,14 +71,14 @@ class OebsMeldingMapperTest : FunSpec({
 
             melding.fakturaLinjer shouldBe listOf(
                 OebsFakturaMelding.Linje(
-                    bestillingsNummer = "A-1",
+                    bestillingsNummer = "A-1-1",
                     bestillingsLinjeNummer = 1,
                     antall = 500,
                     pris = 1,
                     erSisteFaktura = false,
                 ),
                 OebsFakturaMelding.Linje(
-                    bestillingsNummer = "A-1",
+                    bestillingsNummer = "A-1-1",
                     bestillingsLinjeNummer = 2,
                     antall = 500,
                     pris = 1,
@@ -97,14 +96,14 @@ class OebsMeldingMapperTest : FunSpec({
 
             melding.fakturaLinjer shouldBe listOf(
                 OebsFakturaMelding.Linje(
-                    bestillingsNummer = "A-1",
+                    bestillingsNummer = "A-1-1",
                     bestillingsLinjeNummer = 1,
                     antall = 500,
                     pris = 1,
                     erSisteFaktura = false,
                 ),
                 OebsFakturaMelding.Linje(
-                    bestillingsNummer = "A-1",
+                    bestillingsNummer = "A-1-1",
                     bestillingsLinjeNummer = 2,
                     antall = 500,
                     pris = 1,
@@ -133,7 +132,7 @@ class OebsMeldingMapperTest : FunSpec({
             meldingUtenKid.meldingTilLeverandor shouldBe """
                 Tiltakstype: Arbeidsforberedende trening
                 Periode: 01.01.2025 - 31.01.2025
-                Tilsagnsnummer: A-1
+                Tilsagnsnummer: A-1-1
             """.trimIndent()
         }
     }

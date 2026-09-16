@@ -4,7 +4,9 @@ import no.nav.mulighetsrommet.model.Kid
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettFaktura
@@ -13,8 +15,8 @@ import no.nav.tiltak.okonomi.service.gjorOppFakturanummer
 import java.time.Instant
 
 data class Faktura(
-    val bestillingsnummer: String,
-    val fakturanummer: String,
+    val bestillingsnummer: Bestillingsnummer,
+    val fakturanummer: Fakturanummer,
     val betalingsinformasjon: Betalingsinformasjon?,
     val belop: Int,
     val periode: Periode,

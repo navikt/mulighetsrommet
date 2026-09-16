@@ -49,7 +49,7 @@ sealed class OkonomiBestillingMelding {
 
 @Serializable
 data class OpprettBestilling(
-    val bestillingsnummer: String,
+    val bestillingsnummer: Bestillingsnummer,
     val tilskuddstype: Tilskuddstype,
     val tiltakskode: Tiltakskode,
     val arrangor: Arrangor,
@@ -94,7 +94,7 @@ enum class Tilskuddstype {
 
 @Serializable
 data class AnnullerBestilling(
-    val bestillingsnummer: String,
+    val bestillingsnummer: Bestillingsnummer,
     val behandletAv: OkonomiPart,
     val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
@@ -103,7 +103,7 @@ data class AnnullerBestilling(
 
 @Serializable
 data class GjorOppBestilling(
-    val bestillingsnummer: String,
+    val bestillingsnummer: Bestillingsnummer,
     val behandletAv: OkonomiPart,
     val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
@@ -112,8 +112,8 @@ data class GjorOppBestilling(
 
 @Serializable
 data class OpprettFaktura(
-    val fakturanummer: String,
-    val bestillingsnummer: String,
+    val fakturanummer: Fakturanummer,
+    val bestillingsnummer: Bestillingsnummer,
     val betalingsinformasjon: Betalingsinformasjon,
     val belop: Int,
     val periode: Periode,

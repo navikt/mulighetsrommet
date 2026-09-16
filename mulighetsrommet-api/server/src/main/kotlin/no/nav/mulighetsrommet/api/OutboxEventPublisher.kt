@@ -72,7 +72,7 @@ class OutboxEventPublisher(session: Session, private val topics: KafkaTopics) {
             }
         val record = StoredProducerRecord(
             topics.okonomiBestillingTopic,
-            key.toByteArray(),
+            key.value.toByteArray(),
             Json.encodeToString(melding).toByteArray(),
             headers,
         )

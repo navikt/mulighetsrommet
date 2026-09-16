@@ -6,7 +6,7 @@ import java.time.Instant
 
 @Serializable
 data class FakturaStatus(
-    val fakturanummer: String,
+    val fakturanummer: Fakturanummer,
     val status: FakturaStatusType,
     @Serializable(with = InstantSerializer::class)
     val fakturaStatusSistOppdatert: Instant,
