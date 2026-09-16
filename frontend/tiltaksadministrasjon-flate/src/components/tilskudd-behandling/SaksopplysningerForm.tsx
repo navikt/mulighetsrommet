@@ -78,7 +78,7 @@ export function SaksopplysningerForm({ arrangorId }: Props) {
                   />
                 </HStack>
                 <VelgKostnadssted
-                  fieldName={`tilskudd.${index}.kostnadssted`}
+                  name={`tilskudd.${index}.kostnadssted`}
                   kostnadssteder={kostnadssteder.flatMap((r) => r.kostnadssteder.map((k) => k))}
                 />
                 <HStack gap="space-24" align="start">
