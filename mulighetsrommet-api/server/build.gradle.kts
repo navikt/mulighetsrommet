@@ -40,6 +40,7 @@ tasks.register<JavaExec>("generateOpenApi") {
 dependencies {
     implementation(projects.mulighetsrommetApi.admin)
     implementation(projects.mulighetsrommetApi.clients)
+    implementation(projects.mulighetsrommetApi.veilederflate)
     implementation(projects.mulighetsrommetApi.domain)
     implementation(projects.mulighetsrommetApi.persistence)
     testImplementation(testFixtures(projects.mulighetsrommetApi.persistence))

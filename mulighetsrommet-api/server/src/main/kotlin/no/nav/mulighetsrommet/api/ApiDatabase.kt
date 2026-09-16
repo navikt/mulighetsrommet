@@ -32,12 +32,12 @@ import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
+import no.nav.mulighetsrommet.api.persistence.veilederflate.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.OpplaeringtilskuddQueries
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandlingQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingLinjeQueries
 import no.nav.mulighetsrommet.api.utbetaling.db.UtbetalingQueries
-import no.nav.mulighetsrommet.api.veilederflate.db.VeilederflateTiltakQueries
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.queries.KafkaConsumerRecordQueries
 import no.nav.mulighetsrommet.database.queries.ScheduledTaskQueries

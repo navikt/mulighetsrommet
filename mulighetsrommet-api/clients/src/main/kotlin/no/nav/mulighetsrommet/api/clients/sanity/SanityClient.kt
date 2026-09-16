@@ -21,9 +21,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.api.sanity.Mutation
-import no.nav.mulighetsrommet.api.sanity.Mutations
-import no.nav.mulighetsrommet.api.sanity.SanityResponse
 import no.nav.mulighetsrommet.ktor.clients.ClientResponseMetricPlugin
 import java.util.UUID
 

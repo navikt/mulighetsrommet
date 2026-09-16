@@ -9,27 +9,25 @@ import { useApiSuspenseQuery } from "@mr/frontend-common";
 
 type VeilederflateTiltakGruppeVariant = Extract<
   VeilederflateTiltak,
-  { type?: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe" }
+  { type?: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakGruppe" }
 >;
 
 type VeilederflateTiltakEnkeltplassVariant = Extract<
   VeilederflateTiltak,
-  { type?: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass" }
+  { type?: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakEnkeltplass" }
 >;
 
 type VeilederflateTiltakEnkeltplassAnskaffetVariant = Extract<
   VeilederflateTiltak,
   {
-    type?: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet";
+    type?: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakEnkeltplassAnskaffet";
   }
 >;
 
 export function isTiltakGruppe(
   tiltak: VeilederflateTiltak,
 ): tiltak is VeilederflateTiltakGruppeVariant {
-  return (
-    tiltak.type === "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe"
-  );
+  return tiltak.type === "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakGruppe";
 }
 
 export function isTiltakAktivt(tiltak: VeilederflateTiltak): boolean {
@@ -39,9 +37,7 @@ export function isTiltakAktivt(tiltak: VeilederflateTiltak): boolean {
 export function isTiltakEnkeltplass(
   tiltak: VeilederflateTiltak,
 ): tiltak is VeilederflateTiltakEnkeltplassVariant {
-  return (
-    tiltak.type === "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass"
-  );
+  return tiltak.type === "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakEnkeltplass";
 }
 
 export function isTiltakEnkeltplassAnskaffet(
@@ -49,7 +45,7 @@ export function isTiltakEnkeltplassAnskaffet(
 ): tiltak is VeilederflateTiltakEnkeltplassAnskaffetVariant {
   return (
     tiltak.type ===
-    "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet"
+    "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakEnkeltplassAnskaffet"
   );
 }
 

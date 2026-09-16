@@ -1454,9 +1454,9 @@ components:
       discriminator:
         propertyName: type
         mapping:
-          no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass: "#/components/schemas/VeilederflateTiltakEnkeltplass"
-          no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplassAnskaffet: "#/components/schemas/VeilederflateTiltakEnkeltplassAnskaffet"
-          no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe: "#/components/schemas/VeilederflateTiltakGruppe"
+          no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakEnkeltplass: "#/components/schemas/VeilederflateTiltakEnkeltplass"
+          no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakEnkeltplassAnskaffet: "#/components/schemas/VeilederflateTiltakEnkeltplassAnskaffet"
+          no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakGruppe: "#/components/schemas/VeilederflateTiltakGruppe"
     VeilederflateTiltakEnkeltplass:
       type: object
       properties:
@@ -1714,7 +1714,7 @@ components:
         stengtPerioder:
           type: array
           items:
-            $ref: "#/components/schemas/GjennomforingAvtale.StengtPeriode"
+            $ref: "#/components/schemas/VeilederflateTiltakDbo.StengtPeriode"
       required:
       - apentForPamelding
       - arrangor
@@ -1826,7 +1826,7 @@ components:
       - VERGEMAL
       - STEMME
       - ANNET
-    GjennomforingAvtale.StengtPeriode:
+    VeilederflateTiltakDbo.StengtPeriode:
       type: object
       properties:
         id:

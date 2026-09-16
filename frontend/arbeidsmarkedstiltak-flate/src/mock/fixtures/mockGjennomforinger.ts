@@ -9,7 +9,7 @@ import { mockTiltakstyper } from "./mockTiltakstyper";
 
 export const tiltakAvklaring: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   lopenummer: "2025/13145",
-  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
+  type: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakGruppe",
   id: "f4cea25b-c372-4d4c-8106-535ab10cd586",
   oppstartsdato: "2024-01-01",
   navn: "Avklaring - Fredrikstad med ganske langt navn som strekker seg bortover",
@@ -129,7 +129,7 @@ export const tiltakAvklaring: VeilederflateTiltak & VeilederflateTiltakGruppe = 
 };
 
 export const tiltakMentor: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
-  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
+  type: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakEnkeltplass",
   id: "91205ff2-ec72-4a7f-80b8-1c99d8535a06",
   navn: "Sindres mentorordning med Yoda",
   oppstart: GjennomforingOppstartstype.LOPENDE,
@@ -158,7 +158,7 @@ export const tiltakMentor: VeilederflateTiltak & VeilederflateTiltakEnkeltplass 
 
 export const tiltakAmoGruppe: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   lopenummer: "2025/13145",
-  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
+  type: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakGruppe",
   id: "00097090-1ba8-47a4-a82f-6aaad488994e",
   status: {
     type: GjennomforingStatusType.GJENNOMFORES,
@@ -278,7 +278,7 @@ export const tiltakAmoGruppe: VeilederflateTiltak & VeilederflateTiltakGruppe = 
 
 export const tiltakVta: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   lopenummer: "2025/13145",
-  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
+  type: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakGruppe",
   id: "3b597090-1ba8-47a4-a82f-6aaad488994e",
   navn: "VTA hos Fretex",
   status: {
@@ -385,7 +385,7 @@ export const tiltakVta: VeilederflateTiltak & VeilederflateTiltakGruppe = {
 
 export const tiltakJobbklubb: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   lopenummer: "2025/13145",
-  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
+  type: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakGruppe",
   id: "ff887090-1ba8-47a4-a82f-6aaad488994e",
   navn: "Jobbklubb (med Lars Monsen)",
   status: {
@@ -452,7 +452,7 @@ export const tiltakJobbklubb: VeilederflateTiltak & VeilederflateTiltakGruppe = 
 
 export const tiltakAft: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   lopenummer: "2025/13145",
-  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
+  type: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakGruppe",
   id: "bdfa7090-1ba8-47a4-a82f-6aaad488994e",
   navn: "AFT",
   oppmoteSted: "2050",
@@ -504,7 +504,7 @@ export const tiltakAft: VeilederflateTiltak & VeilederflateTiltakGruppe = {
 
 export const tiltakOppfolging: VeilederflateTiltak & VeilederflateTiltakGruppe = {
   lopenummer: "2025/13145",
-  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakGruppe",
+  type: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakGruppe",
   id: "3c110e8c-5867-4ece-b343-e9b1c547f548",
   navn: "Oppfølging",
   oppmoteSted: "2050",
@@ -544,7 +544,7 @@ export const tiltakOppfolging: VeilederflateTiltak & VeilederflateTiltakGruppe =
 };
 
 export const tiltakEnkelplassFagOgYrke: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
-  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
+  type: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakEnkeltplass",
   id: "f1887090-1ba8-47a4-a82f-6aaad488994e",
   navn: "Opplæring Fag og Yrke",
   oppmoteSted: null,
@@ -569,7 +569,7 @@ export const tiltakEnkelplassFagOgYrke: VeilederflateTiltak & VeilederflateTilta
 };
 
 export const tiltakFagOgYrke: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
-  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
+  type: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakEnkeltplass",
   id: "f1887090-1ba8-47a4-a82f-6aaad488994e",
   navn: "Opplæring Fag og Yrke",
   oppmoteSted: null,
@@ -594,7 +594,7 @@ export const tiltakFagOgYrke: VeilederflateTiltak & VeilederflateTiltakEnkeltpla
 };
 
 export const enkeltplassNorskGrunnFov: VeilederflateTiltak & VeilederflateTiltakEnkeltplass = {
-  type: "no.nav.mulighetsrommet.api.veilederflate.models.VeilederflateTiltakEnkeltplass",
+  type: "no.nav.mulighetsrommet.api.veilederflate.VeilederflateTiltakEnkeltplass",
   tiltakstype: mockTiltakstyper.norskGrunnFov,
   navn: "Norskopplæring - Oslo",
   beskrivelse: null,

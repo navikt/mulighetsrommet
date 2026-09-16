@@ -3,12 +3,12 @@ package no.nav.mulighetsrommet.api.navenhet.service
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.mockk
+import no.nav.mulighetsrommet.api.clients.sanity.EnhetSlug
+import no.nav.mulighetsrommet.api.clients.sanity.FylkeRef
+import no.nav.mulighetsrommet.api.clients.sanity.SanityEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
-import no.nav.mulighetsrommet.api.sanity.EnhetSlug
-import no.nav.mulighetsrommet.api.sanity.FylkeRef
-import no.nav.mulighetsrommet.api.sanity.SanityEnhet
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 
 class SanityNavEnhetPublisherTest : FunSpec({

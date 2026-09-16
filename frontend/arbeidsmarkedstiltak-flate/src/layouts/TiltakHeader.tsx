@@ -1,6 +1,6 @@
 import {
-  GjennomforingAvtaleStengtPeriode,
   VeilederflateTiltak,
+  VeilederflateTiltakDboStengtPeriode,
 } from "@arbeidsmarkedstiltak/api-client";
 import { isTiltakAktivt, isTiltakGruppe } from "@/api/queries/useArbeidsmarkedstiltakById";
 import { BodyLong, BodyShort, Box, Heading, HStack, Table, VStack } from "@navikt/ds-react";
@@ -13,7 +13,7 @@ interface Props {
 
 export function TiltakHeader({ tiltak }: Props) {
   const { beskrivelse, tiltakstype } = tiltak;
-  const stengtPerioder: GjennomforingAvtaleStengtPeriode[] = (
+  const stengtPerioder: VeilederflateTiltakDboStengtPeriode[] = (
     "stengtPerioder" in tiltak ? tiltak.stengtPerioder : []
   ).filter((p) => new Date(p.slutt) >= new Date());
 

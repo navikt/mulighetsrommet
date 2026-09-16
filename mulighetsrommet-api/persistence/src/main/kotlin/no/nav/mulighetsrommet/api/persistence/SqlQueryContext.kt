@@ -37,6 +37,7 @@ import no.nav.mulighetsrommet.api.persistence.tiltak.TiltakstypeQueries
 import no.nav.mulighetsrommet.api.persistence.tiltakdokument.TiltakDokumentQueries
 import no.nav.mulighetsrommet.api.persistence.totrinnskontroll.TotrinnskontrollQueries
 import no.nav.mulighetsrommet.api.persistence.utdanning.UtdanningQueries
+import no.nav.mulighetsrommet.api.persistence.veilederflate.DelMedBrukerQueries
 
 /**
  * Concrete [QueryContext] backed by JDBC/kotliquery.
@@ -58,6 +59,7 @@ class SqlQueryContext(session: Session, topics: OutboxTopics) : QueryContext() {
     val tiltakDokument = TiltakDokumentQueries(session)
     val deltaker = DeltakerQueries(session)
     val deltakerForslag = DeltakerForslagQueries(session)
+    val delMedBruker = DelMedBrukerQueries(session)
 
     override val repository = object : Repositories() {
         override val tiltakstype: TiltakstypeRepository = this@SqlQueryContext.tiltakstype

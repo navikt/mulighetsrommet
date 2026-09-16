@@ -10,6 +10,8 @@ base {
 
 dependencies {
     implementation(projects.mulighetsrommetApi.admin)
+    implementation(projects.mulighetsrommetApi.veilederflate)
+    implementation(projects.mulighetsrommetApi.clients)
     implementation(projects.mulighetsrommetApi.domain)
     implementation(projects.mulighetsrommetApi.contracts)
     implementation(projects.common.domain)
