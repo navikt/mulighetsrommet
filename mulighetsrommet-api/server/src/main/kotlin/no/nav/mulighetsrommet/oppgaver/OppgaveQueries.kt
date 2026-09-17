@@ -470,7 +470,8 @@ class OppgaveQueries(private val session: Session) {
             where
                 (:tiltakskoder::text[] is null or tiltakstype.tiltakskode = any(:tiltakskoder))
                 and (:arrangorer::uuid[] is null or arrangor.id = any(:arrangorer))
-                and utbetaling_blokkering.blokkering = 'MANGLER_TILSAGN';
+                and utbetaling_blokkering.blokkering = 'MANGLER_TILSAGN'
+                and utbetaling.status = 'GENERERT';
         """.trimIndent()
 
         val params = mapOf(
