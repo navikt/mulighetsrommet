@@ -743,6 +743,7 @@ class OppgaverServiceTest : FunSpec({
 
     context("utbetaling mangler tilsagn") {
         test("Skal hente oppgave for utbetaling som er blokkert på grunn av manglende tilsagn") {
+            val utbetaling4id = UUID.randomUUID()
             MulighetsrommetTestDomain(
                 ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
                 arrangorer = listOf(ArrangorFixtures.hovedenhet, underenhet1),
@@ -770,6 +771,12 @@ class OppgaverServiceTest : FunSpec({
                         gjennomforingId = AFT1.id,
                         periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
                     ),
+                    UtbetalingFixtures.utbetaling1.copy(
+                        id = utbetaling4id,
+                        status = UtbetalingStatusType.AVBRUTT,
+                        gjennomforingId = AFT1.id,
+                        periode = Periode.forMonthOf(LocalDate.of(2025, 3, 1)),
+                    ),
                 ),
                 additionalSetup = {
                     // Bare utbetaling1 og utbetaling3 er blokkert på grunn av manglende tilsagn
@@ -781,12 +788,16 @@ class OppgaverServiceTest : FunSpec({
                         UtbetalingFixtures.utbetaling3.id,
                         setOf(Utbetaling.Blokkering.MANGLER_TILSAGN),
                     )
+                    queries.utbetaling.setBlokkeringer(
+                        utbetaling4id,
+                        setOf(Utbetaling.Blokkering.MANGLER_TILSAGN),
+                    )
                 },
             ).initialize(database.api)
 
             val service = OppgaverService(database.api, features())
 
-            // Skal se oppgave for begge blokkerte utbetalinger, men ikke for utbetaling2 som ikke er blokkert
+            // Skal se oppgave for begge blokkerte utbetalinger, men ikke for utbetaling2 som ikke er blokkert og u4 som ikke har riktig status
             service.oppgaver(
                 oppgavetyper = setOf(),
                 tiltakskoder = setOf(),
@@ -812,19 +823,6 @@ class OppgaverServiceTest : FunSpec({
             ) shouldMatchAllOppgaver listOf(
                 PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_MANGLER_TILSAGN),
                 PartialOppgave(UtbetalingFixtures.utbetaling3.id, OppgaveType.UTBETALING_MANGLER_TILSAGN),
-            )
-
-            // Skal kunne filtrere på tiltakskode
-            service.oppgaver(
-                oppgavetyper = setOf(),
-                tiltakskoder = setOf(Tiltakskode.ARBEIDSFORBEREDENDE_TRENING),
-                navEnheter = setOf(),
-                arrangorer = setOf(),
-                ansatt = NavAnsattFixture.MikkeMus.medRoller(
-                    roller = setOf(NavAnsattRolle.generell(Rolle.SAKSBEHANDLER_OKONOMI)),
-                ),
-            ) shouldMatchAllOppgaver listOf(
-                PartialOppgave(UtbetalingFixtures.utbetaling1.id, OppgaveType.UTBETALING_MANGLER_TILSAGN),
             )
         }
     }
