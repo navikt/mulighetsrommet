@@ -325,7 +325,13 @@ function PeriodeVelger({
           error={errorAt("/periodeStart", errors)}
           name="periodeStart"
           id="periodeStart"
-          onBlur={(e) => setSelectedStartDato(yyyyMMddFormatting(e.target.value))}
+          onBlur={(e) => {
+            periodeStartInputProps.onBlur?.(e);
+            const formatert = yyyyMMddFormatting(e.target.value);
+            if (formatert) {
+              setSelectedStartDato(formatert);
+            }
+          }}
         />
       </DatePicker>
       <DatePicker
@@ -342,7 +348,11 @@ function PeriodeVelger({
           name="periodeSlutt"
           id="periodeSlutt"
           onBlur={(e) => {
-            setSelectedSluttDato(yyyyMMddFormatting(e.target.value));
+            periodeSluttInputProps.onBlur?.(e);
+            const formatert = yyyyMMddFormatting(e.target.value);
+            if (formatert) {
+              setSelectedSluttDato(formatert);
+            }
           }}
         />
       </DatePicker>
