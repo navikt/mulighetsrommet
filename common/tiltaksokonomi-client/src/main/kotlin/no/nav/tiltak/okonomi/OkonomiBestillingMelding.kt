@@ -150,12 +150,12 @@ sealed class OkonomiPart(val part: String) {
     data class NavAnsatt(val navIdent: NavIdent) : OkonomiPart(navIdent.value)
 
     @Serializable
-    data class System(val kilde: OkonomiSystem) : OkonomiPart(kilde.name)
+    data class System(val kilde: OkonomiFagsystem) : OkonomiPart(kilde.name)
 
     companion object {
         fun fromString(value: String): OkonomiPart {
             return try {
-                System(OkonomiSystem.valueOf(value))
+                System(OkonomiFagsystem.valueOf(value))
             } catch (_: IllegalArgumentException) {
                 NavAnsatt(NavIdent(value))
             }
@@ -163,12 +163,13 @@ sealed class OkonomiPart(val part: String) {
     }
 }
 
-enum class OkonomiSystem {
+enum class OkonomiFagsystem {
     TILTAKSADMINISTRASJON,
+    EKSPERTBISTAND,
 }
 
 fun Agent.toOkonomiPart(): OkonomiPart = when (this) {
     is NavIdent -> OkonomiPart.NavAnsatt(this)
-    is Tiltaksadministrasjon -> OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
+    is Tiltaksadministrasjon -> OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON)
     Arrangor, Arena -> throw IllegalStateException("ugyldig agent")
 }

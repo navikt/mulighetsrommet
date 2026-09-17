@@ -40,7 +40,8 @@ import no.nav.mulighetsrommet.tokenprovider.AzureAdTokenProvider
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.tiltak.okonomi.api.configureApi
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
-import no.nav.tiltak.okonomi.kafka.OkonomiBestillingConsumer
+import no.nav.tiltak.okonomi.kafka.EkspertbistandBestillingConsumer
+import no.nav.tiltak.okonomi.kafka.TiltaksadministrasjonBestillingConsumer
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
 import no.nav.tiltak.okonomi.plugins.configureAuthentication
 import no.nav.tiltak.okonomi.plugins.configureHTTP
@@ -155,7 +156,14 @@ private fun Application.configureKafka(
 
     val kafkaConsumerRepository = KafkaConsumerRepositoryImpl(db)
     val consumers = mapOf(
-        config.clients.okonomiBestillingConsumer to OkonomiBestillingConsumer(kafkaConsumerRepository, okonomi),
+        config.clients.tiltaksadministrasjonBestillingConsumer to TiltaksadministrasjonBestillingConsumer(
+            kafkaConsumerRepository,
+            okonomi,
+        ),
+        config.clients.ekspertbistandBestillingConsumer to EkspertbistandBestillingConsumer(
+            kafkaConsumerRepository,
+            okonomi,
+        ),
     )
 
     val kafkaConsumerOrchestrator = KafkaConsumerOrchestrator(

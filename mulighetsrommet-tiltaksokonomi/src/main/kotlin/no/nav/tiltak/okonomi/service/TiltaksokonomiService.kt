@@ -22,6 +22,7 @@ import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.KafkaTopics
+import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.db.OkonomiDatabase
@@ -56,6 +57,7 @@ class TiltaksokonomiService(
     )
 
     suspend fun opprettBestilling(
+        fagsystem: OkonomiFagsystem,
         opprettBestilling: OpprettBestilling,
     ): Either<TiltaksokonomiError.OpprettBestilling, Bestilling> = db.transaction {
         val bestillingsnummer = opprettBestilling.bestillingsnummer
@@ -77,6 +79,7 @@ class TiltaksokonomiService(
         return getSelger(opprettBestilling.arrangor)
             .flatMap { selger ->
                 val bestilling = Bestilling.fromOpprettBestilling(
+                    fagsystem = fagsystem,
                     bestilling = opprettBestilling,
                     arrangorHovedenhet = Organisasjonsnummer(selger.organisasjonsNummer),
                 )

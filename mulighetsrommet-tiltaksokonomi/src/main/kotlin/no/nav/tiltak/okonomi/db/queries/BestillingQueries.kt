@@ -13,6 +13,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
+import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.model.Bestilling
 import org.intellij.lang.annotations.Language
@@ -25,6 +26,7 @@ class BestillingQueries(private val session: Session) {
         val insertBestilling = """
             insert into bestilling (
                 bestillingsnummer,
+                fagsystem,
                 avtalenummer,
                 tiltakskode,
                 arrangor_hovedenhet,
@@ -44,6 +46,7 @@ class BestillingQueries(private val session: Session) {
                 valuta
             ) values (
                 :bestillingsnummer,
+                :fagsystem,
                 :avtalenummer,
                 :tiltakskode,
                 :arrangor_hovedenhet,
@@ -66,6 +69,7 @@ class BestillingQueries(private val session: Session) {
         """
         val params = mapOf(
             "bestillingsnummer" to bestilling.bestillingsnummer.value,
+            "fagsystem" to bestilling.fagsystem.name,
             "avtalenummer" to bestilling.avtalenummer,
             "tiltakskode" to bestilling.tiltakskode.name,
             "arrangor_hovedenhet" to bestilling.arrangorHovedenhet.value,
@@ -177,6 +181,7 @@ class BestillingQueries(private val session: Session) {
             select
                 id,
                 bestillingsnummer,
+                fagsystem,
                 avtalenummer,
                 tiltakskode,
                 arrangor_hovedenhet,
@@ -207,6 +212,7 @@ class BestillingQueries(private val session: Session) {
             select
                 id,
                 bestillingsnummer,
+                fagsystem,
                 avtalenummer,
                 tiltakskode,
                 arrangor_hovedenhet,
@@ -255,6 +261,7 @@ class BestillingQueries(private val session: Session) {
             arrangorUnderenhet = Organisasjonsnummer(string("arrangor_underenhet")),
             kostnadssted = NavEnhetNummer(string("kostnadssted")),
             bestillingsnummer = Bestillingsnummer(string("bestillingsnummer")),
+            fagsystem = OkonomiFagsystem.valueOf(string("fagsystem")),
             avtalenummer = stringOrNull("avtalenummer"),
             belop = int("belop"),
             periode = periode("periode"),

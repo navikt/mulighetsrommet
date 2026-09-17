@@ -1,6 +1,7 @@
 package no.nav.tiltak.okonomi.oebs
 
 import no.nav.tiltak.okonomi.AnnullerBestilling
+import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
 import java.time.ZoneId
@@ -25,7 +26,7 @@ object OebsMeldingMapper {
         }
 
         return OebsBestillingMelding(
-            kilde = OebsKilde.TILTADM,
+            kilde = bestilling.fagsystem.toOebsKilde(),
             bestillingsNummer = bestilling.bestillingsnummer.value,
             opprettelsesTidspunkt = bestilling.opprettelse.besluttetTidspunkt.atZone(osloZone).toLocalDateTime(),
             bestillingsType = OebsBestillingType.NY,
@@ -52,7 +53,7 @@ object OebsMeldingMapper {
         return OebsAnnulleringMelding(
             bestillingsNummer = bestilling.bestillingsnummer.value,
             opprettelsesTidspunkt = annullerBestilling.besluttetTidspunkt.atZone(osloZone).toLocalDateTime(),
-            kilde = OebsKilde.TILTADM,
+            kilde = bestilling.fagsystem.toOebsKilde(),
             bestillingsType = OebsBestillingType.ANNULLER,
             selger = OebsAnnulleringMelding.Selger(
                 organisasjonsNummer = bestilling.arrangorHovedenhet.value,
@@ -77,7 +78,7 @@ object OebsMeldingMapper {
         }
 
         return OebsFakturaMelding(
-            kilde = OebsKilde.TILTADM,
+            kilde = bestilling.fagsystem.toOebsKilde(),
             fakturaNummer = faktura.fakturanummer.value,
             opprettelsesTidspunkt = faktura.besluttetTidspunkt.atZone(osloZone).toLocalDateTime(),
             organisasjonsNummer = bestilling.arrangorHovedenhet.value,
@@ -97,5 +98,10 @@ object OebsMeldingMapper {
             beskrivelse = faktura.beskrivelse,
             fakturaLinjer = linjer,
         )
+    }
+
+    fun OkonomiFagsystem.toOebsKilde(): OebsKilde = when (this) {
+        OkonomiFagsystem.TILTAKSADMINISTRASJON -> OebsKilde.TILTADM
+        OkonomiFagsystem.EKSPERTBISTAND -> OebsKilde.EKSPBIST
     }
 }
