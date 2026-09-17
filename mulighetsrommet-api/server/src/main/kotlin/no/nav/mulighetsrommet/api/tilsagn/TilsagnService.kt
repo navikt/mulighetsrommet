@@ -60,6 +60,7 @@ import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
+import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.Tilskuddstype
 import no.nav.tiltak.okonomi.toOkonomiPart
@@ -711,6 +712,7 @@ class TilsagnService(
 
         val bestilling = OpprettBestilling(
             bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
+            okonomiSystem = OkonomiSystem.TILTAKSADMINISTRASJON,
             tilskuddstype = when (tilsagn.type) {
                 TilsagnType.INVESTERING -> Tilskuddstype.TILTAK_INVESTERINGER
                 else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD

@@ -50,6 +50,7 @@ sealed class OkonomiBestillingMelding {
 @Serializable
 data class OpprettBestilling(
     val bestillingsnummer: Bestillingsnummer,
+    val okonomiSystem: OkonomiSystem,
     val tilskuddstype: Tilskuddstype,
     val tiltakskode: Tiltakskode,
     val arrangor: Arrangor,
@@ -165,6 +166,7 @@ sealed class OkonomiPart(val part: String) {
 
 enum class OkonomiSystem {
     TILTAKSADMINISTRASJON,
+    EKSPERTBISTAND,
 }
 
 fun Agent.toOkonomiPart(): OkonomiPart = when (this) {

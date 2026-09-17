@@ -760,6 +760,7 @@ private fun createOpprettBestilling(
     organisasjonsnummer: Organisasjonsnummer? = null,
 ) = OpprettBestilling(
     bestillingsnummer = bestillingsnummer,
+    okonomiSystem = OkonomiSystem.TILTAKSADMINISTRASJON,
     tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
     arrangor = OpprettBestilling.Arrangor.Norsk(organisasjonsnummer ?: Organisasjonsnummer("234567891")),
@@ -784,6 +785,7 @@ private fun createBestilling(
         arrangorUnderenhet = Organisasjonsnummer("123456789"),
         kostnadssted = NavEnhetNummer("0400"),
         bestillingsnummer = bestillingsnummer,
+        okonomiSystem = OkonomiSystem.TILTAKSADMINISTRASJON,
         avtalenummer = null,
         belop = 1000,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),

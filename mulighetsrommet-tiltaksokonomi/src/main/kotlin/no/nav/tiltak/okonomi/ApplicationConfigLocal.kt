@@ -106,12 +106,22 @@ val ApplicationConfigLocal = AppConfig(
             fakturaStatus = "tiltaksokonomi.faktura-status-v1",
         ),
         clients = KafkaClients(
-            okonomiBestillingConsumer = KafkaTopicConsumer.Config(
+            tiltaksadministrasjonBestillingConsumer = KafkaTopicConsumer.Config(
                 id = "bestilling",
                 topic = "tiltaksokonomi.bestillinger-v1",
                 consumerProperties = KafkaPropertiesBuilder.consumerBuilder()
                     .withBaseProperties()
                     .withConsumerGroupId("tiltaksokonomi.v1")
+                    .withBrokerUrl("localhost:29092")
+                    .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
+                    .build(),
+            ),
+            ekspertbistandBestillingConsumer = KafkaTopicConsumer.Config(
+                id = "bestilling-ekspertbistand",
+                topic = "tiltaksokonomi.ekspertbistand-bestillinger-v1",
+                consumerProperties = KafkaPropertiesBuilder.consumerBuilder()
+                    .withBaseProperties()
+                    .withConsumerGroupId("tiltaksokonomi.bestilling.ekspertbistand.v1")
                     .withBrokerUrl("localhost:29092")
                     .withDeserializers(ByteArrayDeserializer::class.java, ByteArrayDeserializer::class.java)
                     .build(),

@@ -8,6 +8,7 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.OkonomiPart
+import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
 import java.time.Instant
 
@@ -17,6 +18,7 @@ data class Bestilling(
     val arrangorUnderenhet: Organisasjonsnummer,
     val kostnadssted: NavEnhetNummer,
     val bestillingsnummer: Bestillingsnummer,
+    val okonomiSystem: OkonomiSystem,
     val avtalenummer: String?,
     val belop: Int,
     val periode: Periode,
@@ -51,6 +53,7 @@ data class Bestilling(
                 arrangorUnderenhet = bestilling.arrangor.organisasjonsnummer,
                 kostnadssted = bestilling.kostnadssted,
                 bestillingsnummer = bestilling.bestillingsnummer,
+                okonomiSystem = bestilling.okonomiSystem,
                 avtalenummer = bestilling.avtalenummer,
                 belop = bestilling.belop,
                 periode = bestilling.periode,

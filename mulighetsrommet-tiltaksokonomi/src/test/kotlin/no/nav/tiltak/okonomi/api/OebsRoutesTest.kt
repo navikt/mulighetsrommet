@@ -54,6 +54,7 @@ class OebsRoutesTest : FunSpec({
     val bestilling = Bestilling.fromOpprettBestilling(
         OpprettBestilling(
             bestillingsnummer = Bestillingsnummer("A-1-1"),
+            okonomiSystem = OkonomiSystem.TILTAKSADMINISTRASJON,
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             arrangor = OpprettBestilling.Arrangor.Norsk(Organisasjonsnummer("234567891")),
