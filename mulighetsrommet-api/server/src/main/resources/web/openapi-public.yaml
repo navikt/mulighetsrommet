@@ -267,6 +267,7 @@ components:
       - SOMMERJOBB
       - VTAO
       - FIREARIG_LONNSTILSKUDD
+      - EKSPERTBISTAND
     TiltaksgjennomforingV2Dto.Arrangor:
       type: object
       properties:

@@ -1,8 +1,4 @@
-@file:OptIn(ExperimentalSerializationApi::class)
-
 package no.nav.mulighetsrommet.model
-
-import kotlinx.serialization.ExperimentalSerializationApi
 
 enum class Tiltakskode(
     val system: TiltakstypeSystem,
@@ -251,6 +247,15 @@ enum class Tiltakskode(
         arenakode = null,
         egenskaper = setOf(),
     ),
+
+    /**
+     * Ekspertbistand
+     */
+    EKSPERTBISTAND(
+        system = TiltakstypeSystem.EKSPERTBISTAND,
+        arenakode = "EKSPEBIST",
+        egenskaper = setOf(),
+    ),
     ;
 
     fun harEgenskap(vararg egenskap: TiltakstypeEgenskap): Boolean {
@@ -311,6 +316,7 @@ enum class TiltakstypeSystem {
     TILTAKSADMINISTRASJON,
     ARENA,
     ARBEIDSGIVERTILTAK,
+    EKSPERTBISTAND,
 }
 
 object Tiltakskoder {
