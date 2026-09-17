@@ -4171,6 +4171,7 @@ components:
       - SOMMERJOBB
       - VTAO
       - FIREARIG_LONNSTILSKUDD
+      - EKSPERTBISTAND
     TiltakstypeFeature:
       type: string
       enum:

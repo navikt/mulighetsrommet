@@ -30,6 +30,7 @@ object OpplaringKategoriseringMapper {
         Tiltakskode.SOMMERJOBB,
         Tiltakskode.VTAO,
         Tiltakskode.FIREARIG_LONNSTILSKUDD,
+        Tiltakskode.EKSPERTBISTAND,
         -> ingenValg(tiltakskode)
 
         Tiltakskode.STUDIESPESIALISERING, // Vil bli mappet med kurstype Studiespesialisering

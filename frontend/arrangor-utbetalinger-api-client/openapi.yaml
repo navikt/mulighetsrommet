@@ -832,6 +832,7 @@ components:
       - SOMMERJOBB
       - VTAO
       - FIREARIG_LONNSTILSKUDD
+      - EKSPERTBISTAND
     PaginatedResponse_ArrangorflateTiltakRadDto:
       type: object
       properties:

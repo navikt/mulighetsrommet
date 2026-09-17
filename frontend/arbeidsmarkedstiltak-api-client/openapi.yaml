@@ -1039,6 +1039,7 @@ components:
       - SOMMERJOBB
       - VTAO
       - FIREARIG_LONNSTILSKUDD
+      - EKSPERTBISTAND
     Deltakelse.TiltaksadministrasjonDeltakelse.InfoMeldingStatus:
       type: string
       enum:
@@ -1295,6 +1296,7 @@ components:
       - TILTAKSADMINISTRASJON
       - ARENA
       - ARBEIDSGIVERTILTAK
+      - EKSPERTBISTAND
     TiltakstypeFeature:
       type: string
       enum:
