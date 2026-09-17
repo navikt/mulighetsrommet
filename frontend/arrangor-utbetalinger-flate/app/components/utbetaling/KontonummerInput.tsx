@@ -42,7 +42,7 @@ export function KontonummerInput({ kontonummer, error, onClick }: Props) {
           description="Kontonummeret hentes automatisk"
           error={error}
           name="kontonummer"
-          defaultValue={kontonummer || ""}
+          value={kontonummer || ""}
           htmlSize={35}
           maxLength={11}
           minLength={11}
