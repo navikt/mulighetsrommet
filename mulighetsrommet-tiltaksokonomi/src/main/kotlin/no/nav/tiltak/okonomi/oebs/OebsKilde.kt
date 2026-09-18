@@ -10,4 +10,9 @@ enum class OebsKilde {
      * Tiltaksadministrasjon
      */
     TILTADM,
+
+    /**
+     * Ekspertbistand
+     */
+    EKSPBIST,
 }

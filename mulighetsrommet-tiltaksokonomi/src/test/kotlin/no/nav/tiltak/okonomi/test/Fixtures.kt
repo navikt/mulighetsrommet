@@ -28,6 +28,7 @@ object Fixtures {
         arrangorUnderenhet = Organisasjonsnummer("234567890"),
         kostnadssted = NavEnhetNummer("0400"),
         bestillingsnummer = Bestillingsnummer("A-1-1"),
+        okonomiSystem = OkonomiSystem.TILTAKSADMINISTRASJON,
         avtalenummer = null,
         belop = 1000,
         periode = Periode(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 4, 1)),

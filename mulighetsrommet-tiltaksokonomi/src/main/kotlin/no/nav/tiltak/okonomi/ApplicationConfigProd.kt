@@ -2,7 +2,6 @@ package no.nav.tiltak.okonomi
 
 import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.database.DatabaseConfig
-import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.metrics.Metrics
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 
@@ -40,16 +39,5 @@ val ApplicationConfigProd = AppConfig(
     ),
     kafka = KafkaConfig(
         producerPropertiesPreset = KafkaPropertiesPreset.aivenByteProducerProperties("team-mulighetsrommet.tiltaksokonomi.v1"),
-        topics = KafkaTopics(
-            bestillingStatus = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
-            fakturaStatus = "team-mulighetsrommet.tiltaksokonomi.faktura-status-v1",
-        ),
-        clients = KafkaClients(
-            okonomiBestillingConsumer = KafkaTopicConsumer.Config(
-                id = "bestilling",
-                topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
-                consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltaksokonomi.bestilling.v1"),
-            ),
-        ),
     ),
 )
