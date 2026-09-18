@@ -81,7 +81,7 @@ private fun Row.toTilskudd(vedtak: List<Tilskudd.Vedtak>): Tilskudd {
         id = uuid("id"),
         type = Json.decodeFromString(string("tilskudd_opplaering")),
         gjennomforingId = uuid("gjennomforing_id"),
-        tilskuddsnummer = string("tilskuddsnummer"),
+        tilskuddsnummer = Tilskuddsnummer(string("tilskuddsnummer")),
         vedtak = vedtak,
     )
 }
@@ -111,7 +111,7 @@ private fun Row.toTilskuddKompakt(): TilskuddKompakt {
         id = uuid("id"),
         type = Json.decodeFromString(string("tilskudd_opplaering")),
         gjennomforingId = uuid("gjennomforing_id"),
-        tilskuddsnummer = string("tilskuddsnummer"),
+        tilskuddsnummer = Tilskuddsnummer(string("tilskuddsnummer")),
         periode = periode("periode"),
         sisteVedtakResultat = stringOrNull("vedtak_resultat")?.let { VedtakResultat.valueOf(it) },
         sisteVedtakLopenummer = int("lopenummer"),

@@ -16,6 +16,7 @@ import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.plugins.queryParameterUuid
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.Tilskudd
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddKompakt
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.Tilskuddsnummer
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultatDto
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.ProblemDetail
@@ -85,7 +86,7 @@ data class TilskuddKompaktDto(
     val type: Opplaeringtilskudd,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    val tilskuddsnummer: String,
+    val tilskuddsnummer: Tilskuddsnummer,
     val sisteVedtakResultat: VedtakResultatDto?,
     val periode: Periode?,
     val sisteVedtakLopenummer: Int?,
