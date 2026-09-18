@@ -7,8 +7,8 @@
     "navn": "AKSEPTABEL EMPIRISK TIGER AS"
   },
   "bruker": {
-    "id": "01010199999",
-    "idType": "FNR"
+    "id": "310438707",
+    "idType": "ORGNR"
   },
   "tema": "TIL",
   "datoMottatt": "2026-03-01T12:00",

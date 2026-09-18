@@ -35,6 +35,7 @@ import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.Kontonummer
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDateTime
 import java.util.Base64
 import java.util.UUID
@@ -77,10 +78,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
         )
 
         coEvery {
-            personaliaService.getPersonalia(
-                deltaker.id,
-                PersonaliaService.OnBehalfOf.System,
-            )
+            personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
         } returns Personalia(
             deltakerId = deltaker.id,
             norskIdent = NorskIdent("12345678901"),
@@ -157,10 +155,9 @@ class SendTilsagnsbrevSagaTest : FunSpec({
         fun taskData() = SendTilsagnsbrevSaga.ArkiverIDokarkTaskData(
             tilsagnId = tilsagn.id,
             pdfBase64 = Base64.getEncoder().encodeToString("pdf".toByteArray()),
-            deltaker = NorskIdent("12345678901"),
-            arrangorOrganisasjonsnummer = "976663934",
+            arrangorOrganisasjonsnummer = Organisasjonsnummer("976663934"),
             arrangorNavn = "Underenhet 1 AS",
-            fagsakId = "2025/11457",
+            tiltaksnummer = Tiltaksnummer("2025/11457"),
             besluttetTidspunkt = LocalDateTime.of(2026, 3, 1, 12, 0, 0),
         )
 
@@ -213,7 +210,7 @@ class SendTilsagnsbrevSagaTest : FunSpec({
             pdfBase64 = Base64.getEncoder().encodeToString("pdf".toByteArray()),
             tiltakstypeNavn = "Enkel Amo",
             bestillingsnummer = tilsagn.bestillingsnummer,
-            arrangorOrganisasjonsnummer = "976663934",
+            arrangorOrganisasjonsnummer = Organisasjonsnummer("976663934"),
             arrangorNavn = "Underenhet 1 AS",
         )
 
