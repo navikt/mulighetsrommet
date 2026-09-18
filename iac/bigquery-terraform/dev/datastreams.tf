@@ -209,11 +209,12 @@ module "mr_api_datastream" {
           columns = [
             "id",
             "entity_id",
+            "type",
             "behandlet_tidspunkt",
             "behandlet_av",
             "besluttet_av",
             "besluttet_tidspunkt",
-            "besluttelse",
+            "status",
           ]
         },
         {
