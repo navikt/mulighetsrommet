@@ -152,7 +152,7 @@ SELECT
   totrinnskontroll.besluttet_av
 FROM `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_utbetaling_linje` linje
   INNER JOIN `${var.gcp_project["project"]}.${module.mr_api_datastream.dataset_id}.public_totrinnskontroll` totrinnskontroll
-  ON (totrinnskontroll.entity_id = linje.id and totrinnskontroll.besluttelse = 'GODKJENT')
+  ON (totrinnskontroll.entity_id = linje.id and totrinnskontroll.type = 'UTBETALING_LINJE_OPPRETTELSE' and totrinnskontroll.status = 'GODKJENT')
 EOF
 }
 
