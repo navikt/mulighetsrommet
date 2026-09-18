@@ -570,7 +570,7 @@ class GjennomforingQueriesTest : FunSpec({
         val enkelAmo1 = EnkelAmo.copy(
             navn = "Arena-navn",
             startDato = LocalDate.of(2025, 1, 1),
-            sluttDato = null,
+            sluttDato = LocalDate.of(2025, 6, 1),
             status = GjennomforingStatusType.ENKELTPLASS_DELTAR,
         )
 
@@ -595,7 +595,7 @@ class GjennomforingQueriesTest : FunSpec({
                     it.arena?.ansvarligNavEnhet.shouldBeNull()
                     it.navn shouldBe "Arena-navn"
                     it.startDato shouldBe LocalDate.of(2025, 1, 1)
-                    it.sluttDato.shouldBeNull()
+                    it.sluttDato shouldBe LocalDate.of(2025, 6, 1)
                     it.status shouldBe GjennomforingEnkeltplassStatus.Deltar
                     it.ansvarligEnhet shouldBe GjennomforingEnkeltplass.AnsvarligEnhet(
                         enhetsnummer = NavEnhetNummer("0400"),

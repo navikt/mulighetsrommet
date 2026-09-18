@@ -33,6 +33,7 @@ import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.Tiltakskode
+import java.time.LocalDate
 import java.util.UUID
 
 class GjennomforingRequestKafkaConsumerTest : FunSpec({
@@ -87,6 +88,8 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
+            startDato = LocalDate.of(2024, 1, 1),
+            sluttDato = LocalDate.of(2024, 12, 31),
             opprettetAv = NavIdent("B123456"),
             prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
@@ -143,6 +146,8 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
+            startDato = LocalDate.of(2024, 1, 1),
+            sluttDato = LocalDate.of(2024, 12, 31),
             opprettetAv = NavIdent("B123456"),
             prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
@@ -201,6 +206,8 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
+            startDato = LocalDate.of(2024, 1, 1),
+            sluttDato = LocalDate.of(2024, 12, 31),
             opprettetAv = NavIdent("B123456"),
             prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
@@ -239,6 +246,8 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
+            startDato = LocalDate.of(2024, 1, 1),
+            sluttDato = LocalDate.of(2024, 12, 31),
             opprettetAv = NavIdent("B123456"),
             prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,
@@ -288,6 +297,8 @@ class GjennomforingRequestKafkaConsumerTest : FunSpec({
             tiltakskode = Tiltakskode.ARBEIDSMARKEDSOPPLAERING,
             organisasjonsnummer = ArrangorFixtures.underenhet1.organisasjonsnummer,
             ansvarligEnhet = NavEnhetNummer("0400"),
+            startDato = LocalDate.of(2024, 1, 1),
+            sluttDato = LocalDate.of(2024, 12, 31),
             opprettetAv = NavIdent("B123456"),
             prisinformasjon = GjennomforingRequest.EnkeltplassPrisinformasjon.Anskaffelse(pris = 10000),
             kategorisering = null,

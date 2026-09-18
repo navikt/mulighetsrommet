@@ -14,7 +14,7 @@ interface UtbetalingFormProps {
   id: string;
   onSubmit: () => void;
   arrangorId: string;
-  startDato?: string | null;
+  startDato: string;
 }
 
 export function UtbetalingForm({ id, onSubmit, arrangorId, startDato }: UtbetalingFormProps) {
@@ -45,20 +45,20 @@ function KorreksjonFields() {
   );
 }
 
-function UtbetalingFields({ startDato }: { startDato?: string | null }) {
+function UtbetalingFields({ startDato }: { startDato: string }) {
   return (
     <FormGroup>
       <HGrid columns={2}>
         <FormDateInput
           name="periodeStart"
           label="Periodestart"
-          fromDate={startDato ? new Date(startDato) : undefined}
+          fromDate={new Date(startDato)}
           toDate={addDuration(new Date(), { years: 5 })}
         />
         <FormDateInput
           name="periodeSlutt"
           label="Periodeslutt"
-          fromDate={startDato ? new Date(startDato) : undefined}
+          fromDate={new Date(startDato)}
           toDate={addDuration(new Date(), { years: 5 })}
         />
       </HGrid>
