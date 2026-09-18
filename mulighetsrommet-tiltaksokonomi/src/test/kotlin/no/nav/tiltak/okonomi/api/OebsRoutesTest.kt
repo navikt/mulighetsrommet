@@ -25,7 +25,9 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.security.mock.oauth2.MockOAuth2Server
 import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
@@ -51,7 +53,7 @@ class OebsRoutesTest : FunSpec({
     lateinit var db: OkonomiDatabase
     val bestilling = Bestilling.fromOpprettBestilling(
         OpprettBestilling(
-            bestillingsnummer = "1",
+            bestillingsnummer = Bestillingsnummer("A-1-1"),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             arrangor = OpprettBestilling.Arrangor.Norsk(Organisasjonsnummer("234567891")),
@@ -69,8 +71,8 @@ class OebsRoutesTest : FunSpec({
     )
     val faktura = Faktura.fromOpprettFaktura(
         OpprettFaktura(
-            fakturanummer = "1-1",
-            bestillingsnummer = "1",
+            fakturanummer = Fakturanummer("A-1-1-1"),
+            bestillingsnummer = Bestillingsnummer("A-1-1"),
             betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
                 kontonummer = Kontonummer("12345678901"),
                 kid = null,
@@ -116,7 +118,7 @@ class OebsRoutesTest : FunSpec({
                     setBody(
                         listOf(
                             OebsBestillingKvittering(
-                                bestillingsNummer = bestilling.bestillingsnummer,
+                                bestillingsNummer = bestilling.bestillingsnummer.value,
                                 opprettelsesTidspunkt = LocalDateTime.now(),
                             ),
                         ),
@@ -136,7 +138,7 @@ class OebsRoutesTest : FunSpec({
                     setBody(
                         listOf(
                             OebsBestillingKvittering(
-                                bestillingsNummer = bestilling.bestillingsnummer,
+                                bestillingsNummer = bestilling.bestillingsnummer.value,
                                 opprettelsesTidspunkt = LocalDateTime.now(),
                                 annullert = "Y",
                             ),
@@ -157,7 +159,7 @@ class OebsRoutesTest : FunSpec({
                     setBody(
                         listOf(
                             OebsFakturaKvittering(
-                                fakturaNummer = faktura.fakturanummer,
+                                fakturaNummer = faktura.fakturanummer.value,
                                 opprettelsesTidspunkt = LocalDateTime.now(),
                                 statusBetalt = OebsFakturaKvittering.StatusBetalt.FulltBetalt,
                             ),
@@ -179,7 +181,7 @@ class OebsRoutesTest : FunSpec({
                 setBody(
                     listOf(
                         OebsBestillingKvittering(
-                            bestillingsNummer = bestilling.bestillingsnummer,
+                            bestillingsNummer = bestilling.bestillingsnummer.value,
                             opprettelsesTidspunkt = LocalDateTime.now(),
                             feilKode = "FEILKODE",
                         ),
@@ -195,7 +197,7 @@ class OebsRoutesTest : FunSpec({
                 setBody(
                     listOf(
                         OebsBestillingKvittering(
-                            bestillingsNummer = bestilling.bestillingsnummer,
+                            bestillingsNummer = bestilling.bestillingsnummer.value,
                             opprettelsesTidspunkt = LocalDateTime.now(),
                         ),
                     ),
@@ -214,7 +216,7 @@ class OebsRoutesTest : FunSpec({
                 setBody(
                     listOf(
                         OebsFakturaKvittering(
-                            fakturaNummer = faktura.fakturanummer,
+                            fakturaNummer = faktura.fakturanummer.value,
                             opprettelsesTidspunkt = LocalDateTime.now(),
                             statusOpprettet = "Avvist",
                         ),
@@ -230,7 +232,7 @@ class OebsRoutesTest : FunSpec({
                 setBody(
                     listOf(
                         OebsFakturaKvittering(
-                            fakturaNummer = faktura.fakturanummer,
+                            fakturaNummer = faktura.fakturanummer.value,
                             opprettelsesTidspunkt = LocalDateTime.now(),
                             statusOpprettet = "Suksess",
                             statusBetalt = OebsFakturaKvittering.StatusBetalt.DelvisBetalt,
@@ -270,7 +272,7 @@ class OebsRoutesTest : FunSpec({
                 setBody(
                     """
                         [{
-                            "bestillingsNummer": "999",
+                            "bestillingsNummer": "A-999-1",
                             "statusOebs": "Godkjent",
                             "opprettelsesTidspunkt": "2023-01-01 09:33:16"
                         }]

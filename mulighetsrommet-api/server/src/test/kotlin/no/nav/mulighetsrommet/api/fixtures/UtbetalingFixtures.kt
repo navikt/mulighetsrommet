@@ -178,7 +178,7 @@ object UtbetalingFixtures {
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
         lopenummer = 1,
-        fakturanummer = "${TilsagnFixtures.Tilsagn1.bestillingsnummer}/1",
+        fakturanummer = "${TilsagnFixtures.Tilsagn1.bestillingsnummer}-1",
         fakturaStatusEndretTidspunkt = null,
         fakturaStatus = null,
     )
@@ -192,7 +192,7 @@ object UtbetalingFixtures {
         gjorOppTilsagn = false,
         periode = utbetaling1.periode,
         lopenummer = 1,
-        fakturanummer = "${TilsagnFixtures.Tilsagn2.bestillingsnummer}/1",
+        fakturanummer = "${TilsagnFixtures.Tilsagn2.bestillingsnummer}-1",
         fakturaStatusEndretTidspunkt = null,
         fakturaStatus = null,
     )

@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class BestillingStatus(
-    val bestillingsnummer: String,
+    val bestillingsnummer: Bestillingsnummer,
     val status: BestillingStatusType,
 )
 

@@ -50,7 +50,9 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.validation.Validated
+import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.toOkonomiPart
@@ -842,8 +844,8 @@ class UtbetalingService(
         queries.utbetalingLinje.setFakturaSendtTidspunk(linje.id, Instant.now())
 
         val faktura = OpprettFaktura(
-            fakturanummer = linje.faktura.fakturanummer,
-            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            fakturanummer = Fakturanummer(linje.faktura.fakturanummer),
+            bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
             betalingsinformasjon = betalingsinformasjon,
             periode = linje.periode,
             behandletAv = opprettelse.behandletAv.toOkonomiPart(),

@@ -38,8 +38,10 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.BestillingStatus
 import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatus
 import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.KafkaTopics
 import no.nav.tiltak.okonomi.OkonomiPart
@@ -113,9 +115,9 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
-            val opprettBestilling = createOpprettBestilling("1")
+            val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-1-1"))
             service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
-                it.message shouldBe "Klarte ikke sende bestilling 1 til oebs"
+                it.message shouldBe "Klarte ikke sende bestilling A-1-1 til oebs"
             }
         }
 
@@ -125,11 +127,11 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettBestilling = createOpprettBestilling("2").copy(
+            val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-2-1")).copy(
                 periode = Periode.forMonthOf(LocalDate.of(1990, 1, 1)),
             )
             service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
-                it.message shouldBe "Kontering for bestilling 2 mangler"
+                it.message shouldBe "Kontering for bestilling A-2-1 mangler"
             }
         }
 
@@ -143,7 +145,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettBestilling = createOpprettBestilling("3")
+            val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-3-1"))
 
             service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
                 it.message shouldBe "Underenhet med orgnr 234567891 er slettet"
@@ -161,7 +163,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettBestilling = createOpprettBestilling("3")
+            val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-3-1"))
 
             service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
                 it.message shouldBe "Hovedenhet med orgnr 123456789 er slettet"
@@ -181,7 +183,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettBestilling = createOpprettBestilling("3")
+            val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-3-1"))
 
             service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
                 it.message shouldBe "Klarte ikke utlede adresse for leverandør 123456789"
@@ -212,7 +214,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(mockEngine))
 
-            val opprettBestilling = createOpprettBestilling("11")
+            val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-11-1"))
 
             service.opprettBestilling(opprettBestilling).shouldBeRight().should {
                 it.arrangorHovedenhet shouldBe Organisasjonsnummer("123456789")
@@ -249,7 +251,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(mockEngine))
 
-            val opprettBestilling = createOpprettBestilling("3")
+            val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-3-1"))
 
             service.opprettBestilling(opprettBestilling).shouldBeRight().should {
                 it.arrangorHovedenhet shouldBe Organisasjonsnummer("345678912")
@@ -292,7 +294,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(mockEngine))
 
-            val opprettBestilling = createOpprettBestilling("1")
+            val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-1-1"))
             service.opprettBestilling(opprettBestilling).shouldBeRight().should {
                 it.arrangorHovedenhet shouldBe Organisasjonsnummer("920238076")
                 it.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
@@ -305,26 +307,26 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettBestilling = createOpprettBestilling("1")
+            val bestillingsnummer = Bestillingsnummer("A-1-1")
+            val opprettBestilling = createOpprettBestilling(bestillingsnummer)
+
             service.opprettBestilling(opprettBestilling).shouldBeRight().should {
-                it.bestillingsnummer shouldBe "1"
+                it.bestillingsnummer shouldBe bestillingsnummer
                 it.status shouldBe BestillingStatusType.SENDT
             }
 
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
-                it.key.toString(Charsets.UTF_8) shouldBe "1"
+                it.key.toString(Charsets.UTF_8) shouldBe "A-1-1"
                 it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    BestillingStatus(
-                        bestillingsnummer = "1",
-                        status = BestillingStatusType.SENDT,
-                    ),
+                    BestillingStatus(bestillingsnummer, BestillingStatusType.SENDT),
                 )
             }
         }
 
         test("svarer med eksisterende bestilling og lagrer utgående melding når bestillingsnummer allerede er kjent") {
-            val opprettBestilling = createOpprettBestilling("10")
+            val bestillingsnummer = Bestillingsnummer("A-10-1")
+            val opprettBestilling = createOpprettBestilling(bestillingsnummer)
             db.session {
                 val bestilling = Bestilling.fromOpprettBestilling(
                     opprettBestilling,
@@ -338,13 +340,16 @@ class TiltaksokonomiServiceTest : FunSpec({
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
             service.opprettBestilling(opprettBestilling).shouldBeRight().should {
-                it.bestillingsnummer shouldBe "10"
+                it.bestillingsnummer shouldBe bestillingsnummer
                 it.status shouldBe BestillingStatusType.OPPGJORT
             }
 
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
-                it.key.toString(Charsets.UTF_8) shouldBe "10"
+                it.key.toString(Charsets.UTF_8) shouldBe bestillingsnummer.value
+                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
+                    BestillingStatus(bestillingsnummer, BestillingStatusType.OPPGJORT),
+                )
             }
         }
     }
@@ -353,33 +358,33 @@ class TiltaksokonomiServiceTest : FunSpec({
         test("annullering feiler når bestilling ikke finnes") {
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val annullerBestilling = createAnnullerBestilling("4")
+            val annullerBestilling = createAnnullerBestilling(Bestillingsnummer("A-4-1"))
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
-                it.message shouldBe "Bestilling 4 finnes ikke"
+                it.message shouldBe "Bestilling A-4-1 finnes ikke"
             }
         }
 
         test("annullering feiler når bestilling er oppgjort") {
             db.session {
-                val bestilling = createBestilling("4", status = BestillingStatusType.OPPGJORT)
+                val bestilling = createBestilling(Bestillingsnummer("A-4-1"), status = BestillingStatusType.OPPGJORT)
                 queries.bestilling.insertBestilling(bestilling)
             }
 
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val annullerBestilling = createAnnullerBestilling("4")
+            val annullerBestilling = createAnnullerBestilling(Bestillingsnummer("A-4-1"))
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
-                it.message shouldBe "Bestilling 4 kan ikke annulleres fordi den har status OPPGJORT"
+                it.message shouldBe "Bestilling A-4-1 kan ikke annulleres fordi den har status OPPGJORT"
             }
         }
 
         test("annullering feiler når det finnes fakturaer for bestilling") {
             db.session {
-                val bestilling = createBestilling("5", status = BestillingStatusType.AKTIV)
+                val bestilling = createBestilling(Bestillingsnummer("A-5-1"), status = BestillingStatusType.AKTIV)
                 queries.bestilling.insertBestilling(bestilling)
 
                 val faktura = Faktura.fromOpprettFaktura(
-                    createOpprettFaktura("5", "5-1"),
+                    createOpprettFaktura(Bestillingsnummer("A-5-1"), Fakturanummer("A-5-1-1")),
                     bestilling.linjer,
                 ).copy(status = FakturaStatusType.FULLT_BETALT)
                 queries.faktura.insertFaktura(faktura)
@@ -387,13 +392,13 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val annullerBestilling = createAnnullerBestilling("5")
+            val annullerBestilling = createAnnullerBestilling(Bestillingsnummer("A-5-1"))
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
-                it.message shouldBe "Bestilling 5 kan ikke annulleres fordi det finnes fakturaer for bestillingen"
+                it.message shouldBe "Bestilling A-5-1 kan ikke annulleres fordi det finnes fakturaer for bestillingen"
             }
         }
 
-        val bestilling = createBestilling("6", status = BestillingStatusType.AKTIV)
+        val bestilling = createBestilling(Bestillingsnummer("A-6-1"), status = BestillingStatusType.AKTIV)
         db.session {
             queries.bestilling.insertBestilling(bestilling)
         }
@@ -401,40 +406,41 @@ class TiltaksokonomiServiceTest : FunSpec({
         test("annullering feiler når oebs svarer med feilkoder") {
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
-            val annullerBestilling = createAnnullerBestilling("6")
+            val annullerBestilling = createAnnullerBestilling(Bestillingsnummer("A-6-1"))
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
-                it.message shouldBe "Klarte ikke annullere bestilling 6 hos oebs"
+                it.message shouldBe "Klarte ikke annullere bestilling A-6-1 hos oebs"
             }
         }
 
         test("annullering feiler når bestilling ikke er aktiv ennå") {
-            val bestilling2 = createBestilling("87")
+            val bestilling2 = createBestilling(Bestillingsnummer("A-87-1"))
             db.session {
                 queries.bestilling.insertBestilling(bestilling2)
             }
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
-            val annullerBestilling = createAnnullerBestilling("87")
+            val annullerBestilling = createAnnullerBestilling(Bestillingsnummer("A-87-1"))
             service.annullerBestilling(annullerBestilling).shouldBeLeft().should {
-                it.message shouldBe "Bestilling 87 kan ikke annulleres fordi den har status SENDT"
+                it.message shouldBe "Bestilling A-87-1 kan ikke annulleres fordi den har status SENDT"
             }
         }
 
         test("annullering av bestilling lagrer utgående melding om status for bestilling") {
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val annullerBestilling = createAnnullerBestilling("6")
+            val bestillingsnummer = Bestillingsnummer("A-6-1")
+            val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
             service.annullerBestilling(annullerBestilling).shouldBeRight().should {
-                it.bestillingsnummer shouldBe "6"
+                it.bestillingsnummer shouldBe bestillingsnummer
                 it.status shouldBe BestillingStatusType.ANNULLERING_SENDT
             }
 
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
-                it.key.toString(Charsets.UTF_8) shouldBe "6"
+                it.key.toString(Charsets.UTF_8) shouldBe bestillingsnummer.value
                 it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     BestillingStatus(
-                        bestillingsnummer = "6",
+                        bestillingsnummer = bestillingsnummer,
                         status = BestillingStatusType.ANNULLERING_SENDT,
                     ),
                 )
@@ -444,21 +450,22 @@ class TiltaksokonomiServiceTest : FunSpec({
         test("svarer med eksisterende bestilling og lagrer utgående melding når bestilling allerede er annullert") {
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val annullerBestilling = createAnnullerBestilling("6")
+            val bestillingsnummer = Bestillingsnummer("A-6-1")
+            val annullerBestilling = createAnnullerBestilling(bestillingsnummer)
             service.annullerBestilling(annullerBestilling).shouldBeRight().should {
-                it.bestillingsnummer shouldBe "6"
+                it.bestillingsnummer shouldBe bestillingsnummer
                 it.status shouldBe BestillingStatusType.ANNULLERING_SENDT
             }
 
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
-                it.key.toString(Charsets.UTF_8) shouldBe "6"
+                it.key.toString(Charsets.UTF_8) shouldBe bestillingsnummer.value
             }
         }
     }
 
     context("opprett faktura") {
-        val bestillingsnummer = "B1"
+        val bestillingsnummer = Bestillingsnummer("B-1-1")
 
         db.session {
             val bestilling = createBestilling(bestillingsnummer, status = BestillingStatusType.AKTIV)
@@ -468,74 +475,74 @@ class TiltaksokonomiServiceTest : FunSpec({
         test("feiler når bestilling ikke finnes") {
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettFaktura = createOpprettFaktura("B2", "B1-F1")
+            val opprettFaktura = createOpprettFaktura(Bestillingsnummer("B-2-1"), Fakturanummer("B-1-1-F1"))
             service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
-                it.message shouldBe "Bestilling B2 finnes ikke"
+                it.message shouldBe "Bestilling B-2-1 finnes ikke"
             }
         }
 
         test("feiler når oebs svarer med feilkoder") {
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
-            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "B1-F1")
+            val opprettFaktura = createOpprettFaktura(bestillingsnummer, Fakturanummer("B-1-1-F1"))
             service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
-                it.message shouldBe "Klarte ikke sende faktura B1-F1 til oebs"
+                it.message shouldBe "Klarte ikke sende faktura B-1-1-F1 til oebs"
             }
         }
 
         test("feiler når bestilling ikke er aktiv ennå") {
-            val bestilling = createBestilling("876")
+            val bestilling = createBestilling(Bestillingsnummer("A-876-1"))
             db.session {
                 queries.bestilling.insertBestilling(bestilling)
             }
 
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
-            val opprettFaktura = createOpprettFaktura(bestilling.bestillingsnummer, "876-F1")
+            val opprettFaktura = createOpprettFaktura(bestilling.bestillingsnummer, Fakturanummer("A-876-1-F1"))
             service.opprettFaktura(opprettFaktura).shouldBeLeft().should {
-                it.message shouldBe "Faktura 876-F1 kan ikke opprettes fordi bestilling 876 har status SENDT"
+                it.message shouldBe "Faktura A-876-1-F1 kan ikke opprettes fordi bestilling A-876-1 har status SENDT"
             }
         }
 
         test("oppretter faktura hos oebs og lagrer utgående melding om status for faktura") {
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "B1-F2")
+            val opprettFaktura = createOpprettFaktura(bestillingsnummer, Fakturanummer("B-1-1-F2"))
             service.opprettFaktura(opprettFaktura).shouldBeRight().should {
-                it.fakturanummer shouldBe "B1-F2"
+                it.fakturanummer shouldBe Fakturanummer("B-1-1-F2")
                 it.status shouldBe FakturaStatusType.SENDT
             }
 
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "faktura-status"
-                it.key.toString(Charsets.UTF_8) shouldBe "B1-F2"
+                it.key.toString(Charsets.UTF_8) shouldBe "B-1-1-F2"
                 val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value?.toString(Charsets.UTF_8) ?: "")
                 fakturaStatus.status shouldBe FakturaStatusType.SENDT
-                fakturaStatus.fakturanummer shouldBe "B1-F2"
+                fakturaStatus.fakturanummer shouldBe Fakturanummer("B-1-1-F2")
             }
         }
 
         test("sender ikke faktura til oebs før det finnes kvitteringer for tidligere fakturaer") {
-            val bestilling2 = createBestilling("678", status = BestillingStatusType.AKTIV)
+            val bestilling2 = createBestilling(Bestillingsnummer("A-678-1"), status = BestillingStatusType.AKTIV)
             db.session {
                 queries.bestilling.insertBestilling(bestilling2)
             }
 
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            val opprettFaktura1 = createOpprettFaktura(bestilling2.bestillingsnummer, "678-F1")
+            val opprettFaktura1 = createOpprettFaktura(bestilling2.bestillingsnummer, Fakturanummer("A-678-1-F1"))
             service.opprettFaktura(opprettFaktura1).shouldBeRight().should {
                 it.status shouldBe FakturaStatusType.SENDT
             }
 
-            val opprettFaktura2 = createOpprettFaktura(bestilling2.bestillingsnummer, "678-F2")
+            val opprettFaktura2 = createOpprettFaktura(bestilling2.bestillingsnummer, Fakturanummer("A-678-1-F2"))
             service.opprettFaktura(opprettFaktura2).shouldBeLeft().should {
-                it.message shouldBe "Faktura 678-F2 kan ikke opprettes fordi vi venter på kvittering"
+                it.message shouldBe "Faktura A-678-1-F2 kan ikke opprettes fordi vi venter på kvittering"
             }
         }
 
         test("svarer med eksisterende faktura og lagrer utgående melding når fakturanummer allerede er kjent") {
-            val opprettFaktura = createOpprettFaktura(bestillingsnummer, "B1-F3")
+            val opprettFaktura = createOpprettFaktura(bestillingsnummer, Fakturanummer("B-1-1-F3"))
             db.session {
                 val bestilling = checkNotNull(queries.bestilling.getByBestillingsnummer(bestillingsnummer))
                 val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer).copy(
@@ -547,20 +554,21 @@ class TiltaksokonomiServiceTest : FunSpec({
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
             service.opprettFaktura(opprettFaktura).shouldBeRight().should {
-                it.fakturanummer shouldBe "B1-F3"
+                it.fakturanummer shouldBe Fakturanummer("B-1-1-F3")
                 it.status shouldBe FakturaStatusType.FULLT_BETALT
             }
 
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "faktura-status"
-                it.key.toString(Charsets.UTF_8) shouldBe "B1-F3"
+                it.key.toString(Charsets.UTF_8) shouldBe "B-1-1-F3"
             }
         }
     }
 
     context("gjør opp bestilling") {
         test("faktura med gjorOppBestilling = true setter siste fakturalinje i fakturaen til oebs og oppdaterer status på bestilling") {
-            val bestilling = createBestilling("B2", status = BestillingStatusType.AKTIV)
+            val b2 = Bestillingsnummer("B-2-1")
+            val bestilling = createBestilling(b2, status = BestillingStatusType.AKTIV)
             db.session {
                 queries.bestilling.insertBestilling(bestilling)
             }
@@ -576,27 +584,28 @@ class TiltaksokonomiServiceTest : FunSpec({
             }
             val service = createOkonomiService(oebsClient(mockEngine))
 
-            val opprettFaktura = createOpprettFaktura("B2", "B2-F1")
+            val opprettFaktura = createOpprettFaktura(b2, Fakturanummer("B-2-1-F1"))
                 .copy(gjorOppBestilling = true)
             service.opprettFaktura(opprettFaktura).shouldBeRight().should {
-                it.fakturanummer shouldBe "B2-F1"
+                it.fakturanummer shouldBe Fakturanummer("B-2-1-F1")
                 it.status shouldBe FakturaStatusType.SENDT
             }
 
             db.session { getLatestRecord(topic = "faktura-status") }.should {
                 val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value?.toString(Charsets.UTF_8) ?: "")
+                fakturaStatus.fakturanummer shouldBe Fakturanummer("B-2-1-F1")
                 fakturaStatus.status shouldBe FakturaStatusType.SENDT
-                fakturaStatus.fakturanummer shouldBe "B2-F1"
             }
 
             db.session {
-                val bestilling = queries.bestilling.getByBestillingsnummer("B2")
+                val bestilling = queries.bestilling.getByBestillingsnummer(b2)
                 bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.OPPGJORT
             }
         }
 
         test("operasjon for gjorOppBestilling lager en faktura med erSisteLinje = true og setter bestillingen til OPPGJORT") {
-            val bestilling = createBestilling("B3", status = BestillingStatusType.AKTIV)
+            val b3 = Bestillingsnummer("B-3-1")
+            val bestilling = createBestilling(b3, status = BestillingStatusType.AKTIV)
             db.session {
                 queries.bestilling.insertBestilling(bestilling)
             }
@@ -613,64 +622,63 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(mockEngine))
 
-            val gjorOppBestilling = createGjorOppBestilling("B3")
+            val gjorOppBestilling = createGjorOppBestilling(b3)
             service.gjorOppBestilling(gjorOppBestilling).shouldBeRight().should {
-                it.fakturanummer shouldBe "B3-X"
+                it.fakturanummer shouldBe Fakturanummer("B-3-1-X")
                 it.status shouldBe FakturaStatusType.SENDT
             }
 
             db.session {
-                val bestilling = queries.bestilling.getByBestillingsnummer("B3")
+                val bestilling = queries.bestilling.getByBestillingsnummer(b3)
                 bestilling.shouldNotBeNull().status shouldBe BestillingStatusType.OPPGJORT
             }
 
             db.session { getLatestRecord(topic = "bestilling-status") }.should {
                 it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    BestillingStatus(
-                        bestillingsnummer = "B3",
-                        status = BestillingStatusType.OPPGJORT,
-                    ),
+                    BestillingStatus(b3, BestillingStatusType.OPPGJORT),
                 )
             }
         }
 
         test("feiler hvis bestillingen ikke er aktiv") {
-            val bestilling = createBestilling("B4", status = BestillingStatusType.SENDT)
+            val b4 = Bestillingsnummer("B-4-1")
+            val bestilling = createBestilling(b4, status = BestillingStatusType.SENDT)
             db.session {
                 queries.bestilling.insertBestilling(bestilling)
             }
 
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
-            val gjorOppBestilling = createGjorOppBestilling("B4")
+            val gjorOppBestilling = createGjorOppBestilling(b4)
             service.gjorOppBestilling(gjorOppBestilling).shouldBeLeft().should {
-                it.message shouldBe "Bestilling B4 kan ikke gjøres opp fordi den har status SENDT"
+                it.message shouldBe "Bestilling B-4-1 kan ikke gjøres opp fordi den har status SENDT"
             }
         }
 
         test("feiler når en faktura venter på kvittering") {
-            val bestilling = createBestilling("B5", status = BestillingStatusType.AKTIV)
+            val b5 = Bestillingsnummer("B-5-1")
+            val bestilling = createBestilling(b5, status = BestillingStatusType.AKTIV)
             db.session {
                 queries.bestilling.insertBestilling(bestilling)
             }
 
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
-            val opprettFaktura = createOpprettFaktura("B5", "B5-F55")
+            val opprettFaktura = createOpprettFaktura(b5, Fakturanummer("B-5-1-F55"))
             db.session {
                 val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
                 queries.faktura.insertFaktura(faktura)
             }
 
-            val gjorOppBestilling = createGjorOppBestilling("B5")
+            val gjorOppBestilling = createGjorOppBestilling(b5)
             service.gjorOppBestilling(gjorOppBestilling).shouldBeLeft().should {
-                it.message shouldBe "Bestilling B5 kan ikke gjøres opp fordi vi venter på kvittering"
+                it.message shouldBe "Bestilling B-5-1 kan ikke gjøres opp fordi vi venter på kvittering"
             }
         }
 
         test("kvittering for gjorOppBestilling faktura publiseres ikke på kafka") {
-            val bestillingNummer = "Z7"
-            val bestilling = createBestilling(bestillingNummer, status = BestillingStatusType.AKTIV)
+            val bestillingsnummer = Bestillingsnummer("Z-7-1")
+            val bestilling = createBestilling(bestillingsnummer, status = BestillingStatusType.AKTIV)
             db.session { queries.bestilling.insertBestilling(bestilling) }
 
             val mockEngine = createMockEngine {
@@ -685,14 +693,14 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(mockEngine))
 
-            val gjorOppBestilling = createGjorOppBestilling(bestillingNummer)
+            val gjorOppBestilling = createGjorOppBestilling(bestillingsnummer)
             service.gjorOppBestilling(gjorOppBestilling).shouldBeRight()
 
-            val faktura = db.session { queries.faktura.getByBestillingsnummer(bestillingNummer) }.first()
+            val faktura = db.session { queries.faktura.getByBestillingsnummer(bestillingsnummer) }.first()
             service.mottaFakturaKvittering(
                 faktura = faktura,
                 kvittering = OebsFakturaKvittering(
-                    fakturaNummer = faktura.fakturanummer,
+                    fakturaNummer = faktura.fakturanummer.value,
                     opprettelsesTidspunkt = LocalDateTime.now(),
                     statusBetalt = OebsFakturaKvittering.StatusBetalt.IkkeBetalt,
                 ),
@@ -747,7 +755,10 @@ private fun initializeData(db: OkonomiDatabase) = db.session {
     )
 }
 
-private fun createOpprettBestilling(bestillingsnummer: String, organisasjonsnummer: Organisasjonsnummer? = null) = OpprettBestilling(
+private fun createOpprettBestilling(
+    bestillingsnummer: Bestillingsnummer,
+    organisasjonsnummer: Organisasjonsnummer? = null,
+) = OpprettBestilling(
     bestillingsnummer = bestillingsnummer,
     tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
     tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
@@ -764,7 +775,7 @@ private fun createOpprettBestilling(bestillingsnummer: String, organisasjonsnumm
 )
 
 private fun createBestilling(
-    bestillingsnummer: String,
+    bestillingsnummer: Bestillingsnummer,
     status: BestillingStatusType = BestillingStatusType.SENDT,
 ): Bestilling {
     return Bestilling(
@@ -795,7 +806,7 @@ private fun createBestilling(
     )
 }
 
-private fun createAnnullerBestilling(bestillingsnummer: String) = AnnullerBestilling(
+private fun createAnnullerBestilling(bestillingsnummer: Bestillingsnummer) = AnnullerBestilling(
     bestillingsnummer = bestillingsnummer,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
@@ -803,7 +814,7 @@ private fun createAnnullerBestilling(bestillingsnummer: String) = AnnullerBestil
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
 )
 
-private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: String) = OpprettFaktura(
+private fun createOpprettFaktura(bestillingsnummer: Bestillingsnummer, fakturanummer: Fakturanummer) = OpprettFaktura(
     fakturanummer = fakturanummer,
     bestillingsnummer = bestillingsnummer,
     betalingsinformasjon = OpprettFaktura.Betalingsinformasjon.BBan(
@@ -821,7 +832,7 @@ private fun createOpprettFaktura(bestillingsnummer: String, fakturanummer: Strin
     valuta = Valuta.NOK,
 )
 
-private fun createGjorOppBestilling(bestillingsnummer: String) = GjorOppBestilling(
+private fun createGjorOppBestilling(bestillingsnummer: Bestillingsnummer) = GjorOppBestilling(
     bestillingsnummer = bestillingsnummer,
     behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),

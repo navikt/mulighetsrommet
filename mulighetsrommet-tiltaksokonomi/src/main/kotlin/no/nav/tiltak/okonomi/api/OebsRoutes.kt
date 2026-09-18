@@ -8,6 +8,8 @@ import io.ktor.server.resources.post
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
+import no.nav.tiltak.okonomi.Bestillingsnummer
+import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.oebs.OebsBestillingKvittering
 import no.nav.tiltak.okonomi.oebs.OebsFakturaKvittering
 import no.nav.tiltak.okonomi.plugins.AuthProvider
@@ -36,7 +38,7 @@ fun Routing.oebsRoutes(
         val kvitteringer = JsonIgnoreUnknownKeys.decodeFromString<List<OebsBestillingKvittering>>(request)
 
         kvitteringer.forEach { kvittering ->
-            okonomiService.hentBestilling(kvittering.bestillingsNummer)?.let {
+            okonomiService.hentBestilling(Bestillingsnummer(kvittering.bestillingsNummer))?.let {
                 okonomiService.mottaBestillingKvittering(it, kvittering)
             } ?: log.info("Fant ikke bestilling til kvittering med bestillingnummer ${kvittering.bestillingsNummer}")
         }
@@ -51,7 +53,7 @@ fun Routing.oebsRoutes(
         val kvitteringer = JsonIgnoreUnknownKeys.decodeFromString<List<OebsFakturaKvittering>>(request)
 
         kvitteringer.forEach { kvittering ->
-            okonomiService.hentFaktura(kvittering.fakturaNummer)?.let {
+            okonomiService.hentFaktura(Fakturanummer(kvittering.fakturaNummer))?.let {
                 okonomiService.mottaFakturaKvittering(it, kvittering)
             } ?: log.info("Fant ikke faktura til kvittering med fakturanummer ${kvittering.fakturaNummer}")
         }

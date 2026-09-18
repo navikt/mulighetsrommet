@@ -27,7 +27,7 @@ class ReplikerFakturaStatusConsumer(
             JsonIgnoreUnknownKeys.decodeFromJsonElement<FakturaStatus>(message)
 
         db.transaction {
-            utbetalingService.oppdaterFakturaStatus(fakturanummer, status, fakturaStatusSistOppdatert)
+            utbetalingService.oppdaterFakturaStatus(fakturanummer.value, status, fakturaStatusSistOppdatert)
         }
     }
 }

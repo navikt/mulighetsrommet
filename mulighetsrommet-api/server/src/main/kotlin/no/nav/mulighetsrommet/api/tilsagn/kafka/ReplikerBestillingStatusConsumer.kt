@@ -23,6 +23,6 @@ class ReplikerBestillingStatusConsumer(
 
         val (bestillingsnummer, status) = JsonIgnoreUnknownKeys.decodeFromJsonElement<BestillingStatus>(message)
 
-        queries.tilsagn.setBestillingStatus(bestillingsnummer, status)
+        queries.tilsagn.setBestillingStatus(bestillingsnummer.value, status)
     }
 }

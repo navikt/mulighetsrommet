@@ -16,8 +16,10 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.BestillingStatus
 import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatus
 import no.nav.tiltak.okonomi.FakturaStatusType
+import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.KafkaTopics
 import no.nav.tiltak.okonomi.OpprettBestilling
@@ -69,7 +71,8 @@ class TiltaksokonomiService(
                 tiltakskode = opprettBestilling.tiltakskode,
                 periode = opprettBestilling.periode,
             )
-            ?: return TiltaksokonomiError.OpprettBestilling("Kontering for bestilling $bestillingsnummer mangler").left()
+            ?: return TiltaksokonomiError.OpprettBestilling("Kontering for bestilling $bestillingsnummer mangler")
+                .left()
 
         return getSelger(opprettBestilling.arrangor)
             .flatMap { selger ->
@@ -81,7 +84,10 @@ class TiltaksokonomiService(
                 log.info("Sender bestilling $bestillingsnummer til oebs")
                 oebs.sendBestilling(melding)
                     .mapLeft {
-                        TiltaksokonomiError.OpprettBestilling("Klarte ikke sende bestilling $bestillingsnummer til oebs", it)
+                        TiltaksokonomiError.OpprettBestilling(
+                            "Klarte ikke sende bestilling $bestillingsnummer til oebs",
+                            it,
+                        )
                     }
                     .map { bestilling }
             }
@@ -106,18 +112,23 @@ class TiltaksokonomiService(
             log.info("Bestilling $bestillingsnummer er allerede annullert")
             return publishBestilling(bestillingsnummer).right()
         } else if (bestilling.status != BestillingStatusType.AKTIV) {
-            return TiltaksokonomiError.AnnullerBestilling("Bestilling $bestillingsnummer kan ikke annulleres fordi den har status ${bestilling.status}").left()
+            return TiltaksokonomiError.AnnullerBestilling("Bestilling $bestillingsnummer kan ikke annulleres fordi den har status ${bestilling.status}")
+                .left()
         }
 
         val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
         if (fakturaer.isNotEmpty()) {
-            return TiltaksokonomiError.AnnullerBestilling("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen").left()
+            return TiltaksokonomiError.AnnullerBestilling("Bestilling $bestillingsnummer kan ikke annulleres fordi det finnes fakturaer for bestillingen")
+                .left()
         }
 
         val melding = OebsMeldingMapper.toOebsAnnulleringMelding(bestilling, annullerBestilling)
         return oebs.sendAnnullering(melding)
             .mapLeft {
-                TiltaksokonomiError.AnnullerBestilling("Klarte ikke annullere bestilling $bestillingsnummer hos oebs", it)
+                TiltaksokonomiError.AnnullerBestilling(
+                    "Klarte ikke annullere bestilling $bestillingsnummer hos oebs",
+                    it,
+                )
             }
             .map {
                 log.info("Lagrer bestilling ${bestilling.bestillingsnummer} som annullert")
@@ -150,12 +161,14 @@ class TiltaksokonomiService(
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return TiltaksokonomiError.OpprettFaktura("Bestilling $bestillingsnummer finnes ikke").left()
         if (bestilling.status != BestillingStatusType.AKTIV) {
-            return TiltaksokonomiError.OpprettFaktura("Faktura $fakturanummer kan ikke opprettes fordi bestilling $bestillingsnummer har status ${bestilling.status}").left()
+            return TiltaksokonomiError.OpprettFaktura("Faktura $fakturanummer kan ikke opprettes fordi bestilling $bestillingsnummer har status ${bestilling.status}")
+                .left()
         }
 
         val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
         if (venterPaaKvittering(fakturaer)) {
-            return TiltaksokonomiError.OpprettFaktura("Faktura $fakturanummer kan ikke opprettes fordi vi venter på kvittering").left()
+            return TiltaksokonomiError.OpprettFaktura("Faktura $fakturanummer kan ikke opprettes fordi vi venter på kvittering")
+                .left()
         }
 
         val faktura = Faktura.fromOpprettFaktura(opprettFaktura, bestilling.linjer)
@@ -192,7 +205,8 @@ class TiltaksokonomiService(
         val bestilling = queries.bestilling.getByBestillingsnummer(bestillingsnummer)
             ?: return TiltaksokonomiError.GjorOppBestilling("Bestilling $bestillingsnummer finnes ikke").left()
         if (bestilling.status != BestillingStatusType.AKTIV) {
-            return TiltaksokonomiError.GjorOppBestilling("Bestilling $bestillingsnummer kan ikke gjøres opp fordi den har status ${bestilling.status}").left()
+            return TiltaksokonomiError.GjorOppBestilling("Bestilling $bestillingsnummer kan ikke gjøres opp fordi den har status ${bestilling.status}")
+                .left()
         }
 
         val fakturaer = queries.faktura.getByBestillingsnummer(bestillingsnummer)
@@ -201,7 +215,8 @@ class TiltaksokonomiService(
             return it.right()
         }
         if (venterPaaKvittering(fakturaer)) {
-            return TiltaksokonomiError.GjorOppBestilling("Bestilling $bestillingsnummer kan ikke gjøres opp fordi vi venter på kvittering").left()
+            return TiltaksokonomiError.GjorOppBestilling("Bestilling $bestillingsnummer kan ikke gjøres opp fordi vi venter på kvittering")
+                .left()
         }
 
         val faktura = Faktura.fromGjorOppBestilling(gjorOppBestilling, bestilling)
@@ -220,12 +235,12 @@ class TiltaksokonomiService(
             }
     }
 
-    fun hentBestilling(bestillingsnummer: String): Bestilling? = db.session {
+    fun hentBestilling(bestillingsnummer: Bestillingsnummer): Bestilling? = db.session {
         queries.bestilling.getByBestillingsnummer(bestillingsnummer)
     }
 
-    fun hentFaktura(fakturaNummer: String): Faktura? = db.session {
-        queries.faktura.getByFakturanummer(fakturaNummer)
+    fun hentFaktura(fakturanummer: Fakturanummer): Faktura? = db.session {
+        queries.faktura.getByFakturanummer(fakturanummer)
     }
 
     fun mottaBestillingKvittering(
@@ -333,27 +348,32 @@ class TiltaksokonomiService(
             .flatMap { enhet ->
                 when (enhet) {
                     is BrregHovedenhetDto -> enhet.overordnetEnhet?.let { getBrregHovedenhet(it) } ?: enhet.right()
+
                     is BrregUnderenhetDto -> getBrregHovedenhet(enhet.overordnetEnhet)
-                    is SlettetBrregHovedenhetDto -> TiltaksokonomiError.OpprettBestilling("Hovedenhet med orgnr ${organisasjonsnummer.value} er slettet").left()
-                    is SlettetBrregUnderenhetDto -> TiltaksokonomiError.OpprettBestilling("Underenhet med orgnr ${enhet.organisasjonsnummer.value} er slettet").left()
+
+                    is SlettetBrregHovedenhetDto -> TiltaksokonomiError.OpprettBestilling("Hovedenhet med orgnr ${organisasjonsnummer.value} er slettet")
+                        .left()
+
+                    is SlettetBrregUnderenhetDto -> TiltaksokonomiError.OpprettBestilling("Underenhet med orgnr ${enhet.organisasjonsnummer.value} er slettet")
+                        .left()
                 }
             }
     }
 
-    private fun QueryContext.setBestillingOppgjort(bestillingsnummer: String) {
+    private fun QueryContext.setBestillingOppgjort(bestillingsnummer: Bestillingsnummer) {
         log.info("Setter bestilling $bestillingsnummer til oppgjort")
         queries.bestilling.setStatus(bestillingsnummer, BestillingStatusType.OPPGJORT)
         publishBestilling(bestillingsnummer)
     }
 
-    private fun QueryContext.publishBestilling(bestillingsnummer: String): Bestilling {
+    private fun QueryContext.publishBestilling(bestillingsnummer: Bestillingsnummer): Bestilling {
         val bestilling = checkNotNull(queries.bestilling.getByBestillingsnummer(bestillingsnummer))
 
         log.info("Lagrer status-melding for bestilling $bestillingsnummer")
         queries.kafkaProducerRecord.storeRecord(
             StoredProducerRecord(
                 config.topics.bestillingStatus,
-                bestillingsnummer.toByteArray(),
+                bestillingsnummer.value.toByteArray(),
                 Json.encodeToString(
                     BestillingStatus(
                         bestillingsnummer = bestilling.bestillingsnummer,
@@ -367,14 +387,14 @@ class TiltaksokonomiService(
         return bestilling
     }
 
-    private fun QueryContext.publishFaktura(fakturanummer: String): Faktura {
+    private fun QueryContext.publishFaktura(fakturanummer: Fakturanummer): Faktura {
         val faktura = checkNotNull(queries.faktura.getByFakturanummer(fakturanummer))
 
         log.info("Lagrer status-melding for faktura $fakturanummer")
         queries.kafkaProducerRecord.storeRecord(
             StoredProducerRecord(
                 config.topics.fakturaStatus,
-                fakturanummer.toByteArray(),
+                fakturanummer.value.toByteArray(),
                 Json.encodeToString(
                     FakturaStatus(
                         fakturanummer = fakturanummer,
@@ -390,7 +410,7 @@ class TiltaksokonomiService(
     }
 }
 
-fun gjorOppFakturanummer(bestillingsnummer: String): String = "$bestillingsnummer-X"
+fun gjorOppFakturanummer(bestillingsnummer: Bestillingsnummer): Fakturanummer = Fakturanummer("$bestillingsnummer-X")
 
 private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): Either<TiltaksokonomiError.OpprettBestilling, List<OebsBestillingMelding.Selger.Adresse>> {
     val adresse = leverandor.forretningsadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }
@@ -398,7 +418,9 @@ private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): Either<Tiltaks
     return if (adresse.isNotEmpty()) {
         adresse.right()
     } else {
-        TiltaksokonomiError.OpprettBestilling("Klarte ikke utlede adresse for leverandør ${leverandor.organisasjonsnummer.value}").left()
+        TiltaksokonomiError
+            .OpprettBestilling("Klarte ikke utlede adresse for leverandør ${leverandor.organisasjonsnummer.value}")
+            .left()
     }
 }
 

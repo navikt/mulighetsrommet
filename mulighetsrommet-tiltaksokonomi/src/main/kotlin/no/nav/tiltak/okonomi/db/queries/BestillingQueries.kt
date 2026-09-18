@@ -12,6 +12,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.model.Bestilling
 import org.intellij.lang.annotations.Language
@@ -64,7 +65,7 @@ class BestillingQueries(private val session: Session) {
             returning id
         """
         val params = mapOf(
-            "bestillingsnummer" to bestilling.bestillingsnummer,
+            "bestillingsnummer" to bestilling.bestillingsnummer.value,
             "avtalenummer" to bestilling.avtalenummer,
             "tiltakskode" to bestilling.tiltakskode.name,
             "arrangor_hovedenhet" to bestilling.arrangorHovedenhet.value,
@@ -101,7 +102,7 @@ class BestillingQueries(private val session: Session) {
         batchPreparedNamedStatement(insertLinje, linjer)
     }
 
-    fun setAnnullering(bestillingsnummer: String, annullering: Bestilling.Totrinnskontroll) {
+    fun setAnnullering(bestillingsnummer: Bestillingsnummer, annullering: Bestilling.Totrinnskontroll) {
         @Language("PostgreSQL")
         val query = """
             update bestilling
@@ -112,7 +113,7 @@ class BestillingQueries(private val session: Session) {
             where bestillingsnummer = :bestillingsnummer
         """.trimIndent()
         val params = mapOf(
-            "bestillingsnummer" to bestillingsnummer,
+            "bestillingsnummer" to bestillingsnummer.value,
             "behandlet_av" to annullering.behandletAv.part,
             "behandlet_tidspunkt" to annullering.behandletTidspunkt,
             "besluttet_av" to annullering.besluttetAv.part,
@@ -140,18 +141,18 @@ class BestillingQueries(private val session: Session) {
         )
     }
 
-    fun setStatus(bestillingsnummer: String, status: BestillingStatusType) {
+    fun setStatus(bestillingsnummer: Bestillingsnummer, status: BestillingStatusType) {
         @Language("PostgreSQL")
         val query = """
             update bestilling
             set status = ?
             where bestillingsnummer = ?
         """.trimIndent()
-        session.execute(queryOf(query, status.name, bestillingsnummer))
+        session.execute(queryOf(query, status.name, bestillingsnummer.value))
     }
 
     fun setFeilmelding(
-        bestillingsnummer: String,
+        bestillingsnummer: Bestillingsnummer,
         feilKode: String?,
         feilMelding: String?,
     ) {
@@ -163,14 +164,14 @@ class BestillingQueries(private val session: Session) {
             where bestillingsnummer = :bestillingsnummer
         """.trimIndent()
         val params = mapOf(
-            "bestillingsnummer" to bestillingsnummer,
+            "bestillingsnummer" to bestillingsnummer.value,
             "feil_kode" to feilKode,
             "feil_melding" to feilMelding,
         )
         session.execute(queryOf(query, params))
     }
 
-    fun getByBestillingsnummer(bestillingsnummer: String): Bestilling? {
+    fun getByBestillingsnummer(bestillingsnummer: Bestillingsnummer): Bestilling? {
         @Language("PostgreSQL")
         val selectBestilling = """
             select
@@ -197,7 +198,7 @@ class BestillingQueries(private val session: Session) {
             where bestillingsnummer = ?
         """.trimIndent()
 
-        return session.single(queryOf(selectBestilling, bestillingsnummer)) { it.toBestilling() }
+        return session.single(queryOf(selectBestilling, bestillingsnummer.value)) { it.toBestilling() }
     }
 
     fun getNotAvstemt(): List<Bestilling> {
@@ -253,7 +254,7 @@ class BestillingQueries(private val session: Session) {
             arrangorHovedenhet = Organisasjonsnummer(string("arrangor_hovedenhet")),
             arrangorUnderenhet = Organisasjonsnummer(string("arrangor_underenhet")),
             kostnadssted = NavEnhetNummer(string("kostnadssted")),
-            bestillingsnummer = string("bestillingsnummer"),
+            bestillingsnummer = Bestillingsnummer(string("bestillingsnummer")),
             avtalenummer = stringOrNull("avtalenummer"),
             belop = int("belop"),
             periode = periode("periode"),

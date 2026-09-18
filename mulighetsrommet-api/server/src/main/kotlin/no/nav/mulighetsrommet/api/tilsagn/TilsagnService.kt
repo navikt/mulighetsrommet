@@ -57,6 +57,7 @@ import no.nav.mulighetsrommet.model.withValuta
 import no.nav.mulighetsrommet.notifications.NotificationMetadata
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.tiltak.okonomi.AnnullerBestilling
+import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.OkonomiBestillingMelding
 import no.nav.tiltak.okonomi.OpprettBestilling
@@ -709,7 +710,7 @@ class TilsagnService(
         }
 
         val bestilling = OpprettBestilling(
-            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
             tilskuddstype = when (tilsagn.type) {
                 TilsagnType.INVESTERING -> Tilskuddstype.TILTAK_INVESTERINGER
                 else -> Tilskuddstype.TILTAK_DRIFTSTILSKUDD
@@ -739,7 +740,7 @@ class TilsagnService(
         }
 
         val annullerBestilling = AnnullerBestilling(
-            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
             behandletAv = annullering.behandletAv.toOkonomiPart(),
             behandletTidspunkt = annullering.behandletTidspunkt,
             besluttetAv = besluttetAv.toOkonomiPart(),
@@ -758,7 +759,7 @@ class TilsagnService(
         }
 
         val faktura = GjorOppBestilling(
-            bestillingsnummer = tilsagn.bestilling.bestillingsnummer,
+            bestillingsnummer = Bestillingsnummer(tilsagn.bestilling.bestillingsnummer),
             behandletAv = oppgjor.behandletAv.toOkonomiPart(),
             behandletTidspunkt = oppgjor.behandletTidspunkt,
             besluttetAv = besluttetAv.toOkonomiPart(),

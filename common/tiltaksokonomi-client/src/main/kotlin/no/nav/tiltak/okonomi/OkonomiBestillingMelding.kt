@@ -1,7 +1,10 @@
+@file:UseSerializers(InstantSerializer::class)
+
 package no.nav.tiltak.okonomi
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.Arena
 import no.nav.mulighetsrommet.model.Arrangor
@@ -46,7 +49,7 @@ sealed class OkonomiBestillingMelding {
 
 @Serializable
 data class OpprettBestilling(
-    val bestillingsnummer: String,
+    val bestillingsnummer: Bestillingsnummer,
     val tilskuddstype: Tilskuddstype,
     val tiltakskode: Tiltakskode,
     val arrangor: Arrangor,
@@ -91,38 +94,32 @@ enum class Tilskuddstype {
 
 @Serializable
 data class AnnullerBestilling(
-    val bestillingsnummer: String,
+    val bestillingsnummer: Bestillingsnummer,
     val behandletAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant,
 )
 
 @Serializable
 data class GjorOppBestilling(
-    val bestillingsnummer: String,
+    val bestillingsnummer: Bestillingsnummer,
     val behandletAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant,
 )
 
 @Serializable
 data class OpprettFaktura(
-    val fakturanummer: String,
-    val bestillingsnummer: String,
+    val fakturanummer: Fakturanummer,
+    val bestillingsnummer: Bestillingsnummer,
     val betalingsinformasjon: Betalingsinformasjon,
     val belop: Int,
     val periode: Periode,
     val behandletAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant,
     val gjorOppBestilling: Boolean,
     val beskrivelse: String?,
