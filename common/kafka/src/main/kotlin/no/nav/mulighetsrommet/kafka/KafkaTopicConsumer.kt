@@ -1,6 +1,5 @@
 package no.nav.mulighetsrommet.kafka
 
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import no.nav.common.kafka.consumer.ConsumeStatus
 import no.nav.common.kafka.consumer.TopicConsumer
@@ -23,12 +22,23 @@ abstract class KafkaTopicConsumer<K, V>(
         val consumerProperties: Properties,
     )
 
-    override fun consume(record: ConsumerRecord<K, V>) = runBlocking(Dispatchers.IO) {
+    /**
+     * Override this if you need access to the full [ConsumerRecord], e.g. to read headers before
+     * deciding whether to process the message. The default implementation dispatches to
+     * [consume] (key, message).
+     */
+    override fun consume(record: ConsumerRecord<K, V>): ConsumeStatus = runBlocking {
         consume(record.key(), record.value())
         ConsumeStatus.OK
     }
 
-    abstract suspend fun consume(key: K, message: V)
+    /**
+     * Override this for simple key/value based processing when you don't need access to the
+     * record's headers or other metadata.
+     */
+    open suspend fun consume(key: K, message: V): Unit = throw NotImplementedError(
+        "${javaClass.simpleName} must override either consume(record) or consume(key, message)",
+    )
 }
 
 abstract class ScheduledMessageKafkaTopicConsumer<K, V>(
@@ -53,7 +63,7 @@ abstract class ScheduledMessageKafkaTopicConsumer<K, V>(
             return ConsumeStatus.OK
         }
 
-        return runBlocking(Dispatchers.IO) {
+        return runBlocking {
             consume(record.key(), record.value())
             ConsumeStatus.OK
         }
