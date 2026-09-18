@@ -191,7 +191,9 @@ function useTabs(
 
   const filteredTabConfigs = enableTilskuddsbehandling
     ? tabConfigs
-    : tabConfigs.filter((tab) => !["tilskudd-behandling", "tilskudd-utbetalinger",  "tilskudd"].includes(tab.key));
+    : tabConfigs.filter(
+        (tab) => !["tilskudd-behandling", "tilskudd-utbetalinger", "tilskudd"].includes(tab.key),
+      );
 
   const tabs: Tab[] = filteredTabConfigs.map(({ key, label }) => ({
     key,
