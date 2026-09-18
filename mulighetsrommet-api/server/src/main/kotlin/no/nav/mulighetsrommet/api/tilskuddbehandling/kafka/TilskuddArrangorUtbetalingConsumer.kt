@@ -30,6 +30,7 @@ import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.tiltak.okonomi.Tilskuddstype
+import org.slf4j.LoggerFactory
 import java.util.UUID
 
 class TilskuddArrangorUtbetalingConsumer(
@@ -40,6 +41,8 @@ class TilskuddArrangorUtbetalingConsumer(
     uuidDeserializer(),
     TotrinnskontrollHendelseDeserializer(),
 ) {
+    private val logger = LoggerFactory.getLogger(javaClass)
+
     override suspend fun consume(key: UUID, message: TotrinnskontrollHendelse) {
         if (message.type != TotrinnskontrollType.TILSKUDD_OPPRETTELSE) {
             return
@@ -58,26 +61,32 @@ class TilskuddArrangorUtbetalingConsumer(
         behandling.tilskudd
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
             .filter { it.utbetalingMottaker == TilskuddMottaker.ARRANGOR }
-            // Idempotency check
-            .filter { db.session { queries.utbetaling.getByTilskudd(it.id) } == null }
-            .forEach { t ->
+            .forEach { tilskuddVedtak ->
                 db.transaction {
+                    // Idempotency check
+                    queries.tilskuddBehandling.acquireLockTilskudd(tilskuddVedtak.tilskuddId)
+                    val utbetalingOpprettet = queries.utbetaling.getByTilskuddVedtak(tilskuddVedtak.id)
+                    if (utbetalingOpprettet != null) {
+                        logger.warn("Utbetaling for tilskudd vedtak med id=${tilskuddVedtak.id} er allerede opprettet. Se utbetaling id=${utbetalingOpprettet.id}.")
+                        return@transaction
+                    }
+
                     opprettOgGodkjennTilsagn(
                         gjennomforingId = behandling.gjennomforingId,
-                        kostnadssted = t.kostnadssted.enhetsnummer,
-                        periode = t.periode,
-                        belop = requireNotNull(t.utbetalingBelop) {
+                        kostnadssted = tilskuddVedtak.kostnadssted.enhetsnummer,
+                        periode = tilskuddVedtak.periode,
+                        belop = requireNotNull(tilskuddVedtak.utbetalingBelop) {
                             "Utbetaling beløp var null ved inngivelse av tilskudd til arrangør"
                         },
                         prisbetingelser = null,
                     )
                     val utbetaling = opprettOgBetalUtbetaling(
                         gjennomforingId = behandling.gjennomforingId,
-                        periode = t.periode,
-                        belop = t.utbetalingBelop,
-                        kid = t.kid,
+                        periode = tilskuddVedtak.periode,
+                        belop = tilskuddVedtak.utbetalingBelop,
+                        kid = tilskuddVedtak.kid,
                     )
-                    queries.tilskuddBehandling.setUtbetaling(t.id, utbetaling.id)
+                    queries.tilskuddBehandling.setUtbetalingTilskuddVedtak(tilskuddVedtak.id, utbetaling.id)
                 }
             }
     }
