@@ -3924,6 +3924,70 @@ paths:
               schema:
                 $ref: "#/components/schemas/ProblemDetail"
       deprecated: false
+  /api/tiltaksadministrasjon/tilskudd:
+    get:
+      tags:
+      - Tilskudd
+      description: Hent alle tilskudds for en gjennomføring
+      operationId: getAllTilskuddKompakt
+      parameters:
+      - name: gjennomforingId
+        in: query
+        required: false
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Liste av tilskudd
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TilskuddKompaktDto"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
+  /api/tiltaksadministrasjon/tilskudd/{tilskuddId}:
+    get:
+      tags:
+      - Tilskudd
+      description: Hent tilskudds gitt id
+      operationId: getTilskudd
+      parameters:
+      - name: tilskuddId
+        in: path
+        required: true
+        deprecated: false
+        explode: false
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Tilskudd
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tilskudd"
+        default:
+          description: Problem details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+      deprecated: false
   /api/tiltaksadministrasjon/historikk/{id}:
     get:
       tags:
@@ -9560,6 +9624,126 @@ components:
           format: uuid
       required:
       - behandlingId
+    TilskuddKompaktDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/Opplaeringtilskudd"
+        gjennomforingId:
+          type: string
+          format: uuid
+        tilskuddsnummer:
+          type: string
+        sisteVedtakResultat:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/VedtakResultatDto"
+        periode:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/Periode"
+        sisteVedtakLopenummer:
+          type:
+          - "null"
+          - integer
+          format: int32
+      required:
+      - gjennomforingId
+      - id
+      - periode
+      - sisteVedtakLopenummer
+      - sisteVedtakResultat
+      - tilskuddsnummer
+      - type
+    Tilskudd.Vedtak:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        behandlingId:
+          type: string
+          format: uuid
+        lopenummer:
+          type: integer
+          format: int32
+        soknadJournalpostId:
+          type: string
+        soknadDato:
+          type: string
+          format: date
+        periode:
+          $ref: "#/components/schemas/Periode"
+        kostnadssted:
+          type: string
+        soknadBelop:
+          $ref: "#/components/schemas/ValutaBelop"
+        utbetalingBelop:
+          oneOf:
+          - type: "null"
+          - $ref: "#/components/schemas/ValutaBelop"
+        vedtakResultat:
+          $ref: "#/components/schemas/VedtakResultat"
+        kommentarVedtaksbrev:
+          type:
+          - "null"
+          - string
+        utbetalingMottaker:
+          $ref: "#/components/schemas/TilskuddMottaker"
+        kid:
+          type:
+          - "null"
+          - string
+        kommentarIntern:
+          type:
+          - "null"
+          - string
+        vedtakJournalpostId:
+          type:
+          - "null"
+          - string
+      required:
+      - behandlingId
+      - id
+      - kid
+      - kommentarIntern
+      - kommentarVedtaksbrev
+      - kostnadssted
+      - lopenummer
+      - periode
+      - soknadBelop
+      - soknadDato
+      - soknadJournalpostId
+      - utbetalingBelop
+      - utbetalingMottaker
+      - vedtakJournalpostId
+      - vedtakResultat
+    Tilskudd:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: "#/components/schemas/Opplaeringtilskudd"
+        gjennomforingId:
+          type: string
+          format: uuid
+        tilskuddsnummer:
+          type: string
+        vedtak:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tilskudd.Vedtak"
+      required:
+      - gjennomforingId
+      - id
+      - tilskuddsnummer
+      - type
+      - vedtak
     EndringshistorikkType:
       type: string
       enum:
