@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.kafka
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -15,6 +16,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.UtbetalingFixtures
 import no.nav.mulighetsrommet.api.tilsagn.TilsagnService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
@@ -156,6 +158,31 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
         consumer.consume(behandlingId, godkjentHendelse)
 
         database.run {
+            queries.utbetaling.getByGjennomforing(request.gjennomforingId).shouldHaveSize(1)
+        }
+    }
+
+    test("hopper over arrangorutbetaling når utbetaling allerede finnes") {
+        val service = TilskuddBehandlingService(
+            database.api,
+            journalforVedtaksbrev,
+            mockk(relaxed = true),
+        )
+        service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+
+        val existingUtbetaling = UtbetalingFixtures.utbetaling1.copy(
+            gjennomforingId = request.gjennomforingId,
+        )
+        database.api.transaction {
+            queries.utbetaling.upsert(existingUtbetaling)
+            queries.tilskuddBehandling.setUtbetalingTilskuddVedtak(tilskuddVedtakId, existingUtbetaling.id)
+        }
+
+        createConsumer().consume(behandlingId, godkjentHendelse)
+
+        database.run {
+            val utbetaling = queries.utbetaling.getByTilskuddVedtak(tilskuddVedtakId).shouldNotBeNull()
+            utbetaling.id shouldBe existingUtbetaling.id
             queries.utbetaling.getByGjennomforing(request.gjennomforingId).shouldHaveSize(1)
         }
     }

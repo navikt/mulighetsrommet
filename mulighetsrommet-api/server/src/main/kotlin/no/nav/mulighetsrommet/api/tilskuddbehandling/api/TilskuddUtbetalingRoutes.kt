@@ -54,7 +54,7 @@ fun Route.tilskuddUtbetalingRoutes() {
             queries.tilskuddBehandling.getByGjennomforingId(gjennomforingId)
                 .flatMap { behandling ->
                     behandling.tilskudd.mapNotNull { tilskudd ->
-                        val arrangorUtbetaling = queries.utbetaling.getByTilskudd(tilskudd.id)
+                        val arrangorUtbetaling = queries.utbetaling.getByTilskuddVedtak(tilskudd.id)
                         if (arrangorUtbetaling != null) {
                             val utbetalingLinje = queries.utbetalingLinje.getByUtbetalingId(arrangorUtbetaling.id)[0]
                             val belopUtbetalt = utbetalingLinje.pris.belop.withValuta(arrangorUtbetaling.valuta)

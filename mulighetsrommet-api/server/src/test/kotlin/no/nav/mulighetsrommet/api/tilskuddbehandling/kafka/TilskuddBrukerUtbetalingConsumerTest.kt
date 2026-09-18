@@ -10,6 +10,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.mulighetsrommet.api.brukerutbetaling.BrukerUtbetalingService
+import no.nav.mulighetsrommet.api.brukerutbetaling.db.UpsertBrukerUtbetalingDbo
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling
 import no.nav.mulighetsrommet.api.contracts.helved.HelVedUtbetaling.Periode
 import no.nav.mulighetsrommet.api.contracts.totrinnskontroll.TotrinnskontrollAgent
@@ -121,6 +122,22 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         brukerUtbetalingService = brukerUtbetalingService,
     )
 
+    fun seedBrukerUtbetaling(
+        tilskuddVedtakId: UUID,
+        belop: Int = 5000,
+    ) = UpsertBrukerUtbetalingDbo(
+        id = UUID.randomUUID(),
+        sakId = "SAK-2025-001",
+        belop = belop,
+        transaksjonsDato = LocalDate.of(2025, 3, 15),
+        tilskuddstype = HelVedUtbetaling.Tilskuddstype.SKOLEPENGER,
+        tiltakskode = HelVedUtbetaling.Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
+        saksbehandler = NavAnsattFixture.DonaldDuck.navIdent,
+        beslutter = NavAnsattFixture.MikkeMus.navIdent,
+        besluttetTidspunkt = Instant.parse("2025-03-15T10:00:00Z"),
+        tilskuddVedtakId = tilskuddVedtakId,
+    )
+
     test("oppretter hel ved utbetaling for innvilget tilskudd til bruker") {
         val service = TilskuddBehandlingService(
             database.api,
@@ -156,6 +173,61 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
         consumer.consume(behandlingId, godkjentHendelse)
 
         verify(exactly = 1) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
+    }
+
+    test("hopper over brukerutbetaling når utbetaling allerede finnes") {
+        val service = TilskuddBehandlingService(
+            database.api,
+            journalforVedtaksbrev,
+            mockk(relaxed = true),
+        )
+        service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+
+        database.api.transaction {
+            queries.brukerUtbetaling.insert(seedBrukerUtbetaling(tilskuddVedtakId))
+        }
+
+        createConsumer().consume(behandlingId, godkjentHendelse)
+
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtakId) }
+        result.shouldNotBeNull()
+        verify(exactly = 0) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
+    }
+
+    test("hopper over brukerutbetaling når revurdering allerede finnes") {
+        val service = TilskuddBehandlingService(
+            database.api,
+            journalforVedtaksbrev,
+            mockk(relaxed = true),
+        )
+        service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
+
+        val revurderingBehandlingId = service
+            .revurderingOpphor(tilskuddVedtakId, behandlingId, NavAnsattFixture.DonaldDuck.navIdent)
+            .shouldBeRight()
+
+        val revurderingBehandling = database.api.session {
+            queries.tilskuddBehandling.get(revurderingBehandlingId)
+        }.shouldNotBeNull()
+        val revurderingTilskuddVedtakId = revurderingBehandling.tilskudd.single().id
+
+        database.api.transaction {
+            queries.brukerUtbetaling.insert(
+                seedBrukerUtbetaling(revurderingTilskuddVedtakId, belop = 0),
+            )
+        }
+
+        createConsumer().consume(
+            revurderingBehandlingId,
+            godkjentHendelse.copy(
+                entityId = revurderingBehandlingId,
+                type = TotrinnskontrollType.TILSKUDD_OPPHOR,
+            ),
+        )
+
+        val result = database.api.session { queries.brukerUtbetaling.getByTilskuddVedtak(revurderingTilskuddVedtakId) }
+        result.shouldNotBeNull()
+        verify(exactly = 0) { brukerUtbetalingService.produceTilskuddUtbetaling(any()) }
     }
 
     test("bruker besluttet tidspunkt som periode for utbetaling") {
