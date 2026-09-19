@@ -1,4 +1,4 @@
-@file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class)
+@file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class, InstantSerializer::class)
 
 package no.nav.mulighetsrommet.admin.avtale
 
@@ -18,8 +18,10 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
@@ -42,8 +44,8 @@ data class AvtaleDto(
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val opplaring: OpplaringKategoriseringDetaljer?,
-    val opsjonsmodell: Opsjonsmodell,
-    val opsjonerRegistrert: List<Avtale.OpsjonLogg>,
+    val opsjonsmodell: AvtaleDto.Opsjonsmodell,
+    val opsjonerRegistrert: List<OpsjonLogg>,
     val prismodeller: List<PrismodellDto>,
 ) {
     @Serializable
@@ -90,5 +92,54 @@ data class AvtaleDto(
     data class Administrator(
         val navIdent: NavIdent,
         val navn: String,
+    )
+
+    @Serializable
+    data class Opsjonsmodell(
+        val type: OpsjonsmodellType,
+        val opsjonMaksVarighet: LocalDate?,
+        val customOpsjonsmodellNavn: String?,
+    )
+
+    @Serializable
+    data class OpsjonLogg(
+        val id: UUID,
+        val registrertTidspunkt: Instant,
+        val sluttDato: LocalDate?,
+        val forrigeSluttDato: LocalDate,
+        val status: OpsjonLoggStatus,
+        val registrertAv: NavIdent,
+    )
+}
+
+@Serializable
+enum class OpsjonLoggStatus {
+    OPSJON_UTLOST,
+    SKAL_IKKE_UTLOSE_OPSJON,
+}
+
+fun Opsjonsmodell.toDto(startDato: LocalDate): AvtaleDto.Opsjonsmodell = AvtaleDto.Opsjonsmodell(
+    type = toType(),
+    opsjonMaksVarighet = (this as? Opsjonsmodell.MedOpsjonsmulighet)?.maksSluttDato(startDato),
+    customOpsjonsmodellNavn = (this as? Opsjonsmodell.Annet)?.customOpsjonsmodellNavn,
+)
+
+fun Avtale.Opsjon.toDto(): AvtaleDto.OpsjonLogg = when (this) {
+    is Avtale.Opsjon.OpsjonUtlost -> AvtaleDto.OpsjonLogg(
+        id = id,
+        registrertTidspunkt = registrertTidspunkt,
+        sluttDato = nySluttDato,
+        forrigeSluttDato = forrigeSluttDato,
+        status = OpsjonLoggStatus.OPSJON_UTLOST,
+        registrertAv = registrertAv,
+    )
+
+    is Avtale.Opsjon.SkalIkkeUtloseOpsjon -> AvtaleDto.OpsjonLogg(
+        id = id,
+        registrertTidspunkt = registrertTidspunkt,
+        sluttDato = null,
+        forrigeSluttDato = forrigeSluttDato,
+        status = OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON,
+        registrertAv = registrertAv,
     )
 }

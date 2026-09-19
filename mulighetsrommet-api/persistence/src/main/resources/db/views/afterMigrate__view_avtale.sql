@@ -98,11 +98,12 @@ from avtale
                             where avtale_nav_enhet.avtale_id = avtale.id) on true
          left join lateral (select jsonb_agg(
                                            jsonb_build_object('id', avtale_opsjon_logg.id,
-                                                              'createdAt', avtale_opsjon_logg.created_at::timestamp,
+                                                              'registrertTidspunkt', avtale_opsjon_logg.registrert_tidspunkt,
                                                               'sluttDato', avtale_opsjon_logg.sluttdato,
                                                               'status', avtale_opsjon_logg.status,
-                                                              'forrigeSluttDato', avtale_opsjon_logg.forrige_sluttdato
-                                           )) as opsjon_logg_json
+                                                              'forrigeSluttDato', avtale_opsjon_logg.forrige_sluttdato,
+                                                              'registrertAv', avtale_opsjon_logg.registrert_av
+                                           ) order by avtale_opsjon_logg.registrert_tidspunkt) as opsjon_logg_json
                             from avtale_opsjon_logg
                             where avtale_id = avtale.id) on true
          left join lateral (select jsonb_agg(

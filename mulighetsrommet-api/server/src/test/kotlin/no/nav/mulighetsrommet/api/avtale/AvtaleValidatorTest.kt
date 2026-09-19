@@ -8,19 +8,19 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.nulls.shouldNotBeNull
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import no.nav.mulighetsrommet.admin.avtale.AmoKategoriseringRequest
+import no.nav.mulighetsrommet.admin.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.avtale.AvtaleValidator.Ctx
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
+import no.nav.mulighetsrommet.api.avtale.api.OpsjonsmodellRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
-import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
-import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
 import no.nav.mulighetsrommet.api.domain.opplaring.ForerkortKlasse
@@ -29,7 +29,6 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Kurstype
 import no.nav.mulighetsrommet.api.domain.opplaring.Sertifisering
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
-import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.BransjeFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ForerkortFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.InnholdElementFixtures
@@ -41,10 +40,8 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
-import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.fixtures.createAvtaleRequest
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
 import no.nav.mulighetsrommet.model.NOK
@@ -54,7 +51,6 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.validation.FieldError
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class AvtaleValidatorTest : FunSpec({
@@ -71,7 +67,7 @@ class AvtaleValidatorTest : FunSpec({
     val forhaandsgodkjent = createAvtaleRequest(
         Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
         avtaletype = Avtaletype.FORHANDSGODKJENT,
-        opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
+        opsjonsmodell = OpsjonsmodellRequest(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
         prismodell = listOf(),
     )
     val avtaleTypeAvtale = createAvtaleRequest(
@@ -120,8 +116,7 @@ class AvtaleValidatorTest : FunSpec({
     test("skal akkumulere feil når forespørselen har flere problemer") {
         val request = avtaleRequest.copy(
             detaljer = avtaleRequest.detaljer.copy(
-                startDato = LocalDate.of(2023, 1, 1),
-                sluttDato = LocalDate.of(2020, 1, 1),
+                navn = "Avt",
                 arrangor = DetaljerRequest.Arrangor(
                     hovedenhet = ArrangorFixtures.hovedenhet.organisasjonsnummer,
                     underenheter = emptyList(),
@@ -136,7 +131,7 @@ class AvtaleValidatorTest : FunSpec({
             ctx,
         ).shouldBeLeft().shouldContainAll(
             listOf(
-                FieldError("/detaljer/startDato", "Startdato må være før sluttdato"),
+                FieldError("/detaljer/navn", "Avtalenavn må være minst 5 tegn langt"),
                 FieldError("/detaljer/arrangor/underenheter", "Du må velge minst én underenhet for tiltaksarrangør"),
             ),
         )
@@ -152,147 +147,61 @@ class AvtaleValidatorTest : FunSpec({
         )
     }
 
-    test("Avtalens startdato må være før eller lik som sluttdato") {
-        val dagensDato = LocalDate.now()
-        val request =
-            avtaleRequest.copy(detaljer = avtaleRequest.detaljer.copy(startDato = dagensDato, sluttDato = dagensDato))
+    test("opsjonMaksVarighet for TO_PLUSS_EN beregnes alltid fra startDato, uavhengig av input") {
+        val startDato = LocalDate.of(2024, 1, 1)
 
-        AvtaleValidator.validateCreateAvtale(request, ctx).shouldBeRight()
-
-        val request2 = avtaleRequest.copy(
-            detaljer = avtaleRequest.detaljer.copy(
-                startDato = dagensDato.plusDays(5),
-                sluttDato = dagensDato,
-            ),
-        )
-
-        AvtaleValidator.validateCreateAvtale(request2, ctx).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            listOf(FieldError("/detaljer/startDato", "Startdato må være før sluttdato")),
-        )
-    }
-
-    test("Avtalens sluttdato være lik eller etter startdato") {
-        val dagensDato = LocalDate.now()
-        val request = avtaleRequest.copy(
-            detaljer = avtaleRequest.detaljer.copy(
-                startDato = dagensDato,
-                sluttDato = dagensDato.minusDays(5),
-            ),
-        )
-
-        AvtaleValidator.validateCreateAvtale(request, ctx).shouldBeLeft().shouldContainExactlyInAnyOrder(
-            listOf(FieldError("/detaljer/startDato", "Startdato må være før sluttdato")),
-        )
-
-        val request2 =
-            avtaleRequest.copy(detaljer = avtaleRequest.detaljer.copy(startDato = dagensDato, sluttDato = dagensDato))
-        AvtaleValidator.validateCreateAvtale(request2, ctx).shouldBeRight()
-    }
-
-    test("sluttDato er påkrevd hvis ikke forhåndsgodkjent") {
-        val forhaandsgodkjent1 = forhaandsgodkjent.copy(
-            detaljer = forhaandsgodkjent.detaljer.copy(
-                sluttDato = null,
-                opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
-            ),
-        )
-        val offentligOffentlig = gruppeAmo.copy(
-            detaljer = gruppeAmo.detaljer.copy(
-                sluttDato = null,
-            ),
-        )
-
-        AvtaleValidator.validateCreateAvtale(forhaandsgodkjent1, createForhandsgodkjentAvtaleContext).shouldBeRight()
-        AvtaleValidator.validateCreateAvtale(
-            oppfolgingMedRammeAvtale.copy(detaljer = avtaleTypeAvtale.detaljer.copy(sluttDato = null)),
-            ctx,
-        ).shouldBeLeft(
-            listOf(FieldError("/detaljer/sluttDato", "Du må legge inn sluttdato for avtalen")),
-        )
-        AvtaleValidator.validateCreateAvtale(
-            avtaleTypeAvtale.copy(detaljer = avtaleTypeAvtale.detaljer.copy(sluttDato = null)),
-            ctx,
-        ).shouldBeLeft(
-            listOf(FieldError("/detaljer/sluttDato", "Du må legge inn sluttdato for avtalen")),
-        )
-        AvtaleValidator.validateCreateAvtale(
-            offentligOffentlig.copy(detaljer = avtaleTypeAvtale.detaljer.copy(sluttDato = null)),
-            ctx,
-        ).shouldBeLeft(
-            listOf(FieldError("/detaljer/sluttDato", "Du må legge inn sluttdato for avtalen")),
-        )
-    }
-
-    test("Opsjonsmodell må være VALGFRI_SLUTTDATO når avtale er forhåndsgodkjent") {
-        AvtaleValidator.validateCreateAvtale(
-            forhaandsgodkjent.copy(
-                detaljer = forhaandsgodkjent.detaljer.copy(
-                    opsjonsmodell = Opsjonsmodell(
-                        OpsjonsmodellType.VALGFRI_SLUTTDATO,
-                        null,
-
-                    ),
-                ),
-            ),
-            createForhandsgodkjentAvtaleContext,
-        ).shouldBeRight()
-        AvtaleValidator.validateCreateAvtale(
-            forhaandsgodkjent.copy(
-                detaljer = forhaandsgodkjent.detaljer.copy(
-                    opsjonsmodell = Opsjonsmodell(
-                        OpsjonsmodellType.TO_PLUSS_EN,
-                        null,
-                    ),
-                ),
-            ),
-            createForhandsgodkjentAvtaleContext,
-        ).shouldBeLeft(
-            listOf(
-                FieldError(
-                    "/detaljer/opsjonsmodell/type",
-                    "Du må velge opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent",
-                ),
-            ),
-        )
-    }
-    test("Opsjonsmodell må Opsjonsdata må være satt når avtaletypen ikke er forhåndsgodkjent") {
         AvtaleValidator.validateCreateAvtale(
             avtaleTypeAvtale.copy(
                 detaljer = avtaleTypeAvtale.detaljer.copy(
-                    opsjonsmodell = Opsjonsmodell(
+                    startDato = startDato,
+                    opsjonsmodell = OpsjonsmodellRequest(
                         OpsjonsmodellType.TO_PLUSS_EN,
-                        null,
+                        opsjonMaksVarighet = null,
                     ),
                 ),
             ),
             ctx,
-        ).shouldBeLeft(
-            listOf(
-                FieldError("/detaljer/opsjonsmodell/opsjonMaksVarighet", "Du må legge inn maks varighet for opsjonen"),
-            ),
-        )
+        ).shouldBeRight().opsjonsmodell.shouldBeInstanceOf<Opsjonsmodell.ToPlussEn>()
+
         AvtaleValidator.validateCreateAvtale(
             gruppeAmo.copy(
                 detaljer = gruppeAmo.detaljer.copy(
                     avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-                    opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
+                    opsjonsmodell = OpsjonsmodellRequest(OpsjonsmodellType.VALGFRI_SLUTTDATO, null),
                 ),
             ),
             ctx,
         ).shouldBeRight()
+    }
+
+    test("ANNET krever at opsjonMaksVarighet og customOpsjonsmodellNavn er satt") {
+        AvtaleValidator.validateCreateAvtale(
+            oppfolgingMedRammeAvtale.copy(
+                detaljer = oppfolgingMedRammeAvtale.detaljer.copy(
+                    sluttDato = null,
+                    opsjonsmodell = OpsjonsmodellRequest(OpsjonsmodellType.ANNET, null, null),
+                ),
+            ),
+            ctx,
+        ).shouldBeLeft(
+            listOf(
+                FieldError("/detaljer/opsjonsmodell", "Du må legge inn maks varighet for opsjonen"),
+                FieldError("/detaljer/opsjonsmodell", "Du må beskrive opsjonsmodellen"),
+            ),
+        )
     }
 
     test("Custom navn for opsjon må være satt hvis opsjonsmodell er ANNET") {
         AvtaleValidator.validateCreateAvtale(
             oppfolgingMedRammeAvtale.copy(
                 detaljer = oppfolgingMedRammeAvtale.detaljer.copy(
-                    opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.ANNET, LocalDate.now().plusYears(3)),
+                    opsjonsmodell = OpsjonsmodellRequest(OpsjonsmodellType.ANNET, LocalDate.now().plusYears(3)),
                 ),
             ),
             ctx,
         ).shouldBeLeft(
             listOf(
-                FieldError("/detaljer/opsjonsmodell/customOpsjonsmodellNavn", "Du må beskrive opsjonsmodellen"),
+                FieldError("/detaljer/opsjonsmodell", "Du må beskrive opsjonsmodellen"),
             ),
         )
     }
@@ -589,7 +498,9 @@ class AvtaleValidatorTest : FunSpec({
                     FieldError("/prismodeller/0/type", "Minst én pris er påkrevd"),
                 )
 
-                parse(listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1))).shouldBeLeft().shouldContainExactlyInAnyOrder(
+                parse(
+                    listOf(AvtaltSatsRequest(gjelderFra = null, pris = 1)),
+                ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                     FieldError("/prismodeller/0/satser/0/gjelderFra", "Gjelder fra må være satt"),
                 )
 
@@ -693,12 +604,6 @@ class AvtaleValidatorTest : FunSpec({
 
     context("når avtalen allerede eksisterer") {
         val previous = Ctx.Avtale(
-            status = AvtaleStatusType.AKTIV,
-            opsjoner = Avtale.Opsjoner(
-                modell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
-                registreringer = emptyList(),
-            ),
-            avtaletype = Avtaletype.AVTALE,
             tiltakskode = Tiltakskode.OPPFOLGING,
             gjennomforinger = listOf(
                 Ctx.Gjennomforing(
@@ -722,44 +627,6 @@ class AvtaleValidatorTest : FunSpec({
                 ctx.copy(previous = previous),
             ) shouldBeLeft listOf(
                 FieldError("/detaljer/tiltakskode", "Tiltakstype kan ikke endres etter at avtalen er opprettet"),
-            )
-        }
-
-        test("Skal ikke kunne endre opsjonsmodell eller avtaletype når opsjon er registrert") {
-            val startDato = LocalDate.of(2024, 5, 7)
-            val avtale = gruppeAmo.copy(
-                detaljer = gruppeAmo.detaljer.copy(
-                    avtaletype = Avtaletype.AVTALE,
-                    opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, startDato.plusYears(3)),
-                ),
-            )
-
-            AvtaleValidator.validateUpdateDetaljer(
-                avtale.detaljer,
-                ctx.copy(
-                    previous = previous.copy(
-                        tiltakskode = Tiltakskode.GRUPPE_ARBEIDSMARKEDSOPPLAERING,
-                        avtaletype = Avtaletype.OFFENTLIG_OFFENTLIG,
-                        opsjoner = previous.opsjoner.copy(
-                            registreringer = listOf(
-                                Avtale.OpsjonLogg(
-                                    id = UUID.randomUUID(),
-                                    createdAt = LocalDateTime.now(),
-                                    sluttDato = LocalDate.now(),
-                                    forrigeSluttDato = LocalDate.now(),
-                                    status = OpsjonLoggStatus.OPSJON_UTLOST,
-                                ),
-                            ),
-                        ),
-                        gjennomforinger = emptyList(),
-                    ),
-                ),
-            ) shouldBeLeft listOf(
-                FieldError("/detaljer/avtaletype", "Du kan ikke endre avtaletype når opsjoner er registrert"),
-                FieldError(
-                    "/detaljer/opsjonsmodell/type",
-                    "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
-                ),
             )
         }
 
@@ -845,74 +712,6 @@ class AvtaleValidatorTest : FunSpec({
             ).shouldBeLeft().shouldContainExactlyInAnyOrder(
                 FieldError("/detaljer/administratorer", "Nav identer DD1 er slettet og må fjernes"),
             )
-        }
-    }
-
-    context("endring av status") {
-        val previous = Ctx.Avtale(
-            status = AvtaleStatusType.AKTIV,
-            opsjoner = Avtale.Opsjoner(
-                modell = Opsjonsmodell(OpsjonsmodellType.VALGFRI_SLUTTDATO, LocalDate.now().plusYears(4)),
-                registreringer = emptyList(),
-            ),
-            avtaletype = Avtaletype.AVTALE,
-            tiltakskode = Tiltakskode.OPPFOLGING,
-            gjennomforinger = listOf(),
-        )
-
-        test("status blir UTKAST når avtalen lagres uten en arrangør") {
-            AvtaleValidator.validateCreateAvtale(
-                avtaleRequest.copy(detaljer = avtaleRequest.detaljer.copy(arrangor = null)),
-                ctx,
-            ).shouldBeRight().should {
-                it.status shouldBe AvtaleStatusType.UTKAST
-            }
-        }
-
-        test("status blir AKTIV når avtalen lagres med sluttdato i fremtiden") {
-            AvtaleValidator.validateCreateAvtale(avtaleRequest, ctx).shouldBeRight().should {
-                it.status shouldBe AvtaleStatusType.AKTIV
-            }
-        }
-
-        test("status blir AVSLUTTET når avtalen lagres med en sluttdato som er passert") {
-            val today = LocalDate.now()
-            val yesterday = today.minusDays(1)
-
-            val request = avtaleRequest.copy(
-                detaljer = avtaleRequest.detaljer.copy(
-                    startDato = yesterday,
-                    sluttDato = yesterday,
-                ),
-            )
-
-            AvtaleValidator.validateUpdateDetaljer(request.detaljer, ctx.copy(previous = previous)).shouldBeRight()
-                .should {
-                    it.status shouldBe AvtaleStatusType.AVSLUTTET
-                }
-        }
-
-        test("status forblir AVBRUTT på en avtale som allerede er AVBRUTT") {
-            val today = LocalDate.now()
-
-            val avtale = AvtaleFixtures.oppfolging
-
-            val request = avtaleRequest.copy(
-                id = avtale.id,
-                detaljer = avtaleRequest.detaljer.copy(
-                    startDato = today,
-                    sluttDato = today,
-                ),
-            )
-
-            AvtaleValidator.validateUpdateDetaljer(
-                request.detaljer,
-                ctx.copy(
-                    previous = previous.copy(status = AvtaleStatusType.AVBRUTT),
-                ),
-            ).shouldBeRight().should {
-                it.status shouldBe AvtaleStatusType.AVBRUTT
-            }
         }
     }
 

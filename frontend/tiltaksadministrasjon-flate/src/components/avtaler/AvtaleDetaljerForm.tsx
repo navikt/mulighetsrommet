@@ -11,7 +11,6 @@ import { TwoColumnGrid } from "@/layouts/TwoColumGrid";
 import { AvtaleVarighet } from "./AvtaleVarighet";
 import {
   Avtaletype,
-  OpsjonLoggStatus,
   OpsjonsmodellType,
   PrismodellType,
   Rolle,
@@ -43,9 +42,7 @@ export function AvtaleDetaljerForm() {
 
   const tiltakskode = watch("detaljer.tiltakskode") as Tiltakskode | undefined;
 
-  const antallOpsjonerUtlost = (
-    avtale?.opsjonerRegistrert.filter((log) => log.status === OpsjonLoggStatus.OPSJON_UTLOST) || []
-  ).length;
+  const harRegistrerteOpsjoner = (avtale?.opsjonerRegistrert.length ?? 0) > 0;
 
   function avtaletypeOnChange(avtaletype: Avtaletype) {
     if (avtaletype === Avtaletype.FORHANDSGODKJENT) {
@@ -132,7 +129,7 @@ export function AvtaleDetaljerForm() {
             {tiltakskode && (
               <SelectAvtaletype
                 tiltakskode={tiltakskode}
-                readOnly={antallOpsjonerUtlost > 0}
+                readOnly={harRegistrerteOpsjoner}
                 onChange={avtaletypeOnChange}
               />
             )}
@@ -141,7 +138,7 @@ export function AvtaleDetaljerForm() {
           {tiltakskode && <AvtaleUtdanningslopForm tiltakskode={tiltakskode} />}
         </FormGroup>
         <FormGroup>
-          <AvtaleVarighet opsjonUtlost={antallOpsjonerUtlost > 0} />
+          <AvtaleVarighet harRegistrerteOpsjoner={harRegistrerteOpsjoner} />
         </FormGroup>
       </SkjemaKolonne>
       <SkjemaKolonne>

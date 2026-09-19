@@ -4529,7 +4529,7 @@ components:
         avtaletype:
           $ref: "#/components/schemas/Avtaletype"
         opsjonsmodell:
-          $ref: "#/components/schemas/Opsjonsmodell"
+          $ref: "#/components/schemas/OpsjonsmodellRequest"
         amoKategorisering:
           oneOf:
           - type: "null"
@@ -4575,7 +4575,7 @@ components:
       - RAMMEAVTALE
       - FORHANDSGODKJENT
       - OFFENTLIG_OFFENTLIG
-    Opsjonsmodell:
+    OpsjonsmodellRequest:
       type: object
       properties:
         type:
@@ -5272,13 +5272,31 @@ components:
       required:
       - id
       - navn
-    Avtale.OpsjonLogg:
+    AvtaleDto.Opsjonsmodell:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/OpsjonsmodellType"
+        opsjonMaksVarighet:
+          type:
+          - "null"
+          - string
+          format: date
+        customOpsjonsmodellNavn:
+          type:
+          - "null"
+          - string
+      required:
+      - customOpsjonsmodellNavn
+      - opsjonMaksVarighet
+      - type
+    AvtaleDto.OpsjonLogg:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        createdAt:
+        registrertTidspunkt:
           type: string
           format: date-time
         sluttDato:
@@ -5291,10 +5309,13 @@ components:
           format: date
         status:
           $ref: "#/components/schemas/OpsjonLoggStatus"
+        registrertAv:
+          type: string
       required:
-      - createdAt
       - forrigeSluttDato
       - id
+      - registrertAv
+      - registrertTidspunkt
       - sluttDato
       - status
     OpsjonLoggStatus:
@@ -5458,11 +5479,11 @@ components:
           - type: "null"
           - $ref: "#/components/schemas/OpplaringKategoriseringDetaljer"
         opsjonsmodell:
-          $ref: "#/components/schemas/Opsjonsmodell"
+          $ref: "#/components/schemas/AvtaleDto.Opsjonsmodell"
         opsjonerRegistrert:
           type: array
           items:
-            $ref: "#/components/schemas/Avtale.OpsjonLogg"
+            $ref: "#/components/schemas/AvtaleDto.OpsjonLogg"
         prismodeller:
           type: array
           items:

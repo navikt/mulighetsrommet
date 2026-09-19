@@ -3,19 +3,29 @@ package no.nav.mulighetsrommet.api.domain.avtale
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
+import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.model.Avtaletype
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Personopplysning
+import no.nav.mulighetsrommet.model.SakarkivNummer
+import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.validation.FieldError
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 
 class AvtaleTest : FunSpec({
     context("medRammedetaljer") {
@@ -283,6 +293,371 @@ class AvtaleTest : FunSpec({
             )
         }
     }
+
+    context("Avtale.opprett") {
+        fun opprett(
+            id: UUID = UUID.randomUUID(),
+            tiltakskode: Tiltakskode = AvtaleFixtures.oppfolging.tiltakskode,
+            navn: String = "En avtale",
+            sakarkivNummer: SakarkivNummer? = null,
+            arrangor: Avtale.Arrangor? = AvtaleFixtures.defaultArrangor,
+            startDato: LocalDate = LocalDate.of(2024, 1, 1),
+            sluttDato: LocalDate? = LocalDate.of(2024, 12, 31),
+            opsjonsmodell: Opsjonsmodell = Opsjonsmodell.ValgfriSluttdato,
+            avtaletype: Avtaletype = Avtaletype.RAMMEAVTALE,
+            administratorer: Set<NavIdent> = setOf(NavIdent("DD1")),
+            veilederinfo: Avtale.VeilederInfo = AvtaleFixtures.defaultVeilederinfo,
+            personvern: Avtale.Personvern = AvtaleFixtures.defaultPersonvern,
+            opplaring: OpplaringKategorisering? = null,
+            prisinfo: Avtale.Prisinfo = Avtale.Prisinfo.Egendefinert(
+                listOf(PrismodellFixtures.AvtaltPrisPerTimeOppfolging),
+            ),
+            vurderingsdato: LocalDate = startDato,
+        ) = Avtale.opprett(
+            command = OpprettAvtaleCommand(
+                id = id,
+                tiltakskode = tiltakskode,
+                navn = navn,
+                sakarkivNummer = sakarkivNummer,
+                arrangor = arrangor,
+                startDato = startDato,
+                sluttDato = sluttDato,
+                opsjonsmodell = opsjonsmodell,
+                avtaletype = avtaletype,
+                administratorer = administratorer,
+                veilederinfo = veilederinfo,
+                personvern = personvern,
+                opplaring = opplaring,
+                prisinfo = prisinfo,
+            ),
+            vurderingsdato = Vurderingsdato(vurderingsdato),
+        )
+
+        test("setter sluttdato basert på opsjonsmodellen når avtalen opprettes") {
+            val startDato = LocalDate.of(2024, 1, 1)
+
+            val medToPlussEn = opprett(
+                startDato = startDato,
+                opsjonsmodell = Opsjonsmodell.ToPlussEn,
+            ).shouldBeRight()
+
+            medToPlussEn.sluttDato shouldBe LocalDate.of(2025, 12, 31)
+            medToPlussEn.opsjoner.registreringer.shouldBeEmpty()
+        }
+
+        test("krever at startdato er før sluttdato") {
+            val startDato = LocalDate.of(2024, 1, 1)
+
+            opprett(
+                startDato = startDato,
+                sluttDato = startDato.minusDays(1),
+                opsjonsmodell = Opsjonsmodell.IngenOpsjonsmulighet,
+            ).shouldBeLeft(
+                listOf(FieldError.of("Startdato må være før sluttdato", Avtale::startDato)),
+            )
+
+            opprett(
+                startDato = startDato,
+                sluttDato = LocalDate.of(2024, 1, 1),
+                opsjonsmodell = Opsjonsmodell.IngenOpsjonsmulighet,
+            ).shouldBeRight().sluttDato shouldBe LocalDate.of(2024, 1, 1)
+        }
+
+        test("krever sluttdato for avtaler uten opsjonsmulighet og med annen opsjonsmodell") {
+            listOf(
+                Opsjonsmodell.IngenOpsjonsmulighet,
+                Opsjonsmodell.Annet(LocalDate.of(2027, 12, 31), "Spesialordning"),
+            ).forEach { modell ->
+                opprett(sluttDato = null, opsjonsmodell = modell).shouldBeLeft(
+                    listOf(FieldError.of("Du må legge inn sluttdato for avtalen", Avtale::sluttDato)),
+                )
+            }
+        }
+
+        test("sluttdato kan ikke være etter maks varighet for annen opsjonsmodell") {
+            opprett(
+                sluttDato = LocalDate.of(2026, 1, 1),
+                opsjonsmodell = Opsjonsmodell.Annet(LocalDate.of(2025, 12, 31), "Spesialordning"),
+            ).shouldBeLeft(
+                listOf(FieldError.of("Sluttdato er forbi maks varighet av avtalen", Avtale::sluttDato)),
+            )
+
+            opprett(
+                sluttDato = LocalDate.of(2025, 12, 31),
+                opsjonsmodell = Opsjonsmodell.Annet(LocalDate.of(2025, 12, 31), "Spesialordning"),
+            ).shouldBeRight().sluttDato shouldBe LocalDate.of(2025, 12, 31)
+        }
+
+        test("standardmodellene beregner maks sluttdato fra avtalens startdato") {
+            val startDato = LocalDate.of(2024, 1, 1)
+
+            Opsjonsmodell.ToPlussEn.maksSluttDato(startDato) shouldBe LocalDate.of(2026, 12, 31)
+            Opsjonsmodell.ToPlussEnPlussEn.maksSluttDato(startDato) shouldBe LocalDate.of(2027, 12, 31)
+            Opsjonsmodell.ToPlussEnPlussEnPlussEn.maksSluttDato(startDato) shouldBe LocalDate.of(2028, 12, 31)
+            Opsjonsmodell.ToPlussEn.maksSluttDato(LocalDate.of(2025, 1, 1)) shouldBe LocalDate.of(2027, 12, 31)
+        }
+
+        test("krever opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent") {
+            val startDato = LocalDate.of(2024, 1, 1)
+
+            opprett(
+                startDato = startDato,
+                sluttDato = null,
+                opsjonsmodell = Opsjonsmodell.ValgfriSluttdato,
+                avtaletype = Avtaletype.FORHANDSGODKJENT,
+            ).shouldBeRight()
+
+            opprett(
+                startDato = startDato,
+                opsjonsmodell = Opsjonsmodell.ToPlussEn,
+                avtaletype = Avtaletype.FORHANDSGODKJENT,
+            ).shouldBeLeft(
+                listOf(
+                    FieldError.of(
+                        "Du må velge opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent",
+                        Avtale::opsjoner,
+                    ),
+                ),
+            )
+        }
+
+        test("setter status basert på arrangør og sluttdato") {
+            val startDato = LocalDate.of(2024, 1, 1)
+
+            opprett(
+                arrangor = null,
+                startDato = startDato,
+                sluttDato = startDato.plusYears(1),
+                opsjonsmodell = Opsjonsmodell.ValgfriSluttdato,
+            ).shouldBeRight().status shouldBe AvtaleStatus.Utkast
+
+            opprett(
+                arrangor = AvtaleFixtures.defaultArrangor,
+                startDato = startDato,
+                sluttDato = startDato.plusYears(1),
+                opsjonsmodell = Opsjonsmodell.ValgfriSluttdato,
+            ).shouldBeRight().status shouldBe AvtaleStatus.Aktiv
+
+            opprett(
+                arrangor = AvtaleFixtures.defaultArrangor,
+                startDato = startDato,
+                sluttDato = startDato.plusDays(1),
+                opsjonsmodell = Opsjonsmodell.ValgfriSluttdato,
+                vurderingsdato = startDato.plusDays(2),
+            ).shouldBeRight().status shouldBe AvtaleStatus.Avsluttet
+        }
+    }
+
+    context("oppdaterDetaljer") {
+        fun oppdaterDetaljer(
+            avtale: Avtale = AvtaleFixtures.oppfolging,
+            navn: String = avtale.navn,
+            sakarkivNummer: SakarkivNummer? = avtale.sakarkivNummer,
+            arrangor: Avtale.Arrangor? = avtale.arrangor,
+            startDato: LocalDate = avtale.startDato,
+            sluttDato: LocalDate? = avtale.sluttDato,
+            opsjonsmodell: Opsjonsmodell = avtale.opsjoner.modell,
+            avtaletype: Avtaletype = avtale.avtaletype,
+            administratorer: Set<NavIdent> = avtale.administratorer,
+            opplaring: OpplaringKategorisering? = avtale.opplaring,
+            vurderingsdato: LocalDate = avtale.startDato,
+        ) = avtale.oppdaterDetaljer(
+            command = OppdaterAvtaledetaljerCommand(
+                navn = navn,
+                sakarkivNummer = sakarkivNummer,
+                arrangor = arrangor,
+                startDato = startDato,
+                sluttDato = sluttDato,
+                opsjonsmodell = opsjonsmodell,
+                avtaletype = avtaletype,
+                administratorer = administratorer,
+                opplaring = opplaring,
+            ),
+            vurderingsdato = Vurderingsdato(vurderingsdato),
+        )
+
+        test("kan endre startdato og opsjonsmodell sammen når ingen opsjoner er registrert") {
+            val avtale = AvtaleFixtures.oppfolging
+            val nyStartDato = avtale.startDato.plusMonths(1)
+
+            val oppdatert = oppdaterDetaljer(
+                avtale = avtale,
+                startDato = nyStartDato,
+                opsjonsmodell = Opsjonsmodell.ToPlussEn,
+            ).shouldBeRight()
+
+            oppdatert.startDato shouldBe nyStartDato
+            oppdatert.opsjoner.modell.shouldBeInstanceOf<Opsjonsmodell.ToPlussEn>()
+                .maksSluttDato(oppdatert.startDato) shouldBe LocalDate.of(2026, 1, 31)
+            oppdatert.sluttDato shouldBe LocalDate.of(2025, 1, 31)
+        }
+
+        test("validerer datorekkefølgen ved oppdatering") {
+            val avtale = AvtaleFixtures.oppfolging.copy(startDato = LocalDate.of(2024, 1, 1))
+
+            oppdaterDetaljer(avtale = avtale, sluttDato = LocalDate.of(2023, 12, 31)).shouldBeLeft(
+                listOf(FieldError.of("Startdato må være før sluttdato", Avtale::startDato)),
+            )
+        }
+
+        test("kan ikke endre avtaletype når opsjoner er registrert") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                startDato = LocalDate.of(2024, 1, 1),
+                sluttDato = LocalDate.of(2025, 12, 31),
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.ToPlussEn,
+                    registreringer = listOf(
+                        Avtale.Opsjon.SkalIkkeUtloseOpsjon(
+                            id = UUID.fromString("336b7f4a-f821-447e-9c98-92a1260e6b2b"),
+                            registrertTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
+                            forrigeSluttDato = LocalDate.of(2025, 12, 31),
+                            registrertAv = NavIdent("B123456"),
+                        ),
+                    ),
+                ),
+            )
+
+            oppdaterDetaljer(avtale = avtale, avtaletype = Avtaletype.AVTALE).shouldBeLeft(
+                listOf(
+                    FieldError.of("Du kan ikke endre avtaletype når opsjoner er registrert", Avtale::avtaletype),
+                ),
+            )
+
+            oppdaterDetaljer(
+                avtale = avtale.copy(opsjoner = avtale.opsjoner.copy(registreringer = emptyList())),
+                avtaletype = Avtaletype.AVTALE,
+            ).shouldBeRight().avtaletype shouldBe Avtaletype.AVTALE
+        }
+
+        test("kan ikke endre startdato når opsjoner er registrert") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.ToPlussEn,
+                    registreringer = listOf(
+                        Avtale.Opsjon.SkalIkkeUtloseOpsjon(
+                            id = UUID.randomUUID(),
+                            registrertTidspunkt = Instant.now(),
+                            forrigeSluttDato = LocalDate.of(2025, 1, 1),
+                            registrertAv = NavIdent("B123456"),
+                        ),
+                    ),
+                ),
+            )
+
+            oppdaterDetaljer(
+                avtale = avtale,
+                startDato = avtale.startDato.plusDays(1),
+                opsjonsmodell = avtale.opsjoner.modell,
+            ).shouldBeLeft(
+                listOf(FieldError.of("Startdato kan ikke endres når opsjoner er registrert", Avtale::startDato)),
+            )
+        }
+
+        test("kan ikke endre opsjonsmodell når opsjoner er registrert") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.ToPlussEn,
+                    registreringer = listOf(
+                        Avtale.Opsjon.SkalIkkeUtloseOpsjon(
+                            id = UUID.randomUUID(),
+                            registrertTidspunkt = Instant.now(),
+                            forrigeSluttDato = LocalDate.of(2025, 1, 1),
+                            registrertAv = NavIdent("B123456"),
+                        ),
+                    ),
+                ),
+            )
+
+            oppdaterDetaljer(
+                avtale = avtale,
+                startDato = avtale.startDato,
+                opsjonsmodell = Opsjonsmodell.ToPlussEnPlussEn,
+            ).shouldBeLeft(
+                listOf(FieldError.of("Opsjonsmodell kan ikke endres når opsjoner er registrert", Avtale::opsjoner)),
+            )
+        }
+
+        test("beholder gjeldende sluttdato uendret når opsjoner er registrert") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                sluttDato = LocalDate.of(2026, 6, 1),
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.ToPlussEn,
+                    registreringer = listOf(
+                        Avtale.Opsjon.OpsjonUtlost(
+                            id = UUID.randomUUID(),
+                            registrertTidspunkt = Instant.now(),
+                            forrigeSluttDato = LocalDate.of(2025, 1, 1),
+                            nySluttDato = LocalDate.of(2026, 6, 1),
+                            registrertAv = NavIdent("B123456"),
+                        ),
+                    ),
+                ),
+            )
+
+            val oppdatert = oppdaterDetaljer(avtale = avtale).shouldBeRight()
+
+            oppdatert.sluttDato shouldBe LocalDate.of(2026, 6, 1)
+
+            oppdaterDetaljer(avtale = avtale, sluttDato = LocalDate.of(2026, 7, 1)).shouldBeLeft(
+                listOf(
+                    FieldError.of("Sluttdato kan ikke endres når opsjoner er registrert", Avtale::sluttDato),
+                ),
+            )
+        }
+
+        test("krever opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent") {
+            val avtale = AvtaleFixtures.oppfolging.copy(avtaletype = Avtaletype.FORHANDSGODKJENT)
+
+            oppdaterDetaljer(
+                avtale = avtale,
+                opsjonsmodell = Opsjonsmodell.ToPlussEn,
+            ).shouldBeLeft(
+                listOf(
+                    FieldError.of(
+                        "Du må velge opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent",
+                        Avtale::opsjoner,
+                    ),
+                ),
+            )
+        }
+
+        test("setter status basert på arrangør og sluttdato") {
+            val startDato = LocalDate.of(2024, 1, 1)
+            val avtale = AvtaleFixtures.oppfolging.copy(startDato = startDato)
+
+            oppdaterDetaljer(
+                avtale = avtale,
+                arrangor = null,
+                sluttDato = startDato.plusYears(1),
+                opsjonsmodell = Opsjonsmodell.ValgfriSluttdato,
+                vurderingsdato = startDato,
+            ).shouldBeRight().status shouldBe AvtaleStatus.Utkast
+
+            oppdaterDetaljer(
+                avtale = avtale,
+                arrangor = AvtaleFixtures.defaultArrangor,
+                sluttDato = startDato.plusYears(1),
+                opsjonsmodell = Opsjonsmodell.ValgfriSluttdato,
+                vurderingsdato = startDato,
+            ).shouldBeRight().status shouldBe AvtaleStatus.Aktiv
+
+            oppdaterDetaljer(
+                avtale = avtale,
+                arrangor = AvtaleFixtures.defaultArrangor,
+                sluttDato = startDato.plusDays(1),
+                opsjonsmodell = Opsjonsmodell.ValgfriSluttdato,
+                vurderingsdato = startDato.plusDays(2),
+            ).shouldBeRight().status shouldBe AvtaleStatus.Avsluttet
+        }
+
+        test("beholder status Avbrutt ved oppdatering") {
+            val avbrutt = AvtaleStatus.Avbrutt(LocalDateTime.now(), listOf(AvbrytAvtaleAarsak.ANNET), null)
+            val avtale = AvtaleFixtures.oppfolging.copy(status = avbrutt)
+
+            oppdaterDetaljer(avtale = avtale).shouldBeRight().status shouldBe avbrutt
+        }
+    }
+
     context("avslutt") {
         test("krever at avtalen er aktiv") {
             val avtale = AvtaleFixtures.oppfolging.copy(status = AvtaleStatus.Utkast)
@@ -343,12 +718,222 @@ class AvtaleTest : FunSpec({
         }
     }
 
+    context("registrerOpsjon") {
+        val today = LocalDate.of(2025, 1, 1)
+        val registrertAv = NavIdent("B123456")
+
+        test("kan ikke registreres for opsjonsmodell uten opsjonsmulighet") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.ValgfriSluttdato,
+                    registreringer = emptyList(),
+                ),
+            )
+
+            avtale.registrerOpsjon(
+                command = RegistrerOpsjonCommand.UtloseOpsjon(today.plusMonths(1), registrertAv),
+                vurderingsdato = Vurderingsdato(today),
+            ).shouldBeLeft(
+                listOf(FieldError.of("Opsjon kan ikke registreres for denne opsjonsmodellen")),
+            )
+        }
+
+        test("ny sluttdato kan ikke være etter opsjonens maks varighet") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                sluttDato = today,
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.Annet(
+                        opsjonMaksVarighet = LocalDate.of(2025, 2, 1),
+                        customOpsjonsmodellNavn = "Kort opsjonsmodell",
+                    ),
+                    registreringer = emptyList(),
+                ),
+            )
+
+            avtale.registrerOpsjon(
+                command = RegistrerOpsjonCommand.UtloseOpsjon(today.plusMonths(2), registrertAv),
+                vurderingsdato = Vurderingsdato(today),
+            ).shouldBeLeft(
+                listOf(FieldError.of("Ny sluttdato er forbi maks varighet av avtalen")),
+            )
+        }
+
+        test("kan ikke utløse flere opsjoner når det allerede er besluttet at ingen flere skal utløses") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                sluttDato = today,
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.ToPlussEn,
+                    registreringer = listOf(
+                        Avtale.Opsjon.SkalIkkeUtloseOpsjon(
+                            id = UUID.randomUUID(),
+                            registrertTidspunkt = Instant.now(),
+                            forrigeSluttDato = today,
+                            registrertAv = registrertAv,
+                        ),
+                    ),
+                ),
+            )
+
+            avtale.registrerOpsjon(
+                command = RegistrerOpsjonCommand.UtloseOpsjon(today.plusMonths(1), registrertAv),
+                vurderingsdato = Vurderingsdato(today),
+            ).shouldBeLeft(
+                listOf(FieldError.of("Kan ikke utløse flere opsjoner")),
+            )
+        }
+
+        test("ny sluttdato må være etter gjeldende sluttdato") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                startDato = LocalDate.of(2024, 1, 1),
+                sluttDato = LocalDate.of(2025, 1, 1),
+                opsjoner = Avtale.Opsjoner(Opsjonsmodell.ToPlussEn, emptyList()),
+            )
+
+            listOf(
+                LocalDate.of(2023, 12, 31),
+                LocalDate.of(2024, 12, 31),
+                LocalDate.of(2025, 1, 1),
+            ).forEach { nySluttDato ->
+                avtale.registrerOpsjon(
+                    command = RegistrerOpsjonCommand.UtloseOpsjon(nySluttDato, registrertAv),
+                    vurderingsdato = Vurderingsdato(today),
+                ).shouldBeLeft(
+                    listOf(FieldError.of("Ny sluttdato må være etter gjeldende sluttdato")),
+                )
+            }
+        }
+
+        test("legger til opsjon i registreringer og oppdaterer varighet når validering går bra") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                sluttDato = today,
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.ToPlussEn,
+                    registreringer = emptyList(),
+                ),
+            )
+            val forrigeSluttDato = avtale.sluttDato!!
+
+            val oppdatert = avtale.registrerOpsjon(
+                command = RegistrerOpsjonCommand.UtloseOpsjon(today.plusMonths(1), registrertAv),
+                vurderingsdato = Vurderingsdato(today),
+            ).shouldBeRight()
+
+            oppdatert.sluttDato shouldBe LocalDate.of(2025, 2, 1)
+            oppdatert.opsjoner.registreringer shouldHaveSize 1
+            oppdatert.opsjoner.registreringer[0].should {
+                it.shouldBeInstanceOf<Avtale.Opsjon.OpsjonUtlost>()
+                it.nySluttDato shouldBe LocalDate.of(2025, 2, 1)
+                it.forrigeSluttDato shouldBe forrigeSluttDato
+                it.registrertAv shouldBe registrertAv
+            }
+        }
+
+        test("registrerer at opsjon ikke skal utløses uten å endre avtalens varighet") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.ToPlussEn,
+                    registreringer = emptyList(),
+                ),
+            )
+            val opprinneligSluttDato = avtale.sluttDato
+
+            val oppdatert = avtale.registrerOpsjon(
+                command = RegistrerOpsjonCommand.SkalIkkeUtloseOpsjon(registrertAv),
+                vurderingsdato = Vurderingsdato(today),
+            ).shouldBeRight()
+
+            oppdatert.sluttDato shouldBe opprinneligSluttDato
+            oppdatert.opsjoner.registreringer shouldHaveSize 1
+            oppdatert.opsjoner.registreringer[0].shouldBeInstanceOf<Avtale.Opsjon.SkalIkkeUtloseOpsjon>()
+        }
+    }
+
+    context("slettOpsjon") {
+        val today = LocalDate.of(2025, 1, 1)
+        val registrertAv = NavIdent("B123456")
+
+        test("kan bare slette den sist registrerte opsjonen") {
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.ToPlussEn,
+                    registreringer = listOf(
+                        Avtale.Opsjon.OpsjonUtlost(
+                            id = UUID.randomUUID(),
+                            registrertTidspunkt = Instant.now().minusSeconds(1),
+                            nySluttDato = today.plusMonths(1),
+                            forrigeSluttDato = today,
+                            registrertAv = registrertAv,
+                        ),
+                        Avtale.Opsjon.OpsjonUtlost(
+                            id = UUID.randomUUID(),
+                            registrertTidspunkt = Instant.now(),
+                            nySluttDato = today.plusMonths(2),
+                            forrigeSluttDato = today.plusMonths(1),
+                            registrertAv = registrertAv,
+                        ),
+                    ),
+                ),
+            )
+
+            avtale.slettOpsjon(
+                avtale.opsjoner.registreringer[0].id,
+                Vurderingsdato(today),
+            ).shouldBeLeft(
+                listOf(FieldError.of("Opsjonen kan ikke slettes fordi det ikke er den siste utløste opsjonen")),
+            )
+        }
+
+        test("fjerner opsjon fra registreringer og reverterer varighet når status var OPSJON_UTLOST") {
+            val forrigeSluttDato = LocalDate.of(2025, 3, 1)
+            val logg = Avtale.Opsjon.OpsjonUtlost(
+                id = UUID.randomUUID(),
+                registrertTidspunkt = Instant.now(),
+                nySluttDato = LocalDate.of(2025, 6, 1),
+                forrigeSluttDato = forrigeSluttDato,
+                registrertAv = registrertAv,
+            )
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                sluttDato = logg.nySluttDato,
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.ToPlussEn,
+                    registreringer = listOf(logg),
+                ),
+            )
+
+            val oppdatert = avtale.slettOpsjon(logg.id, Vurderingsdato(today)).shouldBeRight()
+
+            oppdatert.sluttDato shouldBe forrigeSluttDato
+            oppdatert.opsjoner.registreringer.shouldBeEmpty()
+        }
+
+        test("fjerner opsjon fra registreringer uten å endre varighet når status var SKAL_IKKE_UTLOSE_OPSJON") {
+            val logg = Avtale.Opsjon.SkalIkkeUtloseOpsjon(
+                id = UUID.randomUUID(),
+                registrertTidspunkt = Instant.now(),
+                forrigeSluttDato = today,
+                registrertAv = registrertAv,
+            )
+            val avtale = AvtaleFixtures.oppfolging.copy(
+                opsjoner = Avtale.Opsjoner(
+                    modell = Opsjonsmodell.ToPlussEn,
+                    registreringer = listOf(logg),
+                ),
+            )
+            val opprinneligSluttDato = avtale.sluttDato
+
+            val oppdatert = avtale.slettOpsjon(logg.id, Vurderingsdato(today)).shouldBeRight()
+
+            oppdatert.sluttDato shouldBe opprinneligSluttDato
+            oppdatert.opsjoner.registreringer.shouldBeEmpty()
+        }
+    }
+
     context("oppdaterVarighet") {
         test("setter avtalen til Aktiv når ny sluttdato ikke har passert") {
             val avtale = AvtaleFixtures.oppfolging.copy(status = AvtaleStatus.Avsluttet)
             val today = LocalDate.of(2025, 1, 1)
 
-            val oppdatert = avtale.oppdaterVarighet(today.plusDays(1), today)
+            val oppdatert = avtale.oppdaterVarighet(today.plusDays(1), Vurderingsdato(today))
 
             oppdatert.sluttDato shouldBe today.plusDays(1)
             oppdatert.status shouldBe AvtaleStatus.Aktiv
@@ -358,7 +943,7 @@ class AvtaleTest : FunSpec({
             val avtale = AvtaleFixtures.oppfolging.copy(status = AvtaleStatus.Aktiv)
             val today = LocalDate.of(2025, 1, 1)
 
-            val oppdatert = avtale.oppdaterVarighet(today.minusDays(1), today)
+            val oppdatert = avtale.oppdaterVarighet(today.minusDays(1), Vurderingsdato(today))
 
             oppdatert.sluttDato shouldBe today.minusDays(1)
             oppdatert.status shouldBe AvtaleStatus.Avsluttet
@@ -368,11 +953,11 @@ class AvtaleTest : FunSpec({
             val today = LocalDate.of(2025, 1, 1)
 
             AvtaleFixtures.oppfolging.copy(status = AvtaleStatus.Utkast)
-                .oppdaterVarighet(today.minusDays(1), today).status shouldBe AvtaleStatus.Utkast
+                .oppdaterVarighet(today.minusDays(1), Vurderingsdato(today)).status shouldBe AvtaleStatus.Utkast
 
             val avbrutt = AvtaleStatus.Avbrutt(LocalDateTime.now(), listOf(AvbrytAvtaleAarsak.ANNET), null)
             AvtaleFixtures.oppfolging.copy(status = avbrutt)
-                .oppdaterVarighet(today.minusDays(1), today).status shouldBe avbrutt
+                .oppdaterVarighet(today.minusDays(1), Vurderingsdato(today)).status shouldBe avbrutt
         }
     }
 })

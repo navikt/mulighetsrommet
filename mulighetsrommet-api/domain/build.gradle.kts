@@ -21,6 +21,7 @@ dependencies {
     implementation(libs.arrow.core)
 
     testFixturesImplementation(projects.common.domain)
+    testFixturesImplementation(libs.arrow.core)
 
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)
