@@ -1,4 +1,9 @@
-@file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class, LocalDateTimeSerializer::class)
+@file:UseSerializers(
+    UUIDSerializer::class,
+    LocalDateSerializer::class,
+    LocalDateTimeSerializer::class,
+    InstantSerializer::class,
+)
 
 package no.nav.mulighetsrommet.api.domain.avtale
 
@@ -20,13 +25,17 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.validation.FieldError
+import no.nav.mulighetsrommet.validation.FieldValidator
 import no.nav.mulighetsrommet.validation.validation
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 @Serializable
@@ -49,6 +58,89 @@ data class Avtale(
     val prisinfo: Prisinfo,
     val rammedetaljer: Rammedetaljer? = null,
 ) {
+    companion object {
+        fun opprett(
+            command: OpprettAvtaleCommand,
+            vurderingsdato: Vurderingsdato,
+        ): Either<List<FieldError>, Avtale> = validation {
+            validateAvtaletypeOgOpsjonsmodell(command.avtaletype, command.opsjonsmodell)
+
+            val sluttDato = command.opsjonsmodell.initiellSluttDato(command.startDato)
+            validate(sluttDato == null || command.startDato <= sluttDato) {
+                FieldError.of("Startdato må være før sluttdato", Avtale::startDato)
+            }
+
+            val status = if (command.arrangor == null) {
+                AvtaleStatus.Utkast
+            } else {
+                statusFraSluttDato(sluttDato, vurderingsdato)
+            }
+
+            Avtale(
+                id = command.id,
+                tiltakskode = command.tiltakskode,
+                navn = command.navn,
+                avtalenummer = null,
+                sakarkivNummer = command.sakarkivNummer,
+                arrangor = command.arrangor,
+                startDato = command.startDato,
+                sluttDato = sluttDato,
+                avtaletype = command.avtaletype,
+                status = status,
+                administratorer = command.administratorer,
+                veilederinfo = command.veilederinfo,
+                personvern = command.personvern,
+                opplaring = command.opplaring,
+                opsjoner = Opsjoner(command.opsjonsmodell, emptyList()),
+                prisinfo = command.prisinfo,
+            )
+        }
+    }
+
+    fun oppdaterDetaljer(
+        command: OppdaterAvtaledetaljerCommand,
+        vurderingsdato: Vurderingsdato,
+    ): Either<List<FieldError>, Avtale> = validation {
+        validateAvtaletypeOgOpsjonsmodell(command.avtaletype, command.opsjonsmodell)
+
+        val harRegistrerteOpsjoner = opsjoner.registreringer.isNotEmpty()
+
+        validate(!harRegistrerteOpsjoner || command.startDato == startDato) {
+            FieldError.of("Startdato kan ikke endres når opsjoner er registrert", Avtale::startDato)
+        }
+        validate(!harRegistrerteOpsjoner || command.opsjonsmodell == opsjoner.modell) {
+            FieldError.of("Opsjonsmodell kan ikke endres når opsjoner er registrert", Avtale::opsjoner)
+        }
+
+        val sluttDato = if (harRegistrerteOpsjoner) {
+            sluttDato
+        } else {
+            command.opsjonsmodell.initiellSluttDato(command.startDato)
+        }
+        validate(sluttDato == null || command.startDato <= sluttDato) {
+            FieldError.of("Startdato må være før sluttdato", Avtale::startDato)
+        }
+
+        val status = when {
+            command.arrangor == null -> AvtaleStatus.Utkast
+            status is AvtaleStatus.Avbrutt -> status
+            else -> statusFraSluttDato(sluttDato, vurderingsdato)
+        }
+
+        copy(
+            navn = command.navn,
+            sakarkivNummer = command.sakarkivNummer,
+            arrangor = command.arrangor,
+            startDato = command.startDato,
+            sluttDato = sluttDato,
+            avtaletype = command.avtaletype,
+            status = status,
+            administratorer = command.administratorer,
+            opplaring = command.opplaring,
+            opsjoner = opsjoner.copy(modell = command.opsjonsmodell),
+        )
+    }
+
     fun medRammedetaljer(totalRamme: Long?, utbetaltArena: Long?): Either<List<FieldError>, Avtale> {
         if (totalRamme == null && utbetaltArena == null) {
             // Fjerner rammedetaljer uten videre validering - tilsvarer en sletting.
@@ -117,7 +209,7 @@ data class Avtale(
         }
 
         val tidspunktForSlutt = sluttDato?.plusDays(1)?.atStartOfDay()
-        validate(tidspunktForSlutt != null && !avsluttetTidspunkt.isBefore(tidspunktForSlutt)) {
+        validate(tidspunktForSlutt != null && tidspunktForSlutt <= avsluttetTidspunkt) {
             FieldError.of("Avtalen kan ikke avsluttes før sluttdato")
         }
 
@@ -138,15 +230,81 @@ data class Avtale(
         copy(status = AvtaleStatus.Avbrutt(tidspunkt, aarsaker, forklaring))
     }
 
-    fun oppdaterVarighet(nySluttDato: LocalDate, today: LocalDate): Avtale {
+    fun registrerOpsjon(
+        command: RegistrerOpsjonCommand,
+        vurderingsdato: Vurderingsdato,
+        id: UUID = UUID.randomUUID(),
+        registrertTidspunkt: Instant = instantAsMicros(),
+    ): Either<List<FieldError>, Avtale> = validation {
+        val modell = opsjoner.modell
+        requireValid(modell is Opsjonsmodell.MedOpsjonsmulighet) {
+            FieldError.of("Opsjon kan ikke registreres for denne opsjonsmodellen")
+        }
+
+        validate(
+            command !is RegistrerOpsjonCommand.UtloseOpsjon || command.nySluttDato <= modell.opsjonMaksVarighet,
+        ) {
+            FieldError.of("Ny sluttdato er forbi maks varighet av avtalen")
+        }
+
+        validate(opsjoner.registreringer.none { it is Opsjon.SkalIkkeUtloseOpsjon }) {
+            FieldError.of("Kan ikke utløse flere opsjoner")
+        }
+
+        // Garantert av Opsjonsmodell.MedOpsjonsmulighet-varianter, som alltid har en initiell sluttdato.
+        val gjeldendeSluttDato = requireNotNull(sluttDato)
+
+        val opsjon = when (command) {
+            is RegistrerOpsjonCommand.UtloseOpsjon -> Opsjon.OpsjonUtlost(
+                id = id,
+                registrertTidspunkt = registrertTidspunkt,
+                forrigeSluttDato = gjeldendeSluttDato,
+                registrertAv = command.registrertAv,
+                nySluttDato = command.nySluttDato,
+            )
+
+            is RegistrerOpsjonCommand.SkalIkkeUtloseOpsjon -> Opsjon.SkalIkkeUtloseOpsjon(
+                id = id,
+                registrertTidspunkt = registrertTidspunkt,
+                forrigeSluttDato = gjeldendeSluttDato,
+                registrertAv = command.registrertAv,
+            )
+        }
+
+        val medOpsjon = copy(opsjoner = opsjoner.copy(registreringer = opsjoner.registreringer + opsjon))
+
+        when (command) {
+            is RegistrerOpsjonCommand.UtloseOpsjon -> medOpsjon.oppdaterVarighet(command.nySluttDato, vurderingsdato)
+            is RegistrerOpsjonCommand.SkalIkkeUtloseOpsjon -> medOpsjon
+        }
+    }
+
+    fun slettOpsjon(
+        opsjonId: UUID,
+        vurderingsdato: Vurderingsdato,
+    ): Either<List<FieldError>, Avtale> = validation {
+        val sisteOpsjon = opsjoner.registreringer.lastOrNull()
+
+        requireValid(sisteOpsjon != null && sisteOpsjon.id == opsjonId) {
+            FieldError.of("Opsjonen kan ikke slettes fordi det ikke er den siste utløste opsjonen")
+        }
+
+        val gjenvaerendeRegistreringer = opsjoner.registreringer.filterNot { it.id == opsjonId }
+        val medOppdatertLogg = copy(opsjoner = opsjoner.copy(registreringer = gjenvaerendeRegistreringer))
+
+        when (sisteOpsjon) {
+            is Opsjon.OpsjonUtlost -> medOppdatertLogg.oppdaterVarighet(sisteOpsjon.forrigeSluttDato, vurderingsdato)
+            is Opsjon.SkalIkkeUtloseOpsjon -> medOppdatertLogg
+        }
+    }
+
+    internal fun oppdaterVarighet(
+        nySluttDato: LocalDate,
+        vurderingsdato: Vurderingsdato,
+    ): Avtale {
         val nyStatus = when (status) {
             is AvtaleStatus.Utkast, is AvtaleStatus.Avbrutt -> status
-
-            is AvtaleStatus.Aktiv, is AvtaleStatus.Avsluttet -> if (!nySluttDato.isBefore(today)) {
-                AvtaleStatus.Aktiv
-            } else {
-                AvtaleStatus.Avsluttet
-            }
+            is AvtaleStatus.Aktiv, is AvtaleStatus.Avsluttet -> statusFraSluttDato(nySluttDato, vurderingsdato)
         }
 
         return copy(sluttDato = nySluttDato, status = nyStatus)
@@ -274,15 +432,50 @@ data class Avtale(
     @Serializable
     data class Opsjoner(
         val modell: Opsjonsmodell,
-        val registreringer: List<OpsjonLogg>,
+        val registreringer: List<Opsjon>,
     )
 
     @Serializable
-    data class OpsjonLogg(
-        val id: UUID,
-        val createdAt: LocalDateTime,
-        val sluttDato: LocalDate?,
-        val forrigeSluttDato: LocalDate,
-        val status: OpsjonLoggStatus,
-    )
+    sealed interface Opsjon {
+        val id: UUID
+        val registrertTidspunkt: Instant
+        val forrigeSluttDato: LocalDate
+        val registrertAv: NavIdent
+
+        @Serializable
+        data class OpsjonUtlost(
+            override val id: UUID,
+            override val registrertTidspunkt: Instant,
+            override val forrigeSluttDato: LocalDate,
+            override val registrertAv: NavIdent,
+            val nySluttDato: LocalDate,
+        ) : Opsjon
+
+        @Serializable
+        data class SkalIkkeUtloseOpsjon(
+            override val id: UUID,
+            override val registrertTidspunkt: Instant,
+            override val forrigeSluttDato: LocalDate,
+            override val registrertAv: NavIdent,
+        ) : Opsjon
+    }
+}
+
+private fun instantAsMicros(): Instant = Instant.now().truncatedTo(ChronoUnit.MICROS)
+
+private fun statusFraSluttDato(sluttDato: LocalDate?, vurderingsdato: Vurderingsdato): AvtaleStatus {
+    return if (sluttDato == null || vurderingsdato.value <= sluttDato) {
+        AvtaleStatus.Aktiv
+    } else {
+        AvtaleStatus.Avsluttet
+    }
+}
+
+private fun FieldValidator.validateAvtaletypeOgOpsjonsmodell(avtaletype: Avtaletype, opsjonsmodell: Opsjonsmodell) {
+    validate(avtaletype != Avtaletype.FORHANDSGODKJENT || opsjonsmodell is Opsjonsmodell.ValgfriSluttdato) {
+        FieldError.of(
+            "Du må velge opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent",
+            Avtale::opsjoner,
+        )
+    }
 }

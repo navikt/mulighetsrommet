@@ -3,11 +3,11 @@ package no.nav.mulighetsrommet.api.fixtures
 import no.nav.mulighetsrommet.admin.avtale.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
+import no.nav.mulighetsrommet.api.avtale.api.OpsjonsmodellRequest
 import no.nav.mulighetsrommet.api.avtale.api.PersonvernRequest
 import no.nav.mulighetsrommet.api.avtale.api.VeilederinfoRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
@@ -31,7 +31,7 @@ fun createAvtaleRequest(
     ),
     administratorer: List<NavIdent> = listOf(NavAnsattFixture.DonaldDuck.navIdent),
     prismodell: List<Prismodell> = listOf(PrismodellFixtures.AnnenAvtaltPris),
-    opsjonsmodell: Opsjonsmodell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
+    opsjonsmodell: OpsjonsmodellRequest = OpsjonsmodellRequest(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
     amo: AmoKategoriseringRequest? = null,
 ): OpprettAvtaleRequest {
     return OpprettAvtaleRequest(

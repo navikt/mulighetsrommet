@@ -13,7 +13,6 @@ import no.nav.mulighetsrommet.admin.testing.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
 import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
-import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategorisering
 import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
@@ -78,7 +77,7 @@ class GjennomforingValidatorTest : FunSpec({
             ),
         ),
         opsjoner = Avtale.Opsjoner(
-            modell = Opsjonsmodell(OpsjonsmodellType.TO_PLUSS_EN, LocalDate.now().plusYears(3)),
+            modell = Opsjonsmodell.ToPlussEn.forStartDato(LocalDate.now()),
             registreringer = emptyList(),
         ),
     )

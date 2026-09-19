@@ -2,8 +2,6 @@ package no.nav.mulighetsrommet.admin.testing
 
 import no.nav.mulighetsrommet.admin.avtale.AvtaleDto
 import no.nav.mulighetsrommet.admin.tiltak.PrismodellDto
-import no.nav.mulighetsrommet.api.domain.avtale.Avtale
-import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategoriseringDetaljer
@@ -43,11 +41,12 @@ object AvtaleDtoFixtures {
         personopplysninger: List<Personopplysning> = emptyList(),
         personvernBekreftet: Boolean = false,
         opplaring: OpplaringKategoriseringDetaljer? = null,
-        opsjonsmodell: Opsjonsmodell = Opsjonsmodell(
+        opsjonsmodell: AvtaleDto.Opsjonsmodell = AvtaleDto.Opsjonsmodell(
             type = OpsjonsmodellType.INGEN_OPSJONSMULIGHET,
             opsjonMaksVarighet = null,
+            customOpsjonsmodellNavn = null,
         ),
-        opsjonerRegistrert: List<Avtale.OpsjonLogg> = emptyList(),
+        opsjonerRegistrert: List<AvtaleDto.OpsjonLogg> = emptyList(),
         prismodeller: List<PrismodellDto> = emptyList(),
     ) = AvtaleDto(
         id = id,

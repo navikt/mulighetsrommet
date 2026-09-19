@@ -4,7 +4,7 @@ import { useGetAvtaleIdFromUrlOrThrow } from "@/hooks/useGetAvtaleIdFromUrl";
 import { compare, formaterDato } from "@mr/frontend-common/utils/date";
 import { TrashIcon } from "@navikt/aksel-icons";
 import { BodyShort, Button, Heading, HStack, Table } from "@navikt/ds-react";
-import { AvtaleOpsjonLogg, OpsjonLoggStatus } from "@tiltaksadministrasjon/api-client";
+import { AvtaleDtoOpsjonLogg, OpsjonLoggStatus } from "@tiltaksadministrasjon/api-client";
 
 interface Props {
   readOnly: boolean;
@@ -16,7 +16,7 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
   const logg = avtale.opsjonerRegistrert;
   const mutation = useSlettOpsjon(avtale.id);
 
-  function kanSletteOpsjon(opsjon: AvtaleOpsjonLogg): boolean {
+  function kanSletteOpsjon(opsjon: AvtaleDtoOpsjonLogg): boolean {
     const sisteUtlosteOpsjon = logg.at(-1);
 
     return opsjon.id === sisteUtlosteOpsjon?.id;
@@ -58,7 +58,7 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
           {logg.map((log) => {
             return (
               <Table.Row key={log.id}>
-                <Table.DataCell>{formaterDato(log.createdAt)}</Table.DataCell>
+                <Table.DataCell>{formaterDato(log.registrertTidspunkt)}</Table.DataCell>
                 <Table.DataCell>{formaterStatus(log)}</Table.DataCell>
                 <Table.DataCell>
                   {kanSletteOpsjon(log) && !readOnly ? (
@@ -85,7 +85,7 @@ export function RegistrerteOpsjoner({ readOnly }: Props) {
   );
 }
 
-function formaterStatus(log: AvtaleOpsjonLogg): string {
+function formaterStatus(log: AvtaleDtoOpsjonLogg): string {
   switch (log.status) {
     case OpsjonLoggStatus.OPSJON_UTLOST:
       return formaterDato(log.sluttDato) ?? "-";

@@ -1,4 +1,4 @@
-@file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class)
+@file:UseSerializers(UUIDSerializer::class, LocalDateSerializer::class, InstantSerializer::class)
 
 package no.nav.mulighetsrommet.admin.avtale
 
@@ -6,7 +6,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.mulighetsrommet.admin.tiltak.PrismodellDto
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
+import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
 import no.nav.mulighetsrommet.api.domain.opplaring.OpplaringKategoriseringDetaljer
 import no.nav.mulighetsrommet.model.AvtaleStatusType
@@ -18,8 +20,10 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
+import no.nav.mulighetsrommet.serializers.InstantSerializer
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
+import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID
 
@@ -42,8 +46,8 @@ data class AvtaleDto(
     val personopplysninger: List<Personopplysning>,
     val personvernBekreftet: Boolean,
     val opplaring: OpplaringKategoriseringDetaljer?,
-    val opsjonsmodell: Opsjonsmodell,
-    val opsjonerRegistrert: List<Avtale.OpsjonLogg>,
+    val opsjonsmodell: AvtaleDto.Opsjonsmodell,
+    val opsjonerRegistrert: List<OpsjonLogg>,
     val prismodeller: List<PrismodellDto>,
 ) {
     @Serializable
@@ -90,5 +94,48 @@ data class AvtaleDto(
     data class Administrator(
         val navIdent: NavIdent,
         val navn: String,
+    )
+
+    @Serializable
+    data class Opsjonsmodell(
+        val type: OpsjonsmodellType,
+        val opsjonMaksVarighet: LocalDate?,
+        val customOpsjonsmodellNavn: String?,
+    )
+
+    @Serializable
+    data class OpsjonLogg(
+        val id: UUID,
+        val registrertTidspunkt: Instant,
+        val sluttDato: LocalDate?,
+        val forrigeSluttDato: LocalDate,
+        val status: OpsjonLoggStatus,
+        val registrertAv: NavIdent,
+    )
+}
+
+fun Opsjonsmodell.toDto(): AvtaleDto.Opsjonsmodell = AvtaleDto.Opsjonsmodell(
+    type = type,
+    opsjonMaksVarighet = opsjonMaksVarighetOrNull,
+    customOpsjonsmodellNavn = customOpsjonsmodellNavnOrNull,
+)
+
+fun Avtale.Opsjon.toDto(): AvtaleDto.OpsjonLogg = when (this) {
+    is Avtale.Opsjon.OpsjonUtlost -> AvtaleDto.OpsjonLogg(
+        id = id,
+        registrertTidspunkt = registrertTidspunkt,
+        sluttDato = nySluttDato,
+        forrigeSluttDato = forrigeSluttDato,
+        status = OpsjonLoggStatus.OPSJON_UTLOST,
+        registrertAv = registrertAv,
+    )
+
+    is Avtale.Opsjon.SkalIkkeUtloseOpsjon -> AvtaleDto.OpsjonLogg(
+        id = id,
+        registrertTidspunkt = registrertTidspunkt,
+        sluttDato = null,
+        forrigeSluttDato = forrigeSluttDato,
+        status = OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON,
+        registrertAv = registrertAv,
     )
 }

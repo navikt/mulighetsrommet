@@ -7,11 +7,13 @@ import kotliquery.Session
 import kotliquery.queryOf
 import no.nav.mulighetsrommet.admin.avtale.AvtaleDto
 import no.nav.mulighetsrommet.admin.avtale.AvtaleQueryHandler
+import no.nav.mulighetsrommet.admin.avtale.toDto
 import no.nav.mulighetsrommet.admin.tiltak.toPrismodellDto
 import no.nav.mulighetsrommet.api.domain.avtale.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleRepository
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
+import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.navenhet.Kontorstruktur
@@ -44,9 +46,13 @@ import no.nav.mulighetsrommet.model.Personopplysning
 import no.nav.mulighetsrommet.model.SakarkivNummer
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.mulighetsrommet.serializers.InstantSerializer
+import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import org.intellij.lang.annotations.Language
 import java.sql.Array
+import java.time.Instant
+import java.time.LocalDate
 import java.util.UUID
 
 class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQueryHandler {
@@ -60,6 +66,61 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
         updatePersonvern(avtale.id, avtale.personvern)
         syncPrismodeller(avtale.id, avtale.prisinfo)
         syncRammedetaljer(avtale.id, avtale.rammedetaljer)
+        syncOpsjonLogg(avtale.id, avtale.opsjoner.registreringer)
+    }
+
+    private fun syncOpsjonLogg(avtaleId: UUID, registreringer: List<Avtale.Opsjon>) {
+        val desiredIds = registreringer.map { it.id }.toSet()
+
+        @Language("PostgreSQL")
+        val currentIdsQuery = "select id from avtale_opsjon_logg where avtale_id = ?::uuid"
+        val currentIds = session.list(queryOf(currentIdsQuery, avtaleId)) { it.uuid("id") }.toSet()
+
+        (currentIds - desiredIds).forEach { removedId ->
+            @Language("PostgreSQL")
+            val deleteQuery = "delete from avtale_opsjon_logg where id = ?::uuid"
+            session.execute(queryOf(deleteQuery, removedId))
+        }
+
+        registreringer.filter { it.id !in currentIds }.forEach { logg ->
+            val (sluttDato, status) = when (logg) {
+                is Avtale.Opsjon.OpsjonUtlost -> logg.nySluttDato to OpsjonLoggStatus.OPSJON_UTLOST
+                is Avtale.Opsjon.SkalIkkeUtloseOpsjon -> null to OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON
+            }
+
+            @Language("PostgreSQL")
+            val insertQuery = """
+                insert into avtale_opsjon_logg (
+                    id,
+                    avtale_id,
+                    sluttdato,
+                    forrige_sluttdato,
+                    status,
+                    registrert_av,
+                    registrert_tidspunkt
+                ) values (
+                    :id::uuid,
+                    :avtale_id::uuid,
+                    :sluttdato,
+                    :forrige_sluttdato,
+                    :status::opsjonstatus,
+                    :registrert_av,
+                    :registrert_tidspunkt
+                )
+            """.trimIndent()
+
+            val params = mapOf(
+                "id" to logg.id,
+                "avtale_id" to avtaleId,
+                "sluttdato" to sluttDato,
+                "forrige_sluttdato" to logg.forrigeSluttDato,
+                "status" to status.name,
+                "registrert_av" to logg.registrertAv.value,
+                "registrert_tidspunkt" to logg.registrertTidspunkt,
+            )
+
+            session.execute(queryOf(insertQuery, params))
+        }
     }
 
     private fun syncRammedetaljer(avtaleId: UUID, rammedetaljer: Avtale.Rammedetaljer?) {
@@ -339,8 +400,8 @@ class AvtaleQueries(private val session: Session) : AvtaleRepository, AvtaleQuer
             "avbrutt_aarsaker" to avbrutt?.aarsaker?.let { session.createTextArray(it) },
             "avbrutt_forklaring" to avbrutt?.forklaring,
             "opsjonsmodell" to avtale.opsjoner.modell.type.name,
-            "opsjon_maks_varighet" to avtale.opsjoner.modell.opsjonMaksVarighet,
-            "opsjon_custom_opsjonsmodell_navn" to avtale.opsjoner.modell.customOpsjonsmodellNavn,
+            "opsjon_maks_varighet" to avtale.opsjoner.modell.opsjonMaksVarighetOrNull,
+            "opsjon_custom_opsjonsmodell_navn" to avtale.opsjoner.modell.customOpsjonsmodellNavnOrNull,
         )
         execute(queryOf(query, params))
     }
@@ -595,8 +656,8 @@ private fun Row.toAvtaleDto(): AvtaleDto {
         personopplysninger = toPersonopplysninger(),
         personvernBekreftet = boolean("personvern_bekreftet"),
         opplaring = toOpplaringKategoriseringDetaljer(),
-        opsjonsmodell = toOpsjonsmodell(),
-        opsjonerRegistrert = toOpsjonerRegistrert(),
+        opsjonsmodell = toOpsjonsmodell().toDto(),
+        opsjonerRegistrert = toOpsjonerRegistrert().map { it.toDto() },
         prismodeller = toPrismodeller().map { it.toPrismodellDto() },
     )
 }
@@ -694,11 +755,36 @@ private fun Row.toPersonopplysninger(): List<Personopplysning> = stringOrNull("p
     ?.let { Json.decodeFromString<List<Personopplysning>>(it) }
     ?: emptyList()
 
-private fun Row.toOpsjonsmodell(): Opsjonsmodell = Opsjonsmodell(
-    type = OpsjonsmodellType.valueOf(string("opsjonsmodell")),
-    opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet"),
-    customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn"),
-)
+private fun Row.toOpsjonsmodell(): Opsjonsmodell {
+    val startDato = localDate("start_dato")
+    val sluttDato = localDateOrNull("slutt_dato")
+    val opsjonMaksVarighet = localDateOrNull("opsjon_maks_varighet")
+    val customOpsjonsmodellNavn = stringOrNull("opsjon_custom_opsjonsmodell_navn")
+
+    fun manglerFelt(felt: String): Nothing = error(
+        "$felt skal alltid være satt for opsjonsmodell ${string("opsjonsmodell")} (avtale=${uuid("id")})",
+    )
+
+    return when (OpsjonsmodellType.valueOf(string("opsjonsmodell"))) {
+        OpsjonsmodellType.VALGFRI_SLUTTDATO -> Opsjonsmodell.ValgfriSluttdato(sluttDato)
+
+        OpsjonsmodellType.INGEN_OPSJONSMULIGHET -> Opsjonsmodell.IngenOpsjonsmulighet(
+            sluttDato ?: manglerFelt("slutt_dato"),
+        )
+
+        OpsjonsmodellType.TO_PLUSS_EN -> Opsjonsmodell.ToPlussEn.forStartDato(startDato)
+
+        OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN -> Opsjonsmodell.ToPlussEnPlussEn.forStartDato(startDato)
+
+        OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN -> Opsjonsmodell.ToPlussEnPlussEnPlussEn.forStartDato(startDato)
+
+        OpsjonsmodellType.ANNET -> Opsjonsmodell.Annet(
+            sluttDato = sluttDato ?: manglerFelt("slutt_dato"),
+            opsjonMaksVarighet = opsjonMaksVarighet ?: manglerFelt("opsjon_maks_varighet"),
+            customOpsjonsmodellNavn = customOpsjonsmodellNavn ?: manglerFelt("opsjon_custom_opsjonsmodell_navn"),
+        )
+    }
+}
 
 private fun Row.toOpplaringKategoriseringDetaljer(): OpplaringKategoriseringDetaljer? {
     return stringOrNull("opplaring_kategorisering_json")?.let {
@@ -706,9 +792,43 @@ private fun Row.toOpplaringKategoriseringDetaljer(): OpplaringKategoriseringDeta
     }
 }
 
-private fun Row.toOpsjonerRegistrert(): List<Avtale.OpsjonLogg> = stringOrNull("opsjon_logg_json")
-    ?.let { Json.decodeFromString<List<Avtale.OpsjonLogg>>(it) }
+private fun Row.toOpsjonerRegistrert(): List<Avtale.Opsjon> = stringOrNull("opsjon_logg_json")
+    ?.let { Json.decodeFromString<List<OpsjonLoggRow>>(it) }
+    ?.map { it.toDomain() }
     .orEmpty()
+
+@Serializable
+private data class OpsjonLoggRow(
+    @Serializable(with = UUIDSerializer::class)
+    val id: UUID,
+    @Serializable(with = InstantSerializer::class)
+    val registrertTidspunkt: Instant,
+    @Serializable(with = LocalDateSerializer::class)
+    val sluttDato: LocalDate?,
+    @Serializable(with = LocalDateSerializer::class)
+    val forrigeSluttDato: LocalDate,
+    val status: OpsjonLoggStatus,
+    val registrertAv: NavIdent,
+)
+
+private fun OpsjonLoggRow.toDomain(): Avtale.Opsjon = when (status) {
+    OpsjonLoggStatus.OPSJON_UTLOST -> Avtale.Opsjon.OpsjonUtlost(
+        id = id,
+        registrertTidspunkt = registrertTidspunkt,
+        forrigeSluttDato = forrigeSluttDato,
+        registrertAv = registrertAv,
+        nySluttDato = requireNotNull(sluttDato) {
+            "sluttDato skal alltid være satt når status er OPSJON_UTLOST (opsjon_logg_id=$id)"
+        },
+    )
+
+    OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON -> Avtale.Opsjon.SkalIkkeUtloseOpsjon(
+        id = id,
+        registrertTidspunkt = registrertTidspunkt,
+        forrigeSluttDato = forrigeSluttDato,
+        registrertAv = registrertAv,
+    )
+}
 
 val JsonIgnoreUnknownKeys = Json {
     ignoreUnknownKeys = true

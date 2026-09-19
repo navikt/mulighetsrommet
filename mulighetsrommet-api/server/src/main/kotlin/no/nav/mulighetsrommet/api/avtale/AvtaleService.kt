@@ -7,7 +7,6 @@ import arrow.core.mapOrAccumulate
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
-import arrow.core.right
 import arrow.core.toNonEmptyListOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -30,13 +29,16 @@ import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.avtale.AvbrytAvtaleAarsak
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
-import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
+import no.nav.mulighetsrommet.api.domain.avtale.OppdaterAvtaledetaljerCommand
+import no.nav.mulighetsrommet.api.domain.avtale.OpprettAvtaleCommand
+import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.avtale.RegistrerOpsjonCommand
+import no.nav.mulighetsrommet.api.domain.avtale.Vurderingsdato
 import no.nav.mulighetsrommet.api.domain.gjennomforing.GjennomforingAvtaleStatus
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.gjennomforing.task.InitialLoadGjennomforinger
 import no.nav.mulighetsrommet.model.Agent
-import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
@@ -46,6 +48,7 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.TiltakstypeEgenskap
 import no.nav.mulighetsrommet.notifications.ScheduledNotification
 import no.nav.mulighetsrommet.validation.FieldError
+import no.nav.mulighetsrommet.validation.validation
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -107,7 +110,7 @@ class AvtaleService(
         val veilederinfo = request.veilederinformasjon.toVeilederinfo().bind()
 
         db.transaction {
-            val avtale = request.toAvtale(detaljer, prisinfo, personvern, veilederinfo)
+            val avtale = request.toAvtale(detaljer, prisinfo, personvern, veilederinfo).bind()
             repository.avtale.save(avtale)
 
             dispatchNotificationToNewAdministrators(
@@ -131,7 +134,6 @@ class AvtaleService(
 
             val gjennomforinger = queries.gjennomforing.getByAvtale(avtaleId)
             val previous = AvtaleValidator.Ctx.Avtale(
-                status = avtale.status.type,
                 opsjoner = avtale.opsjoner,
                 avtaletype = avtale.avtaletype,
                 tiltakskode = avtale.tiltakskode,
@@ -154,7 +156,7 @@ class AvtaleService(
                 .validateUpdateDetaljer(request, context)
                 .bind()
 
-            val oppdatertAvtale = avtale.toUpdatedAvtale(detaljer)
+            val oppdatertAvtale = avtale.toUpdatedAvtale(detaljer).bind()
             if (avtale == oppdatertAvtale) {
                 return@either avtale
             }
@@ -298,17 +300,13 @@ class AvtaleService(
         navIdent: NavIdent,
         today: LocalDate = LocalDate.now(),
     ): Either<List<FieldError>, Avtale> = db.transaction {
-        val avtale = getOrError(avtaleId)
+        either {
+            val avtale = getOrError(avtaleId)
 
-        AvtaleValidator.validateOpprettOpsjonLoggRequest(
-            AvtaleValidator.ValidateOpprettOpsjonContext(avtale, navIdent),
-            request,
-        ).map { dbo ->
-            queries.opsjoner.insert(dbo)
+            val command = request.toRegistrerOpsjonCommand(avtale, navIdent).bind()
+            val oppdatert = avtale.registrerOpsjon(command, Vurderingsdato(today)).bind()
 
-            if (dbo.sluttDato != null) {
-                updateAvtaleVarighet(avtaleId, dbo.sluttDato, today)
-            }
+            repository.avtale.save(oppdatert)
 
             val operation = when (request.type) {
                 OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE,
@@ -326,22 +324,14 @@ class AvtaleService(
         opsjonId: UUID,
         slettesAv: NavIdent,
         today: LocalDate = LocalDate.now(),
-    ): Either<FieldError, Avtale> = db.transaction {
-        val opsjoner = queries.opsjoner.getByAvtaleId(avtaleId)
+    ): Either<List<FieldError>, Avtale> = db.transaction {
+        val avtale = getOrError(avtaleId)
 
-        val sisteOpsjon = opsjoner.firstOrNull()
-        if (sisteOpsjon == null || sisteOpsjon.id != opsjonId) {
-            return FieldError.of("Opsjonen kan ikke slettes fordi det ikke er den siste utløste opsjonen").left()
+        avtale.slettOpsjon(opsjonId, Vurderingsdato(today)).map { oppdatert ->
+            repository.avtale.save(oppdatert)
+
+            logEndring("Opsjon slettet", avtaleId, slettesAv)
         }
-
-        if (sisteOpsjon.status == OpsjonLoggStatus.OPSJON_UTLOST) {
-            val nySluttDato = sisteOpsjon.forrigeSluttDato
-            updateAvtaleVarighet(avtaleId, nySluttDato, today)
-        }
-
-        queries.opsjoner.delete(opsjonId)
-
-        logEndring("Opsjon slettet", avtaleId, slettesAv).right()
     }
 
     fun frikobleKontaktpersonFraAvtale(
@@ -392,11 +382,6 @@ class AvtaleService(
             ),
             kategorisering = kategorisering,
         )
-    }
-
-    private fun QueryContext.updateAvtaleVarighet(avtaleId: UUID, nySluttDato: LocalDate, today: LocalDate) {
-        val oppdatert = getOrError(avtaleId).oppdaterVarighet(nySluttDato, today)
-        repository.avtale.save(oppdatert)
     }
 
     private fun QueryContext.getOrError(id: UUID): Avtale {
@@ -498,7 +483,7 @@ class AvtaleService(
                 avtale.prisinfo is Avtale.Prisinfo.Egendefinert
             },
             AvtaleHandling.REGISTRER_OPSJON.takeIf {
-                avtale.opsjoner.modell.opsjonMaksVarighet != null
+                avtale.opsjoner.modell is Opsjonsmodell.MedOpsjonsmulighet
             },
             AvtaleHandling.DUPLISER,
             AvtaleHandling.REDIGER,
@@ -532,42 +517,39 @@ private fun OpprettAvtaleRequest.toAvtale(
     prisinfo: Avtale.Prisinfo,
     personvern: Avtale.Personvern,
     veilederinfo: Avtale.VeilederInfo,
-): Avtale = Avtale(
-    id = id,
-    tiltakskode = detaljer.tiltakskode,
-    navn = detaljer.navn,
-    avtalenummer = null,
-    sakarkivNummer = detaljer.sakarkivNummer,
-    arrangor = detaljer.arrangor,
-    startDato = detaljer.startDato,
-    sluttDato = detaljer.sluttDato,
-    avtaletype = detaljer.avtaletype,
-    status = detaljer.status.toAvtaleStatus(),
-    administratorer = detaljer.administratorer.toSet(),
-    veilederinfo = veilederinfo,
-    personvern = personvern,
-    opplaring = detaljer.opplaring,
-    opsjoner = Avtale.Opsjoner(detaljer.opsjonsmodell, emptyList()),
-    prisinfo = prisinfo,
+): Either<List<FieldError>, Avtale> = Avtale.opprett(
+    command = OpprettAvtaleCommand(
+        id = id,
+        tiltakskode = detaljer.tiltakskode,
+        navn = detaljer.navn,
+        sakarkivNummer = detaljer.sakarkivNummer,
+        arrangor = detaljer.arrangor,
+        startDato = detaljer.startDato,
+        opsjonsmodell = detaljer.opsjonsmodell,
+        avtaletype = detaljer.avtaletype,
+        administratorer = detaljer.administratorer.toSet(),
+        veilederinfo = veilederinfo,
+        personvern = personvern,
+        opplaring = detaljer.opplaring,
+        prisinfo = prisinfo,
+    ),
+    vurderingsdato = Vurderingsdato(LocalDate.now()),
 )
 
-private fun Avtale.toUpdatedAvtale(detaljer: AvtaleValidator.ValidatedDetaljer): Avtale = Avtale(
-    id = id,
-    tiltakskode = tiltakskode,
-    navn = detaljer.navn,
-    avtalenummer = avtalenummer,
-    sakarkivNummer = detaljer.sakarkivNummer,
-    arrangor = detaljer.arrangor,
-    startDato = detaljer.startDato,
-    sluttDato = detaljer.sluttDato,
-    avtaletype = detaljer.avtaletype,
-    status = detaljer.status.toAvtaleStatus(status),
-    administratorer = detaljer.administratorer.toSet(),
-    veilederinfo = veilederinfo,
-    personvern = personvern,
-    opplaring = detaljer.opplaring,
-    opsjoner = Avtale.Opsjoner(detaljer.opsjonsmodell, opsjoner.registreringer),
-    prisinfo = prisinfo,
+private fun Avtale.toUpdatedAvtale(
+    detaljer: AvtaleValidator.ValidatedDetaljer,
+): Either<List<FieldError>, Avtale> = oppdaterDetaljer(
+    command = OppdaterAvtaledetaljerCommand(
+        navn = detaljer.navn,
+        sakarkivNummer = detaljer.sakarkivNummer,
+        arrangor = detaljer.arrangor,
+        startDato = detaljer.startDato,
+        opsjonsmodell = detaljer.opsjonsmodell,
+        avtaletype = detaljer.avtaletype,
+        administratorer = detaljer.administratorer.toSet(),
+        opplaring = detaljer.opplaring,
+    ),
+    vurderingsdato = Vurderingsdato(LocalDate.now()),
 )
 
 private fun PersonvernRequest.toAvtalePersonvern(): Either<List<FieldError>, Avtale.Personvern> {
@@ -586,14 +568,30 @@ private fun PersonvernRequest.toAvtalePersonvern(): Either<List<FieldError>, Avt
     )
 }
 
-private fun AvtaleStatusType.toAvtaleStatus(previous: AvtaleStatus): AvtaleStatus = when (this) {
-    AvtaleStatusType.AVBRUTT -> previous
-    else -> toAvtaleStatus()
-}
+private fun OpprettOpsjonLoggRequest.toRegistrerOpsjonCommand(
+    avtale: Avtale,
+    navIdent: NavIdent,
+): Either<List<FieldError>, RegistrerOpsjonCommand> = validation {
+    when (type) {
+        OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE -> {
+            requireNotNull(nySluttDato) {
+                FieldError.of("Ny sluttdato må være satt", OpprettOpsjonLoggRequest::nySluttDato)
+            }
+            RegistrerOpsjonCommand.UtloseOpsjon(nySluttDato, navIdent)
+        }
 
-private fun AvtaleStatusType.toAvtaleStatus(): AvtaleStatus = when (this) {
-    AvtaleStatusType.UTKAST -> AvtaleStatus.Utkast
-    AvtaleStatusType.AKTIV -> AvtaleStatus.Aktiv
-    AvtaleStatusType.AVSLUTTET -> AvtaleStatus.Avsluttet
-    AvtaleStatusType.AVBRUTT -> error("Avbrutt status må opprettes med årsaker og tidspunkt")
+        OpprettOpsjonLoggRequest.Type.ETT_AAR -> {
+            val sluttDato = avtale.sluttDato
+            requireNotNull(sluttDato) {
+                FieldError.of(
+                    "Opsjon kan ikke utløses fordi avtalen mangler sluttdato",
+                    OpprettOpsjonLoggRequest::type,
+                )
+            }
+            RegistrerOpsjonCommand.UtloseOpsjon(sluttDato.plusYears(1), navIdent)
+        }
+
+        OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON ->
+            RegistrerOpsjonCommand.SkalIkkeUtloseOpsjon(navIdent)
+    }
 }

@@ -7,7 +7,9 @@ import io.kotest.matchers.shouldBe
 import io.mockk.mockk
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.domain.avtale.AvbrytAvtaleAarsak
+import no.nav.mulighetsrommet.api.domain.avtale.Avtale
 import no.nav.mulighetsrommet.api.domain.avtale.AvtaleStatus
+import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
 import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
@@ -45,6 +47,7 @@ class UpdateAvtaleStatusTest : FunSpec({
         id = UUID.randomUUID(),
         startDato = LocalDate.of(2025, 5, 1),
         sluttDato = null,
+        opsjoner = Avtale.Opsjoner(modell = Opsjonsmodell.ValgfriSluttdato(sluttDato = null), registreringer = emptyList()),
     )
 
     val domain = MulighetsrommetTestDomain(

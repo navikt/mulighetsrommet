@@ -32,7 +32,7 @@ import no.nav.mulighetsrommet.api.MrExceptions
 import no.nav.mulighetsrommet.api.avtale.AvtaleService
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
 import no.nav.mulighetsrommet.api.domain.avtale.AvbrytAvtaleAarsak
-import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
+import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.opplaring.Utdanningslop
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
@@ -82,7 +82,7 @@ data class DetaljerRequest(
     val sluttDato: LocalDate?,
     val administratorer: List<NavIdent>,
     val avtaletype: Avtaletype,
-    val opsjonsmodell: Opsjonsmodell,
+    val opsjonsmodell: OpsjonsmodellRequest,
     val amoKategorisering: AmoKategoriseringRequest?,
     val utdanningslop: Utdanningslop?,
 ) {
@@ -96,6 +96,14 @@ data class DetaljerRequest(
             >,
     )
 }
+
+@Serializable
+data class OpsjonsmodellRequest(
+    val type: OpsjonsmodellType,
+    @Serializable(with = LocalDateSerializer::class)
+    val opsjonMaksVarighet: LocalDate? = null,
+    val customOpsjonsmodellNavn: String? = null,
+)
 
 @Serializable
 data class PersonvernRequest(
@@ -225,7 +233,7 @@ fun Route.avtaleRoutes() {
                             opsjonId = opsjonId,
                             slettesAv = userId,
                         )
-                        .mapLeft { ValidationError("Klarte ikke slette opsjon", listOf(it)) }
+                        .mapLeft { ValidationError("Klarte ikke slette opsjon", it) }
                         .map { HttpStatusCode.OK }
 
                     call.respondWithStatusResponse(result)

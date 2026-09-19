@@ -5,16 +5,11 @@ import arrow.core.right
 import no.nav.mulighetsrommet.admin.avtale.AmoKategoriseringRequest
 import no.nav.mulighetsrommet.api.avtale.api.DetaljerRequest
 import no.nav.mulighetsrommet.api.avtale.api.OpprettAvtaleRequest
-import no.nav.mulighetsrommet.api.avtale.api.OpprettOpsjonLoggRequest
 import no.nav.mulighetsrommet.api.avtale.model.AvtaltSatsRequest
-import no.nav.mulighetsrommet.api.avtale.model.OpsjonLoggDbo
 import no.nav.mulighetsrommet.api.avtale.model.PrismodellRequest
-import no.nav.mulighetsrommet.api.avtale.model.toOpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.arrangor.Arrangor
 import no.nav.mulighetsrommet.api.domain.avtale.Avtale
-import no.nav.mulighetsrommet.api.domain.avtale.OpsjonLoggStatus
 import no.nav.mulighetsrommet.api.domain.avtale.Opsjonsmodell
-import no.nav.mulighetsrommet.api.domain.avtale.OpsjonsmodellType
 import no.nav.mulighetsrommet.api.domain.gjennomforing.Gjennomforing.ArrangorUnderenhet
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import no.nav.mulighetsrommet.api.domain.opplaring.Bransje
@@ -28,7 +23,6 @@ import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
 import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.utils.DatoUtils.formaterDatoTilEuropeiskDatoformat
-import no.nav.mulighetsrommet.model.AvtaleStatusType
 import no.nav.mulighetsrommet.model.Avtaletype
 import no.nav.mulighetsrommet.model.Avtaletyper
 import no.nav.mulighetsrommet.model.GjennomforingStatusType
@@ -53,7 +47,6 @@ object AvtaleValidator {
         val tiltakstype: Tiltakstype,
     ) {
         data class Avtale(
-            val status: AvtaleStatusType,
             val opsjoner: Avtale.Opsjoner,
             val avtaletype: Avtaletype,
             val tiltakskode: Tiltakskode,
@@ -93,8 +86,6 @@ object AvtaleValidator {
         val sakarkivNummer: SakarkivNummer?,
         val arrangor: Avtale.Arrangor?,
         val startDato: LocalDate,
-        val sluttDato: LocalDate?,
-        val status: AvtaleStatusType,
         val avtaletype: Avtaletype,
         val administratorer: List<NavIdent>,
         val opplaring: OpplaringKategorisering?,
@@ -132,13 +123,6 @@ object AvtaleValidator {
                 FieldError.of(
                     "Du kan ikke endre avtaletype når opsjoner er registrert",
                     DetaljerRequest::avtaletype,
-                )
-            }
-            validate(request.opsjonsmodell.type == previous.opsjoner.modell.type) {
-                FieldError.of(
-                    "Du kan ikke endre opsjonsmodell når opsjoner er registrert",
-                    DetaljerRequest::opsjonsmodell,
-                    Opsjonsmodell::type,
                 )
             }
         }
@@ -241,50 +225,6 @@ object AvtaleValidator {
         }
     }
 
-    data class ValidateOpprettOpsjonContext(
-        val avtale: Avtale,
-        val navIdent: NavIdent,
-    )
-
-    fun validateOpprettOpsjonLoggRequest(
-        context: ValidateOpprettOpsjonContext,
-        request: OpprettOpsjonLoggRequest,
-    ): Either<List<FieldError>, OpsjonLoggDbo> = validation {
-        val sluttDato = context.avtale.sluttDato
-        requireValid(sluttDato != null) {
-            FieldError.of("Opsjon kan ikke utløses fordi avtalen mangler sluttdato", OpprettOpsjonLoggRequest::type)
-        }
-
-        val nySluttDato = when (request.type) {
-            OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE -> request.nySluttDato
-            OpprettOpsjonLoggRequest.Type.ETT_AAR -> sluttDato.plusYears(1)
-            OpprettOpsjonLoggRequest.Type.SKAL_IKKE_UTLOSE_OPSJON -> null
-        }
-
-        validate(request.type != OpprettOpsjonLoggRequest.Type.CUSTOM_LENGDE || nySluttDato != null) {
-            FieldError.of("Ny sluttdato må være satt", OpprettOpsjonLoggRequest::nySluttDato)
-        }
-
-        val maksVarighet = context.avtale.opsjoner.modell.opsjonMaksVarighet
-        validate(!(nySluttDato != null && maksVarighet != null && nySluttDato.isAfter(maksVarighet))) {
-            FieldError.of("Ny sluttdato er forbi maks varighet av avtalen", OpprettOpsjonLoggRequest::nySluttDato)
-        }
-        val skalIkkeUtloseOpsjonerForAvtale = context.avtale.opsjoner.registreringer.any {
-            it.status == OpsjonLoggStatus.SKAL_IKKE_UTLOSE_OPSJON
-        }
-        validate(!skalIkkeUtloseOpsjonerForAvtale) {
-            FieldError.of("Kan ikke utløse flere opsjoner", OpprettOpsjonLoggRequest::type)
-        }
-
-        OpsjonLoggDbo(
-            avtaleId = context.avtale.id,
-            sluttDato = nySluttDato,
-            forrigeSluttDato = sluttDato,
-            status = request.type.toOpsjonLoggStatus(),
-            registrertAv = context.navIdent,
-        )
-    }
-
     private fun FieldValidator.validateDetaljer(
         request: DetaljerRequest,
         ctx: Ctx,
@@ -317,46 +257,14 @@ object AvtaleValidator {
                 DetaljerRequest::avtaletype,
             )
         }
-        if (request.avtaletype == Avtaletype.FORHANDSGODKJENT) {
-            validate(request.opsjonsmodell.type == OpsjonsmodellType.VALGFRI_SLUTTDATO) {
-                FieldError.of(
-                    "Du må velge opsjonsmodell med valgfri sluttdato når avtalen er forhåndsgodkjent",
-                    DetaljerRequest::opsjonsmodell,
-                    Opsjonsmodell::type,
-                )
-            }
-        } else {
-            validate(request.opsjonsmodell.type == OpsjonsmodellType.VALGFRI_SLUTTDATO || request.sluttDato != null) {
-                FieldError.of("Du må legge inn sluttdato for avtalen", DetaljerRequest::sluttDato)
-            }
 
-            when (request.opsjonsmodell.type) {
-                OpsjonsmodellType.INGEN_OPSJONSMULIGHET, OpsjonsmodellType.VALGFRI_SLUTTDATO -> Unit
-
-                OpsjonsmodellType.TO_PLUSS_EN,
-                OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN,
-                OpsjonsmodellType.TO_PLUSS_EN_PLUSS_EN_PLUSS_EN,
-                OpsjonsmodellType.ANNET,
-                -> {
-                    validate(request.opsjonsmodell.opsjonMaksVarighet != null) {
-                        FieldError.of(
-                            "Du må legge inn maks varighet for opsjonen",
-                            DetaljerRequest::opsjonsmodell,
-                            Opsjonsmodell::opsjonMaksVarighet,
-                        )
-                    }
-                    if (request.opsjonsmodell.type == OpsjonsmodellType.ANNET) {
-                        validate(!request.opsjonsmodell.customOpsjonsmodellNavn.isNullOrBlank()) {
-                            FieldError.of(
-                                "Du må beskrive opsjonsmodellen",
-                                DetaljerRequest::opsjonsmodell,
-                                Opsjonsmodell::customOpsjonsmodellNavn,
-                            )
-                        }
-                    }
-                }
-            }
-        }
+        val opsjonsmodell = Opsjonsmodell.of(
+            type = request.opsjonsmodell.type,
+            startDato = request.startDato,
+            sluttDato = request.sluttDato,
+            opsjonMaksVarighet = request.opsjonsmodell.opsjonMaksVarighet,
+            customOpsjonsmodellNavn = request.opsjonsmodell.customOpsjonsmodellNavn,
+        ).bind()
 
         validateSlettetNavAnsatte(ctx.administratorer)
 
@@ -372,23 +280,7 @@ object AvtaleValidator {
             validateArrangor(it, request.arrangor?.kontaktpersoner).bind()
         }
 
-        val status = resolveStatus(request, ctx.previous, LocalDate.now())
-
-        return request.toValidatedDetaljer(arrangor, status, opplaring).right()
-    }
-
-    private fun resolveStatus(
-        request: DetaljerRequest,
-        previous: Ctx.Avtale?,
-        today: LocalDate,
-    ): AvtaleStatusType = if (request.arrangor == null) {
-        AvtaleStatusType.UTKAST
-    } else if (previous?.status == AvtaleStatusType.AVBRUTT) {
-        previous.status
-    } else if (request.sluttDato == null || !request.sluttDato.isBefore(today)) {
-        AvtaleStatusType.AKTIV
-    } else {
-        AvtaleStatusType.AVSLUTTET
+        return request.toValidatedDetaljer(arrangor, opplaring, opsjonsmodell).right()
     }
 
     private fun validateArrangor(
@@ -605,16 +497,14 @@ object AvtaleValidator {
 
 private fun DetaljerRequest.toValidatedDetaljer(
     arrangor: Avtale.Arrangor?,
-    status: AvtaleStatusType,
     opplaring: OpplaringKategorisering?,
+    opsjonsmodell: Opsjonsmodell,
 ): AvtaleValidator.ValidatedDetaljer = AvtaleValidator.ValidatedDetaljer(
     tiltakskode = tiltakskode,
     navn = navn,
     sakarkivNummer = sakarkivNummer,
     arrangor = arrangor,
     startDato = startDato,
-    sluttDato = sluttDato,
-    status = status,
     avtaletype = avtaletype,
     administratorer = administratorer,
     opplaring = opplaring,
