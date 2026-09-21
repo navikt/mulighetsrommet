@@ -12,6 +12,7 @@ dependencies {
     implementation(projects.common.nais)
     implementation(projects.common.domain)
     implementation(projects.common.brreg)
+    implementation(projects.common.ereg)
     implementation(projects.common.database)
     implementation(projects.common.databaseHelpers)
     implementation(projects.common.slack)

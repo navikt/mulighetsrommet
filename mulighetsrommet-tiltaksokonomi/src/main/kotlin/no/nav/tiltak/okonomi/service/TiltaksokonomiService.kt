@@ -7,12 +7,15 @@ import arrow.core.right
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.common.kafka.util.KafkaUtils
-import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
+import no.nav.mulighetsrommet.ereg.EregClient
+import no.nav.mulighetsrommet.ereg.EregHovedenhetDto
+import no.nav.mulighetsrommet.ereg.SlettetEregHovedenhetDto
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.BestillingStatus
@@ -53,6 +56,7 @@ class TiltaksokonomiService(
     private val db: OkonomiDatabase,
     private val oebs: OebsPoApClient,
     private val brreg: BrregClient,
+    private val ereg: EregClient,
 ) {
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
@@ -334,12 +338,12 @@ class TiltaksokonomiService(
     }
 
     private suspend fun getSelgerFromBrreg(organisasjonsnummer: Organisasjonsnummer): Either<TiltaksokonomiError.OpprettBestilling, OebsBestillingMelding.Selger> {
-        return getBrregHovedenhet(organisasjonsnummer)
-            .flatMap { hovedenhet ->
-                getLeverandorAdresse(hovedenhet).map { adresse ->
+        return resolveLeverandor(organisasjonsnummer)
+            .flatMap { leverandor ->
+                getLeverandorAdresse(leverandor).map { adresse ->
                     OebsBestillingMelding.Selger(
-                        organisasjonsNummer = hovedenhet.organisasjonsnummer.value,
-                        organisasjonsNavn = hovedenhet.navn,
+                        organisasjonsNummer = leverandor.organisasjonsnummer.value,
+                        organisasjonsNavn = leverandor.navn,
                         adresse = adresse,
                         bedriftsNummer = organisasjonsnummer.value,
                     )
@@ -347,24 +351,100 @@ class TiltaksokonomiService(
             }
     }
 
-    private suspend fun getBrregHovedenhet(organisasjonsnummer: Organisasjonsnummer): Either<TiltaksokonomiError.OpprettBestilling, BrregHovedenhetDto> {
-        return brreg.getBrregEnhet(organisasjonsnummer)
-            .mapLeft { error ->
-                TiltaksokonomiError.OpprettBestilling("Klarte ikke utlede hovedenhet for $organisasjonsnummer fra Brreg: $error")
+    /**
+     * Slår opp hovedenheten til [organisasjonsnummer] i Brreg, og bruker det som fasit for hvem som er leverandør.
+     *
+     * Ereg slås også opp for sammenligning. Hvis Brreg ikke finner organisasjonsnummeret (404), men Ereg gjør det,
+     * brukes data fra Ereg i stedet.
+     */
+    private suspend fun resolveLeverandor(organisasjonsnummer: Organisasjonsnummer): Either<TiltaksokonomiError.OpprettBestilling, Leverandor> {
+        return when (val brregResultat = getBrregHovedenhet(organisasjonsnummer)) {
+            is BrregHovedenhetResultat.Funnet -> {
+                val leverandor = brregResultat.hovedenhet.toLeverandor()
+
+                ereg.getHovedenhet(organisasjonsnummer).fold(
+                    { eregError ->
+                        log.info("Fant ikke $organisasjonsnummer i Ereg (brreg-data brukes): $eregError")
+                    },
+                    { eregHovedenhet ->
+                        when (eregHovedenhet) {
+                            is SlettetEregHovedenhetDto -> {
+                                log.info("Ereg oppgir at $organisasjonsnummer er slettet (brreg-data brukes)")
+                            }
+
+                            is EregHovedenhetDto -> {
+                                val eregLeverandor = eregHovedenhet.toLeverandor()
+                                if (eregLeverandor != leverandor) {
+                                    log.warn("Brreg og Ereg har ulike data for arrangør $organisasjonsnummer: brreg=$leverandor, ereg=$eregLeverandor")
+                                }
+                            }
+                        }
+                    },
+                )
+
+                leverandor.right()
             }
-            .flatMap { enhet ->
+
+            BrregHovedenhetResultat.IkkeFunnet -> {
+                ereg.getHovedenhet(organisasjonsnummer).fold(
+                    { eregError ->
+                        TiltaksokonomiError.OpprettBestilling(
+                            "Fant ikke arrangør $organisasjonsnummer i verken Brreg eller Ereg: $eregError",
+                        ).left()
+                    },
+                    { eregHovedenhet ->
+                        when (eregHovedenhet) {
+                            is EregHovedenhetDto -> {
+                                log.info("Fant ikke arrangør $organisasjonsnummer i Brreg, bruker data fra Ereg i stedet")
+                                eregHovedenhet.toLeverandor().right()
+                            }
+
+                            is SlettetEregHovedenhetDto -> {
+                                TiltaksokonomiError.OpprettBestilling(
+                                    "Fant ikke arrangør $organisasjonsnummer i Brreg, og Ereg oppgir at enheten er slettet",
+                                ).left()
+                            }
+                        }
+                    },
+                )
+            }
+
+            is BrregHovedenhetResultat.Feil -> TiltaksokonomiError.OpprettBestilling(brregResultat.melding).left()
+        }
+    }
+
+    private sealed interface BrregHovedenhetResultat {
+        data class Funnet(val hovedenhet: BrregHovedenhetDto) : BrregHovedenhetResultat
+        data object IkkeFunnet : BrregHovedenhetResultat
+        data class Feil(val melding: String) : BrregHovedenhetResultat
+    }
+
+    private suspend fun getBrregHovedenhet(organisasjonsnummer: Organisasjonsnummer): BrregHovedenhetResultat {
+        return brreg.getBrregEnhet(organisasjonsnummer).fold(
+            { error ->
+                if (error == BrregError.NotFound) {
+                    BrregHovedenhetResultat.IkkeFunnet
+                } else {
+                    BrregHovedenhetResultat.Feil("Klarte ikke utlede hovedenhet for $organisasjonsnummer fra Brreg: $error")
+                }
+            },
+            { enhet ->
                 when (enhet) {
-                    is BrregHovedenhetDto -> enhet.overordnetEnhet?.let { getBrregHovedenhet(it) } ?: enhet.right()
+                    is BrregHovedenhetDto,
+                    -> enhet.overordnetEnhet
+                        ?.let { getBrregHovedenhet(it) }
+                        ?: BrregHovedenhetResultat.Funnet(enhet)
 
                     is BrregUnderenhetDto -> getBrregHovedenhet(enhet.overordnetEnhet)
 
-                    is SlettetBrregHovedenhetDto -> TiltaksokonomiError.OpprettBestilling("Hovedenhet med orgnr ${organisasjonsnummer.value} er slettet")
-                        .left()
+                    is SlettetBrregHovedenhetDto,
+                    -> BrregHovedenhetResultat.Feil("Hovedenhet med orgnr ${organisasjonsnummer.value} er slettet")
 
-                    is SlettetBrregUnderenhetDto -> TiltaksokonomiError.OpprettBestilling("Underenhet med orgnr ${enhet.organisasjonsnummer.value} er slettet")
-                        .left()
+                    is SlettetBrregUnderenhetDto,
+                    -> BrregHovedenhetResultat.Feil("Underenhet med orgnr ${enhet.organisasjonsnummer.value} er slettet")
                 }
-            }
+            },
+        )
     }
 
     private fun QueryContext.setBestillingOppgjort(bestillingsnummer: Bestillingsnummer) {
@@ -424,8 +504,47 @@ private fun getStatusHeaders(fagsystem: OkonomiFagsystem): String {
     return KafkaUtils.headersToJson(headers)
 }
 
-private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): Either<TiltaksokonomiError.OpprettBestilling, List<OebsBestillingMelding.Selger.Adresse>> {
-    val adresse = leverandor.forretningsadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }
+private data class Leverandor(
+    val organisasjonsnummer: Organisasjonsnummer,
+    val navn: String,
+    val forretningsadresse: Adresse?,
+) {
+    data class Adresse(
+        val landkode: String?,
+        val postnummer: String?,
+        val poststed: String?,
+        val adresse: List<String>?,
+    )
+}
+
+private fun BrregHovedenhetDto.toLeverandor() = Leverandor(
+    organisasjonsnummer = organisasjonsnummer,
+    navn = navn,
+    forretningsadresse = forretningsadresse?.let {
+        Leverandor.Adresse(
+            landkode = it.landkode,
+            postnummer = it.postnummer,
+            poststed = it.poststed,
+            adresse = it.adresse,
+        )
+    },
+)
+
+private fun EregHovedenhetDto.toLeverandor() = Leverandor(
+    organisasjonsnummer = organisasjonsnummer,
+    navn = navn,
+    forretningsadresse = forretningsadresse?.let {
+        Leverandor.Adresse(
+            landkode = it.landkode,
+            postnummer = it.postnummer,
+            poststed = it.poststed,
+            adresse = it.adresse,
+        )
+    },
+)
+
+private fun getLeverandorAdresse(leverandor: Leverandor): Either<TiltaksokonomiError.OpprettBestilling, List<OebsBestillingMelding.Selger.Adresse>> {
+    val adresse = leverandor.forretningsadresse?.toOebsAdresse().let { listOfNotNull(it) }
 
     return if (adresse.isNotEmpty()) {
         adresse.right()
@@ -436,22 +555,22 @@ private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): Either<Tiltaks
     }
 }
 
-private fun toOebsAdresse(it: BrregAdresse): OebsBestillingMelding.Selger.Adresse? {
-    return when (it.landkode) {
+private fun Leverandor.Adresse.toOebsAdresse(): OebsBestillingMelding.Selger.Adresse? {
+    return when (landkode) {
         "NO" -> OebsBestillingMelding.Selger.Adresse(
-            gateNavn = it.adresse?.joinToString(separator = ", ") ?: return null,
-            by = it.poststed ?: return null,
-            postNummer = it.postnummer ?: return null,
-            landsKode = it.landkode ?: return null,
+            gateNavn = adresse?.joinToString(separator = ", ") ?: return null,
+            by = poststed ?: return null,
+            postNummer = postnummer ?: return null,
+            landsKode = landkode,
         )
 
         null -> null
 
         else -> OebsBestillingMelding.Selger.Adresse(
-            gateNavn = it.adresse?.joinToString(separator = ", ") ?: return null,
-            by = it.poststed ?: return null,
-            postNummer = it.postnummer,
-            landsKode = it.landkode ?: return null,
+            gateNavn = adresse?.joinToString(separator = ", ") ?: return null,
+            by = poststed ?: return null,
+            postNummer = postnummer,
+            landsKode = landkode,
         )
     }
 }

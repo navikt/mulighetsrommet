@@ -1,5 +1,6 @@
 package no.nav.tiltak.okonomi.service
 
+import arrow.core.left
 import arrow.core.right
 import io.kotest.assertions.arrow.core.shouldBeLeft
 import io.kotest.assertions.arrow.core.shouldBeRight
@@ -21,12 +22,17 @@ import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
 import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
+import no.nav.mulighetsrommet.brreg.BrregError
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.BrregUnderenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregHovedenhetDto
 import no.nav.mulighetsrommet.brreg.SlettetBrregUnderenhetDto
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.database.requireSingle
+import no.nav.mulighetsrommet.ereg.EregAdresse
+import no.nav.mulighetsrommet.ereg.EregClient
+import no.nav.mulighetsrommet.ereg.EregError
+import no.nav.mulighetsrommet.ereg.EregHovedenhetDto
 import no.nav.mulighetsrommet.kafka.toStoredProducerRecord
 import no.nav.mulighetsrommet.ktor.createMockEngine
 import no.nav.mulighetsrommet.ktor.decodeRequestBody
@@ -99,6 +105,11 @@ class TiltaksokonomiServiceTest : FunSpec({
 
     val brreg: BrregClient = mockk()
 
+    val ereg: EregClient = mockk()
+    listOf("123456789", "234567891", "345678912", "920238076").forEach { orgnr ->
+        coEvery { ereg.getHovedenhet(Organisasjonsnummer(orgnr)) } returns EregError.NotFound.left()
+    }
+
     fun createOkonomiService(
         oebsTiltakApiClient: OebsPoApClient,
     ) = TiltaksokonomiService(
@@ -108,6 +119,7 @@ class TiltaksokonomiServiceTest : FunSpec({
         db = db,
         oebs = oebsTiltakApiClient,
         brreg = brreg,
+        ereg = ereg,
     )
 
     context("opprett bestilling") {
@@ -261,6 +273,94 @@ class TiltaksokonomiServiceTest : FunSpec({
                 it.arrangorHovedenhet shouldBe Organisasjonsnummer("345678912")
                 it.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
             }
+        }
+
+        test("bruker data fra Ereg når arrangør ikke finnes i Brreg") {
+            val tenorOrgnr = Organisasjonsnummer("111222333")
+
+            coEvery { brreg.getBrregEnhet(tenorOrgnr) } returns BrregError.NotFound.left()
+            coEvery { ereg.getHovedenhet(tenorOrgnr) } returns EregHovedenhetDto(
+                organisasjonsnummer = tenorOrgnr,
+                organisasjonsform = "AS",
+                navn = "Tenor Testfirma AS",
+                postadresse = null,
+                forretningsadresse = EregAdresse(
+                    landkode = "NO",
+                    postnummer = "0170",
+                    poststed = "OSLO",
+                    adresse = listOf("Testveien 1"),
+                ),
+                overordnetEnhet = null,
+            ).right()
+
+            val mockEngine = createMockEngine {
+                post(OebsPoApClient.BESTILLING_ENDPOINT) {
+                    val melding = it.decodeRequestBody<OebsBestillingMelding>()
+
+                    melding.selger.organisasjonsNummer shouldBe "111222333"
+                    melding.selger.organisasjonsNavn shouldBe "Tenor Testfirma AS"
+                    melding.selger.adresse shouldContain OebsBestillingMelding.Selger.Adresse(
+                        gateNavn = "Testveien 1",
+                        by = "OSLO",
+                        postNummer = "0170",
+                        landsKode = "NO",
+                    )
+
+                    respondOk()
+                }
+            }
+
+            val service = createOkonomiService(oebsClient(mockEngine))
+
+            val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-12-1"), tenorOrgnr)
+
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeRight()
+        }
+
+        test("bruker Brreg sin data når Brreg og Ereg er uenige, selv om begge finner arrangøren") {
+            val orgnr = Organisasjonsnummer("456789123")
+
+            coEvery { brreg.getBrregEnhet(orgnr) } returns arrangorHovedenhet.copy(
+                organisasjonsnummer = orgnr,
+                navn = "Brreg Sin Versjon AS",
+            ).right()
+            coEvery { ereg.getHovedenhet(orgnr) } returns EregHovedenhetDto(
+                organisasjonsnummer = orgnr,
+                organisasjonsform = "AS",
+                navn = "Ereg Sin (Ulike) Versjon AS",
+                postadresse = null,
+                forretningsadresse = null,
+                overordnetEnhet = null,
+            ).right()
+
+            val mockEngine = createMockEngine {
+                post(OebsPoApClient.BESTILLING_ENDPOINT) {
+                    val melding = it.decodeRequestBody<OebsBestillingMelding>()
+
+                    melding.selger.organisasjonsNavn shouldBe "Brreg Sin Versjon AS"
+
+                    respondOk()
+                }
+            }
+
+            val service = createOkonomiService(oebsClient(mockEngine))
+
+            val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-13-1"), orgnr)
+
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeRight()
+        }
+
+        test("feiler når arrangør verken finnes i Brreg eller Ereg") {
+            val orgnr = Organisasjonsnummer("999888777")
+
+            coEvery { brreg.getBrregEnhet(orgnr) } returns BrregError.NotFound.left()
+            coEvery { ereg.getHovedenhet(orgnr) } returns EregError.NotFound.left()
+
+            val service = createOkonomiService(oebsClient(oebsRespondOk()))
+
+            val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-14-1"), orgnr)
+
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeLeft()
         }
 
         test("tillater at postnummer mangler for utenlandske bedrifter") {

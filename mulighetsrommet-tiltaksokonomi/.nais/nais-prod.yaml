@@ -90,6 +90,7 @@ spec:
         - host: slack.com
         - host: data.brreg.no
         - host: oebs-po-ap-api.prod-fss-pub.nais.io
+        - host: ereg-services.prod-fss-pub.nais.io
   envFrom:
     - secret: tiltaksokonomi
   env:

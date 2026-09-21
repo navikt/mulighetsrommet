@@ -46,6 +46,10 @@ val mockClientEngine = createMockEngine {
         respondJson(brregResponse)
     }
 
+    get("https://ereg.mock/v2/organisasjon/\\d+".toRegex()) {
+        respond("", status = HttpStatusCode.NotFound)
+    }
+
     post(OebsPoApClient.BESTILLING_ENDPOINT) { respondOk() }
 
     post(OebsPoApClient.FAKTURA_ENDPOINT) { respondOk() }
@@ -88,6 +92,7 @@ val ApplicationConfigLocal = AppConfig(
     ),
     clients = ClientConfig(
         oebsPoAp = AuthenticatedHttpClientConfig(url = "http://localhost", scope = "default"),
+        ereg = HttpClientConfig(url = "https://ereg.mock"),
     ),
     slack = SlackConfig(
         token = System.getenv("SLACK_TOKEN") ?: "",
