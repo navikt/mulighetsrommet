@@ -168,6 +168,13 @@ enum class OkonomiFagsystem {
     EKSPERTBISTAND,
 }
 
+/**
+ * Navnet på Kafka-headeren som brukes til å merke statusmeldinger på bestilling- og faktura-status-topicene
+ * med hvilket [OkonomiFagsystem] de tilhører. Statustopicene er delt mellom alle systemene, så konsumenter må
+ * filtrere ut meldingene som er relevante for dem basert på denne headeren.
+ */
+const val FAGSYSTEM_HEADER_NAME = "fagsystem"
+
 fun Agent.toOkonomiPart(): OkonomiPart = when (this) {
     is NavIdent -> OkonomiPart.NavAnsatt(this)
     is Tiltaksadministrasjon -> OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON)

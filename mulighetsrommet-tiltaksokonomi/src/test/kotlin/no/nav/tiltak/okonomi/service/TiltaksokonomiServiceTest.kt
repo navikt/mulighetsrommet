@@ -18,6 +18,7 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
+import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
@@ -39,6 +40,7 @@ import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.BestillingStatus
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
+import no.nav.tiltak.okonomi.FAGSYSTEM_HEADER_NAME
 import no.nav.tiltak.okonomi.FakturaStatus
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
@@ -323,6 +325,10 @@ class TiltaksokonomiServiceTest : FunSpec({
                 it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
                     BestillingStatus(bestillingsnummer, BestillingStatusType.SENDT),
                 )
+
+                val header = KafkaUtils.jsonToHeaders(it.headersJson).shouldHaveSize(1).first()
+                header.key() shouldBe FAGSYSTEM_HEADER_NAME
+                String(header.value()) shouldBe "TILTAKSADMINISTRASJON"
             }
         }
 
@@ -519,9 +525,14 @@ class TiltaksokonomiServiceTest : FunSpec({
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "faktura-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "B-1-1-F2"
-                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value?.toString(Charsets.UTF_8) ?: "")
+
+                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value.toString(Charsets.UTF_8))
                 fakturaStatus.status shouldBe FakturaStatusType.SENDT
                 fakturaStatus.fakturanummer shouldBe Fakturanummer("B-1-1-F2")
+
+                val header = KafkaUtils.jsonToHeaders(it.headersJson).shouldHaveSize(1).first()
+                header.key() shouldBe FAGSYSTEM_HEADER_NAME
+                String(header.value()) shouldBe "TILTAKSADMINISTRASJON"
             }
         }
 
@@ -595,7 +606,7 @@ class TiltaksokonomiServiceTest : FunSpec({
             }
 
             db.session { getLatestRecord(topic = "faktura-status") }.should {
-                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value?.toString(Charsets.UTF_8) ?: "")
+                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value.toString(Charsets.UTF_8))
                 fakturaStatus.fakturanummer shouldBe Fakturanummer("B-2-1-F1")
                 fakturaStatus.status shouldBe FakturaStatusType.SENDT
             }
