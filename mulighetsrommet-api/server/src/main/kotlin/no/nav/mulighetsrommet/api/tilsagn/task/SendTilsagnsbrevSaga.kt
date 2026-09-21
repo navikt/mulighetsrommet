@@ -22,8 +22,8 @@ import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnToPdfDocumentContentMapp
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnsbrevMeldingMapper
 import no.nav.mulighetsrommet.api.tilsagn.mapper.TilsagnsbrevMeldingSnapshot
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
-import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import no.nav.mulighetsrommet.serializers.LocalDateTimeSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.DbSchedulerKotlinSerializer
@@ -69,10 +69,9 @@ class SendTilsagnsbrevSaga(
         @Serializable(with = UUIDSerializer::class)
         val tilsagnId: UUID,
         val pdfBase64: String,
-        val deltaker: NorskIdent,
-        val arrangorOrganisasjonsnummer: String,
+        val arrangorOrganisasjonsnummer: Organisasjonsnummer,
         val arrangorNavn: String,
-        val fagsakId: String,
+        val tiltaksnummer: Tiltaksnummer,
         @Serializable(with = LocalDateTimeSerializer::class)
         val besluttetTidspunkt: LocalDateTime,
     )
@@ -84,7 +83,7 @@ class SendTilsagnsbrevSaga(
         val pdfBase64: String,
         val tiltakstypeNavn: String,
         val bestillingsnummer: String,
-        val arrangorOrganisasjonsnummer: String,
+        val arrangorOrganisasjonsnummer: Organisasjonsnummer,
         val arrangorNavn: String,
     )
 
@@ -165,10 +164,9 @@ class SendTilsagnsbrevSaga(
                 ArkiverIDokarkTaskData(
                     tilsagnId = tilsagnId,
                     pdfBase64 = Base64.getEncoder().encodeToString(pdfer.pdfJoark),
-                    deltaker = innhold.personalia.norskIdent() ?: error("Mangler fnr for $tilsagnId"),
-                    arrangorOrganisasjonsnummer = innhold.arrangor.organisasjonsnummer.value,
+                    arrangorOrganisasjonsnummer = innhold.arrangor.organisasjonsnummer,
                     arrangorNavn = innhold.arrangor.navn,
-                    fagsakId = innhold.tiltaksnummer.value,
+                    tiltaksnummer = innhold.tiltaksnummer,
                     besluttetTidspunkt = innhold.besluttetTidspunkt,
                 ),
             ),
@@ -184,7 +182,7 @@ class SendTilsagnsbrevSaga(
                     pdfBase64 = Base64.getEncoder().encodeToString(pdfer.pdfAltinn),
                     tiltakstypeNavn = innhold.tilsagn.tiltakstype.navn,
                     bestillingsnummer = innhold.tilsagn.bestilling.bestillingsnummer,
-                    arrangorOrganisasjonsnummer = innhold.arrangor.organisasjonsnummer.value,
+                    arrangorOrganisasjonsnummer = innhold.arrangor.organisasjonsnummer,
                     arrangorNavn = innhold.arrangor.navn,
                 ),
             ),
@@ -218,10 +216,9 @@ class SendTilsagnsbrevSaga(
         val pdfJoark = Base64.getDecoder().decode(data.pdfBase64)
         val tilsagn = TilsagnJournalpostSnapshot(
             tilsagnId = tilsagnId,
-            deltaker = data.deltaker,
-            arrangorOrganisasjonsnummer = Organisasjonsnummer(data.arrangorOrganisasjonsnummer),
+            arrangorOrganisasjonsnummer = data.arrangorOrganisasjonsnummer,
             arrangorNavn = data.arrangorNavn,
-            fagsakId = data.fagsakId,
+            tiltaksnummer = data.tiltaksnummer,
             besluttetTidspunkt = data.besluttetTidspunkt,
         )
         val journalpost = TilsagnTilJournalpostMapper.tilJournalpost(tilsagn, pdfJoark)
@@ -250,7 +247,7 @@ class SendTilsagnsbrevSaga(
             tilsagnId = data.tilsagnId,
             tiltakstypeNavn = data.tiltakstypeNavn,
             bestillingsnummer = data.bestillingsnummer,
-            arrangorOrganisasjonsnummer = Organisasjonsnummer(data.arrangorOrganisasjonsnummer),
+            arrangorOrganisasjonsnummer = data.arrangorOrganisasjonsnummer,
             arrangorNavn = data.arrangorNavn,
         )
         val melding = TilsagnsbrevMeldingMapper.tilArrangorMelding(tilsagn, pdfAltinn)

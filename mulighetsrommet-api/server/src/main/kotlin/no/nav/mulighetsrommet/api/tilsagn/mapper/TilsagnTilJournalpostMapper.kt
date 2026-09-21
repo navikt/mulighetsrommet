@@ -1,17 +1,16 @@
 package no.nav.mulighetsrommet.api.tilsagn.mapper
 
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
-import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Organisasjonsnummer
+import no.nav.mulighetsrommet.model.Tiltaksnummer
 import java.time.LocalDateTime
 import java.util.UUID
 
 data class TilsagnJournalpostSnapshot(
     val tilsagnId: UUID,
-    val deltaker: NorskIdent,
     val arrangorOrganisasjonsnummer: Organisasjonsnummer,
     val arrangorNavn: String,
-    val fagsakId: String,
+    val tiltaksnummer: Tiltaksnummer,
     val besluttetTidspunkt: LocalDateTime,
 )
 
@@ -28,8 +27,8 @@ object TilsagnTilJournalpostMapper {
             navn = tilsagn.arrangorNavn,
         ),
         bruker = Journalpost.Bruker(
-            id = tilsagn.deltaker.value,
-            idType = "FNR",
+            id = tilsagn.arrangorOrganisasjonsnummer.value,
+            idType = "ORGNR",
         ),
         tema = "TIL", // Tiltak
         kanal = "INGEN_DISTRIBUSJON", // https://confluence.adeo.no/spaces/BOA/pages/316407153/Utsendingskanal
@@ -51,7 +50,7 @@ object TilsagnTilJournalpostMapper {
         ),
         sak = Journalpost.Sak(
             sakstype = Journalpost.Sak.Sakstype.FAGSAK,
-            fagsakId = tilsagn.fagsakId,
+            fagsakId = tilsagn.tiltaksnummer.value,
             fagsaksystem = Journalpost.Sak.Fagsaksystem.TILTAKSADMINISTRASJON,
         ),
     )
