@@ -9,7 +9,7 @@ data class FakturaStatus(
     val fakturanummer: Fakturanummer,
     val status: FakturaStatusType,
     @Serializable(with = InstantSerializer::class)
-    val fakturaStatusSistOppdatert: Instant,
+    val statusSistOppdatert: Instant,
 )
 
 enum class FakturaStatusType {

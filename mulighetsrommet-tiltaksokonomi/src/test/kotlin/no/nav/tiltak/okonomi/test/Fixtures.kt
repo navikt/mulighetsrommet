@@ -77,7 +77,7 @@ object Fixtures {
         belop = 500,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         status = FakturaStatusType.SENDT,
-        fakturaStatusSistOppdatert = Instant.parse("2025-01-01T00:00:00Z"),
+        statusSistOppdatert = Instant.parse("2025-01-01T00:00:00Z"),
         behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
         behandletTidspunkt = Instant.parse("2025-02-01T00:00:00Z"),
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),

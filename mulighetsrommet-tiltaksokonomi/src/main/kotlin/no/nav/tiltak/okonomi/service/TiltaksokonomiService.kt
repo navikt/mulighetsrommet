@@ -408,7 +408,7 @@ class TiltaksokonomiService(
                     FakturaStatus(
                         fakturanummer = fakturanummer,
                         status = faktura.status,
-                        fakturaStatusSistOppdatert = faktura.fakturaStatusSistOppdatert,
+                        statusSistOppdatert = faktura.statusSistOppdatert,
                     ),
                 ).toByteArray(),
                 getStatusHeaders(bestilling.fagsystem),
