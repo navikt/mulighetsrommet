@@ -28,8 +28,8 @@ import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
+import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
-import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -52,22 +52,23 @@ class OebsRoutesTest : FunSpec({
 
     lateinit var db: OkonomiDatabase
     val bestilling = Bestilling.fromOpprettBestilling(
-        OpprettBestilling(
+        fagsystem = OkonomiFagsystem.TILTAKSADMINISTRASJON,
+        bestilling = OpprettBestilling(
             bestillingsnummer = Bestillingsnummer("A-1-1"),
             tilskuddstype = Tilskuddstype.TILTAK_DRIFTSTILSKUDD,
             tiltakskode = Tiltakskode.ARBEIDSFORBEREDENDE_TRENING,
             arrangor = OpprettBestilling.Arrangor.Norsk(Organisasjonsnummer("234567891")),
             avtalenummer = null,
             belop = 1000,
-            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-            besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
             kostnadssted = NavEnhetNummer("0400"),
             valuta = Valuta.NOK,
         ),
-        Organisasjonsnummer("123456789"),
+        arrangorHovedenhet = Organisasjonsnummer("123456789"),
     )
     val faktura = Faktura.fromOpprettFaktura(
         OpprettFaktura(
@@ -79,9 +80,9 @@ class OebsRoutesTest : FunSpec({
             ),
             belop = 1000,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-            besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             gjorOppBestilling = false,
             beskrivelse = null,

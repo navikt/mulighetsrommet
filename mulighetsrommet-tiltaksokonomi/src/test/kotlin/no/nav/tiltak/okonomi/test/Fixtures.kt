@@ -12,8 +12,8 @@ import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
+import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
-import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
 import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
@@ -28,12 +28,13 @@ object Fixtures {
         arrangorUnderenhet = Organisasjonsnummer("234567890"),
         kostnadssted = NavEnhetNummer("0400"),
         bestillingsnummer = Bestillingsnummer("A-1-1"),
+        fagsystem = OkonomiFagsystem.TILTAKSADMINISTRASJON,
         avtalenummer = null,
         belop = 1000,
         periode = Periode(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 4, 1)),
         status = BestillingStatusType.AKTIV,
         opprettelse = Bestilling.Totrinnskontroll(
-            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
             besluttetTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
@@ -76,7 +77,7 @@ object Fixtures {
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         status = FakturaStatusType.SENDT,
         fakturaStatusSistOppdatert = Instant.parse("2025-01-01T00:00:00Z"),
-        behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+        behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
         behandletTidspunkt = Instant.parse("2025-02-01T00:00:00Z"),
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
         besluttetTidspunkt = Instant.parse("2025-02-02T00:00:00Z"),

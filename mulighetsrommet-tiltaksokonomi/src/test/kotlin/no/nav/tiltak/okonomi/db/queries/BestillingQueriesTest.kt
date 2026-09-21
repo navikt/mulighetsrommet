@@ -7,8 +7,8 @@ import io.kotest.matchers.shouldBe
 import no.nav.mulighetsrommet.database.kotest.extensions.FlywayDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.tiltak.okonomi.BestillingStatusType
+import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
-import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.databaseConfig
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.test.Fixtures
@@ -55,7 +55,7 @@ class BestillingQueriesTest : FunSpec({
             queries.insertBestilling(bestilling)
 
             val annullering = Bestilling.Totrinnskontroll(
-                behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+                behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
                 behandletTidspunkt = Instant.parse("2025-01-03T00:00:00Z"),
                 besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
                 besluttetTidspunkt = Instant.parse("2025-01-04T00:00:00Z"),

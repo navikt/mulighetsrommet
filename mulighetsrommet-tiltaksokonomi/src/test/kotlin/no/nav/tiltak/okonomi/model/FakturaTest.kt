@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.Bestillingsnummer
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
+import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
-import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettFaktura
 import java.time.Instant
 import java.time.LocalDate
@@ -27,7 +27,7 @@ class FakturaTest : FunSpec({
             ),
             belop = 1000,
             periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
             besluttetTidspunkt = Instant.parse("2025-02-01T00:00:00Z"),
@@ -57,7 +57,7 @@ class FakturaTest : FunSpec({
             faktura.belop shouldBe 1000
             faktura.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
             faktura.status shouldBe FakturaStatusType.SENDT
-            faktura.behandletAv shouldBe OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
+            faktura.behandletAv shouldBe OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON)
             faktura.behandletTidspunkt shouldBe Instant.parse("2025-01-01T00:00:00Z")
             faktura.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavIdent("Z123456"))
             faktura.besluttetTidspunkt shouldBe Instant.parse("2025-02-01T00:00:00Z")

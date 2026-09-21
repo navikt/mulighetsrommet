@@ -2,6 +2,7 @@ package no.nav.tiltak.okonomi
 
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
+import no.nav.common.kafka.util.KafkaPropertiesPreset
 import no.nav.mulighetsrommet.database.DatabaseConfig
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
@@ -24,17 +25,26 @@ data class AppConfig(
 
 data class KafkaConfig(
     val producerPropertiesPreset: Properties,
-    val topics: KafkaTopics,
-    val clients: KafkaClients,
+    val topics: KafkaTopics = KafkaTopics(),
+    val clients: KafkaClients = KafkaClients(),
 )
 
 data class KafkaTopics(
-    val bestillingStatus: String,
-    val fakturaStatus: String,
+    val bestillingStatus: String = "team-mulighetsrommet.tiltaksokonomi.bestilling-status-v1",
+    val fakturaStatus: String = "team-mulighetsrommet.tiltaksokonomi.faktura-status-v1",
 )
 
 data class KafkaClients(
-    val okonomiBestillingConsumer: KafkaTopicConsumer.Config,
+    val tiltaksadministrasjonBestillingConsumer: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "bestilling",
+        topic = "team-mulighetsrommet.tiltaksokonomi.bestillinger-v1",
+        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltaksokonomi.bestilling.v1"),
+    ),
+    val ekspertbistandBestillingConsumer: KafkaTopicConsumer.Config = KafkaTopicConsumer.Config(
+        id = "bestilling-ekspertbistand",
+        topic = "team-mulighetsrommet.tiltaksokonomi.ekspertbistand-bestillinger-v1",
+        consumerProperties = KafkaPropertiesPreset.aivenDefaultConsumerProperties("tiltaksokonomi.bestilling.ekspertbistand.v1"),
+    ),
 )
 
 data class ClientConfig(

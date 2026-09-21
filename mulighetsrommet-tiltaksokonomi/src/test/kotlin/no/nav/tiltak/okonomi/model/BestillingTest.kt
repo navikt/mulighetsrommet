@@ -11,8 +11,8 @@ import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
+import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
-import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.Tilskuddstype
 import java.time.Instant
@@ -28,7 +28,7 @@ class BestillingTest : FunSpec({
             arrangor = OpprettBestilling.Arrangor.Norsk(Organisasjonsnummer("234567891")),
             avtalenummer = null,
             belop = 1000,
-            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
             besluttetTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
@@ -40,13 +40,17 @@ class BestillingTest : FunSpec({
         val hovedenhet = Organisasjonsnummer("123456789")
 
         test("felter utledes fra OpprettBestilling") {
-            val bestilling = Bestilling.fromOpprettBestilling(opprettBestilling, hovedenhet)
+            val bestilling = Bestilling.fromOpprettBestilling(
+                OkonomiFagsystem.TILTAKSADMINISTRASJON,
+                opprettBestilling,
+                hovedenhet,
+            )
 
             bestilling.status shouldBe BestillingStatusType.SENDT
             bestilling.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
             bestilling.arrangorHovedenhet shouldBe Organisasjonsnummer("123456789")
             bestilling.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
-            bestilling.opprettelse.behandletAv shouldBe OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON)
+            bestilling.opprettelse.behandletAv shouldBe OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON)
             bestilling.opprettelse.behandletTidspunkt shouldBe Instant.parse("2025-01-01T00:00:00Z")
             bestilling.opprettelse.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavIdent("Z123456"))
             bestilling.opprettelse.besluttetTidspunkt shouldBe Instant.parse("2025-01-02T00:00:00Z")
@@ -55,6 +59,7 @@ class BestillingTest : FunSpec({
 
         test("utleder bestillingslinjer for hver måned i bestillingens periode") {
             val bestilling1 = Bestilling.fromOpprettBestilling(
+                OkonomiFagsystem.TILTAKSADMINISTRASJON,
                 opprettBestilling.copy(periode = Periode(LocalDate.of(2025, 1, 1), LocalDate.of(2025, 3, 1))),
                 hovedenhet,
             )
@@ -72,6 +77,7 @@ class BestillingTest : FunSpec({
             )
 
             val bestilling2 = Bestilling.fromOpprettBestilling(
+                OkonomiFagsystem.TILTAKSADMINISTRASJON,
                 opprettBestilling.copy(periode = Periode(LocalDate.of(2025, 7, 15), LocalDate.of(2025, 8, 15))),
                 hovedenhet,
             )

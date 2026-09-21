@@ -44,8 +44,8 @@ import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
 import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.KafkaTopics
+import no.nav.tiltak.okonomi.OkonomiFagsystem
 import no.nav.tiltak.okonomi.OkonomiPart
-import no.nav.tiltak.okonomi.OkonomiSystem
 import no.nav.tiltak.okonomi.OpprettBestilling
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.Tilskuddstype
@@ -109,6 +109,8 @@ class TiltaksokonomiServiceTest : FunSpec({
     )
 
     context("opprett bestilling") {
+        val fagsystem = OkonomiFagsystem.TILTAKSADMINISTRASJON
+
         test("feiler når oebs svarer med feil") {
             coEvery { brreg.getBrregEnhet(Organisasjonsnummer("123456789")) } returns arrangorHovedenhet.right()
             coEvery { brreg.getBrregEnhet(Organisasjonsnummer("234567891")) } returns arrangorUnderenhet.right()
@@ -116,7 +118,7 @@ class TiltaksokonomiServiceTest : FunSpec({
             val service = createOkonomiService(oebsClient(oebsRespondError()))
 
             val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-1-1"))
-            service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeLeft().should {
                 it.message shouldBe "Klarte ikke sende bestilling A-1-1 til oebs"
             }
         }
@@ -130,7 +132,7 @@ class TiltaksokonomiServiceTest : FunSpec({
             val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-2-1")).copy(
                 periode = Periode.forMonthOf(LocalDate.of(1990, 1, 1)),
             )
-            service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeLeft().should {
                 it.message shouldBe "Kontering for bestilling A-2-1 mangler"
             }
         }
@@ -147,7 +149,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-3-1"))
 
-            service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeLeft().should {
                 it.message shouldBe "Underenhet med orgnr 234567891 er slettet"
             }
         }
@@ -165,7 +167,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-3-1"))
 
-            service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeLeft().should {
                 it.message shouldBe "Hovedenhet med orgnr 123456789 er slettet"
             }
         }
@@ -185,7 +187,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-3-1"))
 
-            service.opprettBestilling(opprettBestilling).shouldBeLeft().should {
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeLeft().should {
                 it.message shouldBe "Klarte ikke utlede adresse for leverandør 123456789"
             }
         }
@@ -216,7 +218,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-11-1"))
 
-            service.opprettBestilling(opprettBestilling).shouldBeRight().should {
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeRight().should {
                 it.arrangorHovedenhet shouldBe Organisasjonsnummer("123456789")
                 it.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
             }
@@ -253,7 +255,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-3-1"))
 
-            service.opprettBestilling(opprettBestilling).shouldBeRight().should {
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeRight().should {
                 it.arrangorHovedenhet shouldBe Organisasjonsnummer("345678912")
                 it.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
             }
@@ -295,7 +297,7 @@ class TiltaksokonomiServiceTest : FunSpec({
             val service = createOkonomiService(oebsClient(mockEngine))
 
             val opprettBestilling = createOpprettBestilling(Bestillingsnummer("A-1-1"))
-            service.opprettBestilling(opprettBestilling).shouldBeRight().should {
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeRight().should {
                 it.arrangorHovedenhet shouldBe Organisasjonsnummer("920238076")
                 it.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
             }
@@ -310,7 +312,7 @@ class TiltaksokonomiServiceTest : FunSpec({
             val bestillingsnummer = Bestillingsnummer("A-1-1")
             val opprettBestilling = createOpprettBestilling(bestillingsnummer)
 
-            service.opprettBestilling(opprettBestilling).shouldBeRight().should {
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeRight().should {
                 it.bestillingsnummer shouldBe bestillingsnummer
                 it.status shouldBe BestillingStatusType.SENDT
             }
@@ -329,8 +331,9 @@ class TiltaksokonomiServiceTest : FunSpec({
             val opprettBestilling = createOpprettBestilling(bestillingsnummer)
             db.session {
                 val bestilling = Bestilling.fromOpprettBestilling(
-                    opprettBestilling,
-                    arrangorHovedenhet.organisasjonsnummer,
+                    fagsystem = fagsystem,
+                    bestilling = opprettBestilling,
+                    arrangorHovedenhet = arrangorHovedenhet.organisasjonsnummer,
                 ).copy(
                     status = BestillingStatusType.OPPGJORT,
                 )
@@ -339,7 +342,7 @@ class TiltaksokonomiServiceTest : FunSpec({
 
             val service = createOkonomiService(oebsClient(oebsRespondOk()))
 
-            service.opprettBestilling(opprettBestilling).shouldBeRight().should {
+            service.opprettBestilling(fagsystem, opprettBestilling).shouldBeRight().should {
                 it.bestillingsnummer shouldBe bestillingsnummer
                 it.status shouldBe BestillingStatusType.OPPGJORT
             }
@@ -765,9 +768,9 @@ private fun createOpprettBestilling(
     arrangor = OpprettBestilling.Arrangor.Norsk(organisasjonsnummer ?: Organisasjonsnummer("234567891")),
     avtalenummer = null,
     belop = 1000,
-    behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
     kostnadssted = NavEnhetNummer("0400"),
@@ -784,14 +787,15 @@ private fun createBestilling(
         arrangorUnderenhet = Organisasjonsnummer("123456789"),
         kostnadssted = NavEnhetNummer("0400"),
         bestillingsnummer = bestillingsnummer,
+        fagsystem = OkonomiFagsystem.TILTAKSADMINISTRASJON,
         avtalenummer = null,
         belop = 1000,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         status = status,
         opprettelse = Bestilling.Totrinnskontroll(
-            behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-            besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+            besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
         ),
         annullering = null,
@@ -808,9 +812,9 @@ private fun createBestilling(
 
 private fun createAnnullerBestilling(bestillingsnummer: Bestillingsnummer) = AnnullerBestilling(
     bestillingsnummer = bestillingsnummer,
-    behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
 )
 
@@ -823,9 +827,9 @@ private fun createOpprettFaktura(bestillingsnummer: Bestillingsnummer, fakturanu
     ),
     belop = 1000,
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-    behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     gjorOppBestilling = false,
     beskrivelse = "Beskrivelse",
@@ -834,8 +838,8 @@ private fun createOpprettFaktura(bestillingsnummer: Bestillingsnummer, fakturanu
 
 private fun createGjorOppBestilling(bestillingsnummer: Bestillingsnummer) = GjorOppBestilling(
     bestillingsnummer = bestillingsnummer,
-    behandletAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiSystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
 )
