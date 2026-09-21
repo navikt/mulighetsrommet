@@ -58,18 +58,17 @@ data class OpprettBestilling(
     val belop: Int,
     val periode: Periode,
     val behandletAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
-    @Serializable(with = InstantSerializer::class)
     val besluttetTidspunkt: Instant,
     val valuta: Valuta,
 ) {
     @Serializable
-    sealed class Arrangor {
-        abstract val organisasjonsnummer: Organisasjonsnummer
+    sealed interface Arrangor {
+        val organisasjonsnummer: Organisasjonsnummer
 
         @Serializable
+        @SerialName("UTENLANDSK")
         data class Utenlandsk(
             override val organisasjonsnummer: Organisasjonsnummer,
             val navn: String,
@@ -77,12 +76,13 @@ data class OpprettBestilling(
             val by: String,
             val postNummer: String,
             val landKode: String,
-        ) : Arrangor()
+        ) : Arrangor
 
         @Serializable
+        @SerialName("NORSK")
         data class Norsk(
             override val organisasjonsnummer: Organisasjonsnummer,
-        ) : Arrangor()
+        ) : Arrangor
     }
 }
 
@@ -126,36 +126,45 @@ data class OpprettFaktura(
     val valuta: Valuta,
 ) {
     @Serializable
-    sealed class Betalingsinformasjon {
+    sealed interface Betalingsinformasjon {
         @Serializable
+        @SerialName("BBAN")
         data class BBan(
             val kontonummer: Kontonummer,
             val kid: Kid?,
-        ) : Betalingsinformasjon()
+        ) : Betalingsinformasjon
 
         @Serializable
+        @SerialName("IBAN")
         data class IBan(
             val bic: String,
             val iban: String,
             val bankNavn: String,
             val bankLandKode: String,
-        ) : Betalingsinformasjon()
+        ) : Betalingsinformasjon
     }
 }
 
 @Serializable
-sealed class OkonomiPart(val part: String) {
+sealed interface OkonomiPart {
+    val part: String
 
     @Serializable
-    data class NavAnsatt(val navIdent: NavIdent) : OkonomiPart(navIdent.value)
+    @SerialName("NAV_ANSATT")
+    data class NavAnsatt(val navIdent: NavIdent) : OkonomiPart {
+        override val part: String = navIdent.value
+    }
 
     @Serializable
-    data class System(val kilde: OkonomiFagsystem) : OkonomiPart(kilde.name)
+    @SerialName("FAGSYSTEM")
+    data class Fagsystem(val kilde: OkonomiFagsystem) : OkonomiPart {
+        override val part: String = kilde.name
+    }
 
     companion object {
         fun fromString(value: String): OkonomiPart {
             return try {
-                System(OkonomiFagsystem.valueOf(value))
+                Fagsystem(OkonomiFagsystem.valueOf(value))
             } catch (_: IllegalArgumentException) {
                 NavAnsatt(NavIdent(value))
             }
@@ -168,8 +177,15 @@ enum class OkonomiFagsystem {
     EKSPERTBISTAND,
 }
 
+/**
+ * Navnet på Kafka-headeren som brukes til å merke statusmeldinger på bestilling- og faktura-status-topicene
+ * med hvilket [OkonomiFagsystem] de tilhører. Statustopicene er delt mellom alle systemene, så konsumenter må
+ * filtrere ut meldingene som er relevante for dem basert på denne headeren.
+ */
+const val FAGSYSTEM_HEADER_NAME = "fagsystem"
+
 fun Agent.toOkonomiPart(): OkonomiPart = when (this) {
     is NavIdent -> OkonomiPart.NavAnsatt(this)
-    is Tiltaksadministrasjon -> OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON)
+    is Tiltaksadministrasjon -> OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON)
     Arrangor, Arena -> throw IllegalStateException("ugyldig agent")
 }

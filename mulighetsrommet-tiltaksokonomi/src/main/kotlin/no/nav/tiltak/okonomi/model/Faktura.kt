@@ -11,7 +11,6 @@ import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
-import no.nav.tiltak.okonomi.service.gjorOppFakturanummer
 import java.time.Instant
 
 data class Faktura(
@@ -21,7 +20,7 @@ data class Faktura(
     val belop: Int,
     val periode: Periode,
     val status: FakturaStatusType,
-    val fakturaStatusSistOppdatert: Instant,
+    val statusSistOppdatert: Instant,
     val behandletAv: OkonomiPart,
     val behandletTidspunkt: Instant,
     val besluttetAv: OkonomiPart,
@@ -90,7 +89,7 @@ data class Faktura(
                 belop = faktura.belop,
                 periode = faktura.periode,
                 status = FakturaStatusType.SENDT,
-                fakturaStatusSistOppdatert = Instant.now(),
+                statusSistOppdatert = Instant.now(),
                 behandletAv = faktura.behandletAv,
                 behandletTidspunkt = faktura.behandletTidspunkt,
                 besluttetAv = faktura.besluttetAv,
@@ -120,7 +119,7 @@ data class Faktura(
                 belop = 0,
                 periode = sisteBestillingLinje.periode,
                 status = FakturaStatusType.SENDT,
-                fakturaStatusSistOppdatert = Instant.now(),
+                statusSistOppdatert = Instant.now(),
                 behandletAv = gjorOppBestilling.behandletAv,
                 behandletTidspunkt = gjorOppBestilling.behandletTidspunkt,
                 besluttetAv = gjorOppBestilling.besluttetAv,
@@ -138,3 +137,5 @@ data class Faktura(
         }
     }
 }
+
+fun gjorOppFakturanummer(bestillingsnummer: Bestillingsnummer): Fakturanummer = Fakturanummer("$bestillingsnummer-X")

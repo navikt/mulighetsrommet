@@ -6,6 +6,7 @@ import arrow.core.left
 import arrow.core.right
 import kotlinx.serialization.json.Json
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
+import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
@@ -17,6 +18,7 @@ import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.BestillingStatus
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
+import no.nav.tiltak.okonomi.FAGSYSTEM_HEADER_NAME
 import no.nav.tiltak.okonomi.FakturaStatus
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
@@ -29,11 +31,13 @@ import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.model.gjorOppFakturanummer
 import no.nav.tiltak.okonomi.oebs.OebsBestillingKvittering
 import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
 import no.nav.tiltak.okonomi.oebs.OebsFakturaKvittering
 import no.nav.tiltak.okonomi.oebs.OebsMeldingMapper
 import no.nav.tiltak.okonomi.oebs.OebsPoApClient
+import org.apache.kafka.common.header.internals.RecordHeaders
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -381,9 +385,10 @@ class TiltaksokonomiService(
                     BestillingStatus(
                         bestillingsnummer = bestilling.bestillingsnummer,
                         status = bestilling.status,
+                        statusSistOppdatert = bestilling.statusSistOppdatert,
                     ),
                 ).toByteArray(),
-                null,
+                getStatusHeaders(bestilling.fagsystem),
             ),
         )
 
@@ -392,6 +397,7 @@ class TiltaksokonomiService(
 
     private fun QueryContext.publishFaktura(fakturanummer: Fakturanummer): Faktura {
         val faktura = checkNotNull(queries.faktura.getByFakturanummer(fakturanummer))
+        val bestilling = checkNotNull(queries.bestilling.getByBestillingsnummer(faktura.bestillingsnummer))
 
         log.info("Lagrer status-melding for faktura $fakturanummer")
         queries.kafkaProducerRecord.storeRecord(
@@ -402,10 +408,10 @@ class TiltaksokonomiService(
                     FakturaStatus(
                         fakturanummer = fakturanummer,
                         status = faktura.status,
-                        fakturaStatusSistOppdatert = faktura.fakturaStatusSistOppdatert,
+                        statusSistOppdatert = faktura.statusSistOppdatert,
                     ),
                 ).toByteArray(),
-                null,
+                getStatusHeaders(bestilling.fagsystem),
             ),
         )
 
@@ -413,7 +419,10 @@ class TiltaksokonomiService(
     }
 }
 
-fun gjorOppFakturanummer(bestillingsnummer: Bestillingsnummer): Fakturanummer = Fakturanummer("$bestillingsnummer-X")
+private fun getStatusHeaders(fagsystem: OkonomiFagsystem): String {
+    val headers = RecordHeaders().add(FAGSYSTEM_HEADER_NAME, fagsystem.name.toByteArray())
+    return KafkaUtils.headersToJson(headers)
+}
 
 private fun getLeverandorAdresse(leverandor: BrregHovedenhetDto): Either<TiltaksokonomiError.OpprettBestilling, List<OebsBestillingMelding.Selger.Adresse>> {
     val adresse = leverandor.forretningsadresse?.let { toOebsAdresse(it) }.let { listOfNotNull(it) }
