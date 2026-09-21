@@ -4,10 +4,10 @@ flyway = "12.11.0"
 jackson2 = "2.22.2"
 jackson3 = "3.2.2"
 koin-bom = "4.2.2"
-kotest = "6.2.4"
-kotlin = "2.4.10"
+kotest = "6.2.5"
+kotlin = "2.4.20"
 ktor = "3.5.2"
-netty = "4.2.17.Final"
+netty = "4.2.18.Final"
 logback = "1.6.3"
 metrics = "4.2.40"
 arrow = "2.2.3"
@@ -146,13 +146,13 @@ netty-transport-native-kqueue = { module = "io.netty:netty-transport-native-kque
 netty-transport-native-unix-common = { module = "io.netty:netty-transport-native-unix-common", version.ref = "netty" }
 netty-transport = { module = "io.netty:netty-transport", version.ref = "netty" }
 
-opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.65.0"
+opentelemetry = "io.opentelemetry:opentelemetry-sdk-trace:1.66.0"
 
 postgresql = "org.postgresql:postgresql:42.7.13"
 
 prometheus-caffeine = "io.prometheus:simpleclient_caffeine:0.16.0"
 
-shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:7.10.0"
+shedlock-jdbc = "net.javacrumbs.shedlock:shedlock-provider-jdbc:7.10.1"
 
 selfie-kotest = "com.diffplug.selfie:selfie-runner-kotest:3.1.1"
 
