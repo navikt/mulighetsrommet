@@ -11,7 +11,6 @@ import no.nav.tiltak.okonomi.GjorOppBestilling
 import no.nav.tiltak.okonomi.OkonomiPart
 import no.nav.tiltak.okonomi.OpprettFaktura
 import no.nav.tiltak.okonomi.oebs.OebsBetalingskanal
-import no.nav.tiltak.okonomi.service.gjorOppFakturanummer
 import java.time.Instant
 
 data class Faktura(
@@ -138,3 +137,5 @@ data class Faktura(
         }
     }
 }
+
+fun gjorOppFakturanummer(bestillingsnummer: Bestillingsnummer): Fakturanummer = Fakturanummer("$bestillingsnummer-X")

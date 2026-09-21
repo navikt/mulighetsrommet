@@ -33,6 +33,7 @@ object Fixtures {
         belop = 1000,
         periode = Periode(LocalDate.of(2025, 2, 1), LocalDate.of(2025, 4, 1)),
         status = BestillingStatusType.AKTIV,
+        statusSistOppdatert = Instant.parse("2025-01-02T00:00:00Z"),
         opprettelse = Bestilling.Totrinnskontroll(
             behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),

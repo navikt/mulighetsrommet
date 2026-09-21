@@ -35,6 +35,7 @@ class BestillingQueries(private val session: Session) {
                 belop,
                 periode,
                 status,
+                status_sist_oppdatert,
                 opprettelse_behandlet_av,
                 opprettelse_behandlet_tidspunkt,
                 opprettelse_besluttet_av,
@@ -55,6 +56,7 @@ class BestillingQueries(private val session: Session) {
                 :belop,
                 :periode::daterange,
                 :status,
+                :status_sist_oppdatert,
                 :opprettelse_behandlet_av,
                 :opprettelse_behandlet_tidspunkt,
                 :opprettelse_besluttet_av,
@@ -78,6 +80,7 @@ class BestillingQueries(private val session: Session) {
             "belop" to bestilling.belop,
             "periode" to bestilling.periode.toDaterange(),
             "status" to bestilling.status.name,
+            "status_sist_oppdatert" to bestilling.statusSistOppdatert,
             "opprettelse_behandlet_av" to bestilling.opprettelse.behandletAv.part,
             "opprettelse_behandlet_tidspunkt" to bestilling.opprettelse.behandletTidspunkt,
             "opprettelse_besluttet_av" to bestilling.opprettelse.besluttetAv.part,
@@ -149,7 +152,8 @@ class BestillingQueries(private val session: Session) {
         @Language("PostgreSQL")
         val query = """
             update bestilling
-            set status = ?
+            set status = ?,
+                status_sist_oppdatert = now()
             where bestillingsnummer = ?
         """.trimIndent()
         session.execute(queryOf(query, status.name, bestillingsnummer.value))
@@ -190,6 +194,7 @@ class BestillingQueries(private val session: Session) {
                 belop,
                 periode,
                 status,
+                status_sist_oppdatert,
                 opprettelse_behandlet_av,
                 opprettelse_behandlet_tidspunkt,
                 opprettelse_besluttet_av,
@@ -221,6 +226,7 @@ class BestillingQueries(private val session: Session) {
                 belop,
                 periode,
                 status,
+                status_sist_oppdatert,
                 opprettelse_behandlet_av,
                 opprettelse_behandlet_tidspunkt,
                 opprettelse_besluttet_av,
@@ -266,6 +272,7 @@ class BestillingQueries(private val session: Session) {
             belop = int("belop"),
             periode = periode("periode"),
             status = status,
+            statusSistOppdatert = instant("status_sist_oppdatert"),
             opprettelse = Bestilling.Totrinnskontroll(
                 behandletAv = OkonomiPart.fromString(this.string("opprettelse_behandlet_av")),
                 behandletTidspunkt = instant("opprettelse_behandlet_tidspunkt"),

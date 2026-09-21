@@ -31,6 +31,7 @@ import no.nav.tiltak.okonomi.db.OkonomiDatabase
 import no.nav.tiltak.okonomi.db.QueryContext
 import no.nav.tiltak.okonomi.model.Bestilling
 import no.nav.tiltak.okonomi.model.Faktura
+import no.nav.tiltak.okonomi.model.gjorOppFakturanummer
 import no.nav.tiltak.okonomi.oebs.OebsBestillingKvittering
 import no.nav.tiltak.okonomi.oebs.OebsBestillingMelding
 import no.nav.tiltak.okonomi.oebs.OebsFakturaKvittering
@@ -384,6 +385,7 @@ class TiltaksokonomiService(
                     BestillingStatus(
                         bestillingsnummer = bestilling.bestillingsnummer,
                         status = bestilling.status,
+                        statusSistOppdatert = bestilling.statusSistOppdatert,
                     ),
                 ).toByteArray(),
                 getStatusHeaders(bestilling.fagsystem),
@@ -416,8 +418,6 @@ class TiltaksokonomiService(
         return faktura
     }
 }
-
-fun gjorOppFakturanummer(bestillingsnummer: Bestillingsnummer): Fakturanummer = Fakturanummer("$bestillingsnummer-X")
 
 private fun getStatusHeaders(fagsystem: OkonomiFagsystem): String {
     val headers = RecordHeaders().add(FAGSYSTEM_HEADER_NAME, fagsystem.name.toByteArray())

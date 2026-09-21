@@ -23,6 +23,7 @@ data class Bestilling(
     val belop: Int,
     val periode: Periode,
     val status: BestillingStatusType,
+    val statusSistOppdatert: Instant,
     val opprettelse: Totrinnskontroll,
     val annullering: Totrinnskontroll?,
     val linjer: List<Linje>,
@@ -59,6 +60,7 @@ data class Bestilling(
                 belop = bestilling.belop,
                 periode = bestilling.periode,
                 status = BestillingStatusType.SENDT,
+                statusSistOppdatert = Instant.now(),
                 opprettelse = Totrinnskontroll(
                     behandletAv = bestilling.behandletAv,
                     behandletTidspunkt = bestilling.behandletTidspunkt,

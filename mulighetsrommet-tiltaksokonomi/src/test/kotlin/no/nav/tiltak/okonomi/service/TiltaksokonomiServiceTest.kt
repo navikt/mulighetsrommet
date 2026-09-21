@@ -322,9 +322,10 @@ class TiltaksokonomiServiceTest : FunSpec({
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "A-1-1"
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    BestillingStatus(bestillingsnummer, BestillingStatusType.SENDT),
-                )
+
+                val bestillingStatus = Json.decodeFromString<BestillingStatus>(it.value.toString(Charsets.UTF_8))
+                bestillingStatus.bestillingsnummer shouldBe bestillingsnummer
+                bestillingStatus.status shouldBe BestillingStatusType.SENDT
 
                 val header = KafkaUtils.jsonToHeaders(it.headersJson).shouldHaveSize(1).first()
                 header.key() shouldBe FAGSYSTEM_HEADER_NAME
@@ -356,9 +357,10 @@ class TiltaksokonomiServiceTest : FunSpec({
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
                 it.key.toString(Charsets.UTF_8) shouldBe bestillingsnummer.value
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    BestillingStatus(bestillingsnummer, BestillingStatusType.OPPGJORT),
-                )
+
+                val bestillingStatus = Json.decodeFromString<BestillingStatus>(it.value.toString(Charsets.UTF_8))
+                bestillingStatus.bestillingsnummer shouldBe bestillingsnummer
+                bestillingStatus.status shouldBe BestillingStatusType.OPPGJORT
             }
         }
     }
@@ -447,12 +449,10 @@ class TiltaksokonomiServiceTest : FunSpec({
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
                 it.key.toString(Charsets.UTF_8) shouldBe bestillingsnummer.value
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    BestillingStatus(
-                        bestillingsnummer = bestillingsnummer,
-                        status = BestillingStatusType.ANNULLERING_SENDT,
-                    ),
-                )
+
+                val bestillingStatus = Json.decodeFromString<BestillingStatus>(it.value.toString(Charsets.UTF_8))
+                bestillingStatus.bestillingsnummer shouldBe bestillingsnummer
+                bestillingStatus.status shouldBe BestillingStatusType.ANNULLERING_SENDT
             }
         }
 
@@ -648,9 +648,9 @@ class TiltaksokonomiServiceTest : FunSpec({
             }
 
             db.session { getLatestRecord(topic = "bestilling-status") }.should {
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    BestillingStatus(b3, BestillingStatusType.OPPGJORT),
-                )
+                val bestillingStatus = Json.decodeFromString<BestillingStatus>(it.value.toString(Charsets.UTF_8))
+                bestillingStatus.bestillingsnummer shouldBe b3
+                bestillingStatus.status shouldBe BestillingStatusType.OPPGJORT
             }
         }
 
@@ -803,6 +803,7 @@ private fun createBestilling(
         belop = 1000,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         status = status,
+        statusSistOppdatert = Instant.parse("2025-01-01T00:00:00Z"),
         opprettelse = Bestilling.Totrinnskontroll(
             behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),

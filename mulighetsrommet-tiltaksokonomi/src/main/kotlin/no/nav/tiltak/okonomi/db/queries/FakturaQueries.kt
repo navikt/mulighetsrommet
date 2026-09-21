@@ -109,7 +109,7 @@ class FakturaQueries(private val session: Session) {
         val query = """
             update faktura
             set status = ?,
-            status_sist_oppdatert = now()
+                status_sist_oppdatert = now()
             where fakturanummer = ?
         """.trimIndent()
         session.execute(queryOf(query, status.name, fakturanummer.value))
