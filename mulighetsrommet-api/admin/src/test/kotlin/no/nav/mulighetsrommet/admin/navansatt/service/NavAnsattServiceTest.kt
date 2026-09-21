@@ -1,15 +1,14 @@
-package no.nav.mulighetsrommet.api.navansatt.service
+package no.nav.mulighetsrommet.admin.navansatt.service
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.data.blocking.forAll
-import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
-import kotliquery.queryOf
-import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
+import no.nav.mulighetsrommet.admin.kostnadssted.Kostnadssted
+import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
+import no.nav.mulighetsrommet.admin.testing.TestAdminDatabase
 import no.nav.mulighetsrommet.api.clients.msgraph.EntraNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
@@ -19,36 +18,21 @@ import no.nav.mulighetsrommet.api.domain.navansatt.Rolle.KONTAKTPERSON
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle.TILTAKADMINISTRASJON_GENERELL
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
-import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 class NavAnsattServiceTest : FunSpec({
-    val database = extension(ApiDatabaseTestListener())
-
-    val domain = MulighetsrommetTestDomain(
-        navEnheter = listOf(
-            NavEnhetFixtures.Oslo,
-            NavEnhetFixtures.Innlandet,
-            NavEnhetFixtures.Gjovik,
-        ),
-        ansatte = listOf(NavAnsattFixture.DonaldDuck, NavAnsattFixture.MikkeMus),
-    )
-
-    beforeSpec {
-        domain.initialize(database.api)
-    }
+    val db = TestAdminDatabase()
 
     fun toEntraNavAnsatt(ansatt: NavAnsatt) = EntraNavAnsatt(
         entraObjectId = ansatt.entraObjectId,
         navIdent = ansatt.navIdent,
         fornavn = ansatt.fornavn,
         etternavn = ansatt.etternavn,
-        hovedenhetKode = domain.navEnheter[0].enhetsnummer,
-        hovedenhetNavn = domain.navEnheter[0].navn,
+        hovedenhetKode = NavEnhetFixtures.Oslo.enhetsnummer,
+        hovedenhetNavn = NavEnhetFixtures.Oslo.navn,
         mobilnummer = ansatt.mobilnummer,
         epost = ansatt.epost,
     )
@@ -76,7 +60,7 @@ class NavAnsattServiceTest : FunSpec({
         roles: Set<EntraGroupNavAnsattRolleMapping>,
     ) = NavAnsattService(
         roles = roles,
-        db = database.api,
+        db = db,
         microsoftGraphClient = msGraph,
     )
 
@@ -148,28 +132,19 @@ class NavAnsattServiceTest : FunSpec({
         }
 
         test("should resolve Nav-enhet with kostnadssteder Nav-enheter from multiple groups") {
-            MulighetsrommetTestDomain(
-                tiltakstyper = listOf(),
-                navEnheter = listOf(
-                    NavEnhetFixtures.Innlandet,
-                    NavEnhetFixtures.Gjovik,
-                    NavEnhetFixtures.Lillehammer,
-                    NavEnhetFixtures.Oslo,
-                    NavEnhetFixtures.TiltakOslo,
-                ),
-            ) {
-                session.execute(
-                    queryOf(
-                        """
-                            insert into kostnadssted (enhetsnummer, region) values
-                                ('0501', '0400'),
-                                ('0502', '0400'),
-                                ('0387', '0300')
-                            on conflict (enhetsnummer, region) do nothing;
-                        """,
-                    ),
-                )
-            }.initialize(database.api)
+            fun kostnadssted(enhetsnummer: String, region: String) = Kostnadssted(
+                enhetsnummer = NavEnhetNummer(enhetsnummer),
+                navn = enhetsnummer,
+                region = Kostnadssted.Region(NavEnhetNummer(region), region),
+            )
+
+            every { db.queries.kostnadssted.getAll(listOf(NavEnhetNummer("0400"))) } returns listOf(
+                kostnadssted("0501", "0400"),
+                kostnadssted("0502", "0400"),
+            )
+            every { db.queries.kostnadssted.getAll(listOf(NavEnhetNummer("0300"))) } returns listOf(
+                kostnadssted("0387", "0300"),
+            )
 
             val adGruppeBeslutterInnlandet = UUID.randomUUID()
             val rolleBeslutterInnlandet = EntraGroupNavAnsattRolleMapping(
@@ -267,33 +242,26 @@ class NavAnsattServiceTest : FunSpec({
         )
 
         test("should resolve all roles from the specified groups").config(blockingTest = true, timeout = 10.seconds) {
-            forAll(
-                row(
-                    setOf(rolleMappingGenerell),
-                    listOf(
-                        ansatt1.toNavAnsatt(setOf(rolleGenerell)),
-                        ansatt2.toNavAnsatt(setOf(rolleGenerell)),
-                    ),
+            val cases = listOf(
+                setOf(rolleMappingGenerell) to listOf(
+                    ansatt1.toNavAnsatt(setOf(rolleGenerell)),
+                    ansatt2.toNavAnsatt(setOf(rolleGenerell)),
                 ),
-                row(
-                    setOf(rolleMappingKontaktperson),
-                    listOf(ansatt2.toNavAnsatt(setOf(rolleKontaktperson))),
+                setOf(rolleMappingKontaktperson) to listOf(
+                    ansatt2.toNavAnsatt(setOf(rolleKontaktperson)),
                 ),
-                row(
-                    setOf(rolleMappingGenerell, rolleMappingKontaktperson),
-                    listOf(
-                        ansatt1.toNavAnsatt(setOf(rolleGenerell)),
-                        ansatt2.toNavAnsatt(setOf(rolleGenerell, rolleKontaktperson)),
-                    ),
+                setOf(rolleMappingGenerell, rolleMappingKontaktperson) to listOf(
+                    ansatt1.toNavAnsatt(setOf(rolleGenerell)),
+                    ansatt2.toNavAnsatt(setOf(rolleGenerell, rolleKontaktperson)),
                 ),
-            ) { groups, expectedAnsatte ->
-                runBlocking {
-                    val service = createNavAnsattService(groups)
+            )
 
-                    val resolvedAnsatte = service.getNavAnsatteForRoles(groups)
+            cases.forEach { (groups, expectedAnsatte) ->
+                val service = createNavAnsattService(groups)
 
-                    resolvedAnsatte shouldContainExactlyInAnyOrder expectedAnsatte
-                }
+                val resolvedAnsatte = service.getNavAnsatteForRoles(groups)
+
+                resolvedAnsatte shouldContainExactlyInAnyOrder expectedAnsatte
             }
         }
     }

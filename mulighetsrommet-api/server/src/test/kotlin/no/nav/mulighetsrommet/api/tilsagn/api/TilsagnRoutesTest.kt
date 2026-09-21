@@ -10,7 +10,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
 import no.nav.mulighetsrommet.api.ApplicationConfigTest
-import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
+import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.pdl.PdlGradering
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle

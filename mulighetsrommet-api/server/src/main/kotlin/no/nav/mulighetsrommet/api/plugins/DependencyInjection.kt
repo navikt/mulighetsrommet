@@ -25,6 +25,8 @@ import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterGateway
 import no.nav.mulighetsrommet.admin.enhetsregister.EnhetsregisterQuery
 import no.nav.mulighetsrommet.admin.kostnadssted.KostnadsstedQuery
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQuery
+import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
+import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.admin.navenhet.KontorstrukturQuery
 import no.nav.mulighetsrommet.admin.navenhet.NavEnhetDtoQuery
 import no.nav.mulighetsrommet.admin.navenhet.SynkroniserNavEnheterUseCase
@@ -89,8 +91,6 @@ import no.nav.mulighetsrommet.api.janzz.PamOntologiService
 import no.nav.mulighetsrommet.api.janzz.client.PamOntologiClient
 import no.nav.mulighetsrommet.api.lagretfilter.LagretFilterService
 import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattPrincipalService
-import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
-import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattSyncService
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
 import no.nav.mulighetsrommet.api.navenhet.task.SynchronizeNorgEnheter
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient

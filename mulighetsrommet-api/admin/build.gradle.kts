@@ -17,8 +17,11 @@ dependencies {
     testFixturesImplementation(projects.common.domain)
     implementation(projects.common.validation)
     implementation(projects.common.spreadsheet)
+    implementation(projects.common.tokenProvider)
+    implementation(projects.mulighetsrommetApi.clients)
 
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.arrow.core)
     implementation(libs.caffeine)
     implementation(libs.slf4j)

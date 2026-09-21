@@ -27,7 +27,7 @@ import no.nav.mulighetsrommet.api.domain.tiltak.SortDirection
 import no.nav.mulighetsrommet.api.domain.tiltak.Tiltakstype
 import no.nav.mulighetsrommet.api.domain.tiltak.TiltakstypeSortField
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
-import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
+import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
 import no.nav.mulighetsrommet.api.responses.respondWithStatusResponse

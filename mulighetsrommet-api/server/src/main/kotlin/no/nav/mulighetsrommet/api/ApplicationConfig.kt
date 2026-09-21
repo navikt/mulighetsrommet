@@ -2,10 +2,10 @@ package no.nav.mulighetsrommet.api
 
 import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.cio.CIO
+import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.api.avtale.task.NotifySluttdatoForAvtalerNarmerSeg
 import no.nav.mulighetsrommet.api.clients.sanity.SanityClient
-import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.gjennomforing.task.NotifySluttdatoForGjennomforingerNarmerSeg
 import no.nav.mulighetsrommet.api.gjennomforing.task.UpdateApentForPamelding
 import no.nav.mulighetsrommet.api.navansatt.task.SynchronizeNavAnsatte
@@ -18,13 +18,11 @@ import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.featuretoggle.service.UnleashFeatureToggleService
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.ktor.ServerConfig
-import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.tokenprovider.TexasClient
 import no.nav.mulighetsrommet.utdanning.task.SynchronizeUtdanninger
 import java.util.Properties
-import java.util.UUID
 import kotlin.String
 
 data class AppConfig(
@@ -76,19 +74,6 @@ data class AuthConfig(
     val maskinporten: AuthProvider,
     val roles: Set<EntraGroupNavAnsattRolleMapping>,
     val texas: TexasClient.Config,
-)
-
-data class EntraGroupNavAnsattRolleMapping(
-    val entraGroupId: UUID,
-    val rolle: Rolle,
-    /**
-     * Noen roller tildeles per kostnadssted. Et kostnadssted er et firesifret Nav-enhetsnummer.
-     * Applikasjonen har definert alle kjente kostnadssteder og hvilken "region" de er tilknyttet.
-     * Hvis en rolle er knyttet mot regionen til kostnadsstedet vil den ansatte også få tildelt
-     * rollen til alle kostnadssteder under denne regionen.
-     */
-    val kostnadssteder: Set<NavEnhetNummer> = setOf(),
-    val kommentar: String? = null,
 )
 
 data class KafkaConfig(

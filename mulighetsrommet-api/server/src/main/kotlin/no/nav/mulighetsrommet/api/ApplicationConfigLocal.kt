@@ -16,6 +16,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.decodeFromJsonElement
 import no.nav.common.kafka.util.KafkaPropertiesBuilder
 import no.nav.common.kafka.util.KafkaPropertiesBuilder.consumerBuilder
+import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.admin.tiltak.TiltakstypeService
 import no.nav.mulighetsrommet.altinn.AltinnCorrespondenceResponse
 import no.nav.mulighetsrommet.altinn.AltinnVedleggStatusResponse

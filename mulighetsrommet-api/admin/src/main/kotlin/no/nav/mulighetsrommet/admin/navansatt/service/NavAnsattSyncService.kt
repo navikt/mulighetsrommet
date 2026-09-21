@@ -1,37 +1,37 @@
-package no.nav.mulighetsrommet.api.navansatt.service
+package no.nav.mulighetsrommet.admin.navansatt.service
 
-import no.nav.mulighetsrommet.api.ApiDatabase
+import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
 import org.slf4j.LoggerFactory
 import java.time.LocalDate
 
 class NavAnsattSyncService(
-    private val db: ApiDatabase,
+    private val db: AdminDatabase,
     private val navAnsattService: NavAnsattService,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate): Unit = db.session {
+    suspend fun synchronizeNavAnsatte(today: LocalDate, deletionDate: LocalDate): Unit = db.suspendSession {
         val ansatteToUpsert = navAnsattService.getNavAnsatteForAllRoles()
 
         logger.info("Oppdaterer ${ansatteToUpsert.size} NavAnsatt fra Azure")
         ansatteToUpsert.forEach { ansatt ->
-            val current = queries.ansatt.get(ansatt.navIdent)
+            val current = repository.navAnsatt.get(ansatt.navIdent)
             if (ansatt != current) {
-                queries.ansatt.save(ansatt)
+                repository.navAnsatt.save(ansatt)
             }
         }
 
         val ansatteEntraObjectIds = ansatteToUpsert.map { it.entraObjectId }
-        val ansatteToScheduleForDeletion = queries.ansatt.getAll().filter { ansatt ->
+        val ansatteToScheduleForDeletion = repository.navAnsatt.getAll().filter { ansatt ->
             ansatt.skalSlettesDato == null && ansatt.entraObjectId !in ansatteEntraObjectIds
         }
         ansatteToScheduleForDeletion.forEach { ansatt ->
             logger.info("Oppdaterer NavAnsatt med dato for sletting oid=${ansatt.entraObjectId} dato=$deletionDate")
-            queries.ansatt.save(ansatt.skalSlettes(deletionDate))
+            repository.navAnsatt.save(ansatt.skalSlettes(deletionDate))
         }
 
-        val ansatteToDelete = queries.ansatt.getAll().filter { ansatt ->
+        val ansatteToDelete = repository.navAnsatt.getAll().filter { ansatt ->
             val skalSlettesDato = ansatt.skalSlettesDato
             skalSlettesDato != null && skalSlettesDato <= today
         }
@@ -42,6 +42,6 @@ class NavAnsattSyncService(
     }
 
     private fun deleteNavAnsatt(ansatt: NavAnsatt): Unit = db.transaction {
-        queries.ansatt.deleteByEntraObjectId(ansatt.entraObjectId)
+        repository.navAnsatt.deleteByEntraObjectId(ansatt.entraObjectId)
     }
 }
