@@ -23,6 +23,7 @@ class HelvedStatusV1KafkaConsumer(
         private const val FAGSYSTEM_HEADER_NAME = "fagsystem"
         private const val EXPECTED_FAGSYSTEM = "VALP"
     }
+
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
@@ -31,17 +32,18 @@ class HelvedStatusV1KafkaConsumer(
      */
     override fun consume(record: ConsumerRecord<String, JsonElement>): ConsumeStatus {
         val fagsystem = record.headers().lastHeader(FAGSYSTEM_HEADER_NAME).value().let { String(it) }
-        if (fagsystem == EXPECTED_FAGSYSTEM) {
-            return super.consume(record)
+        if (fagsystem != EXPECTED_FAGSYSTEM) {
+            logger.debug("Mottok status-melding for fagsystem=$fagsystem, som ikke er relevant for oss. Ignorerer meldingen.")
+            return ConsumeStatus.OK
         }
-        logger.info("Mottok status-melding for fagsystem=$fagsystem, som ikke er relevant for oss. Ignorerer meldingen.")
-        return ConsumeStatus.OK
-    }
 
-    override suspend fun consume(key: String, message: JsonElement) {
-        logger.info("Konsumerer hel ved utbetaling status-melding med id=$key")
+        val key = record.key()
+        val message = record.value()
+        logger.debug("Konsumerer hel ved utbetaling status-melding med id=$key")
+
         val id = UUID.fromString(key)
         val helvedStatus = JsonIgnoreUnknownKeys.decodeFromJsonElement<HelVedStatus>(message)
         brukerUtbetalingService.handleHelvedStatus(id, helvedStatus)
+        return ConsumeStatus.OK
     }
 }

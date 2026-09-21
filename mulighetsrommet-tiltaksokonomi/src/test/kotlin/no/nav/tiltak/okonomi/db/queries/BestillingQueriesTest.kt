@@ -55,7 +55,7 @@ class BestillingQueriesTest : FunSpec({
             queries.insertBestilling(bestilling)
 
             val annullering = Bestilling.Totrinnskontroll(
-                behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+                behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
                 behandletTidspunkt = Instant.parse("2025-01-03T00:00:00Z"),
                 besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
                 besluttetTidspunkt = Instant.parse("2025-01-04T00:00:00Z"),

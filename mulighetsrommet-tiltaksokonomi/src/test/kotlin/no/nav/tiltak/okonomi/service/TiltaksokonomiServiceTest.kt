@@ -18,6 +18,7 @@ import io.mockk.mockk
 import kotlinx.serialization.json.Json
 import kotliquery.queryOf
 import no.nav.common.kafka.producer.feilhandtering.StoredProducerRecord
+import no.nav.common.kafka.util.KafkaUtils
 import no.nav.mulighetsrommet.brreg.BrregAdresse
 import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.brreg.BrregHovedenhetDto
@@ -39,6 +40,7 @@ import no.nav.tiltak.okonomi.AnnullerBestilling
 import no.nav.tiltak.okonomi.BestillingStatus
 import no.nav.tiltak.okonomi.BestillingStatusType
 import no.nav.tiltak.okonomi.Bestillingsnummer
+import no.nav.tiltak.okonomi.FAGSYSTEM_HEADER_NAME
 import no.nav.tiltak.okonomi.FakturaStatus
 import no.nav.tiltak.okonomi.FakturaStatusType
 import no.nav.tiltak.okonomi.Fakturanummer
@@ -320,9 +322,14 @@ class TiltaksokonomiServiceTest : FunSpec({
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "A-1-1"
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    BestillingStatus(bestillingsnummer, BestillingStatusType.SENDT),
-                )
+
+                val bestillingStatus = Json.decodeFromString<BestillingStatus>(it.value.toString(Charsets.UTF_8))
+                bestillingStatus.bestillingsnummer shouldBe bestillingsnummer
+                bestillingStatus.status shouldBe BestillingStatusType.SENDT
+
+                val header = KafkaUtils.jsonToHeaders(it.headersJson).shouldHaveSize(1).first()
+                header.key() shouldBe FAGSYSTEM_HEADER_NAME
+                String(header.value()) shouldBe "TILTAKSADMINISTRASJON"
             }
         }
 
@@ -350,9 +357,10 @@ class TiltaksokonomiServiceTest : FunSpec({
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
                 it.key.toString(Charsets.UTF_8) shouldBe bestillingsnummer.value
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    BestillingStatus(bestillingsnummer, BestillingStatusType.OPPGJORT),
-                )
+
+                val bestillingStatus = Json.decodeFromString<BestillingStatus>(it.value.toString(Charsets.UTF_8))
+                bestillingStatus.bestillingsnummer shouldBe bestillingsnummer
+                bestillingStatus.status shouldBe BestillingStatusType.OPPGJORT
             }
         }
     }
@@ -441,12 +449,10 @@ class TiltaksokonomiServiceTest : FunSpec({
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "bestilling-status"
                 it.key.toString(Charsets.UTF_8) shouldBe bestillingsnummer.value
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    BestillingStatus(
-                        bestillingsnummer = bestillingsnummer,
-                        status = BestillingStatusType.ANNULLERING_SENDT,
-                    ),
-                )
+
+                val bestillingStatus = Json.decodeFromString<BestillingStatus>(it.value.toString(Charsets.UTF_8))
+                bestillingStatus.bestillingsnummer shouldBe bestillingsnummer
+                bestillingStatus.status shouldBe BestillingStatusType.ANNULLERING_SENDT
             }
         }
 
@@ -519,9 +525,14 @@ class TiltaksokonomiServiceTest : FunSpec({
             db.session { getLatestRecord() }.should {
                 it.topic shouldBe "faktura-status"
                 it.key.toString(Charsets.UTF_8) shouldBe "B-1-1-F2"
-                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value?.toString(Charsets.UTF_8) ?: "")
+
+                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value.toString(Charsets.UTF_8))
                 fakturaStatus.status shouldBe FakturaStatusType.SENDT
                 fakturaStatus.fakturanummer shouldBe Fakturanummer("B-1-1-F2")
+
+                val header = KafkaUtils.jsonToHeaders(it.headersJson).shouldHaveSize(1).first()
+                header.key() shouldBe FAGSYSTEM_HEADER_NAME
+                String(header.value()) shouldBe "TILTAKSADMINISTRASJON"
             }
         }
 
@@ -595,7 +606,7 @@ class TiltaksokonomiServiceTest : FunSpec({
             }
 
             db.session { getLatestRecord(topic = "faktura-status") }.should {
-                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value?.toString(Charsets.UTF_8) ?: "")
+                val fakturaStatus = Json.decodeFromString<FakturaStatus>(it.value.toString(Charsets.UTF_8))
                 fakturaStatus.fakturanummer shouldBe Fakturanummer("B-2-1-F1")
                 fakturaStatus.status shouldBe FakturaStatusType.SENDT
             }
@@ -637,9 +648,9 @@ class TiltaksokonomiServiceTest : FunSpec({
             }
 
             db.session { getLatestRecord(topic = "bestilling-status") }.should {
-                it.value?.toString(Charsets.UTF_8) shouldBe Json.encodeToString(
-                    BestillingStatus(b3, BestillingStatusType.OPPGJORT),
-                )
+                val bestillingStatus = Json.decodeFromString<BestillingStatus>(it.value.toString(Charsets.UTF_8))
+                bestillingStatus.bestillingsnummer shouldBe b3
+                bestillingStatus.status shouldBe BestillingStatusType.OPPGJORT
             }
         }
 
@@ -768,9 +779,9 @@ private fun createOpprettBestilling(
     arrangor = OpprettBestilling.Arrangor.Norsk(organisasjonsnummer ?: Organisasjonsnummer("234567891")),
     avtalenummer = null,
     belop = 1000,
-    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
     kostnadssted = NavEnhetNummer("0400"),
@@ -792,10 +803,11 @@ private fun createBestilling(
         belop = 1000,
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         status = status,
+        statusSistOppdatert = Instant.parse("2025-01-01T00:00:00Z"),
         opprettelse = Bestilling.Totrinnskontroll(
-            behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+            behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-            besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+            besluttetAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
         ),
         annullering = null,
@@ -812,9 +824,9 @@ private fun createBestilling(
 
 private fun createAnnullerBestilling(bestillingsnummer: Bestillingsnummer) = AnnullerBestilling(
     bestillingsnummer = bestillingsnummer,
-    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
 )
 
@@ -827,9 +839,9 @@ private fun createOpprettFaktura(bestillingsnummer: Bestillingsnummer, fakturanu
     ),
     belop = 1000,
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     gjorOppBestilling = false,
     beskrivelse = "Beskrivelse",
@@ -838,8 +850,8 @@ private fun createOpprettFaktura(bestillingsnummer: Bestillingsnummer, fakturanu
 
 private fun createGjorOppBestilling(bestillingsnummer: Bestillingsnummer) = GjorOppBestilling(
     bestillingsnummer = bestillingsnummer,
-    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
 )

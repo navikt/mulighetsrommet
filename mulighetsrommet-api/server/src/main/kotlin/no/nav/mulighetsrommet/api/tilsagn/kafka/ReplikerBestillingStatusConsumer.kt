@@ -2,13 +2,16 @@ package no.nav.mulighetsrommet.api.tilsagn.kafka
 
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
+import no.nav.common.kafka.consumer.ConsumeStatus
 import no.nav.common.kafka.consumer.util.deserializer.Deserializers.stringDeserializer
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.kafka.KafkaTopicConsumer
 import no.nav.mulighetsrommet.kafka.serialization.JsonElementDeserializer
 import no.nav.mulighetsrommet.serialization.json.JsonIgnoreUnknownKeys
 import no.nav.tiltak.okonomi.BestillingStatus
-import org.slf4j.LoggerFactory
+import no.nav.tiltak.okonomi.FAGSYSTEM_HEADER_NAME
+import no.nav.tiltak.okonomi.OkonomiFagsystem
+import org.apache.kafka.clients.consumer.ConsumerRecord
 
 class ReplikerBestillingStatusConsumer(
     private val db: ApiDatabase,
@@ -16,13 +19,18 @@ class ReplikerBestillingStatusConsumer(
     stringDeserializer(),
     JsonElementDeserializer(),
 ) {
-    private val logger = LoggerFactory.getLogger(javaClass)
+    override fun consume(record: ConsumerRecord<String, JsonElement>): ConsumeStatus {
+        val fagsystem = record.headers().lastHeader(FAGSYSTEM_HEADER_NAME).value().let { String(it) }
+        if (fagsystem != OkonomiFagsystem.TILTAKSADMINISTRASJON.name) {
+            return ConsumeStatus.OK
+        }
 
-    override suspend fun consume(key: String, message: JsonElement): Unit = db.transaction {
-        logger.info("Konsumerer statusmelding bestillingsnummer=$key")
+        val (bestillingsnummer, status) = JsonIgnoreUnknownKeys.decodeFromJsonElement<BestillingStatus>(record.value())
 
-        val (bestillingsnummer, status) = JsonIgnoreUnknownKeys.decodeFromJsonElement<BestillingStatus>(message)
+        db.transaction {
+            queries.tilsagn.setBestillingStatus(bestillingsnummer.value, status)
+        }
 
-        queries.tilsagn.setBestillingStatus(bestillingsnummer.value, status)
+        return ConsumeStatus.OK
     }
 }
