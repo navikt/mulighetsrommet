@@ -19,7 +19,7 @@ data class Tilskudd(
     val type: Opplaeringtilskudd,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    val tilskuddsnummer: String,
+    val tilskuddsnummer: Tilskuddsnummer,
     val vedtak: List<Vedtak>,
 ) {
     @Serializable
@@ -52,7 +52,7 @@ data class TilskuddKompakt(
     val type: Opplaeringtilskudd,
     @Serializable(with = UUIDSerializer::class)
     val gjennomforingId: UUID,
-    val tilskuddsnummer: String,
+    val tilskuddsnummer: Tilskuddsnummer,
     val sisteVedtakResultat: VedtakResultat?,
     val periode: Periode?,
     val sisteVedtakLopenummer: Int?,
