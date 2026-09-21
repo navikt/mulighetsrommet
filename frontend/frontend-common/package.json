@@ -45,7 +45,7 @@
     "postcss": "8.5.26",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-router": "8.3.0",
+    "react-router": "8.3.1",
     "vitest": "5.0.0"
   },
   "repository": {
