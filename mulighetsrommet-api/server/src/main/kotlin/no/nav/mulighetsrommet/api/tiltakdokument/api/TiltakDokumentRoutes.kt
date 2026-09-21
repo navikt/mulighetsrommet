@@ -18,6 +18,7 @@ import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentAdminSe
 import no.nav.mulighetsrommet.admin.tiltakdokument.service.TiltakDokumentRequest
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.navansatt.ktor.authorize
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.parameters.getPaginationParams
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.api.plugins.pathParameterUuid
@@ -48,6 +49,7 @@ data class GetTiltakDokumenterRequest(
 fun Route.tiltakDokumentRoutes() {
     val db: AdminDatabase by inject()
     val service: TiltakDokumentAdminService by inject()
+    val navAnsattService: NavAnsattService by inject()
 
     route("tiltak-dokumenter") {
         authorize(Rolle.TILTAKSGJENNOMFORINGER_SKRIV) {
@@ -74,6 +76,9 @@ fun Route.tiltakDokumentRoutes() {
             }) {
                 val request = call.receive<TiltakDokumentRequest>()
                 val navIdent = getNavIdent()
+                request.veilederinformasjon.kontaktpersoner.forEach {
+                    navAnsattService.addUserToKontaktpersoner(it.navIdent)
+                }
                 val result = service.upsert(request, navIdent).mapLeft { ValidationError(errors = it) }
                 call.respondWithStatusResponse(result)
             }
