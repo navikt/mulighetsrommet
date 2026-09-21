@@ -9,8 +9,8 @@ import io.ktor.client.request.get
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
+import no.nav.mulighetsrommet.api.ApplicationConfigTest
 import no.nav.mulighetsrommet.api.createAuthConfig
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture

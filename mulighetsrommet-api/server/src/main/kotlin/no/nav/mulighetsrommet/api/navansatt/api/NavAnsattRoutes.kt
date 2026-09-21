@@ -9,10 +9,10 @@ import io.ktor.server.routing.route
 import io.ktor.server.util.getValue
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDto
 import no.nav.mulighetsrommet.admin.navansatt.NavAnsattDtoQuery
+import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.clients.msgraph.EntraNavAnsatt
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsattRolle
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
-import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.plugins.getNavIdent
 import no.nav.mulighetsrommet.ktor.exception.NotFound
 import no.nav.mulighetsrommet.ktor.plugins.respondWithProblemDetail
