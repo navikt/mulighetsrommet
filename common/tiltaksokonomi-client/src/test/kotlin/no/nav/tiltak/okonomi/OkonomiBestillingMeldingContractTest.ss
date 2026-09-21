@@ -4,14 +4,12 @@
   "payload": {
     "bestillingsnummer": "A-1-1",
     "behandletAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.NavAnsatt",
-      "part": "Z123456",
+      "type": "NAV_ANSATT",
       "navIdent": "Z123456"
     },
     "behandletTidspunkt": "2025-01-03T00:00:00Z",
     "besluttetAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.System",
-      "part": "TILTAKSADMINISTRASJON",
+      "type": "FAGSYSTEM",
       "kilde": "TILTAKSADMINISTRASJON"
     },
     "besluttetTidspunkt": "2025-01-04T00:00:00Z"
@@ -25,7 +23,7 @@
     "tilskuddstype": "TILTAK_DRIFTSTILSKUDD",
     "tiltakskode": "ARBEIDSFORBEREDENDE_TRENING",
     "arrangor": {
-      "type": "no.nav.tiltak.okonomi.OpprettBestilling.Arrangor.Norsk",
+      "type": "NORSK",
       "organisasjonsnummer": "123456789"
     },
     "kostnadssted": "0400",
@@ -36,14 +34,12 @@
       "slutt": "2025-02-01"
     },
     "behandletAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.System",
-      "part": "TILTAKSADMINISTRASJON",
+      "type": "FAGSYSTEM",
       "kilde": "TILTAKSADMINISTRASJON"
     },
     "behandletTidspunkt": "2025-01-01T00:00:00Z",
     "besluttetAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.NavAnsatt",
-      "part": "Z123456",
+      "type": "NAV_ANSATT",
       "navIdent": "Z123456"
     },
     "besluttetTidspunkt": "2025-01-02T00:00:00Z",
@@ -58,7 +54,7 @@
     "tilskuddstype": "TILTAK_DRIFTSTILSKUDD",
     "tiltakskode": "ARBEIDSFORBEREDENDE_TRENING",
     "arrangor": {
-      "type": "no.nav.tiltak.okonomi.OpprettBestilling.Arrangor.Utenlandsk",
+      "type": "UTENLANDSK",
       "organisasjonsnummer": "123456789",
       "navn": "Utenlandsk Arrangør AS",
       "gateNavn": "Main Street 1",
@@ -74,14 +70,12 @@
       "slutt": "2025-02-01"
     },
     "behandletAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.System",
-      "part": "EKSPERTBISTAND",
+      "type": "FAGSYSTEM",
       "kilde": "EKSPERTBISTAND"
     },
     "behandletTidspunkt": "2025-01-01T00:00:00Z",
     "besluttetAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.System",
-      "part": "EKSPERTBISTAND",
+      "type": "FAGSYSTEM",
       "kilde": "EKSPERTBISTAND"
     },
     "besluttetTidspunkt": "2025-01-02T00:00:00Z",
@@ -95,7 +89,7 @@
     "fakturanummer": "A-1-1-1",
     "bestillingsnummer": "A-1-1",
     "betalingsinformasjon": {
-      "type": "no.nav.tiltak.okonomi.OpprettFaktura.Betalingsinformasjon.BBan",
+      "type": "BBAN",
       "kontonummer": "12345678901",
       "kid": "0004614992"
     },
@@ -105,14 +99,12 @@
       "slutt": "2025-02-01"
     },
     "behandletAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.System",
-      "part": "TILTAKSADMINISTRASJON",
+      "type": "FAGSYSTEM",
       "kilde": "TILTAKSADMINISTRASJON"
     },
     "behandletTidspunkt": "2025-01-01T00:00:00Z",
     "besluttetAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.NavAnsatt",
-      "part": "Z123456",
+      "type": "NAV_ANSATT",
       "navIdent": "Z123456"
     },
     "besluttetTidspunkt": "2025-01-02T00:00:00Z",
@@ -128,7 +120,7 @@
     "fakturanummer": "A-1-1-1",
     "bestillingsnummer": "A-1-1",
     "betalingsinformasjon": {
-      "type": "no.nav.tiltak.okonomi.OpprettFaktura.Betalingsinformasjon.IBan",
+      "type": "IBAN",
       "bic": "DABANO22",
       "iban": "NO9386011117947",
       "bankNavn": "DNB",
@@ -140,14 +132,12 @@
       "slutt": "2025-02-01"
     },
     "behandletAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.System",
-      "part": "TILTAKSADMINISTRASJON",
+      "type": "FAGSYSTEM",
       "kilde": "TILTAKSADMINISTRASJON"
     },
     "behandletTidspunkt": "2025-01-01T00:00:00Z",
     "besluttetAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.NavAnsatt",
-      "part": "Z123456",
+      "type": "NAV_ANSATT",
       "navIdent": "Z123456"
     },
     "besluttetTidspunkt": "2025-01-02T00:00:00Z",
@@ -162,14 +152,12 @@
   "payload": {
     "bestillingsnummer": "A-1-1",
     "behandletAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.System",
-      "part": "TILTAKSADMINISTRASJON",
+      "type": "FAGSYSTEM",
       "kilde": "TILTAKSADMINISTRASJON"
     },
     "behandletTidspunkt": "2025-01-01T00:00:00Z",
     "besluttetAv": {
-      "type": "no.nav.tiltak.okonomi.OkonomiPart.NavAnsatt",
-      "part": "Z123456",
+      "type": "NAV_ANSATT",
       "navIdent": "Z123456"
     },
     "besluttetTidspunkt": "2025-01-02T00:00:00Z"

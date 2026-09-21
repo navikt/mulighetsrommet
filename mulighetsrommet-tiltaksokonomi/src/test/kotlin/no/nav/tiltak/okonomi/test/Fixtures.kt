@@ -35,7 +35,7 @@ object Fixtures {
         status = BestillingStatusType.AKTIV,
         statusSistOppdatert = Instant.parse("2025-01-02T00:00:00Z"),
         opprettelse = Bestilling.Totrinnskontroll(
-            behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+            behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
             besluttetTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
@@ -78,7 +78,7 @@ object Fixtures {
         periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
         status = FakturaStatusType.SENDT,
         statusSistOppdatert = Instant.parse("2025-01-01T00:00:00Z"),
-        behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+        behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
         behandletTidspunkt = Instant.parse("2025-02-01T00:00:00Z"),
         besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
         besluttetTidspunkt = Instant.parse("2025-02-02T00:00:00Z"),

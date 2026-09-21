@@ -9,8 +9,8 @@ dependencies {
     // Kotlin
     implementation(libs.arrow.core)
     implementation(libs.arrow.core.serialization)
+    implementation(libs.kotlinx.serialization.json)
 
-    testImplementation(libs.kotlinx.serialization.json)
     testImplementation(libs.kotest.junit)
     testImplementation(libs.kotest.assertions.core)
     testImplementation(libs.selfie.kotest)

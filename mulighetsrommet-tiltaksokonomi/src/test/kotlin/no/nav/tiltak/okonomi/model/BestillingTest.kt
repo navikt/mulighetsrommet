@@ -28,7 +28,7 @@ class BestillingTest : FunSpec({
             arrangor = OpprettBestilling.Arrangor.Norsk(Organisasjonsnummer("234567891")),
             avtalenummer = null,
             belop = 1000,
-            behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+            behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
             besluttetAv = OkonomiPart.NavAnsatt(NavIdent("Z123456")),
             besluttetTidspunkt = Instant.parse("2025-01-02T00:00:00Z"),
@@ -50,7 +50,7 @@ class BestillingTest : FunSpec({
             bestilling.periode shouldBe Periode.forMonthOf(LocalDate.of(2025, 1, 1))
             bestilling.arrangorHovedenhet shouldBe Organisasjonsnummer("123456789")
             bestilling.arrangorUnderenhet shouldBe Organisasjonsnummer("234567891")
-            bestilling.opprettelse.behandletAv shouldBe OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON)
+            bestilling.opprettelse.behandletAv shouldBe OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON)
             bestilling.opprettelse.behandletTidspunkt shouldBe Instant.parse("2025-01-01T00:00:00Z")
             bestilling.opprettelse.besluttetAv shouldBe OkonomiPart.NavAnsatt(NavIdent("Z123456"))
             bestilling.opprettelse.besluttetTidspunkt shouldBe Instant.parse("2025-01-02T00:00:00Z")

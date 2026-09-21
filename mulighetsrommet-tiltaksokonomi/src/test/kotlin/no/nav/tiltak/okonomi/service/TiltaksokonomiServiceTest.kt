@@ -779,9 +779,9 @@ private fun createOpprettBestilling(
     arrangor = OpprettBestilling.Arrangor.Norsk(organisasjonsnummer ?: Organisasjonsnummer("234567891")),
     avtalenummer = null,
     belop = 1000,
-    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
     kostnadssted = NavEnhetNummer("0400"),
@@ -805,9 +805,9 @@ private fun createBestilling(
         status = status,
         statusSistOppdatert = Instant.parse("2025-01-01T00:00:00Z"),
         opprettelse = Bestilling.Totrinnskontroll(
-            behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+            behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-            besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+            besluttetAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
             besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
         ),
         annullering = null,
@@ -824,9 +824,9 @@ private fun createBestilling(
 
 private fun createAnnullerBestilling(bestillingsnummer: Bestillingsnummer) = AnnullerBestilling(
     bestillingsnummer = bestillingsnummer,
-    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
 )
 
@@ -839,9 +839,9 @@ private fun createOpprettFaktura(bestillingsnummer: Bestillingsnummer, fakturanu
     ),
     belop = 1000,
     periode = Periode.forMonthOf(LocalDate.of(2025, 1, 1)),
-    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
     gjorOppBestilling = false,
     beskrivelse = "Beskrivelse",
@@ -850,8 +850,8 @@ private fun createOpprettFaktura(bestillingsnummer: Bestillingsnummer, fakturanu
 
 private fun createGjorOppBestilling(bestillingsnummer: Bestillingsnummer) = GjorOppBestilling(
     bestillingsnummer = bestillingsnummer,
-    behandletAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    behandletAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     behandletTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
-    besluttetAv = OkonomiPart.System(OkonomiFagsystem.TILTAKSADMINISTRASJON),
+    besluttetAv = OkonomiPart.Fagsystem(OkonomiFagsystem.TILTAKSADMINISTRASJON),
     besluttetTidspunkt = Instant.parse("2025-01-01T00:00:00Z"),
 )
