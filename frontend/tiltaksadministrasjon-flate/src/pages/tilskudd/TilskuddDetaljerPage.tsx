@@ -3,17 +3,17 @@ import { useSimulerOpphorTilskuddVedtak } from "@/api/tilskudd/mutations";
 import { TilskuddLayout } from "@/components/tilskudd/TilskuddLayout";
 import { useRequiredParams } from "@/hooks/useRequiredParams";
 import { Separator } from "@mr/frontend-common/components/datadriven/Metadata";
-import { Definisjonsliste } from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
+import {
+  Definisjonsliste,
+  Definition,
+} from "@mr/frontend-common/components/definisjonsliste/Definisjonsliste";
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { VarselModal } from "@mr/frontend-common/components/varsel/VarselModal";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
 import { Alert, BodyShort, Button, ExpansionCard, HStack, Heading, VStack } from "@navikt/ds-react";
-import {
-  HelVedSimuleringResponse,
-  TilskuddHandling,
-  TilskuddVedtak,
-} from "@tiltaksadministrasjon/api-client";
+import { HelVedSimuleringResponse, TilskuddHandling } from "@tiltaksadministrasjon/api-client";
+import { TilskuddVedtak, TilskuddVedtakUtbetaling } from "@tiltaksadministrasjon/api-client";
 import { tilskuddMottakerToString } from "@/utils/Utils";
 import { useOpphorBrukerUtbetaling } from "@/api/tilskudd-behandling/mutations";
 import { useNavigate } from "react-router";
@@ -81,17 +81,12 @@ export function TilskuddDetaljerPage() {
                         key: "Utbetaling mottaker",
                         value: tilskuddMottakerToString(vedtak.utbetalingMottaker),
                       },
-                      { key: "KID", value: vedtak.kid ?? "-" },
-                      {
-                        key: "Utbetalingsbeløp",
-                        value: vedtak.utbetalingBelop
-                          ? formaterValutaBelop(vedtak.utbetalingBelop)
-                          : "-",
-                      },
                       { key: "Kommentar til brukeren", value: vedtak.kommentarVedtaksbrev ?? "-" },
                       { key: "Intern kommentar", value: vedtak.kommentarIntern ?? "-" },
                     ]}
                   />
+                  <Separator />
+                  {vedtak.utbetaling && <VedtaksUtbetalingInfo utbetaling={vedtak.utbetaling} />}
                   <Separator />
                   <HStack justify="space-between">
                     <Lenke
@@ -122,6 +117,40 @@ export function TilskuddDetaljerPage() {
       </VStack>
     </TilskuddLayout>
   );
+}
+
+interface VedtaksUtbetalingInfoProps {
+  utbetaling: TilskuddVedtakUtbetaling;
+}
+
+function VedtaksUtbetalingInfo({ utbetaling }: VedtaksUtbetalingInfoProps) {
+  return (
+    <Definisjonsliste
+      title="Utbetaling info"
+      columns={2}
+      definitions={utbetalingInfo(utbetaling)}
+    />
+  );
+}
+
+function utbetalingInfo(utbetaling: TilskuddVedtakUtbetaling): Definition[] {
+  switch (utbetaling.type) {
+    case "BRUKER":
+      return [
+        {
+          key: "Utbetalingsbeløp",
+          value: formaterValutaBelop(utbetaling.belop),
+        },
+      ];
+    case "ARRANGOR":
+      return [
+        {
+          key: "Utbetalingsbeløp",
+          value: formaterValutaBelop(utbetaling.belop),
+        },
+        { key: "KID", value: utbetaling.kid ?? "-" },
+      ];
+  }
 }
 
 function SimulerOpphorButton({
