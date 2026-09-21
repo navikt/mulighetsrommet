@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.Kid
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
@@ -20,7 +21,11 @@ import kotlin.contracts.ExperimentalContracts
 
 @OptIn(ExperimentalContracts::class)
 object TilskuddBehandlingValidator {
-    fun validate(request: TilskuddBehandlingRequest, gjennomforing: Gjennomforing): Validated<TilskuddBehandling> = validation {
+    fun validate(
+        request: TilskuddBehandlingRequest,
+        gjennomforing: Gjennomforing,
+        behandlendeEnhet: NavEnhetNummer,
+    ): Validated<TilskuddBehandling> = validation {
         val tilskudd = request.tilskudd.mapIndexed { index, v ->
             validateTilskuddRequest(
                 req = v,
@@ -35,6 +40,7 @@ object TilskuddBehandlingValidator {
             tilskudd = tilskudd,
             status = TilskuddBehandlingStatus.TIL_ATTESTERING,
             type = TilskuddBehandlingType.REGISTRERING,
+            behandlendeEnhet = behandlendeEnhet,
         )
     }
 

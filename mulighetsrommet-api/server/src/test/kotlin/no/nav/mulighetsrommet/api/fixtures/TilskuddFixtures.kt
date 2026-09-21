@@ -46,5 +46,6 @@ object TilskuddFixtures {
         tilskudd = listOf(Tilskudd),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
         type = TilskuddBehandlingType.REGISTRERING,
+        behandlendeEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
     )
 }

@@ -112,6 +112,11 @@ class NavAnsattService(
         return getNavAnsattRolesFromGroups(groups)
     }
 
+    suspend fun getNavAnsattEnhet(navIdent: NavIdent, accessType: AccessType): NavEnhetNummer? {
+        val ansatt = microsoftGraphClient.getNavAnsattByNavIdent(navIdent, accessType)
+        return ansatt?.hovedenhetKode
+    }
+
     fun EntraGroupNavAnsattRolleMapping.toNavAnsattRolle(): NavAnsattRolle {
         val generell = kostnadssteder.isEmpty()
         val enheter = kostnadssteder.flatMapTo(mutableSetOf()) { withKostnadssteder(it) }

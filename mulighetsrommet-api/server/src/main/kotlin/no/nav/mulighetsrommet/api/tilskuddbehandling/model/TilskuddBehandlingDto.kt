@@ -6,6 +6,7 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.tilsagn.api.KostnadsstedDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
 import no.nav.mulighetsrommet.model.DataElement
+import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.serializers.LocalDateSerializer
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
@@ -23,6 +24,7 @@ data class TilskuddBehandlingDto(
     val status: TilskuddBehandlingStatusDto,
     val type: TilskuddBehandlingType,
     val samletVedtakResultat: SamletVedtakResultat,
+    val behandlendeEnhet: NavEnhetNummer,
 ) {
     fun toDbo() = TilskuddBehandling(
         id = this.id,
@@ -30,6 +32,7 @@ data class TilskuddBehandlingDto(
         tilskudd = this.tilskudd.map { it.toTilskuddVedtak() },
         status = this.status.type,
         type = this.type,
+        behandlendeEnhet = this.behandlendeEnhet,
     )
 }
 

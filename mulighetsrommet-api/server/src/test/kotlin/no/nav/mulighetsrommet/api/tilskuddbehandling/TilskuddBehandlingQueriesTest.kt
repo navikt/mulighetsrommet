@@ -55,7 +55,8 @@ class TilskuddBehandlingQueriesTest : FunSpec({
                 kid = null,
                 soknadJournalpostId = "J-2024-001",
                 soknadDato = LocalDate.of(2024, 1, 15),
-                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)), kostnadssted = NavEnhetNummer("0502"),
+                periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
+                kostnadssted = NavEnhetNummer("0502"),
                 kommentarIntern = "kommentar intern 1",
             ),
             TilskuddVedtak(
@@ -102,6 +103,7 @@ class TilskuddBehandlingQueriesTest : FunSpec({
         ),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
         type = TilskuddBehandlingType.REGISTRERING,
+        behandlendeEnhet = NavEnhetNummer("0502"),
     )
 
     context("insert and get") {

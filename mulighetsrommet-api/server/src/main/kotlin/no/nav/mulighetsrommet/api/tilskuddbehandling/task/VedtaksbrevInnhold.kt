@@ -28,7 +28,7 @@ data class VedtaksbrevInnhold(
     val tiltak: Tiltak,
     val saksbehandler: String,
     val beslutter: String,
-    val enhet: String,
+    val behandlendeEnhet: String,
 )
 
 data class Arrangor(
@@ -69,6 +69,8 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
     val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
     val deltaker = repository.deltaker.getByGjennomforing(gjennomforing.id).single()
     val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
+    val behandlendeEnhet = queries.enhet.get(tilskuddBehandling.behandlendeEnhet)?.navn
+        ?: return "Fant ikke behandlende enhet for tilskudd $vedtakId".left()
 
     val periode = validateGjennomforingPeriode(gjennomforing)
         .fold({ return it.left() }, { it })
@@ -117,7 +119,7 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
         arrangor = arrangor,
         saksbehandler = formatNavn(saksbehandlerNavn),
         beslutter = formatNavn(beslutterNavn),
-        enhet = gjennomforing.ansvarligEnhet.navn,
+        behandlendeEnhet = behandlendeEnhet,
         besluttetTidspunkt = (totrinnskontroll as TotrinnskontrollDto.Besluttet).besluttetTidspunkt,
     ).right()
 }
@@ -166,7 +168,7 @@ fun hentForhandsvisningVedtaksbrevInnhold(
         arrangor = arrangor,
         saksbehandler = "<saksbehandler-navn>",
         beslutter = "<beslutter-navn>",
-        enhet = "<enhet-navn>",
+        behandlendeEnhet = "<enhet-navn>",
         besluttetTidspunkt = LocalDateTime.now(),
     ).right()
 }

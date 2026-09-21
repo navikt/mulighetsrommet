@@ -54,7 +54,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
                 Signature(
                     saksbehandler = innhold.saksbehandler,
                     beslutter = innhold.beslutter,
-                    enhet = innhold.enhet,
+                    enhet = innhold.behandlendeEnhet,
                 ),
             )
         }

@@ -21,6 +21,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
@@ -33,6 +34,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.api.utils.DatoUtils.tilNorskDato
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.Instant
@@ -45,6 +47,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
     val personaliaService = mockk<PersonaliaService>()
     val brukerUtbetalingService = mockk<BrukerUtbetalingService>(relaxed = true)
     val journalforVedtaksbrev = mockk<JournalforVedtaksbrev>(relaxed = true)
+    val navAnsattService = mockk<NavAnsattService>()
 
     val behandlingId = UUID.randomUUID()
     val tilskuddVedtakId = UUID.randomUUID()
@@ -73,6 +76,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             gradering = Gradering.UGRADERT,
             avvistGrunn = null,
         )
+        coEvery { navAnsattService.getNavAnsattEnhet(any<NavIdent>(), any()) } returns NavEnhetNummer("0400")
     }
 
     afterEach {
@@ -143,6 +147,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            navAnsattService,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -165,6 +170,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            navAnsattService,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -235,6 +241,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            navAnsattService,
         )
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
@@ -267,6 +274,7 @@ class TilskuddBrukerUtbetalingConsumerTest : FunSpec({
             database.api,
             journalforVedtaksbrev,
             mockk(relaxed = true),
+            navAnsattService,
         )
         val consumer = createConsumer()
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()

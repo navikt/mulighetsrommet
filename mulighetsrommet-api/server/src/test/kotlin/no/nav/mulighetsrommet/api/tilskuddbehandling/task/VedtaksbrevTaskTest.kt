@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.TilskuddBehandlingService
@@ -32,6 +33,7 @@ import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
 import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.tokenprovider.AccessType
@@ -47,6 +49,7 @@ class VedtaksbrevTaskTest : FunSpec({
     val deltakerId = UUID.randomUUID()
 
     val personaliaService = mockk<PersonaliaService>()
+    val navAnsattService = mockk<NavAnsattService>()
 
     beforeEach {
         MulighetsrommetTestDomain(
@@ -67,8 +70,9 @@ class VedtaksbrevTaskTest : FunSpec({
             gradering = Gradering.UGRADERT,
             avvistGrunn = null,
         )
+        coEvery { navAnsattService.getNavAnsattEnhet(any<NavIdent>(), any()) } returns NavEnhetNummer("0400")
 
-        opprettOgAttesterTilskudd(database.api, behandlingId, tilskuddVedtakId, tilskuddId)
+        opprettOgAttesterTilskudd(database.api, behandlingId, tilskuddVedtakId, tilskuddId, navAnsattService)
     }
 
     afterEach {
@@ -175,11 +179,12 @@ class VedtaksbrevTaskTest : FunSpec({
     }
 })
 
-private fun opprettOgAttesterTilskudd(
+private suspend fun opprettOgAttesterTilskudd(
     db: ApiDatabase,
     behandlingId: UUID,
     tilskuddVedtakId: UUID,
     tilskuddId: UUID,
+    navAnsattService: NavAnsattService,
 ) {
     val request = TilskuddBehandlingRequest(
         id = behandlingId,
@@ -209,6 +214,7 @@ private fun opprettOgAttesterTilskudd(
         db = db,
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),
+        navAnsattService = navAnsattService,
     )
 
     service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
