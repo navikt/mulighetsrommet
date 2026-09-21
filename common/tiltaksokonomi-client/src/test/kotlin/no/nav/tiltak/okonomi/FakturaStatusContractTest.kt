@@ -1,6 +1,7 @@
 package no.nav.tiltak.okonomi
 
 import io.kotest.core.spec.style.FunSpec
+import no.nav.tiltak.okonomi.test.assertContract
 import java.time.Instant
 
 class FakturaStatusContractTest : FunSpec({

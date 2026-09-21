@@ -1,4 +1,4 @@
-package no.nav.tiltak.okonomi
+package no.nav.tiltak.okonomi.test
 
 import com.diffplug.selfie.coroutines.expectSelfie
 import io.kotest.matchers.shouldBe

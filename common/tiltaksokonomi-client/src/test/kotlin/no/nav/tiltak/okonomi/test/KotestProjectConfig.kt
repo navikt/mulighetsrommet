@@ -1,4 +1,4 @@
-package no.nav.tiltak.okonomi
+package no.nav.tiltak.okonomi.test
 
 import com.diffplug.selfie.kotest.SelfieExtension
 import io.kotest.core.config.AbstractProjectConfig

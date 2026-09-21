@@ -11,6 +11,7 @@ import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import no.nav.mulighetsrommet.model.Tiltakskode
 import no.nav.mulighetsrommet.model.Valuta
+import no.nav.tiltak.okonomi.test.assertContract
 import java.time.Instant
 import java.time.LocalDate
 
