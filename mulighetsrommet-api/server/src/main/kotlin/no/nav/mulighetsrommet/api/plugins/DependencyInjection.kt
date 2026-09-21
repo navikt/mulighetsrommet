@@ -502,7 +502,7 @@ private fun services(appConfig: AppConfig) = module {
     single { PoaoTilgangService(get()) }
     single { DelMedBrukerService(get(), get()) }
     single { GjennomforingDetaljerService(get(), get(), get(), get(), get()) }
-    single { TiltakDokumentAdminService(get()) }
+    single { TiltakDokumentAdminService(get(), get()) }
     single {
         GjennomforingEnkeltplassService(
             get(),
