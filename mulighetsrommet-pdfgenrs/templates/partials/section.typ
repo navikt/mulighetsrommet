@@ -15,7 +15,6 @@
 
   for block in blocks {
     render-block(block)
-    v(0.6em)
   }
 }
 

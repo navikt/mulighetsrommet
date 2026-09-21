@@ -121,13 +121,12 @@
     },
     {
       "title": {
-        "text": "Stengt hos arrangør",
+        "text": "Det er registrert stengt hos arrangør i følgende perioder:",
         "level": 2
       },
       "blocks": [
         {
           "type": "item-list",
-          "description": "Det er registrert stengt hos arrangør i følgende perioder:",
           "items": [
             "07.01.2025 - 13.01.2025: Stengt for ferie"
           ]
@@ -588,13 +587,12 @@
     },
     {
       "title": {
-        "text": "Stengt hos arrangør",
+        "text": "Det er registrert stengt hos arrangør i følgende perioder:",
         "level": 2
       },
       "blocks": [
         {
           "type": "item-list",
-          "description": "Det er registrert stengt hos arrangør i følgende perioder:",
           "items": [
             "07.01.2025 - 13.01.2025: Stengt for ferie"
           ]

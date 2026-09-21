@@ -246,9 +246,9 @@ private fun PdfDocumentContentBuilder.addStengtHosArrangorSection(
 ) {
     val stengt = beregningStengt(beregning)
     if (stengt.isNotEmpty()) {
-        section("Stengt hos arrangør") {
+        section("Det er registrert stengt hos arrangør i følgende perioder:") {
             itemList {
-                description = "Det er registrert stengt hos arrangør i følgende perioder:"
+                description = null
                 stengt.forEach {
                     val start = it.periode.start.formaterDatoTilEuropeiskDatoformat()
                     val slutt = it.periode.getLastInclusiveDate().formaterDatoTilEuropeiskDatoformat()
