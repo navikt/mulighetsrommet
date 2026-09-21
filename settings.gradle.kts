@@ -4,6 +4,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(
     "common:brreg",
+    "common:ereg",
     "common:database",
     "common:database-helpers",
     "common:domain",
