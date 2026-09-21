@@ -39,8 +39,8 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
         prettyPrintIndent = "  "
     }
 
-    val tilskudd = TilskuddFixtures.Tilskudd
-    val behandling = TilskuddFixtures.Behandling.copy(gjennomforingId = HoyereUtdanning.id, tilskudd = listOf(tilskudd))
+    val tilskudd = listOf(TilskuddFixtures.TilskuddInnvilgelse, TilskuddFixtures.TilskuddAvslag)
+    val behandling = TilskuddFixtures.Behandling.copy(gjennomforingId = HoyereUtdanning.id, tilskudd = tilskudd)
     val deltaker = DeltakerFixtures.createDeltaker(
         gjennomforingId = HoyereUtdanning.id,
     )

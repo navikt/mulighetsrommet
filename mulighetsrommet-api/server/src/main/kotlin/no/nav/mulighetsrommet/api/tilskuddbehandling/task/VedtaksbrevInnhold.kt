@@ -9,8 +9,8 @@ import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
+import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
-import no.nav.mulighetsrommet.api.tilskuddbehandling.task.validateGjennomforingPeriode
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Periode
@@ -47,6 +47,7 @@ data class TilskuddBrevVedtak(
     val begrunnelse: String?,
     val belop: Belop?,
     val periode: Periode,
+    val utbetalingMottaker: TilskuddMottaker,
 )
 
 data class Belop(
@@ -109,6 +110,7 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
                     valuta = tilskudd.utbetalingBelop.valuta.name,
                 )
             },
+            utbetalingMottaker = tilskudd.utbetalingMottaker,
         )
     }
 
@@ -158,6 +160,7 @@ fun hentForhandsvisningVedtaksbrevInnhold(
                     valuta = tilskudd.utbetalingBelop.valuta.name,
                 )
             },
+            utbetalingMottaker = tilskudd.utbetalingMottaker,
         )
     }
 

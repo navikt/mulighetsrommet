@@ -29,7 +29,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Beløp til utbetaling: 100 NOK"
+              "text": "Beløp til utbetaling: 1000 NOK"
             }
           ]
         },
@@ -38,6 +38,38 @@
           "words": [
             {
               "text": "Vedtaket er fattet med hjemmel i forskrift om arbeidsmarkedstiltak (tiltaksforskriften) § 7-5, jf. lov om arbeidsmarkedstjenester (arbeidsmarkedsloven) § 13."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Når får du pengene? ",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Pengene vil vanligvis utbetales til kontoen din etter to til tre virkedager.  "
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du kan se alle utbetalingene dine på nav.no/minside. Der kan du også endre kontonummer. Hvis du har reservert deg mot digital kommunikasjon fra det offentlige, får du utbetalingsmelding i posten. Du kan også melde fra om endring i kontonummer via post."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Kontakt oss på telefon 55 55 33 33 hvis du trenger hjelp. "
             }
           ]
         }
@@ -54,6 +86,46 @@
           "words": [
             {
               "text": "Du får dekket skolepenger for å gjennomføre tiltaket Høyere utdanning ved Underenhet 1 AS i perioden 01.01.2025 - 30.12.2025."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Vedtaket gjelder for perioden vi har mottatt faktura for. Hvis Nav skal gi tilskudd senere i utdanningsløpet, må du sende inn ny faktura når du mottar denne."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Vedtaket er fattet med hjemmel i forskrift om arbeidsmarkedstiltak (tiltaksforskriften) § 7-5, jf. lov om arbeidsmarkedstjenester (arbeidsmarkedsloven) § 13."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Ditt krav om eksamensgebyr er avslått for perioden 01.01.2024 - 30.06.2024.",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Søknaden er avslått fordi det ikke er dokumentert at vilkårene for tilskuddet er oppfylt. "
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Vilkårene for tilskuddet er ikke oppfylt, derfor avslås søknaden."
             }
           ]
         },
@@ -109,7 +181,7 @@
           "type": "paragraph",
           "words": [
             {
-              "text": "Hvis du mener vedtaket er feil, kan du klage innen [antall uker fylles ut av breveieren] uker fra den datoen vedtaket har kommet fram til deg. Dette følger av [sett inn lovhenvisning]. Du finner skjema og informasjon på nav.no/klage."
+              "text": "Hvis du mener vedtaket er feil, kan du klage innen 6 uker fra den datoen vedtaket har kommet fram til deg. Dette følger av arbeidsmarkedsloven § 17. Du finner skjema og informasjon på nav.no/klage."
             }
           ]
         },
@@ -150,6 +222,38 @@
           "words": [
             {
               "text": "Mer informasjon om klagerettigheter finner du på nav.no/klagerettigheter."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": {
+        "text": "Har du spørsmål?",
+        "level": 2
+      },
+      "blocks": [
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Du finner mer informasjon på nav.no/opplaring."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "På nav.no/kontakt kan du chatte eller skrive til oss."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "words": [
+            {
+              "text": "Hvis du ikke finner svar på nav.no, kan du ringe oss på telefon 55 55 33 33 hverdager 09.00-15.00."
             }
           ]
         }
