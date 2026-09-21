@@ -45,7 +45,11 @@ class TilskuddBrukerUtbetalingConsumer(
         if (message.status != TotrinnskontrollHendelse.Status.GODKJENT) {
             return
         }
-        if (!listOf(TotrinnskontrollType.TILSKUDD_OPPRETTELSE, TotrinnskontrollType.TILSKUDD_OPPHOR).contains(message.type)) {
+        if (!listOf(
+                TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                TotrinnskontrollType.TILSKUDD_OPPHOR,
+            ).contains(message.type)
+        ) {
             return
         }
 
@@ -66,8 +70,18 @@ class TilskuddBrukerUtbetalingConsumer(
         val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
 
         when (behandling.type) {
-            TilskuddBehandlingType.REGISTRERING -> nyUtbetalingTilBruker(behandling, totrinnskontroll, gjennomforing, personalia)
-            TilskuddBehandlingType.REVURDERING -> revurderUtbetalingTilBruker(behandling, totrinnskontroll, personalia)
+            TilskuddBehandlingType.REGISTRERING -> nyUtbetalingTilBruker(
+                behandling,
+                totrinnskontroll,
+                gjennomforing,
+                personalia,
+            )
+
+            TilskuddBehandlingType.REVURDERING -> revurderUtbetalingTilBruker(
+                behandling,
+                totrinnskontroll,
+                personalia,
+            )
         }
     }
 
@@ -93,8 +107,9 @@ class TilskuddBrukerUtbetalingConsumer(
                     // Idempotency check
                     queries.tilskuddBehandling.acquireLockTilskudd(tilskudd.tilskuddId)
                     val tidligereUtbetaling = queries.brukerUtbetaling.getByTilskuddVedtak(tilskudd.id)
-                    require(tidligereUtbetaling == null) {
-                        "Utbetaling for tilskudd vedtak med id=${tilskudd.id} er allerede opprettet"
+                    if (tidligereUtbetaling != null) {
+                        logger.warn("Revurdering av utbetaling for tilskudd vedtak med id=${tilskudd.id} er allerede opprettet. Sak id=${tidligereUtbetaling.sakId}, behandling id=${tidligereUtbetaling.behandlingId}")
+                        return@transaction
                     }
                     require(queries.brukerUtbetaling.getLastFromTilskudd(tilskudd.tilskuddId) != null) {
                         "Forventet å kunne revurdere utbetaling for tilskuddId=${tilskudd.tilskuddId}, men det finnes ingen tidligere utbetalinger"
@@ -119,35 +134,40 @@ class TilskuddBrukerUtbetalingConsumer(
         behandling.tilskudd
             .filter { it.vedtakResultat.type == VedtakResultat.INNVILGELSE }
             .filter { it.utbetalingMottaker == TilskuddMottaker.BRUKER }
-            .forEach { t ->
+            .forEach { tilskuddVedtak ->
                 db.transaction {
                     // Idempotency check
-                    queries.tilskuddBehandling.acquireLockTilskudd(t.tilskuddId)
-                    if (queries.brukerUtbetaling.getByTilskuddVedtak(t.id) != null) {
-                        logger.info("Utbetaling for tilskudd vedtak med id=${t.id} er allerede opprettet, hopper over")
-                        return
+                    queries.tilskuddBehandling.acquireLockTilskudd(tilskuddVedtak.tilskuddId)
+                    val tidligereUtbetaling = queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtak.id)
+                    if (tidligereUtbetaling != null) {
+                        logger.warn("Utbetaling for tilskudd vedtak med id=${tilskuddVedtak.id} er allerede opprettet. Sak id=${tidligereUtbetaling.sakId}, behandling id=${tidligereUtbetaling.behandlingId}")
+                        return@transaction
                     }
 
                     val besluttetDato = requireNotNull(totrinnskontroll.besluttetTidspunkt)
                     queries.brukerUtbetaling.insert(
                         UpsertBrukerUtbetalingDbo(
                             id = UUID.randomUUID(),
-                            sakId = t.tilskuddsnummer,
+                            sakId = tilskuddVedtak.tilskuddsnummer,
                             transaksjonsDato = besluttetDato.tilNorskDato(),
-                            belop = requireNotNull(t.utbetalingBelop?.belop) {
+                            belop = requireNotNull(tilskuddVedtak.utbetalingBelop?.belop) {
                                 "utbetalingBelop var null"
                             },
-                            tilskuddstype = t.tilskuddOpplaeringType.toHelVedTilskuddstype(),
+                            tilskuddstype = tilskuddVedtak.tilskuddOpplaeringType.toHelVedTilskuddstype(),
                             saksbehandler = saksbehandler,
                             beslutter = beslutter,
                             besluttetTidspunkt = besluttetDato,
                             tiltakskode = gjennomforing.tiltakstype.tiltakskode.toHelVedTiltakskode(),
-                            tilskuddVedtakId = t.id,
+                            tilskuddVedtakId = tilskuddVedtak.id,
                         ),
                     )
 
-                    val brukerUtbetaling = requireNotNull(queries.brukerUtbetaling.getByTilskuddVedtak(t.id))
-                    brukerUtbetalingService.produceTilskuddUtbetaling(brukerUtbetaling.toHelVedUtbetaling(brukerPersonalia.norskIdent()))
+                    val brukerUtbetaling = requireNotNull(queries.brukerUtbetaling.getByTilskuddVedtak(tilskuddVedtak.id))
+                    brukerUtbetalingService.produceTilskuddUtbetaling(
+                        brukerUtbetaling.toHelVedUtbetaling(
+                            brukerPersonalia.norskIdent(),
+                        ),
+                    )
                 }
             }
     }

@@ -578,7 +578,7 @@ class UtbetalingQueries(private val session: Session) {
         return list(queryOf(query, params)) { it.toUtbetaling() }
     }
 
-    fun getByTilskudd(tilskuddVedtakId: UUID): Utbetaling? = with(session) {
+    fun getByTilskuddVedtak(tilskuddVedtakId: UUID): Utbetaling? = with(session) {
         @Language("PostgreSQL")
         val query = """
             select *

@@ -178,9 +178,9 @@ class TilskuddBehandlingQueriesTest : FunSpec({
             queries.tilskuddBehandling.upsert(behandling)
             queries.utbetaling.upsert(UtbetalingFixtures.utbetaling1)
 
-            queries.tilskuddBehandling.setUtbetaling(tilskudd.id, UtbetalingFixtures.utbetaling1.id)
+            queries.tilskuddBehandling.setUtbetalingTilskuddVedtak(tilskudd.id, UtbetalingFixtures.utbetaling1.id)
 
-            queries.utbetaling.getByTilskudd(tilskudd.id) should {
+            queries.utbetaling.getByTilskuddVedtak(tilskudd.id) should {
                 it!!.id shouldBe UtbetalingFixtures.utbetaling1.id
             }
         }
