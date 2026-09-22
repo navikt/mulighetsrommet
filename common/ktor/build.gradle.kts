@@ -15,6 +15,9 @@ dependencies {
     implementation(projects.common.nais)
     implementation(projects.common.metrics)
     implementation(projects.common.domain)
+    api(projects.common.logging)
+    api(projects.common.cache)
+    api(projects.common.serialization)
 
     testFixturesImplementation(libs.ktor.client.core)
     testFixturesImplementation(libs.ktor.client.mock)
