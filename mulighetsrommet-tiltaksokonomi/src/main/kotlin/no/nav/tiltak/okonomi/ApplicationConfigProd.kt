@@ -31,6 +31,9 @@ val ApplicationConfigProd = AppConfig(
             url = "https://oebs-po-ap-api.prod-fss-pub.nais.io",
             scope = "api://prod-fss.team-oebs.oebs-po-ap-api/.default",
         ),
+        ereg = HttpClientConfig(
+            url = "https://ereg-services.prod-fss-pub.nais.io",
+        ),
     ),
     slack = SlackConfig(
         token = System.getenv("SLACK_TOKEN"),

@@ -24,6 +24,7 @@ import no.nav.mulighetsrommet.brreg.BrregClient
 import no.nav.mulighetsrommet.database.Database
 import no.nav.mulighetsrommet.database.FlywayMigrationManager
 import no.nav.mulighetsrommet.env.NaisEnv
+import no.nav.mulighetsrommet.ereg.EregClient
 import no.nav.mulighetsrommet.kafka.KafkaConsumerOrchestrator
 import no.nav.mulighetsrommet.kafka.KafkaConsumerRepositoryImpl
 import no.nav.mulighetsrommet.kafka.WaitUntilScheduledAtBackoffStrategy
@@ -98,6 +99,8 @@ fun Application.configure(config: AppConfig) {
 
     val brreg = BrregClient(config.httpClientEngine)
 
+    val ereg = EregClient(config.httpClientEngine, config.clients.ereg.url)
+
     val okonomiDb = OkonomiDatabase(db)
 
     val okonomi = TiltaksokonomiService(
@@ -107,6 +110,7 @@ fun Application.configure(config: AppConfig) {
         db = okonomiDb,
         oebs = oebs,
         brreg = brreg,
+        ereg = ereg,
     )
 
     val kafka = configureKafka(config.kafka, db, okonomi)
