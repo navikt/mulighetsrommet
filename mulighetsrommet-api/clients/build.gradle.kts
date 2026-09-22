@@ -11,7 +11,6 @@ dependencies {
     implementation(projects.mulighetsrommetApi.domain)
 
     implementation(projects.common.domain)
-    implementation(projects.common.ktor)
     implementation(projects.common.ktorClients)
     implementation(projects.common.tokenProvider)
 
