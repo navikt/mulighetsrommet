@@ -81,7 +81,7 @@ data class ArrangorflateUtbetaling(
      * Om utbetalingen er av en type og status som i utgangspunktet tillater regenerering.
      */
     fun erRegenererbarType(): Boolean {
-        return innsending != null && status === UtbetalingStatusType.AVBRUTT && when (beregning) {
+        return status === UtbetalingStatusType.AVBRUTT && when (beregning) {
             is UtbetalingBeregningAvtaltPrisPerTimeOppfolging,
             is UtbetalingBeregningFastSatsPerBenyttetPlassPerManed,
             is UtbetalingBeregningAvtaltPrisPerBenyttetPlassPerHeleUke,
