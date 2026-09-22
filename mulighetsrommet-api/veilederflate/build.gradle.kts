@@ -14,6 +14,9 @@ dependencies {
     implementation(projects.mulighetsrommetApi.clients)
 
     implementation(projects.common.domain)
+    implementation(projects.common.logging)
+    implementation(projects.common.cache)
+    implementation(projects.common.serialization)
     implementation(projects.common.database)
     implementation(projects.common.ktor)
     implementation(projects.common.ktorClients)
