@@ -7,7 +7,6 @@ import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeTypeOf
-import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
@@ -15,7 +14,6 @@ import no.nav.mulighetsrommet.api.domain.testing.fixture.AvtaleFixtures
 import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture
 import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures
 import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
-import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
@@ -24,7 +22,6 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.api.ValutaBelopRequest
 import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavEnhetNummer
-import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.Valuta
 import java.time.LocalDate
 import java.util.UUID
@@ -46,8 +43,6 @@ class TilskuddBehandlingServiceTest : FunSpec({
     afterEach {
         database.truncateAll()
     }
-    val navAnsattService = mockk<NavAnsattService>(relaxed = true)
-    coEvery { navAnsattService.getNavAnsattEnhet(any<NavIdent>(), any()) } returns NavEnhetNummer("0400")
 
     val request = TilskuddBehandlingRequest(
         id = UUID.randomUUID(),
@@ -80,7 +75,6 @@ class TilskuddBehandlingServiceTest : FunSpec({
         db = database.api,
         journalforVedtaksbrev = mockk(relaxed = true),
         pdf = mockk(relaxed = true),
-        navAnsattService = navAnsattService,
     )
 
     context("attester og returner") {

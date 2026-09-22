@@ -15,7 +15,6 @@ import no.nav.mulighetsrommet.api.TransactionalQueryContext
 import no.nav.mulighetsrommet.api.domain.navansatt.Rolle
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenError
 import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
@@ -37,7 +36,6 @@ import no.nav.mulighetsrommet.model.Agent
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.NavIdent
-import no.nav.mulighetsrommet.tokenprovider.AccessType
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
@@ -46,16 +44,15 @@ class TilskuddBehandlingService(
     private val db: ApiDatabase,
     private val journalforVedtaksbrev: JournalforVedtaksbrev,
     private val pdf: PdfGenClient,
-    private val navAnsattService: NavAnsattService,
 ) {
-    suspend fun upsert(
+    fun upsert(
         request: TilskuddBehandlingRequest,
         navIdent: NavIdent,
     ): Either<List<FieldError>, Unit> {
         val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(request.gjennomforingId) }
             ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
-        val behandlendeEnhet = navAnsattService.getNavAnsattEnhet(navIdent, AccessType.M2M)
-            ?: throw IllegalStateException("Fant ikke enhet for ansatt $navIdent")
+        val behandlendeEnhet = db.session { queries.ansatt.get(navIdent) }?.hovedenhet
+            ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
 
         return TilskuddBehandlingValidator
             .validate(request, gjennomforing, behandlendeEnhet)
@@ -270,8 +267,8 @@ class TilskuddBehandlingService(
             ?: throw IllegalStateException("Fant ikke tilskudd for tilskuddVedtakId=$forrigeTilskuddVedtakId i behandlingId=$behandlingId")
 
         queries.tilskuddBehandling.acquireLockTilskudd(forrigeTilskuddVedtak.tilskuddId)
-        val behandlendeEnhet = navAnsattService.getNavAnsattEnhet(saksbehandler, AccessType.M2M)
-            ?: throw IllegalStateException("Fant ikke enhet for ansatt $saksbehandler")
+        val behandlendeEnhet = db.session { queries.ansatt.get(saksbehandler) }?.hovedenhet
+            ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $saksbehandler")
 
         val opphorRevurdering = tidligereBehandling.copy(
             id = UUID.randomUUID(),
@@ -341,8 +338,8 @@ class TilskuddBehandlingService(
     ): Either<List<FieldError>, ByteArray> = db.session {
         val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(request.gjennomforingId) }
             ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
-        val behandlendeEnhet = navAnsattService.getNavAnsattEnhet(navIdent, AccessType.M2M)
-            ?: throw IllegalStateException("Fant ikke enhet for ansatt $navIdent")
+        val behandlendeEnhet = db.session { queries.ansatt.get(navIdent) }?.hovedenhet
+            ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
 
         return TilskuddBehandlingValidator
             .validate(request, gjennomforing, behandlendeEnhet)

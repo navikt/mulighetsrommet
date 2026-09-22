@@ -100,7 +100,11 @@ class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
 
         val pdfContent = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(innhold)
 
-        expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
+        // ignorerer forskjell i generert løpenummer i json snapshot
+        val json = jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent)
+            .replace(Regex("""\d{4}/\d+"""), "2026/10000")
+
+        expectSelfie(json)
             .toMatchDisk("vedtakInnvilgelseOgAvslag")
     }
 
