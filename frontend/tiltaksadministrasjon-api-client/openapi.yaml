@@ -3979,7 +3979,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Tilskudd"
+               $ref: "#/components/schemas/TilskuddDto"
         default:
           description: Problem details
           headers: {}
@@ -9452,7 +9452,6 @@ components:
       - REDIGER
       - ATTESTER
       - RETURNER
-      - OPPHOR
     TilskuddBehandlingDetaljerDto:
       type: object
       properties:
@@ -9469,6 +9468,23 @@ components:
       - behandling
       - handlinger
       - opprettelse
+    TilskuddHandling:
+      type: string
+      enum:
+      - OPPHOR
+    TilskuddDto:
+      type: object
+      properties:
+        tilskudd:
+          $ref: "#/components/schemas/Tilskudd"
+        handlinger:
+          type: array
+          items:
+            $ref: "#/components/schemas/TilskuddHandling"
+          uniqueItems: true
+      required:
+      - handlinger
+      - tilskudd
     TilskuddBehandlingKompakt:
       type: object
       properties:

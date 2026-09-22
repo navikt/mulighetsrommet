@@ -207,7 +207,6 @@ class TilskuddBehandlingService(
             TilskuddBehandlingHandling.REDIGER.takeIf { behandling.status.type == TilskuddBehandlingStatus.RETURNERT },
             TilskuddBehandlingHandling.ATTESTER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
             TilskuddBehandlingHandling.RETURNER.takeIf { behandling.status.type == TilskuddBehandlingStatus.TIL_ATTESTERING },
-            TilskuddBehandlingHandling.OPPHOR.takeIf { behandling.status.type == TilskuddBehandlingStatus.FERDIG_BEHANDLET },
         )
             .filter {
                 val kostnadssted = behandling.tilskudd.firstOrNull()?.kostnadssted?.enhetsnummer
@@ -217,9 +216,6 @@ class TilskuddBehandlingService(
                     navIdent = navIdent,
                     kostnadssted = kostnadssted,
                     totrinnskontroll = totrinnskontroll,
-                    harTilskuddUtenOpphor = behandling.tilskudd.any { tilskudd ->
-                        tilskudd.utbetalingBelop?.let { utbetalingsBelop -> utbetalingsBelop.belop > 0 } ?: false
-                    },
                 )
             }
             .toSet()
@@ -230,13 +226,11 @@ class TilskuddBehandlingService(
         navIdent: NavIdent,
         kostnadssted: NavEnhetNummer,
         totrinnskontroll: TotrinnskontrollDto,
-        harTilskuddUtenOpphor: Boolean,
     ): Boolean {
         val ansatt = db.session { queries.ansatt.getOrError(navIdent) }
 
         val attestant = ansatt.hasKontorspesifikkRolle(Rolle.ATTESTANT_UTBETALING, setOf(kostnadssted))
         val saksbehandler = ansatt.hasGenerellRolle(Rolle.SAKSBEHANDLER_OKONOMI)
-        val teamMulighetsrommet = ansatt.hasGenerellRolle(Rolle.TEAM_MULIGHETSROMMET)
         val erIkkeBehandletAvAnsatt = totrinnskontroll.behandletAv.agent != ansatt.navIdent
 
         return when (handling) {
@@ -248,10 +242,6 @@ class TilskuddBehandlingService(
 
             TilskuddBehandlingHandling.ATTESTER -> {
                 attestant && erIkkeBehandletAvAnsatt
-            }
-
-            TilskuddBehandlingHandling.OPPHOR -> {
-                teamMulighetsrommet && harTilskuddUtenOpphor
             }
         }
     }

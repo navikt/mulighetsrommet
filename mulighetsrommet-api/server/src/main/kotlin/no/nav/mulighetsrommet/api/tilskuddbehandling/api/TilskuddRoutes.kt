@@ -62,7 +62,7 @@ fun Route.tilskuddRoutes() {
                 response {
                     code(HttpStatusCode.OK) {
                         description = "Tilskudd"
-                        body<Tilskudd>()
+                        body<TilskuddDto>()
                     }
                     default {
                         description = "Problem details"
@@ -73,7 +73,7 @@ fun Route.tilskuddRoutes() {
                 val tilskuddId = call.parameters.getOrFail<UUID>("tilskuddId")
                 val result = db.session { queries.tilskudd.get(tilskuddId) }
                     ?: return@get call.respond(HttpStatusCode.NotFound)
-                call.respond(result)
+                call.respond(TilskuddDto.from(result))
             }
         }
     }
@@ -104,4 +104,29 @@ data class TilskuddKompaktDto(
             )
         }
     }
+}
+
+@Serializable
+data class TilskuddDto(
+    val tilskudd: Tilskudd,
+    val handlinger: Set<TilskuddHandling>,
+) {
+    companion object {
+        fun from(tilskudd: Tilskudd): TilskuddDto {
+            return TilskuddDto(
+                tilskudd = tilskudd,
+                handlinger = handlingerFor(tilskudd),
+            )
+        }
+    }
+}
+
+@Serializable
+enum class TilskuddHandling {
+    OPPHOR,
+}
+
+private fun handlingerFor(tilskudd: Tilskudd): Set<TilskuddHandling> {
+    val harOpphor = tilskudd.vedtak.any { it.utbetalingBelop?.belop?.let { belop -> belop > 0 } == true }
+    return if (harOpphor) setOf(TilskuddHandling.OPPHOR) else emptySet()
 }

@@ -6,26 +6,45 @@ import { Definisjonsliste } from "@mr/frontend-common/components/definisjonslist
 import { Lenke } from "@mr/frontend-common/components/lenke/Lenke";
 import { formaterDato, formaterPeriode } from "@mr/frontend-common/utils/date";
 import { formaterValutaBelop } from "@mr/frontend-common/utils/utils";
-import { BodyShort, ExpansionCard, Heading, VStack } from "@navikt/ds-react";
-import { TilskuddVedtak } from "@tiltaksadministrasjon/api-client";
+import { BodyShort, Button, ExpansionCard, Heading, VStack } from "@navikt/ds-react";
+import {
+  TilskuddHandling,
+  TilskuddVedtak,
+  VedtakResultat,
+} from "@tiltaksadministrasjon/api-client";
 import { tilskuddMottakerToString } from "@/utils/Utils";
+import { useOpphorBrukerUtbetaling } from "@/api/tilskudd-behandling/mutations";
+import { useNavigate } from "react-router";
 
 export function TilskuddDetaljerPage() {
   const { gjennomforingId, tilskuddId } = useRequiredParams(["gjennomforingId", "tilskuddId"]);
   const { data: tilskudd } = useTilskudd(tilskuddId);
+  const navigate = useNavigate();
+  const opphorMutation = useOpphorBrukerUtbetaling();
+
+  function opphorUtbetaling(tilskuddBehandlingId: string, tilskuddVedtakId: string) {
+    opphorMutation.mutate(
+      { tilskuddBehandlingId, tilskuddVedtakId },
+      {
+        onSuccess({ behandlingId }) {
+          navigate(`/gjennomforinger/${gjennomforingId}/tilskudd-behandling/${behandlingId}`);
+        },
+      },
+    );
+  }
 
   return (
     <TilskuddLayout gjennomforingId={gjennomforingId}>
       <VStack gap="space-16">
         <Heading level="1" size="medium">
-          {tilskudd.type.navn}
+          {tilskudd.tilskudd.type.navn}
         </Heading>
         <Definisjonsliste
           title="Tilskudd"
-          definitions={[{ key: "Tilskuddsnummer", value: tilskudd.tilskuddsnummer }]}
+          definitions={[{ key: "Tilskuddsnummer", value: tilskudd.tilskudd.tilskuddsnummer }]}
         />
         <VStack gap="space-16">
-          {tilskudd.vedtak.map((vedtak: TilskuddVedtak, index: number) => (
+          {tilskudd.tilskudd.vedtak.map((vedtak: TilskuddVedtak, index: number) => (
             <ExpansionCard
               key={vedtak.id}
               defaultOpen={index === 0}
@@ -69,6 +88,17 @@ export function TilskuddDetaljerPage() {
                       { key: "Intern kommentar", value: vedtak.kommentarIntern ?? "-" },
                     ]}
                   />
+                  {tilskudd.handlinger.includes(TilskuddHandling.OPPHOR) &&
+                    vedtak.vedtakResultat.type === VedtakResultat.INNVILGELSE && (
+                      <Button
+                        type="button"
+                        variant="tertiary"
+                        data-color="danger"
+                        onClick={() => opphorUtbetaling(vedtak.behandlingId, vedtak.id)}
+                      >
+                        Opphør
+                      </Button>
+                    )}
                   <Separator />
                   <Lenke
                     to={`/gjennomforinger/${gjennomforingId}/tilskudd-behandling/${vedtak.behandlingId}`}

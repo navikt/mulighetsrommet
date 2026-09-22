@@ -54,18 +54,18 @@ export function useReturnerTilskuddBehandling(gjennomforingId: string) {
   });
 }
 
-export function useOpphorBrukerUtbetaling(behandlingId: string) {
+export function useOpphorBrukerUtbetaling() {
   const queryClient = useQueryClient();
 
   return useApiMutation<
     TilskuddBehandlingOpphorResponse,
     ProblemDetail,
-    { tilskuddVedtakId: string }
+    { tilskuddBehandlingId: string; tilskuddVedtakId: string }
   >({
-    mutationFn: async ({ tilskuddVedtakId }) =>
+    mutationFn: async ({ tilskuddBehandlingId, tilskuddVedtakId }) =>
       (
         await UtbetalingService.postTilskuddVedtakOpphor({
-          path: { tilskuddBehandlingId: behandlingId, tilskuddVedtakId },
+          path: { tilskuddBehandlingId, tilskuddVedtakId },
         })
       ).data,
     async onSuccess(data) {

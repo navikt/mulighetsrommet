@@ -1,6 +1,5 @@
 import {
   useGodkjennTilskuddBehandling,
-  useOpphorBrukerUtbetaling,
   useReturnerTilskuddBehandling,
 } from "@/api/tilskudd-behandling/mutations";
 import { useTilskuddBehandling } from "@/api/tilskudd-behandling/useTilskuddBehandling";
@@ -14,7 +13,6 @@ import {
   TilskuddBehandlingStatusAarsak,
   ValidationError,
   Valuta,
-  VedtakResultat,
 } from "@tiltaksadministrasjon/api-client";
 import { Alert, BodyShort, Box, Button, HStack, List, VStack } from "@navikt/ds-react";
 import { useState } from "react";
@@ -66,8 +64,6 @@ export function TilskuddBehandlingDetaljerPage() {
 
   const godkjennMutation = useGodkjennTilskuddBehandling(gjennomforingId);
   const returnerMutation = useReturnerTilskuddBehandling(gjennomforingId);
-  const opphorMutation = useOpphorBrukerUtbetaling(behandlingId);
-
   const listUrl = `/gjennomforinger/${gjennomforingId}/tilskudd-behandling`;
 
   function attester() {
@@ -89,17 +85,6 @@ export function TilskuddBehandlingDetaljerPage() {
           navigate(listUrl);
         },
         onValidationError: (error: ValidationError) => setErrors(error.errors),
-      },
-    );
-  }
-
-  function opphorUtbetaling(tilskuddId: string) {
-    opphorMutation.mutate(
-      { tilskuddVedtakId: tilskuddId },
-      {
-        onSuccess({ behandlingId }) {
-          navigate(`${listUrl}/${behandlingId}`);
-        },
       },
     );
   }
@@ -187,17 +172,6 @@ export function TilskuddBehandlingDetaljerPage() {
                         ]}
                       />
                     </VStack>
-                    {handlinger.includes(TilskuddBehandlingHandling.OPPHOR) &&
-                      t.vedtakResultat.type === VedtakResultat.INNVILGELSE && (
-                        <Button
-                          type="button"
-                          variant="tertiary"
-                          data-color="danger"
-                          onClick={() => opphorUtbetaling(t.id)}
-                        >
-                          Opphør
-                        </Button>
-                      )}
                     <MetadataFritekstfelt
                       label="Kommentar (internt i Nav)"
                       value={t.kommentarIntern}
