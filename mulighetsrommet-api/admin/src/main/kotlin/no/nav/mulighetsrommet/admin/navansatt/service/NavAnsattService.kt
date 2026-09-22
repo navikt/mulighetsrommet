@@ -1,12 +1,12 @@
-package no.nav.mulighetsrommet.api.navansatt.service
+package no.nav.mulighetsrommet.admin.navansatt.service
 
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import no.nav.mulighetsrommet.api.ApiDatabase
-import no.nav.mulighetsrommet.api.EntraGroupNavAnsattRolleMapping
+import no.nav.mulighetsrommet.admin.AdminDatabase
+import no.nav.mulighetsrommet.admin.navansatt.EntraGroupNavAnsattRolleMapping
 import no.nav.mulighetsrommet.api.clients.msgraph.EntraNavAnsatt
 import no.nav.mulighetsrommet.api.clients.msgraph.MsGraphClient
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
@@ -20,18 +20,18 @@ import java.util.UUID
 
 class NavAnsattService(
     private val roles: Set<EntraGroupNavAnsattRolleMapping>,
-    private val db: ApiDatabase,
+    private val db: AdminDatabase,
     private val microsoftGraphClient: MsGraphClient,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    suspend fun getOrSynchronizeNavAnsatt(navIdent: NavIdent, accessType: AccessType): NavAnsatt = db.transaction {
-        queries.ansatt.get(navIdent) ?: run {
+    suspend fun getOrSynchronizeNavAnsatt(navIdent: NavIdent, accessType: AccessType): NavAnsatt = db.suspendTransaction {
+        repository.navAnsatt.get(navIdent) ?: run {
             logger.info("Fant ikke NavAnsatt for navIdent=$navIdent i databasen, forsøker Azure AD i stedet")
 
             val ansatt = getNavAnsattFromAzure(navIdent, accessType)
-            queries.ansatt.save(ansatt)
-            queries.ansatt.getOrError(navIdent)
+            repository.navAnsatt.save(ansatt)
+            repository.navAnsatt.getOrError(navIdent)
         }
     }
 
@@ -40,20 +40,20 @@ class NavAnsattService(
     }
 
     fun getNavAnsattByNavIdent(navIdent: NavIdent): NavAnsatt? = db.session {
-        queries.ansatt.get(navIdent)
+        repository.navAnsatt.get(navIdent)
     }
 
-    suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.transaction {
+    suspend fun addUserToKontaktpersoner(navIdent: NavIdent): Unit = db.suspendTransaction {
         val kontaktPersonGruppeId = roles.find { it.rolle == Rolle.KONTAKTPERSON }?.entraGroupId
         requireNotNull(kontaktPersonGruppeId)
 
         val ansatt = getOrSynchronizeNavAnsatt(navIdent, AccessType.M2M)
         if (ansatt.hasGenerellRolle(Rolle.KONTAKTPERSON)) {
-            return
+            return@suspendTransaction
         }
 
         val roller = ansatt.roller + NavAnsattRolle.generell(Rolle.KONTAKTPERSON)
-        queries.ansatt.save(ansatt.medRoller(roller))
+        repository.navAnsatt.save(ansatt.medRoller(roller))
 
         microsoftGraphClient.addToGroup(ansatt.entraObjectId, kontaktPersonGruppeId)
     }

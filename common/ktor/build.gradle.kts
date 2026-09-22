@@ -19,6 +19,7 @@ dependencies {
     testFixturesImplementation(libs.ktor.client.core)
     testFixturesImplementation(libs.ktor.client.mock)
     testFixturesImplementation(libs.ktor.serialization.json)
+    testFixturesImplementation(projects.common.serialization)
     implementation(libs.ktor.server.callLogging)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.metricsMicrometer)
@@ -29,9 +30,6 @@ dependencies {
 
     // Logging
     implementation(libs.slf4j)
-
-    // Cache
-    implementation(libs.caffeine)
 
     // Test
     testImplementation(libs.kotest.junit)

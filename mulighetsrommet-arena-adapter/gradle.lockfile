@@ -22,7 +22,6 @@ com.fasterxml.jackson.core:jackson-databind:2.22.2=runtimeClasspath,testRuntimeC
 com.fasterxml.jackson:jackson-bom:2.22.2=runtimeClasspath,testRuntimeClasspath
 com.github.ajalt.clikt:clikt-jvm:5.0.3=ktlint
 com.github.ajalt.clikt:clikt:5.0.3=ktlint
-com.github.ben-manes.caffeine:caffeine:3.2.4=runtimeClasspath,testRuntimeClasspath
 com.github.erosb:everit-json-schema:1.14.6=compileClasspath,runtimeClasspath,testCompileClasspath,testRuntimeClasspath
 com.github.jnr:jffi:1.4.0=runtimeClasspath,testRuntimeClasspath
 com.github.jnr:jnr-a64asm:1.0.0=runtimeClasspath,testRuntimeClasspath

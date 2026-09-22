@@ -11,6 +11,7 @@ application {
 dependencies {
     implementation(projects.common.nais)
     implementation(projects.common.domain)
+    implementation(projects.common.serialization)
     implementation(projects.common.brreg)
     implementation(projects.common.ereg)
     implementation(projects.common.database)

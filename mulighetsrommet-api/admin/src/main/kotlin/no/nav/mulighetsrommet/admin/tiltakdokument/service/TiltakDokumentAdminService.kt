@@ -9,6 +9,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.AdminDatabase
 import no.nav.mulighetsrommet.admin.QueryContext
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
+import no.nav.mulighetsrommet.admin.navansatt.service.NavAnsattService
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentDto
 import no.nav.mulighetsrommet.admin.tiltakdokument.TiltakDokumentHandling
 import no.nav.mulighetsrommet.api.domain.navansatt.NavAnsatt
@@ -58,14 +59,18 @@ data class TiltakDokumentRequest(
 
 class TiltakDokumentAdminService(
     private val db: AdminDatabase,
+    private val navAnsattService: NavAnsattService,
 ) {
-    fun upsert(request: TiltakDokumentRequest, navIdent: NavIdent): Either<List<FieldError>, TiltakDokumentDto> {
+    suspend fun upsert(request: TiltakDokumentRequest, navIdent: NavIdent): Either<List<FieldError>, TiltakDokumentDto> {
         val tiltakstype = db.session { repository.tiltakstype.get(request.tiltakstypeId) }
             ?: return FieldError.of("Fant ikke tiltakstype", TiltakDokumentRequest::tiltakstypeId).nel().left()
 
         val previous = db.session { queries.tiltakDokument.getTiltakDokumentDto(request.id) }
 
         return TiltakDokumentValidator.validate(request, tiltakstype, previous)
+            .onRight {
+                it.kontaktpersoner.forEach { navAnsattService.addUserToKontaktpersoner(it.navIdent) }
+            }
             .map { tiltakDokument ->
                 db.transaction {
                     val isNew = previous == null

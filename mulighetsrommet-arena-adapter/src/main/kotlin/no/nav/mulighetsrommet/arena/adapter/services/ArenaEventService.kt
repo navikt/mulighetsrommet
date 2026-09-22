@@ -22,7 +22,7 @@ import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEntityMapping.Status.Unhandled
 import no.nav.mulighetsrommet.arena.adapter.models.db.ArenaEvent
 import no.nav.mulighetsrommet.arena.adapter.repositories.ArenaEventRepository
-import no.nav.mulighetsrommet.arena.adapter.utils.teamLogsWarn
+import no.nav.mulighetsrommet.teamLogsWarn
 import org.slf4j.LoggerFactory
 import kotlin.time.measureTime
 
