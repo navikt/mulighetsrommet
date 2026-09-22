@@ -3,6 +3,7 @@ select tb.id,
        tb.status,
        tb.type,
        tb.gjennomforing_id,
+       tb.behandlende_enhet,
        vedtak_json
 from tilskudd_behandling tb
          left join lateral (
@@ -33,6 +34,7 @@ from tilskudd_behandling tb
                                     'utbetalingMottaker', v.utbetaling_mottaker,
                                     'kid', v.kid,
                                     'kommentarIntern', v.kommentar_intern,
+                                    'behandlendeEnhet', tb.behandlende_enhet,
                                     'vedtakJournalpostId', v.vedtak_journalpost_id,
                                     'vedtakJournalpostDistribueringId', v.vedtak_journalpost_distribuering_id,
                                     'vedtakJournalfortTidspunkt', v.vedtak_journalfort_tidspunkt,

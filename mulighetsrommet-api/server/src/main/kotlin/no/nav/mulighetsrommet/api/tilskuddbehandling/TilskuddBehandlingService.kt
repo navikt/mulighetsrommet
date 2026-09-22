@@ -8,7 +8,6 @@ import arrow.core.right
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import no.nav.mulighetsrommet.admin.endringshistorikk.EndringshistorikkType
-import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
 import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.QueryContext
@@ -27,8 +26,10 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingKom
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingRequest
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusAarsak
+import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatusDto
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
 import no.nav.mulighetsrommet.api.tilskuddbehandling.task.JournalforVedtaksbrev
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentForhandsvisningVedtaksbrevInnhold
 import no.nav.mulighetsrommet.api.totrinnskontroll.api.toFieldErrors
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingException
 import no.nav.mulighetsrommet.model.Agent
@@ -50,9 +51,11 @@ class TilskuddBehandlingService(
     ): Either<List<FieldError>, Unit> {
         val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(request.gjennomforingId) }
             ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
+        val behandlendeEnhet = db.session { queries.ansatt.get(navIdent) }?.hovedenhet
+            ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
 
         return TilskuddBehandlingValidator
-            .validate(request, gjennomforing)
+            .validate(request, gjennomforing, behandlendeEnhet)
             .map { dbo ->
                 db.transaction {
                     queries.tilskuddBehandling.upsert(dbo)
@@ -214,7 +217,9 @@ class TilskuddBehandlingService(
                     navIdent = navIdent,
                     kostnadssted = kostnadssted,
                     totrinnskontroll = totrinnskontroll,
-                    harTilskuddUtenOpphor = behandling.tilskudd.any { tilskudd -> tilskudd.utbetalingBelop?.let { utbetalingsBelop -> utbetalingsBelop.belop > 0 } ?: false },
+                    harTilskuddUtenOpphor = behandling.tilskudd.any { tilskudd ->
+                        tilskudd.utbetalingBelop?.let { utbetalingsBelop -> utbetalingsBelop.belop > 0 } ?: false
+                    },
                 )
             }
             .toSet()
@@ -251,29 +256,32 @@ class TilskuddBehandlingService(
         }
     }
 
-    fun revurderingOpphor(
+    suspend fun revurderingOpphor(
         forrigeTilskuddVedtakId: UUID,
         behandlingId: UUID,
         saksbehandler: NavIdent,
     ): Either<List<FieldError>, UUID> = db.transaction {
-        val tidligereBehandling = queries.tilskuddBehandling.get(behandlingId)?.toDbo()
+        val tidligereBehandling = queries.tilskuddBehandling.get(behandlingId)
             ?: throw IllegalStateException("Fant ikke tilskuddsbehandling for behandlingId=$behandlingId")
         val forrigeTilskuddVedtak = tidligereBehandling.tilskudd.firstOrNull { it.id == forrigeTilskuddVedtakId }
             ?: throw IllegalStateException("Fant ikke tilskudd for tilskuddVedtakId=$forrigeTilskuddVedtakId i behandlingId=$behandlingId")
 
         queries.tilskuddBehandling.acquireLockTilskudd(forrigeTilskuddVedtak.tilskuddId)
+        val behandlendeEnhet = db.session { queries.ansatt.get(saksbehandler) }?.hovedenhet
+            ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $saksbehandler")
 
         val opphorRevurdering = tidligereBehandling.copy(
             id = UUID.randomUUID(),
             type = TilskuddBehandlingType.REVURDERING,
-            status = TilskuddBehandlingStatus.TIL_ATTESTERING,
+            status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.TIL_ATTESTERING),
             tilskudd = listOf(
                 forrigeTilskuddVedtak.copy(
                     id = UUID.randomUUID(),
                     utbetalingBelop = forrigeTilskuddVedtak.utbetalingBelop?.copy(belop = 0),
                 ),
             ),
-        )
+            behandlendeEnhet = behandlendeEnhet,
+        ).toDbo()
 
         queries.tilskuddBehandling.upsert(opphorRevurdering)
         revurderingOpphorTotrinnkontroll(
@@ -326,12 +334,15 @@ class TilskuddBehandlingService(
 
     suspend fun vedtaksbrevForhandsvisPdf(
         request: TilskuddBehandlingRequest,
+        navIdent: NavIdent,
     ): Either<List<FieldError>, ByteArray> = db.session {
         val gjennomforing = db.session { queries.gjennomforing.getGjennomforing(request.gjennomforingId) }
             ?: throw IllegalStateException("Fant ikke gjennomføring for tilskuddsbehandling")
+        val behandlendeEnhet = db.session { queries.ansatt.get(navIdent) }?.hovedenhet
+            ?: throw IllegalArgumentException("Fant ikke enhet for ansatt $navIdent")
 
         return TilskuddBehandlingValidator
-            .validate(request, gjennomforing)
+            .validate(request, gjennomforing, behandlendeEnhet)
             .map { dbo ->
                 vedtaksbrevForhandsvisPdf(dbo).getOrElse { throw IllegalStateException("Klarte ikke lage vedtaksbrev pdf") }
             }
@@ -345,16 +356,18 @@ class TilskuddBehandlingService(
         val gjennomforing =
             queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
 
-        val content = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(
+        val innhold = hentForhandsvisningVedtaksbrevInnhold(
             tilskuddBehandling = tilskuddBehandling,
-            navn = "<navn>",
-            norskIdent = null,
             gjennomforing = gjennomforing,
-            saksbehandler = AgentDto.fromAgent(NavIdent("Z123456"), "<saksbehandler-navn>"),
-            beslutter = AgentDto.fromAgent(NavIdent("Z123456"), "<beslutter-navn>"),
-            besluttetTidspunkt = LocalDateTime.now(),
+        ).fold(
+            { error -> throw IllegalStateException("Klarte ikke hente innhold for vedtaksbrev: $error") },
+            { it },
         )
 
-        return pdf.getPdfDocument(content)
+        val mappedContent = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(
+            innhold,
+        )
+
+        return pdf.getPdfDocument(mappedContent)
     }
 }

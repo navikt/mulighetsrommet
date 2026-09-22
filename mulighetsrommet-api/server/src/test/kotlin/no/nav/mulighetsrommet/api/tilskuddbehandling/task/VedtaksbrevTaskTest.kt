@@ -175,7 +175,7 @@ class VedtaksbrevTaskTest : FunSpec({
     }
 })
 
-private fun opprettOgAttesterTilskudd(
+private suspend fun opprettOgAttesterTilskudd(
     db: ApiDatabase,
     behandlingId: UUID,
     tilskuddVedtakId: UUID,

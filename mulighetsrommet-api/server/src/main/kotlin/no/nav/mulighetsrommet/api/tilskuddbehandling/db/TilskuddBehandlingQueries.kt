@@ -35,16 +35,19 @@ class TilskuddBehandlingQueries(private val session: Session) {
                 id,
                 gjennomforing_id,
                 status,
-                type
+                type,
+                behandlende_enhet
             ) values (
                 :id::uuid,
                 :gjennomforing_id::uuid,
                 :status,
-                :type
+                :type,
+                :behandlende_enhet
             ) on conflict (id) do update set
                 gjennomforing_id = excluded.gjennomforing_id,
                 status = excluded.status,
-                type = excluded.type
+                type = excluded.type,
+                behandlende_enhet = excluded.behandlende_enhet
         """.trimIndent()
 
         val params = mapOf(
@@ -52,6 +55,7 @@ class TilskuddBehandlingQueries(private val session: Session) {
             "gjennomforing_id" to dbo.gjennomforingId,
             "status" to dbo.status.name,
             "type" to dbo.type.name,
+            "behandlende_enhet" to dbo.behandlendeEnhet.toString(),
         )
 
         execute(queryOf(query, params))
@@ -283,7 +287,28 @@ class TilskuddBehandlingQueries(private val session: Session) {
             where tilskudd_behandling_id = :behandling_id::uuid
         """.trimIndent()
 
-        return session.single(queryOf(query, mapOf("behandling_id" to behandlingId))) { it.stringOrNull("vedtak_journalpost_distribuering_id") }
+        return session.single(
+            queryOf(
+                query,
+                mapOf("behandling_id" to behandlingId),
+            ),
+        ) { it.stringOrNull("vedtak_journalpost_distribuering_id") }
+    }
+
+    fun getVedtakJournalpostId(behandlingId: UUID): String? {
+        @Language("PostgreSQL")
+        val query = """
+            select vedtak_journalpost_id
+            from tilskudd_vedtak
+            where tilskudd_behandling_id = :behandling_id::uuid
+        """.trimIndent()
+
+        return session.single(
+            queryOf(
+                query,
+                mapOf("behandling_id" to behandlingId),
+            ),
+        ) { it.stringOrNull("vedtak_journalpost_id") }
     }
 
     fun getOrError(id: UUID): TilskuddBehandlingDto {
@@ -320,6 +345,7 @@ private data class TilskuddBehandlingViewRow(
     val gjennomforingId: UUID,
     @SerialName("vedtak_json")
     val vedtakJson: String,
+    val behandlendeEnhet: String,
 )
 
 @Serializable
@@ -364,6 +390,7 @@ private fun Row.toTilskuddBehandlingViewRow(): TilskuddBehandlingViewRow {
         type = string("type"),
         gjennomforingId = uuid("gjennomforing_id"),
         vedtakJson = string("vedtak_json"),
+        behandlendeEnhet = string("behandlende_enhet"),
     )
 }
 
@@ -384,6 +411,7 @@ private fun TilskuddBehandlingViewRow.toDto(): TilskuddBehandlingDto {
         status = TilskuddBehandlingStatusDto(TilskuddBehandlingStatus.valueOf(status)),
         type = TilskuddBehandlingType.valueOf(type),
         samletVedtakResultat = samletVedtakResultatStatusTag(tilskudd.map { it.vedtakResultat.type }),
+        behandlendeEnhet = NavEnhetNummer(behandlendeEnhet),
     )
 }
 

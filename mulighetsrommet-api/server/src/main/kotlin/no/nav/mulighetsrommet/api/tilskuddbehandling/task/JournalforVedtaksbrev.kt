@@ -2,24 +2,16 @@ package no.nav.mulighetsrommet.api.tilskuddbehandling.task
 
 import arrow.core.Either
 import arrow.core.flatMap
-import arrow.core.left
 import com.github.kagkarlsson.scheduler.task.FailureHandler
 import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask
 import com.github.kagkarlsson.scheduler.task.helper.Tasks
 import kotlinx.serialization.Serializable
 import kotliquery.TransactionalSession
-import no.nav.mulighetsrommet.admin.totrinnskontroll.TotrinnskontrollDto
 import no.nav.mulighetsrommet.api.ApiDatabase
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkClient
-import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.DokarkResponse
 import no.nav.mulighetsrommet.api.clients.teamdokumenthandtering.Journalpost
-import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
 import no.nav.mulighetsrommet.api.pdfgen.PdfGenClient
 import no.nav.mulighetsrommet.api.tilskuddbehandling.mapper.TilskuddVedtakToPdfDocumentContentMapper
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingDto
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
-import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.serializers.UUIDSerializer
 import no.nav.mulighetsrommet.tasks.executeSuspend
@@ -53,7 +45,7 @@ class JournalforVedtaksbrev(
             journalfor(inst.data.vedtakId).onLeft { message ->
                 throw Exception("Feil ved journalføring av vedtak med id=${inst.data.vedtakId}: $message")
             }.onRight { response ->
-                logger.info("Skedulerer distribusjon av vedtaksbrev journalpostId: ${response.journalpostId}, vedtakId: ${inst.data.vedtakId}")
+                logger.info("Skedulerer distribusjon av vedtaksbrev journalpostId: $response, vedtakId: ${inst.data.vedtakId}")
                 distribuerVedtaksbrev.schedule(inst.data.vedtakId)
             }
         }
@@ -66,54 +58,40 @@ class JournalforVedtaksbrev(
         return id
     }
 
-    suspend fun journalfor(id: UUID): Either<String, DokarkResponse> = db.transaction {
+    suspend fun journalfor(id: UUID): Either<String, String> = db.transaction {
+        val vedtakJournalpostId = queries.tilskuddBehandling.getVedtakJournalpostId(id)
+        if (vedtakJournalpostId != null) {
+            logger.info("Vedtak om tilskudd er allerede journalført med id $vedtakJournalpostId")
+            return@transaction Either.Right(vedtakJournalpostId)
+        }
+
         logger.info("Journalfører vedtak med id: $id")
 
-        val tilskuddBehandling = queries.tilskuddBehandling.getOrError(id)
-        val gjennomforing = queries.gjennomforing.getGjennomforingEnkeltplassOrError(tilskuddBehandling.gjennomforingId)
-        val fagsakId = gjennomforing.lopenummer.value
-        val deltaker = repository.deltaker.getByGjennomforing(gjennomforing.id).single()
-        val personalia = personaliaService.getPersonalia(deltaker.id, PersonaliaService.OnBehalfOf.System)
-        val kontrollType = when (tilskuddBehandling.type) {
-            TilskuddBehandlingType.REGISTRERING -> TotrinnskontrollType.TILSKUDD_OPPRETTELSE
-            TilskuddBehandlingType.REVURDERING -> TotrinnskontrollType.TILSKUDD_OPPHOR
+        hentVedtaksbrevInnhold(id, personaliaService).flatMap { innhold ->
+            generatePdf(innhold)
+                .flatMap { pdf ->
+                    val journalpost = vedtakJournalpost(
+                        pdf,
+                        id,
+                        innhold.deltakerPersonalia.norskIdent,
+                        innhold.tiltak.lopenummer,
+                    )
+                    dokarkClient
+                        .opprettJournalpost(journalpost, AccessType.M2M)
+                        .mapLeft { error -> "Feil fra dokark: ${error.message}" }
+                }
+                .map { response ->
+                    queries.tilskuddBehandling.setJournalpostId(id, response.journalpostId)
+                    response.journalpostId
+                }
         }
-        val totrinnskontroll = queries.totrinnskontroll.getDtoOrError(id, kontrollType)
-        check(totrinnskontroll is TotrinnskontrollDto.Besluttet) {
-            "Totrinnskontroll for tilskudd $id er ikke besluttet"
-        }
-
-        generatePdf(tilskuddBehandling, totrinnskontroll, gjennomforing, personalia)
-            .flatMap { pdf ->
-                val journalpost = vedtakJournalpost(
-                    pdf,
-                    tilskuddBehandling.id,
-                    personalia.norskIdent()?.value ?: return@flatMap "Ikke tilgang til deltaker".left(),
-                    fagsakId,
-                )
-                dokarkClient
-                    .opprettJournalpost(journalpost, AccessType.M2M)
-                    .mapLeft { error -> "Feil fra dokark: ${error.message}" }
-            }
-            .onRight { response ->
-                queries.tilskuddBehandling.setJournalpostId(id, response.journalpostId)
-            }
     }
 
     private suspend fun generatePdf(
-        tilskudd: TilskuddBehandlingDto,
-        totrinnskontroll: TotrinnskontrollDto.Besluttet,
-        gjennomforing: GjennomforingEnkeltplass,
-        personalia: Personalia,
+        innhold: VedtaksbrevInnhold,
     ): Either<String, ByteArray> {
         val content = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(
-            tilskuddBehandling = tilskudd.toDbo(),
-            navn = personalia.navn(),
-            norskIdent = personalia.norskIdent(),
-            gjennomforing = gjennomforing,
-            saksbehandler = totrinnskontroll.behandletAv,
-            beslutter = totrinnskontroll.besluttetAv,
-            besluttetTidspunkt = totrinnskontroll.besluttetTidspunkt,
+            innhold,
         )
         return pdf
             .getPdfDocument(content)

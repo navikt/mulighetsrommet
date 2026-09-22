@@ -3,13 +3,6 @@
   "subject": "Krav om utbetaling fra Nav",
   "description": "Krav om utbetaling fra Nav",
   "author": "Tiltaksadministrasjon",
-  "topSection": {
-    "publicExemption": true,
-    "addressedTo": "AKSEPTABEL EMPIRISK TIGER AS",
-    "deltaker": null,
-    "date": "2026-03-02",
-    "reference": "A-2026/9999-1"
-  },
   "sections": [
     {
       "title": {
@@ -27,20 +20,25 @@
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Arrangør",
               "value": "Nav (123456789)"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Dato innsendt av arrangør",
-              "value": "02.01.2025"
+              "value": "2025-01-02",
+              "format": "DATE"
             },
             {
-              "label": "Tiltaksnavn",
-              "value": "Avklaring hos Nav"
-            },
-            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Tiltakstype",
-              "value": "Avklaringer"
+              "value": "Oppfolging"
+            },
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Løpenummer",
+              "value": "2025/10000"
             }
           ]
         }
@@ -56,17 +54,42 @@
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Utbetalingsperiode",
               "value": "01.01.2025 - 31.01.2025"
             },
             {
-              "label": "Antall månedsverk",
-              "value": "1.0"
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Utbetales tidligst",
+              "value": null,
+              "format": "DATE"
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
+              "label": "Stengt periode",
+              "value": "07.01.2025 - 13.01.2025"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
+              "label": "Avtalt pris per time oppfølging",
+              "value": "34",
+              "currency": "NOK"
+            }
+          ]
+        },
+        {
+          "type": "description-list",
+          "entries": [
+            {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.MoneyAmount",
               "label": "Beløp",
               "value": "100",
-              "format": "NOK"
+              "currency": "NOK"
             }
           ]
         }
@@ -82,10 +105,12 @@
           "type": "description-list",
           "entries": [
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "Kontonummer",
               "value": "12345678901"
             },
             {
+              "type": "no.nav.mulighetsrommet.api.pdfgen.DescriptionListBlock.Entry.Text",
               "label": "KID-nummer",
               "value": null
             }
@@ -95,13 +120,12 @@
     },
     {
       "title": {
-        "text": "Stengt hos arrangør",
+        "text": "Det er registrert stengt hos arrangør i følgende perioder:",
         "level": 2
       },
       "blocks": [
         {
           "type": "item-list",
-          "description": "Det er registrert stengt hos arrangør i følgende perioder:",
           "items": ["07.01.2025 - 13.01.2025: Stengt for ferie"]
         }
       ]
@@ -130,124 +154,86 @@
               {
                 "title": "Sluttdato i perioden",
                 "align": "RIGHT"
-              },
-              {
-                "title": "Deltakelsesprosent",
-                "align": "RIGHT"
               }
             ],
             "rows": [
               {
                 "cells": [
                   {
-                    "value": "Ola Nordmann"
+                    "value": "Skjermet"
                   },
                   {
-                    "value": "01.01.1989"
+                    "value": null
                   },
                   {
                     "value": "01.01.2025"
                   },
                   {
                     "value": "31.01.2025"
-                  },
-                  {
-                    "value": "100.0",
-                    "format": "PERCENT"
                   }
                 ]
               },
-              {
-                "cells": [
-                  {
-                    "value": "Kari Nordmann"
-                  },
-                  {
-                    "value": "01.01.1989"
-                  },
-                  {
-                    "value": "01.01.2025"
-                  },
-                  {
-                    "value": "14.01.2025"
-                  },
-                  {
-                    "value": "50.0",
-                    "format": "PERCENT"
-                  }
-                ]
-              },
-              {
-                "cells": [
-                  {
-                    "value": "Kari Nordmann"
-                  },
-                  {
-                    "value": "01.01.1989"
-                  },
-                  {
-                    "value": "15.01.2025"
-                  },
-                  {
-                    "value": "31.01.2025"
-                  },
-                  {
-                    "value": "100.0",
-                    "format": "PERCENT"
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "title": {
-        "text": "Beregnet månedsverk",
-        "level": 2
-      },
-      "blocks": [
-        {
-          "type": "table",
-          "table": {
-            "columns": [
-              {
-                "title": "Navn"
-              },
-              {
-                "title": "Fødselsnr.",
-                "align": "RIGHT"
-              },
-              {
-                "title": "Månedsverk",
-                "align": "RIGHT"
-              }
-            ],
-            "rows": [
               {
                 "cells": [
                   {
                     "value": "Ola Nordmann"
                   },
                   {
-                    "value": "01.01.1989"
+                    "value": "01010199999"
                   },
                   {
-                    "value": "1.0"
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
                   }
                 ]
               },
               {
                 "cells": [
                   {
-                    "value": "Kari Nordmann"
+                    "value": "Adressebeskyttet"
                   },
                   {
-                    "value": "01.01.1989"
+                    "value": null
                   },
                   {
-                    "value": "0.75"
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Adressebeskyttet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
+                  }
+                ]
+              },
+              {
+                "cells": [
+                  {
+                    "value": "Adressebeskyttet"
+                  },
+                  {
+                    "value": null
+                  },
+                  {
+                    "value": "01.01.2025"
+                  },
+                  {
+                    "value": "31.01.2025"
                   }
                 ]
               }

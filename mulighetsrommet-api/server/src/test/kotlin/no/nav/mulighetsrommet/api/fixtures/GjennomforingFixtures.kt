@@ -210,6 +210,26 @@ object GjennomforingFixtures {
         arenaAnsvarligEnhet = null,
     )
 
+    val HoyereUtdanning = GjennomforingDbo(
+        id = UUID.fromString("cdc50d11-7d86-4a4b-a8d0-1f8a1be575d0"),
+        type = GjennomforingType.ENKELTPLASS,
+        tiltakskode = Tiltakskode.HOYERE_UTDANNING,
+        arrangorId = ArrangorFixtures.underenhet1.id,
+        navn = "Høyere utdanning",
+        startDato = LocalDate.of(2025, 1, 1),
+        sluttDato = LocalDate.of(2025, 12, 31),
+        status = GjennomforingStatusType.ENKELTPLASS_DELTAR,
+        deltidsprosent = 100.0,
+        antallPlasser = 1,
+        oppstart = GjennomforingOppstartstype.ENKELTPLASS,
+        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
+        ansvarligEnhet = NavEnhetNummer("0400"),
+        prismodellId = PrismodellFixtures.TilskuddTilOpplaering.id,
+        avtaleId = null,
+        arenaTiltaksnummer = null,
+        arenaAnsvarligEnhet = null,
+    )
+
     val ArenaEnkelAmo = GjennomforingDbo(
         id = UUID.randomUUID(),
         tiltakskode = TiltakstypeFixtures.EnkelAmo.tiltakskode,

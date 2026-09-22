@@ -131,6 +131,7 @@ class TilskuddArrangorUtbetalingConsumerTest : FunSpec({
             journalforVedtaksbrev,
             mockk(relaxed = true),
         )
+
         service.upsert(request, NavAnsattFixture.DonaldDuck.navIdent).shouldBeRight()
 
         val consumer = createConsumer()

@@ -111,8 +111,14 @@ class TilskuddBehandlingServiceTest : FunSpec({
                 forklaring = "fordi",
             ).shouldBeRight()
 
-            service.getDetaljerDto(request.id, ansatt1)?.opprettelse.shouldBeTypeOf<TotrinnskontrollDto.Besluttet>() should {
-                it.aarsaker shouldBe listOf(TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT, TilskuddBehandlingStatusAarsak.ANNET).map { it.name }
+            service.getDetaljerDto(
+                request.id,
+                ansatt1,
+            )?.opprettelse.shouldBeTypeOf<TotrinnskontrollDto.Besluttet>() should {
+                it.aarsaker shouldBe listOf(
+                    TilskuddBehandlingStatusAarsak.FEIL_VEDTAKSRESULTAT,
+                    TilskuddBehandlingStatusAarsak.ANNET,
+                ).map { it.name }
                 it.forklaring shouldBe "fordi"
                 it.beslutning shouldBe TotrinnskontrollDto.Beslutning.RETURNERT
                 it.besluttetAv.navn shouldBe "Mikke Mus"

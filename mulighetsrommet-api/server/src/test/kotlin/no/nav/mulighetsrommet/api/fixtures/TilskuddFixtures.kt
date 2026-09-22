@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 object TilskuddFixtures {
-    val Tilskudd = TilskuddVedtak(
+    val TilskuddInnvilgelse = TilskuddVedtak(
         id = UUID.randomUUID(),
         tilskuddId = UUID.randomUUID(),
         tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
@@ -26,12 +26,12 @@ object TilskuddFixtures {
             valuta = Valuta.NOK,
         ),
         utbetalingBelop = ValutaBelop(
-            belop = 100,
+            belop = 1000,
             valuta = Valuta.NOK,
         ),
         vedtakResultat = VedtakResultat.INNVILGELSE,
         kommentarVedtaksbrev = null,
-        utbetalingMottaker = TilskuddMottaker.ARRANGOR,
+        utbetalingMottaker = TilskuddMottaker.BRUKER,
         kid = Kid.parse("116"),
         soknadJournalpostId = "J-2024-001",
         soknadDato = LocalDate.of(2024, 1, 15),
@@ -40,11 +40,35 @@ object TilskuddFixtures {
         kommentarIntern = "kommentarIntern",
     )
 
+    val TilskuddAvslag = TilskuddVedtak(
+        id = UUID.randomUUID(),
+        tilskuddId = UUID.randomUUID(),
+        tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSGEBYR,
+        soknadBelop = ValutaBelop(
+            belop = 100,
+            valuta = Valuta.NOK,
+        ),
+        utbetalingBelop = ValutaBelop(
+            belop = 100,
+            valuta = Valuta.NOK,
+        ),
+        vedtakResultat = VedtakResultat.AVSLAG,
+        kommentarVedtaksbrev = "Vilkårene for tilskuddet er ikke oppfylt, derfor avslås søknaden.",
+        utbetalingMottaker = TilskuddMottaker.ARRANGOR,
+        kid = Kid.parse("116"),
+        soknadJournalpostId = "J-2024-002",
+        soknadDato = LocalDate.of(2024, 1, 15),
+        periode = Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 7, 1)),
+        kostnadssted = NavEnhetFixtures.Innlandet.enhetsnummer,
+        kommentarIntern = null,
+    )
+
     val Behandling = TilskuddBehandling(
         id = UUID.randomUUID(),
         gjennomforingId = EnkelAmo.id,
-        tilskudd = listOf(Tilskudd),
+        tilskudd = listOf(TilskuddInnvilgelse, TilskuddAvslag),
         status = TilskuddBehandlingStatus.TIL_ATTESTERING,
         type = TilskuddBehandlingType.REGISTRERING,
+        behandlendeEnhet = NavEnhetFixtures.Innlandet.enhetsnummer,
     )
 }

@@ -242,8 +242,9 @@ fun Route.tilskuddBehandlingRoutes() {
                 }
             }) {
                 val request = call.receive<TilskuddBehandlingRequest>()
+                val navIdent = getNavIdent()
 
-                service.vedtaksbrevForhandsvisPdf(request)
+                service.vedtaksbrevForhandsvisPdf(request, navIdent)
                     .onRight { pdfContent ->
                         call.response.headers.append(
                             "Content-Disposition",

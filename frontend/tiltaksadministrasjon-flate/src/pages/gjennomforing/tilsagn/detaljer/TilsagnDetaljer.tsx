@@ -81,7 +81,7 @@ export function TilsagnDetaljer() {
         <AarsakerOgForklaring
           heading="Tilsagnet annulleres"
           tekster={[
-            `${annullering.behandletAv.navn} sendte tilsagnet til annullering den ${formaterDato(
+            `${annullering.behandletAv.navn || annullering.behandletAv.agent} sendte tilsagnet til annullering den ${formaterDato(
               annullering.behandletTidspunkt,
             )}.`,
           ]}
@@ -95,7 +95,7 @@ export function TilsagnDetaljer() {
         <AarsakerOgForklaring
           heading="Annullering avvist"
           tekster={[
-            `${annullering.besluttetAv.navn} avviste annullering den ${formaterDato(
+            `${annullering.besluttetAv.navn || annullering.behandletAv.agent} avviste annullering den ${formaterDato(
               annullering.behandletTidspunkt,
             )}.`,
           ]}
@@ -110,7 +110,7 @@ export function TilsagnDetaljer() {
           heading="Tilsagnet gjøres opp"
           ingress="Gjenstående beløp gjøres opp uten at det gjøres en utbetaling"
           tekster={[
-            `${tilOppgjor.behandletAv.navn} sendte tilsagnet til oppgjør den ${formaterDato(
+            `${tilOppgjor.behandletAv.navn || tilOppgjor.behandletAv.agent} sendte tilsagnet til oppgjør den ${formaterDato(
               tilOppgjor.behandletTidspunkt,
             )}.`,
           ]}
@@ -124,7 +124,7 @@ export function TilsagnDetaljer() {
         <AarsakerOgForklaring
           heading="Oppgjør avvist"
           tekster={[
-            `${tilOppgjor.besluttetAv.navn} avviste oppgjør den ${formaterDato(
+            `${tilOppgjor.besluttetAv.navn || tilOppgjor.behandletAv.agent} avviste oppgjør den ${formaterDato(
               tilOppgjor.behandletTidspunkt,
             )}.`,
           ]}

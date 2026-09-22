@@ -180,4 +180,15 @@ object TiltakstypeFixtures {
         veilederinfo = null,
         deltakerinfo = null,
     )
+
+    val HoyereUtdanning = Tiltakstype(
+        id = UUID.randomUUID(),
+        navn = "Høyere utdanning",
+        tiltakskode = Tiltakskode.HOYERE_UTDANNING,
+        arenakode = "HOYEREUTD",
+        innsatsgrupper = emptySet(),
+        sanityId = null,
+        veilederinfo = null,
+        deltakerinfo = null,
+    )
 }

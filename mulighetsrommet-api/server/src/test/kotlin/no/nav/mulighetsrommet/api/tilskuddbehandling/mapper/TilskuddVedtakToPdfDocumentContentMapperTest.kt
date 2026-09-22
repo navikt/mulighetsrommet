@@ -1,157 +1,210 @@
 package no.nav.mulighetsrommet.api.tilskuddbehandling.mapper
 
 import com.diffplug.selfie.coroutines.expectSelfie
+import io.kotest.assertions.arrow.core.shouldBeLeft
+import io.kotest.assertions.arrow.core.shouldBeRight
 import io.kotest.core.spec.style.FunSpec
+import io.mockk.coEvery
+import io.mockk.mockk
 import kotlinx.serialization.json.Json
-import no.nav.mulighetsrommet.admin.totrinnskontroll.AgentDto
-import no.nav.mulighetsrommet.api.domain.opplaring.Opplaeringtilskudd
-import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
-import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
-import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplassStatus
+import no.nav.mulighetsrommet.api.domain.testing.fixture.ArrangorFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.DeltakerFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture.DonaldDuck
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavAnsattFixture.MikkeMus
+import no.nav.mulighetsrommet.api.domain.testing.fixture.NavEnhetFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.PrismodellFixtures
+import no.nav.mulighetsrommet.api.domain.testing.fixture.TiltakstypeFixtures
+import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
+import no.nav.mulighetsrommet.api.fixtures.GjennomforingFixtures.HoyereUtdanning
+import no.nav.mulighetsrommet.api.fixtures.MulighetsrommetTestDomain
+import no.nav.mulighetsrommet.api.fixtures.TilskuddFixtures
+import no.nav.mulighetsrommet.api.fixtures.setGodkjent
+import no.nav.mulighetsrommet.api.fixtures.setTilBehandling
 import no.nav.mulighetsrommet.api.pdfgen.PdfDocumentContent
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddBehandling
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
-import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddVedtak
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingStatus
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.TilskuddBehandlingType
-import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
-import no.nav.mulighetsrommet.model.GjennomforingOppstartstype
-import no.nav.mulighetsrommet.model.GjennomforingPameldingType
-import no.nav.mulighetsrommet.model.Kid
-import no.nav.mulighetsrommet.model.NavEnhetNummer
+import no.nav.mulighetsrommet.api.tilskuddbehandling.task.hentVedtaksbrevInnhold
+import no.nav.mulighetsrommet.api.utbetaling.service.AvvistGrunn
+import no.nav.mulighetsrommet.api.utbetaling.service.Gradering
+import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
+import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.database.kotest.extensions.ApiDatabaseTestListener
 import no.nav.mulighetsrommet.model.NavIdent
 import no.nav.mulighetsrommet.model.NorskIdent
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
-import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Tiltaksadministrasjon
-import no.nav.mulighetsrommet.model.Tiltakskode
-import no.nav.mulighetsrommet.model.Tiltaksnummer
-import no.nav.mulighetsrommet.model.Valuta
-import no.nav.mulighetsrommet.model.ValutaBelop
 import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.UUID
 
 class TilskuddVedtakToPdfDocumentContentMapperTest : FunSpec({
+    val database = extension(ApiDatabaseTestListener())
+
     val jsonPrettyPrint = Json {
         prettyPrint = true
         prettyPrintIndent = "  "
     }
 
-    val gjennomforing = GjennomforingEnkeltplass(
-        id = UUID.fromString("cdc50d11-7d86-4a4b-a8d0-1f8a1be575d0"),
-        lopenummer = Tiltaksnummer("2026/9999"),
-        tiltakstype = Gjennomforing.Tiltakstype(
-            id = UUID.fromString("4d4938fa-d4ad-4697-9e20-0e776f7b0f2f"),
-            navn = "Enkeltplass Arbeidsmarkedsopplæring",
-            tiltakskode = Tiltakskode.ENKELTPLASS_ARBEIDSMARKEDSOPPLAERING,
-        ),
-        arrangor = Gjennomforing.ArrangorUnderenhet(
-            id = UUID.fromString("72c45b92-4452-4b44-b1cd-9cfe7be86222"),
-            organisasjonsnummer = Organisasjonsnummer("310438707"),
-            navn = "AKSEPTABEL EMPIRISK TIGER AS",
-            slettet = false,
-        ),
-        arena = null,
-        navn = "Truckførerkurs",
-        status = GjennomforingEnkeltplassStatus.Deltar,
-        startDato = LocalDate.of(2026, 8, 1),
-        sluttDato = LocalDate.of(2027, 6, 30),
-        deltidsprosent = 100.0,
-        antallPlasser = 1,
-        opprettetTidspunkt = Instant.parse("2026-05-01T00:00:00Z"),
-        oppdatertTidspunkt = Instant.parse("2026-05-01T00:00:00Z"),
-        prismodell = Prismodell.AnnenAvtaltPris(
-            id = UUID.fromString("b8f1c0de-0000-4000-8000-000000000001"),
-            valuta = Valuta.NOK,
-            tilsagnPerDeltaker = false,
-            prisbetingelser = null,
-        ),
-        oppstart = GjennomforingOppstartstype.ENKELTPLASS,
-        pameldingType = GjennomforingPameldingType.DIREKTE_VEDTAK,
-        ansvarligEnhet = GjennomforingEnkeltplass.AnsvarligEnhet(
-            enhetsnummer = NavEnhetNummer("0387"),
-            navn = "Nav Øst-Viken",
-        ),
+    val tilskudd = listOf(TilskuddFixtures.TilskuddInnvilgelse, TilskuddFixtures.TilskuddAvslag)
+    val behandling = TilskuddFixtures.Behandling.copy(gjennomforingId = HoyereUtdanning.id, tilskudd = tilskudd)
+    val deltaker = DeltakerFixtures.createDeltaker(
+        gjennomforingId = HoyereUtdanning.id,
     )
 
-    val periode = Periode(LocalDate.of(2026, 8, 1), LocalDate.of(2027, 7, 1))
+    val personaliaService = mockk<PersonaliaService>()
 
-    fun tilskuddBehandling(vararg tilskudd: TilskuddVedtak) = TilskuddBehandling(
-        id = UUID.fromString("a1a1a1a1-0000-4000-8000-000000000001"),
-        gjennomforingId = gjennomforing.id,
-        tilskudd = tilskudd.toList(),
-        status = TilskuddBehandlingStatus.TIL_ATTESTERING,
-        type = TilskuddBehandlingType.REGISTRERING,
-    )
+    beforeEach {
+        MulighetsrommetTestDomain(
+            tiltakstyper = listOf(TiltakstypeFixtures.HoyereUtdanning),
+            navEnheter = listOf(NavEnhetFixtures.Innlandet),
+            ansatte = listOf(DonaldDuck, MikkeMus),
+            arrangorer = listOf(ArrangorFixtures.underenhet1),
+            gjennomforinger = listOf(HoyereUtdanning),
+            prismodeller = listOf(PrismodellFixtures.TilskuddTilOpplaering),
+            deltakere = listOf(
+                deltaker,
+            ),
+        ).initialize(database.api)
 
-    val skolepengerInnvilgelse = TilskuddVedtak(
-        id = UUID.fromString("b2b2b2b2-0000-4000-8000-000000000001"),
-        tilskuddId = UUID.fromString("b2b2b2b2-0000-4000-8000-100000000001"),
-        tilskuddOpplaeringType = Opplaeringtilskudd.Kode.SKOLEPENGER,
-        soknadBelop = ValutaBelop(belop = 50000, valuta = Valuta.NOK),
-        utbetalingBelop = ValutaBelop(belop = 50000, valuta = Valuta.NOK),
-        vedtakResultat = VedtakResultat.INNVILGELSE,
-        kommentarVedtaksbrev = null,
-        utbetalingMottaker = TilskuddMottaker.BRUKER,
-        kid = Kid.parse("116"),
-        kommentarIntern = null,
-        soknadJournalpostId = "J-2026-001",
-        soknadDato = LocalDate.of(2026, 5, 1),
-        periode = periode,
-        kostnadssted = NavEnhetNummer("0387"),
-    )
-
-    val eksamensgebyrAvslag = TilskuddVedtak(
-        id = UUID.fromString("b2b2b2b2-0000-4000-8000-000000000002"),
-        tilskuddId = UUID.fromString("b2b2b2b2-0000-4000-8000-100000000002"),
-        tilskuddOpplaeringType = Opplaeringtilskudd.Kode.EKSAMENSGEBYR,
-        soknadBelop = ValutaBelop(belop = 1200, valuta = Valuta.NOK),
-        utbetalingBelop = null,
-        vedtakResultat = VedtakResultat.AVSLAG,
-        kommentarVedtaksbrev = "Søknaden er avslått fordi det ikke er dokumentert at vilkårene for tilskuddet er oppfylt.",
-        utbetalingMottaker = TilskuddMottaker.BRUKER,
-        kid = null,
-        kommentarIntern = null,
-        soknadJournalpostId = "J-2026-001",
-        soknadDato = LocalDate.of(2026, 5, 1),
-        periode = periode,
-        kostnadssted = NavEnhetNummer("0387"),
-    )
-
-    val besluttetTidspunkt = LocalDateTime.of(2026, 5, 26, 12, 0)
-
-    context("pdf-content for vedtaksbrev om tilskudd til opplæring") {
-        test("innvilgelse og avslag med to underskrifter") {
-            val pdfContent = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(
-                tilskuddBehandling = tilskuddBehandling(skolepengerInnvilgelse, eksamensgebyrAvslag),
-                navn = "Ola Nordmann",
-                norskIdent = NorskIdent("01010112345"),
-                gjennomforing = gjennomforing,
-                saksbehandler = AgentDto.fromAgent(NavIdent("Z123456"), "Sara Saksbehandler"),
-                beslutter = AgentDto.fromAgent(NavIdent("Z654321"), "Bertil Beslutter"),
-                besluttetTidspunkt = besluttetTidspunkt,
-            )
-
-            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
-                .toMatchDisk("vedtakInnvilgelseOgAvslag")
+        database.api.transaction {
+            queries.tilskuddBehandling.upsert(behandling)
         }
 
-        test("automatisk brev uten saksbehandler og beslutter") {
-            val pdfContent = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(
-                tilskuddBehandling = tilskuddBehandling(skolepengerInnvilgelse),
-                navn = "Ola Nordmann",
-                norskIdent = NorskIdent("01010112345"),
-                gjennomforing = gjennomforing,
-                saksbehandler = AgentDto.fromAgent(Tiltaksadministrasjon, null),
-                beslutter = AgentDto.fromAgent(Tiltaksadministrasjon, null),
-                besluttetTidspunkt = besluttetTidspunkt,
+        database.api.session {
+            setGodkjent(
+                uuid = behandling.id,
+                type = TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                behandletAv = DonaldDuck.navIdent,
+                besluttetAv = MikkeMus.navIdent,
+                behandletTidspunkt = Instant.parse("2026-05-25T12:00:00Z"),
+                besluttetTidspunkt = Instant.parse("2026-05-26T12:00:00Z"),
             )
-
-            expectSelfie(jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent))
-                .toMatchDisk("vedtakAutomatisk")
         }
+
+        coEvery {
+            personaliaService.getPersonalia(deltaker.id, any())
+        } returns Personalia(
+            deltakerId = deltaker.id,
+            norskIdent = NorskIdent("12345678901"),
+            navn = "Ola Nordmann",
+            oppfolgingEnhet = null,
+            geografiskEnhet = null,
+            region = null,
+            gradering = Gradering.UGRADERT,
+            avvistGrunn = null,
+        )
+    }
+
+    afterEach {
+        database.truncateAll()
+    }
+
+    test("Oppretter pdf for vedtak med både innvilgelse og avslag") {
+        val innhold = database.api.session {
+            hentVedtaksbrevInnhold(behandling.id, personaliaService).shouldBeRight()
+        }
+
+        val pdfContent = TilskuddVedtakToPdfDocumentContentMapper.toPdfDocumentContent(innhold)
+
+        // ignorerer forskjell i generert løpenummer i json snapshot
+        val json = jsonPrettyPrint.encodeToString<PdfDocumentContent>(pdfContent)
+            .replace(Regex("""\d{4}/\d+"""), "2026/10000")
+
+        expectSelfie(json)
+            .toMatchDisk("vedtakInnvilgelseOgAvslag")
+    }
+
+    test("Feiler når gjennomføring mangler startdato") {
+        database.api.transaction {
+            queries.gjennomforing.upsert(HoyereUtdanning.copy(startDato = null))
+        }
+
+        val result = database.api.session {
+            hentVedtaksbrevInnhold(behandling.id, personaliaService)
+        }
+
+        result.shouldBeLeft("Gjennomføring ${HoyereUtdanning.id} mangler startdato")
+    }
+
+    test("Feiler når gjennomføring mangler sluttdato") {
+        database.api.transaction {
+            queries.gjennomforing.upsert(HoyereUtdanning.copy(sluttDato = null))
+        }
+
+        val result = database.api.session {
+            hentVedtaksbrevInnhold(behandling.id, personaliaService)
+        }
+
+        result.shouldBeLeft("Gjennomføring ${HoyereUtdanning.id} mangler sluttdato")
+    }
+
+    test("Feiler når deltaker ikke har tilgang til personalia") {
+        coEvery {
+            personaliaService.getPersonalia(deltaker.id, any())
+        } returns Personalia(
+            deltakerId = deltaker.id,
+            norskIdent = NorskIdent("12345678901"),
+            navn = "Ola Nordmann",
+            oppfolgingEnhet = null,
+            geografiskEnhet = null,
+            region = null,
+            gradering = Gradering.SKJERMING,
+            avvistGrunn = AvvistGrunn.AVVIST_SKJERMING,
+        )
+
+        val result = database.api.session {
+            hentVedtaksbrevInnhold(behandling.id, personaliaService)
+        }
+
+        result.shouldBeLeft("Fikk ikke tilgang til usladdet personalia for ${deltaker.id}")
+    }
+
+    test("Feiler når totrinnskontroll ikke er besluttet") {
+        database.api.transaction {
+            setTilBehandling(
+                uuid = behandling.id,
+                type = TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                behandletAv = DonaldDuck.navIdent,
+                behandletTidspunkt = Instant.parse("2026-05-27T12:00:00Z"),
+            )
+        }
+
+        val result = database.api.session {
+            hentVedtaksbrevInnhold(behandling.id, personaliaService)
+        }
+
+        result.shouldBeLeft("Totrinnskontroll for tilskudd ${behandling.id} er ikke besluttet")
+    }
+
+    test("Feiler når totrinnskontroll mangler saksbehandlernavn") {
+        database.api.transaction {
+            setGodkjent(
+                uuid = behandling.id,
+                type = TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                behandletAv = NavIdent("UK1"),
+                besluttetAv = MikkeMus.navIdent,
+                behandletTidspunkt = Instant.parse("2026-05-27T12:00:00Z"),
+                besluttetTidspunkt = Instant.parse("2026-05-28T12:00:00Z"),
+            )
+        }
+
+        val result = database.api.session {
+            hentVedtaksbrevInnhold(behandling.id, personaliaService)
+        }
+
+        result.shouldBeLeft("Totrinnskontroll for tilskudd ${behandling.id} mangler saksbehandlernavn")
+    }
+
+    test("Feiler når totrinnskontroll mangler beslutternavn") {
+        database.api.transaction {
+            setGodkjent(
+                uuid = behandling.id,
+                type = TotrinnskontrollType.TILSKUDD_OPPRETTELSE,
+                behandletAv = DonaldDuck.navIdent,
+                besluttetAv = NavIdent("Z123456"),
+                behandletTidspunkt = Instant.parse("2026-05-27T12:00:00Z"),
+                besluttetTidspunkt = Instant.parse("2026-05-28T12:00:00Z"),
+            )
+        }
+
+        val result = database.api.session {
+            hentVedtaksbrevInnhold(behandling.id, personaliaService)
+        }
+
+        result.shouldBeLeft("Totrinnskontroll for tilskudd ${behandling.id} mangler beslutternavn")
     }
 })
