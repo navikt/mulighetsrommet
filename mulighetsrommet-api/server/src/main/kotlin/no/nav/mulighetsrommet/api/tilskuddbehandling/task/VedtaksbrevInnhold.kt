@@ -16,13 +16,14 @@ import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
 /**
  * Samler informasjonen som trengs for å produsere innholdet i et vedtaksbrev for tilskudd
  */
 data class VedtaksbrevInnhold(
     val tilskuddvedtak: List<TilskuddBrevVedtak>,
-    val arrangor: Arrangor,
+    val arrangorNavn: String,
     val deltakerPersonalia: DeltakerPersonalia,
     val besluttetTidspunkt: LocalDateTime,
     val tiltak: Tiltak,
@@ -33,7 +34,7 @@ data class VedtaksbrevInnhold(
 
 data class Arrangor(
     val navn: String,
-    val organisasjonsnummer: String,
+    val organisasjonsnummer: Organisasjonsnummer,
 )
 
 data class DeltakerPersonalia(
@@ -88,7 +89,7 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
 
     val arrangor = Arrangor(
         navn = gjennomforing.arrangor.navn,
-        organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer.value,
+        organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer,
     )
 
     val tiltak = Tiltak(
@@ -118,7 +119,7 @@ suspend fun QueryContext.hentVedtaksbrevInnhold(
         tilskuddvedtak = tilskuddvedtak,
         tiltak = tiltak,
         deltakerPersonalia = deltakerPersonalia,
-        arrangor = arrangor,
+        arrangorNavn = gjennomforing.arrangor.navn,
         saksbehandler = formatNavn(saksbehandlerNavn),
         beslutter = formatNavn(beslutterNavn),
         behandlendeEnhet = behandlendeEnhet,
@@ -133,11 +134,6 @@ fun hentForhandsvisningVedtaksbrevInnhold(
     val deltakerPersonalia = DeltakerPersonalia(
         navn = "<deltaker-navn>",
         norskIdent = "<deltaker-fnr>",
-    )
-
-    val arrangor = Arrangor(
-        navn = gjennomforing.arrangor.navn,
-        organisasjonsnummer = gjennomforing.arrangor.organisasjonsnummer.value,
     )
 
     val tiltak = Tiltak(
@@ -168,7 +164,7 @@ fun hentForhandsvisningVedtaksbrevInnhold(
         tilskuddvedtak = tilskuddvedtak,
         tiltak = tiltak,
         deltakerPersonalia = deltakerPersonalia,
-        arrangor = arrangor,
+        arrangorNavn = gjennomforing.arrangor.navn,
         saksbehandler = "<saksbehandler-navn>",
         beslutter = "<beslutter-navn>",
         behandlendeEnhet = "<enhet-navn>",

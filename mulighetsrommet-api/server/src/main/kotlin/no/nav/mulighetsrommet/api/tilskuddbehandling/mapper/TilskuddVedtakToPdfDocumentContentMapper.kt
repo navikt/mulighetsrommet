@@ -27,8 +27,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
                     date = innhold.besluttetTidspunkt.toLocalDate().toString(),
                     deltaker = Deltaker(
                         navn = innhold.deltakerPersonalia.navn,
-                        norskIdent = innhold.deltakerPersonalia.norskIdent,
-                    ),
+                        norskIdent = innhold.deltakerPersonalia.norskIdent,),
                 ),
             )
 
@@ -39,7 +38,7 @@ object TilskuddVedtakToPdfDocumentContentMapper {
                     VedtakResultat.INNVILGELSE -> innvilgelseSection(
                         tilskudd,
                         innhold.tiltak.periode,
-                        innhold.arrangor.navn,
+                        innhold.arrangorNavn,
                         innhold.tiltak.navn,
                     )
 
