@@ -2,6 +2,7 @@ import {
   DataDrivenTableDto,
   DataElementTextFormat,
   LabeledDataElementType,
+  PrismodellType,
   TilsagnBeregningDto,
   TilsagnBeregningType,
   TilsagnDetaljerDto,
@@ -97,36 +98,39 @@ const beregning: TilsagnBeregningDto = {
     valuta: Valuta.NOK,
   },
   prismodell: {
-    header: null,
-    entries: [
-      {
-        type: LabeledDataElementType.INLINE,
-        label: "Prismodell",
-        value: {
-          type: "DATA_ELEMENT_TEXT",
-          value: "Fast sats per benyttet tiltaksplass per måned",
-          format: null,
+    type: PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
+    detaljer: {
+      header: null,
+      entries: [
+        {
+          type: LabeledDataElementType.INLINE,
+          label: "Prismodell",
+          value: {
+            type: "DATA_ELEMENT_TEXT",
+            value: "Fast sats per benyttet tiltaksplass per måned",
+            format: null,
+          },
         },
-      },
-      {
-        type: LabeledDataElementType.INLINE,
-        label: "Antall plasser",
-        value: {
-          type: "DATA_ELEMENT_TEXT",
-          value: "97",
-          format: DataElementTextFormat.NUMBER,
+        {
+          type: LabeledDataElementType.INLINE,
+          label: "Antall plasser",
+          value: {
+            type: "DATA_ELEMENT_TEXT",
+            value: "97",
+            format: DataElementTextFormat.NUMBER,
+          },
         },
-      },
-      {
-        type: LabeledDataElementType.INLINE,
-        label: "Sats",
-        value: {
-          type: "DATA_ELEMENT_MONEY_AMOUNT",
-          value: "20975",
-          currency: "NOK",
+        {
+          type: LabeledDataElementType.INLINE,
+          label: "Sats",
+          value: {
+            type: "DATA_ELEMENT_MONEY_AMOUNT",
+            value: "20975",
+            currency: "NOK",
+          },
         },
-      },
-    ],
+      ],
+    },
   },
   regnestykke: {
     expression: [

@@ -917,6 +917,7 @@ class GenererUtbetalingServiceTest : FunSpec({
                     sats = 7_321.NOK,
                     antallPlasser = 1,
                     stengt = setOf(),
+                    prismodell = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                 ),
                 output = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Output(
                     pris = 7_321.NOK,

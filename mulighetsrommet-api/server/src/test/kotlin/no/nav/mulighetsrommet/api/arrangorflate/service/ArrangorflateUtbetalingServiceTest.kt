@@ -792,6 +792,7 @@ class ArrangorflateUtbetalingServiceTest : FunSpec({
                         sats = 7_321.NOK,
                         antallPlasser = 1,
                         stengt = setOf(),
+                        prismodell = PrismodellType.FAST_SATS_PER_BENYTTET_PLASS_PER_MANED,
                     ),
                     output = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Output(pris = 7_321.NOK),
                 ),
@@ -1006,6 +1007,7 @@ fun getTilsagnBeregning(pris: ValutaBelop) = TilsagnBeregningAnnenAvtaltPris(
             ),
         ),
         prisbetingelser = null,
+        prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
     ),
     output = TilsagnBeregningAnnenAvtaltPris.Output(pris),
 )

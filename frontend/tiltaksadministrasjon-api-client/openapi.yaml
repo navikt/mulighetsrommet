@@ -7672,7 +7672,7 @@ components:
         pris:
           $ref: "#/components/schemas/ValutaBelop"
         prismodell:
-          $ref: "#/components/schemas/DataDetails"
+          $ref: "#/components/schemas/TilsagnBeregningDto.Prismodell"
         regnestykke:
           oneOf:
           - type: "null"
@@ -7686,6 +7686,16 @@ components:
       - prismodell
       - regnestykke
       - stengt
+    TilsagnBeregningDto.Prismodell:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/PrismodellType"
+        detaljer:
+          $ref: "#/components/schemas/DataDetails"
+      required:
+      - detaljer
+      - type
     DataDetails:
       type: object
       properties:

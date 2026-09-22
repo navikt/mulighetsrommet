@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.api.utbetaling.model.UtbetalingBeregningHelpers
 import no.nav.mulighetsrommet.model.Periode
@@ -22,6 +23,7 @@ data class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke(
         val antallPlasser: Int,
         val prisbetingelser: String?,
         val stengt: Set<StengtPeriode>,
+        override val prismodell: PrismodellType,
     ) : TilsagnBeregningInput()
 
     @Serializable

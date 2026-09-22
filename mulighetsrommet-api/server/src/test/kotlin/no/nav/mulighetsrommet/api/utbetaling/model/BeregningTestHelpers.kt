@@ -7,6 +7,7 @@ import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
 import no.nav.mulighetsrommet.api.domain.tiltak.AvtaltSats
 import no.nav.mulighetsrommet.api.domain.tiltak.Prismodell
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.gjennomforing.model.Gjennomforing
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtaleStatus
@@ -145,6 +146,7 @@ object BeregningTestHelpers {
                     ),
                 ),
                 prisbetingelser = null,
+                prismodell = PrismodellType.ANNEN_AVTALT_PRIS,
             ),
             output = TilsagnBeregningAnnenAvtaltPris.Output(pris = belop),
         ),

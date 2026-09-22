@@ -78,7 +78,6 @@ class TilskuddArrangorUtbetalingConsumer(
                         belop = requireNotNull(tilskuddVedtak.utbetalingBelop) {
                             "Utbetaling beløp var null ved inngivelse av tilskudd til arrangør"
                         },
-                        prisbetingelser = null,
                     )
                     val utbetaling = opprettOgBetalUtbetaling(
                         gjennomforingId = behandling.gjennomforingId,
@@ -96,7 +95,6 @@ class TilskuddArrangorUtbetalingConsumer(
         kostnadssted: NavEnhetNummer,
         periode: Periode,
         belop: ValutaBelop,
-        prisbetingelser: String?,
     ): Tilsagn {
         return tilsagnService.upsertInTx(
             TilsagnRequest(

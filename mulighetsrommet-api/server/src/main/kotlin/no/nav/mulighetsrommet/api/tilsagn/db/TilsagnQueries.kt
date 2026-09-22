@@ -8,6 +8,7 @@ import kotliquery.queryOf
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhet
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetStatus
 import no.nav.mulighetsrommet.api.domain.navenhet.NavEnhetType
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.tilsagn.model.Tilsagn
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregning
 import no.nav.mulighetsrommet.api.tilsagn.model.TilsagnBeregningAnnenAvtaltPris
@@ -58,6 +59,7 @@ class TilsagnQueries(private val session: Session) {
                 belop_brukt,
                 belop_beregnet,
                 beregning_type,
+                beregning_prismodell,
                 beregning_sats,
                 beregning_antall_plasser,
                 beregning_antall_timer_oppfolging_per_deltaker,
@@ -81,6 +83,7 @@ class TilsagnQueries(private val session: Session) {
                 :belop_brukt,
                 :belop_beregnet,
                 :beregning_type,
+                :beregning_prismodell,
                 :beregning_sats,
                 :beregning_antall_plasser,
                 :beregning_antall_timer_oppfolging_per_deltaker,
@@ -104,6 +107,7 @@ class TilsagnQueries(private val session: Session) {
                 belop_brukt                             = excluded.belop_brukt,
                 belop_beregnet                          = excluded.belop_beregnet,
                 beregning_type                          = excluded.beregning_type,
+                beregning_prismodell                           = excluded.beregning_prismodell,
                 beregning_sats                                 = excluded.beregning_sats,
                 beregning_antall_plasser                       = excluded.beregning_antall_plasser,
                 beregning_antall_timer_oppfolging_per_deltaker = excluded.beregning_antall_timer_oppfolging_per_deltaker,
@@ -136,6 +140,7 @@ class TilsagnQueries(private val session: Session) {
             "belop_beregnet" to dbo.beregning.output.pris.belop,
             "valuta" to dbo.belopBrukt.valuta.name,
             "beregning_type" to TilsagnBeregningType.from(dbo.beregning).name,
+            "beregning_prismodell" to dbo.beregning.input.prismodell.name,
             "beregning_stengte_perioder" to Json.encodeToString(stengt),
             "datastream_periode_start" to dbo.periode.start,
             "datastream_periode_slutt" to dbo.periode.getLastInclusiveDate(),
@@ -522,12 +527,14 @@ class TilsagnQueries(private val session: Session) {
     }
 
     private fun Row.getBeregning(id: UUID, valuta: Valuta, beregning: TilsagnBeregningType): TilsagnBeregning {
+        val prismodell = PrismodellType.valueOf(string("beregning_prismodell"))
         return when (beregning) {
             TilsagnBeregningType.ANNEN_AVTALT_PRIS -> {
                 TilsagnBeregningAnnenAvtaltPris(
                     input = Input(
                         linjer = getTilsagnBeregningAnnenAvtaltPrisLinjer(id),
                         prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                        prismodell = prismodell,
                     ),
                     output = Output(
                         pris = int("belop_beregnet").withValuta(valuta),
@@ -539,6 +546,7 @@ class TilsagnQueries(private val session: Session) {
                 TilsagnBeregningFri(
                     input = TilsagnBeregningFri.Input(
                         pris = int("belop_beregnet").withValuta(valuta),
+                        prismodell = prismodell,
                     ),
                     output = TilsagnBeregningFri.Output(
                         pris = int("belop_beregnet").withValuta(valuta),
@@ -552,6 +560,7 @@ class TilsagnQueries(private val session: Session) {
                     sats = int("beregning_sats").withValuta(valuta),
                     antallPlasser = int("beregning_antall_plasser"),
                     stengt = Json.decodeFromString(string("beregning_stengte_perioder")),
+                    prismodell = prismodell,
                 ),
                 output = TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -565,6 +574,7 @@ class TilsagnQueries(private val session: Session) {
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                     stengt = Json.decodeFromString(string("beregning_stengte_perioder")),
+                    prismodell = prismodell,
                 ),
                 output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -578,6 +588,7 @@ class TilsagnQueries(private val session: Session) {
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                     stengt = Json.decodeFromString(string("beregning_stengte_perioder")),
+                    prismodell = prismodell,
                 ),
                 output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -591,6 +602,7 @@ class TilsagnQueries(private val session: Session) {
                     antallPlasser = int("beregning_antall_plasser"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
                     stengt = Json.decodeFromString(string("beregning_stengte_perioder")),
+                    prismodell = prismodell,
                 ),
                 output = TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Output(
                     pris = int("belop_beregnet").withValuta(valuta),
@@ -604,6 +616,7 @@ class TilsagnQueries(private val session: Session) {
                     antallPlasser = int("beregning_antall_plasser"),
                     antallTimerOppfolgingPerDeltaker = int("beregning_antall_timer_oppfolging_per_deltaker"),
                     prisbetingelser = stringOrNull("beregning_prisbetingelser"),
+                    prismodell = prismodell,
                 ),
                 output = TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.Output(
                     pris = int("belop_beregnet").withValuta(valuta),

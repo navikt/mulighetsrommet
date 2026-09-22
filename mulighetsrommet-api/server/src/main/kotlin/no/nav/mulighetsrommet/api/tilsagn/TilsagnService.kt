@@ -20,6 +20,7 @@ import no.nav.mulighetsrommet.api.domain.totrinnskontroll.Totrinnskontroll
 import no.nav.mulighetsrommet.api.domain.totrinnskontroll.TotrinnskontrollType
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingAvtale
 import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingEnkeltplass
+import no.nav.mulighetsrommet.api.gjennomforing.model.GjennomforingTiltaksadministrasjon
 import no.nav.mulighetsrommet.api.tilsagn.api.TilsagnHandling
 import no.nav.mulighetsrommet.api.tilsagn.db.TilsagnDbo
 import no.nav.mulighetsrommet.api.tilsagn.model.BeregnTilsagnRequest
@@ -186,6 +187,9 @@ class TilsagnService(
 
     fun beregnTilsagnUnvalidated(request: BeregnTilsagnRequest): TilsagnBeregning? = db.session {
         return try {
+            val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
+            val prismodell = gjennomforing.prismodell.type
+
             when (request.beregning.type) {
                 TilsagnBeregningType.ANNEN_AVTALT_PRIS ->
                     TilsagnBeregningAnnenAvtaltPris.beregn(
@@ -199,6 +203,7 @@ class TilsagnService(
                                 )
                             },
                             prisbetingelser = request.beregning.prisbetingelser,
+                            prismodell = prismodell,
                         ),
                     )
 
@@ -206,23 +211,25 @@ class TilsagnService(
                     TilsagnBeregningFri.beregn(
                         TilsagnBeregningFri.Input(
                             pris = request.beregning.pris ?: 0.NOK,
+                            prismodell = prismodell,
                         ),
                     )
 
                 TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
-                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                    beregnTilsagnFallbackResolver(gjennomforing, request)?.let { fallback ->
                         TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(
                             TilsagnBeregningFastSatsPerBenyttetPlassPerManed.Input(
                                 periode = fallback.periode,
                                 sats = fallback.sats,
                                 antallPlasser = fallback.antallPlasser,
                                 stengt = fallback.stengt,
+                                prismodell = prismodell,
                             ),
                         )
                     }
 
                 TilsagnBeregningType.PRIS_PER_MANEDSVERK ->
-                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                    beregnTilsagnFallbackResolver(gjennomforing, request)?.let { fallback ->
                         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(
                             TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.Input(
                                 periode = fallback.periode,
@@ -230,12 +237,13 @@ class TilsagnService(
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                                 stengt = fallback.stengt,
+                                prismodell = prismodell,
                             ),
                         )
                     }
 
                 TilsagnBeregningType.PRIS_PER_UKESVERK ->
-                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                    beregnTilsagnFallbackResolver(gjennomforing, request)?.let { fallback ->
                         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(
                             TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.Input(
                                 periode = fallback.periode,
@@ -243,12 +251,13 @@ class TilsagnService(
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                                 stengt = fallback.stengt,
+                                prismodell = prismodell,
                             ),
                         )
                     }
 
                 TilsagnBeregningType.PRIS_PER_HELE_UKESVERK ->
-                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                    beregnTilsagnFallbackResolver(gjennomforing, request)?.let { fallback ->
                         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.beregn(
                             TilsagnBeregningAvtaltPrisPerBenyttetPlassPerHeleUke.Input(
                                 periode = fallback.periode,
@@ -256,12 +265,13 @@ class TilsagnService(
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                                 stengt = fallback.stengt,
+                                prismodell = prismodell,
                             ),
                         )
                     }
 
                 TilsagnBeregningType.PRIS_PER_TIME_OPPFOLGING ->
-                    beregnTilsagnFallbackResolver(request)?.let { fallback ->
+                    beregnTilsagnFallbackResolver(gjennomforing, request)?.let { fallback ->
                         TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.beregn(
                             TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.Input(
                                 periode = fallback.periode,
@@ -269,6 +279,7 @@ class TilsagnService(
                                 antallPlasser = fallback.antallPlasser,
                                 prisbetingelser = fallback.prisbetingelser,
                                 antallTimerOppfolgingPerDeltaker = fallback.antallTimerOppfolgingPerDeltaker,
+                                prismodell = prismodell,
                             ),
                         )
                     }
@@ -287,12 +298,14 @@ class TilsagnService(
         val stengt: Set<StengtPeriode>,
     )
 
-    private fun beregnTilsagnFallbackResolver(request: BeregnTilsagnRequest): TilsagnBeregningFallbackResolver? = db.session {
+    private fun beregnTilsagnFallbackResolver(
+        gjennomforing: GjennomforingTiltaksadministrasjon,
+        request: BeregnTilsagnRequest,
+    ): TilsagnBeregningFallbackResolver? {
         if (request.periodeStart == null || request.periodeSlutt == null || !request.periodeStart.isBefore(request.periodeSlutt)) {
             return null
         }
 
-        val gjennomforing = queries.gjennomforing.getGjennomforingTiltaksadministrasjon(request.gjennomforingId)
         val avtaltSats = gjennomforing.prismodell.findAvtaltSats(request.periodeStart)
 
         val antallPlasserFallback = request.beregning.antallPlasser ?: 0

@@ -196,7 +196,7 @@ export function TilsagnDetaljer() {
             </Show>
           </HGrid>
           <HGrid columns={1} gap="space-8" align="center">
-            {beregning.prismodell.entries.map((entry) => (
+            {beregning.prismodell.detaljer.entries.map((entry) => (
               <MetadataVStack
                 key={entry.label}
                 label={entry.label}

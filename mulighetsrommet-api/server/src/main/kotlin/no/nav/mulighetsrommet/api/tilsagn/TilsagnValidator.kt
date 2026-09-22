@@ -24,7 +24,6 @@ import no.nav.mulighetsrommet.api.utils.DatoUtils.parseOrNull
 import no.nav.mulighetsrommet.model.FieldError
 import no.nav.mulighetsrommet.model.NavEnhetNummer
 import no.nav.mulighetsrommet.model.Periode
-import no.nav.mulighetsrommet.model.Valuta
 import no.nav.mulighetsrommet.model.ValutaBelop
 import no.nav.mulighetsrommet.validation.FieldValidator
 import no.nav.mulighetsrommet.validation.validation
@@ -176,10 +175,10 @@ object TilsagnValidator {
 
         return when (request.type) {
             TilsagnBeregningType.ANNEN_AVTALT_PRIS ->
-                validateBeregningAnnenAvtaltPrisInput(prismodell.valuta, request).bind()
+                validateBeregningAnnenAvtaltPrisInput(prismodell, request).bind()
 
             TilsagnBeregningType.FRI ->
-                validateBeregningFriInput(prismodell.valuta, request).bind()
+                validateBeregningFriInput(prismodell, request).bind()
 
             TilsagnBeregningType.FAST_SATS_PER_TILTAKSPLASS_PER_MANED ->
                 TilsagnBeregningFastSatsPerBenyttetPlassPerManed.beregn(
@@ -188,6 +187,7 @@ object TilsagnValidator {
                         sats = sats,
                         antallPlasser = antallPlasser,
                         stengt = stengt,
+                        prismodell = prismodell.type,
                     ),
                 )
 
@@ -199,6 +199,7 @@ object TilsagnValidator {
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                         stengt = stengt,
+                        prismodell = prismodell.type,
                     ),
                 )
 
@@ -210,6 +211,7 @@ object TilsagnValidator {
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                         stengt = stengt,
+                        prismodell = prismodell.type,
                     ),
                 )
 
@@ -221,6 +223,7 @@ object TilsagnValidator {
                         antallPlasser = antallPlasser,
                         prisbetingelser = request.prisbetingelser,
                         stengt = stengt,
+                        prismodell = prismodell.type,
                     ),
                 )
 
@@ -235,6 +238,7 @@ object TilsagnValidator {
                             request.type,
                             request.antallTimerOppfolgingPerDeltaker,
                         ),
+                        prismodell = prismodell.type,
                     ),
                 )
         }
@@ -307,7 +311,7 @@ object TilsagnValidator {
     }
 
     fun validateBeregningAnnenAvtaltPrisInput(
-        prismodellValuta: Valuta,
+        prismodell: Prismodell,
         request: TilsagnBeregningRequest,
     ): Either<List<FieldError>, TilsagnBeregning> = validation {
         requireValid(!request.linjer.isNullOrEmpty()) {
@@ -343,10 +347,10 @@ object TilsagnValidator {
                 )
             }
 
-            validate(linje.pris?.valuta == prismodellValuta) {
+            validate(linje.pris?.valuta == prismodell.valuta) {
                 FieldError(
                     pointer = "/beregning/linjer/$index/pris/belop",
-                    detail = "Må ha samme valuta som prismodellen: $prismodellValuta",
+                    detail = "Må ha samme valuta som prismodellen: ${prismodell.valuta}",
                 )
             }
         }
@@ -363,12 +367,13 @@ object TilsagnValidator {
                     )
                 },
                 prisbetingelser = request.prisbetingelser,
+                prismodell = prismodell.type,
             ),
         )
     }
 
     fun validateBeregningFriInput(
-        prismodellValuta: Valuta,
+        prismodell: Prismodell,
         request: TilsagnBeregningRequest,
     ): Either<List<FieldError>, TilsagnBeregning> = validation {
         validate(request.pris != null && request.pris.belop > 0) {
@@ -378,9 +383,9 @@ object TilsagnValidator {
                 TilsagnBeregningRequest::pris,
             )
         }
-        validate(request.pris?.valuta == prismodellValuta) {
+        validate(request.pris?.valuta == prismodell.valuta) {
             FieldError.of(
-                "Må ha samme valuta som prismodellen: $prismodellValuta",
+                "Må ha samme valuta som prismodellen: ${prismodell.valuta}",
                 TilsagnRequest::beregning,
                 TilsagnBeregningRequest::pris,
             )
@@ -391,6 +396,7 @@ object TilsagnValidator {
         TilsagnBeregningFri.beregn(
             TilsagnBeregningFri.Input(
                 pris = request.pris,
+                prismodell = prismodell.type,
             ),
         )
     }

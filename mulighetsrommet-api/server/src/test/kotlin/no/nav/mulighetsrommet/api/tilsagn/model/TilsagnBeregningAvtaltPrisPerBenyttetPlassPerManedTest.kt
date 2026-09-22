@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
@@ -17,6 +18,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 20205.NOK
@@ -29,6 +31,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
             antallPlasser = 6,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 121230.NOK
@@ -41,6 +44,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 9750.NOK
@@ -53,6 +57,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
             antallPlasser = 10,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 303075.NOK
@@ -65,6 +70,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
             antallPlasser = 0,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 0.NOK
@@ -77,6 +83,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         // 28 / 28 * 20205 = 20205
@@ -88,6 +95,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         // 28 / 29 * 20205 = 19508.27...
@@ -102,6 +110,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(StengtPeriode(periode, "Juleferie")),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 0.NOK
@@ -114,6 +123,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(StengtPeriode(Periode.forMonthOf(LocalDate.of(2024, 2, 1)), "Vinterstengt")),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 20205.NOK
@@ -126,6 +136,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(StengtPeriode(Periode.forMonthOf(LocalDate.of(2024, 3, 1)), "Utenfor periode")),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(input).output.pris shouldBe 20205.NOK
@@ -140,6 +151,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
                 antallPlasser = Int.MAX_VALUE,
                 prisbetingelser = null,
                 stengt = setOf(),
+                prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
             )
 
             TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(input)
@@ -153,6 +165,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
                 antallPlasser = 9500,
                 prisbetingelser = null,
                 stengt = setOf(),
+                prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
             )
 
             TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManed.beregn(input)
@@ -167,6 +180,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
                 antallPlasser = 1,
                 prisbetingelser = null,
                 stengt = setOf(),
+                prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
             )
 
             // 1/31 * 20205 = 651.7
@@ -182,6 +196,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerManedTest : FunSpec({
                 antallPlasser = 1,
                 prisbetingelser = null,
                 stengt = setOf(),
+                prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_MANED,
             )
 
             // 1/21 * 20205 = 962.1

@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.api.utbetaling.model.StengtPeriode
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
@@ -16,6 +17,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUkeTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 100.NOK
@@ -28,6 +30,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUkeTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 100.NOK
@@ -40,6 +43,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUkeTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 0.NOK
@@ -52,6 +56,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUkeTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 460.NOK
@@ -64,6 +69,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUkeTest : FunSpec({
             antallPlasser = 10,
             prisbetingelser = null,
             stengt = setOf(),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 4600.NOK
@@ -77,6 +83,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUkeTest : FunSpec({
             antallPlasser = 1,
             prisbetingelser = null,
             stengt = setOf(StengtPeriode(periode, "Ukestengt")),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 0.NOK
@@ -94,6 +101,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUkeTest : FunSpec({
                     "Uke 2 stengt",
                 ),
             ),
+            prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
         )
 
         TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input).output.pris shouldBe 360.NOK
@@ -108,6 +116,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUkeTest : FunSpec({
                 antallPlasser = Int.MAX_VALUE,
                 prisbetingelser = null,
                 stengt = setOf(),
+                prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
             )
 
             TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input)
@@ -121,6 +130,7 @@ class TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUkeTest : FunSpec({
                 antallPlasser = 9500,
                 prisbetingelser = null,
                 stengt = setOf(),
+                prismodell = PrismodellType.AVTALT_PRIS_PER_BENYTTET_PLASS_PER_UKE,
             )
 
             TilsagnBeregningAvtaltPrisPerBenyttetPlassPerUke.beregn(input)

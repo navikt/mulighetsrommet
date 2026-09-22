@@ -278,7 +278,7 @@ class TilsagnValidatorTest : FunSpec({
                     prisbetingelser = null,
                 )
                 TilsagnValidator.validateBeregningAnnenAvtaltPrisInput(
-                    prismodellValuta = Valuta.NOK,
+                    prismodell = annenAvtaltPris,
                     request = input,
                 ).shouldBeLeft()
             }
@@ -303,7 +303,7 @@ class TilsagnValidatorTest : FunSpec({
                 )
 
                 TilsagnValidator.validateBeregningAnnenAvtaltPrisInput(
-                    prismodellValuta = Valuta.NOK,
+                    prismodell = annenAvtaltPris,
                     request = input,
                 ) shouldBeLeft leftFieldErrors
             }

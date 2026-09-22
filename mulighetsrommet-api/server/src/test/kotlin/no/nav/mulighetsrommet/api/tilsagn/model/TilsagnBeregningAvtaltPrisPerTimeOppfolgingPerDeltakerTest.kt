@@ -3,6 +3,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.model.NOK
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDate
@@ -17,6 +18,7 @@ class TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
                 antallPlasser = Int.MAX_VALUE,
                 antallTimerOppfolgingPerDeltaker = 1,
                 prisbetingelser = null,
+                prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             )
 
             TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.beregn(input)
@@ -30,6 +32,7 @@ class TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
                 antallPlasser = 9500,
                 antallTimerOppfolgingPerDeltaker = 987_455,
                 prisbetingelser = null,
+                prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
             )
 
             TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.beregn(input)
@@ -43,6 +46,7 @@ class TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltakerTest : FunSpec({
             antallPlasser = 2,
             antallTimerOppfolgingPerDeltaker = 2,
             prisbetingelser = null,
+            prismodell = PrismodellType.AVTALT_PRIS_PER_TIME_OPPFOLGING_PER_DELTAKER,
         )
 
         TilsagnBeregningAvtaltPrisPerTimeOppfolgingPerDeltaker.beregn(input).output.pris shouldBe 8.NOK

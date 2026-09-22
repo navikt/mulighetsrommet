@@ -2,6 +2,7 @@ package no.nav.mulighetsrommet.api.tilsagn.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import no.nav.mulighetsrommet.api.domain.tiltak.PrismodellType
 import no.nav.mulighetsrommet.model.ValutaBelop
 
 @Serializable
@@ -15,6 +16,7 @@ data class TilsagnBeregningFri(
     @SerialName("FRI")
     data class Input(
         val pris: ValutaBelop,
+        override val prismodell: PrismodellType,
     ) : TilsagnBeregningInput()
 
     @Serializable
