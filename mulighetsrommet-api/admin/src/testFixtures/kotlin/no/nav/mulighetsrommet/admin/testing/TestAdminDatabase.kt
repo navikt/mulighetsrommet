@@ -11,8 +11,4 @@ class TestAdminDatabase(private val ctx: TestQueryContext = TestQueryContext()) 
     override fun <T> session(block: QueryContext.() -> T): T = block(ctx)
 
     override fun <T> transaction(block: QueryContext.() -> T): T = block(ctx)
-
-    override suspend fun <T> suspendSession(block: suspend QueryContext.() -> T): T = block(ctx)
-
-    override suspend fun <T> suspendTransaction(block: suspend QueryContext.() -> T): T = block(ctx)
 }
