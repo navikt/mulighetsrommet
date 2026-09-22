@@ -13,10 +13,10 @@ import no.nav.mulighetsrommet.api.tilskuddbehandling.db.TilskuddMottaker
 import no.nav.mulighetsrommet.api.tilskuddbehandling.model.VedtakResultat
 import no.nav.mulighetsrommet.api.utbetaling.service.Personalia
 import no.nav.mulighetsrommet.api.utbetaling.service.PersonaliaService
+import no.nav.mulighetsrommet.model.Organisasjonsnummer
 import no.nav.mulighetsrommet.model.Periode
 import java.time.LocalDateTime
 import java.util.UUID
-import no.nav.mulighetsrommet.model.Organisasjonsnummer
 
 /**
  * Samler informasjonen som trengs for å produsere innholdet i et vedtaksbrev for tilskudd

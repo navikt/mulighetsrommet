@@ -27,7 +27,8 @@ object TilskuddVedtakToPdfDocumentContentMapper {
                     date = innhold.besluttetTidspunkt.toLocalDate().toString(),
                     deltaker = Deltaker(
                         navn = innhold.deltakerPersonalia.navn,
-                        norskIdent = innhold.deltakerPersonalia.norskIdent,),
+                        norskIdent = innhold.deltakerPersonalia.norskIdent,
+                    ),
                 ),
             )
 
