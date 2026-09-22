@@ -19,6 +19,7 @@ dependencies {
     implementation(projects.common.nais)
     implementation(projects.common.tokenProvider)
     implementation(projects.common.domain)
+    implementation(projects.common.logging)
     implementation(projects.common.database)
     testImplementation(testFixtures(projects.common.database))
     implementation(projects.common.kafka)
